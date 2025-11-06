@@ -3,11 +3,15 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/presentation/theme/hooks/use-color-scheme";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { status } = useAuthStore();
 
-  return <Redirect href="/auth/login" />;
+  if (status === "unauthenticated") {
+    return <Redirect href="/auth/login" />;
+  }
 
   return (
     <Tabs
