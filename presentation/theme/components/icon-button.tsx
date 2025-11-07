@@ -18,7 +18,7 @@ export default function IconButton({
   color = "#1f2937", // gray-800
   onPress,
   style,
-  backgroundColor = "#f3f4f6", // gray-100
+  backgroundColor = "transparent", // gray-100
 }: IconButtonProps) {
   return (
     <Pressable

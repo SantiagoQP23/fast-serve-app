@@ -15,6 +15,8 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useDeviceContext } from "twrnc";
 
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import IconButton from "@/presentation/theme/components/icon-button";
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -48,6 +50,9 @@ export default function RootLayout() {
                   headerShown: true,
                   title: "",
                   headerShadowVisible: false,
+                  headerRight: () => (
+                    <IconButton icon="cart-outline"></IconButton>
+                  ),
                 }}
               />
               <Stack.Screen

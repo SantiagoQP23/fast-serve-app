@@ -35,7 +35,6 @@ const LoginScreen = () => {
     const wasSuccessful = await changeStatus("alksjdf;", { name: "Demo User" });
 
     if (wasSuccessful) {
-      Alert.alert("Success", "Usuario autenticado correctamente");
       router.replace("/");
       return;
     }
@@ -54,6 +53,8 @@ const LoginScreen = () => {
           autoCapitalize="none"
           label="Username"
           icon="person-outline"
+          value={form.email}
+          onChangeText={(value) => setForm({ ...form, email: value })}
         />
         <ThemedView style={tw`w-full gap-2`}>
           <TextInput

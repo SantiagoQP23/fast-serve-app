@@ -1,4 +1,11 @@
-import { Platform, StyleSheet, ScrollView, Text, View } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  ScrollView,
+  Text,
+  View,
+  Dimensions,
+} from "react-native";
 
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -12,12 +19,13 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Fab from "@/presentation/theme/components/fab";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
-import OrderCard from "@/presentation/home/components/order-card";
+import OrderCard, { Order } from "@/presentation/home/components/order-card";
 import { useCallback, useRef, useState } from "react";
 import Button from "@/presentation/theme/components/button";
 import ButtonGroup from "@/presentation/theme/components/button-group";
 import Select from "@/presentation/theme/components/select";
 import { useRouter } from "expo-router";
+import { FlatList } from "react-native-gesture-handler";
 
 export default function HomeScreen() {
   const [status, setStatus] = useState("All");
@@ -49,8 +57,19 @@ export default function HomeScreen() {
     console.log("handleSheetChanges", index);
   }, []);
 
+  const orders: Order[] = [
+    { num: 1, status: "pending" },
+    { num: 2, status: "inProgress" },
+    { num: 3, status: "delivered" },
+    { num: 4, status: "pending" },
+    { num: 5, status: "inProgress" },
+    { num: 6, status: "delivered" },
+  ];
+
+  const screenWidth = Dimensions.get("window").width;
+
   return (
-    <ThemedView style={tw`px-4 pt-8 flex-1`}>
+    <ThemedView style={tw`px-4 pt-8 flex-1 `}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <ThemedView style={tw`mb-4`}>
           <ThemedText type="title">Home</ThemedText>
@@ -58,12 +77,70 @@ export default function HomeScreen() {
             Hi, Santiago!
           </ThemedText>
         </ThemedView>
-        <OrderCard order={{ num: 1 }} />
-        <OrderCard order={{ num: 2 }} />
-        <OrderCard order={{ num: 3 }} />
-        <OrderCard order={{ num: 3 }} />
-        <OrderCard order={{ num: 3 }} />
-        <OrderCard order={{ num: 3 }} />
+        <ThemedView>
+          <ThemedText style={tw`font-semibold mb-4`}>Pending Orders</ThemedText>
+          <FlatList
+            data={orders.filter((order) => order.status === "pending")}
+            keyExtractor={(item, index) => index.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item, index }) => (
+              <ThemedView
+                style={[
+                  index !== orders.length - 1 && tw`mr-4`,
+                  { width: screenWidth * 0.8 },
+                ]}
+              >
+                <OrderCard order={item} />
+              </ThemedView>
+            )}
+            style={tw``}
+          />
+        </ThemedView>
+        <ThemedView>
+          <ThemedText style={tw`font-semibold mb-4`}>
+            In progress Orders
+          </ThemedText>
+          <FlatList
+            data={orders.filter((order) => order.status === "inProgress")}
+            keyExtractor={(item, index) => index.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item, index }) => (
+              <ThemedView
+                style={[
+                  index !== orders.length - 1 && tw`mr-4`,
+                  { width: screenWidth * 0.8 },
+                ]}
+              >
+                <OrderCard order={item} />
+              </ThemedView>
+            )}
+            style={tw``}
+          />
+        </ThemedView>
+        <ThemedView>
+          <ThemedText style={tw`font-semibold mb-4`}>
+            Delivered Orders
+          </ThemedText>
+          <FlatList
+            data={orders.filter((order) => order.status === "delivered")}
+            keyExtractor={(item, index) => index.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item, index }) => (
+              <ThemedView
+                style={[
+                  index !== orders.length - 1 && tw`mr-4`,
+                  { width: screenWidth * 0.8 },
+                ]}
+              >
+                <OrderCard order={item} />
+              </ThemedView>
+            )}
+            style={tw``}
+          />
+        </ThemedView>
       </ScrollView>
       <BottomSheetModal
         ref={bottomSheetModalRef}

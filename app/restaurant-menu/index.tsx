@@ -9,11 +9,13 @@ import ButtonGroup from "@/presentation/theme/components/button-group";
 import { useState } from "react";
 import Chip from "@/presentation/theme/components/chip";
 import { useRouter } from "expo-router";
+import TextInput from "@/presentation/theme/components/text-input";
 
 export default function RestaurantMenuScreen() {
   const [section, setSection] = useState("");
   const [selected, setSelected] = useState("All");
   const router = useRouter();
+  const [search, setSearch] = useState("");
 
   const sections = [
     { label: "Platos a la carta" },
@@ -39,35 +41,40 @@ export default function RestaurantMenuScreen() {
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Menu</ThemedText>
       </ThemedView>
-      <ThemedView>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={tw`gap-2`}
-        >
-          {sections.map((f) => (
-            <ThemedView style={tw`mr-2`} key={f.label}>
+      <TextInput value={search} onChangeText={(value) => setSearch(value)} />
+      {!search && (
+        <ThemedView>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={tw`gap-2`}
+          >
+            {sections.map((f) => (
+              <ThemedView style={tw`mr-2`} key={f.label}>
+                <Chip
+                  key={f.label}
+                  label={f.label}
+                  selected={selected === f.label}
+                  onPress={() => setSelected(f.label)}
+                />
+              </ThemedView>
+            ))}
+          </ScrollView>
+        </ThemedView>
+      )}
+      <ThemedView style={tw` flex-row gap-2`}>
+        {!search && (
+          <ThemedView style={tw` flex-wrap gap-2 `}>
+            {categories.map((f) => (
               <Chip
                 key={f.label}
                 label={f.label}
                 selected={selected === f.label}
                 onPress={() => setSelected(f.label)}
               />
-            </ThemedView>
-          ))}
-        </ScrollView>
-      </ThemedView>
-      <ThemedView style={tw` flex-row gap-2`}>
-        <ThemedView style={tw` flex-wrap gap-2 `}>
-          {categories.map((f) => (
-            <Chip
-              key={f.label}
-              label={f.label}
-              selected={selected === f.label}
-              onPress={() => setSelected(f.label)}
-            />
-          ))}
-        </ThemedView>
+            ))}
+          </ThemedView>
+        )}
         <ThemedView style={tw`flex-1 `}>
           <ProductCard
             product={{ name: "Arroz marinero", id: "1", price: 10 }}
