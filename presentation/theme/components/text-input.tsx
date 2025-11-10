@@ -8,11 +8,13 @@ import {
 import tw from "../lib/tailwind";
 import { useThemeColor } from "../hooks/use-theme-color";
 import { ThemedView } from "./themed-view";
+import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 
 interface Props extends TextInputProps {
   label?: string;
   error?: string;
   icon?: keyof typeof Ionicons.glyphMap;
+  bottomSheet?: boolean;
 }
 
 export default function TextInput({ label, error, icon, ...props }: Props) {
@@ -35,11 +37,20 @@ export default function TextInput({ label, error, icon, ...props }: Props) {
             style={{ marginRight: 10 }}
           />
         )}
-        <RNTextInput
-          style={tw`flex-1`}
-          placeholderTextColor="#9CA3AF"
-          {...props}
-        />
+        {!props.bottomSheet ? (
+          <RNTextInput
+            style={tw`flex-1`}
+            placeholderTextColor="#9CA3AF"
+            {...props}
+          />
+        ) : (
+          <BottomSheetTextInput
+            style={tw`flex-1`}
+            placeholderTextColor="#9CA3AF"
+            {...props}
+          />
+        )}
+
         {error && <Text style={tw`text-red-500 text-sm mt-1`}>{error}</Text>}
       </View>
     </ThemedView>

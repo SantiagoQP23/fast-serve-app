@@ -2,20 +2,20 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import React from "react";
-import { View, Pressable } from "react-native";
+import { View, Pressable, PressableProps } from "react-native";
 export interface Table {
   name: string;
   isAvailable: boolean;
 }
 
-interface TableCardProps {
+interface TableCardProps extends PressableProps {
   table: Table;
 }
 
-export default function TableCard({ table }: TableCardProps) {
+export default function TableCard({ table, onPress }: TableCardProps) {
   return (
     <Pressable
-      onPress={() => console.log("Card pressed")}
+      onPress={onPress}
       style={({ pressed }) => [
         tw`w-[48%]  p-4 rounded-2xl bg-gray-100 dark:bg-gray-800`,
         pressed && tw`opacity-80`,
@@ -30,7 +30,7 @@ export default function TableCard({ table }: TableCardProps) {
         />
       </ThemedView>
       <ThemedView style={tw`flex-row items-center bg-transparent`}>
-        <ThemedText style={tw`text-lg font-semibold `}>{table.name}</ThemedText>
+        <ThemedText type="h3">{table.name}</ThemedText>
       </ThemedView>
     </Pressable>
   );

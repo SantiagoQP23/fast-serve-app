@@ -13,7 +13,7 @@ export const Colors = {
     primary: "#205781",
     secondary: "#1cbbb4",
     tertiary: "#f0f0f0",
-    text: "#11181C",
+    text: "#061b2e",
     background: "#fff",
     tint: tintColorLight,
     icon: "#687076",

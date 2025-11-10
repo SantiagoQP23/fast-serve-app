@@ -2,11 +2,16 @@ import React from "react";
 import { View, Pressable, Text } from "react-native";
 import tw from "../lib/tailwind";
 
+export interface ButtonGroupOption {
+  label: string;
+  value: any;
+}
+
 type ButtonGroupProps = {
-  options: string[];
-  selected: string;
+  options: ButtonGroupOption[];
+  selected: any;
   direction?: "horizontal" | "vertical";
-  onChange: (value: string) => void;
+  onChange: (value: any) => void;
 };
 
 export default function ButtonGroup({
@@ -22,12 +27,12 @@ export default function ButtonGroup({
       style={tw`${isHorizontal ? "flex-row" : "flex-wrap"} bg-gray-100 dark:bg-darksurface p-1 rounded-2xl`}
     >
       {options.map((option, index) => {
-        const isActive = selected === option;
+        const isActive = selected === option.value;
 
         return (
           <Pressable
-            key={option}
-            onPress={() => onChange(option)}
+            key={option.label}
+            onPress={() => onChange(option.value)}
             style={({ pressed }) =>
               tw.style(
                 "flex-1 py-2 rounded-2xl",
@@ -42,7 +47,7 @@ export default function ButtonGroup({
                 isActive ? "text-white" : "text-gray-700 dark:text-darktext",
               )}
             >
-              {option}
+              {option.label}
             </Text>
           </Pressable>
         );

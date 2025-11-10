@@ -10,30 +10,21 @@ import {
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 
-import TableCard, { Table } from "@/presentation/home/components/table-card";
-import { useState } from "react";
+import TableCard from "@/presentation/home/components/table-card";
+import { useCallback, useRef, useState } from "react";
 import tw from "@/presentation/theme/lib/tailwind";
+import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
+import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
+import { router } from "expo-router";
+import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
+import { OrderType } from "@/core/orders/enums/order-type.enum";
+import { Table } from "@/core/tables/models/table.model";
+import { useTables } from "@/presentation/tables/hooks/useTables";
 
 export default function TablesScreen() {
   const [selectedStatus, setSelectedStatus] = useState<boolean | "all">("all");
-
-  const tables: Table[] = [
-    { name: "Table 1", isAvailable: true },
-    { name: "Table 2", isAvailable: false },
-    { name: "Table 3", isAvailable: false },
-    { name: "Table 4", isAvailable: false },
-    { name: "Table 5", isAvailable: true },
-    { name: "Table 6", isAvailable: true },
-    { name: "Table 7", isAvailable: false },
-    { name: "Table 8", isAvailable: true },
-    { name: "Table 9", isAvailable: true },
-    { name: "Table 10", isAvailable: false },
-    { name: "Table 11", isAvailable: true },
-    { name: "Table 12", isAvailable: false },
-    { name: "Table 13", isAvailable: true },
-    { name: "Table 14", isAvailable: true },
-    { name: "Table 15", isAvailable: false },
-  ];
+  const { setTable, setOrderType } = useNewOrderStore();
+  const { getTables } = useTables();
 
   const tabs: { label: string; value: boolean | "all" }[] = [
     { label: "All", value: "all" },
@@ -41,10 +32,46 @@ export default function TablesScreen() {
     { label: "Occupied", value: false },
   ];
 
+  const tables: Table[] = getTables();
+
+  const [filteredTables, setFilteredTables] = useState<Table[]>(getTables());
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+  const handleNavigate = () => {
+    bottomSheetModalRef.current?.close(); // Close sheet before navigating
+    router.push("/restaurant-menu"); // Navigate to New Order screen
+  };
+
+  // callbacks
+  const handlePresentModalPress = useCallback(() => {
+    bottomSheetModalRef.current?.present();
+  }, []);
+
+  const onTablePress = (table: Table) => {
+    setTable(table);
+    setOrderType(OrderType.IN_PLACE);
+    handlePresentModalPress();
+  };
+
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log("handleSheetChanges", index);
+  }, []);
+
+  const onChangeStatus = (status: boolean | "all") => {
+    setSelectedStatus(status);
+
+    if (status === "all") {
+      setFilteredTables(tables);
+    } else {
+      const filtered = tables.filter((table) => table.isAvailable === status);
+      setFilteredTables(filtered);
+    }
+  };
+
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1`}>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Tables</ThemedText>
+        <ThemedText type="h1">Tables</ThemedText>
       </ThemedView>
       <ThemedView style={tw`mt-8`} />
       <ThemedView style={tw`flex-row mb-4`}>
@@ -53,7 +80,7 @@ export default function TablesScreen() {
           return (
             <Pressable
               key={tab.value.toString()}
-              onPress={() => setSelectedStatus(tab.value)}
+              onPress={() => onChangeStatus(tab.value)}
               style={tw`px-4 py-2 mr-2 rounded-full ${
                 isActive ? "bg-light-primary" : "bg-gray-200"
               }`}
@@ -69,14 +96,33 @@ export default function TablesScreen() {
       </ThemedView>
       <ThemedView style={tw`mt-4`} />
       <FlatList
-        data={tables}
+        data={filteredTables}
         keyExtractor={(item) => item.name.toString()}
-        renderItem={(item) => <TableCard table={item.item} />}
+        renderItem={(item) => (
+          <TableCard
+            table={item.item}
+            onPress={() => onTablePress(item.item)}
+          />
+        )}
         numColumns={2} // 2 columns grid
         columnWrapperStyle={tw`justify-between mb-4`}
         contentContainerStyle={tw`pb-20`}
         showsVerticalScrollIndicator={false}
       />
+
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        onChange={handleSheetChanges}
+        backdropComponent={(props) => (
+          <BottomSheetBackdrop
+            {...props}
+            disappearsOnIndex={-1}
+            appearsOnIndex={0}
+          />
+        )}
+      >
+        <NewOrderBottomSheet onCreateOrder={handleNavigate} />
+      </BottomSheetModal>
     </ThemedView>
   );
 }

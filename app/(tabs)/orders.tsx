@@ -9,7 +9,7 @@ export default function OrdersScreen() {
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1`}>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Orders</ThemedText>
+        <ThemedText type="h1">Orders</ThemedText>
       </ThemedView>
       <ThemedView style={tw`my-4`} />
       <OrderCard order={{ num: 1 }} />

@@ -4,7 +4,7 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -45,22 +45,9 @@ export default function RootLayout() {
                 }}
               />
               <Stack.Screen
-                name="restaurant-menu/index"
+                name="(new-order)"
                 options={{
-                  headerShown: true,
-                  title: "",
-                  headerShadowVisible: false,
-                  headerRight: () => (
-                    <IconButton icon="cart-outline"></IconButton>
-                  ),
-                }}
-              />
-              <Stack.Screen
-                name="restaurant-menu/product/index"
-                options={{
-                  headerShown: true,
-                  title: "",
-                  headerShadowVisible: false,
+                  headerShown: false,
                 }}
               />
             </Stack>

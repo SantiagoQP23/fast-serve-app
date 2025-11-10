@@ -19,7 +19,7 @@ export class SecureStorageAdapter {
     }
   }
 
-  static async deleteItem(key: string) {
+  static async removeItem(key: string) {
     try {
       await SecureStore.deleteItemAsync(key);
     } catch (error) {

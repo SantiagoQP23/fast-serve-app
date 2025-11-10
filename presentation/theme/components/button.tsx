@@ -10,12 +10,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/theme";
 import { ThemedView } from "./themed-view";
 
-interface ButtonProps extends PressableProps {
+export interface ButtonProps extends PressableProps {
   label?: string;
   variant?: "primary" | "secondary" | "outline";
   loading?: boolean;
   disabled?: boolean;
-  icon?: keyof typeof Ionicons.glyphMap;
+  leftIcon?: keyof typeof Ionicons.glyphMap;
+  rightIcon?: keyof typeof Ionicons.glyphMap;
 }
 
 export default function Button({
@@ -24,15 +25,16 @@ export default function Button({
   variant = "primary",
   loading = false,
   disabled = false,
-  icon,
+  leftIcon: icon,
+  rightIcon,
   style,
 }: ButtonProps) {
   const baseStyle =
     "px-5 py-3 rounded-2xl flex-row justify-center items-center";
   const variants = {
     primary: "bg-light-primary",
-    secondary: "bg-secondary",
-    outline: "border border-primary bg-transparent",
+    secondary: "bg-light-secondary",
+    outline: "border border-light-primary bg-transparent",
   };
 
   const textColors = {
@@ -75,6 +77,15 @@ export default function Button({
             <Text style={tw`${textColors[variant]} font-semibold text-base`}>
               {label}
             </Text>
+          )}
+
+          {rightIcon && (
+            <Ionicons
+              name={rightIcon}
+              size={20}
+              color={iconColors[variant]}
+              style={tw``}
+            />
           )}
         </ThemedView>
       )}

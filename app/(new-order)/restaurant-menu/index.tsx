@@ -39,7 +39,7 @@ export default function RestaurantMenuScreen() {
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Menu</ThemedText>
+        <ThemedText type="h1">Menu</ThemedText>
       </ThemedView>
       <TextInput value={search} onChangeText={(value) => setSearch(value)} />
       {!search && (

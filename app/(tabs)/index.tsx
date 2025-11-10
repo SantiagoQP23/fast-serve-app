@@ -26,6 +26,7 @@ import ButtonGroup from "@/presentation/theme/components/button-group";
 import Select from "@/presentation/theme/components/select";
 import { useRouter } from "expo-router";
 import { FlatList } from "react-native-gesture-handler";
+import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 
 export default function HomeScreen() {
   const [status, setStatus] = useState("All");
@@ -70,15 +71,20 @@ export default function HomeScreen() {
 
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1 `}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={tw`pb-20 gap-4`}
+      >
         <ThemedView style={tw`mb-4`}>
-          <ThemedText type="title">Home</ThemedText>
-          <ThemedText type="subtitle" style={tw`mt-1`}>
+          <ThemedText type="h1">Home</ThemedText>
+          <ThemedText type="h3" style={tw`mt-1`}>
             Hi, Santiago!
           </ThemedText>
         </ThemedView>
         <ThemedView>
-          <ThemedText style={tw`font-semibold mb-4`}>Pending Orders</ThemedText>
+          <ThemedText style={tw`font-semibold mb-4 text-gray-700`}>
+            Pending
+          </ThemedText>
           <FlatList
             data={orders.filter((order) => order.status === "pending")}
             keyExtractor={(item, index) => index.toString()}
@@ -98,8 +104,8 @@ export default function HomeScreen() {
           />
         </ThemedView>
         <ThemedView>
-          <ThemedText style={tw`font-semibold mb-4`}>
-            In progress Orders
+          <ThemedText style={tw`font-semibold mb-4 text-gray-700`}>
+            In progress
           </ThemedText>
           <FlatList
             data={orders.filter((order) => order.status === "inProgress")}
@@ -120,8 +126,8 @@ export default function HomeScreen() {
           />
         </ThemedView>
         <ThemedView>
-          <ThemedText style={tw`font-semibold mb-4`}>
-            Delivered Orders
+          <ThemedText style={tw`font-semibold mb-4 text-gray-700`}>
+            Delivered
           </ThemedText>
           <FlatList
             data={orders.filter((order) => order.status === "delivered")}
@@ -153,39 +159,7 @@ export default function HomeScreen() {
           />
         )}
       >
-        <BottomSheetView style={tw`p-4 items-center justify-center`}>
-          <ThemedView style={tw`w-full gap-6`}>
-            <Text style={tw`text-xl text-center font-bold `}>New Order </Text>
-            <ButtonGroup
-              options={["Dine In", "Take Away"]}
-              selected={status}
-              onChange={setStatus}
-            />
-
-            <Select
-              label="Table"
-              placeholder="Select table"
-              options={waiters}
-              value={selectedWaiter}
-              onChange={setSelectedWaiter}
-            />
-
-            <ThemedView style={tw`gap-2`}>
-              <Text style={tw`text-gray-700 dark:text-gray-300  font-semibold`}>
-                People
-              </Text>
-              <ButtonGroup
-                options={["1", "2", "3", "4", "5", "6"]}
-                selected={people.toString()}
-                onChange={(value) => setPeople(+value)}
-              />
-            </ThemedView>
-
-            <ThemedView style={tw`w-full `}>
-              <Button label="Create order" onPress={handleNavigate} />
-            </ThemedView>
-          </ThemedView>
-        </BottomSheetView>
+        <NewOrderBottomSheet onCreateOrder={handleNavigate} />
       </BottomSheetModal>
       <Fab icon="add-outline" onPress={handlePresentModalPress} />
     </ThemedView>

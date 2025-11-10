@@ -3,6 +3,7 @@ import React from "react";
 import { Pressable, Text, View } from "react-native";
 import tw from "../lib/tailwind";
 import { Ionicons } from "@expo/vector-icons";
+import { ThemedText } from "./themed-text";
 
 type ChipProps = {
   label: string;
@@ -31,14 +32,12 @@ export default function Chip({ label, selected, onPress, icon }: ChipProps) {
           style={tw`mr-2`}
         />
       )}
-      <Text
-        style={[
-          tw`text-sm font-medium`,
-          selected ? tw`text-white` : tw`text-gray-700`,
-        ]}
+      <ThemedText
+        type="body2"
+        style={[selected ? tw`text-white` : tw`text-gray-700`]}
       >
         {label}
-      </Text>
+      </ThemedText>
     </Pressable>
   );
 }
