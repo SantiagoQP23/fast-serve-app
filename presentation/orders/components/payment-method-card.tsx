@@ -1,0 +1,35 @@
+import { ThemedText } from "@/presentation/theme/components/themed-text";
+import { ThemedView } from "@/presentation/theme/components/themed-view";
+import tw from "@/presentation/theme/lib/tailwind";
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
+import { View, Pressable, PressableProps } from "react-native";
+
+export interface PaymentMethod {
+  name: string;
+  icon: keyof typeof Ionicons.glyphMap;
+}
+
+interface PaymentMethodCardProps extends PressableProps {
+  paymentMethod: PaymentMethod;
+}
+
+export default function PaymentMethodCard({
+  paymentMethod,
+  onPress,
+}: PaymentMethodCardProps) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        tw` py-4 px-10 rounded-2xl bg-gray-100 dark:bg-gray-800 items-center`,
+        pressed && tw`opacity-80`,
+      ]}
+    >
+      <Ionicons name={paymentMethod.icon} size={30} color="black" />
+      <ThemedView style={tw`flex-row items-center bg-transparent`}>
+        <ThemedText type="body1">{paymentMethod.name}</ThemedText>
+      </ThemedView>
+    </Pressable>
+  );
+}

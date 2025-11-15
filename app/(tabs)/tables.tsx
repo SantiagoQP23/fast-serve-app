@@ -20,11 +20,13 @@ import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { Table } from "@/core/tables/models/table.model";
 import { useTables } from "@/presentation/tables/hooks/useTables";
+import TableOrdersBottomSheet from "@/presentation/orders/components/table-orders-bottom-sheet";
 
 export default function TablesScreen() {
   const [selectedStatus, setSelectedStatus] = useState<boolean | "all">("all");
   const { setTable, setOrderType } = useNewOrderStore();
   const { getTables } = useTables();
+  const [activeTable, setActiveTable] = useState<Table | null>(null);
 
   const tabs: { label: string; value: boolean | "all" }[] = [
     { label: "All", value: "all" },
@@ -48,8 +50,11 @@ export default function TablesScreen() {
   }, []);
 
   const onTablePress = (table: Table) => {
-    setTable(table);
-    setOrderType(OrderType.IN_PLACE);
+    setActiveTable(table);
+    if (table.isAvailable) {
+      setTable(table);
+      setOrderType(OrderType.IN_PLACE);
+    }
     handlePresentModalPress();
   };
 
@@ -121,7 +126,11 @@ export default function TablesScreen() {
           />
         )}
       >
-        <NewOrderBottomSheet onCreateOrder={handleNavigate} />
+        {activeTable?.isAvailable ? (
+          <NewOrderBottomSheet onCreateOrder={handleNavigate} />
+        ) : (
+          <TableOrdersBottomSheet />
+        )}
       </BottomSheetModal>
     </ThemedView>
   );

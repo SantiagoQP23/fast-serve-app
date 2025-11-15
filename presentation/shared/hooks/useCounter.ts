@@ -6,17 +6,17 @@ export const useCounter = (
   max?: number,
   min: number = 0,
 ) => {
-  const [state, setCounter] = useState(initialState);
+  const [counter, setCounter] = useState(initialState);
 
   const increment = () => {
-    setCounter(state !== max ? state + step : state);
+    setCounter(counter !== max ? counter + step : counter);
   };
 
   const decrement = () => {
-    const value = state - step;
+    const value = counter - step;
 
     if (value >= min) {
-      setCounter(state > 0 && state !== min ? value : state);
+      setCounter(counter > 0 && counter !== min ? value : counter);
     }
   };
 
@@ -25,7 +25,7 @@ export const useCounter = (
   }, [initialState]);
 
   return {
-    state,
+    counter,
     increment,
     decrement,
     setCounter,

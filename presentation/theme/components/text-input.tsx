@@ -15,9 +15,16 @@ interface Props extends TextInputProps {
   error?: string;
   icon?: keyof typeof Ionicons.glyphMap;
   bottomSheet?: boolean;
+  leftIcon?: React.ReactNode;
 }
 
-export default function TextInput({ label, error, icon, ...props }: Props) {
+export default function TextInput({
+  label,
+  error,
+  icon,
+  leftIcon,
+  ...props
+}: Props) {
   const textColor = useThemeColor({}, "text");
   return (
     <ThemedView>
@@ -52,6 +59,7 @@ export default function TextInput({ label, error, icon, ...props }: Props) {
         )}
 
         {error && <Text style={tw`text-red-500 text-sm mt-1`}>{error}</Text>}
+        {leftIcon && leftIcon}
       </View>
     </ThemedView>
   );

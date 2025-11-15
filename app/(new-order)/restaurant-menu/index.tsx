@@ -10,6 +10,7 @@ import { useState } from "react";
 import Chip from "@/presentation/theme/components/chip";
 import { useRouter } from "expo-router";
 import TextInput from "@/presentation/theme/components/text-input";
+import IconButton from "@/presentation/theme/components/icon-button";
 
 export default function RestaurantMenuScreen() {
   const [section, setSection] = useState("");
@@ -41,7 +42,19 @@ export default function RestaurantMenuScreen() {
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="h1">Menu</ThemedText>
       </ThemedView>
-      <TextInput value={search} onChangeText={(value) => setSearch(value)} />
+      <TextInput
+        value={search}
+        onChangeText={(value) => setSearch(value)}
+        icon="search-outline"
+        leftIcon={
+          search && (
+            <IconButton
+              icon="close-circle-outline"
+              onPress={() => setSearch("")}
+            ></IconButton>
+          )
+        }
+      />
       {!search && (
         <ThemedView>
           <ScrollView
@@ -75,7 +88,7 @@ export default function RestaurantMenuScreen() {
             ))}
           </ThemedView>
         )}
-        <ThemedView style={tw`flex-1 `}>
+        <ScrollView style={tw`flex-1 `} showsVerticalScrollIndicator={false}>
           <ProductCard
             product={{ name: "Arroz marinero", id: "1", price: 10 }}
           ></ProductCard>
@@ -89,7 +102,27 @@ export default function RestaurantMenuScreen() {
             onPress={openProduct}
             product={{ name: "Arroz marinero", id: "1", price: 10 }}
           ></ProductCard>
-        </ThemedView>
+          <ProductCard
+            onPress={openProduct}
+            product={{ name: "Arroz marinero", id: "1", price: 10 }}
+          ></ProductCard>
+          <ProductCard
+            onPress={openProduct}
+            product={{ name: "Arroz marinero", id: "1", price: 10 }}
+          ></ProductCard>
+          <ProductCard
+            onPress={openProduct}
+            product={{ name: "Arroz marinero", id: "1", price: 10 }}
+          ></ProductCard>
+          <ProductCard
+            onPress={openProduct}
+            product={{ name: "Arroz marinero", id: "1", price: 10 }}
+          ></ProductCard>
+          <ProductCard
+            onPress={openProduct}
+            product={{ name: "Arroz marinero", id: "1", price: 10 }}
+          ></ProductCard>
+        </ScrollView>
       </ThemedView>
     </ThemedView>
   );

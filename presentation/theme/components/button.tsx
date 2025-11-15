@@ -13,6 +13,7 @@ import { ThemedView } from "./themed-view";
 export interface ButtonProps extends PressableProps {
   label?: string;
   variant?: "primary" | "secondary" | "outline";
+  size?: "small" | "medium" | "large";
   loading?: boolean;
   disabled?: boolean;
   leftIcon?: keyof typeof Ionicons.glyphMap;
@@ -27,14 +28,21 @@ export default function Button({
   disabled = false,
   leftIcon: icon,
   rightIcon,
+  size = "medium",
   style,
 }: ButtonProps) {
-  const baseStyle =
-    "px-5 py-3 rounded-2xl flex-row justify-center items-center";
+  const baseStyle = " rounded-2xl flex-row justify-center items-center";
+
   const variants = {
     primary: "bg-light-primary",
     secondary: "bg-light-secondary",
     outline: "border border-light-primary bg-transparent",
+  };
+
+  const sizeStyles = {
+    small: "px-3 py-2",
+    medium: "px-5 py-3",
+    large: "px-6 py-4",
   };
 
   const textColors = {
@@ -55,7 +63,7 @@ export default function Button({
       onPress={onPress}
       style={({ pressed }) => [
         tw.style(
-          `${baseStyle} ${variants[variant]}`,
+          `${baseStyle} ${variants[variant]} ${sizeStyles[size]}`,
           pressed && "opacity-80",
           disabled && "opacity-50",
         ),
@@ -74,7 +82,7 @@ export default function Button({
             />
           )}
           {label && (
-            <Text style={tw`${textColors[variant]} font-semibold text-base`}>
+            <Text style={tw`${textColors[variant]} font-semibold text-base `}>
               {label}
             </Text>
           )}

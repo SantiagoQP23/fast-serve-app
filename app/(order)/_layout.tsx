@@ -33,6 +33,30 @@ export default function OrdersLayout() {
             ),
           }}
         />
+        <Stack.Screen
+          name="[id]/bills/index"
+          options={{
+            headerShown: true,
+            title: "",
+            headerShadowVisible: false,
+          }}
+        />
+        <Stack.Screen
+          name="[id]/bills/[id]/index"
+          options={{
+            headerShown: true,
+            title: "",
+            headerShadowVisible: false,
+          }}
+        />
+        <Stack.Screen
+          name="[id]/bills/new/index"
+          options={{
+            headerShown: true,
+            title: "",
+            headerShadowVisible: false,
+          }}
+        />
       </Stack>
 
       <BottomSheetModal

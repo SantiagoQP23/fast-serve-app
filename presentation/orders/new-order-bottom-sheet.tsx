@@ -76,17 +76,30 @@ const NewOrderBottomSheet = ({
           <Text style={tw`text-gray-700 dark:text-gray-300  font-semibold`}>
             People
           </Text>
-          <ButtonGroup
-            options={[
-              { label: "1", value: 1 },
-              { label: "2", value: 2 },
-              { label: "3", value: 3 },
-              { label: "4", value: 4 },
-              { label: "5", value: 5 },
-            ]}
-            selected={people}
-            onChange={(value: number) => setPeople(value)}
-          />
+          <ThemedView style={tw`flex-row gap-2 items-center`}>
+            <ThemedView style={tw`flex-1`}>
+              <ButtonGroup
+                options={[
+                  { label: "1", value: 1 },
+                  { label: "2", value: 2 },
+                  { label: "3", value: 3 },
+                  { label: "4", value: 4 },
+                  { label: "5", value: 5 },
+                  { label: "6", value: 6 },
+                ]}
+                selected={people}
+                onChange={(value: number) => setPeople(value)}
+              />
+            </ThemedView>
+            <TextInput
+              inputMode="numeric"
+              multiline
+              bottomSheet
+              onChangeText={(value) => setPeople(+value)}
+              value={people ? people.toString() : ""}
+              style={tw`w-10`}
+            />
+          </ThemedView>
         </ThemedView>
         <ThemedView>
           <Switch

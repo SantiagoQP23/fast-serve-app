@@ -67,6 +67,14 @@ export default function HomeScreen() {
     { num: 6, status: "delivered" },
   ];
 
+  const pendingOrders = orders.filter((order) => order.status === "pending");
+  const inProgressOrders = orders.filter(
+    (order) => order.status === "inProgress",
+  );
+  const deliveredOrders = orders.filter(
+    (order) => order.status === "delivered",
+  );
+
   const screenWidth = Dimensions.get("window").width;
 
   return (
@@ -82,18 +90,21 @@ export default function HomeScreen() {
           </ThemedText>
         </ThemedView>
         <ThemedView>
-          <ThemedText style={tw`font-semibold mb-4 text-gray-700`}>
-            Pending
-          </ThemedText>
+          <ThemedView style={tw`  justify-between mb-4`}>
+            <ThemedText style={tw`font-semibold  text-gray-700`}>
+              Pending
+            </ThemedText>
+            <ThemedText type="small">Count: {pendingOrders.length}</ThemedText>
+          </ThemedView>
           <FlatList
-            data={orders.filter((order) => order.status === "pending")}
+            data={pendingOrders}
             keyExtractor={(item, index) => index.toString()}
             horizontal
             showsHorizontalScrollIndicator={false}
             renderItem={({ item, index }) => (
               <ThemedView
                 style={[
-                  index !== orders.length - 1 && tw`mr-4`,
+                  index !== pendingOrders.length - 1 && tw`mr-4`,
                   { width: screenWidth * 0.8 },
                 ]}
               >
@@ -108,14 +119,14 @@ export default function HomeScreen() {
             In progress
           </ThemedText>
           <FlatList
-            data={orders.filter((order) => order.status === "inProgress")}
+            data={inProgressOrders}
             keyExtractor={(item, index) => index.toString()}
             horizontal
             showsHorizontalScrollIndicator={false}
             renderItem={({ item, index }) => (
               <ThemedView
                 style={[
-                  index !== orders.length - 1 && tw`mr-4`,
+                  index !== inProgressOrders.length - 1 && tw`mr-4`,
                   { width: screenWidth * 0.8 },
                 ]}
               >
@@ -130,14 +141,14 @@ export default function HomeScreen() {
             Delivered
           </ThemedText>
           <FlatList
-            data={orders.filter((order) => order.status === "delivered")}
+            data={deliveredOrders}
             keyExtractor={(item, index) => index.toString()}
             horizontal
             showsHorizontalScrollIndicator={false}
             renderItem={({ item, index }) => (
               <ThemedView
                 style={[
-                  index !== orders.length - 1 && tw`mr-4`,
+                  index !== deliveredOrders.length - 1 && tw`mr-4`,
                   { width: screenWidth * 0.8 },
                 ]}
               >

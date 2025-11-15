@@ -5,24 +5,11 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { Ionicons } from "@expo/vector-icons";
 import { View, Pressable, PressableProps } from "react-native";
 import IconButton from "@/presentation/theme/components/icon-button";
-import { useCounter } from "@/presentation/shared/hooks/useCounter";
 
-export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  description?: string;
-}
+interface NewBillDetailCardProps extends PressableProps {}
 
-interface NewOrderDetailCardProps extends PressableProps {
-  product: Product;
-}
-
-export default function NewOrderDetailCard({
-  product,
-  onPress,
-}: NewOrderDetailCardProps) {
-  const { counter, increment, decrement } = useCounter(1, 1, 20, 1);
+export default function NewBillDetailCard({ onPress }: NewBillDetailCardProps) {
+  const [counter, setCounter] = useState(1);
   return (
     <Pressable
       style={({ pressed }) => [
@@ -32,16 +19,23 @@ export default function NewOrderDetailCard({
       onPress={onPress}
     >
       <ThemedView style={tw`flex-row justify-between items-end bg-transparent`}>
-        <ThemedView style={tw` bg-transparent justify-between gap-2`}>
+        <ThemedView style={tw` bg-transparent justify-between gap-1`}>
           <ThemedText type="h3" style={tw` font-bold`}>
-            {product.name}
+            Arroz marinero x3
           </ThemedText>
-          <ThemedText style={tw`text-base `}>${product.price}</ThemedText>
+          <ThemedText type="body2">5 en total</ThemedText>
+          <ThemedText style={tw`text-base `}>$10</ThemedText>
         </ThemedView>
-        <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
-          <IconButton icon="remove-outline" onPress={decrement} />
+        <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}>
+          <IconButton
+            icon="remove-outline"
+            onPress={() => setCounter((value) => value - 1)}
+          />
           <ThemedText>{counter}</ThemedText>
-          <IconButton icon="add" onPress={increment} />
+          <IconButton
+            icon="add"
+            onPress={() => setCounter((value) => value + 1)}
+          />
         </ThemedView>
       </ThemedView>
     </Pressable>

@@ -11,13 +11,17 @@ import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
 import NewOrderDetailCard from "@/presentation/orders/components/new-order-detail-card";
 import BillCard from "@/presentation/orders/components/bill-card";
+import NewBillDetailCard from "@/presentation/orders/components/new-bill-detail-card";
+import Switch from "@/presentation/theme/components/switch";
 
-export default function OrderBillsScreen() {
+export default function NewBillScreen() {
   const { people, orderType, table, notes } = useNewOrderStore();
   const [section, setSection] = useState("");
   const [selected, setSelected] = useState("All");
   const router = useRouter();
   const [search, setSearch] = useState("");
+  const [total, setTotal] = useState(50);
+  const [selectAll, setSelectAll] = useState(false);
 
   const sections = [
     { label: "Platos a la carta" },
@@ -36,30 +40,43 @@ export default function OrderBillsScreen() {
 
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
-      <ThemedView style={tw`  items-center gap-8`}>
-        <ThemedView style={tw`gap-1 items-center`}>
-          <ThemedText type="h3">Order #111</ThemedText>
-          <ThemedText type="body1">Table 1</ThemedText>
+      <ThemedView style={tw`flex-row items-center justify-between gap-8`}>
+        <ThemedView style={tw`gap-1 `}>
+          <ThemedText type="h3">New Bill</ThemedText>
+          <ThemedText type="body1">Order #111</ThemedText>
           {/* <ThemedText type="small">Today, 11:30</ThemedText> */}
         </ThemedView>
-        <ThemedText style={tw`text-7xl `}>$30</ThemedText>
+        <ThemedView>
+          <ThemedText type="body1"> Total</ThemedText>
+          <ThemedText type="h4"> $30</ThemedText>
+        </ThemedView>
       </ThemedView>
 
-      {/* <ThemedView style={tw`flex-1 justify-center items-center`}> */}
-      {/*   <ThemedText>No bills</ThemedText> */}
-      {/* </ThemedView> */}
-      <ScrollView style={tw`flex-1`} showsVerticalScrollIndicator={false}>
-        <BillCard
-          bill={{ id: "sdklj" }}
-          onPress={() => router.push(`/(order)/1324/bills/1322`)}
-        />
-        <BillCard bill={{ id: "sdklj" }} />
-        <BillCard bill={{ id: "sdklj" }} />
-        <BillCard bill={{ id: "sdklj" }} />
+      <Switch
+        label="Select all items"
+        value={selectAll}
+        onValueChange={setSelectAll}
+      />
+      <ScrollView>
+        <NewBillDetailCard />
+        <NewBillDetailCard />
+        <NewBillDetailCard />
+        <NewBillDetailCard />
+        <NewBillDetailCard />
+        <ThemedText type="h3" style={tw`mt-4 mb-2`}>
+          Billed items
+        </ThemedText>
+        <ThemedView style={tw`gap-2 mb-20`}>
+          <ThemedText>Filete apando x4</ThemedText>
+          <ThemedText>Filete apando x4</ThemedText>
+          <ThemedText>Filete apando x4</ThemedText>
+          <ThemedText>Filete apando x4</ThemedText>
+        </ThemedView>
       </ScrollView>
+
       <Button
-        label="Add bill "
-        onPress={() => router.push('/(order)/${"sd"}/bills/new')}
+        label={"Create bill - " + total}
+        onPress={() => router.back()}
       ></Button>
     </ThemedView>
   );
