@@ -21,27 +21,34 @@ export default function OrdersScreen() {
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Profile</ThemedText>
+        <ThemedText type="h2">Profile</ThemedText>
       </ThemedView>
       <ThemedView style={tw`my-4`} />
-      <ThemedView>
+      <ThemedView style={tw`items-center gap-2`}>
         <ThemedText style={tw`text-2xl font-bold`}>
           Santiago Quirumbay
         </ThemedText>
         <ThemedText style={tw`text-sm text-gray-500`}>Administrator</ThemedText>
       </ThemedView>
       <ThemedView style={tw`mt-8`}>
-        <ThemedView
-          style={tw`rounded-lg bg-gray-100 dark:bg-gray-800 p-4 gap-6`}
-        >
+        <ThemedView style={tw`rounded-lg  p-4 gap-8`}>
           <Pressable
             style={({ pressed }) =>
               tw.style(`flex-row items-center gap-4`, pressed && "opacity-70")
             }
             onPress={() => {}}
           >
-            <Ionicons name="person-outline" size={24} />
-            <ThemedText style={tw`font-medium`}>My profile</ThemedText>
+            <Ionicons name="storefront-outline" size={20} />
+            <ThemedText type="h4">My restaurants</ThemedText>
+          </Pressable>
+          <Pressable
+            style={({ pressed }) =>
+              tw.style(`flex-row items-center gap-4`, pressed && "opacity-70")
+            }
+            onPress={() => {}}
+          >
+            <Ionicons name="person-outline" size={20} />
+            <ThemedText type="h4">My profile</ThemedText>
           </Pressable>
           <Pressable
             style={({ pressed }) =>
@@ -50,7 +57,7 @@ export default function OrdersScreen() {
             onPress={() => {}}
           >
             <Ionicons name="settings-outline" size={24} />
-            <ThemedText style={tw`font-medium`}>Settings</ThemedText>
+            <ThemedText type="h4">Settings</ThemedText>
           </Pressable>
           <Pressable
             style={({ pressed }) =>
@@ -61,7 +68,7 @@ export default function OrdersScreen() {
             }}
           >
             <Ionicons name="log-out-outline" size={24} color="red" />
-            <ThemedText style={tw`font-medium`}>Log out</ThemedText>
+            <ThemedText type="h4">Log out</ThemedText>
           </Pressable>
         </ThemedView>
         <DialogModal

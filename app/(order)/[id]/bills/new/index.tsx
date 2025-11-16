@@ -9,7 +9,6 @@ import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { Ionicons } from "@expo/vector-icons";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
-import NewOrderDetailCard from "@/presentation/orders/components/new-order-detail-card";
 import BillCard from "@/presentation/orders/components/bill-card";
 import NewBillDetailCard from "@/presentation/orders/components/new-bill-detail-card";
 import Switch from "@/presentation/theme/components/switch";

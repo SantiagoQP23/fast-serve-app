@@ -34,7 +34,7 @@ export default function Chip({ label, selected, onPress, icon }: ChipProps) {
       )}
       <ThemedText
         type="body2"
-        style={[selected ? tw`text-white` : tw`text-gray-700`]}
+        style={[selected ? tw`text-white font-semibold` : tw`text-gray-700`]}
       >
         {label}
       </ThemedText>

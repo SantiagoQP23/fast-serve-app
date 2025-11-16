@@ -1,13 +1,18 @@
-import { BottomSheetTextInput, BottomSheetView } from "@gorhom/bottom-sheet";
+import {
+  BottomSheetTextInput,
+  BottomSheetView,
+  BottomSheetFlatList,
+  BottomSheetScrollView,
+} from "@gorhom/bottom-sheet";
 import {
   View,
   Text,
   Alert,
   ButtonProps,
-  FlatList,
   Dimensions,
+  ScrollView,
 } from "react-native";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { OrderType, orderTypes } from "@/core/orders/enums/order-type.enum";
 import { Table } from "@/core/tables/models/table.model";
 import { useTables } from "@/presentation/tables/hooks/useTables";
@@ -53,6 +58,8 @@ const TableOrdersBottomSheet = ({
     { num: 6, status: "delivered" },
   ];
 
+  const snapPoints = useMemo(() => ["25%", "50%", "90%"], []);
+
   const validateNewOrder = () => {
     if (orderType === OrderType.IN_PLACE && !table) {
       Alert.alert("Please select a table");
@@ -65,47 +72,85 @@ const TableOrdersBottomSheet = ({
   );
   const screenWidth = Dimensions.get("window").width;
 
-  return (
-    <BottomSheetView style={tw`p-4 items-center justify-center`}>
-      <ThemedView style={tw`w-full gap-6`}>
-        <ThemedView style={tw`gap-2`}>
-          <ThemedText type="h2" style={tw`text-center`}>
-            Table 5
-          </ThemedText>
-          <ThemedText type="body2" style={tw`text-center`}>
-            Orders: 3 (1 Pending, 1 In Progress, 1 Delivered)
-          </ThemedText>
-        </ThemedView>
-        <FlatList
-          data={deliveredOrders}
-          keyExtractor={(item, index) => index.toString()}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          renderItem={({ item, index }) => (
-            <ThemedView
-              style={[
-                index !== deliveredOrders.length - 1 && tw`mr-4`,
-                { width: screenWidth * 0.8 },
-              ]}
-            >
-              <OrderCard order={item} />
-            </ThemedView>
-          )}
-          style={tw``}
-        />
-
-        <ThemedView>
-          <Button
-            leftIcon="add-circle-outline"
-            label="Add order "
-            onPress={() =>
-              validateNewOrder() && onCreateOrder && onCreateOrder()
-            }
-            {...buttonProps}
-          />
-        </ThemedView>
+  const renderOrderItem = useCallback(
+    ({ item, index }: { item: Order; index: number }) => (
+      <ThemedView
+        style={[
+          index !== deliveredOrders.length - 1 && tw`mr-4`,
+          { width: screenWidth * 0.8 },
+        ]}
+      >
+        <OrderCard order={item} />
       </ThemedView>
-    </BottomSheetView>
+    ),
+    [deliveredOrders.length, screenWidth],
+  );
+
+  return (
+    <>
+      <BottomSheetView style={tw`p-4 items-center justify-center h-auto`}>
+        <ThemedView style={tw`w-full gap-6`}>
+          <ThemedView style={tw`gap-2`}>
+            <ThemedText type="h2" style={tw`text-center`}>
+              Table 5
+            </ThemedText>
+            <ThemedText type="body2" style={tw`text-center`}>
+              Orders: 3 (1 Pending, 1 In Progress, 1 Delivered)
+            </ThemedText>
+          </ThemedView>
+          {/* <ScrollView */}
+          {/*   horizontal */}
+          {/*   showsHorizontalScrollIndicator={false} */}
+          {/*   contentContainerStyle={tw`pb-4 gap-4`} */}
+          {/* > */}
+          {/*   { */}
+          {/**/}
+          {/*     deliveredOrders.length > 0 && */}
+          {/*       deliveredOrders.map((order, index) => ( */}
+          {/*         <ThemedView */}
+          {/*           key={order.num} */}
+          {/*           style={[index !== deliveredOrders.length - 1 && tw`mb-4`]} */}
+          {/*         > */}
+          {/*           <OrderCard order={order} /> */}
+          {/*         </ThemedView> */}
+          {/*       )) */}
+          {/*   } */}
+          {/* </ScrollView> */}
+          <ScrollView contentContainerStyle={tw`pb-4 gap-4 flex-1 h-100 `}>
+            {orders.length > 0 &&
+              orders.map((order, index) => (
+                <ThemedView key={order.num}>
+                  <OrderCard order={order} />
+                </ThemedView>
+              ))}
+          </ScrollView>
+          {/* <BottomSheetScrollView */}
+          {/*   contentContainerStyle={tw`pb-4 gap-4 flex-1 h-100 `} */}
+          {/* > */}
+          {/*   {orders.length > 0 && */}
+          {/*     orders.map((order, index) => ( */}
+          {/*       <ThemedView */}
+          {/*         key={order.num} */}
+          {/*         style={[index !== orders.length - 1 && tw`mb-4`]} */}
+          {/*       > */}
+          {/*         <OrderCard order={order} /> */}
+          {/*       </ThemedView> */}
+          {/*     ))} */}
+          {/* </BottomSheetScrollView> */}
+
+          <ThemedView>
+            <Button
+              leftIcon="add-circle-outline"
+              label="Add order "
+              onPress={() =>
+                validateNewOrder() && onCreateOrder && onCreateOrder()
+              }
+              {...buttonProps}
+            />
+          </ThemedView>
+        </ThemedView>
+      </BottomSheetView>
+    </>
   );
 };
 

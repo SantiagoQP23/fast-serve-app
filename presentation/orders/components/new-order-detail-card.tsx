@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { View, Pressable, PressableProps } from "react-native";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useCounter } from "@/presentation/shared/hooks/useCounter";
+import { router } from "expo-router";
 
 export interface Product {
   id: string;
@@ -18,7 +19,7 @@ interface NewOrderDetailCardProps extends PressableProps {
   product: Product;
 }
 
-export default function NewOrderDetailCard({
+export default function OrderDetailCard({
   product,
   onPress,
 }: NewOrderDetailCardProps) {
@@ -26,12 +27,19 @@ export default function NewOrderDetailCard({
   return (
     <Pressable
       style={({ pressed }) => [
-        tw`mb-3 p-4 rounded-2xl bg-gray-100 dark:bg-gray-800`,
+        tw`mb-3 rounded-2xl bg-gray-100 dark:bg-gray-800`,
         pressed && tw`opacity-80`,
       ]}
       onPress={onPress}
     >
-      <ThemedView style={tw`flex-row justify-between items-end bg-transparent`}>
+      <ThemedView
+        style={tw`flex-row justify-between items-end bg-transparent p-4`}
+      >
+        <ThemedView
+          style={tw`absolute  rounded-full items-center justify-center  z-10 right-0 top-0`}
+        >
+          <IconButton icon="close-outline" style={tw`bg-gray-100`} size={18} />
+        </ThemedView>
         <ThemedView style={tw` bg-transparent justify-between gap-2`}>
           <ThemedText type="h3" style={tw` font-bold`}>
             {product.name}

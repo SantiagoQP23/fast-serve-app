@@ -9,7 +9,6 @@ import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { Ionicons } from "@expo/vector-icons";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
-import NewOrderDetailCard from "@/presentation/orders/components/new-order-detail-card";
 import BillCard from "@/presentation/orders/components/bill-card";
 
 export default function OrderBillsScreen() {
@@ -18,21 +17,6 @@ export default function OrderBillsScreen() {
   const [selected, setSelected] = useState("All");
   const router = useRouter();
   const [search, setSearch] = useState("");
-
-  const sections = [
-    { label: "Platos a la carta" },
-    { label: "Bebidas" },
-    { label: "Desayunos" },
-    { label: "Otros" },
-  ];
-
-  const categories = [
-    { label: "All" },
-    { label: "Starters" },
-    { label: "Main Course" },
-    { label: "Desserts" },
-    { label: "Beverages" },
-  ];
 
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>

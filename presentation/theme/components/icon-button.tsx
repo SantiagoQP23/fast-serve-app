@@ -42,8 +42,15 @@ export default function IconButton({
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
-        tw`rounded-full p-1 ${pressed ? "opacity-80" : "opacity-100"} ${disabled ? "opacity-50" : ""}`,
-        { backgroundColor: pressed && !disabled ? "#e5e7eb" : backgroundColor },
+        tw`rounded-full p-1 ${pressed ? "opacity-80" : "opacity-100"} ${disabled ? "opacity-50" : ""} bg-transparent`,
+        {
+          // backgroundColor: !pressed
+          //   ? backgroundColor
+          //   : !disabled
+          //     ? "#e5e7eb"
+          //     : backgroundColor,
+          backgroundColor: backgroundColor,
+        },
         style,
       ]}
       disabled={disabled}

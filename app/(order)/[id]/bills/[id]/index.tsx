@@ -9,7 +9,6 @@ import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { Ionicons } from "@expo/vector-icons";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
-import NewOrderDetailCard from "@/presentation/orders/components/new-order-detail-card";
 import BillCard from "@/presentation/orders/components/bill-card";
 import NewBillDetailCard from "@/presentation/orders/components/new-bill-detail-card";
 import Switch from "@/presentation/theme/components/switch";
@@ -24,21 +23,6 @@ export default function BillScreen() {
   const [search, setSearch] = useState("");
   const [total, setTotal] = useState(50);
   const [selectAll, setSelectAll] = useState(false);
-
-  const sections = [
-    { label: "Platos a la carta" },
-    { label: "Bebidas" },
-    { label: "Desayunos" },
-    { label: "Otros" },
-  ];
-
-  const categories = [
-    { label: "All" },
-    { label: "Starters" },
-    { label: "Main Course" },
-    { label: "Desserts" },
-    { label: "Beverages" },
-  ];
 
   return (
     <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">

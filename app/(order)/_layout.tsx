@@ -34,6 +34,14 @@ export default function OrdersLayout() {
           }}
         />
         <Stack.Screen
+          name="[id]/edit-order-detail/index"
+          options={{
+            headerShown: true,
+            title: "",
+            headerShadowVisible: false,
+          }}
+        />
+        <Stack.Screen
           name="[id]/bills/index"
           options={{
             headerShown: true,

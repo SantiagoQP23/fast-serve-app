@@ -21,12 +21,11 @@ import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
 import OrderCard, { Order } from "@/presentation/home/components/order-card";
 import { useCallback, useRef, useState } from "react";
-import Button from "@/presentation/theme/components/button";
-import ButtonGroup from "@/presentation/theme/components/button-group";
-import Select from "@/presentation/theme/components/select";
 import { useRouter } from "expo-router";
 import { FlatList } from "react-native-gesture-handler";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
+import IconButton from "@/presentation/theme/components/icon-button";
+import NotificationBadge from "@/presentation/theme/components/notification-badge";
 
 export default function HomeScreen() {
   const [status, setStatus] = useState("All");
@@ -75,6 +74,7 @@ export default function HomeScreen() {
     (order) => order.status === "delivered",
   );
 
+  const haveAnOpenOrder = true;
   const screenWidth = Dimensions.get("window").width;
 
   return (
@@ -83,6 +83,19 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={tw`pb-20 gap-4`}
       >
+        <ThemedView
+          style={tw`absolute  rounded-full items-center justify-center  z-10 right-2 top-2`}
+        >
+          {haveAnOpenOrder && (
+            <ThemedView style={tw`relative`}>
+              <IconButton
+                icon="cart-outline"
+                onPress={() => router.push("/(new-order)/cart")}
+              />
+              <NotificationBadge value={5} />
+            </ThemedView>
+          )}
+        </ThemedView>
         <ThemedView style={tw`mb-4`}>
           <ThemedText type="h1">Home</ThemedText>
           <ThemedText type="h3" style={tw`mt-1`}>

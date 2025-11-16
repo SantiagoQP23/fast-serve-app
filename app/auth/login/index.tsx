@@ -29,6 +29,7 @@ const LoginScreen = () => {
     console.log({ email, password });
 
     if (email.length === 0 || password.length === 0) {
+      Alert.alert("Error", "Please, fill in all fields");
       return;
     }
 
@@ -44,9 +45,9 @@ const LoginScreen = () => {
 
   return (
     <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
-      <ThemedView style={tw`flex-1 px-4 gap-4`}>
+      <ThemedView style={tw`flex-1 px-4 gap-8`}>
         <ThemedView style={[{ paddingTop: height * 0.2 }]}>
-          <ThemedText type="title">Login</ThemedText>
+          <ThemedText type="h1">Login</ThemedText>
           <ThemedText>Enter your credentials</ThemedText>
         </ThemedView>
         <TextInput

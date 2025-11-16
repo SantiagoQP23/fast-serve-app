@@ -9,6 +9,7 @@ import tw from "../lib/tailwind";
 import { useThemeColor } from "../hooks/use-theme-color";
 import { ThemedView } from "./themed-view";
 import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
+import { ThemedText } from "./themed-text";
 
 interface Props extends TextInputProps {
   label?: string;
@@ -28,7 +29,11 @@ export default function TextInput({
   const textColor = useThemeColor({}, "text");
   return (
     <ThemedView>
-      {label && <Text style={tw`text-base text-gray-800 mb-2`}>{label}</Text>}
+      {label && (
+        <ThemedText type="body2" style={tw`font-semibold mb-2`}>
+          {label}
+        </ThemedText>
+      )}
       <View
         style={tw.style(
           "flex-row items-center",

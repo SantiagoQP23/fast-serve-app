@@ -5,15 +5,20 @@ import {
   Text,
   FlatList,
   Pressable,
+  View,
 } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 
 import TableCard from "@/presentation/home/components/table-card";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import tw from "@/presentation/theme/lib/tailwind";
-import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  BottomSheetScrollView,
+} from "@gorhom/bottom-sheet";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import { router } from "expo-router";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
@@ -72,12 +77,42 @@ export default function TablesScreen() {
       setFilteredTables(filtered);
     }
   };
+  const sheetRef = useRef<BottomSheet>(null);
+
+  // variables
+  const data = useMemo(
+    () =>
+      Array(50)
+        .fill(0)
+        .map((_, index) => `index-${index}`),
+    [],
+  );
+  const snapPoints = useMemo(() => ["25%", "50%", "90%"], []);
+
+  // callbacks
+  const handleSheetChange = useCallback((index) => {
+    console.log("handleSheetChange", index);
+  }, []);
+  const handleSnapPress = useCallback((index) => {
+    sheetRef.current?.snapToIndex(index);
+  }, []);
+  const handleClosePress = useCallback(() => {
+    sheetRef.current?.close();
+  }, []);
+
+  // render
+  const renderItem = useCallback(
+    (item) => (
+      <View key={item} style={styles.itemContainer}>
+        <Text>{item}</Text>
+      </View>
+    ),
+    [],
+  );
 
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1`}>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="h1">Tables</ThemedText>
-      </ThemedView>
+      <ThemedText type="h1">Tables</ThemedText>
       <ThemedView style={tw`mt-8`} />
       <ThemedView style={tw`flex-row mb-4`}>
         {tabs.map((tab) => {
@@ -137,20 +172,16 @@ export default function TablesScreen() {
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
+  container: {
+    flex: 1,
+    paddingTop: 200,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  contentContainer: {
+    backgroundColor: "white",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
+  itemContainer: {
+    padding: 6,
+    margin: 6,
+    backgroundColor: "#eee",
   },
 });

@@ -9,7 +9,7 @@ import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { Ionicons } from "@expo/vector-icons";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
-import NewOrderDetailCard from "@/presentation/orders/components/new-order-detail-card";
+import OrderDetailCard from "@/presentation/orders/components/new-order-detail-card";
 import IconButton from "@/presentation/theme/components/icon-button";
 
 export default function OrderScreen() {
@@ -20,7 +20,7 @@ export default function OrderScreen() {
   const [search, setSearch] = useState("");
 
   const openProduct = () => {
-    router.push("/restaurant-menu/product");
+    router.push("/(order)/edit-order-detail");
   };
 
   return (
@@ -61,24 +61,17 @@ export default function OrderScreen() {
           />
         </ThemedView>
         <ScrollView style={tw`flex-1`} showsVerticalScrollIndicator={false}>
-          <NewOrderDetailCard
-            product={{ name: "Arroz marinero", id: "1", price: 12 }}
-          />
-          <NewOrderDetailCard
-            product={{ name: "Arroz marinero", id: "1", price: 12 }}
-          />
-          <NewOrderDetailCard
-            product={{ name: "Arroz marinero", id: "1", price: 12 }}
-          />
-          <NewOrderDetailCard
-            product={{ name: "Arroz marinero", id: "1", price: 12 }}
-          />
-          <NewOrderDetailCard
+          <OrderDetailCard
             product={{ name: "Arroz marinero", id: "1", price: 12 }}
             onPress={openProduct}
           />
-          <NewOrderDetailCard
+          <OrderDetailCard
             product={{ name: "Arroz marinero", id: "1", price: 12 }}
+            onPress={openProduct}
+          />
+          <OrderDetailCard
+            product={{ name: "Arroz marinero", id: "1", price: 12 }}
+            onPress={openProduct}
           />
         </ScrollView>
       </ThemedView>
