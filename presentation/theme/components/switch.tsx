@@ -21,7 +21,11 @@ export default function Switch({
 }: SwitchProps) {
   return (
     <ThemedView style={tw`flex-row items-center justify-between w-full `}>
-      {label && <ThemedText style={tw`text-base `}>{label}</ThemedText>}
+      {label && (
+        <ThemedText style={tw`font-semibold`} type="body2">
+          {label}
+        </ThemedText>
+      )}
       <RNSwitch
         trackColor={{ false: "#d1d5db", true: Colors.light.primary }} // gray-300 / blue-500
         thumbColor={value ? "#fff" : "#f4f3f4"}

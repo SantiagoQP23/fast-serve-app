@@ -79,10 +79,7 @@ export default function HomeScreen() {
 
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1 `}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`pb-20 gap-4`}
-      >
+      <ThemedView style={tw`mb-6`}>
         <ThemedView
           style={tw`absolute  rounded-full items-center justify-center  z-10 right-2 top-2`}
         >
@@ -96,17 +93,18 @@ export default function HomeScreen() {
             </ThemedView>
           )}
         </ThemedView>
-        <ThemedView style={tw`mb-4`}>
-          <ThemedText type="h1">Home</ThemedText>
-          <ThemedText type="h3" style={tw`mt-1`}>
-            Hi, Santiago!
-          </ThemedText>
-        </ThemedView>
+        <ThemedText type="body1">Welcome back!</ThemedText>
+        <ThemedText type="h2" style={tw`mt-1`}>
+          Santiago
+        </ThemedText>
+      </ThemedView>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={tw`pb-20 gap-4`}
+      >
         <ThemedView>
           <ThemedView style={tw`  justify-between mb-4`}>
-            <ThemedText style={tw`font-semibold  text-gray-700`}>
-              Pending
-            </ThemedText>
+            <ThemedText type="h4">Pending</ThemedText>
             <ThemedText type="small">Count: {pendingOrders.length}</ThemedText>
           </ThemedView>
           <FlatList

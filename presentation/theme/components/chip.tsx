@@ -20,7 +20,7 @@ export default function Chip({ label, selected, onPress, icon }: ChipProps) {
         tw`flex-row items-center px-3 py-1.5 rounded-full border`,
         selected
           ? tw`bg-light-primary border-light-primary`
-          : tw`bg-white border-gray-300`,
+          : tw`bg-white border-gray-200`,
         pressed && tw`opacity-75`,
       ]}
     >
@@ -34,7 +34,7 @@ export default function Chip({ label, selected, onPress, icon }: ChipProps) {
       )}
       <ThemedText
         type="body2"
-        style={[selected ? tw`text-white font-semibold` : tw`text-gray-700`]}
+        style={[selected ? tw`text-white font-semibold` : tw``]}
       >
         {label}
       </ThemedText>

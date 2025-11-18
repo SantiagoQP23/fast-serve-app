@@ -1,3 +1,4 @@
+import Card from "@/presentation/theme/components/card";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -36,45 +37,48 @@ export default function OrderCard({ order }: OrderCardProps) {
   };
 
   return (
-    <Pressable
-      onPress={() => router.push(`/(order)/${order.num}`)}
-      style={({ pressed }) => [
-        tw`mb-3 p-4 rounded-2xl bg-gray-100 dark:bg-gray-800`,
-        pressed && tw`opacity-80`,
-      ]}
-    >
-      <ThemedView
-        style={tw`flex-row items-center bg-transparent justify-between`}
-      >
-        <ThemedText type="caption">Order N {order.num}</ThemedText>
-        <ThemedView
-          style={tw` flex-row justify-end bg-transparent items-center gap-2`}
-        >
-          <View
-            style={[tw`w-2 h-2 rounded-full `, tw`${backgroundColors[status]}`]}
-          />
-          <ThemedText style={tw`${textColors[status]}`} type="body2">
-            {statusText[status]}
-          </ThemedText>
-        </ThemedView>
-      </ThemedView>
-      <ThemedView style={tw`flex-row items-center bg-transparent gap-5 my-2`}>
-        <ThemedText type="h3">Mesa 1</ThemedText>
+    <ThemedView style={tw`mb-3  rounded-2xl `}>
+      <Card onPress={() => router.push(`/(order)/${order.num}`)}>
+        <ThemedView style={tw`gap-3 bg-transparent`}>
+          <ThemedView
+            style={tw`flex-row items-center bg-transparent justify-between`}
+          >
+            <ThemedText type="body1" style={tw``}>
+              Santiago Quirumbay
+            </ThemedText>
+            {/* <ThemedText type="caption">Order N {order.num}</ThemedText> */}
+            <ThemedView
+              style={tw` flex-row justify-end bg-transparent items-center gap-2 border border-gray-300 dark:border-gray-600 rounded-full px-2 py-1`}
+            >
+              <View
+                style={[
+                  tw`w-2 h-2 rounded-full `,
+                  tw`${backgroundColors[status]}`,
+                ]}
+              />
+              <ThemedText style={tw`${textColors[status]}`} type="body2">
+                {statusText[status]}
+              </ThemedText>
+            </ThemedView>
+          </ThemedView>
+          <ThemedView style={tw`flex-row items-center bg-transparent gap-5 `}>
+            <ThemedText type="h3">Mesa 1</ThemedText>
 
-        <ThemedView
-          style={tw` flex-row justify-end bg-transparent items-center gap-2`}
-        >
-          <Ionicons name="people-outline" size={18} />
-          <ThemedText type="body2">5</ThemedText>
+            <ThemedView
+              style={tw` flex-row justify-end bg-transparent items-center gap-2`}
+            >
+              <Ionicons name="people-outline" size={18} />
+              <ThemedText type="body2">5</ThemedText>
+            </ThemedView>
+          </ThemedView>
+          <ThemedView
+            style={tw`flex-row items-center bg-transparent justify-between `}
+          >
+            <ThemedText type="body2">Order #111 - Today, 13:30</ThemedText>
+            <ThemedText type="h3">$55</ThemedText>
+          </ThemedView>
         </ThemedView>
-      </ThemedView>
-      <ThemedText type="body1">Santiago Quirumbay</ThemedText>
-      <ThemedView
-        style={tw`flex-row items-center bg-transparent justify-between mt-3`}
-      >
-        <ThemedText type="body2">Today, 13:30</ThemedText>
-        <ThemedText type="h3">$55</ThemedText>
-      </ThemedView>
-    </Pressable>
+      </Card>
+    </ThemedView>
   );
 }

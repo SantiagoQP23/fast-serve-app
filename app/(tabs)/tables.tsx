@@ -26,6 +26,7 @@ import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { Table } from "@/core/tables/models/table.model";
 import { useTables } from "@/presentation/tables/hooks/useTables";
 import TableOrdersBottomSheet from "@/presentation/orders/components/table-orders-bottom-sheet";
+import Chip from "@/presentation/theme/components/chip";
 
 export default function TablesScreen() {
   const [selectedStatus, setSelectedStatus] = useState<boolean | "all">("all");
@@ -114,23 +115,16 @@ export default function TablesScreen() {
     <ThemedView style={tw`px-4 pt-8 flex-1`}>
       <ThemedText type="h1">Tables</ThemedText>
       <ThemedView style={tw`mt-8`} />
-      <ThemedView style={tw`flex-row mb-4`}>
+      <ThemedView style={tw`flex-row mb-4 gap-2`}>
         {tabs.map((tab) => {
           const isActive = tab.value === selectedStatus;
           return (
-            <Pressable
+            <Chip
               key={tab.value.toString()}
               onPress={() => onChangeStatus(tab.value)}
-              style={tw`px-4 py-2 mr-2 rounded-full ${
-                isActive ? "bg-light-primary" : "bg-gray-200"
-              }`}
-            >
-              <Text
-                style={tw`${isActive ? "text-white" : "text-gray-800"} font-medium`}
-              >
-                {tab.label}
-              </Text>
-            </Pressable>
+              selected={isActive}
+              label={tab.label}
+            />
           );
         })}
       </ThemedView>

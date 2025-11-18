@@ -31,9 +31,13 @@ export default function RestaurantMenuScreen() {
             <ThemedText type="body1">$12</ThemedText>
           </ThemedView>
           <ThemedView style={tw`flex-row items-center gap-2`}>
-            <IconButton icon="remove-outline" onPress={decrement} />
+            <IconButton
+              icon="remove-outline"
+              onPress={decrement}
+              variant="outlined"
+            />
             <ThemedText>{counter}</ThemedText>
-            <IconButton icon="add" onPress={increment} />
+            <IconButton icon="add" onPress={increment} variant="outlined" />
           </ThemedView>
         </ThemedView>
         <ThemedText type="body2">
@@ -45,13 +49,21 @@ export default function RestaurantMenuScreen() {
           <ThemedView>
             <ThemedText type="h4">Entregado</ThemedText>
           </ThemedView>
-          <ThemedView style={tw`flex-row items-center gap-2`}>
-            <IconButton icon="remove-outline" onPress={decrement} />
+          <ThemedView style={tw`flex-row items-center gap-4`}>
+            <IconButton
+              icon="remove-outline"
+              onPress={decrement}
+              variant="outlined"
+            />
             <ThemedText>{counter}</ThemedText>
-            <IconButton icon="add" onPress={increment} />
+            <IconButton icon="add" onPress={increment} variant="outlined" />
           </ThemedView>
         </ThemedView>
-        <TextInput label="Price" keyboardType="numeric" />
+        <TextInput
+          label="Price"
+          keyboardType="numeric"
+          icon="pricetag-outline"
+        />
         <ThemedView>
           <Switch
             label="Add note"

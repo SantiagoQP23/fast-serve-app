@@ -27,7 +27,7 @@ export default function OrderDetailCard({
   return (
     <Pressable
       style={({ pressed }) => [
-        tw`mb-3 rounded-2xl bg-gray-100 dark:bg-gray-800`,
+        tw` rounded-2xl bg-gray-100 dark:bg-gray-800`,
         pressed && tw`opacity-80`,
       ]}
       onPress={onPress}
@@ -40,16 +40,20 @@ export default function OrderDetailCard({
         >
           <IconButton icon="close-outline" style={tw`bg-gray-100`} size={18} />
         </ThemedView>
-        <ThemedView style={tw` bg-transparent justify-between gap-2`}>
+        <ThemedView style={tw` bg-transparent justify-between gap-4`}>
           <ThemedText type="h3" style={tw` font-bold`}>
             {product.name}
           </ThemedText>
           <ThemedText style={tw`text-base `}>${product.price}</ThemedText>
         </ThemedView>
         <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
-          <IconButton icon="remove-outline" onPress={decrement} />
+          <IconButton
+            icon="remove-outline"
+            onPress={decrement}
+            variant="outlined"
+          />
           <ThemedText>{counter}</ThemedText>
-          <IconButton icon="add" onPress={increment} />
+          <IconButton icon="add" onPress={increment} variant="outlined" />
         </ThemedView>
       </ThemedView>
     </Pressable>

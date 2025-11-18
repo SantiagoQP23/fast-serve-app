@@ -52,7 +52,11 @@ export default function CartScreen() {
             <ThemedText type="body2">{notes}</ThemedText>
           </ThemedView>
         )}
-        <ScrollView style={tw`flex-1`} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={tw`flex-1`}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={tw`gap-4 pb-4`}
+        >
           <OrderDetailCard
             product={{ name: "Arroz marinero", id: "1", price: 12 }}
           />

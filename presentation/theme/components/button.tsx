@@ -35,8 +35,8 @@ export default function Button({
 
   const variants = {
     primary: "bg-light-primary",
-    secondary: "bg-light-secondary",
-    outline: "border border-light-primary bg-transparent",
+    secondary: "bg-gray-100",
+    outline: "border border-gray-200 bg-transparent",
   };
 
   const sizeStyles = {
@@ -47,7 +47,7 @@ export default function Button({
 
   const textColors = {
     primary: "text-white",
-    secondary: "text-white",
+    secondary: "text-light-primary",
     outline: "text-light-primary",
   };
 

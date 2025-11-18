@@ -88,7 +88,11 @@ export default function RestaurantMenuScreen() {
             ))}
           </ThemedView>
         )}
-        <ScrollView style={tw`flex-1 `} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={tw`flex-1 mb-20`}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={tw`gap-3 pb-20`}
+        >
           <ProductCard
             product={{ name: "Arroz marinero", id: "1", price: 10 }}
           ></ProductCard>

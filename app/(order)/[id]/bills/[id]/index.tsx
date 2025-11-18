@@ -38,7 +38,7 @@ export default function BillScreen() {
         <ScrollView style={tw`flex-1`} showsVerticalScrollIndicator={false}>
           <ThemedView style={tw`gap-2 mb-8`}>
             <ThemedView style={tw`flex-row justify-between items-center`}>
-              <ThemedText type="h4">Filete apanado x4</ThemedText>
+              <ThemedText type="body1">Filete apanado x4</ThemedText>
               <ThemedText>$50</ThemedText>
             </ThemedView>
             <ThemedView style={tw`flex-row justify-between items-center`}>
@@ -83,6 +83,7 @@ export default function BillScreen() {
           </ThemedView>
           <ThemedView style={tw` gap-4 mb-20 mt-4`}>
             <ThemedText type="h3">Received amount</ThemedText>
+            <TextInput icon="cash-outline" />
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -90,8 +91,10 @@ export default function BillScreen() {
               nestedScrollEnabled
             >
               <Button label="$10" variant="outline"></Button>
+              <Button label="$20" variant="outline"></Button>
+              <Button label="$50" variant="outline"></Button>
+              <Button label="$100" variant="outline"></Button>
             </ScrollView>
-            <TextInput />
             <Button label="Exact amount" variant="outline" />
             <ThemedView style={tw` items-center mt-4 gap-2`}>
               <ThemedText>Change</ThemedText>

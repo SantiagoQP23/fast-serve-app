@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Pressable, Text } from "react-native";
 import tw from "../lib/tailwind";
+import { ThemedText } from "./themed-text";
 
 export interface ButtonGroupOption {
   label: string;
@@ -36,19 +37,20 @@ export default function ButtonGroup({
             style={({ pressed }) =>
               tw.style(
                 "flex-1 py-2 rounded-2xl",
-                isActive ? "bg-light-primary" : "bg-transparent",
+                isActive ? "bg-white" : "bg-transparent",
                 pressed && "opacity-80",
               )
             }
           >
-            <Text
+            <ThemedText
+              type="body2"
               style={tw.style(
                 "text-center font-semibold",
-                isActive ? "text-white" : "text-gray-700 dark:text-darktext",
+                // isActive ? "text-white" : "text-gray-700 dark:text-darktext",
               )}
             >
               {option.label}
-            </Text>
+            </ThemedText>
           </Pressable>
         );
       })}

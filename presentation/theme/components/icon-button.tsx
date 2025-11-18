@@ -18,6 +18,7 @@ interface IconButtonProps {
   style?: ViewStyle;
   backgroundColor?: string;
   disabled?: boolean;
+  variant?: "filled" | "outlined" | "text";
 }
 
 export default function IconButton({
@@ -28,6 +29,7 @@ export default function IconButton({
   disabled = false,
   style,
   backgroundColor = "transparent", // gray-100
+  variant = "text",
 }: IconButtonProps) {
   const colors: { [key: string]: string } = {
     primary: "#1f2937", // gray-800
@@ -38,11 +40,17 @@ export default function IconButton({
     info: "#3b82f6", // blue-500
   };
 
+  const variantStyles = {
+    filled: colors[color] || color,
+    outlined: "border border-gray-300",
+    text: "",
+  };
+
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
-        tw`rounded-full p-1 ${pressed ? "opacity-80" : "opacity-100"} ${disabled ? "opacity-50" : ""} bg-transparent`,
+        tw`rounded-md p-1 ${pressed ? "opacity-80" : "opacity-100"} ${disabled ? "opacity-50" : ""} bg-transparent ${variantStyles[variant]}`,
         {
           // backgroundColor: !pressed
           //   ? backgroundColor

@@ -47,20 +47,26 @@ export default function OrderScreen() {
             </ThemedView>
           </ThemedView>
         </ThemedView>
-        <ThemedView style={tw`gap-2`}>
-          <ThemedText type="caption">Notes</ThemedText>
-          <ThemedText type="body2">{notes}</ThemedText>
-        </ThemedView>
-        <ThemedView style={tw`flex-row justify-between items-center`}>
-          <ThemedText type="body1">Pending</ThemedText>
-          <Button
-            label="Start"
-            variant="outline"
-            rightIcon="play-outline"
-            size="small"
-          />
-        </ThemedView>
-        <ScrollView style={tw`flex-1`} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={tw`flex-1`}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={tw`gap-4 pb-4`}
+        >
+          {notes && (
+            <ThemedView style={tw`gap-2`}>
+              <ThemedText type="caption">Notes</ThemedText>
+              <ThemedText type="body2">{notes}</ThemedText>
+            </ThemedView>
+          )}
+          <ThemedView style={tw`flex-row justify-between items-center`}>
+            <ThemedText type="body1">Pending</ThemedText>
+            <Button
+              label="Start"
+              variant="outline"
+              rightIcon="play-outline"
+              size="small"
+            />
+          </ThemedView>
           <OrderDetailCard
             product={{ name: "Arroz marinero", id: "1", price: 12 }}
             onPress={openProduct}

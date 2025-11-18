@@ -20,12 +20,12 @@ export default function ProductCard({ product, onPress }: ProductCardProps) {
   return (
     <Pressable
       style={({ pressed }) => [
-        tw`mb-3 p-4 rounded-2xl bg-gray-100 dark:bg-gray-800`,
+        tw` p-4 rounded-2xl bg-gray-100 dark:bg-gray-800`,
         pressed && tw`opacity-80`,
       ]}
       onPress={onPress}
     >
-      <ThemedView style={tw` bg-transparent justify-between`}>
+      <ThemedView style={tw` bg-transparent gap-2 `}>
         <ThemedText style={tw`text-base font-bold`}>{product.name}</ThemedText>
         <ThemedText style={tw`text-base `}>${product.price}</ThemedText>
       </ThemedView>

@@ -29,14 +29,18 @@ export default function RestaurantMenuScreen() {
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
       <ThemedView style={tw`flex-row justify-between mb-4 items-center`}>
-        <ThemedView>
+        <ThemedView style={tw`gap-2`}>
           <ThemedText type="h2">Arroz marinero</ThemedText>
           <ThemedText type="body1">$12</ThemedText>
         </ThemedView>
-        <ThemedView style={tw`flex-row items-center gap-2`}>
-          <IconButton icon="remove-outline" onPress={decrement} />
+        <ThemedView style={tw`flex-row items-center gap-4`}>
+          <IconButton
+            icon="remove-outline"
+            onPress={decrement}
+            variant="outlined"
+          />
           <ThemedText>{counter}</ThemedText>
-          <IconButton icon="add" onPress={increment} />
+          <IconButton icon="add" onPress={increment} variant="outlined" />
         </ThemedView>
       </ThemedView>
       <ThemedText type="body2">
