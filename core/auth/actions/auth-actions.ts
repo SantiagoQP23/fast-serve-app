@@ -1,13 +1,11 @@
 import { restaurantApi } from "@/core/api/restaurantApi";
-import { User } from "../interface/user";
+import { User } from "../models/user.model";
+import { Restaurant } from "@/core/common/models/restaurant.model";
 
 export interface AuthResponse {
-  id: string;
-  email: string;
-  fullName: string;
-  isActive: boolean;
-  roles: string[];
   token: string;
+  user: User;
+  currentRestaurant: Restaurant;
 }
 
 const returnUserToken = (
@@ -15,30 +13,22 @@ const returnUserToken = (
 ): {
   user: User;
   token: string;
+  currentRestaurant: Restaurant;
 } => {
-  // const { id, email, fullName, isActive, roles, token } = data;
-  const { token, ...user } = data;
-
-  // const user: User = {
-  //   id,
-  //   email,
-  //   fullName,
-  //   isActive,
-  //   roles,
-  // };
+  const { token, user, currentRestaurant } = data;
+  console.log("AuthResponse:", currentRestaurant);
 
   return {
-    user: { name: user.fullName },
+    user,
     token,
+    currentRestaurant,
   };
 };
 
-export const authLogin = async (email: string, password: string) => {
-  email = email.toLowerCase();
-
+export const authLogin = async (username: string, password: string) => {
   try {
     const { data } = await restaurantApi.post<AuthResponse>("/auth/login", {
-      email,
+      username,
       password,
     });
 
@@ -52,8 +42,7 @@ export const authLogin = async (email: string, password: string) => {
 
 export const authCheckStatus = async () => {
   try {
-    const { data } =
-      await restaurantApi.get<AuthResponse>("/auth/check-status");
+    const { data } = await restaurantApi.get<AuthResponse>("/auth/auth-renew");
 
     return returnUserToken(data);
   } catch (error) {

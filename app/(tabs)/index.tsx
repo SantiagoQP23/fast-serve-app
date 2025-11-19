@@ -26,9 +26,11 @@ import { FlatList } from "react-native-gesture-handler";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import IconButton from "@/presentation/theme/components/icon-button";
 import NotificationBadge from "@/presentation/theme/components/notification-badge";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 
 export default function HomeScreen() {
   const [status, setStatus] = useState("All");
+  const { user } = useAuthStore();
   const [selectedWaiter, setSelectedWaiter] = useState<string | number>();
   const [people, setPeople] = useState(1);
   const router = useRouter();
@@ -95,7 +97,7 @@ export default function HomeScreen() {
         </ThemedView>
         <ThemedText type="body1">Welcome back!</ThemedText>
         <ThemedText type="h2" style={tw`mt-1`}>
-          Santiago
+          {user?.person.firstName}
         </ThemedText>
       </ThemedView>
       <ScrollView

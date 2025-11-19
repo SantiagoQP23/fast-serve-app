@@ -62,9 +62,9 @@ export default function TextInput({
           />
         )}
 
-        {error && <Text style={tw`text-red-500 text-sm mt-1`}>{error}</Text>}
         {leftIcon && leftIcon}
       </View>
+      {error && <Text style={tw`text-red-500 text-sm mt-1`}>{error}</Text>}
     </ThemedView>
   );
 }

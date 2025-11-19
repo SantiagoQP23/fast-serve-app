@@ -4,10 +4,32 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/presentation/theme/hooks/use-color-scheme";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { useEffect } from "react";
+import { ThemedView } from "@/presentation/theme/components/themed-view";
+import { ActivityIndicator } from "react-native";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const { status } = useAuthStore();
+  const { status, checkStatus } = useAuthStore();
+
+  useEffect(() => {
+    checkStatus();
+  }, [checkStatus]);
+
+  if (status === "checking") {
+    return (
+      <ThemedView
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          marginBottom: 5,
+        }}
+      >
+        <ActivityIndicator />
+      </ThemedView>
+    );
+  }
 
   if (status === "unauthenticated") {
     return <Redirect href="/auth/login" />;

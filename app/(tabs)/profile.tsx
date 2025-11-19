@@ -17,6 +17,7 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 
 export default function OrdersScreen() {
   const [visible, setVisible] = useState(false);
+  const { user, currentRestaurant } = useAuthStore();
   const { logout } = useAuthStore();
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
@@ -25,10 +26,11 @@ export default function OrdersScreen() {
       </ThemedView>
       <ThemedView style={tw`my-4`} />
       <ThemedView style={tw`items-center gap-2`}>
-        <ThemedText style={tw`text-2xl font-bold`}>
-          Santiago Quirumbay
+        <ThemedText type="h2">
+          {user?.person.firstName} {user?.person.lastName}
         </ThemedText>
-        <ThemedText style={tw`text-sm text-gray-500`}>Administrator</ThemedText>
+        <ThemedText type="h3">{currentRestaurant?.name}</ThemedText>
+        <ThemedText type="body2">Administrator</ThemedText>
       </ThemedView>
       <ThemedView style={tw`mt-8`}>
         <ThemedView style={tw`rounded-lg  p-4 gap-8`}>
@@ -77,9 +79,8 @@ export default function OrdersScreen() {
           message="Are you sure you want to log out?"
           onCancel={() => setVisible(false)}
           onConfirm={() => {
-            logout();
-            console.log("Confirmed!");
             setVisible(false);
+            logout();
           }}
         />
       </ThemedView>
