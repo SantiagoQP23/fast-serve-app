@@ -34,9 +34,7 @@ const NewOrderBottomSheet = ({
     notes,
   } = useNewOrderStore();
   const [withNotes, setWithNotes] = useState<boolean>(!!notes);
-  const { getTables } = useTables();
-
-  const tables: Table[] = getTables();
+  const { tables } = useTables();
 
   const validateNewOrder = () => {
     if (orderType === OrderType.IN_PLACE && !table) {
@@ -64,7 +62,7 @@ const NewOrderBottomSheet = ({
             placeholder="Select table"
             options={tables.map((table) => ({
               value: table.id,
-              label: table.name,
+              label: "Table " + table.name,
             }))}
             value={table?.id}
             onChange={(value) =>

@@ -16,4 +16,5 @@ export interface Product {
   unitCost: number;
   quantity: number;
   iva: number;
+  category: { id: string; name: string };
 }

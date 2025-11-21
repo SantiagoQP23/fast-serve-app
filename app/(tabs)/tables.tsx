@@ -27,11 +27,13 @@ import { Table } from "@/core/tables/models/table.model";
 import { useTables } from "@/presentation/tables/hooks/useTables";
 import TableOrdersBottomSheet from "@/presentation/orders/components/table-orders-bottom-sheet";
 import Chip from "@/presentation/theme/components/chip";
+import { useTablesStore } from "@/presentation/tables/hooks/useTablesStore";
 
 export default function TablesScreen() {
   const [selectedStatus, setSelectedStatus] = useState<boolean | "all">("all");
   const { setTable, setOrderType } = useNewOrderStore();
-  const { getTables } = useTables();
+  const { tables } = useTables();
+  // const { tables } = useTablesStore();
   const [activeTable, setActiveTable] = useState<Table | null>(null);
 
   const tabs: { label: string; value: boolean | "all" }[] = [
@@ -40,9 +42,7 @@ export default function TablesScreen() {
     { label: "Occupied", value: false },
   ];
 
-  const tables: Table[] = getTables();
-
-  const [filteredTables, setFilteredTables] = useState<Table[]>(getTables());
+  const [filteredTables, setFilteredTables] = useState<Table[]>(tables);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const handleNavigate = () => {

@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { useState } from "react";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { router } from "expo-router";
 
 export default function OrdersScreen() {
   const [visible, setVisible] = useState(false);
@@ -38,7 +39,9 @@ export default function OrdersScreen() {
             style={({ pressed }) =>
               tw.style(`flex-row items-center gap-4`, pressed && "opacity-70")
             }
-            onPress={() => {}}
+            onPress={() => {
+              router.push("/(profile)/restaurants");
+            }}
           >
             <Ionicons name="storefront-outline" size={20} />
             <ThemedText type="h4">My restaurants</ThemedText>

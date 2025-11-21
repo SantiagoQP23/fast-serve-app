@@ -3,54 +3,93 @@ import { Platform, StyleSheet, ScrollView, Text } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import OrderCard from "@/presentation/home/components/order-card";
 import ProductCard from "@/presentation/restaurant-menu/product-card";
-import ButtonGroup from "@/presentation/theme/components/button-group";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Chip from "@/presentation/theme/components/chip";
 import { useRouter } from "expo-router";
 import TextInput from "@/presentation/theme/components/text-input";
 import IconButton from "@/presentation/theme/components/icon-button";
+import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
+import { Category } from "@/core/menu/models/category.model";
+import { Product } from "@/core/menu/models/product.model";
 
 export default function RestaurantMenuScreen() {
   const [section, setSection] = useState("");
-  const [selected, setSelected] = useState("All");
+  const [category, setCategory] = useState("");
+  const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const router = useRouter();
   const [search, setSearch] = useState("");
-
-  const sections = [
-    { label: "Platos a la carta" },
-    { label: "Bebidas" },
-    { label: "Desayunos" },
-    { label: "Otros" },
-  ];
-
-  const categories = [
-    { label: "All" },
-    { label: "Starters" },
-    { label: "Main Course" },
-    { label: "Desserts" },
-    { label: "Beverages" },
-  ];
+  const { categories, sections, products } = useMenu();
 
   const openProduct = () => {
     router.push("/restaurant-menu/product");
   };
 
+  const onChangeCategory = useCallback(
+    (value: string) => {
+      setCategory(value);
+      setFilteredProducts(products.filter((p) => p.category.id === value));
+    },
+    [products],
+  );
+
+  const onChangeSection = useCallback(
+    (value: string) => {
+      setSection(value);
+      setFilteredCategories(() => {
+        const newCategories = categories.filter((c) => c.section.id === value);
+        onChangeCategory(newCategories[0].id);
+        return newCategories;
+      });
+    },
+    [categories, onChangeCategory],
+  );
+
+  const onSearchChange = useCallback(
+    (value: string) => {
+      setSearch(value);
+      if (value) {
+        setFilteredProducts(
+          products.filter((p) =>
+            p.name.toLowerCase().includes(value.toLowerCase()),
+          ),
+        );
+      } else {
+        setFilteredProducts(products.filter((p) => p.category.id === category));
+      }
+    },
+    [products, category],
+  );
+
+  useEffect(() => {
+    if (sections.length > 0 && !section) {
+      onChangeSection(sections[0].id);
+    }
+  }, [sections, section, onChangeSection]);
+
+  useEffect(() => {
+    if (filteredCategories.length > 0 && !category) {
+      onChangeCategory(filteredCategories[0].id);
+    }
+  }, [filteredCategories, category, onChangeCategory]);
+
+  useEffect(() => {
+    console.log(products);
+  }, [products]);
+
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="h1">Menu</ThemedText>
-      </ThemedView>
+      <ThemedText type="h1">Menu</ThemedText>
       <TextInput
         value={search}
-        onChangeText={(value) => setSearch(value)}
+        onChangeText={(value) => onSearchChange(value)}
         icon="search-outline"
         leftIcon={
           search && (
             <IconButton
               icon="close-circle-outline"
-              onPress={() => setSearch("")}
+              onPress={() => onSearchChange("")}
             ></IconButton>
           )
         }
@@ -63,12 +102,11 @@ export default function RestaurantMenuScreen() {
             style={tw`gap-2`}
           >
             {sections.map((f) => (
-              <ThemedView style={tw`mr-2`} key={f.label}>
+              <ThemedView style={tw`mr-2`} key={f.id}>
                 <Chip
-                  key={f.label}
-                  label={f.label}
-                  selected={selected === f.label}
-                  onPress={() => setSelected(f.label)}
+                  label={f.name}
+                  selected={section === f.id}
+                  onPress={() => onChangeSection(f.id)}
                 />
               </ThemedView>
             ))}
@@ -78,12 +116,12 @@ export default function RestaurantMenuScreen() {
       <ThemedView style={tw` flex-row gap-2`}>
         {!search && (
           <ThemedView style={tw` flex-wrap gap-2 `}>
-            {categories.map((f) => (
+            {filteredCategories.map((f) => (
               <Chip
-                key={f.label}
-                label={f.label}
-                selected={selected === f.label}
-                onPress={() => setSelected(f.label)}
+                key={f.id}
+                label={f.name}
+                selected={category === f.id}
+                onPress={() => onChangeCategory(f.id)}
               />
             ))}
           </ThemedView>
@@ -93,60 +131,15 @@ export default function RestaurantMenuScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`gap-3 pb-20`}
         >
-          <ProductCard
-            product={{ name: "Arroz marinero", id: "1", price: 10 }}
-          ></ProductCard>
-          <ProductCard
-            product={{ name: "Arroz marinero", id: "1", price: 10 }}
-          ></ProductCard>
-          <ProductCard
-            product={{ name: "Arroz marinero", id: "1", price: 10 }}
-          ></ProductCard>
-          <ProductCard
-            onPress={openProduct}
-            product={{ name: "Arroz marinero", id: "1", price: 10 }}
-          ></ProductCard>
-          <ProductCard
-            onPress={openProduct}
-            product={{ name: "Arroz marinero", id: "1", price: 10 }}
-          ></ProductCard>
-          <ProductCard
-            onPress={openProduct}
-            product={{ name: "Arroz marinero", id: "1", price: 10 }}
-          ></ProductCard>
-          <ProductCard
-            onPress={openProduct}
-            product={{ name: "Arroz marinero", id: "1", price: 10 }}
-          ></ProductCard>
-          <ProductCard
-            onPress={openProduct}
-            product={{ name: "Arroz marinero", id: "1", price: 10 }}
-          ></ProductCard>
-          <ProductCard
-            onPress={openProduct}
-            product={{ name: "Arroz marinero", id: "1", price: 10 }}
-          ></ProductCard>
+          {filteredProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              onPress={openProduct}
+              product={product}
+            ></ProductCard>
+          ))}
         </ScrollView>
       </ThemedView>
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
-  },
-});

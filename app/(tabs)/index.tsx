@@ -95,7 +95,7 @@ export default function HomeScreen() {
             </ThemedView>
           )}
         </ThemedView>
-        <ThemedText type="body1">Welcome back!</ThemedText>
+        <ThemedText type="body1">Hello!</ThemedText>
         <ThemedText type="h2" style={tw`mt-1`}>
           {user?.person.firstName}
         </ThemedText>

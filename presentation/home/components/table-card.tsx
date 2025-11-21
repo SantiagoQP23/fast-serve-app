@@ -20,13 +20,13 @@ export default function TableCard({ table, onPress }: TableCardProps) {
         <ThemedView style={tw`mb-3 flex-row justify-end bg-transparent`}>
           <View
             style={[
-              tw`w-3 h-3 rounded-full `,
-              table.isAvailable ? tw`bg-green-500` : tw`bg-red-500`,
+              tw`w-3 h-3 rounded-full`,
+              table.isAvailable ? tw`border border-black-500` : tw`bg-black`,
             ]}
           />
         </ThemedView>
         <ThemedView style={tw`flex-row items-center bg-transparent`}>
-          <ThemedText type="h3">{table.name}</ThemedText>
+          <ThemedText type="h3">Table {table.name}</ThemedText>
         </ThemedView>
       </Card>
     </ThemedView>

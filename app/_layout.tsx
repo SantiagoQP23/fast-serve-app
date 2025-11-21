@@ -17,6 +17,10 @@ import { useDeviceContext } from "twrnc";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import IconButton from "@/presentation/theme/components/icon-button";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+// Create a client
+
+const queryClient = new QueryClient();
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -30,31 +34,33 @@ export default function RootLayout() {
   });
 
   return (
-    <GestureHandlerRootView>
-      <SafeAreaView style={tw`flex-1 bg-white dark:bg-black`}>
-        <BottomSheetModalProvider>
-          <ThemeProvider
-            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-          >
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen
-                name="(tabs)"
-                options={{
-                  title: "",
-                  headerShadowVisible: false,
-                }}
-              />
-              <Stack.Screen
-                name="(new-order)"
-                options={{
-                  headerShown: false,
-                }}
-              />
-            </Stack>
-            <StatusBar style="auto" />
-          </ThemeProvider>
-        </BottomSheetModalProvider>
-      </SafeAreaView>
-    </GestureHandlerRootView>
+    <QueryClientProvider client={queryClient}>
+      <GestureHandlerRootView>
+        <SafeAreaView style={tw`flex-1 bg-white dark:bg-black`}>
+          <BottomSheetModalProvider>
+            <ThemeProvider
+              value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+            >
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen
+                  name="(tabs)"
+                  options={{
+                    title: "",
+                    headerShadowVisible: false,
+                  }}
+                />
+                <Stack.Screen
+                  name="(new-order)"
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+              </Stack>
+              <StatusBar style="auto" />
+            </ThemeProvider>
+          </BottomSheetModalProvider>
+        </SafeAreaView>
+      </GestureHandlerRootView>
+    </QueryClientProvider>
   );
 }
