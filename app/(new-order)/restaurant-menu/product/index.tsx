@@ -8,60 +8,116 @@ import ProductCard from "@/presentation/restaurant-menu/product-card";
 import ButtonGroup from "@/presentation/theme/components/button-group";
 import { useState } from "react";
 import Chip from "@/presentation/theme/components/chip";
-import { useRouter } from "expo-router";
+import { router, useRouter } from "expo-router";
 import Switch from "@/presentation/theme/components/switch";
 import TextInput from "@/presentation/theme/components/text-input";
 import Button from "@/presentation/theme/components/button";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useCounter } from "@/presentation/shared/hooks/useCounter";
+import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
+import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 
-export default function RestaurantMenuScreen() {
-  const [section, setSection] = useState("");
-  const { counter, increment, decrement } = useCounter(1, 1, 20, 1);
-  const router = useRouter();
-  const [selected, setSelected] = useState("All");
-  const [withNotes, setWithNotes] = useState(true);
+export default function ProductScreen() {
+  const activeOrderDetail = useNewOrderStore((state) => state.activeDetail);
+  const { counter, increment, decrement } = useCounter(
+    activeOrderDetail?.quantity,
+    1,
+    20,
+    1,
+  );
+  const [withNotes, setWithNotes] = useState(!!activeOrderDetail?.description);
+  const { activeProduct } = useMenuStore();
+  const [notes, setNotes] = useState(activeOrderDetail?.description || "");
+
+  const addDetail = useNewOrderStore((state) => state.addDetail);
+  const updateDetail = useNewOrderStore((state) => state.updateDetail);
+  const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
+  const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
 
   const goToMenu = () => {
+    setActiveProduct(null);
+    setActiveDetail(null);
     router.back();
   };
 
+  const addProductToCart = () => {
+    if (!activeOrderDetail) {
+      addDetail({
+        quantity: counter,
+        product: activeProduct!,
+        description: notes,
+      });
+    } else {
+      updateDetail({
+        quantity: counter,
+        product: activeProduct!,
+        description: notes,
+      });
+    }
+    goToMenu();
+  };
+
+  if (!activeProduct) {
+    return null;
+  }
+
   return (
-    <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
-      <ThemedView style={tw`flex-row justify-between mb-4 items-center`}>
-        <ThemedView style={tw`gap-2`}>
-          <ThemedText type="h2">Arroz marinero</ThemedText>
-          <ThemedText type="body1">$12</ThemedText>
+    <>
+      <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
+        <ThemedView style={tw`flex-row justify-between mb-4 items-center`}>
+          <ThemedView style={tw`gap-2`}>
+            <ThemedText type="h2">{activeProduct.name}</ThemedText>
+            <ThemedText type="body1">${activeProduct.price}</ThemedText>
+          </ThemedView>
+          {/* <ThemedView style={tw`flex-row items-center gap-4`}> */}
+          {/*   <IconButton */}
+          {/*     icon="remove-outline" */}
+          {/*     onPress={decrement} */}
+          {/*     variant="outlined" */}
+          {/*   /> */}
+          {/*   <ThemedText>{counter}</ThemedText> */}
+          {/*   <IconButton icon="add" onPress={increment} variant="outlined" /> */}
+          {/* </ThemedView> */}
         </ThemedView>
-        <ThemedView style={tw`flex-row items-center gap-4`}>
-          <IconButton
-            icon="remove-outline"
-            onPress={decrement}
-            variant="outlined"
+        {activeProduct.description && (
+          <ThemedText type="body2">{activeProduct.description}</ThemedText>
+        )}
+        <ThemedView>
+          <Switch
+            label="Add note"
+            value={withNotes}
+            onValueChange={setWithNotes}
           />
-          <ThemedText>{counter}</ThemedText>
-          <IconButton icon="add" onPress={increment} variant="outlined" />
+          {withNotes && (
+            <TextInput
+              numberOfLines={5}
+              multiline
+              value={notes}
+              onChangeText={setNotes}
+            />
+          )}
         </ThemedView>
+        <ThemedView style={tw`flex-1 `} />
       </ThemedView>
-      <ThemedText type="body2">
-        lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-      </ThemedText>
-      <ThemedView>
-        <Switch
-          label="Add note"
-          value={withNotes}
-          onValueChange={setWithNotes}
-        />
-        {withNotes && <TextInput numberOfLines={5} multiline />}
-      </ThemedView>
-      <ThemedView style={tw`flex-1 `} />
-      <ThemedView style={tw`w-full `}>
+      <ThemedView style={tw`gap-4 p-4 rounded-xl shadow-xl `}>
+        <ThemedView style={tw`flex-row justify-between items-center`}>
+          <ThemedText type="h4">${activeProduct.price * counter}</ThemedText>
+          <ThemedView style={tw`flex-row items-center gap-4`}>
+            <IconButton
+              icon="remove-outline"
+              onPress={decrement}
+              variant="outlined"
+            />
+            <ThemedText>{counter}</ThemedText>
+            <IconButton icon="add" onPress={increment} variant="outlined" />
+          </ThemedView>
+        </ThemedView>
         <Button
           label="Add to Cart "
-          onPress={goToMenu}
+          onPress={addProductToCart}
           leftIcon="cart-outline"
         />
       </ThemedView>
-    </ThemedView>
+    </>
   );
 }

@@ -9,15 +9,17 @@ import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { router } from "expo-router";
 import { NewOrderDetail } from "@/core/orders/dto/new-order-detail.dto";
 import { useNewOrderStore } from "../store/newOrderStore";
+import { OrderDetail } from "@/core/orders/models/order-detail.model";
+import ProgressBar from "@/presentation/theme/components/progress-bar";
 
-interface NewOrderDetailCardProps extends PressableProps {
-  detail: NewOrderDetail;
+interface OrderDetailCardProps extends PressableProps {
+  detail: OrderDetail;
 }
 
-export default function NewOrderDetailCard({
+export default function OrderDetailCard({
   detail,
   onPress,
-}: NewOrderDetailCardProps) {
+}: OrderDetailCardProps) {
   const { removeDetail, updateDetail } = useNewOrderStore();
   const { counter, increment, decrement } = useCounter(
     detail.quantity,
@@ -42,9 +44,7 @@ export default function NewOrderDetailCard({
       ]}
       onPress={onPress}
     >
-      <ThemedView
-        style={tw`flex-row justify-between items-end bg-transparent p-4`}
-      >
+      <ThemedView style={tw` bg-transparent p-4 gap-2`}>
         <ThemedView
           style={tw`absolute  rounded-full items-center justify-center  z-10 right-0 top-0`}
         >
@@ -55,22 +55,32 @@ export default function NewOrderDetailCard({
             onPress={onRemoveDetail}
           />
         </ThemedView>
-        <ThemedView style={tw` bg-transparent justify-between gap-2`}>
-          <ThemedText type="h3" style={tw` font-bold`}>
-            {detail.product.name}
-          </ThemedText>
-          <ThemedText type="body1">${detail.product.price}</ThemedText>
-          <ThemedText type="body2">{detail.description}</ThemedText>
+        <ThemedView style={tw`flex-row bg-transparent justify-between gap-4`}>
+          <ThemedView style={tw` bg-transparent  gap-2`}>
+            <ThemedText type="h3" style={tw` font-bold`}>
+              {detail.product.name}
+            </ThemedText>
+            <ThemedText type="body1">${detail.product.price}</ThemedText>
+            {detail.description && (
+              <ThemedText type="body2">{detail.description}</ThemedText>
+            )}
+          </ThemedView>
+          <ThemedView style={tw`justify-center items-center bg-transparent`}>
+            <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
+              <IconButton
+                icon="remove-outline"
+                onPress={decrement}
+                variant="outlined"
+              />
+              <ThemedText>{counter}</ThemedText>
+              <IconButton icon="add" onPress={increment} variant="outlined" />
+            </ThemedView>
+          </ThemedView>
         </ThemedView>
-        <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
-          <IconButton
-            icon="remove-outline"
-            onPress={decrement}
-            variant="outlined"
-          />
-          <ThemedText>{counter}</ThemedText>
-          <IconButton icon="add" onPress={increment} variant="outlined" />
-        </ThemedView>
+        <ProgressBar
+          progress={detail.qtyDelivered / detail.quantity}
+          height={1}
+        />
       </ThemedView>
     </Pressable>
   );

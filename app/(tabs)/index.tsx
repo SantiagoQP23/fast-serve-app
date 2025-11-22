@@ -1,11 +1,4 @@
-import {
-  Platform,
-  StyleSheet,
-  ScrollView,
-  Text,
-  View,
-  Dimensions,
-} from "react-native";
+import { ScrollView, Dimensions } from "react-native";
 
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -27,23 +20,19 @@ import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import IconButton from "@/presentation/theme/components/icon-button";
 import NotificationBadge from "@/presentation/theme/components/notification-badge";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
+import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { OrderType } from "@/core/orders/enums/order-type.enum";
+import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 
 export default function HomeScreen() {
-  const [status, setStatus] = useState("All");
   const { user } = useAuthStore();
-  const [selectedWaiter, setSelectedWaiter] = useState<string | number>();
-  const [people, setPeople] = useState(1);
+  const orders = useOrdersStore((state) => state.orders);
   const router = useRouter();
+  const details = useNewOrderStore((state) => state.details);
 
   // ref
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-
-  const waiters = [
-    { label: "1", value: 1 },
-    { label: "2", value: 2 },
-    { label: "3", value: 3 },
-    { label: "4", value: 4 },
-  ];
 
   const handleNavigate = () => {
     bottomSheetModalRef.current?.close(); // Close sheet before navigating
@@ -59,24 +48,18 @@ export default function HomeScreen() {
     console.log("handleSheetChanges", index);
   }, []);
 
-  const orders: Order[] = [
-    { num: 1, status: "pending" },
-    { num: 2, status: "inProgress" },
-    { num: 3, status: "delivered" },
-    { num: 4, status: "pending" },
-    { num: 5, status: "inProgress" },
-    { num: 6, status: "delivered" },
-  ];
-
-  const pendingOrders = orders.filter((order) => order.status === "pending");
+  const pendingOrders = orders.filter(
+    (order) => order.status === OrderStatus.PENDING,
+  );
   const inProgressOrders = orders.filter(
-    (order) => order.status === "inProgress",
+    (order) => order.status === OrderStatus.IN_PROGRESS,
   );
   const deliveredOrders = orders.filter(
-    (order) => order.status === "delivered",
+    (order) => order.status === OrderStatus.DELIVERED,
   );
 
-  const haveAnOpenOrder = true;
+  const haveAnOpenOrder = details.length > 0;
+
   const screenWidth = Dimensions.get("window").width;
 
   return (
@@ -91,87 +74,112 @@ export default function HomeScreen() {
                 icon="cart-outline"
                 onPress={() => router.push("/(new-order)/cart")}
               />
-              <NotificationBadge value={5} />
+              <NotificationBadge value={details.length} />
             </ThemedView>
           )}
         </ThemedView>
-        <ThemedText type="body1">Hello!</ThemedText>
+        <ThemedText type="body1">Hello</ThemedText>
         <ThemedText type="h2" style={tw`mt-1`}>
           {user?.person.firstName}
         </ThemedText>
       </ThemedView>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`pb-20 gap-4`}
-      >
-        <ThemedView>
-          <ThemedView style={tw`  justify-between mb-4`}>
-            <ThemedText type="h4">Pending</ThemedText>
-            <ThemedText type="small">Count: {pendingOrders.length}</ThemedText>
+      {orders.length === 0 ? (
+        <>
+          <ThemedView style={tw` items-center justify-center flex-1 gap-4`}>
+            <Ionicons
+              name="document-text-outline"
+              size={80}
+              color={tw.color("gray-500")}
+            />
+            <ThemedText type="h3">No orders yet</ThemedText>
+            <ThemedText type="body2" style={tw`text-center max-w-xs`}>
+              You have no orders at the moment. Create a new order to get
+              started.
+            </ThemedText>
           </ThemedView>
-          <FlatList
-            data={pendingOrders}
-            keyExtractor={(item, index) => index.toString()}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            renderItem={({ item, index }) => (
-              <ThemedView
-                style={[
-                  index !== pendingOrders.length - 1 && tw`mr-4`,
-                  { width: screenWidth * 0.8 },
-                ]}
-              >
-                <OrderCard order={item} />
-              </ThemedView>
-            )}
-            style={tw``}
-          />
-        </ThemedView>
-        <ThemedView>
-          <ThemedText style={tw`font-semibold mb-4 text-gray-700`}>
-            In progress
-          </ThemedText>
-          <FlatList
-            data={inProgressOrders}
-            keyExtractor={(item, index) => index.toString()}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            renderItem={({ item, index }) => (
-              <ThemedView
-                style={[
-                  index !== inProgressOrders.length - 1 && tw`mr-4`,
-                  { width: screenWidth * 0.8 },
-                ]}
-              >
-                <OrderCard order={item} />
-              </ThemedView>
-            )}
-            style={tw``}
-          />
-        </ThemedView>
-        <ThemedView>
-          <ThemedText style={tw`font-semibold mb-4 text-gray-700`}>
-            Delivered
-          </ThemedText>
-          <FlatList
-            data={deliveredOrders}
-            keyExtractor={(item, index) => index.toString()}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            renderItem={({ item, index }) => (
-              <ThemedView
-                style={[
-                  index !== deliveredOrders.length - 1 && tw`mr-4`,
-                  { width: screenWidth * 0.8 },
-                ]}
-              >
-                <OrderCard order={item} />
-              </ThemedView>
-            )}
-            style={tw``}
-          />
-        </ThemedView>
-      </ScrollView>
+        </>
+      ) : (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={tw`pb-20 gap-4`}
+        >
+          <ThemedView>
+            <ThemedView style={tw`  justify-between mb-4`}>
+              <ThemedText type="h4">Pending</ThemedText>
+              <ThemedText type="small">
+                Count: {pendingOrders.length}
+              </ThemedText>
+            </ThemedView>
+            <FlatList
+              data={pendingOrders}
+              keyExtractor={(item, index) => index.toString()}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              renderItem={({ item, index }) => (
+                <ThemedView
+                  style={[
+                    index !== pendingOrders.length - 1 && tw`mr-4`,
+                    { width: screenWidth * 0.8 },
+                  ]}
+                >
+                  <OrderCard order={item} />
+                </ThemedView>
+              )}
+              style={tw``}
+            />
+          </ThemedView>
+          <ThemedView>
+            <ThemedView style={tw`  justify-between mb-4`}>
+              <ThemedText type="h4">In Progress</ThemedText>
+              <ThemedText type="small">
+                Count: {inProgressOrders.length}
+              </ThemedText>
+            </ThemedView>
+            <FlatList
+              data={inProgressOrders}
+              keyExtractor={(item, index) => index.toString()}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              renderItem={({ item, index }) => (
+                <ThemedView
+                  style={[
+                    index !== inProgressOrders.length - 1 && tw`mr-4`,
+                    { width: screenWidth * 0.8 },
+                  ]}
+                >
+                  <OrderCard order={item} />
+                </ThemedView>
+              )}
+              style={tw``}
+            />
+          </ThemedView>
+          <ThemedView>
+            <ThemedView style={tw`  justify-between mb-4`}>
+              <ThemedText type="h4">Delivered</ThemedText>
+              <ThemedText type="small">
+                Count: {deliveredOrders.length}
+              </ThemedText>
+            </ThemedView>
+            <FlatList
+              data={deliveredOrders}
+              keyExtractor={(item, index) => index.toString()}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              renderItem={({ item, index }) => (
+                <ThemedView
+                  style={[
+                    index !== deliveredOrders.length - 1 && tw`mr-4`,
+                    { width: screenWidth * 0.8 },
+                  ]}
+                >
+                  <OrderCard order={item} />
+                </ThemedView>
+              )}
+              style={tw``}
+            />
+          </ThemedView>
+        </ScrollView>
+      )}
       <BottomSheetModal
         ref={bottomSheetModalRef}
         onChange={handleSheetChanges}

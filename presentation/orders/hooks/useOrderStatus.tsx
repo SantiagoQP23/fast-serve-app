@@ -1,0 +1,30 @@
+import { OrderStatus } from "@/core/orders/enums/order-status.enum";
+
+export function useOrderStatus(status: OrderStatus) {
+  const statusText: { [key in OrderStatus]: string } = {
+    [OrderStatus.DELIVERED]: "Delivered",
+    [OrderStatus.IN_PROGRESS]: "In Progress",
+    [OrderStatus.PENDING]: "Pending",
+    [OrderStatus.CANCELLED]: "Cancelled",
+  };
+
+  const statusTextColor: { [key in OrderStatus]: string } = {
+    [OrderStatus.DELIVERED]: "text-green-700",
+    [OrderStatus.IN_PROGRESS]: "text-blue-700",
+    [OrderStatus.PENDING]: "text-orange-700",
+    [OrderStatus.CANCELLED]: "text-red-700",
+  };
+
+  const backgroundColors: { [key in OrderStatus]: string } = {
+    [OrderStatus.DELIVERED]: "bg-green-500",
+    [OrderStatus.IN_PROGRESS]: "bg-blue-500",
+    [OrderStatus.PENDING]: "bg-orange-500",
+    [OrderStatus.CANCELLED]: "bg-red-500",
+  };
+
+  return {
+    statusText: statusText[status],
+    statusTextColor: statusTextColor[status],
+    statusBackgroundColor: backgroundColors[status],
+  };
+}

@@ -1,12 +1,11 @@
 import { NewOrderDetail } from "@/core/orders/dto/new-order-detail.dto";
-import { deleteItemAsync, getItemAsync, setItemAsync } from "expo-secure-store";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { Table } from "@/core/tables/models/table.model";
-import { SecureStorageAdapter } from "@/helpers/adapters/secure-storage.adapter";
 import { create } from "zustand";
 import { createJSONStorage, persist, PersistStorage } from "zustand/middleware";
+import { AsyncStorageAdapter } from "@/helpers/adapters/async-storage.adapter";
 
-interface NewOrderState {
+export interface NewOrderState {
   table: Table | null;
   amount: number;
   details: NewOrderDetail[];
@@ -15,6 +14,7 @@ interface NewOrderState {
   totalProducts: number;
   notes: string;
   deliveryTime: Date | null;
+  activeDetail: NewOrderDetail | null;
 }
 
 interface NewOrderActions {
@@ -29,6 +29,7 @@ interface NewOrderActions {
   addDetail: (detail: NewOrderDetail) => void;
   removeDetail: (detail: NewOrderDetail) => void;
   updateDetail: (detail: NewOrderDetail) => void;
+  setActiveDetail: (detail: NewOrderDetail | null) => void;
 
   reset: () => void;
 }
@@ -42,6 +43,7 @@ const initialState: NewOrderState = {
   totalProducts: 0,
   notes: "",
   deliveryTime: new Date(),
+  activeDetail: null,
 };
 
 export const useNewOrderStore = create<NewOrderState & NewOrderActions>()(
@@ -62,34 +64,26 @@ export const useNewOrderStore = create<NewOrderState & NewOrderActions>()(
 
       removeDetail: (detail: NewOrderDetail) => {
         const details = get().details;
-        const index = details.findIndex(
-          (d) => d.product.id === detail.product.id,
-        );
-        if (index !== -1) {
-          details.splice(index, 1);
-          set({ details });
-        }
+
+        set({
+          details: details.filter((d) => d.product.id !== detail.product.id),
+        });
       },
 
       updateDetail: (detail: NewOrderDetail) => {
         const details = get().details;
 
-        const index = details.findIndex(
-          (d) => d.product.id === detail.product.id,
-          // d.productOption?.id === detail.productOption?.id,
-        );
-
-        if (index !== -1) {
-          const updatedDetail = {
-            ...details[index],
-            quantity: detail.quantity,
-            description: detail.description,
-            // productOption: detail.productOption,
-          };
-
-          details[index] = updatedDetail;
-          set({ details });
-        }
+        set({
+          details: details.map((d) =>
+            d.product.id === detail.product.id
+              ? {
+                  ...d,
+                  quantity: detail.quantity,
+                  description: detail.description,
+                }
+              : d,
+          ),
+        });
       },
 
       setPeople: (people: number) => set({ people }),
@@ -97,13 +91,15 @@ export const useNewOrderStore = create<NewOrderState & NewOrderActions>()(
       setTotalProducts: (totalProducts: number) => set({ totalProducts }),
       setNotes: (notes: string) => set({ notes }),
       setDeliveryTime: (deliveryTime: Date | null) => set({ deliveryTime }),
+      setActiveDetail: (activeDetail: NewOrderDetail | null) =>
+        set({ activeDetail }),
 
       reset: () => set(initialState),
     }),
     {
       name: "newOrderStore",
       // storage: () => SecureStorageAdapter,
-      storage: createJSONStorage(() => SecureStorageAdapter),
+      storage: createJSONStorage(() => AsyncStorageAdapter),
     },
   ),
 );

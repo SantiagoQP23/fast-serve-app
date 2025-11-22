@@ -9,7 +9,7 @@ import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { Ionicons } from "@expo/vector-icons";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
-import OrderDetailCard from "@/presentation/orders/components/new-order-detail-card";
+import NewOrderDetailCard from "@/presentation/orders/components/new-order-detail-card";
 
 export default function OrderConfirmationScreen() {
   const { people, orderType, table, notes } = useNewOrderStore();

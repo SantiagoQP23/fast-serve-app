@@ -12,7 +12,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 
 import TableCard from "@/presentation/home/components/table-card";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import tw from "@/presentation/theme/lib/tailwind";
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -33,7 +33,6 @@ export default function TablesScreen() {
   const [selectedStatus, setSelectedStatus] = useState<boolean | "all">("all");
   const { setTable, setOrderType } = useNewOrderStore();
   const { tables } = useTables();
-  // const { tables } = useTablesStore();
   const [activeTable, setActiveTable] = useState<Table | null>(null);
 
   const tabs: { label: string; value: boolean | "all" }[] = [
@@ -78,38 +77,10 @@ export default function TablesScreen() {
       setFilteredTables(filtered);
     }
   };
-  const sheetRef = useRef<BottomSheet>(null);
 
-  // variables
-  const data = useMemo(
-    () =>
-      Array(50)
-        .fill(0)
-        .map((_, index) => `index-${index}`),
-    [],
-  );
-  const snapPoints = useMemo(() => ["25%", "50%", "90%"], []);
-
-  // callbacks
-  const handleSheetChange = useCallback((index) => {
-    console.log("handleSheetChange", index);
-  }, []);
-  const handleSnapPress = useCallback((index) => {
-    sheetRef.current?.snapToIndex(index);
-  }, []);
-  const handleClosePress = useCallback(() => {
-    sheetRef.current?.close();
-  }, []);
-
-  // render
-  const renderItem = useCallback(
-    (item) => (
-      <View key={item} style={styles.itemContainer}>
-        <Text>{item}</Text>
-      </View>
-    ),
-    [],
-  );
+  useEffect(() => {
+    setFilteredTables(tables);
+  }, [tables]);
 
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1`}>

@@ -1,11 +1,19 @@
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
+import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
+import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import IconButton from "@/presentation/theme/components/icon-button";
+import NotificationBadge from "@/presentation/theme/components/notification-badge";
+import { ThemedView } from "@/presentation/theme/components/themed-view";
+import tw from "@/presentation/theme/lib/tailwind";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import { router, Stack } from "expo-router";
 import { useCallback, useRef } from "react";
 
 export default function NewOrderLayout() {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
+  const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
+  const { details } = useNewOrderStore();
 
   const closeBottomSheet = () => {
     bottomSheetModalRef.current?.close(); // Close sheet before navigating
@@ -26,10 +34,17 @@ export default function NewOrderLayout() {
             title: "",
             headerShadowVisible: false,
             headerRight: () => (
-              <IconButton
-                icon="cart-outline"
-                onPress={() => router.navigate("/cart")}
-              ></IconButton>
+              <ThemedView style={tw`relative`}>
+                <IconButton
+                  icon="cart-outline"
+                  onPress={() => router.push("/(new-order)/cart")}
+                />
+                {details.length ? (
+                  <NotificationBadge value={details.length} />
+                ) : (
+                  <></>
+                )}
+              </ThemedView>
             ),
           }}
         />
@@ -39,6 +54,17 @@ export default function NewOrderLayout() {
             headerShown: true,
             title: "",
             headerShadowVisible: false,
+
+            headerLeft: () => (
+              <IconButton
+                icon="arrow-back"
+                onPress={() => {
+                  setActiveProduct(null);
+                  setActiveDetail(null);
+                  router.back();
+                }}
+              />
+            ),
           }}
         />
         <Stack.Screen

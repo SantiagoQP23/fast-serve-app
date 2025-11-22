@@ -1,36 +1,70 @@
-import { ScrollView } from "react-native";
+import { FlatList, ScrollView } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { Ionicons } from "@expo/vector-icons";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
-import OrderDetailCard from "@/presentation/orders/components/new-order-detail-card";
+import NewOrderDetailCard from "@/presentation/orders/components/new-order-detail-card";
+import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
+import { Product } from "@/core/menu/models/product.model";
+import { NewOrderDetail } from "@/core/orders/dto/new-order-detail.dto";
+import { useOrders } from "@/presentation/orders/hooks/useOrders";
+import { mapStoreToCreateOrderDto } from "@/presentation/orders/mappers/createOrder.mapper";
 
 export default function CartScreen() {
-  const { people, orderType, table, notes } = useNewOrderStore();
-  const [section, setSection] = useState("");
-  const [selected, setSelected] = useState("All");
+  const people = useNewOrderStore((state) => state.people);
+  const orderType = useNewOrderStore((state) => state.orderType);
+  const table = useNewOrderStore((state) => state.table);
+  const notes = useNewOrderStore((state) => state.notes);
+  const details = useNewOrderStore((state) => state.details);
+  const resetNewOrder = useNewOrderStore((state) => state.reset);
+  // const setActiveProduct = useNewOrderStore( (state) => state.setActiveProduct);
+  const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
+  const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
+  const newOrder = useNewOrderStore();
+  const { isOnline, isLoading, mutate: createOrder } = useOrders().createOrder;
+
+  const [total, setTotal] = useState(0);
   const router = useRouter();
 
-  const openProduct = () => {
+  const openProduct = (orderDetail: NewOrderDetail) => {
+    setActiveDetail(orderDetail);
+    setActiveProduct(orderDetail.product);
     router.push("/restaurant-menu/product");
   };
 
   const onCreateOrder = () => {
-    router.replace("/(new-order)/order-confirmation", { withAnchor: true });
+    const data = mapStoreToCreateOrderDto(newOrder);
+
+    createOrder(data, {
+      onSuccess: (resp) => {
+        resetNewOrder();
+        router.replace("/(new-order)/order-confirmation", { withAnchor: true });
+      },
+    });
   };
+
+  useEffect(() => {
+    const total = details.reduce((acc, detail) => {
+      return acc + detail.product.price * detail.quantity;
+    }, 0);
+    setTotal(total);
+  }, [details]);
 
   return (
     <>
       <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
         <ThemedView style={tw`flex-row justify-between items-center`}>
-          <ThemedText type="h1">Cart</ThemedText>
-          <ThemedView>
+          <ThemedView style={tw`gap-2`}>
+            <ThemedText type="h1">Cart</ThemedText>
+            <ThemedText type="small">Products: {details.length}</ThemedText>
+          </ThemedView>
+          <ThemedView style={tw`gap-2`}>
             <ThemedView>
               <ThemedText type="h4">
                 {orderType === OrderType.IN_PLACE
@@ -52,45 +86,55 @@ export default function CartScreen() {
             <ThemedText type="body2">{notes}</ThemedText>
           </ThemedView>
         )}
-        <ScrollView
+
+        <FlatList
           style={tw`flex-1`}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`gap-4 pb-4`}
-        >
-          <OrderDetailCard
-            product={{ name: "Arroz marinero", id: "1", price: 12 }}
-          />
-          <OrderDetailCard
-            product={{ name: "Arroz marinero", id: "1", price: 12 }}
-          />
-          <OrderDetailCard
-            product={{ name: "Arroz marinero", id: "1", price: 12 }}
-          />
-          <OrderDetailCard
-            product={{ name: "Arroz marinero", id: "1", price: 12 }}
-          />
-          <OrderDetailCard
-            product={{ name: "Arroz marinero", id: "1", price: 12 }}
-            onPress={openProduct}
-          />
-          <OrderDetailCard
-            product={{ name: "Arroz marinero", id: "1", price: 12 }}
-          />
-          <Button
-            leftIcon="add-outline"
-            label="Add product "
-            variant="outline"
-            onPress={() => router.push("/restaurant-menu")}
-          />
-        </ScrollView>
+          data={details}
+          keyExtractor={(item, index) => `${index}`}
+          renderItem={({ item }) => (
+            <NewOrderDetailCard
+              detail={item}
+              onPress={() => openProduct(item)}
+            />
+          )}
+          ListFooterComponent={
+            <Button
+              leftIcon="add-outline"
+              label="Add product "
+              variant="outline"
+              onPress={() => router.push("/restaurant-menu")}
+            />
+          }
+        />
+        {/* <ScrollView */}
+        {/*   style={tw`flex-1`} */}
+        {/*   showsVerticalScrollIndicator={false} */}
+        {/*   contentContainerStyle={tw`gap-4 pb-4`} */}
+        {/* > */}
+        {/*   {details.map((detail, index) => ( */}
+        {/*     <OrderDetailCard key={index} detail={detail} /> */}
+        {/*   ))} */}
+        {/*   <Button */}
+        {/*     leftIcon="add-outline" */}
+        {/*     label="Add product " */}
+        {/*     variant="outline" */}
+        {/*     onPress={() => router.push("/restaurant-menu")} */}
+        {/*   /> */}
+        {/* </ScrollView> */}
       </ThemedView>
 
       <ThemedView style={tw`gap-4 p-4 rounded-xl shadow-xl `}>
         <ThemedView style={tw`flex-row justify-between items-center`}>
           <ThemedText type="h3">Total</ThemedText>
-          <ThemedText type="h2">$55</ThemedText>
+          <ThemedText type="h2">${total}</ThemedText>
         </ThemedView>
-        <Button label="Create order" onPress={onCreateOrder}></Button>
+        <Button
+          label="Create order"
+          onPress={onCreateOrder}
+          disabled={!isOnline || isLoading}
+        ></Button>
       </ThemedView>
     </>
   );

@@ -12,6 +12,7 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
 import { Category } from "@/core/menu/models/category.model";
 import { Product } from "@/core/menu/models/product.model";
+import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 
 export default function RestaurantMenuScreen() {
   const [section, setSection] = useState("");
@@ -21,8 +22,10 @@ export default function RestaurantMenuScreen() {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const { categories, sections, products } = useMenu();
+  const { setActiveProduct } = useMenuStore();
 
-  const openProduct = () => {
+  const openProduct = (product: Product) => {
+    setActiveProduct(product);
     router.push("/restaurant-menu/product");
   };
 
@@ -73,10 +76,6 @@ export default function RestaurantMenuScreen() {
       onChangeCategory(filteredCategories[0].id);
     }
   }, [filteredCategories, category, onChangeCategory]);
-
-  useEffect(() => {
-    console.log(products);
-  }, [products]);
 
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
@@ -134,7 +133,7 @@ export default function RestaurantMenuScreen() {
           {filteredProducts.map((product) => (
             <ProductCard
               key={product.id}
-              onPress={openProduct}
+              onPress={() => openProduct(product)}
               product={product}
             ></ProductCard>
           ))}

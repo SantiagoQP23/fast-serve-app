@@ -16,7 +16,6 @@ const returnUserToken = (
   currentRestaurant: Restaurant;
 } => {
   const { token, user, currentRestaurant } = data;
-  console.log("Auth Response:", user.restaurantRoles);
 
   return {
     user,

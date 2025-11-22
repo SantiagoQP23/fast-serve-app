@@ -12,9 +12,6 @@ export default function OrdersScreen() {
         <ThemedText type="h1">Orders</ThemedText>
       </ThemedView>
       <ThemedView style={tw`my-4`} />
-      <OrderCard order={{ num: 1 }} />
-      <OrderCard order={{ num: 2 }} />
-      <OrderCard order={{ num: 3 }} />
     </ThemedView>
   );
 }

@@ -7,10 +7,12 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useEffect } from "react";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ActivityIndicator } from "react-native";
+import { useOrders } from "@/presentation/orders/hooks/useOrders";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { status, checkStatus } = useAuthStore();
+  useOrders();
 
   useEffect(() => {
     checkStatus();
@@ -34,6 +36,8 @@ export default function TabLayout() {
   if (status === "unauthenticated") {
     return <Redirect href="/auth/login" />;
   }
+
+  // activeOrdersQuery.refetch();
 
   return (
     <Tabs

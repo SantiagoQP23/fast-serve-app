@@ -12,7 +12,7 @@ export const API_URL =
       : process.env.EXPO_PUBLIC_API_URL_ANDROID;
 
 const restaurantApi = axios.create({
-  baseURL: API_URL,
+  baseURL: `${API_URL}/api`,
 });
 
 restaurantApi.interceptors.request.use(async (config) => {

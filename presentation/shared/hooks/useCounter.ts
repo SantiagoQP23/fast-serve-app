@@ -5,19 +5,29 @@ export const useCounter = (
   step = 1,
   max?: number,
   min: number = 0,
+  onChange?: (value: number) => void,
 ) => {
   const [counter, setCounter] = useState(initialState);
 
   const increment = () => {
-    setCounter(counter !== max ? counter + step : counter);
+    setCounter((value) => {
+      const newValue = counter !== max ? counter + step : counter;
+      onChange && onChange(newValue);
+      return newValue;
+    });
   };
 
   const decrement = () => {
-    const value = counter - step;
-
-    if (value >= min) {
-      setCounter(counter > 0 && counter !== min ? value : counter);
-    }
+    setCounter((currentValue) => {
+      const value = currentValue - step;
+      if (value >= min) {
+        const newValue =
+          currentValue > 0 && currentValue !== min ? value : currentValue;
+        onChange && onChange(newValue);
+        return newValue;
+      }
+      return currentValue;
+    });
   };
 
   useEffect(() => {
