@@ -5,15 +5,28 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { Ionicons } from "@expo/vector-icons";
 import { View, Pressable, PressableProps } from "react-native";
 import IconButton from "@/presentation/theme/components/icon-button";
+import { OrderDetail } from "@/core/orders/models/order-detail.model";
+import { useCounter } from "@/presentation/shared/hooks/useCounter";
+import ProgressBar from "@/presentation/theme/components/progress-bar";
 
-interface NewBillDetailCardProps extends PressableProps {}
+interface NewBillDetailCardProps extends PressableProps {
+  detail: OrderDetail;
+}
 
-export default function NewBillDetailCard({ onPress }: NewBillDetailCardProps) {
-  const [counter, setCounter] = useState(1);
+export default function NewBillDetailCard({
+  onPress,
+  detail,
+}: NewBillDetailCardProps) {
+  const { counter, increment, decrement } = useCounter(
+    0,
+    1,
+    detail.quantity - detail.qtyPaid,
+    1,
+  );
   return (
     <Pressable
       style={({ pressed }) => [
-        tw`mb-3 p-4 rounded-2xl bg-gray-100 dark:bg-gray-800`,
+        tw`mb-3 p-4 rounded-2xl bg-gray-100 dark:bg-gray-800 gap-3`,
         pressed && tw`opacity-80`,
       ]}
       onPress={onPress}
@@ -21,23 +34,25 @@ export default function NewBillDetailCard({ onPress }: NewBillDetailCardProps) {
       <ThemedView style={tw`flex-row justify-between items-end bg-transparent`}>
         <ThemedView style={tw` bg-transparent justify-between gap-1`}>
           <ThemedText type="h3" style={tw` font-bold`}>
-            Arroz marinero x3
+            {detail.product.name} x{detail.quantity - detail.qtyPaid}
           </ThemedText>
-          <ThemedText type="body2">5 en total</ThemedText>
-          <ThemedText style={tw`text-base `}>$10</ThemedText>
+          <ThemedText type="body2">Total: {detail.quantity}</ThemedText>
+          <ThemedText type="h4">${detail.quantity * counter}</ThemedText>
         </ThemedView>
-        <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}>
+        <ThemedView style={tw`flex-row items-center gap-4 bg-transparent`}>
           <IconButton
             icon="remove-outline"
-            onPress={() => setCounter((value) => value - 1)}
+            onPress={decrement}
+            variant="outlined"
           />
           <ThemedText>{counter}</ThemedText>
-          <IconButton
-            icon="add"
-            onPress={() => setCounter((value) => value + 1)}
-          />
+          <IconButton icon="add" onPress={increment} variant="outlined" />
         </ThemedView>
       </ThemedView>
+      <ProgressBar
+        progress={counter / (detail.quantity - detail.qtyPaid)}
+        height={1}
+      />
     </Pressable>
   );
 }

@@ -23,6 +23,6 @@ export interface OrderDetail {
 
   price: number;
 
-  typeOrderDetail: TypeOrder;
-  productOption?: ProductOption;
+  // typeOrderDetail: TypeOrder;
+  // productOption?: ProductOption;
 }

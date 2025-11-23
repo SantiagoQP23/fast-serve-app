@@ -21,7 +21,9 @@ export function ThemedText({
   return (
     <Text
       style={[
-        { color },
+        {
+          color,
+        },
         type === "h1" ? styles.h1 : undefined,
         type === "h2" ? styles.h2 : undefined,
         type === "h3" ? styles.h3 : undefined,
