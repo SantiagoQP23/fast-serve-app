@@ -13,10 +13,12 @@ import BillCard from "@/presentation/orders/components/bill-card";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useBills } from "@/presentation/orders/hooks/useBills";
+import { Bill } from "@/core/orders/models/bill.model";
 
 export default function OrderBillsScreen() {
   const router = useRouter();
   const order = useOrdersStore((state) => state.activeOrder);
+  const setActiveBill = useOrdersStore((state) => state.setActiveBill);
   const billsByOrderQuery = useBills().billsByOrderQuery;
 
   if (!order) {
@@ -28,6 +30,11 @@ export default function OrderBillsScreen() {
   }
 
   const { data: bills } = billsByOrderQuery(order.id);
+
+  const openBill = (bill: Bill) => {
+    setActiveBill(bill);
+    router.push(`/(order)/${order.id}/bills/${bill.id}`);
+  };
 
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1 gap-8`}>
@@ -69,7 +76,7 @@ export default function OrderBillsScreen() {
             <BillCard
               key={bill.id}
               bill={bill}
-              onPress={() => router.push(`/(order)/1324/bills/1322`)}
+              onPress={() => openBill(bill)}
             />
           ))}
         </ScrollView>

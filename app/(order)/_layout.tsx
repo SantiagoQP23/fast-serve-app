@@ -45,7 +45,7 @@ export default function OrdersLayout() {
           name="[id]/bills/index"
           options={{
             headerShown: true,
-            title: "",
+            title: "Payments",
             headerShadowVisible: false,
           }}
         />
@@ -53,7 +53,7 @@ export default function OrdersLayout() {
           name="[id]/bills/[id]/index"
           options={{
             headerShown: true,
-            title: "",
+            title: "Bill payment",
             headerShadowVisible: false,
           }}
         />

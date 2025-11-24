@@ -7,28 +7,36 @@ import { View, Pressable, PressableProps } from "react-native";
 
 export interface PaymentMethod {
   name: string;
+  value: string;
   icon: keyof typeof Ionicons.glyphMap;
 }
 
 interface PaymentMethodCardProps extends PressableProps {
   paymentMethod: PaymentMethod;
+  active?: boolean;
 }
 
 export default function PaymentMethodCard({
   paymentMethod,
+  active = false,
   onPress,
 }: PaymentMethodCardProps) {
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
-        tw` py-4 px-10 rounded-2xl bg-gray-100 dark:bg-gray-800 items-center`,
+        tw` py-4 px-10 rounded-2xl  items-center border border-gray-200`,
         pressed && tw`opacity-80`,
+        active && tw`border-light-primary bg-gray-100`,
       ]}
     >
-      <Ionicons name={paymentMethod.icon} size={30} color="black" />
+      <Ionicons
+        name={paymentMethod.icon}
+        size={30}
+        color={tw.color("gray-700")}
+      />
       <ThemedView style={tw`flex-row items-center bg-transparent`}>
-        <ThemedText type="body1">{paymentMethod.name}</ThemedText>
+        <ThemedText type="h4">{paymentMethod.name}</ThemedText>
       </ThemedView>
     </Pressable>
   );
