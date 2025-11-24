@@ -13,12 +13,34 @@ import BillCard from "@/presentation/orders/components/bill-card";
 import NewBillDetailCard from "@/presentation/orders/components/new-bill-detail-card";
 import Switch from "@/presentation/theme/components/switch";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { OrderDetail } from "@/core/orders/models/order-detail.model";
+import {
+  CreateBillDetailDto,
+  CreateBillDto,
+} from "@/core/orders/dto/create-bill.dto";
+
+interface SelectedDetails {
+  [id: string]: {
+    detail: OrderDetail;
+    quantity: number;
+  };
+}
 
 export default function NewBillScreen() {
   const router = useRouter();
   const order = useOrdersStore((state) => state.activeOrder);
   const [total, setTotal] = useState(50);
   const [selectAll, setSelectAll] = useState(false);
+  const [selectedDetails, setSelectedDetails] = useState<SelectedDetails>({});
+
+  const getTotalSelectedDetails = () => {
+    let total = 0;
+    Object.keys(selectedDetails).forEach((id) => {
+      const selectedDetail = selectedDetails[id];
+      total += selectedDetail.quantity * selectedDetail.detail.price;
+    });
+    return total;
+  };
 
   if (!order) {
     return (
@@ -32,9 +54,59 @@ export default function NewBillScreen() {
     (detail) => detail.quantity !== detail.qtyPaid,
   );
 
+  const totalToPay = detailsToPay.reduce((acc, detail) => {
+    return acc + (detail.quantity - detail.qtyPaid) * detail.price;
+  }, 0);
+
   const paidDetails = order.details.filter(
     (detail) => detail.quantity === detail.qtyPaid,
   );
+
+  const handleUpdateDetail = (orderDetail: OrderDetail, quantity: number) => {
+    setSelectedDetails((prev) => {
+      const newSelectedDetails: SelectedDetails = { ...prev };
+
+      newSelectedDetails[orderDetail.id] = {
+        detail: orderDetail,
+        quantity,
+      };
+      return newSelectedDetails;
+    });
+  };
+
+  const handleSelectAll = (value: boolean) => {
+    const newSelectedDetails: SelectedDetails = {};
+
+    if (value) {
+      detailsToPay.forEach((detail) => {
+        newSelectedDetails[detail.id] = {
+          detail,
+          quantity: detail.quantity - detail.qtyPaid,
+        };
+      });
+    }
+
+    setSelectAll(value);
+    setSelectedDetails(newSelectedDetails);
+  };
+
+  const createBill = () => {
+    const details: CreateBillDetailDto[] = [];
+
+    Object.keys(selectedDetails).forEach((id) => {
+      const selectedDetail = selectedDetails[id];
+      if (selectedDetail.quantity > 0) {
+        details.push({
+          orderDetailId: selectedDetail.detail.id,
+          quantity: selectedDetail.quantity,
+        });
+      }
+    });
+
+    const createBillDto: CreateBillDto = { orderId: order.id, details };
+
+    router.back();
+  };
 
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
@@ -52,12 +124,19 @@ export default function NewBillScreen() {
 
       <Switch
         label="Select all items"
-        value={selectAll}
-        onValueChange={setSelectAll}
+        value={totalToPay === getTotalSelectedDetails()}
+        onValueChange={(value) => {
+          handleSelectAll(value);
+        }}
       />
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {detailsToPay.map((detail) => (
-          <NewBillDetailCard key={detail.id} detail={detail} />
+          <NewBillDetailCard
+            key={detail.id}
+            detail={detail}
+            quantity={selectedDetails[detail.id]?.quantity || 0}
+            onChange={(value) => handleUpdateDetail(detail, value)}
+          />
         ))}
         <ThemedText type="h3" style={tw`mt-4 mb-2`}>
           Billed items
@@ -76,8 +155,8 @@ export default function NewBillScreen() {
       </ScrollView>
 
       <Button
-        label={"Create bill - " + total}
-        onPress={() => router.back()}
+        label={"Create bill - $" + getTotalSelectedDetails()}
+        onPress={createBill}
       ></Button>
     </ThemedView>
   );

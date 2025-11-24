@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -11,18 +11,30 @@ import ProgressBar from "@/presentation/theme/components/progress-bar";
 
 interface NewBillDetailCardProps extends PressableProps {
   detail: OrderDetail;
+  quantity?: number;
+  onChange?: (quantity: number) => void;
 }
 
 export default function NewBillDetailCard({
   onPress,
+  onChange,
+  quantity = 0,
   detail,
 }: NewBillDetailCardProps) {
-  const { counter, increment, decrement } = useCounter(
-    0,
+  const { counter, increment, decrement, setCounter } = useCounter(
+    quantity,
     1,
     detail.quantity - detail.qtyPaid,
-    1,
+    0,
+    (value) => {
+      onChange && onChange(value);
+    },
   );
+
+  useEffect(() => {
+    setCounter(quantity);
+  }, [quantity, setCounter]);
+
   return (
     <Pressable
       style={({ pressed }) => [
@@ -37,7 +49,7 @@ export default function NewBillDetailCard({
             {detail.product.name} x{detail.quantity - detail.qtyPaid}
           </ThemedText>
           <ThemedText type="body2">Total: {detail.quantity}</ThemedText>
-          <ThemedText type="h4">${detail.quantity * counter}</ThemedText>
+          <ThemedText type="h4">${detail.price * counter}</ThemedText>
         </ThemedView>
         <ThemedView style={tw`flex-row items-center gap-4 bg-transparent`}>
           <IconButton
