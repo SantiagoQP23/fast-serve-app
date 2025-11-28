@@ -10,6 +10,9 @@ import { useQuery } from "@tanstack/react-query";
 import { OrdersService } from "@/core/orders/services/orders.service";
 import { useOrdersStore } from "../store/useOrdersStore";
 import { useEffect } from "react";
+import { UpdateOrderDetailDto } from "@/core/orders/dto/update-order.dto";
+import { SocketEvent } from "@/core/common/dto/socket.dto";
+import { useWebsocketEventListener } from "@/presentation/shared/hooks/useWebsocketEventListener";
 
 export const useOrders = () => {
   const setOrders = useOrdersStore((state) => state.setOrders);
@@ -17,7 +20,7 @@ export const useOrders = () => {
     OrderSocketEvent.createOrder,
     {
       onSuccess: (resp) => {
-        Alert.alert("Success", "Order created successfully");
+        // Alert.alert("Success", "Order created successfully");
         // router.replace("/(new-order)/order-confirmation", { withAnchor: true, params: { orderId: resp.id } });
       },
       onError: (resp) => {
@@ -25,6 +28,18 @@ export const useOrders = () => {
       },
     },
   );
+
+  const updateOrderDetailEmitter = useWebsocketEventEmitter<
+    Order,
+    UpdateOrderDetailDto
+  >(OrderSocketEvent.updateOrderDetail, {
+    onSuccess: (resp) => {
+      // Alert.alert("Success", "Order detail updated successfully");
+    },
+    onError: (resp) => {
+      Alert.alert("Error", resp.msg);
+    },
+  });
 
   const activeOrdersQuery = useQuery({
     queryKey: ["activeOrders"],
@@ -46,5 +61,44 @@ export const useOrders = () => {
   return {
     createOrder: createOrderEmitter,
     activeOrdersQuery,
+    updateOrderDetail: updateOrderDetailEmitter,
   };
+};
+
+export const useOrderCreatedListener = () => {
+  const addOrder = useOrdersStore((state) => state.addOrder);
+  useWebsocketEventListener(
+    OrderSocketEvent.newOrder,
+    ({ data, msg }: SocketEvent<Order>) => {
+      Alert.alert("info", msg);
+      addOrder(data);
+      // dispatch(addOrder(data));
+
+      // dispatch(setLastUpdatedOrders(new Date().toISOString()));
+      //
+      // dispatch(sortOrdersByDeliveryTime());
+    },
+  );
+};
+
+export const useOrderUpdatedListener = () => {
+  const activeOrder = useOrdersStore((state) => state.activeOrder);
+  const updateOrder = useOrdersStore((state) => state.updateOrder);
+  const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
+
+  useWebsocketEventListener<Order>(
+    OrderSocketEvent.updateOrder,
+    ({ data: order }: SocketEvent<Order>) => {
+      updateOrder(order!);
+      // Alert.alert("info", `Order #${order?.id} has been updated`);
+
+      if (activeOrder?.id === order?.id) {
+        setActiveOrder(order!);
+      }
+
+      // dispatch(setLastUpdatedOrders(new Date().toISOString()));
+      //
+      // dispatch(sortOrdersByDeliveryTime());
+    },
+  );
 };

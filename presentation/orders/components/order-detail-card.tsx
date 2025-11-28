@@ -11,6 +11,8 @@ import { NewOrderDetail } from "@/core/orders/dto/new-order-detail.dto";
 import { useNewOrderStore } from "../store/newOrderStore";
 import { OrderDetail } from "@/core/orders/models/order-detail.model";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
+import { useOrders } from "../hooks/useOrders";
+import { useOrdersStore } from "../store/useOrdersStore";
 
 interface OrderDetailCardProps extends PressableProps {
   detail: OrderDetail;
@@ -25,15 +27,35 @@ export default function OrderDetailCard({
     detail.quantity,
     1,
     20,
-    1,
+    detail.qtyDelivered,
     (value) => {
       const updatedDetail = { ...detail, quantity: value };
       updateDetail(updatedDetail);
     },
   );
+  const order = useOrdersStore((state) => state.activeOrder);
+
+  const {
+    isOnline,
+    isLoading,
+    mutate: updateOrderDetail,
+  } = useOrders().updateOrderDetail;
 
   const onRemoveDetail = () => {
     removeDetail(detail);
+  };
+
+  const onUpdateOrderDetail = () => {
+    updateOrderDetail(
+      {
+        id: detail.id,
+        quantity: counter,
+        orderId: order!.id,
+      },
+      {
+        onSuccess: () => {},
+      },
+    );
   };
 
   return (
@@ -44,9 +66,9 @@ export default function OrderDetailCard({
       ]}
       onPress={onPress}
     >
-      <ThemedView style={tw` bg-transparent p-4 gap-2`}>
+      <ThemedView style={tw` bg-transparent p-4 gap-4`}>
         <ThemedView
-          style={tw`absolute  rounded-full items-center justify-center  z-10 right-0 top-0`}
+          style={tw`absolute  rounded-full items-center justify-center  z-10 right-1 top-1`}
         >
           <IconButton
             icon="close-outline"
@@ -55,7 +77,7 @@ export default function OrderDetailCard({
             onPress={onRemoveDetail}
           />
         </ThemedView>
-        <ThemedView style={tw`flex-row bg-transparent justify-between gap-4`}>
+        <ThemedView style={tw`flex-row bg-transparent justify-between gap-6`}>
           <ThemedView style={tw` bg-transparent  gap-2`}>
             <ThemedText type="h3" style={tw` font-bold`}>
               {detail.product.name}
@@ -65,8 +87,16 @@ export default function OrderDetailCard({
               <ThemedText type="body2">{detail.description}</ThemedText>
             )}
           </ThemedView>
-          <ThemedView style={tw`justify-center items-center bg-transparent`}>
+          <ThemedView style={tw`justify-end items-end bg-transparent`}>
             <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
+              {detail.quantity !== counter && (
+                <IconButton
+                  icon="save-outline"
+                  onPress={onUpdateOrderDetail}
+                  variant="outlined"
+                />
+              )}
+
               <IconButton
                 icon="remove-outline"
                 onPress={decrement}

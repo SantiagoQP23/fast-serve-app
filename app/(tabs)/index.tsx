@@ -12,22 +12,22 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Fab from "@/presentation/theme/components/fab";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
-import OrderCard, { Order } from "@/presentation/home/components/order-card";
 import { useCallback, useRef, useState } from "react";
 import { useRouter } from "expo-router";
-import { FlatList } from "react-native-gesture-handler";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import IconButton from "@/presentation/theme/components/icon-button";
 import NotificationBadge from "@/presentation/theme/components/notification-badge";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
-import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
+import OrderList from "@/presentation/orders/molecules/order-list";
 
 export default function HomeScreen() {
   const { user } = useAuthStore();
-  const orders = useOrdersStore((state) => state.orders);
+  const orders = useOrdersStore((state) => state.orders).filter(
+    (order) => order.user.id === user?.id,
+  );
   const router = useRouter();
   const details = useNewOrderStore((state) => state.details);
 
@@ -60,11 +60,9 @@ export default function HomeScreen() {
 
   const haveAnOpenOrder = details.length > 0;
 
-  const screenWidth = Dimensions.get("window").width;
-
   return (
-    <ThemedView style={tw`px-4 pt-8 flex-1 `}>
-      <ThemedView style={tw`mb-6`}>
+    <ThemedView style={tw` pt-8 flex-1 `}>
+      <ThemedView style={tw`mb-6 px-4`}>
         <ThemedView
           style={tw`absolute  rounded-full items-center justify-center  z-10 right-2 top-2`}
         >
@@ -103,81 +101,9 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`pb-20 gap-4`}
         >
-          <ThemedView>
-            <ThemedView style={tw`  justify-between mb-4`}>
-              <ThemedText type="h4">Pending</ThemedText>
-              <ThemedText type="small">
-                Count: {pendingOrders.length}
-              </ThemedText>
-            </ThemedView>
-            <FlatList
-              data={pendingOrders}
-              keyExtractor={(item, index) => index.toString()}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              renderItem={({ item, index }) => (
-                <ThemedView
-                  style={[
-                    index !== pendingOrders.length - 1 && tw`mr-4`,
-                    { width: screenWidth * 0.8 },
-                  ]}
-                >
-                  <OrderCard order={item} />
-                </ThemedView>
-              )}
-              style={tw``}
-            />
-          </ThemedView>
-          <ThemedView>
-            <ThemedView style={tw`  justify-between mb-4`}>
-              <ThemedText type="h4">In Progress</ThemedText>
-              <ThemedText type="small">
-                Count: {inProgressOrders.length}
-              </ThemedText>
-            </ThemedView>
-            <FlatList
-              data={inProgressOrders}
-              keyExtractor={(item, index) => index.toString()}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              renderItem={({ item, index }) => (
-                <ThemedView
-                  style={[
-                    index !== inProgressOrders.length - 1 && tw`mr-4`,
-                    { width: screenWidth * 0.8 },
-                  ]}
-                >
-                  <OrderCard order={item} />
-                </ThemedView>
-              )}
-              style={tw``}
-            />
-          </ThemedView>
-          <ThemedView>
-            <ThemedView style={tw`  justify-between mb-4`}>
-              <ThemedText type="h4">Delivered</ThemedText>
-              <ThemedText type="small">
-                Count: {deliveredOrders.length}
-              </ThemedText>
-            </ThemedView>
-            <FlatList
-              data={deliveredOrders}
-              keyExtractor={(item, index) => index.toString()}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              renderItem={({ item, index }) => (
-                <ThemedView
-                  style={[
-                    index !== deliveredOrders.length - 1 && tw`mr-4`,
-                    { width: screenWidth * 0.8 },
-                  ]}
-                >
-                  <OrderCard order={item} />
-                </ThemedView>
-              )}
-              style={tw``}
-            />
-          </ThemedView>
+          <OrderList title="Pending" orders={pendingOrders} />
+          <OrderList title="In Progress" orders={inProgressOrders} />
+          <OrderList title="Delivered" orders={deliveredOrders} />
         </ScrollView>
       )}
       <BottomSheetModal

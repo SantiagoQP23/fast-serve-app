@@ -11,9 +11,12 @@ import Button from "@/presentation/theme/components/button";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { useOrders } from "@/presentation/orders/hooks/useOrders";
 
-export default function RestaurantMenuScreen() {
+export default function EditOrderDetailScreen() {
   const orderDetail = useOrdersStore((state) => state.activeOrderDetail);
+  const order = useOrdersStore((state) => state.activeOrder);
+
   const { counter, increment, decrement } = useCounter(
     orderDetail?.quantity,
     1,
@@ -24,9 +27,14 @@ export default function RestaurantMenuScreen() {
     counter: deliveredCounter,
     increment: incrementDelivered,
     decrement: decrementDelivered,
-  } = useCounter(orderDetail?.qtyDelivered, 1, 20, 1);
+  } = useCounter(orderDetail?.qtyDelivered, 1, orderDetail?.quantity, 0);
 
   const router = useRouter();
+  const {
+    isOnline,
+    isLoading,
+    mutate: updateOrderDetail,
+  } = useOrders().updateOrderDetail;
 
   const [withNotes, setWithNotes] = useState(!!orderDetail?.description);
   const [notes, setNotes] = useState(orderDetail?.description || "");
@@ -44,9 +52,23 @@ export default function RestaurantMenuScreen() {
     );
   }
 
-  const goToMenu = () => {
-    setActiveOrderDetail(null);
-    router.back();
+  const onUpdateOrderDetail = () => {
+    updateOrderDetail(
+      {
+        id: orderDetail.id,
+        quantity: counter,
+        qtyDelivered: deliveredCounter,
+        description: withNotes ? notes : undefined,
+        price: parseFloat(price),
+        orderId: order!.id,
+      },
+      {
+        onSuccess: () => {
+          setActiveOrderDetail(null);
+          router.back();
+        },
+      },
+    );
   };
 
   return (
@@ -122,7 +144,7 @@ export default function RestaurantMenuScreen() {
         </ThemedView>
         <Button
           label="Save changes"
-          onPress={goToMenu}
+          onPress={onUpdateOrderDetail}
           leftIcon="save-outline"
         />
       </ThemedView>

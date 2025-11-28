@@ -12,6 +12,8 @@ interface OrdersState {
   setActiveOrder: (order: Order | null) => void;
   setActiveBill: (bill: Bill | null) => void;
   setActiveOrderDetail: (detail: OrderDetail | null) => void;
+  addOrder: (order: Order) => void;
+  updateOrder: (order: Order) => void;
 }
 
 export const useOrdersStore = create<OrdersState>((set) => ({
@@ -20,6 +22,14 @@ export const useOrdersStore = create<OrdersState>((set) => ({
   activeBill: null,
   activeOrderDetail: null,
   setOrders: (orders: Order[]) => set({ orders }),
+  addOrder: (order: Order) =>
+    set((state) => ({
+      orders: [...state.orders, order],
+    })),
+  updateOrder: (order: Order) =>
+    set((state) => ({
+      orders: state.orders.map((o) => (o.id === order.id ? order : o)),
+    })),
   setActiveOrder: (order: Order | null) => set({ activeOrder: order }),
   setActiveBill: (bill: Bill | null) => set({ activeBill: bill }),
   setActiveOrderDetail: (detail: OrderDetail | null) =>

@@ -1,4 +1,5 @@
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
+import { Ionicons } from "@expo/vector-icons";
 
 export function useOrderStatus(status: OrderStatus) {
   const statusText: { [key in OrderStatus]: string } = {
@@ -22,9 +23,18 @@ export function useOrderStatus(status: OrderStatus) {
     [OrderStatus.CANCELLED]: "bg-red-500",
   };
 
+  const statusIcons: { [key in OrderStatus]: keyof typeof Ionicons.glyphMap } =
+    {
+      [OrderStatus.PENDING]: "hourglass-outline",
+      [OrderStatus.DELIVERED]: "checkmark-done-outline",
+      [OrderStatus.IN_PROGRESS]: "time-outline",
+      [OrderStatus.CANCELLED]: "close-circle-outline",
+    };
+
   return {
     statusText: statusText[status],
     statusTextColor: statusTextColor[status],
     statusBackgroundColor: backgroundColors[status],
+    statusIcon: statusIcons[status],
   };
 }

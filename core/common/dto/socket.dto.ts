@@ -14,3 +14,8 @@ export interface SocketResponse {
 export interface SocketResponseData<T> extends SocketResponse {
   data?: T;
 }
+
+export interface SocketEvent<T> {
+  msg: string;
+  data: T;
+}

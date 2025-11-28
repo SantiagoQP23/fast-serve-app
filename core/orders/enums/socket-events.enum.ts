@@ -1,4 +1,5 @@
 export enum OrderSocketEvent {
+  newOrder = "new-order",
   createOrder = "create-order",
   updateOrder = "update-order",
   changeTable = "change-table",

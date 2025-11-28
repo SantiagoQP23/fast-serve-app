@@ -41,36 +41,41 @@ export default function OrderScreen() {
     );
   }
 
-  const { statusText, statusTextColor } = useOrderStatus(order.status);
+  const { statusText, statusTextColor, statusIcon } = useOrderStatus(
+    order.status,
+  );
+
   const date = dayjs(order.createdAt).isSame(dayjs(), "day")
     ? `Today, ${dayjs(order.createdAt).format("HH:mm")}`
     : dayjs(order.createdAt).format("dddd, HH:mm");
+
   const relativeDate = dayjs(order.createdAt).fromNow(true);
 
   return (
     <>
       <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
-        <ThemedView style={tw`flex-row justify-between items-center`}>
-          <ThemedView style={tw`gap-1`}>
-            <ThemedText type="h1">Order {order.num}</ThemedText>
-            <ThemedText type="body2">
-              {date} - {relativeDate}
+        <ThemedView
+          style={tw` justify-between bg-gray-100 p-4 rounded-lg gap-4`}
+        >
+          <ThemedView style={tw`gap-1 bg-transparent`}>
+            <ThemedText type="h3">
+              {order.type === OrderType.IN_PLACE
+                ? `Table ${order.table?.name}`
+                : "Take Away"}
             </ThemedText>
-          </ThemedView>
-          <ThemedView>
-            <ThemedView>
-              <ThemedText type="h4">
-                {order.type === OrderType.IN_PLACE
-                  ? `Table ${order.table?.name}`
-                  : "Take Away"}
-              </ThemedText>
-            </ThemedView>
             <ThemedView
-              style={tw` flex-row justify-end bg-transparent items-center gap-2`}
+              style={tw` flex-row  bg-transparent items-center gap-2`}
             >
               <Ionicons name="people-outline" size={18} />
               <ThemedText type="body2">{order.people}</ThemedText>
             </ThemedView>
+          </ThemedView>
+          <ThemedView style={tw`border border-dashed border-gray-700`} />
+          <ThemedView style={tw`gap-1 bg-transparent`}>
+            <ThemedText type="h4">Order {order.num}</ThemedText>
+            <ThemedText type="body2">
+              {date} - {relativeDate}
+            </ThemedText>
           </ThemedView>
         </ThemedView>
         <ScrollView
@@ -93,9 +98,12 @@ export default function OrderScreen() {
                 size="small"
               />
             )}
-            <ThemedText type="h3" style={tw`${statusTextColor}`}>
-              {statusText}
-            </ThemedText>
+            <ThemedView style={tw`flex-row items-center gap-2`}>
+              <Ionicons name={statusIcon} size={18} color={statusTextColor} />
+              <ThemedText type="h3" style={tw``}>
+                {statusText}
+              </ThemedText>
+            </ThemedView>
             {order.status === OrderStatus.IN_PROGRESS && (
               <Button
                 label="Deliver"

@@ -7,12 +7,18 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useEffect } from "react";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ActivityIndicator } from "react-native";
-import { useOrders } from "@/presentation/orders/hooks/useOrders";
+import {
+  useOrderCreatedListener,
+  useOrders,
+  useOrderUpdatedListener,
+} from "@/presentation/orders/hooks/useOrders";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { status, checkStatus } = useAuthStore();
   useOrders();
+  useOrderCreatedListener();
+  useOrderUpdatedListener();
 
   useEffect(() => {
     checkStatus();
