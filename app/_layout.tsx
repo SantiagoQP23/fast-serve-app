@@ -38,8 +38,8 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView>
         <SafeAreaView style={tw`flex-1 bg-white dark:bg-black`}>
-          <BottomSheetModalProvider>
-            <SocketProvider>
+          <SocketProvider>
+            <BottomSheetModalProvider>
               <ThemeProvider
                 value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
               >
@@ -60,8 +60,8 @@ export default function RootLayout() {
                 </Stack>
                 <StatusBar style="auto" />
               </ThemeProvider>
-            </SocketProvider>
-          </BottomSheetModalProvider>
+            </BottomSheetModalProvider>
+          </SocketProvider>
         </SafeAreaView>
       </GestureHandlerRootView>
     </QueryClientProvider>

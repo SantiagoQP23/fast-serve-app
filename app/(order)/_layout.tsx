@@ -1,4 +1,6 @@
+import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bottom-sheet";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
+import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import { router, Stack } from "expo-router";
@@ -6,6 +8,7 @@ import { useCallback, useRef } from "react";
 
 export default function OrdersLayout() {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const order = useOrdersStore((state) => state.activeOrder);
 
   const closeBottomSheet = () => {
     bottomSheetModalRef.current?.close(); // Close sheet before navigating
@@ -28,7 +31,7 @@ export default function OrdersLayout() {
             headerRight: () => (
               <IconButton
                 icon="create-outline"
-                onPress={() => router.navigate("/cart")}
+                onPress={handlePresentModalPress}
               ></IconButton>
             ),
           }}
@@ -77,10 +80,13 @@ export default function OrdersLayout() {
           />
         )}
       >
-        <NewOrderBottomSheet
-          onCreateOrder={closeBottomSheet}
-          buttonProps={{ label: "Save changes" }}
-        />
+        {order && (
+          <EditOrderBottomSheet
+            order={order}
+            buttonProps={{ label: "Save changes" }}
+            onOrderUpdated={closeBottomSheet}
+          />
+        )}
       </BottomSheetModal>
     </>
   );

@@ -3,7 +3,7 @@ import { ScrollView } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "expo-router";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { Ionicons } from "@expo/vector-icons";
@@ -36,6 +36,14 @@ export default function OrderScreen() {
     router.push("/(order)/edit-order-detail");
   };
 
+  if (!order) {
+    return (
+      <ThemedView style={tw`flex-1 justify-center items-center`}>
+        <ThemedText type="h2">No active order selected</ThemedText>
+      </ThemedView>
+    );
+  }
+
   const { statusText, statusTextColor, statusIcon, statusIconColor } =
     useOrderStatus(order.status);
 
@@ -59,24 +67,6 @@ export default function OrderScreen() {
     );
   };
 
-  useEffect(() => {
-    // (Optional) setup code here
-
-    return () => {
-      // setActiveOrder(null);
-      // This code runs when the component is unmounted
-      // Place your cleanup logic here
-    };
-  }, []);
-
-  if (!order) {
-    return (
-      <ThemedView style={tw`flex-1 justify-center items-center`}>
-        <ThemedText type="h2">No active order selected</ThemedText>
-      </ThemedView>
-    );
-  }
-
   return (
     <>
       <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
@@ -95,7 +85,7 @@ export default function OrderScreen() {
                 <ThemedText type="h3">
                   {order.type === OrderType.IN_PLACE
                     ? `Table ${order.table?.name}`
-                    : "Take Away"}
+                    : "Take Away"}{" "}
                 </ThemedText>
                 <ThemedView
                   style={tw` flex-row  bg-transparent items-center gap-2`}
