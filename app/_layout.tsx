@@ -19,6 +19,10 @@ import { Ionicons } from "@expo/vector-icons";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SocketProvider } from "@/presentation/shared/context/SocketContext";
+import { ThemedView } from "@/presentation/theme/components/themed-view";
+import { useState } from "react";
+import { ActivityIndicator } from "react-native";
+import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
 // Create a client
 
 const queryClient = new QueryClient();
@@ -29,6 +33,8 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const isLoading = useGlobalStore((state) => state.isLoading);
+
   useDeviceContext(tw, {
     observeDeviceColorSchemeChanges: false,
     initialColorScheme: "light",
@@ -59,6 +65,24 @@ export default function RootLayout() {
                   />
                 </Stack>
                 <StatusBar style="auto" />
+
+                {isLoading && (
+                  <ThemedView
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      zIndex: 9999,
+                      backgroundColor: "rgba(0,0,0,0.4)",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <ActivityIndicator size="large" color="#fff" />
+                  </ThemedView>
+                )}
               </ThemeProvider>
             </BottomSheetModalProvider>
           </SocketProvider>

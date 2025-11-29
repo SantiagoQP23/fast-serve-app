@@ -4,6 +4,7 @@ import {
   SocketResponse,
   SocketResponseData,
 } from "@/core/common/dto/socket.dto";
+import { useGlobalStore } from "../store/useGlobalStore";
 
 interface WebSocketOptions<TData> {
   onSuccess?: (resp: TData) => void;
@@ -20,15 +21,18 @@ export function useWebsocketEventEmitter<TData, TVariables>(
 ) {
   const { socket, online } = useContext(SocketContext);
   const [loading, setLoading] = useState(false);
+  const setIsLoading = useGlobalStore((state) => state.setIsLoading);
 
   const mutate = async (
     data: TVariables,
     secondaryOptions?: WebSocketOptions<SocketResponseData<TData>>,
   ) => {
     setLoading(true);
+    setIsLoading(true);
 
     socket?.emit(eventMessage, data, (resp: SocketResponseData<TData>) => {
       setLoading(false);
+      setIsLoading(false);
 
       if (resp.ok) {
         options?.onSuccess?.(resp);
