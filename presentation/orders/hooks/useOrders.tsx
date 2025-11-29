@@ -10,12 +10,17 @@ import { useQuery } from "@tanstack/react-query";
 import { OrdersService } from "@/core/orders/services/orders.service";
 import { useOrdersStore } from "../store/useOrdersStore";
 import { useEffect } from "react";
-import { UpdateOrderDetailDto } from "@/core/orders/dto/update-order.dto";
+import {
+  AddOrderDetailToOrderDto,
+  UpdateOrderDetailDto,
+  UpdateOrderDto,
+} from "@/core/orders/dto/update-order.dto";
 import { SocketEvent } from "@/core/common/dto/socket.dto";
 import { useWebsocketEventListener } from "@/presentation/shared/hooks/useWebsocketEventListener";
 
 export const useOrders = () => {
   const setOrders = useOrdersStore((state) => state.setOrders);
+  const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const createOrderEmitter = useWebsocketEventEmitter<Order, CreateOrderDto>(
     OrderSocketEvent.createOrder,
     {
@@ -29,6 +34,16 @@ export const useOrders = () => {
     },
   );
 
+  const updateOrderEmitter = useWebsocketEventEmitter<Order, UpdateOrderDto>(
+    OrderSocketEvent.updateOrder,
+    {
+      onSuccess: (resp) => {
+        if (resp.data) setActiveOrder(resp.data!);
+      },
+      onError: (resp) => {},
+    },
+  );
+
   const updateOrderDetailEmitter = useWebsocketEventEmitter<
     Order,
     UpdateOrderDetailDto
@@ -36,6 +51,16 @@ export const useOrders = () => {
     onSuccess: (resp) => {
       // Alert.alert("Success", "Order detail updated successfully");
     },
+    onError: (resp) => {
+      Alert.alert("Error", resp.msg);
+    },
+  });
+
+  const useOrderDetailToOrderEmitter = useWebsocketEventEmitter<
+    Order,
+    AddOrderDetailToOrderDto
+  >(OrderSocketEvent.addOrderDetail, {
+    onSuccess: (resp) => {},
     onError: (resp) => {
       Alert.alert("Error", resp.msg);
     },
@@ -62,6 +87,8 @@ export const useOrders = () => {
     createOrder: createOrderEmitter,
     activeOrdersQuery,
     updateOrderDetail: updateOrderDetailEmitter,
+    addOrderDetailToOrder: useOrderDetailToOrderEmitter,
+    updateOrder: updateOrderEmitter,
   };
 };
 
@@ -93,6 +120,7 @@ export const useOrderUpdatedListener = () => {
       // Alert.alert("info", `Order #${order?.id} has been updated`);
 
       if (activeOrder?.id === order?.id) {
+        console.log("Updating active order:", order.id);
         setActiveOrder(order!);
       }
 

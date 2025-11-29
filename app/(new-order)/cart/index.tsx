@@ -15,6 +15,7 @@ import { Product } from "@/core/menu/models/product.model";
 import { NewOrderDetail } from "@/core/orders/dto/new-order-detail.dto";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { mapStoreToCreateOrderDto } from "@/presentation/orders/mappers/createOrder.mapper";
+import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 
 export default function CartScreen() {
   const people = useNewOrderStore((state) => state.people);
@@ -28,6 +29,7 @@ export default function CartScreen() {
   const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
   const newOrder = useNewOrderStore();
   const { isOnline, isLoading, mutate: createOrder } = useOrders().createOrder;
+  const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
   const [total, setTotal] = useState(0);
   const router = useRouter();
@@ -44,6 +46,7 @@ export default function CartScreen() {
     createOrder(data, {
       onSuccess: (resp) => {
         resetNewOrder();
+        if (resp.data) setActiveOrder(resp.data);
         router.replace("/(new-order)/order-confirmation", { withAnchor: true });
       },
     });

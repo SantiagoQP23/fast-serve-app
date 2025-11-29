@@ -12,10 +12,12 @@ import {
   useOrders,
   useOrderUpdatedListener,
 } from "@/presentation/orders/hooks/useOrders";
+import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { status, checkStatus } = useAuthStore();
+  const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   useOrders();
   useOrderCreatedListener();
   useOrderUpdatedListener();

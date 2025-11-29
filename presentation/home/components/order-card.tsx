@@ -29,7 +29,8 @@ export default function OrderCard({ order }: OrderCardProps) {
     : dayjs(order.createdAt).format("dddd, HH:mm");
 
   const openOrder = () => {
-    router.push(`/(order)/${order.num}`);
+    // router.push(`/(order)/${order.num}`);
+    router.replace("/(new-order)/order-confirmation", { withAnchor: true });
     setActiveOrder(order);
   };
 

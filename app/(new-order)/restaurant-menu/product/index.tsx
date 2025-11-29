@@ -16,6 +16,8 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
+import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { useOrders } from "@/presentation/orders/hooks/useOrders";
 
 export default function ProductScreen() {
   const activeOrderDetail = useNewOrderStore((state) => state.activeDetail);
@@ -33,11 +35,35 @@ export default function ProductScreen() {
   const updateDetail = useNewOrderStore((state) => state.updateDetail);
   const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
   const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
+  const order = useOrdersStore((state) => state.activeOrder);
+  const {
+    isLoading,
+    isOnline,
+    mutate: addOrderDetailToOrder,
+  } = useOrders().addOrderDetailToOrder;
 
   const goToMenu = () => {
     setActiveProduct(null);
     setActiveDetail(null);
     router.back();
+  };
+
+  if (!activeProduct) {
+    return null;
+  }
+
+  const addProductToOrder = () => {
+    if (activeProduct && order)
+      addOrderDetailToOrder(
+        {
+          productId: activeProduct!.id,
+          quantity: counter,
+          price: activeProduct!.price,
+          description: notes,
+          orderId: order!.id,
+        },
+        {},
+      );
   };
 
   const addProductToCart = () => {
@@ -53,6 +79,14 @@ export default function ProductScreen() {
         product: activeProduct!,
         description: notes,
       });
+    }
+  };
+
+  const onAddProduct = () => {
+    if (order) {
+      addProductToOrder();
+    } else {
+      addProductToCart();
     }
     goToMenu();
   };
@@ -113,8 +147,8 @@ export default function ProductScreen() {
           </ThemedView>
         </ThemedView>
         <Button
-          label="Add to Cart "
-          onPress={addProductToCart}
+          label={`Add to  ${order ? "order " : "cart "}`}
+          onPress={onAddProduct}
           leftIcon="cart-outline"
         />
       </ThemedView>

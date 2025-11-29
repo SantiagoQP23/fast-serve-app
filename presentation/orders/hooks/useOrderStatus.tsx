@@ -10,10 +10,17 @@ export function useOrderStatus(status: OrderStatus) {
   };
 
   const statusTextColor: { [key in OrderStatus]: string } = {
-    [OrderStatus.DELIVERED]: "text-green-700",
-    [OrderStatus.IN_PROGRESS]: "text-blue-700",
-    [OrderStatus.PENDING]: "text-orange-700",
-    [OrderStatus.CANCELLED]: "text-red-700",
+    [OrderStatus.DELIVERED]: "text-green-500",
+    [OrderStatus.IN_PROGRESS]: "text-blue-500",
+    [OrderStatus.PENDING]: "text-orange-500",
+    [OrderStatus.CANCELLED]: "text-red-500",
+  };
+
+  const statusIconColor: { [key in OrderStatus]: string } = {
+    [OrderStatus.DELIVERED]: "green-500",
+    [OrderStatus.IN_PROGRESS]: "blue-500",
+    [OrderStatus.PENDING]: "orange-400",
+    [OrderStatus.CANCELLED]: "red-500",
   };
 
   const backgroundColors: { [key in OrderStatus]: string } = {
@@ -36,5 +43,6 @@ export function useOrderStatus(status: OrderStatus) {
     statusTextColor: statusTextColor[status],
     statusBackgroundColor: backgroundColors[status],
     statusIcon: statusIcons[status],
+    statusIconColor: statusIconColor[status],
   };
 }

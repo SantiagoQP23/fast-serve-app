@@ -1,5 +1,6 @@
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
+import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import IconButton from "@/presentation/theme/components/icon-button";
 import NotificationBadge from "@/presentation/theme/components/notification-badge";
@@ -13,6 +14,7 @@ export default function NewOrderLayout() {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
   const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
+  const order = useOrdersStore((state) => state.activeOrder);
   const { details } = useNewOrderStore();
 
   const closeBottomSheet = () => {
@@ -33,19 +35,20 @@ export default function NewOrderLayout() {
             headerShown: true,
             title: "",
             headerShadowVisible: false,
-            headerRight: () => (
-              <ThemedView style={tw`relative`}>
-                <IconButton
-                  icon="cart-outline"
-                  onPress={() => router.push("/(new-order)/cart")}
-                />
-                {details.length ? (
-                  <NotificationBadge value={details.length} />
-                ) : (
-                  <></>
-                )}
-              </ThemedView>
-            ),
+            headerRight: () =>
+              order ? null : (
+                <ThemedView style={tw`relative`}>
+                  <IconButton
+                    icon="cart-outline"
+                    onPress={() => router.push("/(new-order)/cart")}
+                  />
+                  {details.length ? (
+                    <NotificationBadge value={details.length} />
+                  ) : (
+                    <></>
+                  )}
+                </ThemedView>
+              ),
           }}
         />
         <Stack.Screen

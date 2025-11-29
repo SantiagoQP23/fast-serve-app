@@ -3,7 +3,7 @@ import { ScrollView } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { Ionicons } from "@expo/vector-icons";
@@ -18,20 +18,56 @@ import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";
 import { OrderDetail } from "@/core/orders/models/order-detail.model";
 import OrderDetailCard from "@/presentation/orders/components/order-detail-card";
+import { useOrders } from "@/presentation/orders/hooks/useOrders";
 
 dayjs.extend(relativeTime);
 
 export default function OrderScreen() {
   const order = useOrdersStore((state) => state.activeOrder);
+  const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const setActiveOrderDetail = useOrdersStore(
     (state) => state.setActiveOrderDetail,
   );
+  const { mutate: updateOrder, isOnline, isLoading } = useOrders().updateOrder;
   const router = useRouter();
 
   const openProduct = (detail: OrderDetail) => {
     setActiveOrderDetail(detail);
     router.push("/(order)/edit-order-detail");
   };
+
+  const { statusText, statusTextColor, statusIcon, statusIconColor } =
+    useOrderStatus(order.status);
+
+  const date = dayjs(order.createdAt).isSame(dayjs(), "day")
+    ? `Today, ${dayjs(order.createdAt).format("HH:mm")}`
+    : dayjs(order.createdAt).format("dddd, HH:mm");
+
+  const relativeDate = dayjs(order.createdAt).fromNow(true);
+
+  const updateStatus = (status: OrderStatus) => {
+    updateOrder(
+      {
+        id: order.id,
+        status,
+      },
+      {
+        onSuccess: (resp) => {
+          // Handle success if needed
+        },
+      },
+    );
+  };
+
+  useEffect(() => {
+    // (Optional) setup code here
+
+    return () => {
+      // setActiveOrder(null);
+      // This code runs when the component is unmounted
+      // Place your cleanup logic here
+    };
+  }, []);
 
   if (!order) {
     return (
@@ -41,48 +77,56 @@ export default function OrderScreen() {
     );
   }
 
-  const { statusText, statusTextColor, statusIcon } = useOrderStatus(
-    order.status,
-  );
-
-  const date = dayjs(order.createdAt).isSame(dayjs(), "day")
-    ? `Today, ${dayjs(order.createdAt).format("HH:mm")}`
-    : dayjs(order.createdAt).format("dddd, HH:mm");
-
-  const relativeDate = dayjs(order.createdAt).fromNow(true);
-
   return (
     <>
       <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
-        <ThemedView
-          style={tw` justify-between bg-gray-100 p-4 rounded-lg gap-4`}
-        >
-          <ThemedView style={tw`gap-1 bg-transparent`}>
-            <ThemedText type="h3">
-              {order.type === OrderType.IN_PLACE
-                ? `Table ${order.table?.name}`
-                : "Take Away"}
-            </ThemedText>
-            <ThemedView
-              style={tw` flex-row  bg-transparent items-center gap-2`}
-            >
-              <Ionicons name="people-outline" size={18} />
-              <ThemedText type="body2">{order.people}</ThemedText>
-            </ThemedView>
-          </ThemedView>
-          <ThemedView style={tw`border border-dashed border-gray-700`} />
-          <ThemedView style={tw`gap-1 bg-transparent`}>
-            <ThemedText type="h4">Order {order.num}</ThemedText>
-            <ThemedText type="body2">
-              {date} - {relativeDate}
-            </ThemedText>
-          </ThemedView>
-        </ThemedView>
         <ScrollView
           style={tw`flex-1`}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`gap-4 pb-4`}
         >
+          <ThemedView
+            style={tw` justify-between  p-4 rounded-lg gap-4 border border-gray-400`}
+          >
+            <ThemedView
+              style={tw`gap-1 bg-transparent flex-row justify-between`}
+            >
+              <ThemedView style={tw`gap-1 bg-transparent`}>
+                <ThemedText type="h3">
+                  {order.type === OrderType.IN_PLACE
+                    ? `Table ${order.table?.name}`
+                    : "Take Away"}
+                </ThemedText>
+                <ThemedView
+                  style={tw` flex-row  bg-transparent items-center gap-2`}
+                >
+                  <Ionicons name="people-outline" size={18} />
+                  <ThemedText type="body2">{order.people}</ThemedText>
+                </ThemedView>
+              </ThemedView>
+
+              <ThemedView
+                style={tw`gap-2 bg-transparent flex-row items-center`}
+              >
+                <Ionicons
+                  name={statusIcon}
+                  size={18}
+                  color={tw.color(statusIconColor)}
+                />
+                <ThemedText type="h4" style={tw`${statusTextColor}`}>
+                  {statusText}
+                </ThemedText>
+              </ThemedView>
+            </ThemedView>
+            <ThemedView style={tw`border-t border-dashed border-gray-700`} />
+            <ThemedView style={tw`gap-1 bg-transparent`}>
+              <ThemedText type="h4">Order {order.num}</ThemedText>
+              <ThemedText type="body2">
+                {order.user.person.firstName} {order.user.person.lastName}
+              </ThemedText>
+              <ThemedText type="body2">{date}</ThemedText>
+            </ThemedView>
+          </ThemedView>
           {order.notes && (
             <ThemedView style={tw`gap-2`}>
               <ThemedText type="caption">Notes</ThemedText>
@@ -96,13 +140,18 @@ export default function OrderScreen() {
                 variant="outline"
                 rightIcon="pause-outline"
                 size="small"
+                onPress={() => updateStatus(OrderStatus.PENDING)}
               />
             )}
             <ThemedView style={tw`flex-row items-center gap-2`}>
-              <Ionicons name={statusIcon} size={18} color={statusTextColor} />
-              <ThemedText type="h3" style={tw``}>
-                {statusText}
-              </ThemedText>
+              {/* <Ionicons */}
+              {/*   name={statusIcon} */}
+              {/*   size={18} */}
+              {/*   color={tw.color(statusIconColor)} */}
+              {/* /> */}
+              {/* <ThemedText type="h3" style={tw`${statusTextColor}`}> */}
+              {/*   {statusText} */}
+              {/* </ThemedText> */}
             </ThemedView>
             {order.status === OrderStatus.IN_PROGRESS && (
               <Button
@@ -110,6 +159,7 @@ export default function OrderScreen() {
                 variant="outline"
                 rightIcon="checkmark-done-outline"
                 size="small"
+                onPress={() => updateStatus(OrderStatus.DELIVERED)}
               />
             )}
             {order.status === OrderStatus.PENDING && (
@@ -118,6 +168,7 @@ export default function OrderScreen() {
                 variant="outline"
                 rightIcon="play-outline"
                 size="small"
+                onPress={() => updateStatus(OrderStatus.IN_PROGRESS)}
               />
             )}
           </ThemedView>
@@ -128,6 +179,13 @@ export default function OrderScreen() {
               onPress={() => openProduct(detail)}
             />
           ))}
+
+          <Button
+            leftIcon="add-outline"
+            label="Add product "
+            variant="outline"
+            onPress={() => router.push("/restaurant-menu")}
+          />
         </ScrollView>
       </ThemedView>
       <ThemedView style={tw`gap-4 p-4 rounded-lg `}>

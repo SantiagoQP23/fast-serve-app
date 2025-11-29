@@ -13,6 +13,9 @@ import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
 import { Category } from "@/core/menu/models/category.model";
 import { Product } from "@/core/menu/models/product.model";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
+import Button from "@/presentation/theme/components/button";
+import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
+import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 
 export default function RestaurantMenuScreen() {
   const [section, setSection] = useState("");
@@ -23,6 +26,8 @@ export default function RestaurantMenuScreen() {
   const [search, setSearch] = useState("");
   const { categories, sections, products } = useMenu();
   const { setActiveProduct } = useMenuStore();
+  const details = useNewOrderStore((state) => state.details);
+  const order = useOrdersStore((state) => state.activeOrder);
 
   const openProduct = (product: Product) => {
     setActiveProduct(product);
@@ -139,6 +144,21 @@ export default function RestaurantMenuScreen() {
           ))}
         </ScrollView>
       </ThemedView>
+
+      {!order && details.length > 0 && (
+        <ThemedView style={tw`absolute bottom-4 left-4 right-4 `}>
+          <ThemedView style={tw`flex-row justify-between items-center`}>
+            <ThemedView>
+              <ThemedText>Added products: {details.length}</ThemedText>
+            </ThemedView>
+            <Button
+              label="Go to cart "
+              leftIcon="cart-outline"
+              onPress={() => router.push("/(new-order)/cart")}
+            />
+          </ThemedView>
+        </ThemedView>
+      )}
     </ThemedView>
   );
 }
