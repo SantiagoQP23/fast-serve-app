@@ -40,7 +40,7 @@ export default function Button({
   };
 
   const sizeStyles = {
-    small: "px-3 py-2",
+    small: "px-4 py-2",
     medium: "px-5 py-3",
     large: "px-6 py-4",
   };

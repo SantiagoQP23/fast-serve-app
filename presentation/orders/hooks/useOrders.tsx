@@ -12,6 +12,7 @@ import { useOrdersStore } from "../store/useOrdersStore";
 import { useEffect } from "react";
 import {
   AddOrderDetailToOrderDto,
+  DeleteOrderDetailDto,
   UpdateOrderDetailDto,
   UpdateOrderDto,
 } from "@/core/orders/dto/update-order.dto";
@@ -66,6 +67,16 @@ export const useOrders = () => {
     },
   });
 
+  const removeOrderDetailEmitter = useWebsocketEventEmitter<
+    Order,
+    DeleteOrderDetailDto
+  >(OrderSocketEvent.deleteOrderDetail, {
+    onSuccess: (resp) => {},
+    onError: (resp) => {
+      Alert.alert("Error", resp.msg);
+    },
+  });
+
   const activeOrdersQuery = useQuery({
     queryKey: ["activeOrders"],
     queryFn: async () => OrdersService.getActiveOrders(),
@@ -89,6 +100,7 @@ export const useOrders = () => {
     updateOrderDetail: updateOrderDetailEmitter,
     addOrderDetailToOrder: useOrderDetailToOrderEmitter,
     updateOrder: updateOrderEmitter,
+    removeOrderDetail: removeOrderDetailEmitter,
   };
 };
 
