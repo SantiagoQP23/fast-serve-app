@@ -1,15 +1,13 @@
-import { ScrollView } from "react-native";
+import { Modal, ScrollView, View } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "expo-router";
-import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { Ionicons } from "@expo/vector-icons";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
-import NewOrderDetailCard from "@/presentation/orders/components/new-order-detail-card";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import dayjs from "dayjs";
@@ -29,12 +27,10 @@ export default function OrderScreen() {
     (state) => state.setActiveOrderDetail,
   );
   const { mutate: updateOrder, isOnline, isLoading } = useOrders().updateOrder;
+  const { mutate: deleteOrder } = useOrders().deleteOrder;
   const router = useRouter();
 
-  const openProduct = (detail: OrderDetail) => {
-    setActiveOrderDetail(detail);
-    router.push("/(order)/edit-order-detail");
-  };
+  const [visible, setVisible] = useState(false);
 
   if (!order) {
     return (
@@ -44,14 +40,17 @@ export default function OrderScreen() {
     );
   }
 
+  const openProduct = (detail: OrderDetail) => {
+    setActiveOrderDetail(detail);
+    router.push("/(order)/edit-order-detail");
+  };
+
   const { statusText, statusTextColor, statusIcon, statusIconColor } =
     useOrderStatus(order.status);
 
   const date = dayjs(order.createdAt).isSame(dayjs(), "day")
     ? `Today, ${dayjs(order.createdAt).format("HH:mm")}`
     : dayjs(order.createdAt).format("dddd, HH:mm");
-
-  const relativeDate = dayjs(order.createdAt).fromNow(true);
 
   const updateStatus = (status: OrderStatus) => {
     updateOrder(
@@ -67,8 +66,54 @@ export default function OrderScreen() {
     );
   };
 
+  const closeModal = () => {
+    setVisible(false);
+  };
+
+  const onRemoveOrder = () => {
+    deleteOrder(order.id, {
+      onSuccess: () => {
+        closeModal();
+        setActiveOrder(null);
+        router.replace("/(tabs)");
+      },
+    });
+  };
+
+  const orderCantBeDeleted =
+    order.status !== OrderStatus.PENDING ||
+    order.details.some((detail) => detail.qtyDelivered !== 0);
+
   return (
     <>
+      <Modal
+        transparent
+        visible={visible}
+        animationType="fade"
+        onRequestClose={() => setVisible(false)}
+      >
+        {/* Backdrop */}
+        <View style={tw`flex-1 bg-black/50 items-center justify-center`}>
+          {/* Modal card */}
+          <View style={tw`bg-white rounded-2xl w-4/5 p-5 shadow-lg`}>
+            <ThemedText type="h4">Remove Order</ThemedText>
+            <ThemedText type="body1" style={tw`mt-2 mb-4`}>
+              Are you sure you want to remove this order? This action cannot be
+              undone.
+            </ThemedText>
+
+            <ThemedView style={tw`flex-row justify-end gap-2`}>
+              <Button
+                label="Cancel"
+                onPress={closeModal}
+                variant="outline"
+                size="small"
+              />
+              <Button label="Remove" onPress={onRemoveOrder} size="small" />
+            </ThemedView>
+          </View>
+        </View>
+      </Modal>
       <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
         <ScrollView
           style={tw`flex-1`}
@@ -186,14 +231,14 @@ export default function OrderScreen() {
         <ThemedView style={tw`flex-row justify-between items-center`}>
           <IconButton
             icon="trash-outline"
-            onPress={() => {}}
+            onPress={() => setVisible(true)}
             color="danger"
-            disabled
+            disabled={orderCantBeDeleted}
           />
           <Button
             label="Payments"
             variant="secondary"
-            onPress={() => router.push(`/(order)/${"sd"}/bills`)}
+            onPress={() => router.push(`/(order)/${order.id}/bills`)}
           ></Button>
         </ThemedView>
       </ThemedView>

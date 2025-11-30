@@ -14,6 +14,7 @@ interface OrdersState {
   setActiveOrderDetail: (detail: OrderDetail | null) => void;
   addOrder: (order: Order) => void;
   updateOrder: (order: Order) => void;
+  deleteOrder: (orderId: string) => void;
 }
 
 export const useOrdersStore = create<OrdersState>((set) => ({
@@ -34,4 +35,8 @@ export const useOrdersStore = create<OrdersState>((set) => ({
   setActiveBill: (bill: Bill | null) => set({ activeBill: bill }),
   setActiveOrderDetail: (detail: OrderDetail | null) =>
     set({ activeOrderDetail: detail }),
+  deleteOrder: (orderId: string) =>
+    set((state) => ({
+      orders: state.orders.filter((o) => o.id !== orderId),
+    })),
 }));

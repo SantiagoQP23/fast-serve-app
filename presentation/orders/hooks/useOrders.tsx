@@ -67,6 +67,16 @@ export const useOrders = () => {
     },
   });
 
+  const deleteOrderEmitter = useWebsocketEventEmitter<Order, string>(
+    OrderSocketEvent.deleteOrder,
+    {
+      onSuccess: (resp) => {},
+      onError: (resp) => {
+        Alert.alert("Error", resp.msg);
+      },
+    },
+  );
+
   const removeOrderDetailEmitter = useWebsocketEventEmitter<
     Order,
     DeleteOrderDetailDto
@@ -101,6 +111,7 @@ export const useOrders = () => {
     addOrderDetailToOrder: useOrderDetailToOrderEmitter,
     updateOrder: updateOrderEmitter,
     removeOrderDetail: removeOrderDetailEmitter,
+    deleteOrder: deleteOrderEmitter,
   };
 };
 
@@ -139,6 +150,16 @@ export const useOrderUpdatedListener = () => {
       // dispatch(setLastUpdatedOrders(new Date().toISOString()));
       //
       // dispatch(sortOrdersByDeliveryTime());
+    },
+  );
+};
+
+export const useOrderDeletedListener = () => {
+  const deleteOrder = useOrdersStore((state) => state.deleteOrder);
+  useWebsocketEventListener(
+    OrderSocketEvent.deleteOrder,
+    ({ data }: SocketEvent<Order>) => {
+      if (data) deleteOrder(data.id);
     },
   );
 };

@@ -9,6 +9,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ActivityIndicator } from "react-native";
 import {
   useOrderCreatedListener,
+  useOrderDeletedListener,
   useOrders,
   useOrderUpdatedListener,
 } from "@/presentation/orders/hooks/useOrders";
@@ -21,6 +22,7 @@ export default function TabLayout() {
   useOrders();
   useOrderCreatedListener();
   useOrderUpdatedListener();
+  useOrderDeletedListener();
 
   useEffect(() => {
     checkStatus();
