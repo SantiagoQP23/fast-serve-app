@@ -25,7 +25,7 @@ import { ActivityIndicator } from "react-native";
 import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
 // Create a client
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 export const unstable_settings = {
   anchor: "(tabs)",

@@ -18,6 +18,7 @@ import {
   CreateBillDetailDto,
   CreateBillDto,
 } from "@/core/orders/dto/create-bill.dto";
+import { useBills } from "@/presentation/orders/hooks/useBills";
 
 interface SelectedDetails {
   [id: string]: {
@@ -29,9 +30,9 @@ interface SelectedDetails {
 export default function NewBillScreen() {
   const router = useRouter();
   const order = useOrdersStore((state) => state.activeOrder);
-  const [total, setTotal] = useState(50);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedDetails, setSelectedDetails] = useState<SelectedDetails>({});
+  const { mutate: createBill } = useBills().createBill;
 
   const getTotalSelectedDetails = () => {
     let total = 0;
@@ -90,7 +91,7 @@ export default function NewBillScreen() {
     setSelectedDetails(newSelectedDetails);
   };
 
-  const createBill = () => {
+  const onCreateBill = () => {
     const details: CreateBillDetailDto[] = [];
 
     Object.keys(selectedDetails).forEach((id) => {
@@ -105,7 +106,11 @@ export default function NewBillScreen() {
 
     const createBillDto: CreateBillDto = { orderId: order.id, details };
 
-    router.back();
+    createBill(createBillDto, {
+      onSuccess: () => {
+        router.back();
+      },
+    });
   };
 
   return (
@@ -156,7 +161,7 @@ export default function NewBillScreen() {
 
       <Button
         label={"Create bill - $" + getTotalSelectedDetails()}
-        onPress={createBill}
+        onPress={onCreateBill}
       ></Button>
     </ThemedView>
   );
