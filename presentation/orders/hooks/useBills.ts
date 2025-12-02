@@ -1,5 +1,6 @@
 import { queryClient } from "@/app/_layout";
 import { CreateBillDto } from "@/core/orders/dto/create-bill.dto";
+import { UpdateBillDto } from "@/core/orders/dto/update-bill.dto";
 import { OrderSocketEvent } from "@/core/orders/enums/socket-events.enum";
 import { Order } from "@/core/orders/models/order.model";
 import { BillsService } from "@/core/orders/services/bills.service";
@@ -25,6 +26,21 @@ export const useBills = () => {
     },
   );
 
+  const updateBillEmitter = useWebsocketEventEmitter<Order, UpdateBillDto>(
+    OrderSocketEvent.updateBill,
+    {
+      onSuccess: (resp) => {
+        if (resp.data)
+          queryClient.invalidateQueries({
+            queryKey: ["bills", resp.data.id],
+          });
+      },
+      onError: (resp) => {
+        Alert.alert("Error", resp.msg);
+      },
+    },
+  );
+
   const billsByOrderQuery = (orderId: string) =>
     useQuery({
       queryKey: ["bills", orderId],
@@ -34,5 +50,6 @@ export const useBills = () => {
   return {
     billsByOrderQuery,
     createBill: createBillEmitter,
+    updateBill: updateBillEmitter,
   };
 };
