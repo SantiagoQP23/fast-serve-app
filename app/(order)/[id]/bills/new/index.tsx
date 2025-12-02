@@ -1,4 +1,4 @@
-import { ScrollView } from "react-native";
+import { Alert, ScrollView } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -103,6 +103,11 @@ export default function NewBillScreen() {
         });
       }
     });
+
+    if (details.length === 0) {
+      Alert.alert("No items selected", "Please select at least one item.");
+      return;
+    }
 
     const createBillDto: CreateBillDto = { orderId: order.id, details };
 

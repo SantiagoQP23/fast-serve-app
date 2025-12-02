@@ -31,7 +31,7 @@ export default function Button({
   size = "medium",
   style,
 }: ButtonProps) {
-  const baseStyle = " rounded-2xl flex-row justify-center items-center";
+  const baseStyle = " rounded-xl flex-row justify-center items-center";
 
   const variants = {
     primary: "bg-light-primary",

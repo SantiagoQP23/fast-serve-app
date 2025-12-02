@@ -13,6 +13,7 @@ import { ThemedText } from "../theme/components/themed-text";
 import Switch from "../theme/components/switch";
 import TextInput from "../theme/components/text-input";
 import { useTables } from "../tables/hooks/useTables";
+import { useOrdersStore } from "./store/useOrdersStore";
 
 interface NewOrderBottomSheetProps {
   onCreateOrder?: () => void;
@@ -34,6 +35,7 @@ const NewOrderBottomSheet = ({
     notes,
   } = useNewOrderStore();
   const [withNotes, setWithNotes] = useState<boolean>(!!notes);
+  const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const { tables } = useTables();
 
   const validateNewOrder = () => {
@@ -41,6 +43,8 @@ const NewOrderBottomSheet = ({
       Alert.alert("Please select a table");
       return false;
     }
+    setActiveOrder(null); // Reset active order
+
     return true;
   };
 

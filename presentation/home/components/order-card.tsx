@@ -43,8 +43,10 @@ export default function OrderCard({ order }: OrderCardProps) {
               style={tw`flex-row items-center bg-transparent justify-between`}
             >
               <ThemedView style={tw`gap-1 bg-transparent`}>
-                <ThemedText type="h4" style={tw``}>
-                  {order.user.person.firstName} {order.user.person.lastName}
+                <ThemedText type="h3">
+                  {order.type === OrderType.IN_PLACE
+                    ? `Table ${order.table?.name}`
+                    : "Take Away"}
                 </ThemedText>
               </ThemedView>
               <ThemedView
@@ -67,22 +69,47 @@ export default function OrderCard({ order }: OrderCardProps) {
             <ThemedText type="small">{date}</ThemedText>
           </ThemedView>
           <ThemedView style={tw`flex-row items-center bg-transparent gap-5 `}>
-            <ThemedText type="h3">
-              {order.type === OrderType.IN_PLACE
-                ? `Table ${order.table?.name}`
-                : "Take Away"}
+            <ThemedText type="body2" style={tw`font-semibold`}>
+              {order.user.person.firstName} {order.user.person.lastName}
             </ThemedText>
-            <ThemedView
-              style={tw` flex-row justify-end bg-transparent items-center gap-2`}
-            >
-              <Ionicons name="people-outline" size={18} />
-              <ThemedText type="body2">{order.people}</ThemedText>
-            </ThemedView>
           </ThemedView>
           <ThemedView
             style={tw`flex-row items-center bg-transparent justify-between `}
           >
-            <ThemedText type="body2">Order N° {order.num} </ThemedText>
+            <ThemedView
+              style={tw`flex-row items-center bg-transparent  gap-4 `}
+            >
+              <ThemedView
+                style={tw` flex-row justify-end bg-transparent items-center gap-2`}
+              >
+                <Ionicons
+                  name="receipt-outline"
+                  size={18}
+                  color={tw.color("gray-600")}
+                />
+                <ThemedText type="body2">{order.num}</ThemedText>
+              </ThemedView>
+              <ThemedView
+                style={tw` flex-row justify-end bg-transparent items-center gap-2`}
+              >
+                <Ionicons
+                  name="people-outline"
+                  size={18}
+                  color={tw.color("gray-600")}
+                />
+                <ThemedText type="body2">{order.people}</ThemedText>
+              </ThemedView>
+              <ThemedView
+                style={tw` flex-row justify-end bg-transparent items-center gap-2`}
+              >
+                <Ionicons
+                  name="cart-outline"
+                  size={18}
+                  color={tw.color("gray-600")}
+                />
+                <ThemedText type="body2">{order.details.length}</ThemedText>
+              </ThemedView>
+            </ThemedView>
             <ThemedText type="h3">${order.total}</ThemedText>
           </ThemedView>
         </ThemedView>
