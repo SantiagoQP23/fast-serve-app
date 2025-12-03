@@ -17,6 +17,8 @@ import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";
 import { OrderDetail } from "@/core/orders/models/order-detail.model";
 import OrderDetailCard from "@/presentation/orders/components/order-detail-card";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
+import Label from "@/presentation/theme/components/label";
+import { useModal } from "@/presentation/shared/hooks/useModal";
 
 dayjs.extend(relativeTime);
 
@@ -29,6 +31,12 @@ export default function OrderScreen() {
   const { mutate: updateOrder, isOnline, isLoading } = useOrders().updateOrder;
   const { mutate: deleteOrder } = useOrders().deleteOrder;
   const router = useRouter();
+
+  const {
+    isOpen: closeModalIsOpen,
+    handleOpen: openCloseModal,
+    handleClose: closeCloseModal,
+  } = useModal();
 
   const [visible, setVisible] = useState(false);
 
@@ -45,7 +53,7 @@ export default function OrderScreen() {
     router.push("/(order)/edit-order-detail");
   };
 
-  const { statusText, statusTextColor, statusIcon, statusIconColor } =
+  const { statusText, statusTextColor, statusIcon, statusIconColor, bgColor } =
     useOrderStatus(order.status);
 
   const date = dayjs(order.createdAt).isSame(dayjs(), "day")
@@ -60,6 +68,22 @@ export default function OrderScreen() {
       },
       {
         onSuccess: (resp) => {
+          // Handle success if needed
+        },
+      },
+    );
+  };
+
+  const onCloseOrder = () => {
+    updateOrder(
+      {
+        id: order.id,
+        isClosed: true,
+      },
+      {
+        onSuccess: (resp) => {
+          closeCloseModal();
+          router.replace("/(tabs)");
           // Handle success if needed
         },
       },
@@ -114,15 +138,41 @@ export default function OrderScreen() {
           </View>
         </View>
       </Modal>
+      <Modal
+        transparent
+        visible={closeModalIsOpen}
+        animationType="fade"
+        onRequestClose={() => setVisible(false)}
+      >
+        {/* Backdrop */}
+        <View style={tw`flex-1 bg-black/50 items-center justify-center`}>
+          {/* Modal card */}
+          <View style={tw`bg-white rounded-2xl w-4/5 p-5 shadow-lg`}>
+            <ThemedText type="h3">Close Order</ThemedText>
+            <ThemedText type="body1" style={tw`mt-2 mb-4`}>
+              Are you sure you want to close this order? The closed orders can't
+              be modified.{" "}
+            </ThemedText>
+
+            <ThemedView style={tw`flex-row justify-end gap-2`}>
+              <Button
+                label="Cancel"
+                onPress={closeCloseModal}
+                variant="outline"
+                size="small"
+              />
+              <Button label="Close" onPress={onCloseOrder} size="small" />
+            </ThemedView>
+          </View>
+        </View>
+      </Modal>
       <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
         <ScrollView
           style={tw`flex-1`}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`gap-4 pb-4`}
         >
-          <ThemedView
-            style={tw` justify-between  p-4 rounded-lg gap-4 border border-gray-400`}
-          >
+          <ThemedView style={tw` justify-between   rounded-lg gap-4 mb-4`}>
             <ThemedView
               style={tw`gap-1 bg-transparent flex-row justify-between`}
             >
@@ -141,25 +191,46 @@ export default function OrderScreen() {
               </ThemedView>
 
               <ThemedView
-                style={tw`gap-2 bg-transparent flex-row items-center`}
+                style={tw`flex-row items-center bg-transparent gap-2`}
               >
-                <Ionicons
-                  name={statusIcon}
-                  size={18}
-                  color={tw.color(statusIconColor)}
-                />
-                <ThemedText type="h4" style={tw`${statusTextColor}`}>
-                  {statusText}
-                </ThemedText>
+                {order.isPaid ? (
+                  <Label text="Paid" color="success" />
+                ) : (
+                  <Label text="Unpaid" color="warning" />
+                )}
+                <ThemedView
+                  style={tw`gap-1 flex-row items-center ${bgColor}/10 px-3 py-1 rounded-full`}
+                >
+                  <Ionicons
+                    name={statusIcon}
+                    size={18}
+                    color={tw.color(statusIconColor)}
+                  />
+                  <ThemedText
+                    type="body2"
+                    style={tw`${statusTextColor} font-semibold`}
+                  >
+                    {statusText}
+                  </ThemedText>
+                </ThemedView>
               </ThemedView>
             </ThemedView>
-            <ThemedView style={tw`border-t border-dashed border-gray-700`} />
-            <ThemedView style={tw`gap-1 bg-transparent`}>
-              <ThemedText type="h4">Order {order.num}</ThemedText>
-              <ThemedText type="body2">
-                {order.user.person.firstName} {order.user.person.lastName}
-              </ThemedText>
-              <ThemedText type="body2">{date}</ThemedText>
+            {/* <ThemedView style={tw`border-t border-dashed border-gray-700`} /> */}
+            <ThemedView style={tw`gap-2 bg-transparent`}>
+              <ThemedView>
+                <ThemedText type="h4">Order </ThemedText>
+                <ThemedText type="body2">{order.num}</ThemedText>
+              </ThemedView>
+              <ThemedView>
+                <ThemedText type="h4">Waiter</ThemedText>
+                <ThemedText type="body2">
+                  {order.user.person.firstName} {order.user.person.lastName}
+                </ThemedText>
+              </ThemedView>
+              <ThemedView>
+                <ThemedText type="h4">Date</ThemedText>
+                <ThemedText type="body2">{date}</ThemedText>
+              </ThemedView>
             </ThemedView>
           </ThemedView>
           {order.notes && (
@@ -168,45 +239,38 @@ export default function OrderScreen() {
               <ThemedText type="body2">{order.notes}</ThemedText>
             </ThemedView>
           )}
-          <ThemedView style={tw`flex-row justify-between items-center`}>
-            {order.status === OrderStatus.IN_PROGRESS && (
-              <Button
-                label="Pause"
-                variant="outline"
-                rightIcon="pause-outline"
-                size="small"
-                onPress={() => updateStatus(OrderStatus.PENDING)}
-              />
-            )}
-            <ThemedView style={tw`flex-row items-center gap-2`}>
-              {/* <Ionicons */}
-              {/*   name={statusIcon} */}
-              {/*   size={18} */}
-              {/*   color={tw.color(statusIconColor)} */}
-              {/* /> */}
-              {/* <ThemedText type="h3" style={tw`${statusTextColor}`}> */}
-              {/*   {statusText} */}
-              {/* </ThemedText> */}
+          {order.status !== OrderStatus.DELIVERED && (
+            <ThemedView style={tw`flex-row justify-between items-center`}>
+              {order.status === OrderStatus.IN_PROGRESS && (
+                <Button
+                  label="Pause"
+                  variant="outline"
+                  rightIcon="pause-outline"
+                  size="small"
+                  onPress={() => updateStatus(OrderStatus.PENDING)}
+                />
+              )}
+              <ThemedView style={tw`flex-row items-center gap-2`}></ThemedView>
+              {order.status === OrderStatus.IN_PROGRESS && (
+                <Button
+                  label="Deliver"
+                  variant="outline"
+                  rightIcon="checkmark-done-outline"
+                  size="small"
+                  onPress={() => updateStatus(OrderStatus.DELIVERED)}
+                />
+              )}
+              {order.status === OrderStatus.PENDING && (
+                <Button
+                  label="Start"
+                  variant="outline"
+                  rightIcon="play-outline"
+                  size="small"
+                  onPress={() => updateStatus(OrderStatus.IN_PROGRESS)}
+                />
+              )}
             </ThemedView>
-            {order.status === OrderStatus.IN_PROGRESS && (
-              <Button
-                label="Deliver"
-                variant="outline"
-                rightIcon="checkmark-done-outline"
-                size="small"
-                onPress={() => updateStatus(OrderStatus.DELIVERED)}
-              />
-            )}
-            {order.status === OrderStatus.PENDING && (
-              <Button
-                label="Start"
-                variant="outline"
-                rightIcon="play-outline"
-                size="small"
-                onPress={() => updateStatus(OrderStatus.IN_PROGRESS)}
-              />
-            )}
-          </ThemedView>
+          )}
           {order.details.map((detail, index) => (
             <OrderDetailCard
               key={index}
@@ -229,16 +293,27 @@ export default function OrderScreen() {
           <ThemedText type="h2">${order.total}</ThemedText>
         </ThemedView>
         <ThemedView style={tw`flex-row justify-between items-center`}>
-          <IconButton
-            icon="trash-outline"
-            onPress={() => setVisible(true)}
-            color="danger"
-            disabled={orderCantBeDeleted}
-          />
+          <ThemedView style={tw`flex-row items-center gap-2`}>
+            <IconButton
+              icon="trash-outline"
+              onPress={() => setVisible(true)}
+              color="danger"
+              disabled={orderCantBeDeleted}
+            />
+            {order.status === OrderStatus.DELIVERED && order.isPaid && (
+              <Button
+                label="Close"
+                variant="secondary"
+                onPress={openCloseModal}
+                leftIcon="lock-closed-outline"
+              ></Button>
+            )}
+          </ThemedView>
           <Button
             label="Payments"
             variant="secondary"
             onPress={() => router.push(`/(order)/${order.id}/bills`)}
+            rightIcon="arrow-forward-outline"
           ></Button>
         </ThemedView>
       </ThemedView>

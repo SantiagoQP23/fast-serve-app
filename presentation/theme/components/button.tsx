@@ -53,7 +53,7 @@ export default function Button({
 
   const iconColors = {
     primary: "#fff",
-    secondary: "#fff",
+    secondary: Colors.light.primary,
     outline: Colors.light.primary,
   };
 

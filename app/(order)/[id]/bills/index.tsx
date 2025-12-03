@@ -36,6 +36,12 @@ export default function OrderBillsScreen() {
     router.push(`/(order)/${order.id}/bills/${bill.id}`);
   };
 
+  const orderAmountInBills: number = bills
+    ? bills
+        .map((bill) => bill.total + bill.discount)
+        .reduce((acc, curr) => acc + (curr ?? 0), 0)
+    : 0;
+
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1 gap-8`}>
       <ThemedView style={tw`  items-center gap-8`}>
@@ -71,7 +77,11 @@ export default function OrderBillsScreen() {
           </ThemedView>
         </>
       ) : (
-        <ScrollView style={tw`flex-1`} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={tw`flex-1 gap-2 flex-column`}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={tw`gap-2 flex-column`}
+        >
           {bills?.map((bill) => (
             <BillCard
               key={bill.id}
@@ -81,10 +91,12 @@ export default function OrderBillsScreen() {
           ))}
         </ScrollView>
       )}
-      <Button
-        label="Add bill "
-        onPress={() => router.push('/(order)/${"sd"}/bills/new')}
-      ></Button>
+      {order.total > orderAmountInBills && (
+        <Button
+          label="Add bill "
+          onPress={() => router.push('/(order)/${"sd"}/bills/new')}
+        ></Button>
+      )}
     </ThemedView>
   );
 }

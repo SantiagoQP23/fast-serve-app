@@ -80,7 +80,7 @@ export default function OrderCard({ order }: OrderCardProps) {
               style={tw`flex-row items-center bg-transparent  gap-4 `}
             >
               <ThemedView
-                style={tw` flex-row justify-end bg-transparent items-center gap-2`}
+                style={tw` flex-row justify-end bg-transparent items-center gap-1`}
               >
                 <Ionicons
                   name="receipt-outline"
@@ -90,7 +90,7 @@ export default function OrderCard({ order }: OrderCardProps) {
                 <ThemedText type="body2">{order.num}</ThemedText>
               </ThemedView>
               <ThemedView
-                style={tw` flex-row justify-end bg-transparent items-center gap-2`}
+                style={tw` flex-row justify-end bg-transparent items-center gap-1`}
               >
                 <Ionicons
                   name="people-outline"
@@ -100,7 +100,7 @@ export default function OrderCard({ order }: OrderCardProps) {
                 <ThemedText type="body2">{order.people}</ThemedText>
               </ThemedView>
               <ThemedView
-                style={tw` flex-row justify-end bg-transparent items-center gap-2`}
+                style={tw` flex-row justify-end bg-transparent items-center gap-1`}
               >
                 <Ionicons
                   name="cart-outline"
