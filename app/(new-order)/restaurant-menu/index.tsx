@@ -24,7 +24,7 @@ export default function RestaurantMenuScreen() {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const router = useRouter();
   const [search, setSearch] = useState("");
-  const { categories, sections, products } = useMenu();
+  const { categories, sections, products, menuQuery } = useMenu();
   const { setActiveProduct } = useMenuStore();
   const details = useNewOrderStore((state) => state.details);
   const order = useOrdersStore((state) => state.activeOrder);
@@ -47,7 +47,8 @@ export default function RestaurantMenuScreen() {
       setSection(value);
       setFilteredCategories(() => {
         const newCategories = categories.filter((c) => c.section.id === value);
-        onChangeCategory(newCategories[0].id);
+        if (newCategories.length > 0) onChangeCategory(newCategories[0].id);
+        else onChangeCategory("");
         return newCategories;
       });
     },
@@ -81,6 +82,10 @@ export default function RestaurantMenuScreen() {
       onChangeCategory(filteredCategories[0].id);
     }
   }, [filteredCategories, category, onChangeCategory]);
+
+  useEffect(() => {
+    menuQuery.refetch();
+  }, []);
 
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>

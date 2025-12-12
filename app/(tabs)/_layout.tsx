@@ -18,7 +18,7 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { status, checkStatus } = useAuthStore();
-  const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
+  const order = useOrdersStore((state) => state.activeOrder);
   useOrders();
   useOrderCreatedListener();
   useOrderUpdatedListener();

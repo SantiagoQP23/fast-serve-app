@@ -1,6 +1,7 @@
 import { RestaurantMenuService } from "@/core/menu/services/restaurant-menu.service";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 export const useMenu = () => {
   const { currentRestaurant } = useAuthStore();
@@ -23,5 +24,6 @@ export const useMenu = () => {
     sections,
     categories,
     products,
+    menuQuery,
   };
 };

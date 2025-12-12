@@ -116,7 +116,7 @@ export default function OrderDetailCard({
             >
               <ThemedView style={tw` bg-transparent  gap-2`}>
                 <ThemedText type="h3" style={tw` font-bold`}>
-                  {detail.product.name}
+                  {detail.quantity} - {detail.product.name}
                 </ThemedText>
                 <ThemedText type="body1">${detail.product.price}</ThemedText>
                 {detail.description && (

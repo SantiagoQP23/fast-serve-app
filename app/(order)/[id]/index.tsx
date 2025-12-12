@@ -75,6 +75,7 @@ export default function OrderScreen() {
   };
 
   const onCloseOrder = () => {
+    closeCloseModal();
     updateOrder(
       {
         id: order.id,
@@ -82,7 +83,6 @@ export default function OrderScreen() {
       },
       {
         onSuccess: (resp) => {
-          closeCloseModal();
           router.replace("/(tabs)");
           // Handle success if needed
         },

@@ -33,7 +33,7 @@ export const authLogin = async (username: string, password: string) => {
 
     return returnUserToken(data);
   } catch (error) {
-    console.log(error);
+    console.log("Auth error", error);
     // throw new Error('User and/or password not valid');
     return null;
   }

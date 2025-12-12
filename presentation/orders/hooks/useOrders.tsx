@@ -50,6 +50,7 @@ export const useOrders = () => {
     UpdateOrderDetailDto
   >(OrderSocketEvent.updateOrderDetail, {
     onSuccess: (resp) => {
+      if (resp.data) setActiveOrder(resp.data!);
       // Alert.alert("Success", "Order detail updated successfully");
     },
     onError: (resp) => {
@@ -61,7 +62,9 @@ export const useOrders = () => {
     Order,
     AddOrderDetailToOrderDto
   >(OrderSocketEvent.addOrderDetail, {
-    onSuccess: (resp) => {},
+    onSuccess: (resp) => {
+      if (resp.data) setActiveOrder(resp.data!);
+    },
     onError: (resp) => {
       Alert.alert("Error", resp.msg);
     },
@@ -120,7 +123,7 @@ export const useOrderCreatedListener = () => {
   useWebsocketEventListener(
     OrderSocketEvent.newOrder,
     ({ data, msg }: SocketEvent<Order>) => {
-      Alert.alert("info", msg);
+      // Alert.alert("info", msg);
       addOrder(data);
       // dispatch(addOrder(data));
 
@@ -139,8 +142,10 @@ export const useOrderUpdatedListener = () => {
   useWebsocketEventListener<Order>(
     OrderSocketEvent.updateOrder,
     ({ data: order }: SocketEvent<Order>) => {
+      console.log("Received order update for order:", order?.id);
       updateOrder(order!);
       // Alert.alert("info", `Order #${order?.id} has been updated`);
+      console.log("activeOrder:", activeOrder?.id);
 
       if (activeOrder?.id === order?.id) {
         console.log("Updating active order:", order.id);

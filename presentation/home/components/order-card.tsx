@@ -20,18 +20,16 @@ interface OrderCardProps {
 export default function OrderCard({ order }: OrderCardProps) {
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const status = order.status || OrderStatus.PENDING;
-  const { statusText, statusTextColor, statusBackgroundColor } = useOrderStatus(
-    order.status,
-  );
+  const { statusText, statusTextColor, bgColor } = useOrderStatus(order.status);
 
   const date = dayjs(order.createdAt).isSame(dayjs(), "day")
     ? `Today, ${dayjs(order.createdAt).format("HH:mm")}`
     : dayjs(order.createdAt).format("dddd, HH:mm");
 
   const openOrder = () => {
+    setActiveOrder(order);
     router.push(`/(order)/${order.num}`);
     // router.replace("/(new-order)/order-confirmation", { withAnchor: true });
-    setActiveOrder(order);
   };
 
   return (
@@ -52,12 +50,7 @@ export default function OrderCard({ order }: OrderCardProps) {
               <ThemedView
                 style={tw` flex-row justify-end bg-transparent items-center gap-2  rounded-full `}
               >
-                <View
-                  style={[
-                    tw`w-2 h-2 rounded-full `,
-                    tw`${statusBackgroundColor}`,
-                  ]}
-                />
+                <View style={[tw`w-2 h-2 rounded-full `, tw`${bgColor}`]} />
                 <ThemedText
                   type="caption"
                   style={[tw`font-semibold`, tw`${statusTextColor}`]}

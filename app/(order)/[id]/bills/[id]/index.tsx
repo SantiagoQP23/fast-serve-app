@@ -60,7 +60,6 @@ export default function BillScreen() {
       paymentMethod,
       receivedAmount: +receivedAmount,
       isPaid: true,
-      clientId: "0999999999",
       // cashRegisterId: activeCashRegister!.id,
     };
 

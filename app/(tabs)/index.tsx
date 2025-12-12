@@ -28,6 +28,7 @@ export default function HomeScreen() {
   const orders = useOrdersStore((state) => state.orders).filter(
     (order) => order.user.id === user?.id,
   );
+  const order = useOrdersStore((state) => state.activeOrder);
   const router = useRouter();
   const details = useNewOrderStore((state) => state.details);
 

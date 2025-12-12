@@ -4,11 +4,12 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import { router, Stack } from "expo-router";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 export default function OrdersLayout() {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const order = useOrdersStore((state) => state.activeOrder);
+  const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
   const closeBottomSheet = () => {
     bottomSheetModalRef.current?.close(); // Close sheet before navigating
@@ -17,6 +18,12 @@ export default function OrdersLayout() {
   // callbacks
   const handlePresentModalPress = useCallback(() => {
     bottomSheetModalRef.current?.present();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      setActiveOrder(null);
+    };
   }, []);
 
   return (
