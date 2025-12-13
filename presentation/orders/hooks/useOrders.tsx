@@ -18,10 +18,12 @@ import {
 } from "@/core/orders/dto/update-order.dto";
 import { SocketEvent } from "@/core/common/dto/socket.dto";
 import { useWebsocketEventListener } from "@/presentation/shared/hooks/useWebsocketEventListener";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 
 export const useOrders = () => {
   const setOrders = useOrdersStore((state) => state.setOrders);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
+  const { currentRestaurant } = useAuthStore((state) => state);
   const createOrderEmitter = useWebsocketEventEmitter<Order, CreateOrderDto>(
     OrderSocketEvent.createOrder,
     {
@@ -91,8 +93,10 @@ export const useOrders = () => {
   });
 
   const activeOrdersQuery = useQuery({
-    queryKey: ["activeOrders"],
+    queryKey: ["activeOrders", currentRestaurant?.id],
     queryFn: async () => OrdersService.getActiveOrders(),
+    enabled: !!currentRestaurant?.id,
+    staleTime: 0, // Always consider data stale to ensure refetch on restaurant change
   });
 
   const createOrder = () => {
@@ -101,11 +105,12 @@ export const useOrders = () => {
     return createOrderEmitter.mutate(data);
   };
   useEffect(() => {
-    if (activeOrdersQuery.data) {
-      console.log("Setting active orders:", activeOrdersQuery.data.length);
+    // Always sync the query data with the store, even if it's empty
+    if (activeOrdersQuery.data !== undefined) {
+      console.log(`[useOrders] Setting active orders for restaurant ${currentRestaurant?.id}:`, activeOrdersQuery.data.length);
       setOrders(activeOrdersQuery.data);
     }
-  }, [activeOrdersQuery.data]);
+  }, [activeOrdersQuery.data, setOrders, currentRestaurant?.id]);
 
   return {
     createOrder: createOrderEmitter,

@@ -1,16 +1,17 @@
-import { StyleSheet, Pressable } from "react-native";
+import { Pressable } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { Ionicons } from "@expo/vector-icons";
-import DialogModal from "@/presentation/theme/components/dialog-modal";
-import { useState } from "react";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { switchRestaurantMutation } from "@/presentation/profile/hooks/useSwitchRestaurant";
 
 export default function RestaurantsScreen() {
-  const [visible, setVisible] = useState(false);
+  const switchRestaurant = switchRestaurantMutation();
   const { user, currentRestaurant } = useAuthStore();
+  const onSwitchRestaurant = (restaurantId: string) => {
+    switchRestaurant.mutate(restaurantId);
+  };
   return (
     <ThemedView style={tw`px-4  flex-1 gap-4`}>
       <ThemedView style={tw`mt-4`}>
@@ -25,7 +26,9 @@ export default function RestaurantsScreen() {
                     "bg-gray-100 border-black",
                 )
               }
-              onPress={() => {}}
+              onPress={() => {
+                onSwitchRestaurant(restaurantRole.restaurant.id);
+              }}
               key={restaurantRole.restaurant.id}
             >
               <ThemedText type="h4">

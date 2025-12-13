@@ -15,13 +15,18 @@ interface OrdersState {
   addOrder: (order: Order) => void;
   updateOrder: (order: Order) => void;
   deleteOrder: (orderId: string) => void;
+  reset: () => void;
 }
 
-export const useOrdersStore = create<OrdersState>((set) => ({
+const initialState = {
   orders: [],
   activeOrder: null,
   activeBill: null,
   activeOrderDetail: null,
+};
+
+export const useOrdersStore = create<OrdersState>((set) => ({
+  ...initialState,
   setOrders: (orders: Order[]) => set({ orders }),
   addOrder: (order: Order) =>
     set((state) => ({
@@ -39,4 +44,5 @@ export const useOrdersStore = create<OrdersState>((set) => ({
     set((state) => ({
       orders: state.orders.filter((o) => o.id !== orderId),
     })),
+  reset: () => set(initialState),
 }));

@@ -17,6 +17,7 @@ interface ISocket {
   socket: Socket | null;
   online: boolean | undefined;
   conectarSocket: () => void;
+  desconectarSocket: () => void;
 }
 
 interface Props {
@@ -47,7 +48,7 @@ export const SocketProvider: FC<Props> = ({ children }) => {
   }, [status, conectarSocket]);
 
   return (
-    <SocketContext.Provider value={{ socket, online, conectarSocket }}>
+    <SocketContext.Provider value={{ socket, online, conectarSocket, desconectarSocket }}>
       {children}
     </SocketContext.Provider>
   );
