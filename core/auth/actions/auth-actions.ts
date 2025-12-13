@@ -16,9 +16,12 @@ const returnUserToken = (
   currentRestaurant: Restaurant;
 } => {
   const { token, user, currentRestaurant } = data;
+  const currentRole = data.user.restaurantRoles.find(
+    (resRole) => resRole.restaurant.id === data.currentRestaurant?.id,
+  )!.role;
 
   return {
-    user,
+    user: { ...user, role: currentRole },
     token,
     currentRestaurant,
   };

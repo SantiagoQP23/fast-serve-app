@@ -31,7 +31,7 @@ export default function OrdersScreen() {
           {user?.person.firstName} {user?.person.lastName}
         </ThemedText>
         <ThemedText type="h3">{currentRestaurant?.name}</ThemedText>
-        <ThemedText type="body2">Administrator</ThemedText>
+        <ThemedText type="body2">{user?.role?.description}</ThemedText>
       </ThemedView>
       <ThemedView style={tw`mt-8`}>
         <ThemedView style={tw`rounded-lg  p-4 gap-8`}>
