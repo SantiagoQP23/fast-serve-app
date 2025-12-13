@@ -107,7 +107,10 @@ export const useOrders = () => {
   useEffect(() => {
     // Always sync the query data with the store, even if it's empty
     if (activeOrdersQuery.data !== undefined) {
-      console.log(`[useOrders] Setting active orders for restaurant ${currentRestaurant?.id}:`, activeOrdersQuery.data.length);
+      console.log(
+        `[useOrders] Setting active orders for restaurant ${currentRestaurant?.id}:`,
+        activeOrdersQuery.data.length,
+      );
       setOrders(activeOrdersQuery.data);
     }
   }, [activeOrdersQuery.data, setOrders, currentRestaurant?.id]);
@@ -140,7 +143,6 @@ export const useOrderCreatedListener = () => {
 };
 
 export const useOrderUpdatedListener = () => {
-  const activeOrder = useOrdersStore((state) => state.activeOrder);
   const updateOrder = useOrdersStore((state) => state.updateOrder);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
@@ -148,18 +150,18 @@ export const useOrderUpdatedListener = () => {
     OrderSocketEvent.updateOrder,
     ({ data: order }: SocketEvent<Order>) => {
       console.log("Received order update for order:", order?.id);
+      
+      // Update the order in the list
       updateOrder(order!);
-      // Alert.alert("info", `Order #${order?.id} has been updated`);
-      console.log("activeOrder:", activeOrder?.id);
+      
+      // Get current active order state at the time of the event
+      const currentActiveOrder = useOrdersStore.getState().activeOrder;
+      console.log("activeOrder:", currentActiveOrder?.id);
 
-      if (activeOrder?.id === order?.id) {
+      if (currentActiveOrder?.id === order?.id) {
         console.log("Updating active order:", order.id);
         setActiveOrder(order!);
       }
-
-      // dispatch(setLastUpdatedOrders(new Date().toISOString()));
-      //
-      // dispatch(sortOrdersByDeliveryTime());
     },
   );
 };
