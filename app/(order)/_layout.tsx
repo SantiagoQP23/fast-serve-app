@@ -2,6 +2,8 @@ import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bo
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import IconButton from "@/presentation/theme/components/icon-button";
+import { ThemedView } from "@/presentation/theme/components/themed-view";
+import tw from "@/presentation/theme/lib/tailwind";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import { router, Stack } from "expo-router";
 import { useCallback, useEffect, useRef } from "react";
@@ -33,13 +35,19 @@ export default function OrdersLayout() {
           name="[id]/index"
           options={{
             headerShown: true,
-            title: "",
+            title: "Order",
             headerShadowVisible: false,
             headerRight: () => (
-              <IconButton
-                icon="create-outline"
-                onPress={handlePresentModalPress}
-              ></IconButton>
+              <ThemedView style={tw`flex-row items-center gap-2`}>
+                <IconButton
+                  icon="create-outline"
+                  onPress={handlePresentModalPress}
+                ></IconButton>
+                <IconButton
+                  icon="ellipsis-horizontal"
+                  onPress={handlePresentModalPress}
+                ></IconButton>
+              </ThemedView>
             ),
           }}
         />

@@ -61,11 +61,6 @@ export default function OrderCard({ order }: OrderCardProps) {
             </ThemedView>
             <ThemedText type="small">{date}</ThemedText>
           </ThemedView>
-          <ThemedView style={tw`flex-row items-center bg-transparent gap-5 `}>
-            <ThemedText type="body2" style={tw`font-semibold`}>
-              {order.user.person.firstName} {order.user.person.lastName}
-            </ThemedText>
-          </ThemedView>
           <ThemedView
             style={tw`flex-row items-center bg-transparent justify-between `}
           >
@@ -104,6 +99,14 @@ export default function OrderCard({ order }: OrderCardProps) {
               </ThemedView>
             </ThemedView>
             <ThemedText type="h3">${order.total}</ThemedText>
+          </ThemedView>
+          {/* Separator */}
+          <ThemedView style={tw`h-px bg-gray-200`} />
+
+          <ThemedView style={tw`flex-row items-center bg-transparent gap-5 `}>
+            <ThemedText type="body2" style={tw`font-semibold text-gray-500`}>
+              {order.user.person.firstName} {order.user.person.lastName}
+            </ThemedText>
           </ThemedView>
         </ThemedView>
       </Card>

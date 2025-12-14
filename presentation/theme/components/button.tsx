@@ -18,6 +18,8 @@ export interface ButtonProps extends PressableProps {
   disabled?: boolean;
   leftIcon?: keyof typeof Ionicons.glyphMap;
   rightIcon?: keyof typeof Ionicons.glyphMap;
+  layout?: "horizontal" | "vertical";
+  icon?: keyof typeof Ionicons.glyphMap;
 }
 
 export default function Button({
@@ -30,8 +32,14 @@ export default function Button({
   rightIcon,
   size = "medium",
   style,
+  layout = "horizontal",
+  icon: verticalIcon,
 }: ButtonProps) {
-  const baseStyle = " rounded-xl flex-row justify-center items-center";
+  const isVertical = layout === "vertical";
+  
+  const baseStyle = isVertical 
+    ? "rounded-full justify-center items-center"
+    : "rounded-xl flex-row justify-center items-center";
 
   const variants = {
     primary: "bg-light-primary",
@@ -43,6 +51,30 @@ export default function Button({
     small: "px-4 py-2",
     medium: "px-5 py-3",
     large: "px-6 py-4",
+  };
+
+  const verticalSizeStyles = {
+    small: "w-16 h-16 p-2",
+    medium: "w-20 h-20 p-3",
+    large: "w-24 h-24 p-4",
+  };
+
+  const horizontalIconSizes = {
+    small: 18,
+    medium: 20,
+    large: 24,
+  };
+
+  const verticalIconSizes = {
+    small: 24,
+    medium: 32,
+    large: 40,
+  };
+
+  const verticalTextSizes = {
+    small: "text-xs",
+    medium: "text-sm",
+    large: "text-base",
   };
 
   const textColors = {
@@ -57,26 +89,45 @@ export default function Button({
     outline: Colors.light.primary,
   };
 
+  const currentIconSize = isVertical 
+    ? verticalIconSizes[size] 
+    : horizontalIconSizes[size];
+
   return (
     <Pressable
       disabled={disabled || loading}
       onPress={onPress}
-      style={({ pressed }) => [
+      style={({ pressed }) =>
         tw.style(
-          `${baseStyle} ${variants[variant]} ${sizeStyles[size]}`,
+          `${baseStyle} ${variants[variant]} ${isVertical ? verticalSizeStyles[size] : sizeStyles[size]}`,
           pressed && "opacity-80",
           disabled && "opacity-50",
-        ),
-      ]}
+        )
+      }
     >
       {loading ? (
-        <ActivityIndicator color="#fff" />
+        <ActivityIndicator color={iconColors[variant]} />
+      ) : isVertical ? (
+        <ThemedView style={tw`bg-transparent flex-col items-center justify-center gap-1`}>
+          {verticalIcon && (
+            <Ionicons
+              name={verticalIcon}
+              size={currentIconSize}
+              color={iconColors[variant]}
+            />
+          )}
+          {label && (
+            <Text style={tw`${textColors[variant]} font-semibold ${verticalTextSizes[size]} text-center`}>
+              {label}
+            </Text>
+          )}
+        </ThemedView>
       ) : (
         <ThemedView style={tw`bg-transparent flex-row items-center gap-3`}>
           {icon && (
             <Ionicons
               name={icon}
-              size={20}
+              size={currentIconSize}
               color={iconColors[variant]}
               style={tw``}
             />
@@ -90,7 +141,7 @@ export default function Button({
           {rightIcon && (
             <Ionicons
               name={rightIcon}
-              size={20}
+              size={currentIconSize}
               color={iconColors[variant]}
               style={tw``}
             />

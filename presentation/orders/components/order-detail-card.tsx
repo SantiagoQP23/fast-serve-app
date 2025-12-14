@@ -11,6 +11,7 @@ import { useOrders } from "../hooks/useOrders";
 import { useOrdersStore } from "../store/useOrdersStore";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
+import Checkbox from "@/presentation/theme/components/checkbox";
 
 interface OrderDetailCardProps extends PressableProps {
   detail: OrderDetail;
@@ -28,6 +29,7 @@ export default function OrderDetailCard({
   );
   const order = useOrdersStore((state) => state.activeOrder);
   const [visible, setVisible] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
 
   const {
     isOnline,
@@ -102,51 +104,50 @@ export default function OrderDetailCard({
         <ThemedView
           style={tw`absolute  rounded-full items-center justify-center  z-10 right-1 top-1`}
         >
-          <IconButton
-            icon="close-outline"
-            style={tw`bg-gray-100`}
-            size={18}
-            onPress={() => setVisible(true)}
-          />
+          {/* <IconButton */}
+          {/*   icon="close-outline" */}
+          {/*   style={tw`bg-gray-100`} */}
+          {/*   size={18} */}
+          {/*   onPress={() => setVisible(true)} */}
+          {/* /> */}
         </ThemedView>
-        <Card onPress={onPress}>
+        <Pressable onPress={onPress}>
           <ThemedView style={tw` bg-transparent gap-4`}>
-            <ThemedView
-              style={tw`flex-row bg-transparent justify-between gap-6`}
-            >
+            <ThemedView style={tw`flex-row bg-transparent items-center gap-4`}>
+              <Checkbox value={isChecked} onValueChange={setIsChecked} />
               <ThemedView style={tw` bg-transparent  gap-2`}>
                 <ThemedText type="body1" style={tw` font-bold`}>
                   {detail.quantity} - {detail.product.name}
                 </ThemedText>
-                <ThemedText type="body1">${detail.product.price}</ThemedText>
+                {/* <ThemedText type="body1">${detail.product.price}</ThemedText> */}
                 {detail.description && (
                   <ThemedText type="body2">{detail.description}</ThemedText>
                 )}
               </ThemedView>
               <ThemedView style={tw`justify-end items-end bg-transparent`}>
-                <ThemedView
-                  style={tw`flex-row items-center gap-3 bg-transparent`}
-                >
-                  {detail.quantity !== counter && (
-                    <IconButton
-                      icon="save-outline"
-                      onPress={onUpdateOrderDetail}
-                      variant="outlined"
-                    />
-                  )}
-
-                  <IconButton
-                    icon="remove-outline"
-                    onPress={decrement}
-                    variant="outlined"
-                  />
-                  <ThemedText>{counter}</ThemedText>
-                  <IconButton
-                    icon="add"
-                    onPress={increment}
-                    variant="outlined"
-                  />
-                </ThemedView>
+                {/* <ThemedView */}
+                {/*   style={tw`flex-row items-center gap-3 bg-transparent`} */}
+                {/* > */}
+                {/*   {detail.quantity !== counter && ( */}
+                {/*     <IconButton */}
+                {/*       icon="save-outline" */}
+                {/*       onPress={onUpdateOrderDetail} */}
+                {/*       variant="outlined" */}
+                {/*     /> */}
+                {/*   )} */}
+                {/**/}
+                {/*   <IconButton */}
+                {/*     icon="remove-outline" */}
+                {/*     onPress={decrement} */}
+                {/*     variant="outlined" */}
+                {/*   /> */}
+                {/*   <ThemedText>{counter}</ThemedText> */}
+                {/*   <IconButton */}
+                {/*     icon="add" */}
+                {/*     onPress={increment} */}
+                {/*     variant="outlined" */}
+                {/*   /> */}
+                {/* </ThemedView> */}
               </ThemedView>
             </ThemedView>
             <ProgressBar
@@ -154,7 +155,7 @@ export default function OrderDetailCard({
               height={1}
             />
           </ThemedView>
-        </Card>
+        </Pressable>
       </ThemedView>
     </>
   );

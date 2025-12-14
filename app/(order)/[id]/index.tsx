@@ -4,7 +4,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "expo-router";
+import { useRouter, useNavigation } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
@@ -23,6 +23,7 @@ import { useModal } from "@/presentation/shared/hooks/useModal";
 dayjs.extend(relativeTime);
 
 export default function OrderScreen() {
+  const navigation = useNavigation();
   const order = useOrdersStore((state) => state.activeOrder);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const setActiveOrderDetail = useOrdersStore(
@@ -31,6 +32,15 @@ export default function OrderScreen() {
   const { mutate: updateOrder, isOnline, isLoading } = useOrders().updateOrder;
   const { mutate: deleteOrder } = useOrders().deleteOrder;
   const router = useRouter();
+
+  // Update header title dynamically with order number
+  useEffect(() => {
+    if (order) {
+      navigation.setOptions({
+        title: `Order N° ${order.num}`,
+      });
+    }
+  }, [navigation, order?.num]);
 
   const {
     isOpen: closeModalIsOpen,
@@ -218,17 +228,13 @@ export default function OrderScreen() {
             {/* <ThemedView style={tw`border-t border-dashed border-gray-700`} /> */}
             <ThemedView style={tw`gap-2 bg-transparent`}>
               <ThemedView>
-                <ThemedText type="h4">Order </ThemedText>
-                <ThemedText type="body2">{order.num}</ThemedText>
-              </ThemedView>
-              <ThemedView>
-                <ThemedText type="h4">Waiter</ThemedText>
+                {/* <ThemedText type="h4">Waiter</ThemedText> */}
                 <ThemedText type="body2">
                   {order.user.person.firstName} {order.user.person.lastName}
                 </ThemedText>
               </ThemedView>
               <ThemedView>
-                <ThemedText type="h4">Date</ThemedText>
+                {/* <ThemedText type="h4">Date</ThemedText> */}
                 <ThemedText type="body2">{date}</ThemedText>
               </ThemedView>
             </ThemedView>
@@ -239,45 +245,67 @@ export default function OrderScreen() {
               <ThemedText type="body2">{order.notes}</ThemedText>
             </ThemedView>
           )}
-          {order.status !== OrderStatus.DELIVERED && (
-            <ThemedView style={tw`flex-row justify-between items-center`}>
-              {order.status === OrderStatus.IN_PROGRESS && (
-                <Button
-                  label="Pause"
-                  variant="outline"
-                  rightIcon="pause-outline"
-                  size="small"
-                  onPress={() => updateStatus(OrderStatus.PENDING)}
-                />
-              )}
-              <ThemedView style={tw`flex-row items-center gap-2`}></ThemedView>
-              {order.status === OrderStatus.IN_PROGRESS && (
-                <Button
-                  label="Deliver"
-                  variant="outline"
-                  rightIcon="checkmark-done-outline"
-                  size="small"
-                  onPress={() => updateStatus(OrderStatus.DELIVERED)}
-                />
-              )}
-              {order.status === OrderStatus.PENDING && (
-                <Button
-                  label="Start"
-                  variant="outline"
-                  rightIcon="play-outline"
-                  size="small"
-                  onPress={() => updateStatus(OrderStatus.IN_PROGRESS)}
-                />
-              )}
-            </ThemedView>
-          )}
-          {order.details.map((detail, index) => (
-            <OrderDetailCard
-              key={index}
-              detail={detail}
-              onPress={() => openProduct(detail)}
-            />
-          ))}
+          {/* <View style={tw`flex-row gap-4`}> */}
+          {/*   <Button */}
+          {/*     label="Start" */}
+          {/*     icon="play-outline" */}
+          {/*     layout="vertical" */}
+          {/*     variant="secondary" */}
+          {/*   /> */}
+          {/*   <Button */}
+          {/*     label="Tables" */}
+          {/*     icon="grid-outline" */}
+          {/*     layout="vertical" */}
+          {/*     variant="secondary" */}
+          {/*   /> */}
+          {/*   <Button */}
+          {/*     label="Menu" */}
+          {/*     icon="restaurant-outline" */}
+          {/*     layout="vertical" */}
+          {/*     variant="outline" */}
+          {/*   /> */}
+          {/* </View> */}
+          {/* {order.status !== OrderStatus.DELIVERED && ( */}
+          {/*   <ThemedView style={tw`flex-row justify-between items-center`}> */}
+          {/*     {order.status === OrderStatus.IN_PROGRESS && ( */}
+          {/*       <Button */}
+          {/*         label="Pause" */}
+          {/*         variant="outline" */}
+          {/*         rightIcon="pause-outline" */}
+          {/*         size="small" */}
+          {/*         onPress={() => updateStatus(OrderStatus.PENDING)} */}
+          {/*       /> */}
+          {/*     )} */}
+          {/*     <ThemedView style={tw`flex-row items-center gap-2`}></ThemedView> */}
+          {/*     {order.status === OrderStatus.IN_PROGRESS && ( */}
+          {/*       <Button */}
+          {/*         label="Deliver" */}
+          {/*         variant="outline" */}
+          {/*         rightIcon="checkmark-done-outline" */}
+          {/*         size="small" */}
+          {/*         onPress={() => updateStatus(OrderStatus.DELIVERED)} */}
+          {/*       /> */}
+          {/*     )} */}
+          {/*     {order.status === OrderStatus.PENDING && ( */}
+          {/*       <Button */}
+          {/*         label="Start" */}
+          {/*         variant="outline" */}
+          {/*         rightIcon="play-outline" */}
+          {/*         size="small" */}
+          {/*         onPress={() => updateStatus(OrderStatus.IN_PROGRESS)} */}
+          {/*       /> */}
+          {/*     )} */}
+          {/*   </ThemedView> */}
+          {/* )} */}
+          <ThemedView style={tw`gap-8`}>
+            {order.details.map((detail, index) => (
+              <OrderDetailCard
+                key={index}
+                detail={detail}
+                onPress={() => openProduct(detail)}
+              />
+            ))}
+          </ThemedView>
 
           <Button
             leftIcon="add-outline"
