@@ -1,25 +1,34 @@
 import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bottom-sheet";
-import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
+import OrderOptionsBottomSheet from "@/presentation/orders/components/order-options-bottom-sheet";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
-import { router, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import { useCallback, useEffect, useRef } from "react";
 
 export default function OrdersLayout() {
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const editBottomSheetRef = useRef<BottomSheetModal>(null);
+  const optionsBottomSheetRef = useRef<BottomSheetModal>(null);
   const order = useOrdersStore((state) => state.activeOrder);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
-  const closeBottomSheet = () => {
-    bottomSheetModalRef.current?.close(); // Close sheet before navigating
+  const closeEditBottomSheet = () => {
+    editBottomSheetRef.current?.close();
+  };
+
+  const closeOptionsBottomSheet = () => {
+    optionsBottomSheetRef.current?.close();
   };
 
   // callbacks
-  const handlePresentModalPress = useCallback(() => {
-    bottomSheetModalRef.current?.present();
+  const handlePresentEditModal = useCallback(() => {
+    editBottomSheetRef.current?.present();
+  }, []);
+
+  const handlePresentOptionsModal = useCallback(() => {
+    optionsBottomSheetRef.current?.present();
   }, []);
 
   useEffect(() => {
@@ -41,11 +50,11 @@ export default function OrdersLayout() {
               <ThemedView style={tw`flex-row items-center gap-2`}>
                 <IconButton
                   icon="create-outline"
-                  onPress={handlePresentModalPress}
+                  onPress={handlePresentEditModal}
                 ></IconButton>
                 <IconButton
                   icon="ellipsis-horizontal"
-                  onPress={handlePresentModalPress}
+                  onPress={handlePresentOptionsModal}
                 ></IconButton>
               </ThemedView>
             ),
@@ -86,7 +95,7 @@ export default function OrdersLayout() {
       </Stack>
 
       <BottomSheetModal
-        ref={bottomSheetModalRef}
+        ref={editBottomSheetRef}
         backdropComponent={(props) => (
           <BottomSheetBackdrop
             {...props}
@@ -99,7 +108,25 @@ export default function OrdersLayout() {
           <EditOrderBottomSheet
             order={order}
             buttonProps={{ label: "Save changes" }}
-            onOrderUpdated={closeBottomSheet}
+            onOrderUpdated={closeEditBottomSheet}
+          />
+        )}
+      </BottomSheetModal>
+
+      <BottomSheetModal
+        ref={optionsBottomSheetRef}
+        backdropComponent={(props) => (
+          <BottomSheetBackdrop
+            {...props}
+            disappearsOnIndex={-1}
+            appearsOnIndex={0}
+          />
+        )}
+      >
+        {order && (
+          <OrderOptionsBottomSheet
+            order={order}
+            onClose={closeOptionsBottomSheet}
           />
         )}
       </BottomSheetModal>

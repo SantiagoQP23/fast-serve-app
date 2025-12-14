@@ -320,30 +320,24 @@ export default function OrderScreen() {
           <ThemedText type="h3">Total</ThemedText>
           <ThemedText type="h2">${order.total}</ThemedText>
         </ThemedView>
-        <ThemedView style={tw`flex-row justify-between items-center`}>
-          <ThemedView style={tw`flex-row items-center gap-2`}>
-            <IconButton
-              icon="trash-outline"
-              onPress={() => setVisible(true)}
-              color="danger"
-              disabled={orderCantBeDeleted}
-            />
-            {order.status === OrderStatus.DELIVERED && order.isPaid && (
-              <Button
-                label="Close"
-                variant="secondary"
-                onPress={openCloseModal}
-                leftIcon="lock-closed-outline"
-              ></Button>
-            )}
-          </ThemedView>
-          <Button
-            label="Payments"
-            variant="secondary"
-            onPress={() => router.push(`/(order)/${order.id}/bills`)}
-            rightIcon="arrow-forward-outline"
-          ></Button>
-        </ThemedView>
+        {/* <ThemedView style={tw`flex-row justify-between items-center`}> */}
+        {/*   <ThemedView style={tw`flex-row items-center gap-2`}> */}
+        {/*     {order.status === OrderStatus.DELIVERED && order.isPaid && ( */}
+        {/*       <Button */}
+        {/*         label="Close" */}
+        {/*         variant="secondary" */}
+        {/*         onPress={openCloseModal} */}
+        {/*         leftIcon="lock-closed-outline" */}
+        {/*       ></Button> */}
+        {/*     )} */}
+        {/*   </ThemedView> */}
+        {/*   <Button */}
+        {/*     label="Payments" */}
+        {/*     variant="secondary" */}
+        {/*     onPress={() => router.push(`/(order)/${order.id}/bills`)} */}
+        {/*     rightIcon="arrow-forward-outline" */}
+        {/*   ></Button> */}
+        {/* </ThemedView> */}
       </ThemedView>
     </>
   );

@@ -29,7 +29,9 @@ export default function OrderDetailCard({
   );
   const order = useOrdersStore((state) => state.activeOrder);
   const [visible, setVisible] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
+  const [isChecked, setIsChecked] = useState(
+    detail.quantity === detail.qtyDelivered,
+  );
 
   const {
     isOnline,
@@ -49,6 +51,22 @@ export default function OrderDetailCard({
         onSuccess: () => {
           closeModal();
         },
+      },
+    );
+  };
+
+  const onCheckedChange = (newValue: boolean) => {
+    setIsChecked(newValue);
+    const newQtyDelivered = newValue ? detail.quantity : 0;
+    updateOrderDetail(
+      {
+        id: detail.id,
+        quantity: detail.quantity,
+        orderId: order!.id,
+        qtyDelivered: newQtyDelivered,
+      },
+      {
+        onSuccess: () => {},
       },
     );
   };
@@ -114,7 +132,7 @@ export default function OrderDetailCard({
         <Pressable onPress={onPress}>
           <ThemedView style={tw` bg-transparent gap-4`}>
             <ThemedView style={tw`flex-row bg-transparent items-center gap-4`}>
-              <Checkbox value={isChecked} onValueChange={setIsChecked} />
+              <Checkbox value={isChecked} onValueChange={onCheckedChange} />
               <ThemedView style={tw` bg-transparent  gap-2`}>
                 <ThemedText type="body1" style={tw` font-bold`}>
                   {detail.quantity} - {detail.product.name}

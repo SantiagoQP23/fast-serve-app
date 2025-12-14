@@ -21,8 +21,9 @@ export default function EditOrderDetailScreen() {
     orderDetail?.quantity,
     1,
     20,
-    1,
+    orderDetail?.qtyDelivered,
   );
+
   const {
     counter: deliveredCounter,
     increment: incrementDelivered,
