@@ -1,0 +1,65 @@
+{
+  "list": {
+    "title": "Orders",
+    "orderNumber": "Order #{{number}}",
+    "noOrders": "No orders yet",
+    "noOrdersDescription": "You have no orders at the moment. Create a new order to get started.",
+    "filter": {
+      "all": "All",
+      "pending": "Pending",
+      "inProgress": "In Progress",
+      "delivered": "Delivered"
+    }
+  },
+  "details": {
+    "title": "Order #{{number}}",
+    "table": "Table",
+    "takeAway": "Take Away",
+    "waiter": "Waiter",
+    "date": "Date",
+    "notes": "Notes",
+    "total": "Total",
+    "addProduct": "Add product",
+    "noActiveOrder": "No active order selected"
+  },
+  "actions": {
+    "start": "Start",
+    "pause": "Pause",
+    "deliver": "Deliver",
+    "remove": "Remove",
+    "close": "Close"
+  },
+  "newOrder": {
+    "title": "New Order",
+    "selectTable": "Select table",
+    "people": "People",
+    "addNote": "Add note",
+    "createOrder": "Create order",
+    "orderType": "Order type",
+    "inPlace": "In Place",
+    "takeAway": "Take Away"
+  },
+  "dialogs": {
+    "removeTitle": "Remove Order",
+    "removeMessage": "Are you sure you want to remove this order? This action cannot be undone.",
+    "closeTitle": "Close Order",
+    "closeMessage": "Are you sure you want to close this order? The closed orders can't be modified.",
+    "removeItemTitle": "Remove Item",
+    "removeItemMessage": "Are you sure you want to remove {{product}} from the order?"
+  },
+  "alerts": {
+    "selectTable": "Please select a table"
+  },
+  "confirmation": {
+    "title": "Order Confirmed",
+    "message": "The new order has been created",
+    "orderNumber": "Order #{{number}}",
+    "table": "Table:",
+    "waiter": "Waiter:",
+    "people": "People:",
+    "status": "Status:",
+    "total": "Total:",
+    "goToHome": "Go to home",
+    "editOrder": "Edit order"
+  }
+}

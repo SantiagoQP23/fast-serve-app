@@ -1,0 +1,13 @@
+{
+  "required": "",
+  "invalid": "",
+  "minLength": "",
+  "maxLength": "",
+  "min": "",
+  "max": "",
+  "email": "",
+  "phone": "",
+  "url": "",
+  "numeric": "",
+  "positive": ""
+}

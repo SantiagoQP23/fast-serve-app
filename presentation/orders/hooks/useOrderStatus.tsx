@@ -1,12 +1,15 @@
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 export function useOrderStatus(status: OrderStatus) {
+  const { t } = useTranslation('common');
+  
   const statusText: { [key in OrderStatus]: string } = {
-    [OrderStatus.DELIVERED]: "Delivered",
-    [OrderStatus.IN_PROGRESS]: "In Progress",
-    [OrderStatus.PENDING]: "Pending",
-    [OrderStatus.CANCELLED]: "Cancelled",
+    [OrderStatus.DELIVERED]: t('status.delivered'),
+    [OrderStatus.IN_PROGRESS]: t('status.inProgress'),
+    [OrderStatus.PENDING]: t('status.pending'),
+    [OrderStatus.CANCELLED]: t('status.cancelled'),
   };
 
   const statusTextColor: { [key in OrderStatus]: string } = {

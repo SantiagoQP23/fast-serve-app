@@ -1,0 +1,21 @@
+{
+  "list": {
+    "title": "Tables",
+    "filter": {
+      "all": "All",
+      "available": "Available",
+      "occupied": "Occupied"
+    }
+  },
+  "details": {
+    "table": "Table {{name}}",
+    "occupied": "Occupied",
+    "available": "Available",
+    "active": "active",
+    "noOrders": "No orders yet",
+    "noOrdersDescription": "This table has no orders. Create a new order to get started."
+  },
+  "card": {
+    "table": "Table {{name}}"
+  }
+}

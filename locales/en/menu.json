@@ -1,0 +1,30 @@
+{
+  "title": "Menu",
+  "categories": "Categories",
+  "products": "Products",
+  "addedProducts": "Added products:",
+  "goToCart": "Go to cart",
+  "product": {
+    "details": "Product Details",
+    "name": "Name",
+    "description": "Description",
+    "price": "Price",
+    "category": "Category",
+    "addNote": "Add note",
+    "addToOrder": "Add to order",
+    "addToCart": "Add to cart",
+    "quantity": "Quantity"
+  },
+  "cart": {
+    "title": "Cart",
+    "products": "Products:",
+    "table": "Table",
+    "takeAway": "Take Away",
+    "notes": "Notes",
+    "total": "Total",
+    "addProduct": "Add product",
+    "createOrder": "Create order",
+    "empty": "Your cart is empty",
+    "emptyDescription": "Add some products to get started"
+  }
+}

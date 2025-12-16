@@ -1,0 +1,30 @@
+{
+  "title": "",
+  "categories": "",
+  "products": "",
+  "addedProducts": "",
+  "goToCart": "",
+  "product": {
+    "details": "",
+    "name": "",
+    "description": "",
+    "price": "",
+    "category": "",
+    "addNote": "",
+    "addToOrder": "",
+    "addToCart": "",
+    "quantity": ""
+  },
+  "cart": {
+    "title": "",
+    "products": "",
+    "table": "",
+    "takeAway": "",
+    "notes": "",
+    "total": "",
+    "addProduct": "",
+    "createOrder": "",
+    "empty": "",
+    "emptyDescription": ""
+  }
+}

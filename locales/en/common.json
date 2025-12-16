@@ -1,0 +1,73 @@
+{
+  "navigation": {
+    "home": "Home",
+    "tables": "Tables",
+    "orders": "Orders",
+    "profile": "Profile"
+  },
+  "actions": {
+    "add": "Add",
+    "edit": "Edit",
+    "remove": "Remove",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "create": "Create",
+    "update": "Update",
+    "close": "Close",
+    "ok": "OK",
+    "yes": "Yes",
+    "no": "No",
+    "back": "Back",
+    "next": "Next",
+    "search": "Search",
+    "filter": "Filter",
+    "select": "Select"
+  },
+  "status": {
+    "pending": "Pending",
+    "inProgress": "In Progress",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "paid": "Paid",
+    "unpaid": "Unpaid",
+    "available": "Available",
+    "occupied": "Occupied",
+    "active": "active"
+  },
+  "orderType": {
+    "inPlace": "In Place",
+    "takeAway": "Take Away"
+  },
+  "labels": {
+    "table": "Table",
+    "takeAway": "Take Away",
+    "total": "Total",
+    "subtotal": "Subtotal",
+    "notes": "Notes",
+    "date": "Date",
+    "time": "Time",
+    "waiter": "Waiter",
+    "people": "People",
+    "count": "Count",
+    "quantity": "Quantity",
+    "price": "Price",
+    "discount": "Discount",
+    "change": "Change",
+    "receivedAmount": "Received amount",
+    "noNotes": "No notes"
+  },
+  "time": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow"
+  },
+  "empty": {
+    "noData": "No data available",
+    "noResults": "No results found"
+  },
+  "currency": {
+    "symbol": "$"
+  }
+}

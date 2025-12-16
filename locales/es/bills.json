@@ -1,0 +1,48 @@
+{
+  "list": {
+    "title": "",
+    "billNumber": "Cuenta #{{number}}",
+    "noBills": "",
+    "noBillsDescription": "",
+    "addBill": ""
+  },
+  "details": {
+    "title": "Cuenta #{{number}}",
+    "orderNumber": "Orden #{{number}}",
+    "table": "",
+    "takeAway": "",
+    "discount": "",
+    "paymentMethod": "",
+    "receivedAmount": "",
+    "change": "",
+    "total": "",
+    "billPaid": "",
+    "paid": "",
+    "unpaid": "",
+    "exactAmount": "",
+    "payBill": ""
+  },
+  "paymentMethods": {
+    "cash": "",
+    "creditCard": "",
+    "transfer": ""
+  },
+  "newBill": {
+    "title": "",
+    "orderNumber": "Orden #{{number}}",
+    "total": "",
+    "selectAllItems": "",
+    "billedItems": "",
+    "noBilledItems": "",
+    "createBill": ""
+  },
+  "dialogs": {
+    "removeTitle": "",
+    "removeMessage": ""
+  },
+  "alerts": {
+    "noItemsSelected": "",
+    "noItemsSelectedMessage": "",
+    "insufficientAmount": ""
+  }
+}

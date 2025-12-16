@@ -20,9 +20,14 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SocketProvider } from "@/presentation/shared/context/SocketContext";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ActivityIndicator } from "react-native";
 import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
+
+// Initialize i18n
+import "@/core/i18n/i18n.config";
+import { initializeDayjs } from "@/core/i18n/utils";
+
 // Create a client
 
 export const queryClient = new QueryClient();
@@ -34,11 +39,19 @@ export const unstable_settings = {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const isLoading = useGlobalStore((state) => state.isLoading);
+  const language = useGlobalStore((state) => state.language);
+  const setLanguage = useGlobalStore((state) => state.setLanguage);
 
   useDeviceContext(tw, {
     observeDeviceColorSchemeChanges: false,
     initialColorScheme: "light",
   });
+
+  // Initialize i18n and dayjs with stored language
+  useEffect(() => {
+    initializeDayjs();
+    setLanguage(language);
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -1,0 +1,48 @@
+{
+  "list": {
+    "title": "Bills",
+    "billNumber": "Bill #{{number}}",
+    "noBills": "No bills yet",
+    "noBillsDescription": "There are no bills for this order yet. Tap the button below to add a new bill.",
+    "addBill": "Add bill"
+  },
+  "details": {
+    "title": "Bill #{{number}}",
+    "orderNumber": "Order #{{number}}",
+    "table": "Table",
+    "takeAway": "Take Away",
+    "discount": "Discount",
+    "paymentMethod": "Payment method",
+    "receivedAmount": "Received amount",
+    "change": "Change",
+    "total": "Total",
+    "billPaid": "Bill Paid",
+    "paid": "Paid",
+    "unpaid": "Unpaid",
+    "exactAmount": "Exact amount",
+    "payBill": "Pay bill"
+  },
+  "paymentMethods": {
+    "cash": "Cash",
+    "creditCard": "Credit Card",
+    "transfer": "Transfer"
+  },
+  "newBill": {
+    "title": "New Bill",
+    "orderNumber": "Order #{{number}}",
+    "total": "Total",
+    "selectAllItems": "Select all items",
+    "billedItems": "Billed items",
+    "noBilledItems": "No billed items yet.",
+    "createBill": "Create bill - ${{amount}}"
+  },
+  "dialogs": {
+    "removeTitle": "Remove Bill",
+    "removeMessage": "Are you sure you want to remove this bill? This action cannot be undone."
+  },
+  "alerts": {
+    "noItemsSelected": "No items selected",
+    "noItemsSelectedMessage": "Please select at least one item.",
+    "insufficientAmount": "Received amount is less than the total bill amount."
+  }
+}

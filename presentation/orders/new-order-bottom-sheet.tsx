@@ -6,7 +6,7 @@ import Select from "../theme/components/select";
 import tw from "../theme/lib/tailwind";
 import { useState } from "react";
 import { useNewOrderStore } from "./store/newOrderStore";
-import { OrderType, orderTypes } from "@/core/orders/enums/order-type.enum";
+import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { Table } from "@/core/tables/models/table.model";
 import Button, { ButtonProps } from "../theme/components/button";
 import { ThemedText } from "../theme/components/themed-text";
@@ -14,6 +14,9 @@ import Switch from "../theme/components/switch";
 import TextInput from "../theme/components/text-input";
 import { useTables } from "../tables/hooks/useTables";
 import { useOrdersStore } from "./store/useOrdersStore";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { i18nAlert } from "@/core/i18n/utils";
+import { useOrderTypes } from "./hooks/useOrderTypes";
 
 interface NewOrderBottomSheetProps {
   onCreateOrder?: () => void;
@@ -24,6 +27,8 @@ const NewOrderBottomSheet = ({
   onCreateOrder,
   buttonProps,
 }: NewOrderBottomSheetProps) => {
+  const { t } = useTranslation('orders');
+  const orderTypes = useOrderTypes();
   const {
     orderType,
     setOrderType,
@@ -40,7 +45,7 @@ const NewOrderBottomSheet = ({
 
   const validateNewOrder = () => {
     if (orderType === OrderType.IN_PLACE && !table) {
-      Alert.alert("Please select a table");
+      i18nAlert(t('alerts.selectTable'));
       return false;
     }
     setActiveOrder(null); // Reset active order
@@ -52,7 +57,7 @@ const NewOrderBottomSheet = ({
     <BottomSheetView style={tw`p-4 items-center justify-center`}>
       <ThemedView style={tw`w-full gap-6`}>
         <ThemedText type="h2" style={tw`text-center`}>
-          New Order{" "}
+          {t('newOrder.title')}
         </ThemedText>
         <ButtonGroup
           options={orderTypes}
@@ -62,11 +67,11 @@ const NewOrderBottomSheet = ({
 
         {orderType === OrderType.IN_PLACE && (
           <Select
-            label="Table"
-            placeholder="Select table"
+            label={t('newOrder.selectTable')}
+            placeholder={t('newOrder.selectTable')}
             options={tables.map((table) => ({
               value: table.id,
-              label: "Table " + table.name,
+              label: t('details.table') + " " + table.name,
             }))}
             value={table?.id}
             onChange={(value) =>
@@ -76,7 +81,7 @@ const NewOrderBottomSheet = ({
         )}
         <ThemedView style={tw`gap-2`}>
           <Text style={tw`text-gray-700 dark:text-gray-300  font-semibold`}>
-            People
+            {t('newOrder.people')}
           </Text>
           <ThemedView style={tw`flex-row gap-2 items-center`}>
             <ThemedView style={tw`flex-1`}>
@@ -105,7 +110,7 @@ const NewOrderBottomSheet = ({
         </ThemedView>
         <ThemedView>
           <Switch
-            label="Add note"
+            label={t('newOrder.addNote')}
             value={withNotes}
             onValueChange={setWithNotes}
           />
@@ -122,7 +127,7 @@ const NewOrderBottomSheet = ({
 
         <ThemedView style={tw`w-full `}>
           <Button
-            label="Create order"
+            label={t('newOrder.createOrder')}
             onPress={() =>
               validateNewOrder() && onCreateOrder && onCreateOrder()
             }

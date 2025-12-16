@@ -1,0 +1,21 @@
+{
+  "list": {
+    "title": "",
+    "filter": {
+      "all": "",
+      "available": "",
+      "occupied": ""
+    }
+  },
+  "details": {
+    "table": "Mesa {{name}}",
+    "occupied": "",
+    "available": "",
+    "active": "",
+    "noOrders": "",
+    "noOrdersDescription": ""
+  },
+  "card": {
+    "table": "Mesa {{name}}"
+  }
+}

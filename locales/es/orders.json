@@ -1,0 +1,65 @@
+{
+  "list": {
+    "title": "",
+    "orderNumber": "Orden #{{number}}",
+    "noOrders": "",
+    "noOrdersDescription": "",
+    "filter": {
+      "all": "",
+      "pending": "",
+      "inProgress": "",
+      "delivered": ""
+    }
+  },
+  "details": {
+    "title": "Orden #{{number}}",
+    "table": "",
+    "takeAway": "",
+    "waiter": "",
+    "date": "",
+    "notes": "",
+    "total": "",
+    "addProduct": "",
+    "noActiveOrder": ""
+  },
+  "actions": {
+    "start": "",
+    "pause": "",
+    "deliver": "",
+    "remove": "",
+    "close": ""
+  },
+  "newOrder": {
+    "title": "",
+    "selectTable": "",
+    "people": "",
+    "addNote": "",
+    "createOrder": "",
+    "orderType": "",
+    "inPlace": "",
+    "takeAway": ""
+  },
+  "dialogs": {
+    "removeTitle": "",
+    "removeMessage": "",
+    "closeTitle": "",
+    "closeMessage": "",
+    "removeItemTitle": "",
+    "removeItemMessage": ""
+  },
+  "alerts": {
+    "selectTable": ""
+  },
+  "confirmation": {
+    "title": "",
+    "message": "",
+    "orderNumber": "Orden #{{number}}",
+    "table": "",
+    "waiter": "",
+    "people": "",
+    "status": "",
+    "total": "",
+    "goToHome": "",
+    "editOrder": ""
+  }
+}

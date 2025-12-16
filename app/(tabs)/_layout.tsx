@@ -14,8 +14,10 @@ import {
   useOrderUpdatedListener,
 } from "@/presentation/orders/hooks/useOrders";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 export default function TabLayout() {
+  const { t } = useTranslation('common');
   const colorScheme = useColorScheme();
   const { status, checkStatus } = useAuthStore();
   const order = useOrdersStore((state) => state.activeOrder);
@@ -63,7 +65,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: t('navigation.home'),
           tabBarIcon: ({ color }) => (
             <Ionicons color={color} name="home-outline" size={24} />
           ),
@@ -72,7 +74,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="tables"
         options={{
-          title: "Tables",
+          title: t('navigation.tables'),
           tabBarIcon: ({ color }) => (
             <Ionicons color={color} name="grid-outline" size={24} />
           ),
@@ -81,7 +83,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="orders"
         options={{
-          title: "Orders",
+          title: t('navigation.orders'),
           tabBarIcon: ({ color }) => (
             <Ionicons color={color} name="receipt-outline" size={24} />
           ),
@@ -90,7 +92,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
+          title: t('navigation.profile'),
           // headerShown: true,
           tabBarIcon: ({ color }) => (
             <Ionicons color={color} name="person-outline" size={24} />

@@ -16,6 +16,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { router } from "expo-router";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { i18nAlert } from "@/core/i18n/utils";
 
 const loginSchema = z.object({
   username: z.string({ message: "Username is required" }),
@@ -25,6 +27,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginScreen = () => {
+  const { t } = useTranslation('auth');
   const { height } = useWindowDimensions();
   const { login, changeStatus } = useAuthStore();
 
@@ -50,15 +53,15 @@ const LoginScreen = () => {
       return;
     }
 
-    Alert.alert("Error", "Usuario o contraseña no son correctos");
+    i18nAlert("Error", t('validations.invalidCredentials'));
   };
 
   return (
     <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
       <ThemedView style={tw`flex-1 px-4 gap-8`}>
         <ThemedView style={[{ paddingTop: height * 0.2 }]}>
-          <ThemedText type="h1">Login</ThemedText>
-          <ThemedText>Enter your credentials</ThemedText>
+          <ThemedText type="h1">{t('login.title')}</ThemedText>
+          <ThemedText>{t('login.enterCredentials')}</ThemedText>
         </ThemedView>
         <Controller
           control={control}
@@ -66,7 +69,7 @@ const LoginScreen = () => {
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               autoCapitalize="none"
-              label="Username"
+              label={t('login.username')}
               icon="person-outline"
               onBlur={onBlur}
               value={value}
@@ -81,7 +84,7 @@ const LoginScreen = () => {
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                label="Password"
+                label={t('login.password')}
                 autoCapitalize="none"
                 secureTextEntry
                 icon="lock-closed-outline"
@@ -92,15 +95,15 @@ const LoginScreen = () => {
               />
             )}
           />
-          <ThemedText type="body2">Forgot password?</ThemedText>
+          <ThemedText type="body2">{t('login.forgotPassword')}</ThemedText>
         </ThemedView>
         <ThemedView style={tw`w-full `}>
-          <Button label="Login" onPress={handleSubmit(onSubmit)} />
+          <Button label={t('login.loginButton')} onPress={handleSubmit(onSubmit)} />
         </ThemedView>
         <ThemedView style={tw`flex-1`}></ThemedView>
         <ThemedView style={tw`mb-4 flex-row justify-center`}>
           <ThemedText>
-            Don't have an account? <ThemedText type="body2">Sign up</ThemedText>
+            {t('login.noAccount')} <ThemedText type="body2">{t('login.signUp')}</ThemedText>
           </ThemedText>
         </ThemedView>
       </ThemedView>
