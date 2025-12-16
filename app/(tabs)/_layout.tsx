@@ -97,6 +97,14 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="tables/[tableId]/index"
+        options={{
+          title: "",
+          tabBarButton: () => null,
+          // headerShown: true,
+        }}
+      />
     </Tabs>
   );
 }

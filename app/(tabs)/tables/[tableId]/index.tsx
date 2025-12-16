@@ -46,8 +46,8 @@ export default function TableOrdersScreen() {
 
   return (
     <>
-      <ThemedView style={tw`px-4 pt-8 flex-1`}>
-        <ThemedView style={tw`mb-6`}>
+      <ThemedView style={tw` pt-8 flex-1`}>
+        <ThemedView style={tw`mb-6 px-4`}>
           <ThemedText type="h1">Table {tableName}</ThemedText>
           <ThemedView style={tw`flex-row items-center mt-4 gap-4`}>
             <ThemedView style={tw`flex-row items-center gap-2`}>
@@ -103,7 +103,7 @@ export default function TableOrdersScreen() {
         ) : (
           <ScrollView
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={tw`pb-20 gap-4`}
+            contentContainerStyle={tw`pb-20`}
           >
             <OrderList title="Pending" orders={pendingOrders} />
             <OrderList title="In Progress" orders={inProgressOrders} />
