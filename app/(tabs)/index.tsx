@@ -20,8 +20,8 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import OrderList from "@/presentation/orders/molecules/order-list";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function HomeScreen() {
   const { t } = useTranslation(["common", "orders", "errors"]);
@@ -31,7 +31,8 @@ export default function HomeScreen() {
   );
   const router = useRouter();
   const details = useNewOrderStore((state) => state.details);
-  const { refetchOrders } = useOrders();
+  const queryClient = useQueryClient();
+  const { currentRestaurant } = useAuthStore();
   const [refreshing, setRefreshing] = useState(false);
   const primaryColor = useThemeColor({}, "primary");
 
@@ -58,15 +59,10 @@ export default function HomeScreen() {
       // Trigger haptic feedback
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-      // Refetch orders
-      const result = await refetchOrders();
-
-      if (result.isError) {
-        Alert.alert(
-          t("errors:order.fetchError"),
-          t("errors:order.ordersFetchFailed"),
-        );
-      }
+      // Refetch orders using the centralized query
+      await queryClient.refetchQueries({
+        queryKey: ["activeOrders", currentRestaurant?.id],
+      });
     } catch {
       Alert.alert(
         t("errors:order.fetchError"),
@@ -75,7 +71,7 @@ export default function HomeScreen() {
     } finally {
       setRefreshing(false);
     }
-  }, [refetchOrders, t]);
+  }, [queryClient, currentRestaurant?.id, t]);
 
   const pendingOrders = orders.filter(
     (order) => order.status === OrderStatus.PENDING,

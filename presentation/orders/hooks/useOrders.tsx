@@ -21,6 +21,7 @@ import { useWebsocketEventListener } from "@/presentation/shared/hooks/useWebsoc
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 
 export const useOrders = () => {
+  console.log('[useOrders] Hook called');
   const setOrders = useOrdersStore((state) => state.setOrders);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const { currentRestaurant } = useAuthStore((state) => state);
@@ -94,7 +95,12 @@ export const useOrders = () => {
 
   const activeOrdersQuery = useQuery({
     queryKey: ["activeOrders", currentRestaurant?.id],
-    queryFn: async () => OrdersService.getActiveOrders(),
+    queryFn: async () => {
+      console.log(`[useOrders] Fetching orders for restaurant: ${currentRestaurant?.id}`);
+      const result = await OrdersService.getActiveOrders();
+      console.log(`[useOrders] Fetched ${result.length} orders`);
+      return result;
+    },
     enabled: !!currentRestaurant?.id,
     staleTime: 0, // Always consider data stale to ensure refetch on restaurant change
   });
