@@ -10,7 +10,9 @@
   },
   "order": {
     "noActiveOrder": "No active order selected",
-    "noActiveDetail": "No active order detail selected"
+    "noActiveDetail": "No active order detail selected",
+    "fetchError": "Failed to refresh orders",
+    "ordersFetchFailed": "Could not refresh your orders. Please try again."
   },
   "bill": {
     "noActiveBill": "No active bill"

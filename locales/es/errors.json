@@ -10,7 +10,9 @@
   },
   "order": {
     "noActiveOrder": "No hay pedido activo seleccionado",
-    "noActiveDetail": "No hay detalle de pedido activo seleccionado"
+    "noActiveDetail": "No hay detalle de pedido activo seleccionado",
+    "fetchError": "Error al actualizar pedidos",
+    "ordersFetchFailed": "No se pudieron actualizar los pedidos. Por favor intente nuevamente."
   },
   "bill": {
     "noActiveBill": "No hay cuenta activa"

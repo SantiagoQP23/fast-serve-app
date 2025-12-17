@@ -118,6 +118,8 @@ export const useOrders = () => {
     updateOrder: updateOrderEmitter,
     removeOrderDetail: removeOrderDetailEmitter,
     deleteOrder: deleteOrderEmitter,
+    refetchOrders: activeOrdersQuery.refetch,
+    isRefetching: activeOrdersQuery.isRefetching,
   };
 };
 
