@@ -21,6 +21,7 @@ import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import OrderList from "@/presentation/orders/molecules/order-list";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
+import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 
 export default function HomeScreen() {
   const { t } = useTranslation(["common", "orders", "errors"]);
@@ -32,6 +33,7 @@ export default function HomeScreen() {
   const details = useNewOrderStore((state) => state.details);
   const { refetchOrders } = useOrders();
   const [refreshing, setRefreshing] = useState(false);
+  const primaryColor = useThemeColor({}, "primary");
 
   // ref
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -116,8 +118,8 @@ export default function HomeScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor={tw.color("primary-light")}
-              colors={[tw.color("primary-light")!]}
+              tintColor={primaryColor}
+              colors={[primaryColor]}
             />
           }
         >
@@ -141,8 +143,8 @@ export default function HomeScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor={tw.color("primary-500")}
-              colors={[tw.color("primary-500")!]}
+              tintColor={primaryColor}
+              colors={[primaryColor]}
             />
           }
         >

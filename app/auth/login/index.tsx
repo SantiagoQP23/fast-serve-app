@@ -27,7 +27,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginScreen = () => {
-  const { t } = useTranslation('auth');
+  const { t } = useTranslation("auth");
   const { height } = useWindowDimensions();
   const { login, changeStatus } = useAuthStore();
 
@@ -38,8 +38,8 @@ const LoginScreen = () => {
   } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: "SantiagoQP23",
-      password: "SantiagoQP23",
+      username: "",
+      password: "",
     },
   });
 
@@ -53,15 +53,15 @@ const LoginScreen = () => {
       return;
     }
 
-    i18nAlert("Error", t('validations.invalidCredentials'));
+    i18nAlert("Error", t("validations.invalidCredentials"));
   };
 
   return (
     <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
       <ThemedView style={tw`flex-1 px-4 gap-8`}>
         <ThemedView style={[{ paddingTop: height * 0.2 }]}>
-          <ThemedText type="h1">{t('login.title')}</ThemedText>
-          <ThemedText>{t('login.enterCredentials')}</ThemedText>
+          <ThemedText type="h1">{t("login.title")}</ThemedText>
+          <ThemedText>{t("login.enterCredentials")}</ThemedText>
         </ThemedView>
         <Controller
           control={control}
@@ -69,7 +69,7 @@ const LoginScreen = () => {
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               autoCapitalize="none"
-              label={t('login.username')}
+              label={t("login.username")}
               icon="person-outline"
               onBlur={onBlur}
               value={value}
@@ -84,7 +84,7 @@ const LoginScreen = () => {
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                label={t('login.password')}
+                label={t("login.password")}
                 autoCapitalize="none"
                 secureTextEntry
                 icon="lock-closed-outline"
@@ -95,15 +95,19 @@ const LoginScreen = () => {
               />
             )}
           />
-          <ThemedText type="body2">{t('login.forgotPassword')}</ThemedText>
+          <ThemedText type="body2">{t("login.forgotPassword")}</ThemedText>
         </ThemedView>
         <ThemedView style={tw`w-full `}>
-          <Button label={t('login.loginButton')} onPress={handleSubmit(onSubmit)} />
+          <Button
+            label={t("login.loginButton")}
+            onPress={handleSubmit(onSubmit)}
+          />
         </ThemedView>
         <ThemedView style={tw`flex-1`}></ThemedView>
         <ThemedView style={tw`mb-4 flex-row justify-center`}>
           <ThemedText>
-            {t('login.noAccount')} <ThemedText type="body2">{t('login.signUp')}</ThemedText>
+            {t("login.noAccount")}{" "}
+            <ThemedText type="body2">{t("login.signUp")}</ThemedText>
           </ThemedText>
         </ThemedView>
       </ThemedView>
