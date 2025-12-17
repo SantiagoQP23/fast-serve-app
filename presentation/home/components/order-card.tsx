@@ -12,12 +12,14 @@ import dayjs from "dayjs";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";
+import { useTranslation } from "react-i18next";
 
 interface OrderCardProps {
   order: Order;
 }
 
 export default function OrderCard({ order }: OrderCardProps) {
+  const { t } = useTranslation(["common", "orders"]);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const status = order.status || OrderStatus.PENDING;
   const { statusText, statusTextColor, bgColor } = useOrderStatus(order.status);
@@ -43,8 +45,8 @@ export default function OrderCard({ order }: OrderCardProps) {
               <ThemedView style={tw`gap-1 bg-transparent`}>
                 <ThemedText type="h3">
                   {order.type === OrderType.IN_PLACE
-                    ? `Table ${order.table?.name}`
-                    : "Take Away"}
+                    ? `${t("common:labels.table")} ${order.table?.name}`
+                    : t("common:labels.takeAway")}{" "}
                 </ThemedText>
               </ThemedView>
               <ThemedView

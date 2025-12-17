@@ -99,11 +99,6 @@ export const useOrders = () => {
     staleTime: 0, // Always consider data stale to ensure refetch on restaurant change
   });
 
-  const createOrder = () => {
-    const newOrder = useNewOrderStore();
-    const data = mapStoreToCreateOrderDto(newOrder);
-    return createOrderEmitter.mutate(data);
-  };
   useEffect(() => {
     // Always sync the query data with the store, even if it's empty
     if (activeOrdersQuery.data !== undefined) {
@@ -150,10 +145,10 @@ export const useOrderUpdatedListener = () => {
     OrderSocketEvent.updateOrder,
     ({ data: order }: SocketEvent<Order>) => {
       console.log("Received order update for order:", order?.id);
-      
+
       // Update the order in the list
       updateOrder(order!);
-      
+
       // Get current active order state at the time of the event
       const currentActiveOrder = useOrdersStore.getState().activeOrder;
       console.log("activeOrder:", currentActiveOrder?.id);
