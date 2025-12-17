@@ -28,7 +28,9 @@ export default function TableCard({ table, onPress }: TableCardProps) {
           />
         </ThemedView>
         <ThemedView style={tw`flex-row items-center bg-transparent`}>
-          <ThemedText type="h3">{t("tables:card.table")} {table.name}</ThemedText>
+          <ThemedText type="h3">
+            {t("tables:card.table", { name: table.name })}{" "}
+          </ThemedText>
         </ThemedView>
       </Card>
     </ThemedView>

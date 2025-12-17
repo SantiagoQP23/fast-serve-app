@@ -30,7 +30,7 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 export default function TablesScreen() {
-  const { t } = useTranslation('tables');
+  const { t } = useTranslation("tables");
   const [selectedStatus, setSelectedStatus] = useState<boolean | "all">("all");
   const { setTable, setOrderType } = useNewOrderStore();
   const { tables } = useTables();
@@ -38,9 +38,9 @@ export default function TablesScreen() {
   const [activeTable, setActiveTable] = useState<Table | null>(null);
 
   const tabs: { label: string; value: boolean | "all" }[] = [
-    { label: t('list.filter.all'), value: "all" },
-    { label: t('list.filter.available'), value: true },
-    { label: t('list.filter.occupied'), value: false },
+    { label: t("list.filter.all"), value: "all" },
+    { label: t("list.filter.available"), value: true },
+    { label: t("list.filter.occupied"), value: false },
   ];
 
   const [filteredTables, setFilteredTables] = useState<Table[]>(tables);
@@ -63,7 +63,7 @@ export default function TablesScreen() {
     if (tableHasOrders) {
       // Navigate to table orders screen
       router.push({
-        pathname: "/tables/[tableId]",
+        pathname: "/(tables)/[tableId]",
         params: { tableId: table.id, tableName: table.name },
       });
     } else {
@@ -96,7 +96,7 @@ export default function TablesScreen() {
 
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1`}>
-      <ThemedText type="h1">{t('list.title')}</ThemedText>
+      <ThemedText type="h1">{t("list.title")}</ThemedText>
       <ThemedView style={tw`mt-8`} />
       <ThemedView style={tw`flex-row mb-4 gap-2`}>
         {tabs.map((tab) => {
@@ -143,18 +143,3 @@ export default function TablesScreen() {
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 200,
-  },
-  contentContainer: {
-    backgroundColor: "white",
-  },
-  itemContainer: {
-    padding: 6,
-    margin: 6,
-    backgroundColor: "#eee",
-  },
-});
