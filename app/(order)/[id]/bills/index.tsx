@@ -14,8 +14,11 @@ import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useBills } from "@/presentation/orders/hooks/useBills";
 import { Bill } from "@/core/orders/models/bill.model";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { formatCurrency } from "@/core/i18n/utils";
 
 export default function OrderBillsScreen() {
+  const { t } = useTranslation(["common", "orders", "bills"]);
   const router = useRouter();
   const order = useOrdersStore((state) => state.activeOrder);
   const setActiveBill = useOrdersStore((state) => state.setActiveBill);
@@ -24,7 +27,7 @@ export default function OrderBillsScreen() {
   if (!order) {
     return (
       <ThemedView style={tw`flex-1 justify-center items-center`}>
-        <ThemedText>No active order</ThemedText>
+        <ThemedText>{t("orders:details.noActiveOrder")}</ThemedText>
       </ThemedView>
     );
   }
@@ -46,15 +49,19 @@ export default function OrderBillsScreen() {
     <ThemedView style={tw`px-4 pt-8 flex-1 gap-8`}>
       <ThemedView style={tw`  items-center gap-8`}>
         <ThemedView style={tw`gap-1 items-center`}>
-          <ThemedText type="h3">Order #{order.num}</ThemedText>
+          <ThemedText type="h3">
+            {t("orders:list.orderNumber", { number: order.num })}
+          </ThemedText>
           <ThemedText type="body1">
             {order.type === OrderType.IN_PLACE
-              ? `Table ${order.table?.name}`
-              : "Take Away"}
+              ? `${t("common:labels.table")} ${order.table?.name}`
+              : t("common:labels.takeAway")}
           </ThemedText>
           {/* <ThemedText type="small">Today, 11:30</ThemedText> */}
         </ThemedView>
-        <ThemedText style={tw`text-7xl `}>${order.total}</ThemedText>
+        <ThemedText style={tw`text-7xl `}>
+          {formatCurrency(order.total)}
+        </ThemedText>
       </ThemedView>
 
       {/* <ThemedView style={tw`flex-1 justify-center items-center`}> */}
@@ -69,10 +76,9 @@ export default function OrderBillsScreen() {
               size={80}
               color={tw.color("gray-500")}
             />
-            <ThemedText type="h3">No bills yet</ThemedText>
+            <ThemedText type="h3">{t("bills:list.noBills")}</ThemedText>
             <ThemedText type="body2" style={tw`text-center max-w-xs`}>
-              There are no bills for this order yet. Tap the button below to add
-              a new bill.
+              {t("bills:list.noBillsDescription")}
             </ThemedText>
           </ThemedView>
         </>
@@ -93,7 +99,7 @@ export default function OrderBillsScreen() {
       )}
       {order.total > orderAmountInBills && (
         <Button
-          label="Add bill "
+          label={t("bills:list.addBill")}
           onPress={() => router.push('/(order)/${"sd"}/bills/new')}
         ></Button>
       )}

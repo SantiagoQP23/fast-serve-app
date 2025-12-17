@@ -1,0 +1,18 @@
+{
+  "general": {
+    "error": "Error",
+    "tryAgain": "Please try again",
+    "somethingWrong": "Something went wrong"
+  },
+  "restaurant": {
+    "noRestaurantSelected": "No restaurant selected",
+    "couldNotSwitch": "Could not switch restaurant. Please try again."
+  },
+  "order": {
+    "noActiveOrder": "No active order selected",
+    "noActiveDetail": "No active order detail selected"
+  },
+  "bill": {
+    "noActiveBill": "No active bill"
+  }
+}

@@ -15,6 +15,9 @@ import Switch from "@/presentation/theme/components/switch";
 import Button, { ButtonProps } from "@/presentation/theme/components/button";
 import { useOrders } from "../hooks/useOrders";
 import { UpdateOrderDto } from "@/core/orders/dto/update-order.dto";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { i18nAlert } from "@/core/i18n/utils";
+import { useOrderTypes } from "../hooks/useOrderTypes";
 
 interface EditOrderBottomSheetProps {
   order: Order;
@@ -34,6 +37,9 @@ const EditOrderBottomSheet = ({
   buttonProps,
   onOrderUpdated,
 }: EditOrderBottomSheetProps) => {
+  const { t } = useTranslation(["orders", "tables", "common"]);
+  const orderTypesOptions = useOrderTypes();
+  
   const [form, setForm] = useState<EditOrder>({
     people: order.people,
     notes: order.notes || "",
@@ -48,7 +54,7 @@ const EditOrderBottomSheet = ({
 
   const validateEditOrder = () => {
     if (form.orderType === OrderType.IN_PLACE && !form.table) {
-      Alert.alert("Please select a table");
+      i18nAlert(t("validations:tableRequired"));
       return false;
     }
     return true;
@@ -83,10 +89,10 @@ const EditOrderBottomSheet = ({
     <BottomSheetView style={tw`p-4 items-center justify-center`}>
       <ThemedView style={tw`w-full gap-6`}>
         <ThemedText type="h2" style={tw`text-center`}>
-          Edit Order
+          {t("orders:edit.title")}
         </ThemedText>
         <ButtonGroup
-          options={orderTypes}
+          options={orderTypesOptions}
           selected={form.orderType}
           onChange={(value: OrderType) =>
             setForm({ ...form, orderType: value })
@@ -95,11 +101,11 @@ const EditOrderBottomSheet = ({
 
         {form.orderType === OrderType.IN_PLACE && (
           <Select
-            label="Table"
-            placeholder="Select table"
+            label={t("tables:list.table")}
+            placeholder={t("tables:list.selectTable")}
             options={tables.map((table) => ({
               value: table.id,
-              label: "Table " + table.name,
+              label: t("tables:card.table") + " " + table.name,
             }))}
             value={form.table?.id}
             onChange={(value) =>
@@ -112,7 +118,7 @@ const EditOrderBottomSheet = ({
         )}
         <ThemedView style={tw`gap-2`}>
           <Text style={tw`text-gray-700 dark:text-gray-300  font-semibold`}>
-            People
+            {t("orders:form.people")}
           </Text>
           <ThemedView style={tw`flex-row gap-2 items-center`}>
             <ThemedView style={tw`flex-1`}>
@@ -143,7 +149,7 @@ const EditOrderBottomSheet = ({
         </ThemedView>
         <ThemedView>
           <Switch
-            label="Add note"
+            label={t("orders:form.addNote")}
             value={withNotes}
             onValueChange={setWithNotes}
           />
@@ -160,7 +166,7 @@ const EditOrderBottomSheet = ({
 
         <ThemedView style={tw`w-full `}>
           <Button
-            label="Create order"
+            label={t("orders:actions.updateOrder")}
             onPress={() => onUpdateOrder()}
             {...buttonProps}
           />

@@ -19,10 +19,13 @@ import OrderDetailCard from "@/presentation/orders/components/order-detail-card"
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import Label from "@/presentation/theme/components/label";
 import { useModal } from "@/presentation/shared/hooks/useModal";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { formatCurrency, getRelativeDate } from "@/core/i18n/utils";
 
 dayjs.extend(relativeTime);
 
 export default function OrderScreen() {
+  const { t } = useTranslation(["common", "orders"]);
   const navigation = useNavigation();
   const order = useOrdersStore((state) => state.activeOrder);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
@@ -37,10 +40,10 @@ export default function OrderScreen() {
   useEffect(() => {
     if (order) {
       navigation.setOptions({
-        title: `Order N° ${order.num}`,
+        title: t("orders:details.orderNumber", { num: order.num }),
       });
     }
-  }, [navigation, order?.num]);
+  }, [navigation, order?.num, t]);
 
   const {
     isOpen: closeModalIsOpen,
@@ -53,7 +56,7 @@ export default function OrderScreen() {
   if (!order) {
     return (
       <ThemedView style={tw`flex-1 justify-center items-center`}>
-        <ThemedText type="h2">No active order selected</ThemedText>
+        <ThemedText type="h2">{t("orders:details.noActiveOrder")}</ThemedText>
       </ThemedView>
     );
   }
@@ -67,7 +70,7 @@ export default function OrderScreen() {
     useOrderStatus(order.status);
 
   const date = dayjs(order.createdAt).isSame(dayjs(), "day")
-    ? `Today, ${dayjs(order.createdAt).format("HH:mm")}`
+    ? `${t("common:time.today")}, ${dayjs(order.createdAt).format("HH:mm")}`
     : dayjs(order.createdAt).format("dddd, HH:mm");
 
   const updateStatus = (status: OrderStatus) => {
@@ -130,20 +133,25 @@ export default function OrderScreen() {
         <View style={tw`flex-1 bg-black/50 items-center justify-center`}>
           {/* Modal card */}
           <View style={tw`bg-white rounded-2xl w-4/5 p-5 shadow-lg`}>
-            <ThemedText type="h4">Remove Order</ThemedText>
+            <ThemedText type="h4">
+              {t("orders:dialogs.removeTitle")}
+            </ThemedText>
             <ThemedText type="body1" style={tw`mt-2 mb-4`}>
-              Are you sure you want to remove this order? This action cannot be
-              undone.
+              {t("orders:dialogs.removeMessage")}
             </ThemedText>
 
             <ThemedView style={tw`flex-row justify-end gap-2`}>
               <Button
-                label="Cancel"
+                label={t("common:actions.cancel")}
                 onPress={closeModal}
                 variant="outline"
                 size="small"
               />
-              <Button label="Remove" onPress={onRemoveOrder} size="small" />
+              <Button
+                label={t("common:actions.remove")}
+                onPress={onRemoveOrder}
+                size="small"
+              />
             </ThemedView>
           </View>
         </View>
@@ -158,20 +166,25 @@ export default function OrderScreen() {
         <View style={tw`flex-1 bg-black/50 items-center justify-center`}>
           {/* Modal card */}
           <View style={tw`bg-white rounded-2xl w-4/5 p-5 shadow-lg`}>
-            <ThemedText type="h3">Close Order</ThemedText>
+            <ThemedText type="h3">
+              {t("orders:dialogs.closeTitle")}
+            </ThemedText>
             <ThemedText type="body1" style={tw`mt-2 mb-4`}>
-              Are you sure you want to close this order? The closed orders can't
-              be modified.{" "}
+              {t("orders:dialogs.closeMessage")}{" "}
             </ThemedText>
 
             <ThemedView style={tw`flex-row justify-end gap-2`}>
               <Button
-                label="Cancel"
+                label={t("common:actions.cancel")}
                 onPress={closeCloseModal}
                 variant="outline"
                 size="small"
               />
-              <Button label="Close" onPress={onCloseOrder} size="small" />
+              <Button
+                label={t("common:actions.close")}
+                onPress={onCloseOrder}
+                size="small"
+              />
             </ThemedView>
           </View>
         </View>
@@ -189,8 +202,8 @@ export default function OrderScreen() {
               <ThemedView style={tw`gap-1 bg-transparent`}>
                 <ThemedText type="h3">
                   {order.type === OrderType.IN_PLACE
-                    ? `Table ${order.table?.name}`
-                    : "Take Away"}{" "}
+                    ? `${t("common:labels.table")} ${order.table?.name}`
+                    : t("common:labels.takeAway")}{" "}
                 </ThemedText>
                 <ThemedView
                   style={tw` flex-row  bg-transparent items-center gap-2`}
@@ -204,9 +217,9 @@ export default function OrderScreen() {
                 style={tw`flex-row items-center bg-transparent gap-2`}
               >
                 {order.isPaid ? (
-                  <Label text="Paid" color="success" />
+                  <Label text={t("orders:details.paid")} color="success" />
                 ) : (
-                  <Label text="Unpaid" color="warning" />
+                  <Label text={t("orders:details.unpaid")} color="warning" />
                 )}
                 <ThemedView
                   style={tw`gap-1 flex-row items-center ${bgColor}/10 px-3 py-1 rounded-full`}
@@ -241,7 +254,9 @@ export default function OrderScreen() {
           </ThemedView>
           {order.notes && (
             <ThemedView style={tw`gap-2`}>
-              <ThemedText type="caption">Notes</ThemedText>
+              <ThemedText type="caption">
+                {t("common:labels.notes")}
+              </ThemedText>
               <ThemedText type="body2">{order.notes}</ThemedText>
             </ThemedView>
           )}
@@ -309,7 +324,7 @@ export default function OrderScreen() {
 
           <Button
             leftIcon="add-outline"
-            label="Add product "
+            label={t("orders:details.addProduct")}
             variant="outline"
             onPress={() => router.push("/restaurant-menu")}
           />
@@ -317,8 +332,8 @@ export default function OrderScreen() {
       </ThemedView>
       <ThemedView style={tw`gap-4 p-4 rounded-lg `}>
         <ThemedView style={tw`flex-row justify-between items-center`}>
-          <ThemedText type="h3">Total</ThemedText>
-          <ThemedText type="h2">${order.total}</ThemedText>
+          <ThemedText type="h3">{t("common:labels.total")}</ThemedText>
+          <ThemedText type="h2">{formatCurrency(order.total)}</ThemedText>
         </ThemedView>
         {/* <ThemedView style={tw`flex-row justify-between items-center`}> */}
         {/*   <ThemedView style={tw`flex-row items-center gap-2`}> */}

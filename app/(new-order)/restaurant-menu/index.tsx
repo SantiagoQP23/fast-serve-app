@@ -16,8 +16,10 @@ import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore"
 import Button from "@/presentation/theme/components/button";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 export default function RestaurantMenuScreen() {
+  const { t } = useTranslation(["menu"]);
   const [section, setSection] = useState("");
   const [category, setCategory] = useState("");
   const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
@@ -89,7 +91,7 @@ export default function RestaurantMenuScreen() {
 
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
-      <ThemedText type="h1">Menu</ThemedText>
+      <ThemedText type="h1">{t("menu:title")}</ThemedText>
       <TextInput
         value={search}
         onChangeText={(value) => onSearchChange(value)}
@@ -154,10 +156,12 @@ export default function RestaurantMenuScreen() {
         <ThemedView style={tw`absolute bottom-4 left-4 right-4 `}>
           <ThemedView style={tw`flex-row justify-between items-center`}>
             <ThemedView>
-              <ThemedText>Added products: {details.length}</ThemedText>
+              <ThemedText>
+                {t("menu:addedProducts")} {details.length}
+              </ThemedText>
             </ThemedView>
             <Button
-              label="Go to cart "
+              label={t("menu:goToCart")}
               leftIcon="cart-outline"
               onPress={() => router.push("/(new-order)/cart")}
             />

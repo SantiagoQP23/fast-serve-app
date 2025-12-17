@@ -22,8 +22,10 @@ import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import OrderList from "@/presentation/orders/molecules/order-list";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 export default function OrdersScreen() {
+  const { t } = useTranslation(['common', 'orders']);
   const { user } = useAuthStore();
   const orders = useOrdersStore((state) => state.orders);
   const router = useRouter();
@@ -75,7 +77,7 @@ export default function OrdersScreen() {
           )}
         </ThemedView>
         <ThemedText type="h1" style={tw`mt-1`}>
-          Orders
+          {t('orders:list.title')}
         </ThemedText>
       </ThemedView>
       {orders.length === 0 ? (
@@ -86,10 +88,9 @@ export default function OrdersScreen() {
               size={80}
               color={tw.color("gray-500")}
             />
-            <ThemedText type="h3">No orders yet</ThemedText>
+            <ThemedText type="h3">{t('orders:list.noOrders')}</ThemedText>
             <ThemedText type="body2" style={tw`text-center max-w-xs`}>
-              You have no orders at the moment. Create a new order to get
-              started.
+              {t('orders:list.noOrdersDescription')}
             </ThemedText>
           </ThemedView>
         </>
@@ -98,9 +99,9 @@ export default function OrdersScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`pb-20 gap-4`}
         >
-          <OrderList title="Pending" orders={pendingOrders} />
-          <OrderList title="In Progress" orders={inProgressOrders} />
-          <OrderList title="Delivered" orders={deliveredOrders} />
+          <OrderList title={t('common:status.pending')} orders={pendingOrders} />
+          <OrderList title={t('common:status.inProgress')} orders={inProgressOrders} />
+          <OrderList title={t('common:status.delivered')} orders={deliveredOrders} />
         </ScrollView>
       )}
       <BottomSheetModal

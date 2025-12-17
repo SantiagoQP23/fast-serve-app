@@ -4,19 +4,21 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { Dimensions, FlatList } from "react-native";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 export interface OrderListProps {
   orders: Order[];
   title: string;
 }
 export default function OrderList({ title, orders }: OrderListProps) {
+  const { t } = useTranslation(["common"]);
   const screenWidth = Dimensions.get("window").width;
   return (
     <>
       <ThemedView>
         <ThemedView style={tw`px-4 justify-between mb-4`}>
           <ThemedText type="h4">{title}</ThemedText>
-          <ThemedText type="small">Count: {orders.length}</ThemedText>
+          <ThemedText type="small">{t("common:labels.count")}: {orders.length}</ThemedText>
         </ThemedView>
         <FlatList
           data={orders}

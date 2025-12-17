@@ -6,8 +6,11 @@ import Button from "@/presentation/theme/components/button";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { formatCurrency } from "@/core/i18n/utils";
 
 export default function OrderConfirmationScreen() {
+  const { t } = useTranslation(["common", "orders"]);
   const router = useRouter();
   const order = useOrdersStore((state) => state.activeOrder);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
@@ -29,8 +32,10 @@ export default function OrderConfirmationScreen() {
         style={tw`px-4 pt-8 flex-1 gap-8 items-center justify-center`}
       >
         <ThemedView style={tw` items-center gap-2`}>
-          <ThemedText type="h1">Order Confirmed</ThemedText>
-          <ThemedText type="body1">The new order has been created</ThemedText>
+          <ThemedText type="h1">{t("orders:confirmation.title")}</ThemedText>
+          <ThemedText type="body1">
+            {t("orders:confirmation.message")}
+          </ThemedText>
         </ThemedView>
         <ThemedView style={tw` w-full   rounded-lg gap-4`}>
           <ThemedView style={tw` w-full bg-gray-100 p-4 rounded-lg`}>
@@ -39,14 +44,16 @@ export default function OrderConfirmationScreen() {
             >
               <ThemedText type="body1">
                 {order.type === OrderType.IN_PLACE
-                  ? `Table: ${order.table?.name}`
-                  : "Take Away"}
+                  ? `${t("orders:confirmation.table")} ${order.table?.name}`
+                  : t("common:labels.takeAway")}
               </ThemedText>
             </ThemedView>
             <ThemedView
               style={tw`flex-row  items-center bg-transparent gap-2 `}
             >
-              <ThemedText type="body1">Waiter:</ThemedText>
+              <ThemedText type="body1">
+                {t("orders:confirmation.waiter")}
+              </ThemedText>
               <ThemedText type="body1">
                 {order.user.person.firstName} {order.user.person.lastName}
               </ThemedText>
@@ -54,13 +61,17 @@ export default function OrderConfirmationScreen() {
             <ThemedView
               style={tw`flex-row  items-center bg-transparent gap-2 `}
             >
-              <ThemedText type="body1">People:</ThemedText>
+              <ThemedText type="body1">
+                {t("orders:confirmation.people")}
+              </ThemedText>
               <ThemedText type="body1">{order.people}</ThemedText>
             </ThemedView>
             <ThemedView
               style={tw`flex-row  items-center bg-transparent gap-2 `}
             >
-              <ThemedText type="body1">Status:</ThemedText>
+              <ThemedText type="body1">
+                {t("orders:confirmation.status")}
+              </ThemedText>
               <ThemedText type="body1">{statusText}</ThemedText>
             </ThemedView>
           </ThemedView>
@@ -68,9 +79,11 @@ export default function OrderConfirmationScreen() {
           {order.notes && (
             <ThemedView style={tw` w-full bg-gray-100 p-4 rounded-lg`}>
               <ThemedView style={tw`  bg-transparent gap-2 `}>
-                <ThemedText type="body2">Notes</ThemedText>
+                <ThemedText type="body2">
+                  {t("common:labels.notes")}
+                </ThemedText>
                 <ThemedText type="body1">
-                  {order.notes || "No notes"}
+                  {order.notes || t("common:labels.noNotes")}
                 </ThemedText>
               </ThemedView>
             </ThemedView>
@@ -85,35 +98,35 @@ export default function OrderConfirmationScreen() {
                   style={tw`flex-row items-center bg-transparent gap-3 `}
                 >
                   <ThemedText type="body1">{item.quantity}</ThemedText>
-                  <ThemedText type="body1">{item.product.name}</ThemedText>
-                </ThemedView>
-                <ThemedText type="body1">${item.amount}</ThemedText>
+                <ThemedText type="body1">{item.product.name}</ThemedText>
               </ThemedView>
-            ))}
-            <ThemedView
-              style={tw`flex-row justify-between items-center bg-transparent `}
-            >
-              <ThemedText type="h4">Total</ThemedText>
-              <ThemedText type="body1" style={tw`font-bold`}>
-                ${order.total}
-              </ThemedText>
+              <ThemedText type="body1">{formatCurrency(item.amount)}</ThemedText>
             </ThemedView>
+          ))}
+          <ThemedView
+            style={tw`flex-row justify-between items-center bg-transparent `}
+          >
+            <ThemedText type="h4">{t("orders:confirmation.total")}</ThemedText>
+            <ThemedText type="body1" style={tw`font-bold`}>
+              {formatCurrency(order.total)}
+            </ThemedText>
           </ThemedView>
         </ThemedView>
-        <ThemedView style={tw`w-full flex-row gap-4 justify-center`}>
-          <Button
-            leftIcon="home-outline"
-            label="Go to home"
-            onPress={goToHome}
-            variant="outline"
-          ></Button>
-          <Button
-            leftIcon="pencil-outline"
-            label="Edit order"
-            onPress={() => router.push("/(order)/[id]")}
-            variant="primary"
-          ></Button>
-        </ThemedView>
+      </ThemedView>
+      <ThemedView style={tw`w-full flex-row gap-4 justify-center`}>
+        <Button
+          leftIcon="home-outline"
+          label={t("orders:confirmation.goToHome")}
+          onPress={goToHome}
+          variant="outline"
+        ></Button>
+        <Button
+          leftIcon="pencil-outline"
+          label={t("orders:confirmation.editOrder")}
+          onPress={() => router.push("/(order)/[id]")}
+          variant="primary"
+        ></Button>
+      </ThemedView>
       </ThemedView>
     </>
   );

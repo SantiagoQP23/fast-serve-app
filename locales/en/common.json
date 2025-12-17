@@ -69,5 +69,11 @@
   },
   "currency": {
     "symbol": "$"
+  },
+  "greetings": {
+    "hello": "Hello"
+  },
+  "filters": {
+    "all": "All"
   }
 }

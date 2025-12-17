@@ -12,8 +12,11 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { formatCurrency } from "@/core/i18n/utils";
 
 export default function EditOrderDetailScreen() {
+  const { t } = useTranslation(["common", "orders"]);
   const orderDetail = useOrdersStore((state) => state.activeOrderDetail);
   const order = useOrdersStore((state) => state.activeOrder);
 
@@ -48,7 +51,7 @@ export default function EditOrderDetailScreen() {
   if (!orderDetail) {
     return (
       <ThemedView style={tw`flex-1 justify-center items-center`}>
-        <ThemedText type="h2">No active order detail selected</ThemedText>
+        <ThemedText type="h2">{t("orders:details.noActiveOrder")}</ThemedText>
       </ThemedView>
     );
   }
@@ -78,7 +81,9 @@ export default function EditOrderDetailScreen() {
         <ThemedView style={tw`flex-row justify-between mb-4 items-center`}>
           <ThemedView>
             <ThemedText type="h2">{orderDetail.product.name}</ThemedText>
-            <ThemedText type="body1">${orderDetail.price}</ThemedText>
+            <ThemedText type="body1">
+              {formatCurrency(orderDetail.price)}
+            </ThemedText>
           </ThemedView>
         </ThemedView>
         {orderDetail.product.description && (
@@ -88,7 +93,7 @@ export default function EditOrderDetailScreen() {
         )}
 
         <TextInput
-          label="Price"
+          label={t("common:labels.price")}
           keyboardType="numeric"
           icon="pricetag-outline"
           value={price}
@@ -96,7 +101,7 @@ export default function EditOrderDetailScreen() {
         />
         <ThemedView>
           <Switch
-            label="Add note"
+            label={t("orders:newOrder.addNote")}
             value={withNotes}
             onValueChange={setWithNotes}
           />
@@ -112,7 +117,9 @@ export default function EditOrderDetailScreen() {
 
         <ThemedView style={tw`flex-row justify-between mb-4 items-center`}>
           <ThemedView>
-            <ThemedText type="h4">Entregado</ThemedText>
+            <ThemedText type="h4">
+              {t("common:status.delivered")}
+            </ThemedText>
           </ThemedView>
           <ThemedView style={tw`flex-row items-center gap-4`}>
             <IconButton
@@ -132,7 +139,9 @@ export default function EditOrderDetailScreen() {
       </ThemedView>
       <ThemedView style={tw`gap-4 p-4 rounded-xl shadow-xl `}>
         <ThemedView style={tw`flex-row justify-between items-center`}>
-          <ThemedText type="h4">${orderDetail.price * counter}</ThemedText>
+          <ThemedText type="h4">
+            {formatCurrency(orderDetail.price * counter)}
+          </ThemedText>
           <ThemedView style={tw`flex-row items-center gap-4`}>
             <IconButton
               icon="remove-outline"
@@ -144,7 +153,7 @@ export default function EditOrderDetailScreen() {
           </ThemedView>
         </ThemedView>
         <Button
-          label="Save changes"
+          label={t("orders:edit.saveChanges")}
           onPress={onUpdateOrderDetail}
           leftIcon="save-outline"
         />

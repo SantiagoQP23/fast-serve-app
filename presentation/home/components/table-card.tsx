@@ -4,6 +4,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import React from "react";
 import { View, Pressable, PressableProps } from "react-native";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 export interface Table {
   name: string;
   isAvailable: boolean;
@@ -14,6 +15,7 @@ interface TableCardProps extends PressableProps {
 }
 
 export default function TableCard({ table, onPress }: TableCardProps) {
+  const { t } = useTranslation(["tables"]);
   return (
     <ThemedView style={tw`w-[48%]  `}>
       <Card onPress={onPress}>
@@ -26,7 +28,7 @@ export default function TableCard({ table, onPress }: TableCardProps) {
           />
         </ThemedView>
         <ThemedView style={tw`flex-row items-center bg-transparent`}>
-          <ThemedText type="h3">Table {table.name}</ThemedText>
+          <ThemedText type="h3">{t("tables:card.table")} {table.name}</ThemedText>
         </ThemedView>
       </Card>
     </ThemedView>

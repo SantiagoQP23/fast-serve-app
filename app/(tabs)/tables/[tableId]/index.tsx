@@ -12,8 +12,11 @@ import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { useCallback, useRef } from "react";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { formatCurrency } from "@/core/i18n/utils";
 
 export default function TableOrdersScreen() {
+  const { t } = useTranslation(["common", "tables"]);
   const { tableId, tableName } = useLocalSearchParams<{
     tableId: string;
     tableName: string;
@@ -48,7 +51,9 @@ export default function TableOrdersScreen() {
     <>
       <ThemedView style={tw` pt-8 flex-1`}>
         <ThemedView style={tw`mb-6 px-4`}>
-          <ThemedText type="h1">Table {tableName}</ThemedText>
+          <ThemedText type="h1">
+            {t("tables:details.table", { name: tableName })}
+          </ThemedText>
           <ThemedView style={tw`flex-row items-center mt-4 gap-4`}>
             <ThemedView style={tw`flex-row items-center gap-2`}>
               <View
@@ -58,7 +63,9 @@ export default function TableOrdersScreen() {
                 ]}
               />
               <ThemedText type="body2" style={tw`text-gray-600`}>
-                {hasOrders ? "Occupied" : "Available"}
+                {hasOrders
+                  ? t("common:status.occupied")
+                  : t("common:status.available")}
               </ThemedText>
             </ThemedView>
             {hasOrders && (
@@ -70,7 +77,7 @@ export default function TableOrdersScreen() {
                     color={tw.color("gray-600")}
                   />
                   <ThemedText type="body2" style={tw`text-gray-600`}>
-                    {activeOrdersCount} active
+                    {t("tables:activeCount", { count: activeOrdersCount })}
                   </ThemedText>
                 </ThemedView>
                 <ThemedView style={tw`flex-row items-center gap-1`}>
@@ -80,7 +87,7 @@ export default function TableOrdersScreen() {
                     color={tw.color("gray-600")}
                   />
                   <ThemedText type="body2" style={tw`text-gray-600`}>
-                    ${totalAmount.toFixed(2)}
+                    {formatCurrency(totalAmount)}
                   </ThemedText>
                 </ThemedView>
               </>
@@ -95,9 +102,9 @@ export default function TableOrdersScreen() {
               size={80}
               color={tw.color("gray-500")}
             />
-            <ThemedText type="h3">No orders yet</ThemedText>
+            <ThemedText type="h3">{t("tables:details.noOrders")}</ThemedText>
             <ThemedText type="body2" style={tw`text-center max-w-xs`}>
-              This table has no orders. Create a new order to get started.
+              {t("tables:details.noOrdersDescription")}
             </ThemedText>
           </ThemedView>
         ) : (
@@ -105,9 +112,18 @@ export default function TableOrdersScreen() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={tw`pb-20`}
           >
-            <OrderList title="Pending" orders={pendingOrders} />
-            <OrderList title="In Progress" orders={inProgressOrders} />
-            <OrderList title="Delivered" orders={deliveredOrders} />
+            <OrderList
+              title={t("common:status.pending")}
+              orders={pendingOrders}
+            />
+            <OrderList
+              title={t("common:status.inProgress")}
+              orders={inProgressOrders}
+            />
+            <OrderList
+              title={t("common:status.delivered")}
+              orders={deliveredOrders}
+            />
           </ScrollView>
         )}
 

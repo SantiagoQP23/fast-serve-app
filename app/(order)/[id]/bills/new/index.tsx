@@ -19,6 +19,8 @@ import {
   CreateBillDto,
 } from "@/core/orders/dto/create-bill.dto";
 import { useBills } from "@/presentation/orders/hooks/useBills";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { formatCurrency, i18nAlert } from "@/core/i18n/utils";
 
 interface SelectedDetails {
   [id: string]: {
@@ -28,6 +30,7 @@ interface SelectedDetails {
 }
 
 export default function NewBillScreen() {
+  const { t } = useTranslation(["common", "bills", "orders"]);
   const router = useRouter();
   const order = useOrdersStore((state) => state.activeOrder);
   const [selectAll, setSelectAll] = useState(false);
@@ -46,7 +49,7 @@ export default function NewBillScreen() {
   if (!order) {
     return (
       <ThemedView style={tw`flex-1 justify-center items-center`}>
-        <ThemedText>No active order</ThemedText>
+        <ThemedText>{t("orders:details.noActiveOrder")}</ThemedText>
       </ThemedView>
     );
   }
@@ -105,7 +108,10 @@ export default function NewBillScreen() {
     });
 
     if (details.length === 0) {
-      Alert.alert("No items selected", "Please select at least one item.");
+      i18nAlert(
+        t("bills:alerts.noItemsSelected"),
+        t("bills:alerts.noItemsSelectedMessage"),
+      );
       return;
     }
 
@@ -122,18 +128,20 @@ export default function NewBillScreen() {
     <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
       <ThemedView style={tw`flex-row items-center justify-between gap-8`}>
         <ThemedView style={tw`gap-1 `}>
-          <ThemedText type="h1">New Bill</ThemedText>
-          <ThemedText type="body1">Order #{order.num}</ThemedText>
+          <ThemedText type="h1">{t("bills:newBill.title")}</ThemedText>
+          <ThemedText type="body1">
+            {t("bills:newBill.orderNumber", { number: order.num })}
+          </ThemedText>
           {/* <ThemedText type="small">Today, 11:30</ThemedText> */}
         </ThemedView>
         <ThemedView>
-          <ThemedText type="body1">Total</ThemedText>
-          <ThemedText type="h4">${order.total}</ThemedText>
+          <ThemedText type="body1">{t("common:labels.total")}</ThemedText>
+          <ThemedText type="h4">{formatCurrency(order.total)}</ThemedText>
         </ThemedView>
       </ThemedView>
 
       <Switch
-        label="Select all items"
+        label={t("bills:newBill.selectAllItems")}
         value={totalToPay === getTotalSelectedDetails()}
         onValueChange={(value) => {
           handleSelectAll(value);
@@ -149,11 +157,13 @@ export default function NewBillScreen() {
           />
         ))}
         <ThemedText type="h3" style={tw`mt-4 mb-2`}>
-          Billed items
+          {t("bills:newBill.billedItems")}
         </ThemedText>
         <ThemedView style={tw`gap-2 mb-20`}>
           {paidDetails.length === 0 && (
-            <ThemedText type="body2">No billed items yet.</ThemedText>
+            <ThemedText type="body2">
+              {t("bills:newBill.noBilledItems")}
+            </ThemedText>
           )}
 
           {paidDetails.map((detail) => (
@@ -165,7 +175,9 @@ export default function NewBillScreen() {
       </ScrollView>
 
       <Button
-        label={"Create bill - $" + getTotalSelectedDetails()}
+        label={t("bills:newBill.createBill", {
+          amount: getTotalSelectedDetails().toFixed(2),
+        })}
         onPress={onCreateBill}
       ></Button>
     </ThemedView>

@@ -1,21 +1,22 @@
 {
   "list": {
-    "title": "",
+    "title": "Mesas",
     "filter": {
-      "all": "",
-      "available": "",
-      "occupied": ""
+      "all": "Todas",
+      "available": "Disponibles",
+      "occupied": "Ocupadas"
     }
   },
   "details": {
     "table": "Mesa {{name}}",
-    "occupied": "",
-    "available": "",
-    "active": "",
-    "noOrders": "",
-    "noOrdersDescription": ""
+    "occupied": "Ocupada",
+    "available": "Disponible",
+    "active": "activo",
+    "noOrders": "No hay pedidos aún",
+    "noOrdersDescription": "Esta mesa no tiene pedidos. Cree un nuevo pedido para comenzar."
   },
   "card": {
     "table": "Mesa {{name}}"
-  }
+  },
+  "activeCount": "{{count}} activo"
 }

@@ -9,14 +9,17 @@ import { Bill } from "@/core/orders/models/bill.model";
 import dayjs from "dayjs";
 import Label from "@/presentation/theme/components/label";
 import Card from "@/presentation/theme/components/card";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { formatCurrency } from "@/core/i18n/utils";
 
 interface BillCardProps extends PressableProps {
   bill: Bill;
 }
 
 export default function BillCard({ onPress, bill }: BillCardProps) {
+  const { t } = useTranslation(["common", "bills"]);
   const date = dayjs(bill.createdAt).isSame(dayjs(), "day")
-    ? `Today, ${dayjs(bill.createdAt).format("HH:mm")}`
+    ? `${t("common:time.today")}, ${dayjs(bill.createdAt).format("HH:mm")}`
     : dayjs(bill.createdAt).format("dddd, HH:mm");
   return (
     <Card onPress={onPress}>
@@ -24,19 +27,19 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
       <ThemedView style={tw` bg-transparent gap-2`}>
         <ThemedView style={tw`flex-row bg-transparent justify-between gap-2`}>
           <ThemedText type="body1" style={tw`font-bold`}>
-            Bill #{bill.num}
+            {t("bills:list.billNumber", { number: bill.num })}
           </ThemedText>
           {bill.isPaid ? (
-            <Label color="success" text="Paid" />
+            <Label color="success" text={t("bills:details.paid")} />
           ) : (
-            <Label color="warning" text="Unpaid" />
+            <Label color="warning" text={t("bills:details.unpaid")} />
           )}
         </ThemedView>
         <ThemedView
           style={tw` flex-row justify-between bg-transparent items-center `}
         >
           <ThemedText type="body2">{date}</ThemedText>
-          <ThemedText type="h3">${bill.total}</ThemedText>
+          <ThemedText type="h3">{formatCurrency(bill.total)}</ThemedText>
         </ThemedView>
       </ThemedView>
     </Card>

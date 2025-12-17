@@ -27,8 +27,10 @@ import { Table } from "@/core/tables/models/table.model";
 import { useTables } from "@/presentation/tables/hooks/useTables";
 import Chip from "@/presentation/theme/components/chip";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 export default function TablesScreen() {
+  const { t } = useTranslation('tables');
   const [selectedStatus, setSelectedStatus] = useState<boolean | "all">("all");
   const { setTable, setOrderType } = useNewOrderStore();
   const { tables } = useTables();
@@ -36,9 +38,9 @@ export default function TablesScreen() {
   const [activeTable, setActiveTable] = useState<Table | null>(null);
 
   const tabs: { label: string; value: boolean | "all" }[] = [
-    { label: "All", value: "all" },
-    { label: "Available", value: true },
-    { label: "Occupied", value: false },
+    { label: t('list.filter.all'), value: "all" },
+    { label: t('list.filter.available'), value: true },
+    { label: t('list.filter.occupied'), value: false },
   ];
 
   const [filteredTables, setFilteredTables] = useState<Table[]>(tables);
@@ -94,7 +96,7 @@ export default function TablesScreen() {
 
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1`}>
-      <ThemedText type="h1">Tables</ThemedText>
+      <ThemedText type="h1">{t('list.title')}</ThemedText>
       <ThemedView style={tw`mt-8`} />
       <ThemedView style={tw`flex-row mb-4 gap-2`}>
         {tabs.map((tab) => {

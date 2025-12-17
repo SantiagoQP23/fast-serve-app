@@ -1,73 +1,79 @@
 {
   "navigation": {
-    "home": "",
-    "tables": "",
-    "orders": "",
-    "profile": ""
+    "home": "Inicio",
+    "tables": "Mesas",
+    "orders": "Pedidos",
+    "profile": "Perfil"
   },
   "actions": {
-    "add": "",
-    "edit": "",
-    "remove": "",
-    "delete": "",
-    "cancel": "",
-    "confirm": "",
-    "save": "",
-    "create": "",
-    "update": "",
-    "close": "",
-    "ok": "",
-    "yes": "",
-    "no": "",
-    "back": "",
-    "next": "",
-    "search": "",
-    "filter": "",
-    "select": ""
+    "add": "Agregar",
+    "edit": "Editar",
+    "remove": "Eliminar",
+    "delete": "Borrar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "save": "Guardar",
+    "create": "Crear",
+    "update": "Actualizar",
+    "close": "Cerrar",
+    "ok": "Aceptar",
+    "yes": "Sí",
+    "no": "No",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "select": "Seleccionar"
   },
   "status": {
-    "pending": "",
-    "inProgress": "",
-    "delivered": "",
-    "cancelled": "",
-    "paid": "",
-    "unpaid": "",
-    "available": "",
-    "occupied": "",
-    "active": ""
+    "pending": "Pendiente",
+    "inProgress": "En Progreso",
+    "delivered": "Entregado",
+    "cancelled": "Cancelado",
+    "paid": "Pagado",
+    "unpaid": "Sin Pagar",
+    "available": "Disponible",
+    "occupied": "Ocupada",
+    "active": "activo"
   },
   "orderType": {
-    "inPlace": "",
-    "takeAway": ""
+    "inPlace": "En el Lugar",
+    "takeAway": "Para Llevar"
   },
   "labels": {
-    "table": "",
-    "takeAway": "",
-    "total": "",
-    "subtotal": "",
-    "notes": "",
-    "date": "",
-    "time": "",
-    "waiter": "",
-    "people": "",
-    "count": "",
-    "quantity": "",
-    "price": "",
-    "discount": "",
-    "change": "",
-    "receivedAmount": "",
-    "noNotes": ""
+    "table": "Mesa",
+    "takeAway": "Para Llevar",
+    "total": "Total",
+    "subtotal": "Subtotal",
+    "notes": "Notas",
+    "date": "Fecha",
+    "time": "Hora",
+    "waiter": "Mesero",
+    "people": "Personas",
+    "count": "Cantidad",
+    "quantity": "Cantidad",
+    "price": "Precio",
+    "discount": "Descuento",
+    "change": "Cambio",
+    "receivedAmount": "Monto recibido",
+    "noNotes": "Sin notas"
   },
   "time": {
-    "today": "",
-    "yesterday": "",
-    "tomorrow": ""
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "tomorrow": "Mañana"
   },
   "empty": {
-    "noData": "",
-    "noResults": ""
+    "noData": "No hay datos disponibles",
+    "noResults": "No se encontraron resultados"
   },
   "currency": {
     "symbol": "$"
+  },
+  "greetings": {
+    "hello": "Hola"
+  },
+  "filters": {
+    "all": "Todos"
   }
 }

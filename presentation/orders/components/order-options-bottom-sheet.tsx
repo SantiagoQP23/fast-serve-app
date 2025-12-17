@@ -9,6 +9,8 @@ import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import { useOrders } from "../hooks/useOrders";
 import { useRouter } from "expo-router";
 import { useOrdersStore } from "../store/useOrdersStore";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { i18nAlert } from "@/core/i18n/utils";
 
 interface OrderOptionsBottomSheetProps {
   order: Order;
@@ -28,6 +30,7 @@ const OrderOptionsBottomSheet = ({
   order,
   onClose,
 }: OrderOptionsBottomSheetProps) => {
+  const { t } = useTranslation(["common", "orders"]);
   const { mutate: updateOrder } = useOrders().updateOrder;
   const { mutate: deleteOrder } = useOrders().deleteOrder;
   const router = useRouter();
@@ -35,12 +38,12 @@ const OrderOptionsBottomSheet = ({
 
   const handleCloseOrder = () => {
     Alert.alert(
-      "Close Order",
-      "Are you sure you want to close this order? Closed orders can't be modified.",
+      t("orders:dialogs.closeTitle"),
+      t("orders:dialogs.closeMessage"),
       [
-        { text: "Cancel", style: "cancel" },
+        { text: t("common:actions.cancel"), style: "cancel" },
         {
-          text: "Close",
+          text: t("common:actions.close"),
           style: "destructive",
           onPress: () => {
             updateOrder(
@@ -64,20 +67,20 @@ const OrderOptionsBottomSheet = ({
       order.details.some((detail) => detail.qtyDelivered !== 0);
 
     if (orderCantBeDeleted) {
-      Alert.alert(
-        "Cannot Delete",
-        "This order cannot be deleted. Only pending orders with no delivered items can be deleted.",
+      i18nAlert(
+        t("orders:deleteAlerts.cannotDelete"),
+        t("orders:deleteAlerts.cannotDeleteMessage"),
       );
       return;
     }
 
     Alert.alert(
-      "Delete Order",
-      "Are you sure you want to delete this order? This action cannot be undone.",
+      t("orders:deleteAlerts.confirmDelete"),
+      t("orders:deleteAlerts.confirmDeleteMessage"),
       [
-        { text: "Cancel", style: "cancel" },
+        { text: t("common:actions.cancel"), style: "cancel" },
         {
-          text: "Delete",
+          text: t("common:actions.delete"),
           style: "destructive",
           onPress: () => {
             deleteOrder(order.id, {
@@ -123,43 +126,43 @@ const OrderOptionsBottomSheet = ({
   const options: OptionItem[] = [
     {
       icon: "add-circle-outline",
-      label: "Add Product",
+      label: t("orders:options.addProduct"),
       onPress: handleNavigateToAddProduct,
     },
     {
       icon: "card-outline",
-      label: "Go to Payments",
+      label: t("orders:options.goToPayments"),
       onPress: handleNavigateToPayments,
     },
     {
       icon: "play-outline",
-      label: "Start Order",
+      label: t("orders:options.startOrder"),
       onPress: () => handleChangeStatus(OrderStatus.IN_PROGRESS),
       disabled: order.status !== OrderStatus.PENDING,
       divider: true,
     },
     {
       icon: "pause-outline",
-      label: "Pause Order",
+      label: t("orders:options.pauseOrder"),
       onPress: () => handleChangeStatus(OrderStatus.PENDING),
       disabled: order.status !== OrderStatus.IN_PROGRESS,
     },
     {
       icon: "checkmark-done-outline",
-      label: "Mark as Delivered",
+      label: t("orders:options.markDelivered"),
       onPress: () => handleChangeStatus(OrderStatus.DELIVERED),
       disabled: order.status === OrderStatus.DELIVERED,
       divider: true,
     },
     {
       icon: "lock-closed-outline",
-      label: "Close Order",
+      label: t("orders:options.closeOrder"),
       onPress: handleCloseOrder,
       disabled: !canCloseOrder,
     },
     {
       icon: "trash-outline",
-      label: "Delete Order",
+      label: t("orders:options.deleteOrder"),
       color: "text-red-500",
       onPress: handleDeleteOrder,
       disabled: orderCantBeDeleted,
@@ -169,9 +172,9 @@ const OrderOptionsBottomSheet = ({
   return (
     <BottomSheetView style={tw`px-4 pb-6`}>
       <ThemedView style={tw`mb-4`}>
-        <ThemedText type="h3">Order Options</ThemedText>
+        <ThemedText type="h3">{t("orders:options.title")}</ThemedText>
         <ThemedText type="body2" style={tw`text-gray-500 mt-1`}>
-          Order N° {order.num}
+          {t("orders:details.orderNumber", { num: order.num })}
         </ThemedText>
       </ThemedView>
 

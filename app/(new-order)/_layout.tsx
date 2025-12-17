@@ -9,8 +9,10 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import { router, Stack } from "expo-router";
 import { useCallback, useRef } from "react";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 export default function NewOrderLayout() {
+  const { t } = useTranslation(["common"]);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
   const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
@@ -98,7 +100,7 @@ export default function NewOrderLayout() {
       >
         <NewOrderBottomSheet
           onCreateOrder={closeBottomSheet}
-          buttonProps={{ label: "Save changes" }}
+          buttonProps={{ label: t("common:actions.saveChanges") }}
         />
       </BottomSheetModal>
     </>

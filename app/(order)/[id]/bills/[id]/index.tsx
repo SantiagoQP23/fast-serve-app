@@ -17,8 +17,11 @@ import { useBills } from "@/presentation/orders/hooks/useBills";
 import { UpdateBillDto } from "@/core/orders/dto/update-bill.dto";
 import { PaymentMethod as PaymentMethodE } from "@/core/orders/enums/payment-method";
 import IconButton from "@/presentation/theme/components/icon-button";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { formatCurrency, i18nAlert } from "@/core/i18n/utils";
 
 export default function BillScreen() {
+  const { t } = useTranslation(["common", "bills"]);
   const router = useRouter();
   const bill = useOrdersStore((state) => state.activeBill);
   const [receivedAmount, setReceivedAmount] = useState("");
@@ -33,7 +36,7 @@ export default function BillScreen() {
   if (!bill) {
     return (
       <ThemedView style={tw`flex-1 justify-center items-center`}>
-        <ThemedText>No active bill</ThemedText>
+        <ThemedText>{t("bills:list.noBills")}</ThemedText>
       </ThemedView>
     );
   }
@@ -50,7 +53,7 @@ export default function BillScreen() {
       paymentMethod === PaymentMethodE.CASH &&
       +receivedAmount < totalAfterDiscount
     ) {
-      alert("Received amount is less than the total bill amount.");
+      alert(t("bills:alerts.insufficientAmount"));
       return;
     }
 
@@ -72,17 +75,17 @@ export default function BillScreen() {
 
   const paymentMethods: PaymentMethod[] = [
     {
-      name: "Cash",
+      name: t("bills:paymentMethods.cash"),
       value: "CASH",
       icon: "cash-outline",
     },
     {
-      name: "Credit Card",
+      name: t("bills:paymentMethods.creditCard"),
       value: "CREDIT_CARD",
       icon: "card-outline",
     },
     {
-      name: "Transfer",
+      name: t("bills:paymentMethods.transfer"),
       value: "TRANSFER",
       icon: "wallet-outline",
     },
@@ -112,20 +115,25 @@ export default function BillScreen() {
         <View style={tw`flex-1 bg-black/50 items-center justify-center`}>
           {/* Modal card */}
           <View style={tw`bg-white rounded-2xl w-4/5 p-5 shadow-lg`}>
-            <ThemedText type="h4">Remove Bill</ThemedText>
+            <ThemedText type="h4">
+              {t("bills:dialogs.removeTitle")}
+            </ThemedText>
             <ThemedText type="body1" style={tw`mt-2 mb-4`}>
-              Are you sure you want to remove this bill? This action cannot be
-              undone.
+              {t("bills:dialogs.removeMessage")}
             </ThemedText>
 
             <ThemedView style={tw`flex-row justify-end gap-2`}>
               <Button
-                label="Cancel"
+                label={t("common:actions.cancel")}
                 onPress={closeModal}
                 variant="outline"
                 size="small"
               />
-              <Button label="Remove" onPress={onRemoveBill} size="small" />
+              <Button
+                label={t("common:actions.remove")}
+                onPress={onRemoveBill}
+                size="small"
+              />
             </ThemedView>
           </View>
         </View>
@@ -135,11 +143,13 @@ export default function BillScreen() {
           <ScrollView style={tw`flex-1`} showsVerticalScrollIndicator={false}>
             <ThemedView style={tw`  items-center gap-8`}>
               <ThemedView style={tw`gap-1 items-center`}>
-                <ThemedText type="h3">Bill #{bill.num}</ThemedText>
+                <ThemedText type="h3">
+                  {t("bills:list.billNumber", { number: bill.num })}
+                </ThemedText>
                 <ThemedText type="body1">{date}</ThemedText>
               </ThemedView>
               <ThemedText style={tw`text-7xl `}>
-                ${totalAfterDiscount}
+                {formatCurrency(totalAfterDiscount)}
               </ThemedText>
             </ThemedView>
             <ThemedView
@@ -154,7 +164,7 @@ export default function BillScreen() {
                     {detail.quantity} {detail.orderDetail.product.name}
                     {/* {JSON.stringify(detail)} */}
                   </ThemedText>
-                  <ThemedText>${detail.total}</ThemedText>
+                  <ThemedText>{formatCurrency(detail.total)}</ThemedText>
                 </ThemedView>
               ))}
             </ThemedView>
@@ -164,14 +174,16 @@ export default function BillScreen() {
                   style={tw`gap-2 mb-8 mt-4 border border-gray-200 p-4 rounded-lg`}
                 >
                   <TextInput
-                    label="Discount "
+                    label={t("bills:details.discount")}
                     inputMode="numeric"
                     value={discount}
                     onChangeText={setDiscount}
                   />
                 </ThemedView>
                 <ThemedView style={tw` gap-4 `}>
-                  <ThemedText type="h3">Payment method</ThemedText>
+                  <ThemedText type="h3">
+                    {t("bills:details.paymentMethod")}
+                  </ThemedText>
                   <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
@@ -192,7 +204,9 @@ export default function BillScreen() {
                   <ThemedView
                     style={tw` gap-4 mb-20 mt-8 border border-gray-200 p-4 rounded-lg`}
                   >
-                    <ThemedText type="h3">Received amount</ThemedText>
+                    <ThemedText type="h3">
+                      {t("bills:details.receivedAmount")}
+                    </ThemedText>
                     <TextInput
                       icon="cash-outline"
                       value={receivedAmount}
@@ -215,7 +229,7 @@ export default function BillScreen() {
                       ))}
                     </ScrollView>
                     <Button
-                      label="Exact amount"
+                      label={t("bills:details.exactAmount")}
                       variant="outline"
                       onPress={() =>
                         setReceivedAmount(String(totalAfterDiscount))
@@ -223,9 +237,9 @@ export default function BillScreen() {
                     />
                     {+receivedAmount > bill.total && (
                       <ThemedView style={tw` items-center mt-4 gap-2`}>
-                        <ThemedText>Change</ThemedText>
+                        <ThemedText>{t("bills:details.change")}</ThemedText>
                         <ThemedText type="h1">
-                          ${+receivedAmount - totalAfterDiscount}
+                          {formatCurrency(+receivedAmount - totalAfterDiscount)}
                         </ThemedText>
                       </ThemedView>
                     )}
@@ -240,11 +254,17 @@ export default function BillScreen() {
                     size={64}
                     color={tw.color("green-500")}
                   />
-                  <ThemedText type="h2">Bill Paid</ThemedText>
+                  <ThemedText type="h2">
+                    {t("bills:details.billPaid")}
+                  </ThemedText>
                 </ThemedView>
                 <ThemedView style={tw`mt-8 gap-4`}>
-                  <ThemedText>Payment method: {bill.paymentMethod}</ThemedText>
-                  <ThemedText>Discount: ${bill.discount}</ThemedText>
+                  <ThemedText>
+                    {t("bills:details.paymentMethod")}: {bill.paymentMethod}
+                  </ThemedText>
+                  <ThemedText>
+                    {t("bills:details.discount")}: {formatCurrency(bill.discount)}
+                  </ThemedText>
                 </ThemedView>
               </>
             )}
@@ -260,7 +280,10 @@ export default function BillScreen() {
                 onPress={() => setVisible(true)}
               />
               <ThemedView style={tw`flex-1 `}>
-                <Button label="Pay bill" onPress={payBill}></Button>
+                <Button
+                  label={t("bills:details.payBill")}
+                  onPress={payBill}
+                ></Button>
               </ThemedView>
             </ThemedView>
           )}

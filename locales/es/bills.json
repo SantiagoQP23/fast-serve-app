@@ -1,48 +1,48 @@
 {
   "list": {
-    "title": "",
+    "title": "Cuentas",
     "billNumber": "Cuenta #{{number}}",
-    "noBills": "",
-    "noBillsDescription": "",
-    "addBill": ""
+    "noBills": "No hay cuentas aún",
+    "noBillsDescription": "No hay cuentas para este pedido aún. Presione el botón de abajo para agregar una nueva cuenta.",
+    "addBill": "Agregar cuenta"
   },
   "details": {
     "title": "Cuenta #{{number}}",
-    "orderNumber": "Orden #{{number}}",
-    "table": "",
-    "takeAway": "",
-    "discount": "",
-    "paymentMethod": "",
-    "receivedAmount": "",
-    "change": "",
-    "total": "",
-    "billPaid": "",
-    "paid": "",
-    "unpaid": "",
-    "exactAmount": "",
-    "payBill": ""
+    "orderNumber": "Pedido #{{number}}",
+    "table": "Mesa",
+    "takeAway": "Para Llevar",
+    "discount": "Descuento",
+    "paymentMethod": "Método de pago",
+    "receivedAmount": "Monto recibido",
+    "change": "Cambio",
+    "total": "Total",
+    "billPaid": "Cuenta Pagada",
+    "paid": "Pagado",
+    "unpaid": "Sin Pagar",
+    "exactAmount": "Monto exacto",
+    "payBill": "Pagar cuenta"
   },
   "paymentMethods": {
-    "cash": "",
-    "creditCard": "",
-    "transfer": ""
+    "cash": "Efectivo",
+    "creditCard": "Tarjeta de Crédito",
+    "transfer": "Transferencia"
   },
   "newBill": {
-    "title": "",
-    "orderNumber": "Orden #{{number}}",
-    "total": "",
-    "selectAllItems": "",
-    "billedItems": "",
-    "noBilledItems": "",
-    "createBill": ""
+    "title": "Nueva Cuenta",
+    "orderNumber": "Pedido #{{number}}",
+    "total": "Total",
+    "selectAllItems": "Seleccionar todos los productos",
+    "billedItems": "Productos facturados",
+    "noBilledItems": "No hay productos facturados aún.",
+    "createBill": "Crear cuenta - ${{amount}}"
   },
   "dialogs": {
-    "removeTitle": "",
-    "removeMessage": ""
+    "removeTitle": "Eliminar Cuenta",
+    "removeMessage": "¿Está seguro que desea eliminar esta cuenta? Esta acción no se puede deshacer."
   },
   "alerts": {
-    "noItemsSelected": "",
-    "noItemsSelectedMessage": "",
-    "insufficientAmount": ""
+    "noItemsSelected": "No hay productos seleccionados",
+    "noItemsSelectedMessage": "Por favor seleccione al menos un producto.",
+    "insufficientAmount": "El monto recibido es menor que el total de la cuenta."
   }
 }

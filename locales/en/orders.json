@@ -12,7 +12,8 @@
     }
   },
   "details": {
-    "title": "Order #{{number}}",
+    "title": "Order N° {{num}}",
+    "orderNumber": "Order N° {{num}}",
     "table": "Table",
     "takeAway": "Take Away",
     "waiter": "Waiter",
@@ -20,14 +21,21 @@
     "notes": "Notes",
     "total": "Total",
     "addProduct": "Add product",
-    "noActiveOrder": "No active order selected"
+    "noActiveOrder": "No active order selected",
+    "paid": "Paid",
+    "unpaid": "Unpaid"
   },
   "actions": {
     "start": "Start",
     "pause": "Pause",
     "deliver": "Deliver",
     "remove": "Remove",
-    "close": "Close"
+    "close": "Close",
+    "updateOrder": "Update Order"
+  },
+  "form": {
+    "people": "People",
+    "addNote": "Add note"
   },
   "newOrder": {
     "title": "New Order",
@@ -61,5 +69,28 @@
     "total": "Total:",
     "goToHome": "Go to home",
     "editOrder": "Edit order"
+  },
+  "edit": {
+    "title": "Edit Order",
+    "saveChanges": "Save changes"
+  },
+  "options": {
+    "title": "Order Options",
+    "addProduct": "Add Product",
+    "goToPayments": "Go to Payments",
+    "startOrder": "Start Order",
+    "pauseOrder": "Pause Order",
+    "markDelivered": "Mark as Delivered",
+    "deleteOrder": "Delete Order",
+    "closeOrder": "Close Order"
+  },
+  "deleteAlerts": {
+    "cannotDelete": "Cannot Delete",
+    "cannotDeleteMessage": "This order cannot be deleted. Only pending orders with no delivered items can be deleted.",
+    "confirmDelete": "Delete Order",
+    "confirmDeleteMessage": "Are you sure you want to delete this order? This action cannot be undone."
+  },
+  "molecule": {
+    "count": "Count:"
   }
 }

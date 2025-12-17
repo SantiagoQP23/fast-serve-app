@@ -13,7 +13,10 @@
     "addNote": "Add note",
     "addToOrder": "Add to order",
     "addToCart": "Add to cart",
-    "quantity": "Quantity"
+    "addToOrderOrCart": "Add to {{type}}",
+    "quantity": "Quantity",
+    "order": "order",
+    "cart": "cart"
   },
   "cart": {
     "title": "Cart",

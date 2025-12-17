@@ -12,6 +12,7 @@ import { useOrdersStore } from "../store/useOrdersStore";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import Checkbox from "@/presentation/theme/components/checkbox";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 interface OrderDetailCardProps extends PressableProps {
   detail: OrderDetail;
@@ -21,6 +22,7 @@ export default function OrderDetailCard({
   detail,
   onPress,
 }: OrderDetailCardProps) {
+  const { t } = useTranslation(["common", "orders"]);
   const { counter, increment, decrement } = useCounter(
     detail.quantity,
     1,
@@ -100,20 +102,27 @@ export default function OrderDetailCard({
         <View style={tw`flex-1 bg-black/50 items-center justify-center`}>
           {/* Modal card */}
           <View style={tw`bg-white rounded-2xl w-4/5 p-5 shadow-lg`}>
-            <ThemedText type="h4">Remove Item</ThemedText>
+            <ThemedText type="h4">
+              {t("orders:dialogs.removeItemTitle")}
+            </ThemedText>
             <ThemedText type="body1" style={tw`mt-2 mb-4`}>
-              Are you sure you want to remove {detail.product.name} from the
-              order?
+              {t("orders:dialogs.removeItemMessage", {
+                product: detail.product.name,
+              })}
             </ThemedText>
 
             <ThemedView style={tw`flex-row justify-end gap-2`}>
               <Button
-                label="Cancel"
+                label={t("common:actions.cancel")}
                 onPress={() => setVisible(false)}
                 variant="outline"
                 size="small"
               />
-              <Button label="Remove" onPress={onRemoveDetail} size="small" />
+              <Button
+                label={t("common:actions.remove")}
+                onPress={onRemoveDetail}
+                size="small"
+              />
             </ThemedView>
           </View>
         </View>

@@ -17,5 +17,6 @@
   },
   "card": {
     "table": "Table {{name}}"
-  }
+  },
+  "activeCount": "{{count}} active"
 }

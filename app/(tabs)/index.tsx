@@ -22,8 +22,10 @@ import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import OrderList from "@/presentation/orders/molecules/order-list";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 export default function HomeScreen() {
+  const { t } = useTranslation(['common', 'orders']);
   const { user } = useAuthStore();
   const orders = useOrdersStore((state) => state.orders).filter(
     (order) => order.user.id === user?.id,
@@ -77,7 +79,7 @@ export default function HomeScreen() {
             </ThemedView>
           )}
         </ThemedView>
-        <ThemedText type="body1">Hello</ThemedText>
+        <ThemedText type="body1">{t('common:greetings.hello')}</ThemedText>
         <ThemedText type="h2" style={tw`mt-1`}>
           {user?.person.firstName}
         </ThemedText>
@@ -90,10 +92,9 @@ export default function HomeScreen() {
               size={80}
               color={tw.color("gray-500")}
             />
-            <ThemedText type="h3">No orders yet</ThemedText>
+            <ThemedText type="h3">{t('orders:list.noOrders')}</ThemedText>
             <ThemedText type="body2" style={tw`text-center max-w-xs`}>
-              You have no orders at the moment. Create a new order to get
-              started.
+              {t('orders:list.noOrdersDescription')}
             </ThemedText>
           </ThemedView>
         </>
@@ -102,9 +103,9 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`pb-20 gap-4`}
         >
-          <OrderList title="Pending" orders={pendingOrders} />
-          <OrderList title="In Progress" orders={inProgressOrders} />
-          <OrderList title="Delivered" orders={deliveredOrders} />
+          <OrderList title={t('common:status.pending')} orders={pendingOrders} />
+          <OrderList title={t('common:status.inProgress')} orders={inProgressOrders} />
+          <OrderList title={t('common:status.delivered')} orders={deliveredOrders} />
         </ScrollView>
       )}
       <BottomSheetModal

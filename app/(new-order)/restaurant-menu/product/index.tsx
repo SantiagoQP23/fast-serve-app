@@ -18,8 +18,11 @@ import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore"
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { formatCurrency } from "@/core/i18n/utils";
 
 export default function ProductScreen() {
+  const { t } = useTranslation(["menu", "orders"]);
   const activeOrderDetail = useNewOrderStore((state) => state.activeDetail);
   const { counter, increment, decrement } = useCounter(
     activeOrderDetail?.quantity,
@@ -101,7 +104,9 @@ export default function ProductScreen() {
         <ThemedView style={tw`flex-row justify-between mb-4 items-center`}>
           <ThemedView style={tw`gap-2`}>
             <ThemedText type="h2">{activeProduct.name}</ThemedText>
-            <ThemedText type="body1">${activeProduct.price}</ThemedText>
+            <ThemedText type="body1">
+              {formatCurrency(activeProduct.price)}
+            </ThemedText>
           </ThemedView>
           {/* <ThemedView style={tw`flex-row items-center gap-4`}> */}
           {/*   <IconButton */}
@@ -118,7 +123,7 @@ export default function ProductScreen() {
         )}
         <ThemedView>
           <Switch
-            label="Add note"
+            label={t("orders:newOrder.addNote")}
             value={withNotes}
             onValueChange={setWithNotes}
           />
@@ -135,7 +140,9 @@ export default function ProductScreen() {
       </ThemedView>
       <ThemedView style={tw`gap-4 p-4 rounded-xl shadow-xl `}>
         <ThemedView style={tw`flex-row justify-between items-center`}>
-          <ThemedText type="h4">${activeProduct.price * counter}</ThemedText>
+          <ThemedText type="h4">
+            {formatCurrency(activeProduct.price * counter)}
+          </ThemedText>
           <ThemedView style={tw`flex-row items-center gap-4`}>
             <IconButton
               icon="remove-outline"
@@ -147,7 +154,9 @@ export default function ProductScreen() {
           </ThemedView>
         </ThemedView>
         <Button
-          label={`Add to  ${order ? "order " : "cart "}`}
+          label={t("menu:product.addToOrderOrCart", {
+            type: order ? t("menu:product.order") : t("menu:product.cart"),
+          })}
           onPress={onAddProduct}
           leftIcon="cart-outline"
         />

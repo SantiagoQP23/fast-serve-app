@@ -1,13 +1,13 @@
 {
-  "required": "",
-  "invalid": "",
-  "minLength": "",
-  "maxLength": "",
-  "min": "",
-  "max": "",
-  "email": "",
-  "phone": "",
-  "url": "",
-  "numeric": "",
-  "positive": ""
+  "required": "{{field}} es requerido",
+  "invalid": "{{field}} inválido",
+  "minLength": "{{field}} debe tener al menos {{min}} caracteres",
+  "maxLength": "{{field}} debe tener como máximo {{max}} caracteres",
+  "min": "{{field}} debe ser al menos {{min}}",
+  "max": "{{field}} debe ser como máximo {{max}}",
+  "email": "Dirección de correo electrónico inválida",
+  "phone": "Número de teléfono inválido",
+  "url": "URL inválida",
+  "numeric": "{{field}} debe ser un número",
+  "positive": "{{field}} debe ser positivo"
 }

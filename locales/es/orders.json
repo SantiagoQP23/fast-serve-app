@@ -1,65 +1,96 @@
 {
   "list": {
-    "title": "",
-    "orderNumber": "Orden #{{number}}",
-    "noOrders": "",
-    "noOrdersDescription": "",
+    "title": "Pedidos",
+    "orderNumber": "Pedido #{{number}}",
+    "noOrders": "No hay pedidos aún",
+    "noOrdersDescription": "No tiene pedidos en este momento. Cree un nuevo pedido para comenzar.",
     "filter": {
-      "all": "",
-      "pending": "",
-      "inProgress": "",
-      "delivered": ""
+      "all": "Todos",
+      "pending": "Pendiente",
+      "inProgress": "En Progreso",
+      "delivered": "Entregado"
     }
   },
   "details": {
-    "title": "Orden #{{number}}",
-    "table": "",
-    "takeAway": "",
-    "waiter": "",
-    "date": "",
-    "notes": "",
-    "total": "",
-    "addProduct": "",
-    "noActiveOrder": ""
+    "title": "Pedido N° {{num}}",
+    "orderNumber": "Pedido N° {{num}}",
+    "table": "Mesa",
+    "takeAway": "Para Llevar",
+    "waiter": "Mesero",
+    "date": "Fecha",
+    "notes": "Notas",
+    "total": "Total",
+    "addProduct": "Agregar producto",
+    "noActiveOrder": "No hay pedido activo seleccionado",
+    "paid": "Pagado",
+    "unpaid": "Sin Pagar"
   },
   "actions": {
-    "start": "",
-    "pause": "",
-    "deliver": "",
-    "remove": "",
-    "close": ""
+    "start": "Iniciar",
+    "pause": "Pausar",
+    "deliver": "Entregar",
+    "remove": "Eliminar",
+    "close": "Cerrar",
+    "updateOrder": "Actualizar Pedido"
+  },
+  "form": {
+    "people": "Personas",
+    "addNote": "Agregar nota"
   },
   "newOrder": {
-    "title": "",
-    "selectTable": "",
-    "people": "",
-    "addNote": "",
-    "createOrder": "",
-    "orderType": "",
-    "inPlace": "",
-    "takeAway": ""
+    "title": "Nuevo Pedido",
+    "selectTable": "Seleccionar mesa",
+    "people": "Personas",
+    "addNote": "Agregar nota",
+    "createOrder": "Crear pedido",
+    "orderType": "Tipo de pedido",
+    "inPlace": "En el Lugar",
+    "takeAway": "Para Llevar"
   },
   "dialogs": {
-    "removeTitle": "",
-    "removeMessage": "",
-    "closeTitle": "",
-    "closeMessage": "",
-    "removeItemTitle": "",
-    "removeItemMessage": ""
+    "removeTitle": "Eliminar Pedido",
+    "removeMessage": "¿Está seguro que desea eliminar este pedido? Esta acción no se puede deshacer.",
+    "closeTitle": "Cerrar Pedido",
+    "closeMessage": "¿Está seguro que desea cerrar este pedido? Los pedidos cerrados no se pueden modificar.",
+    "removeItemTitle": "Eliminar Producto",
+    "removeItemMessage": "¿Está seguro que desea eliminar {{product}} del pedido?"
   },
   "alerts": {
-    "selectTable": ""
+    "selectTable": "Por favor seleccione una mesa"
   },
   "confirmation": {
-    "title": "",
-    "message": "",
-    "orderNumber": "Orden #{{number}}",
-    "table": "",
-    "waiter": "",
-    "people": "",
-    "status": "",
-    "total": "",
-    "goToHome": "",
-    "editOrder": ""
+    "title": "Pedido Confirmado",
+    "message": "El nuevo pedido ha sido creado",
+    "orderNumber": "Pedido #{{number}}",
+    "table": "Mesa:",
+    "waiter": "Mesero:",
+    "people": "Personas:",
+    "status": "Estado:",
+    "total": "Total:",
+    "goToHome": "Ir al inicio",
+    "editOrder": "Editar pedido"
+  },
+  "edit": {
+    "title": "Editar Pedido",
+    "saveChanges": "Guardar cambios"
+  },
+  "options": {
+    "title": "Opciones de Pedido",
+    "addProduct": "Agregar Producto",
+    "goToPayments": "Ir a Pagos",
+    "startOrder": "Iniciar Pedido",
+    "pauseOrder": "Pausar Pedido",
+    "markDelivered": "Marcar como Entregado",
+    "deleteOrder": "Eliminar Pedido",
+    "closeOrder": "Cerrar Pedido"
+  },
+  "deleteAlerts": {
+    "cannotDelete": "No se Puede Eliminar",
+    "cannotDeleteMessage": "Este pedido no se puede eliminar. Solo se pueden eliminar pedidos pendientes sin productos entregados.",
+    "confirmDelete": "Eliminar Pedido",
+    "confirmDeleteMessage": "¿Está seguro que desea eliminar este pedido? Esta acción no se puede deshacer."
+  },
+  "molecule": {
+    "count": "Cantidad:"
   }
 }

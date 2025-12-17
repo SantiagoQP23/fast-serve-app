@@ -16,8 +16,11 @@ import { NewOrderDetail } from "@/core/orders/dto/new-order-detail.dto";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { mapStoreToCreateOrderDto } from "@/presentation/orders/mappers/createOrder.mapper";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { formatCurrency } from "@/core/i18n/utils";
 
 export default function CartScreen() {
+  const { t } = useTranslation(["common", "menu"]);
   const people = useNewOrderStore((state) => state.people);
   const orderType = useNewOrderStore((state) => state.orderType);
   const table = useNewOrderStore((state) => state.table);
@@ -64,15 +67,17 @@ export default function CartScreen() {
       <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
         <ThemedView style={tw`flex-row justify-between items-center`}>
           <ThemedView style={tw`gap-2`}>
-            <ThemedText type="h1">Cart</ThemedText>
-            <ThemedText type="small">Products: {details.length}</ThemedText>
+            <ThemedText type="h1">{t("menu:cart.title")}</ThemedText>
+            <ThemedText type="small">
+              {t("menu:cart.products")} {details.length}
+            </ThemedText>
           </ThemedView>
           <ThemedView style={tw`gap-2`}>
             <ThemedView>
               <ThemedText type="h4">
                 {orderType === OrderType.IN_PLACE
-                  ? `Table ${table?.name}`
-                  : "Take Away"}
+                  ? `${t("common:labels.table")} ${table?.name}`
+                  : t("common:labels.takeAway")}
               </ThemedText>
             </ThemedView>
             <ThemedView
@@ -85,7 +90,9 @@ export default function CartScreen() {
         </ThemedView>
         {notes && (
           <ThemedView style={tw`gap-2`}>
-            <ThemedText type="caption">Notes</ThemedText>
+            <ThemedText type="caption">
+              {t("common:labels.notes")}
+            </ThemedText>
             <ThemedText type="body2">{notes}</ThemedText>
           </ThemedView>
         )}
@@ -105,7 +112,7 @@ export default function CartScreen() {
           ListFooterComponent={
             <Button
               leftIcon="add-outline"
-              label="Add product "
+              label={t("menu:cart.addProduct")}
               variant="outline"
               onPress={() => router.push("/restaurant-menu")}
             />
@@ -130,11 +137,11 @@ export default function CartScreen() {
 
       <ThemedView style={tw`gap-4 p-4 rounded-xl shadow-xl `}>
         <ThemedView style={tw`flex-row justify-between items-center`}>
-          <ThemedText type="h3">Total</ThemedText>
-          <ThemedText type="h2">${total}</ThemedText>
+          <ThemedText type="h3">{t("common:labels.total")}</ThemedText>
+          <ThemedText type="h2">{formatCurrency(total)}</ThemedText>
         </ThemedView>
         <Button
-          label="Create order"
+          label={t("menu:cart.createOrder")}
           onPress={onCreateOrder}
           disabled={!isOnline || isLoading}
         ></Button>

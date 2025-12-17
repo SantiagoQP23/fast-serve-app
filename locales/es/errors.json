@@ -1,0 +1,18 @@
+{
+  "general": {
+    "error": "Error",
+    "tryAgain": "Por favor intente nuevamente",
+    "somethingWrong": "Algo salió mal"
+  },
+  "restaurant": {
+    "noRestaurantSelected": "No hay restaurante seleccionado",
+    "couldNotSwitch": "No se pudo cambiar de restaurante. Por favor intente nuevamente."
+  },
+  "order": {
+    "noActiveOrder": "No hay pedido activo seleccionado",
+    "noActiveDetail": "No hay detalle de pedido activo seleccionado"
+  },
+  "bill": {
+    "noActiveBill": "No hay cuenta activa"
+  }
+}
