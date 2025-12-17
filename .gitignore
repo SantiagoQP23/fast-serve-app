@@ -39,7 +39,11 @@ yarn-error.*
 app-example
 
 .env
+.vscode
+
+.pnpm-lock.yaml
 
 # generated native folders
 /ios
 /android
+/test-build
