@@ -53,6 +53,11 @@ export default function OrderScreen() {
 
   const [visible, setVisible] = useState(false);
 
+  // Call all hooks before any conditional returns
+  const { statusText, statusTextColor, statusIcon, statusIconColor, bgColor } =
+    useOrderStatus(order?.status || OrderStatus.PENDING);
+
+  // Early return after all hooks have been called
   if (!order) {
     return (
       <ThemedView style={tw`flex-1 justify-center items-center`}>
@@ -61,13 +66,11 @@ export default function OrderScreen() {
     );
   }
 
+  // Non-hook functions and computed values can be after the early return
   const openProduct = (detail: OrderDetail) => {
     setActiveOrderDetail(detail);
     router.push("/(order)/edit-order-detail");
   };
-
-  const { statusText, statusTextColor, statusIcon, statusIconColor, bgColor } =
-    useOrderStatus(order.status);
 
   const date = dayjs(order.createdAt).isSame(dayjs(), "day")
     ? `${t("common:time.today")}, ${dayjs(order.createdAt).format("HH:mm")}`
@@ -117,10 +120,6 @@ export default function OrderScreen() {
     });
   };
 
-  const orderCantBeDeleted =
-    order.status !== OrderStatus.PENDING ||
-    order.details.some((detail) => detail.qtyDelivered !== 0);
-
   return (
     <>
       <Modal
@@ -133,9 +132,7 @@ export default function OrderScreen() {
         <View style={tw`flex-1 bg-black/50 items-center justify-center`}>
           {/* Modal card */}
           <View style={tw`bg-white rounded-2xl w-4/5 p-5 shadow-lg`}>
-            <ThemedText type="h4">
-              {t("orders:dialogs.removeTitle")}
-            </ThemedText>
+            <ThemedText type="h4">{t("orders:dialogs.removeTitle")}</ThemedText>
             <ThemedText type="body1" style={tw`mt-2 mb-4`}>
               {t("orders:dialogs.removeMessage")}
             </ThemedText>
@@ -166,9 +163,7 @@ export default function OrderScreen() {
         <View style={tw`flex-1 bg-black/50 items-center justify-center`}>
           {/* Modal card */}
           <View style={tw`bg-white rounded-2xl w-4/5 p-5 shadow-lg`}>
-            <ThemedText type="h3">
-              {t("orders:dialogs.closeTitle")}
-            </ThemedText>
+            <ThemedText type="h3">{t("orders:dialogs.closeTitle")}</ThemedText>
             <ThemedText type="body1" style={tw`mt-2 mb-4`}>
               {t("orders:dialogs.closeMessage")}{" "}
             </ThemedText>
@@ -254,9 +249,7 @@ export default function OrderScreen() {
           </ThemedView>
           {order.notes && (
             <ThemedView style={tw`gap-2`}>
-              <ThemedText type="caption">
-                {t("common:labels.notes")}
-              </ThemedText>
+              <ThemedText type="caption">{t("common:labels.notes")}</ThemedText>
               <ThemedText type="body2">{order.notes}</ThemedText>
             </ThemedView>
           )}
