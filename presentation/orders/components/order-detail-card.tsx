@@ -24,14 +24,14 @@ export default function OrderDetailCard({
   const { t } = useTranslation(["common", "orders"]);
   const order = useOrdersStore((state) => state.activeOrder);
   const [visible, setVisible] = useState(false);
-  const [isChecked, setIsChecked] = useState(
-    detail.quantity === detail.qtyDelivered,
-  );
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const { mutate: updateOrderDetail } = useOrders().updateOrderDetail;
 
   const { mutate: removeOrderDetail } = useOrders().removeOrderDetail;
+
+  // Derive checkbox state directly from props (no local state needed)
+  const isChecked = detail.quantity === detail.qtyDelivered;
 
   const renderBackdrop = useCallback(
     (props: any) => (
@@ -78,7 +78,6 @@ export default function OrderDetailCard({
   };
 
   const onCheckedChange = (newValue: boolean) => {
-    setIsChecked(newValue);
     const newQtyDelivered = newValue ? detail.quantity : 0;
     updateOrderDetail(
       {
