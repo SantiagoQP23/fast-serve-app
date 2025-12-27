@@ -7,12 +7,12 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
-import { View, Pressable } from "react-native";
-import dayjs from "dayjs";
-import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";
 import { useTranslation } from "react-i18next";
+import ProgressBar from "@/presentation/theme/components/progress-bar";
+import { getRelativeTime } from "@/core/i18n/utils";
+import Label from "@/presentation/theme/components/label";
 
 interface OrderCardProps {
   order: Order;
@@ -21,12 +21,22 @@ interface OrderCardProps {
 export default function OrderCard({ order }: OrderCardProps) {
   const { t } = useTranslation(["common", "orders"]);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
-  const status = order.status || OrderStatus.PENDING;
-  const { statusText, statusTextColor, bgColor } = useOrderStatus(order.status);
+  const { statusText, statusTextColor, bgColor, statusIcon, statusIconColor } =
+    useOrderStatus(order.status);
 
-  const date = dayjs(order.createdAt).isSame(dayjs(), "day")
-    ? `Today, ${dayjs(order.createdAt).format("HH:mm")}`
-    : dayjs(order.createdAt).format("dddd, HH:mm");
+  // Calculate delivery progress
+  const totalItems = order.details.reduce(
+    (sum, detail) => sum + detail.quantity,
+    0,
+  );
+  const deliveredItems = order.details.reduce(
+    (sum, detail) => sum + detail.qtyDelivered,
+    0,
+  );
+  const deliveryProgress = totalItems > 0 ? deliveredItems / totalItems : 0;
+
+  // Get relative time
+  const relativeTime = getRelativeTime(order.createdAt);
 
   const openOrder = () => {
     setActiveOrder(order);
@@ -37,83 +47,100 @@ export default function OrderCard({ order }: OrderCardProps) {
   return (
     <ThemedView style={tw`mb-3  rounded-2xl `}>
       <Card onPress={openOrder}>
-        <ThemedView style={tw`gap-3 bg-transparent`}>
-          <ThemedView style={tw`gap-1 bg-transparent`}>
+        <ThemedView style={tw`gap-4 bg-transparent`}>
+          {/* Header Section - Table Name */}
+          <ThemedView style={tw`gap-2 bg-transparent`}>
             <ThemedView
               style={tw`flex-row items-center bg-transparent justify-between`}
             >
-              <ThemedView style={tw`gap-1 bg-transparent`}>
-                <ThemedText type="h3">
-                  {order.type === OrderType.IN_PLACE
-                    ? `${t("common:labels.table")} ${order.table?.name}`
-                    : t("common:labels.takeAway")}{" "}
-                </ThemedText>
-              </ThemedView>
+              <ThemedText type="h3">
+                {order.type === OrderType.IN_PLACE
+                  ? `${t("common:labels.table")} ${order.table?.name}`
+                  : t("common:labels.takeAway")}{" "}
+              </ThemedText>
               <ThemedView
-                style={tw` flex-row justify-end bg-transparent items-center gap-2  rounded-full `}
+                style={tw`flex-row items-center bg-transparent gap-2`}
               >
-                <View style={[tw`w-2 h-2 rounded-full `, tw`${bgColor}`]} />
-                <ThemedText
-                  type="caption"
-                  style={[tw`font-semibold`, tw`${statusTextColor}`]}
+                {order.isPaid && (
+                  <Label text={t("orders:details.paid")} color="success" />
+                )}
+                <ThemedView
+                  style={tw`gap-1 flex-row items-center ${bgColor}/10 px-3 py-1 rounded-full`}
                 >
-                  {statusText}
-                </ThemedText>
+                  <Ionicons
+                    name={statusIcon}
+                    size={18}
+                    color={tw.color(statusIconColor)}
+                  />
+                  <ThemedText
+                    type="body2"
+                    style={tw`${statusTextColor} font-semibold`}
+                  >
+                    {statusText}
+                  </ThemedText>
+                </ThemedView>
               </ThemedView>
             </ThemedView>
-            <ThemedText type="small">{date}</ThemedText>
+
+            {/* Meta Info Row - Time and Waiter */}
+            <ThemedText type="small" style={tw`text-gray-500`}>
+              {relativeTime} • {order.user.person.firstName}{" "}
+              {order.user.person.lastName}
+            </ThemedText>
           </ThemedView>
-          <ThemedView
-            style={tw`flex-row items-center bg-transparent justify-between `}
-          >
-            <ThemedView
-              style={tw`flex-row items-center bg-transparent  gap-4 `}
-            >
-              {/* <ThemedView */}
-              {/*   style={tw` flex-row justify-end bg-transparent items-center gap-1`} */}
-              {/* > */}
-              {/*   <Ionicons */}
-              {/*     name="receipt-outline" */}
-              {/*     size={18} */}
-              {/*     color={tw.color("gray-600")} */}
-              {/*   /> */}
-              {/*   <ThemedText type="body2">{order.num}</ThemedText> */}
-              {/* </ThemedView> */}
+
+          {/* Progress Indicator */}
+          {order.status === "IN_PROGRESS" && (
+            <ThemedView style={tw`gap-2 bg-transparent`}>
               <ThemedView
-                style={tw` flex-row justify-end bg-transparent items-center gap-1`}
+                style={tw`flex-row items-center bg-transparent justify-between`}
               >
+                <ThemedText type="caption" style={tw`text-gray-500`}>
+                  {t("common:status.delivered")}: {deliveredItems}/{totalItems}
+                </ThemedText>
+                <ThemedText type="caption" style={tw`text-gray-500`}>
+                  {Math.round(deliveryProgress * 100)}%
+                </ThemedText>
+              </ThemedView>
+              <ProgressBar progress={deliveryProgress} height={1.5} />
+            </ThemedView>
+          )}
+
+          {/* Separator */}
+          {/* <ThemedView style={tw`h-px bg-gray-200`} /> */}
+
+          {/* Bottom Metrics Row */}
+          <ThemedView
+            style={tw`flex-row items-center bg-transparent justify-between`}
+          >
+            <ThemedView style={tw`flex-row items-center bg-transparent gap-3`}>
+              <ThemedText type="body2" style={tw`text-gray-600`}>
                 <Ionicons
                   name="people-outline"
                   size={18}
                   color={tw.color("gray-600")}
-                />
-                <ThemedText type="body2">{order.people}</ThemedText>
-              </ThemedView>
-              <ThemedView
-                style={tw` flex-row justify-end bg-transparent items-center gap-1`}
-              >
+                />{" "}
+                {order.people}
+              </ThemedText>
+              <ThemedText type="body2" style={tw`text-gray-600`}>
+                •
+              </ThemedText>
+              <ThemedText type="body2" style={tw`text-gray-600`}>
                 <Ionicons
                   name="cart-outline"
                   size={18}
                   color={tw.color("gray-600")}
-                />
-                <ThemedText type="body2">{order.details.length}</ThemedText>
-              </ThemedView>
+                />{" "}
+                {order.details.length}
+              </ThemedText>
+              <ThemedText type="body2" style={tw`text-gray-600`}>
+                •
+              </ThemedText>
+              <ThemedText type="body2" style={tw`text-gray-600`}>
+                {t("orders:details.orderNumber", { num: order.num })}
+              </ThemedText>
             </ThemedView>
             <ThemedText type="h3">${order.total}</ThemedText>
-          </ThemedView>
-          {/* Separator */}
-          <ThemedView style={tw`h-px bg-gray-200`} />
-
-          <ThemedView
-            style={tw`flex-row items-center bg-transparent gap-5  justify-between `}
-          >
-            <ThemedText type="body2" style={tw`font-semibold text-gray-500`}>
-              {order.user.person.firstName} {order.user.person.lastName}
-            </ThemedText>
-            <ThemedText type="body2">
-              {t("orders:details.orderNumber", { num: order.num })}
-            </ThemedText>
           </ThemedView>
         </ThemedView>
       </Card>

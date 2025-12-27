@@ -1,8 +1,12 @@
 import { Alert, AlertButton } from 'react-native';
 import i18n from './i18n.config';
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/es';
 import 'dayjs/locale/en';
+
+// Extend dayjs with relativeTime plugin
+dayjs.extend(relativeTime);
 
 /**
  * Internationalized Alert wrapper
@@ -73,6 +77,13 @@ export const getRelativeDate = (date: Date | string | dayjs.Dayjs): string => {
   }
   
   return formatDate(d);
+};
+
+/**
+ * Get relative time from now (e.g., "5m ago", "2h ago", "3d ago")
+ */
+export const getRelativeTime = (date: Date | string | dayjs.Dayjs): string => {
+  return dayjs(date).fromNow();
 };
 
 /**
