@@ -126,7 +126,7 @@ export default function OrderConfirmationScreen() {
           <Button
             leftIcon="pencil-outline"
             label={t("orders:confirmation.editOrder")}
-            onPress={() => router.push("/(order)/[id]")}
+            onPress={() => router.replace("/(order)/[id]")}
             variant="primary"
           ></Button>
         </ThemedView>
