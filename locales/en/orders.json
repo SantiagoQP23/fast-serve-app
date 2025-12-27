@@ -53,7 +53,9 @@
     "closeTitle": "Close Order",
     "closeMessage": "Are you sure you want to close this order? The closed orders can't be modified.",
     "removeItemTitle": "Remove Item",
-    "removeItemMessage": "Are you sure you want to remove {{product}} from the order?"
+    "removeItemMessage": "Are you sure you want to remove {{product}} from the order?",
+    "cannotDeleteItemTitle": "Cannot Delete Item",
+    "cannotDeleteItemMessage": "This item cannot be deleted because it has already been delivered. Only items with 0 delivered quantity can be removed."
   },
   "alerts": {
     "selectTable": "Please select a table"
@@ -92,5 +94,10 @@
   },
   "molecule": {
     "count": "Count:"
+  },
+  "detailActions": {
+    "title": "Order Detail Actions",
+    "editQuantity": "Edit Quantity",
+    "deleteItem": "Delete Item"
   }
 }

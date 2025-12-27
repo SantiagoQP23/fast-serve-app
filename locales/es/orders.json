@@ -53,7 +53,9 @@
     "closeTitle": "Cerrar Pedido",
     "closeMessage": "¿Está seguro que desea cerrar este pedido? Los pedidos cerrados no se pueden modificar.",
     "removeItemTitle": "Eliminar Producto",
-    "removeItemMessage": "¿Está seguro que desea eliminar {{product}} del pedido?"
+    "removeItemMessage": "¿Está seguro que desea eliminar {{product}} del pedido?",
+    "cannotDeleteItemTitle": "No se Puede Eliminar",
+    "cannotDeleteItemMessage": "Este producto no se puede eliminar porque ya ha sido entregado. Solo se pueden eliminar productos con 0 cantidad entregada."
   },
   "alerts": {
     "selectTable": "Por favor seleccione una mesa"
@@ -92,5 +94,10 @@
   },
   "molecule": {
     "count": "Cantidad:"
+  },
+  "detailActions": {
+    "title": "Acciones del Producto",
+    "editQuantity": "Editar Cantidad",
+    "deleteItem": "Eliminar Producto"
   }
 }

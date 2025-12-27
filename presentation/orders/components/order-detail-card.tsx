@@ -1,18 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { View, Pressable, PressableProps, Modal } from "react-native";
-import IconButton from "@/presentation/theme/components/icon-button";
-import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { OrderDetail } from "@/core/orders/models/order-detail.model";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
 import { useOrders } from "../hooks/useOrders";
 import { useOrdersStore } from "../store/useOrdersStore";
 import Button from "@/presentation/theme/components/button";
-import Card from "@/presentation/theme/components/card";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
+import OrderDetailActionsBottomSheet from "./order-detail-actions-bottom-sheet";
 
 interface OrderDetailCardProps extends PressableProps {
   detail: OrderDetail;
@@ -23,27 +22,42 @@ export default function OrderDetailCard({
   onPress,
 }: OrderDetailCardProps) {
   const { t } = useTranslation(["common", "orders"]);
-  const { counter, increment, decrement } = useCounter(
-    detail.quantity,
-    1,
-    20,
-    detail.qtyDelivered,
-  );
   const order = useOrdersStore((state) => state.activeOrder);
   const [visible, setVisible] = useState(false);
   const [isChecked, setIsChecked] = useState(
     detail.quantity === detail.qtyDelivered,
   );
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-  const {
-    isOnline,
-    isLoading,
-    mutate: updateOrderDetail,
-  } = useOrders().updateOrderDetail;
+  const { mutate: updateOrderDetail } = useOrders().updateOrderDetail;
 
   const { mutate: removeOrderDetail } = useOrders().removeOrderDetail;
 
+  const renderBackdrop = useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+      />
+    ),
+    [],
+  );
+
+  const handleOpenBottomSheet = () => {
+    bottomSheetModalRef.current?.present();
+  };
+
+  const handleCloseBottomSheet = () => {
+    bottomSheetModalRef.current?.dismiss();
+  };
+
   const onRemoveDetail = () => {
+    handleCloseBottomSheet();
+    setVisible(true);
+  };
+
+  const handleConfirmDelete = () => {
     removeOrderDetail(
       {
         detailId: detail.id,
@@ -57,6 +71,12 @@ export default function OrderDetailCard({
     );
   };
 
+  const handleEditQuantity = () => {
+    if (onPress) {
+      onPress({} as any);
+    }
+  };
+
   const onCheckedChange = (newValue: boolean) => {
     setIsChecked(newValue);
     const newQtyDelivered = newValue ? detail.quantity : 0;
@@ -66,19 +86,6 @@ export default function OrderDetailCard({
         quantity: detail.quantity,
         orderId: order!.id,
         qtyDelivered: newQtyDelivered,
-      },
-      {
-        onSuccess: () => {},
-      },
-    );
-  };
-
-  const onUpdateOrderDetail = () => {
-    updateOrderDetail(
-      {
-        id: detail.id,
-        quantity: counter,
-        orderId: order!.id,
       },
       {
         onSuccess: () => {},
@@ -120,33 +127,42 @@ export default function OrderDetailCard({
               />
               <Button
                 label={t("common:actions.remove")}
-                onPress={onRemoveDetail}
+                onPress={handleConfirmDelete}
                 size="small"
               />
             </ThemedView>
           </View>
         </View>
       </Modal>
+      
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        snapPoints={["30%"]}
+        backdropComponent={renderBackdrop}
+        enablePanDownToClose
+      >
+        <OrderDetailActionsBottomSheet
+          detail={detail}
+          onEditQuantity={handleEditQuantity}
+          onDelete={onRemoveDetail}
+          onClose={handleCloseBottomSheet}
+        />
+      </BottomSheetModal>
+
       <ThemedView>
-        <ThemedView
-          style={tw`absolute  rounded-full items-center justify-center  z-10 right-1 top-1`}
-        >
-          {/* <IconButton */}
-          {/*   icon="close-outline" */}
-          {/*   style={tw`bg-gray-100`} */}
-          {/*   size={18} */}
-          {/*   onPress={() => setVisible(true)} */}
-          {/* /> */}
-        </ThemedView>
-        <Pressable onPress={onPress}>
+        <Pressable onPress={onPress} onLongPress={handleOpenBottomSheet}>
           <ThemedView style={tw` bg-transparent gap-4`}>
             <ThemedView style={tw`flex-row bg-transparent items-center gap-4`}>
               <Checkbox value={isChecked} onValueChange={onCheckedChange} />
               <ThemedView style={tw` bg-transparent  gap-2`}>
-                <ThemedText type="body1" style={tw` font-bold`}>
-                  {detail.quantity} - {detail.product.name}
-                </ThemedText>
-                {/* <ThemedText type="body1">${detail.product.price}</ThemedText> */}
+                <ThemedView
+                  style={tw`flex-row justify-between bg-transparent `}
+                >
+                  <ThemedText type="body1" style={tw`font-bold`}>
+                    {detail.quantity} - {detail.product.name}
+                  </ThemedText>
+                  {/* <ThemedText type="body1">${detail.product.price}</ThemedText> */}
+                </ThemedView>
                 {detail.description && (
                   <ThemedText type="body2">{detail.description}</ThemedText>
                 )}
