@@ -39,7 +39,7 @@ const EditOrderBottomSheet = ({
 }: EditOrderBottomSheetProps) => {
   const { t } = useTranslation(["orders", "tables", "common"]);
   const orderTypesOptions = useOrderTypes();
-  
+
   const [form, setForm] = useState<EditOrder>({
     people: order.people,
     notes: order.notes || "",
@@ -105,7 +105,7 @@ const EditOrderBottomSheet = ({
             placeholder={t("tables:list.selectTable")}
             options={tables.map((table) => ({
               value: table.id,
-              label: t("tables:card.table") + " " + table.name,
+              label: t("tables:card.table", { name: table.name }),
             }))}
             value={form.table?.id}
             onChange={(value) =>

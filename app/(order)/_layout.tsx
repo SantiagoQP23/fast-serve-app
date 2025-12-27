@@ -107,7 +107,6 @@ export default function OrdersLayout() {
         {order && (
           <EditOrderBottomSheet
             order={order}
-            buttonProps={{ label: "Save changes" }}
             onOrderUpdated={closeEditBottomSheet}
           />
         )}
