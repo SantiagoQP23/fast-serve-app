@@ -69,16 +69,16 @@ export default function OrderCard({ order }: OrderCardProps) {
             <ThemedView
               style={tw`flex-row items-center bg-transparent  gap-4 `}
             >
-              <ThemedView
-                style={tw` flex-row justify-end bg-transparent items-center gap-1`}
-              >
-                <Ionicons
-                  name="receipt-outline"
-                  size={18}
-                  color={tw.color("gray-600")}
-                />
-                <ThemedText type="body2">{order.num}</ThemedText>
-              </ThemedView>
+              {/* <ThemedView */}
+              {/*   style={tw` flex-row justify-end bg-transparent items-center gap-1`} */}
+              {/* > */}
+              {/*   <Ionicons */}
+              {/*     name="receipt-outline" */}
+              {/*     size={18} */}
+              {/*     color={tw.color("gray-600")} */}
+              {/*   /> */}
+              {/*   <ThemedText type="body2">{order.num}</ThemedText> */}
+              {/* </ThemedView> */}
               <ThemedView
                 style={tw` flex-row justify-end bg-transparent items-center gap-1`}
               >
@@ -105,9 +105,14 @@ export default function OrderCard({ order }: OrderCardProps) {
           {/* Separator */}
           <ThemedView style={tw`h-px bg-gray-200`} />
 
-          <ThemedView style={tw`flex-row items-center bg-transparent gap-5 `}>
+          <ThemedView
+            style={tw`flex-row items-center bg-transparent gap-5  justify-between `}
+          >
             <ThemedText type="body2" style={tw`font-semibold text-gray-500`}>
               {order.user.person.firstName} {order.user.person.lastName}
+            </ThemedText>
+            <ThemedText type="body2">
+              {t("orders:details.orderNumber", { num: order.num })}
             </ThemedText>
           </ThemedView>
         </ThemedView>
