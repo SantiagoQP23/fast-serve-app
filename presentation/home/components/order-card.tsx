@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
 import { getRelativeTime } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
+import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 
 interface OrderCardProps {
   order: Order;
@@ -90,7 +91,8 @@ export default function OrderCard({ order }: OrderCardProps) {
           </ThemedView>
 
           {/* Progress Indicator */}
-          {order.status === "IN_PROGRESS" && (
+          {(order.status === OrderStatus.IN_PROGRESS ||
+            order.status === OrderStatus.PENDING) && (
             <ThemedView style={tw`gap-2 bg-transparent`}>
               <ThemedView
                 style={tw`flex-row items-center bg-transparent justify-between`}

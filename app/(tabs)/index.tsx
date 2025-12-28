@@ -37,7 +37,11 @@ export default function HomeScreen() {
   const { currentRestaurant } = useAuthStore();
   const [refreshing, setRefreshing] = useState(false);
   const primaryColor = useThemeColor({}, "primary");
-  const { dashboardStats, isLoading: isLoadingStats, refetch: refetchStats } = useDashboardStats();
+  const {
+    dashboardStats,
+    isLoading: isLoadingStats,
+    refetch: refetchStats,
+  } = useDashboardStats();
 
   // ref
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -112,27 +116,8 @@ export default function HomeScreen() {
           {user?.person.firstName}
         </ThemedText>
       </ThemedView>
-      
-      {/* Stats Cards */}
-      <ThemedView style={tw`px-4 mb-6`}>
-        <ThemedView style={tw`flex-row gap-3`}>
-          <StatsCard
-            title={t("common:stats.totalOrders")}
-            value={dashboardStats?.totalOrders ?? 0}
-            icon="receipt-outline"
-            iconColor="#3b82f6"
-            loading={isLoadingStats}
-          />
-          <StatsCard
-            title={t("common:stats.totalAmount")}
-            value={`${t("common:currency.symbol")}${dashboardStats?.totalAmount?.toFixed(2) ?? "0.00"}`}
-            icon="cash-outline"
-            iconColor="#10b981"
-            loading={isLoadingStats}
-          />
-        </ThemedView>
-      </ThemedView>
 
+      {/* Stats Cards */}
       {orders.length === 0 ? (
         <ScrollView
           contentContainerStyle={tw`flex-1`}
@@ -171,6 +156,25 @@ export default function HomeScreen() {
             />
           }
         >
+          <ThemedView style={tw`px-4`}>
+            <ThemedView style={tw`flex-row gap-3`}>
+              <StatsCard
+                title={t("common:stats.totalOrders")}
+                value={dashboardStats?.totalOrders ?? 0}
+                icon="receipt-outline"
+                iconColor="#3b82f6"
+                loading={isLoadingStats}
+              />
+              <StatsCard
+                title={t("common:stats.totalAmount")}
+                value={`${t("common:currency.symbol")}${dashboardStats?.totalAmount?.toFixed(2) ?? "0.00"}`}
+                icon="cash-outline"
+                iconColor="#10b981"
+                loading={isLoadingStats}
+              />
+            </ThemedView>
+          </ThemedView>
+
           <OrderList
             title={t("common:status.pending")}
             orders={pendingOrders}
