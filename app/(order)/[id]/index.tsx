@@ -1,4 +1,4 @@
-import { Modal, ScrollView, View } from "react-native";
+import { Modal, ScrollView, View, Pressable } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -52,6 +52,7 @@ export default function OrderScreen() {
   } = useModal();
 
   const [visible, setVisible] = useState(false);
+  const [isDeliveredExpanded, setIsDeliveredExpanded] = useState(false);
 
   // Call all hooks before any conditional returns
   const { statusText, statusTextColor, statusIcon, statusIconColor, bgColor } =
@@ -118,6 +119,18 @@ export default function OrderScreen() {
         router.replace("/(tabs)");
       },
     });
+  };
+
+  // Filter order details into pending and delivered
+  const pendingDetails = order.details.filter(
+    (detail) => detail.qtyDelivered < detail.quantity
+  );
+  const deliveredDetails = order.details.filter(
+    (detail) => detail.qtyDelivered === detail.quantity
+  );
+
+  const toggleDeliveredSection = () => {
+    setIsDeliveredExpanded(!isDeliveredExpanded);
   };
 
   return (
@@ -305,15 +318,55 @@ export default function OrderScreen() {
           {/*     )} */}
           {/*   </ThemedView> */}
           {/* )} */}
-          <ThemedView style={tw`gap-8`}>
-            {order.details.map((detail, index) => (
-              <OrderDetailCard
-                key={index}
-                detail={detail}
-                onPress={() => openProduct(detail)}
-              />
-            ))}
-          </ThemedView>
+          
+          {/* Pending Items Section */}
+          {pendingDetails.length > 0 && (
+            <ThemedView style={tw`gap-4`}>
+              <ThemedView style={tw`flex-row justify-between items-center`}>
+                <ThemedText type="h4">{t("orders:details.pendingItems")}</ThemedText>
+                <ThemedText type="small">{t("common:labels.count")}: {pendingDetails.length}</ThemedText>
+              </ThemedView>
+              <ThemedView style={tw`gap-8`}>
+                {pendingDetails.map((detail, index) => (
+                  <OrderDetailCard
+                    key={detail.id}
+                    detail={detail}
+                    onPress={() => openProduct(detail)}
+                  />
+                ))}
+              </ThemedView>
+            </ThemedView>
+          )}
+
+          {/* Delivered Items Section - Expandable */}
+          {deliveredDetails.length > 0 && (
+            <ThemedView style={tw`gap-4`}>
+              <Pressable onPress={toggleDeliveredSection}>
+                <ThemedView style={tw`flex-row justify-between items-center border border-gray-200 rounded-xl px-4 py-3`}>
+                  <ThemedView style={tw`flex-row items-center gap-2`}>
+                    <ThemedText type="h4">{t("orders:details.deliveredItems")}</ThemedText>
+                    <ThemedText type="small">({deliveredDetails.length})</ThemedText>
+                  </ThemedView>
+                  <Ionicons 
+                    name={isDeliveredExpanded ? "chevron-up-outline" : "chevron-down-outline"} 
+                    size={20}
+                  />
+                </ThemedView>
+              </Pressable>
+              
+              {isDeliveredExpanded && (
+                <ThemedView style={tw`gap-8 opacity-60`}>
+                  {deliveredDetails.map((detail, index) => (
+                    <OrderDetailCard
+                      key={detail.id}
+                      detail={detail}
+                      onPress={() => openProduct(detail)}
+                    />
+                  ))}
+                </ThemedView>
+              )}
+            </ThemedView>
+          )}
 
           <Button
             leftIcon="add-outline"

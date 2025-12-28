@@ -23,7 +23,9 @@
     "addProduct": "Add product",
     "noActiveOrder": "No active order selected",
     "paid": "Paid",
-    "unpaid": "Unpaid"
+    "unpaid": "Unpaid",
+    "pendingItems": "Pending Items",
+    "deliveredItems": "Delivered Items"
   },
   "actions": {
     "start": "Start",

@@ -23,7 +23,9 @@
     "addProduct": "Agregar producto",
     "noActiveOrder": "No hay pedido activo seleccionado",
     "paid": "Pagado",
-    "unpaid": "Sin Pagar"
+    "unpaid": "Sin Pagar",
+    "pendingItems": "Pendiente",
+    "deliveredItems": "Entregado"
   },
   "actions": {
     "start": "Iniciar",
