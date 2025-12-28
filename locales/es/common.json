@@ -75,5 +75,9 @@
   },
   "filters": {
     "all": "Todos"
+  },
+  "stats": {
+    "totalOrders": "Pedidos",
+    "totalAmount": "Monto Total"
   }
 }

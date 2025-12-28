@@ -22,6 +22,8 @@ import OrderList from "@/presentation/orders/molecules/order-list";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
+import StatsCard from "@/presentation/home/components/stats-card";
+import { useDashboardStats } from "@/presentation/orders/hooks/useDashboardStats";
 
 export default function HomeScreen() {
   const { t } = useTranslation(["common", "orders", "errors"]);
@@ -35,6 +37,7 @@ export default function HomeScreen() {
   const { currentRestaurant } = useAuthStore();
   const [refreshing, setRefreshing] = useState(false);
   const primaryColor = useThemeColor({}, "primary");
+  const { dashboardStats, isLoading: isLoadingStats, refetch: refetchStats } = useDashboardStats();
 
   // ref
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -59,10 +62,13 @@ export default function HomeScreen() {
       // Trigger haptic feedback
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-      // Refetch orders using the centralized query
-      await queryClient.refetchQueries({
-        queryKey: ["activeOrders", currentRestaurant?.id],
-      });
+      // Refetch orders and stats using the centralized query
+      await Promise.all([
+        queryClient.refetchQueries({
+          queryKey: ["activeOrders", currentRestaurant?.id],
+        }),
+        refetchStats(),
+      ]);
     } catch {
       Alert.alert(
         t("errors:order.fetchError"),
@@ -71,7 +77,7 @@ export default function HomeScreen() {
     } finally {
       setRefreshing(false);
     }
-  }, [queryClient, currentRestaurant?.id, t]);
+  }, [queryClient, currentRestaurant?.id, t, refetchStats]);
 
   const pendingOrders = orders.filter(
     (order) => order.status === OrderStatus.PENDING,
@@ -106,6 +112,27 @@ export default function HomeScreen() {
           {user?.person.firstName}
         </ThemedText>
       </ThemedView>
+      
+      {/* Stats Cards */}
+      <ThemedView style={tw`px-4 mb-6`}>
+        <ThemedView style={tw`flex-row gap-3`}>
+          <StatsCard
+            title={t("common:stats.totalOrders")}
+            value={dashboardStats?.totalOrders ?? 0}
+            icon="receipt-outline"
+            iconColor="#3b82f6"
+            loading={isLoadingStats}
+          />
+          <StatsCard
+            title={t("common:stats.totalAmount")}
+            value={`${t("common:currency.symbol")}${dashboardStats?.totalAmount?.toFixed(2) ?? "0.00"}`}
+            icon="cash-outline"
+            iconColor="#10b981"
+            loading={isLoadingStats}
+          />
+        </ThemedView>
+      </ThemedView>
+
       {orders.length === 0 ? (
         <ScrollView
           contentContainerStyle={tw`flex-1`}

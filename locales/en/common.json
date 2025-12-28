@@ -75,5 +75,9 @@
   },
   "filters": {
     "all": "All"
+  },
+  "stats": {
+    "totalOrders": "Total Orders",
+    "totalAmount": "Total Amount"
   }
 }
