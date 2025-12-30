@@ -118,6 +118,26 @@ export default function HomeScreen() {
       </ThemedView>
 
       {/* Stats Cards */}
+
+      <ThemedView style={tw`px-4 mb-4`}>
+        <ThemedView style={tw`flex-row gap-3`}>
+          <StatsCard
+            title={t("common:stats.totalOrders")}
+            value={dashboardStats?.totalOrders ?? 0}
+            icon="receipt-outline"
+            iconColor="#3b82f6"
+            loading={isLoadingStats}
+          />
+          <StatsCard
+            title={t("common:stats.totalAmount")}
+            value={`${t("common:currency.symbol")}${dashboardStats?.totalAmount?.toFixed(2) ?? "0.00"}`}
+            icon="cash-outline"
+            iconColor="#10b981"
+            loading={isLoadingStats}
+          />
+        </ThemedView>
+      </ThemedView>
+
       {orders.length === 0 ? (
         <ScrollView
           contentContainerStyle={tw`flex-1`}
@@ -156,25 +176,6 @@ export default function HomeScreen() {
             />
           }
         >
-          <ThemedView style={tw`px-4`}>
-            <ThemedView style={tw`flex-row gap-3`}>
-              <StatsCard
-                title={t("common:stats.totalOrders")}
-                value={dashboardStats?.totalOrders ?? 0}
-                icon="receipt-outline"
-                iconColor="#3b82f6"
-                loading={isLoadingStats}
-              />
-              <StatsCard
-                title={t("common:stats.totalAmount")}
-                value={`${t("common:currency.symbol")}${dashboardStats?.totalAmount?.toFixed(2) ?? "0.00"}`}
-                icon="cash-outline"
-                iconColor="#10b981"
-                loading={isLoadingStats}
-              />
-            </ThemedView>
-          </ThemedView>
-
           <OrderList
             title={t("common:status.pending")}
             orders={pendingOrders}
