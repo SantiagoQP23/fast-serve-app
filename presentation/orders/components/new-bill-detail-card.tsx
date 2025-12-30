@@ -49,8 +49,12 @@ export default function NewBillDetailCard({
             {detail.product.name} x{detail.quantity - detail.qtyPaid}
           </ThemedText>
           <ThemedText type="body2">Total: {detail.quantity}</ThemedText>
-          <ThemedText type="h4">${detail.price * counter}</ThemedText>
         </ThemedView>
+      </ThemedView>
+      <ThemedView
+        style={tw`flex-row justify-between items-center bg-transparent`}
+      >
+        <ThemedText type="h4">${detail.price * counter}</ThemedText>
         <ThemedView style={tw`flex-row items-center gap-4 bg-transparent`}>
           <IconButton
             icon="remove-outline"
