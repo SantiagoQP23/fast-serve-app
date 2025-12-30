@@ -50,6 +50,26 @@ export default function OrderCard({ order }: OrderCardProps) {
       <Card onPress={openOrder}>
         <ThemedView style={tw`gap-4 bg-transparent`}>
           {/* Header Section - Table Name */}
+          <ThemedView style={tw`flex-row items-center bg-transparent gap-2`}>
+            <ThemedView
+              style={tw`gap-1 flex-row items-center ${bgColor}/10 px-3 py-1 rounded-full`}
+            >
+              <Ionicons
+                name={statusIcon}
+                size={18}
+                color={tw.color(statusIconColor)}
+              />
+              <ThemedText
+                type="body2"
+                style={tw`${statusTextColor} font-semibold`}
+              >
+                {statusText}
+              </ThemedText>
+            </ThemedView>
+            {order.isPaid && (
+              <Label text={t("orders:details.paid")} color="success" />
+            )}
+          </ThemedView>
           <ThemedView style={tw`gap-2 bg-transparent`}>
             <ThemedView
               style={tw`flex-row items-center bg-transparent justify-between`}
@@ -59,28 +79,6 @@ export default function OrderCard({ order }: OrderCardProps) {
                   ? `${t("common:labels.table")} ${order.table?.name}`
                   : t("common:labels.takeAway")}{" "}
               </ThemedText>
-              <ThemedView
-                style={tw`flex-row items-center bg-transparent gap-2`}
-              >
-                {order.isPaid && (
-                  <Label text={t("orders:details.paid")} color="success" />
-                )}
-                <ThemedView
-                  style={tw`gap-1 flex-row items-center ${bgColor}/10 px-3 py-1 rounded-full`}
-                >
-                  <Ionicons
-                    name={statusIcon}
-                    size={18}
-                    color={tw.color(statusIconColor)}
-                  />
-                  <ThemedText
-                    type="body2"
-                    style={tw`${statusTextColor} font-semibold`}
-                  >
-                    {statusText}
-                  </ThemedText>
-                </ThemedView>
-              </ThemedView>
             </ThemedView>
 
             {/* Meta Info Row - Time and Waiter */}
