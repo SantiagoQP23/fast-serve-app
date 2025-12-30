@@ -119,39 +119,41 @@ export default function HomeScreen() {
 
       {/* Stats Cards */}
 
-      <ThemedView style={tw`px-4 mb-4`}>
-        <ThemedView style={tw`flex-row gap-3`}>
-          <StatsCard
-            title={t("common:stats.totalOrders")}
-            value={dashboardStats?.totalOrders ?? 0}
-            icon="receipt-outline"
-            iconColor="#3b82f6"
-            loading={isLoadingStats}
+      <ScrollView
+        contentContainerStyle={tw`pb-20`}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={primaryColor}
+            colors={[primaryColor]}
           />
-          <StatsCard
-            title={t("common:stats.totalAmount")}
-            value={`${t("common:currency.symbol")}${dashboardStats?.totalAmount?.toFixed(2) ?? "0.00"}`}
-            icon="cash-outline"
-            iconColor="#10b981"
-            loading={isLoadingStats}
-          />
-        </ThemedView>
-      </ThemedView>
-
-      {orders.length === 0 ? (
-        <ScrollView
-          contentContainerStyle={tw`flex-1`}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={primaryColor}
-              colors={[primaryColor]}
+        }
+      >
+        <ThemedView style={tw`px-4 mb-4`}>
+          <ThemedView style={tw`flex-row gap-3`}>
+            <StatsCard
+              title={t("common:stats.totalOrders")}
+              value={dashboardStats?.totalOrders ?? 0}
+              icon="receipt-outline"
+              iconColor="#3b82f6"
+              loading={isLoadingStats}
             />
-          }
-        >
-          <ThemedView style={tw` items-center justify-center flex-1 gap-4`}>
+            <StatsCard
+              title={t("common:stats.totalAmount")}
+              value={`${t("common:currency.symbol")}${dashboardStats?.totalAmount?.toFixed(2) ?? "0.00"}`}
+              icon="cash-outline"
+              iconColor="#10b981"
+              loading={isLoadingStats}
+            />
+          </ThemedView>
+        </ThemedView>
+
+        {orders.length === 0 ? (
+          <ThemedView
+            style={tw` items-center justify-center flex-1 gap-4 mt-20`}
+          >
             <Ionicons
               name="document-text-outline"
               size={80}
@@ -162,34 +164,23 @@ export default function HomeScreen() {
               {t("orders:list.noOrdersDescription")}
             </ThemedText>
           </ThemedView>
-        </ScrollView>
-      ) : (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={tw`pb-20 gap-4`}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={primaryColor}
-              colors={[primaryColor]}
+        ) : (
+          <ThemedView style={tw`gap-4`}>
+            <OrderList
+              title={t("common:status.pending")}
+              orders={pendingOrders}
             />
-          }
-        >
-          <OrderList
-            title={t("common:status.pending")}
-            orders={pendingOrders}
-          />
-          <OrderList
-            title={t("common:status.inProgress")}
-            orders={inProgressOrders}
-          />
-          <OrderList
-            title={t("common:status.delivered")}
-            orders={deliveredOrders}
-          />
-        </ScrollView>
-      )}
+            <OrderList
+              title={t("common:status.inProgress")}
+              orders={inProgressOrders}
+            />
+            <OrderList
+              title={t("common:status.delivered")}
+              orders={deliveredOrders}
+            />
+          </ThemedView>
+        )}
+      </ScrollView>
       <BottomSheetModal
         ref={bottomSheetModalRef}
         onChange={handleSheetChanges}
