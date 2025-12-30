@@ -76,6 +76,12 @@ export default function RootLayout() {
                       headerShown: false,
                     }}
                   />
+                  <Stack.Screen
+                    name="(reports)"
+                    options={{
+                      headerShown: false,
+                    }}
+                  />
                 </Stack>
                 <StatusBar style="auto" />
 

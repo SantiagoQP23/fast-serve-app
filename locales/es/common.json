@@ -34,7 +34,8 @@
     "unpaid": "Sin Pagar",
     "available": "Disponible",
     "occupied": "Ocupada",
-    "active": "activo"
+    "active": "activo",
+    "loading": "Cargando..."
   },
   "orderType": {
     "inPlace": "En el Lugar",

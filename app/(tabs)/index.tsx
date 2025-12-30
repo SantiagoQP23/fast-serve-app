@@ -24,6 +24,7 @@ import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
 import StatsCard from "@/presentation/home/components/stats-card";
 import { useDashboardStats } from "@/presentation/orders/hooks/useDashboardStats";
+import DailyReportSummaryCard from "@/presentation/home/components/daily-report-summary-card";
 
 export default function HomeScreen() {
   const { t } = useTranslation(["common", "orders", "errors"]);
@@ -148,6 +149,11 @@ export default function HomeScreen() {
               loading={isLoadingStats}
             />
           </ThemedView>
+        </ThemedView>
+
+        {/* Daily Report Summary */}
+        <ThemedView style={tw`px-4`}>
+          <DailyReportSummaryCard />
         </ThemedView>
 
         {orders.length === 0 ? (

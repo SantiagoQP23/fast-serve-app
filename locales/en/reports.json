@@ -1,0 +1,43 @@
+{
+  "title": "Daily Report",
+  "summary": {
+    "title": "Today's Summary",
+    "totalIncome": "Total Income",
+    "totalOrders": "Total Orders",
+    "totalBills": "Total Bills",
+    "totalWaiters": "Active Waiters",
+    "viewDetails": "View Details"
+  },
+  "waiterStats": {
+    "title": "Waiter Statistics",
+    "noData": "No waiter data available",
+    "income": "Income",
+    "orders": "Orders",
+    "bills": "Bills",
+    "viewOrders": "View Orders"
+  },
+  "orderSummary": {
+    "orderNumber": "Order #{{num}}",
+    "table": "Table {{name}}",
+    "takeAway": "Take Away",
+    "people": "{{count}} people",
+    "items": "{{count}} items",
+    "bill": "Bill #{{num}}",
+    "noBills": "No bills",
+    "noOrders": "No orders for this waiter"
+  },
+  "billDetails": {
+    "title": "Bills ({{count}})",
+    "billNumber": "Bill #{{num}}",
+    "noBillsForOrder": "No bills for this order"
+  },
+  "filters": {
+    "date": "Date",
+    "today": "Today",
+    "selectDate": "Select Date"
+  },
+  "empty": {
+    "noReport": "No report data available",
+    "noReportDescription": "There is no data for the selected date"
+  }
+}

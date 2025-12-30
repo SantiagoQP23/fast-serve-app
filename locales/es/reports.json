@@ -1,0 +1,43 @@
+{
+  "title": "Reporte Diario",
+  "summary": {
+    "title": "Resumen de Hoy",
+    "totalIncome": "Ingresos Totales",
+    "totalOrders": "Órdenes Totales",
+    "totalBills": "Cuentas Totales",
+    "totalWaiters": "Meseros Activos",
+    "viewDetails": "Ver Detalles"
+  },
+  "waiterStats": {
+    "title": "Estadísticas de Meseros",
+    "noData": "No hay datos de meseros disponibles",
+    "income": "Ingresos",
+    "orders": "Órdenes",
+    "bills": "Cuentas",
+    "viewOrders": "Ver Órdenes"
+  },
+  "orderSummary": {
+    "orderNumber": "Orden #{{num}}",
+    "table": "Mesa {{name}}",
+    "takeAway": "Para Llevar",
+    "people": "{{count}} personas",
+    "items": "{{count}} artículos",
+    "bill": "Cuenta #{{num}}",
+    "noBills": "Sin cuentas",
+    "noOrders": "No hay órdenes para este mesero"
+  },
+  "billDetails": {
+    "title": "Cuentas ({{count}})",
+    "billNumber": "Cuenta #{{num}}",
+    "noBillsForOrder": "Sin cuentas para este pedido"
+  },
+  "filters": {
+    "date": "Fecha",
+    "today": "Hoy",
+    "selectDate": "Seleccionar Fecha"
+  },
+  "empty": {
+    "noReport": "No hay datos de reporte disponibles",
+    "noReportDescription": "No hay datos para la fecha seleccionada"
+  }
+}

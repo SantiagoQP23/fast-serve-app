@@ -1,6 +1,8 @@
 import { restaurantApi } from "@/core/api/restaurantApi";
 import { Order } from "../models/order.model";
 import { DashboardStatsDto } from "../dto/dashboard-stats.dto";
+import { DailyReportResponseDto } from "../dto/daily-report-response.dto";
+import { FilterDailyReportDto } from "../dto/daily-report-filters.dto";
 
 export class OrdersService {
   static async getActiveOrders(): Promise<Order[]> {
@@ -18,6 +20,18 @@ export class OrdersService {
   static async getDashboardStats(): Promise<DashboardStatsDto> {
     const resp = await restaurantApi.get<DashboardStatsDto>(
       "/orders/daily-summary",
+    );
+    return resp.data;
+  }
+
+  static async getDailyReport(
+    filters?: FilterDailyReportDto,
+  ): Promise<DailyReportResponseDto> {
+    const resp = await restaurantApi.get<DailyReportResponseDto>(
+      "/orders/daily-report",
+      {
+        params: filters,
+      },
     );
     return resp.data;
   }
