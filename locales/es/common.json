@@ -1,6 +1,7 @@
 {
   "navigation": {
     "home": "Inicio",
+    "dashboard": "Panel",
     "tables": "Mesas",
     "orders": "Pedidos",
     "profile": "Perfil"

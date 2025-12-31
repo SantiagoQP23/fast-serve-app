@@ -27,6 +27,7 @@ import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
 // Initialize i18n
 import "@/core/i18n/i18n.config";
 import { initializeDayjs } from "@/core/i18n/utils";
+import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
 
 // Create a client
 

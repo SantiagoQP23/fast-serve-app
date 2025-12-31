@@ -17,14 +17,17 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 export default function TabLayout() {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation("common");
   const colorScheme = useColorScheme();
-  const { status, checkStatus } = useAuthStore();
+  const { status, checkStatus, user } = useAuthStore();
   const order = useOrdersStore((state) => state.activeOrder);
   useOrders();
   useOrderCreatedListener();
   useOrderUpdatedListener();
   useOrderDeletedListener();
+
+  // Check if user is admin
+  const isAdmin = user?.role?.name === "admin";
 
   useEffect(() => {
     checkStatus();
@@ -65,16 +68,26 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: t('navigation.home'),
+          title: t("navigation.home"),
           tabBarIcon: ({ color }) => (
             <Ionicons color={color} name="home-outline" size={24} />
           ),
         }}
       />
       <Tabs.Screen
+        name="dashboard"
+        options={{
+          title: t("navigation.dashboard"),
+          tabBarIcon: ({ color }) => (
+            <Ionicons color={color} name="stats-chart-outline" size={24} />
+          ),
+          href: isAdmin ? "/(tabs)/dashboard" : null,
+        }}
+      />
+      <Tabs.Screen
         name="tables"
         options={{
-          title: t('navigation.tables'),
+          title: t("navigation.tables"),
           tabBarIcon: ({ color }) => (
             <Ionicons color={color} name="grid-outline" size={24} />
           ),
@@ -83,7 +96,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="orders"
         options={{
-          title: t('navigation.orders'),
+          title: t("navigation.orders"),
           tabBarIcon: ({ color }) => (
             <Ionicons color={color} name="receipt-outline" size={24} />
           ),
@@ -92,7 +105,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: t('navigation.profile'),
+          title: t("navigation.profile"),
           // headerShown: true,
           tabBarIcon: ({ color }) => (
             <Ionicons color={color} name="person-outline" size={24} />

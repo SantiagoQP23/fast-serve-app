@@ -18,7 +18,9 @@ export default function OrderList({ title, orders }: OrderListProps) {
       <ThemedView>
         <ThemedView style={tw`px-4 justify-between mb-4`}>
           <ThemedText type="h4">{title}</ThemedText>
-          <ThemedText type="small">{t("common:labels.count")}: {orders.length}</ThemedText>
+          <ThemedText type="small">
+            {t("common:labels.count")}: {orders.length}
+          </ThemedText>
         </ThemedView>
         <FlatList
           data={orders}
@@ -29,7 +31,7 @@ export default function OrderList({ title, orders }: OrderListProps) {
             <ThemedView
               style={[
                 index !== orders.length - 1 && tw`mr-4`,
-                { width: screenWidth * 0.8 },
+                { width: screenWidth * 0.85 },
               ]}
             >
               <OrderCard order={item} />

@@ -1,6 +1,7 @@
 {
   "navigation": {
     "home": "Home",
+    "dashboard": "Dashboard",
     "tables": "Tables",
     "orders": "Orders",
     "profile": "Profile"

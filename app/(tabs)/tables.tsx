@@ -6,6 +6,9 @@ import {
   FlatList,
   Pressable,
   View,
+  RefreshControl,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -14,6 +17,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import TableCard from "@/presentation/home/components/table-card";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import tw from "@/presentation/theme/lib/tailwind";
+import * as Haptics from "expo-haptics";
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetModal,
@@ -28,14 +32,21 @@ import { useTables } from "@/presentation/tables/hooks/useTables";
 import Chip from "@/presentation/theme/components/chip";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { useQueryClient } from "@tanstack/react-query";
+import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 
 export default function TablesScreen() {
-  const { t } = useTranslation("tables");
+  const { t } = useTranslation(["tables", "errors"]);
   const [selectedStatus, setSelectedStatus] = useState<boolean | "all">("all");
   const { setTable, setOrderType } = useNewOrderStore();
-  const { tables } = useTables();
+  const { tables, isLoading } = useTables();
   const orders = useOrdersStore((state) => state.orders);
   const [activeTable, setActiveTable] = useState<Table | null>(null);
+  const queryClient = useQueryClient();
+  const { currentRestaurant } = useAuthStore();
+  const [refreshing, setRefreshing] = useState(false);
+  const primaryColor = useThemeColor({}, "primary");
 
   const tabs: { label: string; value: boolean | "all" }[] = [
     { label: t("list.filter.all"), value: "all" },
@@ -79,6 +90,26 @@ export default function TablesScreen() {
     console.log("handleSheetChanges", index);
   }, []);
 
+  const onRefresh = useCallback(async () => {
+    try {
+      setRefreshing(true);
+      // Trigger haptic feedback
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+      // Refetch tables using the centralized query
+      await queryClient.refetchQueries({
+        queryKey: ["tables", currentRestaurant?.id],
+      });
+    } catch {
+      Alert.alert(
+        t("errors:table.fetchError"),
+        t("errors:table.tablesFetchFailed"),
+      );
+    } finally {
+      setRefreshing(false);
+    }
+  }, [queryClient, currentRestaurant?.id, t]);
+
   const onChangeStatus = (status: boolean | "all") => {
     setSelectedStatus(status);
 
@@ -93,6 +124,15 @@ export default function TablesScreen() {
   useEffect(() => {
     setFilteredTables(tables);
   }, [tables]);
+
+  // Show loading indicator on initial load
+  if (isLoading && tables.length === 0) {
+    return (
+      <ThemedView style={tw`flex-1 justify-center items-center`}>
+        <ActivityIndicator size="large" color={primaryColor} />
+      </ThemedView>
+    );
+  }
 
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1`}>
@@ -125,6 +165,14 @@ export default function TablesScreen() {
         columnWrapperStyle={tw`justify-between mb-4`}
         contentContainerStyle={tw`pb-20`}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={primaryColor}
+            colors={[primaryColor]}
+          />
+        }
       />
 
       <BottomSheetModal

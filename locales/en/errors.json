@@ -16,5 +16,9 @@
   },
   "bill": {
     "noActiveBill": "No active bill"
+  },
+  "table": {
+    "fetchError": "Failed to refresh tables",
+    "tablesFetchFailed": "Could not refresh tables. Please try again."
   }
 }

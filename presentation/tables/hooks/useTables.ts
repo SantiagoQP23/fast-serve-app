@@ -12,5 +12,8 @@ export const useTables = () => {
   });
   return {
     tables: tablesQuery.data || [],
+    refetch: tablesQuery.refetch,
+    isRefetching: tablesQuery.isRefetching,
+    isLoading: tablesQuery.isLoading,
   };
 };

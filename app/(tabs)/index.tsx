@@ -25,6 +25,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import StatsCard from "@/presentation/home/components/stats-card";
 import { useDashboardStats } from "@/presentation/orders/hooks/useDashboardStats";
 import DailyReportSummaryCard from "@/presentation/home/components/daily-report-summary-card";
+import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
 
 export default function HomeScreen() {
   const { t } = useTranslation(["common", "orders", "errors"]);
@@ -38,6 +39,7 @@ export default function HomeScreen() {
   const { currentRestaurant } = useAuthStore();
   const [refreshing, setRefreshing] = useState(false);
   const primaryColor = useThemeColor({}, "primary");
+  useActiveOrders();
   const {
     dashboardStats,
     isLoading: isLoadingStats,
@@ -149,11 +151,6 @@ export default function HomeScreen() {
               loading={isLoadingStats}
             />
           </ThemedView>
-        </ThemedView>
-
-        {/* Daily Report Summary */}
-        <ThemedView style={tw`px-4`}>
-          <DailyReportSummaryCard />
         </ThemedView>
 
         {orders.length === 0 ? (

@@ -16,5 +16,9 @@
   },
   "bill": {
     "noActiveBill": "No hay cuenta activa"
+  },
+  "table": {
+    "fetchError": "Error al actualizar mesas",
+    "tablesFetchFailed": "No se pudieron actualizar las mesas. Por favor intente nuevamente."
   }
 }
