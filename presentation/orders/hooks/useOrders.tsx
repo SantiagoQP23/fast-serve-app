@@ -6,10 +6,7 @@ import { router } from "expo-router";
 import { Alert } from "react-native";
 import { mapStoreToCreateOrderDto } from "../mappers/createOrder.mapper";
 import { useNewOrderStore } from "../store/newOrderStore";
-import { useQuery } from "@tanstack/react-query";
-import { OrdersService } from "@/core/orders/services/orders.service";
 import { useOrdersStore } from "../store/useOrdersStore";
-import { useEffect } from "react";
 import {
   AddOrderDetailToOrderDto,
   DeleteOrderDetailDto,
@@ -18,13 +15,10 @@ import {
 } from "@/core/orders/dto/update-order.dto";
 import { SocketEvent } from "@/core/common/dto/socket.dto";
 import { useWebsocketEventListener } from "@/presentation/shared/hooks/useWebsocketEventListener";
-import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 
 export const useOrders = () => {
   console.log('[useOrders] Hook called');
-  const setOrders = useOrdersStore((state) => state.setOrders);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
-  const { currentRestaurant } = useAuthStore((state) => state);
   const createOrderEmitter = useWebsocketEventEmitter<Order, CreateOrderDto>(
     OrderSocketEvent.createOrder,
     {
@@ -93,39 +87,13 @@ export const useOrders = () => {
     },
   });
 
-  const activeOrdersQuery = useQuery({
-    queryKey: ["activeOrders", currentRestaurant?.id],
-    queryFn: async () => {
-      console.log(`[useOrders] Fetching orders for restaurant: ${currentRestaurant?.id}`);
-      const result = await OrdersService.getActiveOrders();
-      console.log(`[useOrders] Fetched ${result.length} orders`);
-      return result;
-    },
-    enabled: !!currentRestaurant?.id,
-    staleTime: 0, // Always consider data stale to ensure refetch on restaurant change
-  });
-
-  useEffect(() => {
-    // Always sync the query data with the store, even if it's empty
-    if (activeOrdersQuery.data !== undefined) {
-      console.log(
-        `[useOrders] Setting active orders for restaurant ${currentRestaurant?.id}:`,
-        activeOrdersQuery.data.length,
-      );
-      setOrders(activeOrdersQuery.data);
-    }
-  }, [activeOrdersQuery.data, setOrders, currentRestaurant?.id]);
-
   return {
     createOrder: createOrderEmitter,
-    activeOrdersQuery,
     updateOrderDetail: updateOrderDetailEmitter,
     addOrderDetailToOrder: useOrderDetailToOrderEmitter,
     updateOrder: updateOrderEmitter,
     removeOrderDetail: removeOrderDetailEmitter,
     deleteOrder: deleteOrderEmitter,
-    refetchOrders: activeOrdersQuery.refetch,
-    isRefetching: activeOrdersQuery.isRefetching,
   };
 };
 
