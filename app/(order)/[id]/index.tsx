@@ -123,10 +123,10 @@ export default function OrderScreen() {
 
   // Filter order details into pending and delivered
   const pendingDetails = order.details.filter(
-    (detail) => detail.qtyDelivered < detail.quantity
+    (detail) => detail.qtyDelivered < detail.quantity,
   );
   const deliveredDetails = order.details.filter(
-    (detail) => detail.qtyDelivered === detail.quantity
+    (detail) => detail.qtyDelivered === detail.quantity,
   );
 
   const toggleDeliveredSection = () => {
@@ -318,13 +318,17 @@ export default function OrderScreen() {
           {/*     )} */}
           {/*   </ThemedView> */}
           {/* )} */}
-          
+
           {/* Pending Items Section */}
           {pendingDetails.length > 0 && (
             <ThemedView style={tw`gap-4`}>
               <ThemedView style={tw`flex-row justify-between items-center`}>
-                <ThemedText type="h4">{t("orders:details.pendingItems")}</ThemedText>
-                <ThemedText type="small">{t("common:labels.count")}: {pendingDetails.length}</ThemedText>
+                <ThemedText type="h4">
+                  {t("orders:details.pendingItems")}
+                </ThemedText>
+                <ThemedText type="small">
+                  {t("common:labels.count")}: {pendingDetails.length}
+                </ThemedText>
               </ThemedView>
               <ThemedView style={tw`gap-8`}>
                 {pendingDetails.map((detail, index) => (
@@ -342,18 +346,28 @@ export default function OrderScreen() {
           {deliveredDetails.length > 0 && (
             <ThemedView style={tw`gap-4`}>
               <Pressable onPress={toggleDeliveredSection}>
-                <ThemedView style={tw`flex-row justify-between items-center border border-gray-200 rounded-xl px-4 py-3`}>
+                <ThemedView
+                  style={tw`flex-row justify-between items-center py-3`}
+                >
                   <ThemedView style={tw`flex-row items-center gap-2`}>
-                    <ThemedText type="h4">{t("orders:details.deliveredItems")}</ThemedText>
-                    <ThemedText type="small">({deliveredDetails.length})</ThemedText>
+                    <ThemedText type="h4">
+                      {t("orders:details.deliveredItems")}
+                    </ThemedText>
+                    <ThemedText type="small">
+                      ({deliveredDetails.length})
+                    </ThemedText>
                   </ThemedView>
-                  <Ionicons 
-                    name={isDeliveredExpanded ? "chevron-up-outline" : "chevron-down-outline"} 
+                  <Ionicons
+                    name={
+                      isDeliveredExpanded
+                        ? "chevron-up-outline"
+                        : "chevron-down-outline"
+                    }
                     size={20}
                   />
                 </ThemedView>
               </Pressable>
-              
+
               {isDeliveredExpanded && (
                 <ThemedView style={tw`gap-8 opacity-60`}>
                   {deliveredDetails.map((detail, index) => (
