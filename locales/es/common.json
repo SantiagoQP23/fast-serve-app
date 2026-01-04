@@ -81,5 +81,9 @@
   "stats": {
     "totalOrders": "Pedidos",
     "totalAmount": "Monto Total"
+  },
+  "connection": {
+    "offline": "Conexión Perdida",
+    "reconnecting": "Reconectando..."
   }
 }

@@ -23,6 +23,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { useState, useEffect } from "react";
 import { ActivityIndicator } from "react-native";
 import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
+import { WebSocketIndicator } from "@/presentation/shared/components/websocket-indicator";
 
 // Initialize i18n
 import "@/core/i18n/i18n.config";
@@ -85,6 +86,9 @@ export default function RootLayout() {
                   />
                 </Stack>
                 <StatusBar style="auto" />
+
+                {/* WebSocket Connection Indicator */}
+                <WebSocketIndicator />
 
                 {isLoading && (
                   <ThemedView

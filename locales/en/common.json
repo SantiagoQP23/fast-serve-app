@@ -81,5 +81,9 @@
   "stats": {
     "totalOrders": "Total Orders",
     "totalAmount": "Total Amount"
+  },
+  "connection": {
+    "offline": "Connection Lost",
+    "reconnecting": "Reconnecting..."
   }
 }
