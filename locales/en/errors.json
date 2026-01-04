@@ -15,7 +15,8 @@
     "ordersFetchFailed": "Could not refresh your orders. Please try again."
   },
   "bill": {
-    "noActiveBill": "No active bill"
+    "noActiveBill": "No active bill",
+    "selectPaymentMethod": "Please select a payment method"
   },
   "table": {
     "fetchError": "Failed to refresh tables",

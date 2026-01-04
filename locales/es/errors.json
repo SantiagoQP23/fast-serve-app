@@ -15,7 +15,8 @@
     "ordersFetchFailed": "No se pudieron actualizar los pedidos. Por favor intente nuevamente."
   },
   "bill": {
-    "noActiveBill": "No hay cuenta activa"
+    "noActiveBill": "No hay cuenta activa",
+    "selectPaymentMethod": "Por favor seleccione un método de pago"
   },
   "table": {
     "fetchError": "Error al actualizar mesas",

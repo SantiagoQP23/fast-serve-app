@@ -1,4 +1,11 @@
-import { KeyboardAvoidingView, Modal, ScrollView, View, RefreshControl, Alert } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Modal,
+  ScrollView,
+  View,
+  RefreshControl,
+  Alert,
+} from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -28,7 +35,7 @@ export default function BillScreen() {
   const router = useRouter();
   const bill = useOrdersStore((state) => state.activeBill);
   const [receivedAmount, setReceivedAmount] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("CASH");
+  const [paymentMethod, setPaymentMethod] = useState();
   const [discount, setDiscount] = useState("");
   const order = useOrdersStore((state) => state.activeOrder);
   const queryClient = useQueryClient();
@@ -73,10 +80,41 @@ export default function BillScreen() {
     setVisible(false);
   };
 
-  const moneyReceivedOptions = ["10", "20", "50", "100"];
+  const moneyReceivedOptions = [
+    "5",
+    "10",
+    "15",
+    "20",
+    "25",
+    "30",
+    "35",
+    "40",
+    "45",
+    "50",
+    "55",
+    "60",
+    "65",
+    "70",
+    "75",
+    "80",
+    "85",
+    "90",
+    "95",
+    "100",
+  ];
   const date = getFormattedDate(bill.createdAt);
 
   const payBill = () => {
+    if (!paymentMethod) {
+      alert(
+        t(
+          "errors:bill.selectPaymentMethod",
+          "errors:bill.paymentMethodRequired",
+        ),
+      );
+      return;
+    }
+
     if (
       paymentMethod === PaymentMethodE.CASH &&
       +receivedAmount < totalAfterDiscount
@@ -143,9 +181,7 @@ export default function BillScreen() {
         <View style={tw`flex-1 bg-black/50 items-center justify-center`}>
           {/* Modal card */}
           <View style={tw`bg-white rounded-2xl w-4/5 p-5 shadow-lg`}>
-            <ThemedText type="h4">
-              {t("bills:dialogs.removeTitle")}
-            </ThemedText>
+            <ThemedText type="h4">{t("bills:dialogs.removeTitle")}</ThemedText>
             <ThemedText type="body1" style={tw`mt-2 mb-4`}>
               {t("bills:dialogs.removeMessage")}
             </ThemedText>
@@ -209,17 +245,13 @@ export default function BillScreen() {
             </ThemedView>
             {!bill.isPaid ? (
               <>
-                <ThemedView
-                  style={tw`gap-2 mb-8 mt-4 border border-gray-200 p-4 rounded-lg`}
-                >
-                  <TextInput
-                    label={t("bills:details.discount")}
-                    inputMode="numeric"
-                    value={discount}
-                    onChangeText={setDiscount}
-                  />
-                </ThemedView>
-                <ThemedView style={tw` gap-4 `}>
+                <TextInput
+                  label={t("bills:details.discount")}
+                  inputMode="numeric"
+                  value={discount}
+                  onChangeText={setDiscount}
+                />
+                <ThemedView style={tw` gap-4  mt-8`}>
                   <ThemedText type="h3">
                     {t("bills:details.paymentMethod")}
                   </ThemedText>
@@ -302,7 +334,8 @@ export default function BillScreen() {
                     {t("bills:details.paymentMethod")}: {bill.paymentMethod}
                   </ThemedText>
                   <ThemedText>
-                    {t("bills:details.discount")}: {formatCurrency(bill.discount)}
+                    {t("bills:details.discount")}:{" "}
+                    {formatCurrency(bill.discount)}
                   </ThemedText>
                 </ThemedView>
               </>
