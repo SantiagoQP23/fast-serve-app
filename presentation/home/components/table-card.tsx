@@ -5,10 +5,8 @@ import tw from "@/presentation/theme/lib/tailwind";
 import React from "react";
 import { View, Pressable, PressableProps } from "react-native";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-export interface Table {
-  name: string;
-  isAvailable: boolean;
-}
+import { useTableOrders } from "@/presentation/orders/hooks/useTableOrders";
+import { Table } from "@/core/tables/models/table.model";
 
 interface TableCardProps extends PressableProps {
   table: Table;
@@ -16,14 +14,18 @@ interface TableCardProps extends PressableProps {
 
 export default function TableCard({ table, onPress }: TableCardProps) {
   const { t } = useTranslation(["tables"]);
+  const { hasOrders } = useTableOrders(table.id);
   return (
-    <ThemedView style={tw`w-[48%]  `}>
-      <Card onPress={onPress}>
+    <ThemedView style={[tw`w-[48%]`]}>
+      <Card
+        onPress={onPress}
+        style={[hasOrders ? tw`border border-black` : tw`bg-transparent`]}
+      >
         <ThemedView style={tw`mb-3 flex-row justify-end bg-transparent`}>
           <View
             style={[
               tw`w-3 h-3 rounded-full`,
-              table.isAvailable ? tw`border border-black-500` : tw`bg-black`,
+              !hasOrders ? tw`border border-black-500` : tw`bg-black`,
             ]}
           />
         </ThemedView>

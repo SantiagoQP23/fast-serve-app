@@ -1,4 +1,4 @@
-import { Modal, ScrollView, View, Pressable } from "react-native";
+import { Modal, ScrollView, View, Pressable, RefreshControl, Alert } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -21,11 +21,15 @@ import Label from "@/presentation/theme/components/label";
 import { useModal } from "@/presentation/shared/hooks/useModal";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency, getRelativeDate } from "@/core/i18n/utils";
+import * as Haptics from "expo-haptics";
+import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
+import { useQueryClient } from "@tanstack/react-query";
+import { useOrder } from "@/presentation/orders/hooks/useOrder";
 
 dayjs.extend(relativeTime);
 
 export default function OrderScreen() {
-  const { t } = useTranslation(["common", "orders"]);
+  const { t } = useTranslation(["common", "orders", "errors"]);
   const navigation = useNavigation();
   const order = useOrdersStore((state) => state.activeOrder);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
@@ -35,6 +39,12 @@ export default function OrderScreen() {
   const { mutate: updateOrder, isOnline, isLoading } = useOrders().updateOrder;
   const { mutate: deleteOrder } = useOrders().deleteOrder;
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = useState(false);
+  const primaryColor = useThemeColor({}, "primary");
+
+  // Fetch and sync the order data (this enables the query for refetch)
+  useOrder(order?.id || null);
 
   // Update header title dynamically with order number
   useEffect(() => {
@@ -57,6 +67,28 @@ export default function OrderScreen() {
   // Call all hooks before any conditional returns
   const { statusText, statusTextColor, statusIcon, statusIconColor, bgColor } =
     useOrderStatus(order?.status || OrderStatus.PENDING);
+
+  const onRefresh = useCallback(async () => {
+    if (!order?.id) return;
+    
+    try {
+      setRefreshing(true);
+      // Trigger haptic feedback
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+      // Refetch the specific order
+      await queryClient.refetchQueries({
+        queryKey: ["order", order.id],
+      });
+    } catch {
+      Alert.alert(
+        t("errors:order.fetchError"),
+        t("errors:order.ordersFetchFailed"),
+      );
+    } finally {
+      setRefreshing(false);
+    }
+  }, [order?.id, queryClient, t]);
 
   // Early return after all hooks have been called
   if (!order) {
@@ -202,6 +234,14 @@ export default function OrderScreen() {
           style={tw`flex-1`}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`gap-4 pb-4`}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={primaryColor}
+              colors={[primaryColor]}
+            />
+          }
         >
           <ThemedView style={tw` justify-between   rounded-lg gap-4 mb-4`}>
             <ThemedView

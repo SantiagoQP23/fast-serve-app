@@ -31,13 +31,12 @@ export default function Button({
   leftIcon: icon,
   rightIcon,
   size = "medium",
-  style,
   layout = "horizontal",
   icon: verticalIcon,
 }: ButtonProps) {
   const isVertical = layout === "vertical";
-  
-  const baseStyle = isVertical 
+
+  const baseStyle = isVertical
     ? "rounded-full justify-center items-center"
     : "rounded-xl flex-row justify-center items-center";
 
@@ -89,8 +88,8 @@ export default function Button({
     outline: Colors.light.primary,
   };
 
-  const currentIconSize = isVertical 
-    ? verticalIconSizes[size] 
+  const currentIconSize = isVertical
+    ? verticalIconSizes[size]
     : horizontalIconSizes[size];
 
   return (
@@ -108,7 +107,9 @@ export default function Button({
       {loading ? (
         <ActivityIndicator color={iconColors[variant]} />
       ) : isVertical ? (
-        <ThemedView style={tw`bg-transparent flex-col items-center justify-center gap-1`}>
+        <ThemedView
+          style={tw`bg-transparent flex-col items-center justify-center gap-1`}
+        >
           {verticalIcon && (
             <Ionicons
               name={verticalIcon}
@@ -117,7 +118,9 @@ export default function Button({
             />
           )}
           {label && (
-            <Text style={tw`${textColors[variant]} font-semibold ${verticalTextSizes[size]} text-center`}>
+            <Text
+              style={tw`${textColors[variant]} font-semibold ${verticalTextSizes[size]} text-center`}
+            >
               {label}
             </Text>
           )}

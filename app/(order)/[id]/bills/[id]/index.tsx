@@ -1,9 +1,9 @@
-import { KeyboardAvoidingView, Modal, ScrollView, View } from "react-native";
+import { KeyboardAvoidingView, Modal, ScrollView, View, RefreshControl, Alert } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Button from "@/presentation/theme/components/button";
@@ -19,19 +19,47 @@ import { PaymentMethod as PaymentMethodE } from "@/core/orders/enums/payment-met
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency, i18nAlert } from "@/core/i18n/utils";
+import * as Haptics from "expo-haptics";
+import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function BillScreen() {
-  const { t } = useTranslation(["common", "bills"]);
+  const { t } = useTranslation(["common", "bills", "errors"]);
   const router = useRouter();
   const bill = useOrdersStore((state) => state.activeBill);
   const [receivedAmount, setReceivedAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("CASH");
   const [discount, setDiscount] = useState("");
   const order = useOrdersStore((state) => state.activeOrder);
+  const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = useState(false);
+  const primaryColor = useThemeColor({}, "primary");
 
   const [visible, setVisible] = useState(false);
   const { mutate: updateBill } = useBills().updateBill;
   const { mutate: removeBill } = useBills().removeBill;
+
+  const onRefresh = useCallback(async () => {
+    if (!order?.id) return;
+
+    try {
+      setRefreshing(true);
+      // Trigger haptic feedback
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+      // Refetch bills for this order
+      await queryClient.refetchQueries({
+        queryKey: ["bills", order.id],
+      });
+    } catch {
+      Alert.alert(
+        t("errors:order.fetchError"),
+        t("errors:order.ordersFetchFailed"),
+      );
+    } finally {
+      setRefreshing(false);
+    }
+  }, [order?.id, queryClient, t]);
 
   if (!bill) {
     return (
@@ -140,7 +168,18 @@ export default function BillScreen() {
       </Modal>
       <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
         <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
-          <ScrollView style={tw`flex-1`} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            style={tw`flex-1`}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={primaryColor}
+                colors={[primaryColor]}
+              />
+            }
+          >
             <ThemedView style={tw`  items-center gap-8`}>
               <ThemedView style={tw`gap-1 items-center`}>
                 <ThemedText type="h3">

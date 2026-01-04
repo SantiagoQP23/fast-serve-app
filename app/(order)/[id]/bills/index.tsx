@@ -1,9 +1,9 @@
-import { ScrollView } from "react-native";
+import { ScrollView, RefreshControl, Alert } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "expo-router";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,13 +16,41 @@ import { useBills } from "@/presentation/orders/hooks/useBills";
 import { Bill } from "@/core/orders/models/bill.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
+import * as Haptics from "expo-haptics";
+import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function OrderBillsScreen() {
-  const { t } = useTranslation(["common", "orders", "bills"]);
+  const { t } = useTranslation(["common", "orders", "bills", "errors"]);
   const router = useRouter();
   const order = useOrdersStore((state) => state.activeOrder);
   const setActiveBill = useOrdersStore((state) => state.setActiveBill);
   const billsByOrderQuery = useBills().billsByOrderQuery;
+  const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = useState(false);
+  const primaryColor = useThemeColor({}, "primary");
+
+  const onRefresh = useCallback(async () => {
+    if (!order?.id) return;
+
+    try {
+      setRefreshing(true);
+      // Trigger haptic feedback
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+      // Refetch bills for this order
+      await queryClient.refetchQueries({
+        queryKey: ["bills", "order", order.id],
+      });
+    } catch {
+      Alert.alert(
+        t("errors:order.fetchError"),
+        t("errors:order.ordersFetchFailed"),
+      );
+    } finally {
+      setRefreshing(false);
+    }
+  }, [order?.id, queryClient, t]);
 
   if (!order) {
     return (
@@ -87,6 +115,14 @@ export default function OrderBillsScreen() {
           style={tw`flex-1 gap-2 flex-column`}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`gap-2 flex-column`}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={primaryColor}
+              colors={[primaryColor]}
+            />
+          }
         >
           {bills?.map((bill) => (
             <BillCard

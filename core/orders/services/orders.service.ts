@@ -17,6 +17,11 @@ export class OrdersService {
     return resp.data;
   }
 
+  static async getOrderById(orderId: string): Promise<Order> {
+    const resp = await restaurantApi.get<Order>(`/orders/${orderId}`);
+    return resp.data;
+  }
+
   static async getDashboardStats(): Promise<DashboardStatsDto> {
     const resp = await restaurantApi.get<DashboardStatsDto>(
       "/orders/daily-summary",
