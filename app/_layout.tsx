@@ -4,7 +4,7 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import { router, Stack } from "expo-router";
+import { router, Stack, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -44,6 +44,10 @@ export default function RootLayout() {
   const language = useGlobalStore((state) => state.language);
   const setLanguage = useGlobalStore((state) => state.setLanguage);
 
+  // Detect if user is on auth pages
+  const segments = useSegments();
+  const isAuthPage = segments[0] === "auth";
+
   useDeviceContext(tw, {
     observeDeviceColorSchemeChanges: false,
     initialColorScheme: "light",
@@ -55,61 +59,71 @@ export default function RootLayout() {
     setLanguage(language);
   }, []);
 
+  // Conditionally wrap content with SocketProvider
+  const renderContent = () => {
+    const content = (
+      <BottomSheetModalProvider>
+        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen
+              name="(tabs)"
+              options={{
+                title: "",
+                headerShadowVisible: false,
+              }}
+            />
+            <Stack.Screen
+              name="(new-order)"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="(reports)"
+              options={{
+                headerShown: false,
+              }}
+            />
+          </Stack>
+          <StatusBar style="auto" />
+
+          {/* WebSocket Connection Indicator - only show on non-auth pages */}
+          {!isAuthPage && <WebSocketIndicator />}
+
+          {isLoading && (
+            <ThemedView
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: 9999,
+                backgroundColor: "rgba(0,0,0,0.4)",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <ActivityIndicator size="large" color="#fff" />
+            </ThemedView>
+          )}
+        </ThemeProvider>
+      </BottomSheetModalProvider>
+    );
+
+    // Only wrap with SocketProvider on non-auth pages
+    if (isAuthPage) {
+      return content;
+    }
+
+    return <SocketProvider>{content}</SocketProvider>;
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView>
         <SafeAreaView style={tw`flex-1 bg-white dark:bg-black`}>
-          <SocketProvider>
-            <BottomSheetModalProvider>
-              <ThemeProvider
-                value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-              >
-                <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen
-                    name="(tabs)"
-                    options={{
-                      title: "",
-                      headerShadowVisible: false,
-                    }}
-                  />
-                  <Stack.Screen
-                    name="(new-order)"
-                    options={{
-                      headerShown: false,
-                    }}
-                  />
-                  <Stack.Screen
-                    name="(reports)"
-                    options={{
-                      headerShown: false,
-                    }}
-                  />
-                </Stack>
-                <StatusBar style="auto" />
-
-                {/* WebSocket Connection Indicator */}
-                <WebSocketIndicator />
-
-                {isLoading && (
-                  <ThemedView
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      zIndex: 9999,
-                      backgroundColor: "rgba(0,0,0,0.4)",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <ActivityIndicator size="large" color="#fff" />
-                  </ThemedView>
-                )}
-              </ThemeProvider>
-            </BottomSheetModalProvider>
-          </SocketProvider>
+          {renderContent()}
         </SafeAreaView>
       </GestureHandlerRootView>
     </QueryClientProvider>
