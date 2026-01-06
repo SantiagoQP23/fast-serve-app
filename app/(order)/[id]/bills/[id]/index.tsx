@@ -115,6 +115,11 @@ export default function BillScreen() {
       return;
     }
 
+    // Validate discount does not exceed 10%
+    if (!validateDiscount()) {
+      return;
+    }
+
     if (
       paymentMethod === PaymentMethodE.CASH &&
       +receivedAmount < totalAfterDiscount
@@ -157,6 +162,22 @@ export default function BillScreen() {
     },
   ];
   const totalAfterDiscount = bill.total - +discount;
+
+  // Validate discount does not exceed 10% of bill total
+  const validateDiscount = () => {
+    const maxDiscount = bill.total * 0.1;
+    if (+discount > maxDiscount) {
+      i18nAlert(
+        t("bills:alerts.discountExceeded"),
+        t("bills:alerts.maxDiscountAllowed", {
+          amount: formatCurrency(maxDiscount),
+        }),
+      );
+      setDiscount("");
+      return false;
+    }
+    return true;
+  };
   const onRemoveBill = () => {
     removeBill(
       { id: bill.id },
@@ -250,6 +271,7 @@ export default function BillScreen() {
                   inputMode="numeric"
                   value={discount}
                   onChangeText={setDiscount}
+                  onBlur={validateDiscount}
                 />
                 <ThemedView style={tw` gap-4  mt-8`}>
                   <ThemedText type="h3">

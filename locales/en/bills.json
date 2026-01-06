@@ -43,6 +43,8 @@
   "alerts": {
     "noItemsSelected": "No items selected",
     "noItemsSelectedMessage": "Please select at least one item.",
-    "insufficientAmount": "Received amount is less than the total bill amount."
+    "insufficientAmount": "Received amount is less than the total bill amount.",
+    "discountExceeded": "Discount Exceeded",
+    "maxDiscountAllowed": "Maximum discount allowed is {{amount}}"
   }
 }

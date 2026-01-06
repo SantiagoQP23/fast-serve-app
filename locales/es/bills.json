@@ -43,6 +43,8 @@
   "alerts": {
     "noItemsSelected": "No hay productos seleccionados",
     "noItemsSelectedMessage": "Por favor seleccione al menos un producto.",
-    "insufficientAmount": "El monto recibido es menor que el total de la cuenta."
+    "insufficientAmount": "El monto recibido es menor que el total de la cuenta.",
+    "discountExceeded": "Descuento Excedido",
+    "maxDiscountAllowed": "El descuento máximo permitido es {{amount}}"
   }
 }
