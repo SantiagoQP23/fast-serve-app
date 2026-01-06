@@ -2,7 +2,8 @@
   "general": {
     "error": "Error",
     "tryAgain": "Please try again",
-    "somethingWrong": "Something went wrong"
+    "somethingWrong": "Something went wrong",
+    "requestTimedOut": "Request timed out"
   },
   "restaurant": {
     "noRestaurantSelected": "No restaurant selected",

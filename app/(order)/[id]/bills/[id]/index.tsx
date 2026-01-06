@@ -35,7 +35,7 @@ export default function BillScreen() {
   const router = useRouter();
   const bill = useOrdersStore((state) => state.activeBill);
   const [receivedAmount, setReceivedAmount] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState();
+  const [paymentMethod, setPaymentMethod] = useState("");
   const [discount, setDiscount] = useState("");
   const order = useOrdersStore((state) => state.activeOrder);
   const queryClient = useQueryClient();
