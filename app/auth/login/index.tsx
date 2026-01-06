@@ -8,6 +8,8 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   useWindowDimensions,
+  Linking,
+  Pressable,
 } from "react-native";
 import tw from "@/presentation/theme/lib/tailwind";
 import { z } from "zod";
@@ -54,6 +56,28 @@ const LoginScreen = () => {
     }
 
     i18nAlert("Error", t("validations.invalidCredentials"));
+  };
+
+  // Function to handle sign up redirect
+  const handleSignUp = async () => {
+    const signupUrl = process.env.EXPO_PUBLIC_SIGNUP_URL;
+
+    if (!signupUrl) {
+      i18nAlert("Error", "Sign up URL is not configured");
+      return;
+    }
+
+    try {
+      const canOpen = await Linking.canOpenURL(signupUrl);
+      if (canOpen) {
+        await Linking.openURL(signupUrl);
+      } else {
+        i18nAlert("Error", "Cannot open sign up page");
+      }
+    } catch (error) {
+      console.error("Error opening sign up URL:", error);
+      i18nAlert("Error", "Failed to open sign up page");
+    }
   };
 
   return (
@@ -104,11 +128,11 @@ const LoginScreen = () => {
           />
         </ThemedView>
         <ThemedView style={tw`flex-1`}></ThemedView>
-        <ThemedView style={tw`mb-4 flex-row justify-center`}>
-          <ThemedText>
-            {t("login.noAccount")}{" "}
+        <ThemedView style={tw`mb-4 flex-row justify-center items-center`}>
+          <ThemedText>{t("login.noAccount")} </ThemedText>
+          <Pressable onPress={handleSignUp}>
             <ThemedText type="body2">{t("login.signUp")}</ThemedText>
-          </ThemedText>
+          </Pressable>
         </ThemedView>
       </ThemedView>
     </KeyboardAvoidingView>
