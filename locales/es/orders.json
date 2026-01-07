@@ -101,5 +101,10 @@
     "title": "Acciones del Producto",
     "editQuantity": "Editar Cantidad",
     "deleteItem": "Eliminar Producto"
+  },
+  "waiterSummary": {
+    "title": "Resumen de Meseros",
+    "orders": "Pedidos",
+    "all": "Todos los Meseros"
   }
 }

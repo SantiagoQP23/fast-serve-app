@@ -101,5 +101,10 @@
     "title": "Order Detail Actions",
     "editQuantity": "Edit Quantity",
     "deleteItem": "Delete Item"
+  },
+  "waiterSummary": {
+    "title": "Waiters Overview",
+    "orders": "Orders",
+    "all": "All Waiters"
   }
 }

@@ -12,7 +12,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Fab from "@/presentation/theme/components/fab";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "expo-router";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import IconButton from "@/presentation/theme/components/icon-button";
@@ -23,13 +23,15 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import OrderList from "@/presentation/orders/molecules/order-list";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import WaiterSummaryCard from "@/presentation/orders/components/waiter-summary-card";
 
 export default function OrdersScreen() {
-  const { t } = useTranslation(['common', 'orders']);
+  const { t } = useTranslation(["common", "orders"]);
   const { user } = useAuthStore();
   const orders = useOrdersStore((state) => state.orders);
   const router = useRouter();
   const details = useNewOrderStore((state) => state.details);
+  const [selectedWaiterId, setSelectedWaiterId] = useState<string | null>(null);
 
   // ref
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -48,13 +50,41 @@ export default function OrdersScreen() {
     console.log("handleSheetChanges", index);
   }, []);
 
-  const pendingOrders = orders.filter(
+  // Group orders by waiter
+  const waiterStats = useMemo(() => {
+    const stats = new Map<string, { name: string; count: number }>();
+
+    orders.forEach((order) => {
+      const waiterId = order.user.id;
+      const waiterName = `${order.user.person.firstName} ${order.user.person.lastName}`;
+
+      if (stats.has(waiterId)) {
+        stats.get(waiterId)!.count += 1;
+      } else {
+        stats.set(waiterId, { name: waiterName, count: 1 });
+      }
+    });
+
+    return Array.from(stats.entries()).map(([id, data]) => ({
+      id,
+      name: data.name,
+      count: data.count,
+    }));
+  }, [orders]);
+
+  // Filter orders by selected waiter
+  const filteredOrders = useMemo(() => {
+    if (!selectedWaiterId) return orders;
+    return orders.filter((order) => order.user.id === selectedWaiterId);
+  }, [orders, selectedWaiterId]);
+
+  const pendingOrders = filteredOrders.filter(
     (order) => order.status === OrderStatus.PENDING,
   );
-  const inProgressOrders = orders.filter(
+  const inProgressOrders = filteredOrders.filter(
     (order) => order.status === OrderStatus.IN_PROGRESS,
   );
-  const deliveredOrders = orders.filter(
+  const deliveredOrders = filteredOrders.filter(
     (order) => order.status === OrderStatus.DELIVERED,
   );
 
@@ -77,7 +107,7 @@ export default function OrdersScreen() {
           )}
         </ThemedView>
         <ThemedText type="h1" style={tw`mt-1`}>
-          {t('orders:list.title')}
+          {t("orders:list.title")}
         </ThemedText>
       </ThemedView>
       {orders.length === 0 ? (
@@ -88,9 +118,9 @@ export default function OrdersScreen() {
               size={80}
               color={tw.color("gray-500")}
             />
-            <ThemedText type="h3">{t('orders:list.noOrders')}</ThemedText>
+            <ThemedText type="h3">{t("orders:list.noOrders")}</ThemedText>
             <ThemedText type="body2" style={tw`text-center max-w-xs`}>
-              {t('orders:list.noOrdersDescription')}
+              {t("orders:list.noOrdersDescription")}
             </ThemedText>
           </ThemedView>
         </>
@@ -99,9 +129,53 @@ export default function OrdersScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`pb-20 gap-4`}
         >
-          <OrderList title={t('common:status.pending')} orders={pendingOrders} />
-          <OrderList title={t('common:status.inProgress')} orders={inProgressOrders} />
-          <OrderList title={t('common:status.delivered')} orders={deliveredOrders} />
+          {/* Waiters Overview Section */}
+          {waiterStats.length > 0 && (
+            <ThemedView style={tw``}>
+              <ThemedText type="h3" style={tw`mb-3 px-4`}>
+                {t("orders:waiterSummary.title")}
+              </ThemedText>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={tw`gap-3 pb-2 px-4`}
+              >
+                {/* All Waiters Card */}
+                <WaiterSummaryCard
+                  waiterId="all"
+                  waiterName={t("orders:waiterSummary.all")}
+                  orderCount={orders.length}
+                  isSelected={selectedWaiterId === null}
+                  onPress={() => setSelectedWaiterId(null)}
+                />
+                {/* Individual Waiter Cards */}
+                {waiterStats.map((waiter) => (
+                  <WaiterSummaryCard
+                    key={waiter.id}
+                    waiterId={waiter.id}
+                    waiterName={waiter.name}
+                    orderCount={waiter.count}
+                    isSelected={selectedWaiterId === waiter.id}
+                    onPress={() => setSelectedWaiterId(waiter.id)}
+                  />
+                ))}
+              </ScrollView>
+            </ThemedView>
+          )}
+
+          {/* Order Lists */}
+          <OrderList
+            title={t("common:status.pending")}
+            orders={pendingOrders}
+          />
+          <OrderList
+            title={t("common:status.inProgress")}
+            orders={inProgressOrders}
+          />
+          <OrderList
+            title={t("common:status.delivered")}
+            orders={deliveredOrders}
+          />
         </ScrollView>
       )}
       <BottomSheetModal
