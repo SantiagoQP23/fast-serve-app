@@ -1,4 +1,4 @@
-import { ScrollView, Dimensions } from "react-native";
+import { ScrollView, Dimensions, RefreshControl } from "react-native";
 
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -24,6 +24,7 @@ import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import OrderList from "@/presentation/orders/molecules/order-list";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import WaiterSummaryCard from "@/presentation/orders/components/waiter-summary-card";
+import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
 
 export default function OrdersScreen() {
   const { t } = useTranslation(["common", "orders"]);
@@ -32,6 +33,7 @@ export default function OrdersScreen() {
   const router = useRouter();
   const details = useNewOrderStore((state) => state.details);
   const [selectedWaiterId, setSelectedWaiterId] = useState<string | null>(null);
+  const { refetchOrders, isRefetching } = useActiveOrders();
 
   // ref
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -49,6 +51,10 @@ export default function OrdersScreen() {
   const handleSheetChanges = useCallback((index: number) => {
     console.log("handleSheetChanges", index);
   }, []);
+
+  const handleRefresh = useCallback(async () => {
+    await refetchOrders();
+  }, [refetchOrders]);
 
   // Group orders by waiter
   const waiterStats = useMemo(() => {
@@ -128,6 +134,14 @@ export default function OrdersScreen() {
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`pb-20 gap-4`}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={handleRefresh}
+              tintColor={tw.color("blue-500")}
+              colors={[tw.color("blue-500") || "#3b82f6"]}
+            />
+          }
         >
           {/* Waiters Overview Section */}
           {waiterStats.length > 0 && (

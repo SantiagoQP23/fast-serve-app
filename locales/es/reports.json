@@ -3,17 +3,23 @@
   "summary": {
     "title": "Resumen de Hoy",
     "totalIncome": "Ingresos Totales",
+    "totalAmount": "Monto Total",
     "totalOrders": "Órdenes Totales",
     "totalBills": "Cuentas Totales",
     "totalWaiters": "Meseros Activos",
+    "collectionRate": "Tasa de Cobro",
+    "collected": "Cobrado",
+    "pending": "Pendiente",
     "viewDetails": "Ver Detalles"
   },
   "waiterStats": {
     "title": "Estadísticas de Meseros",
     "noData": "No hay datos de meseros disponibles",
     "income": "Ingresos",
+    "amount": "Monto",
     "orders": "Órdenes",
     "bills": "Cuentas",
+    "collectionRate": "Tasa de Cobro",
     "viewOrders": "Ver Órdenes"
   },
   "orderSummary": {

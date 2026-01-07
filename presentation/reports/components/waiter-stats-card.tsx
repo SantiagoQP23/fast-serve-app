@@ -8,6 +8,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { WaiterStatsDto } from "@/core/orders/dto/daily-report-response.dto";
 import OrderSummaryCard from "@/presentation/reports/components/order-summary-card";
+import ProgressBar from "@/presentation/theme/components/progress-bar";
 
 interface WaiterStatsCardProps {
   waiterStats: WaiterStatsDto;
@@ -20,6 +21,12 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
+
+  // Calculate collection rate for this waiter
+  const collectionRate =
+    waiterStats.totalAmount > 0
+      ? waiterStats.totalIncome / waiterStats.totalAmount
+      : 0;
 
   return (
     <ThemedView
@@ -43,8 +50,8 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
             />
           </ThemedView>
 
-          <ThemedView style={tw`flex-row gap-2 rounded-lg`}>
-            <ThemedView style={tw`flex-1 bg-white rounded-xl p-3`}>
+          <ThemedView style={tw`flex-row gap-2 rounded-lg flex-wrap`}>
+            <ThemedView style={tw`flex-1 bg-white rounded-xl p-3 min-w-[30%]`}>
               <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
                 {t("reports:waiterStats.income")}
               </ThemedText>
@@ -53,7 +60,16 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
               </ThemedText>
             </ThemedView>
 
-            <ThemedView style={tw`flex-1 bg-white rounded-xl p-3`}>
+            <ThemedView style={tw`flex-1 bg-white rounded-xl p-3 min-w-[30%]`}>
+              <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
+                {t("reports:waiterStats.amount")}
+              </ThemedText>
+              <ThemedText type="body1" style={tw`font-semibold text-indigo-700`}>
+                {formatCurrency(waiterStats.totalAmount)}
+              </ThemedText>
+            </ThemedView>
+
+            <ThemedView style={tw`flex-1 bg-white rounded-xl p-3 min-w-[30%]`}>
               <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
                 {t("reports:waiterStats.orders")}
               </ThemedText>
@@ -62,7 +78,7 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
               </ThemedText>
             </ThemedView>
 
-            <ThemedView style={tw`flex-1 bg-white rounded-xl p-3`}>
+            <ThemedView style={tw`flex-1 bg-white rounded-xl p-3 min-w-[30%]`}>
               <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
                 {t("reports:waiterStats.bills")}
               </ThemedText>
@@ -71,6 +87,32 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
                 style={tw`font-semibold text-purple-700`}
               >
                 {waiterStats.totalBills}
+              </ThemedText>
+            </ThemedView>
+          </ThemedView>
+
+          {/* Collection Rate Progress */}
+          <ThemedView style={tw`mt-3 bg-white rounded-xl p-3`}>
+            <ThemedView style={tw`flex-row items-center justify-between mb-2 bg-transparent`}>
+              <ThemedText type="caption" style={tw`text-gray-500`}>
+                {t("reports:waiterStats.collectionRate")}
+              </ThemedText>
+              <ThemedText type="small" style={tw`font-semibold text-gray-700`}>
+                {Math.round(collectionRate * 100)}%
+              </ThemedText>
+            </ThemedView>
+            <ProgressBar
+              progress={collectionRate}
+              height={1.5}
+              progressColor="bg-green-600"
+              bgColor="bg-gray-200"
+            />
+            <ThemedView style={tw`flex-row justify-between mt-1.5 bg-transparent`}>
+              <ThemedText type="small" style={tw`text-gray-400 text-xs`}>
+                {formatCurrency(waiterStats.totalIncome)}
+              </ThemedText>
+              <ThemedText type="small" style={tw`text-gray-400 text-xs`}>
+                {formatCurrency(waiterStats.totalAmount - waiterStats.totalIncome)}
               </ThemedText>
             </ThemedView>
           </ThemedView>

@@ -12,6 +12,7 @@ import WaiterStatsCard from "@/presentation/reports/components/waiter-stats-card
 import { ReportMode } from "@/core/orders/dto/daily-report-filters.dto";
 import * as Haptics from "expo-haptics";
 import dayjs from "dayjs";
+import ProgressBar from "@/presentation/theme/components/progress-bar";
 
 export default function DailyReportScreen() {
   const { t } = useTranslation(["reports", "common"]);
@@ -41,6 +42,12 @@ export default function DailyReportScreen() {
 
   const summary = dailyReport?.summary;
   const waiterStats = dailyReport?.waiterStats || [];
+
+  // Calculate collection rate (income vs amount)
+  const collectionRate =
+    summary && summary.totalAmount > 0
+      ? summary.totalIncome / summary.totalAmount
+      : 0;
 
   return (
     <ThemedView style={tw`flex-1 pt-4`}>
@@ -96,6 +103,55 @@ export default function DailyReportScreen() {
                         color={tw.color("green-700")}
                       />
                     </ThemedView>
+                  </ThemedView>
+                </ThemedView>
+
+                {/* Total Amount - Full Width */}
+                <ThemedView style={tw`bg-white rounded-xl p-4 shadow-sm`}>
+                  <ThemedView style={tw`flex-row items-center justify-between`}>
+                    <ThemedView style={tw`flex-1`}>
+                      <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
+                        {t("reports:summary.totalAmount")}
+                      </ThemedText>
+                      <ThemedText type="h2" style={tw`text-indigo-700`}>
+                        {formatCurrency(summary?.totalAmount ?? 0)}
+                      </ThemedText>
+                    </ThemedView>
+                    <ThemedView
+                      style={tw`w-12 h-12 rounded-full bg-indigo-100 items-center justify-center`}
+                    >
+                      <Ionicons
+                        name="cash"
+                        size={24}
+                        color={tw.color("indigo-700")}
+                      />
+                    </ThemedView>
+                  </ThemedView>
+                </ThemedView>
+
+                {/* Collection Rate Progress */}
+                <ThemedView style={tw`bg-white rounded-xl p-4 shadow-sm`}>
+                  <ThemedView style={tw`flex-row items-center justify-between mb-2`}>
+                    <ThemedText type="caption" style={tw`text-gray-500`}>
+                      {t("reports:summary.collectionRate")}
+                    </ThemedText>
+                    <ThemedText type="body2" style={tw`font-semibold text-gray-700`}>
+                      {Math.round(collectionRate * 100)}%
+                    </ThemedText>
+                  </ThemedView>
+                  <ProgressBar
+                    progress={collectionRate}
+                    height={2}
+                    progressColor="bg-green-600"
+                    bgColor="bg-gray-200"
+                  />
+                  <ThemedView style={tw`flex-row justify-between mt-2`}>
+                    <ThemedText type="small" style={tw`text-gray-400`}>
+                      {t("reports:summary.collected")}: {formatCurrency(summary?.totalIncome ?? 0)}
+                    </ThemedText>
+                    <ThemedText type="small" style={tw`text-gray-400`}>
+                      {t("reports:summary.pending")}: {formatCurrency((summary?.totalAmount ?? 0) - (summary?.totalIncome ?? 0))}
+                    </ThemedText>
                   </ThemedView>
                 </ThemedView>
 

@@ -3,17 +3,23 @@
   "summary": {
     "title": "Today's Summary",
     "totalIncome": "Total Income",
+    "totalAmount": "Total Amount",
     "totalOrders": "Total Orders",
     "totalBills": "Total Bills",
     "totalWaiters": "Active Waiters",
+    "collectionRate": "Collection Rate",
+    "collected": "Collected",
+    "pending": "Pending",
     "viewDetails": "View Details"
   },
   "waiterStats": {
     "title": "Waiter Statistics",
     "noData": "No waiter data available",
     "income": "Income",
+    "amount": "Amount",
     "orders": "Orders",
     "bills": "Bills",
+    "collectionRate": "Collection Rate",
     "viewOrders": "View Orders"
   },
   "orderSummary": {
