@@ -55,7 +55,7 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
               <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
                 {t("reports:waiterStats.income")}
               </ThemedText>
-              <ThemedText type="body1" style={tw`font-semibold text-green-700`}>
+              <ThemedText type="body1" style={tw`font-semibold `}>
                 {formatCurrency(waiterStats.totalIncome)}
               </ThemedText>
             </ThemedView>
@@ -64,7 +64,7 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
               <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
                 {t("reports:waiterStats.amount")}
               </ThemedText>
-              <ThemedText type="body1" style={tw`font-semibold text-indigo-700`}>
+              <ThemedText type="body1" style={tw`font-semibold `}>
                 {formatCurrency(waiterStats.totalAmount)}
               </ThemedText>
             </ThemedView>
@@ -73,7 +73,7 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
               <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
                 {t("reports:waiterStats.orders")}
               </ThemedText>
-              <ThemedText type="body1" style={tw`font-semibold text-blue-700`}>
+              <ThemedText type="body1" style={tw`font-semibold `}>
                 {waiterStats.totalOrders}
               </ThemedText>
             </ThemedView>
@@ -82,10 +82,7 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
               <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
                 {t("reports:waiterStats.bills")}
               </ThemedText>
-              <ThemedText
-                type="body1"
-                style={tw`font-semibold text-purple-700`}
-              >
+              <ThemedText type="body1" style={tw`font-semibold `}>
                 {waiterStats.totalBills}
               </ThemedText>
             </ThemedView>
@@ -93,7 +90,9 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
 
           {/* Collection Rate Progress */}
           <ThemedView style={tw`mt-3 bg-white rounded-xl p-3`}>
-            <ThemedView style={tw`flex-row items-center justify-between mb-2 bg-transparent`}>
+            <ThemedView
+              style={tw`flex-row items-center justify-between mb-2 bg-transparent`}
+            >
               <ThemedText type="caption" style={tw`text-gray-500`}>
                 {t("reports:waiterStats.collectionRate")}
               </ThemedText>
@@ -104,15 +103,18 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
             <ProgressBar
               progress={collectionRate}
               height={1.5}
-              progressColor="bg-green-600"
               bgColor="bg-gray-200"
             />
-            <ThemedView style={tw`flex-row justify-between mt-1.5 bg-transparent`}>
+            <ThemedView
+              style={tw`flex-row justify-between mt-1.5 bg-transparent`}
+            >
               <ThemedText type="small" style={tw`text-gray-400 text-xs`}>
                 {formatCurrency(waiterStats.totalIncome)}
               </ThemedText>
               <ThemedText type="small" style={tw`text-gray-400 text-xs`}>
-                {formatCurrency(waiterStats.totalAmount - waiterStats.totalIncome)}
+                {formatCurrency(
+                  waiterStats.totalAmount - waiterStats.totalIncome,
+                )}
               </ThemedText>
             </ThemedView>
           </ThemedView>
