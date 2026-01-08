@@ -41,41 +41,47 @@ export default function DailyReportSummaryCard() {
         ) : (
           <ThemedView style={tw`gap-3`}>
             <ThemedView style={tw`flex-row justify-between`}>
-              <ThemedView style={tw`flex-1 bg-green-50 rounded-xl p-3`}>
-                <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
-                  {t("reports:summary.totalIncome")}
-                </ThemedText>
-                <ThemedText type="h4" style={tw`text-green-700`}>
+              <ThemedView style={tw`flex-1  rounded-xl p-3`}>
+                <ThemedText type="h3" style={tw``}>
                   {formatCurrency(dailyReport?.summary?.totalIncome ?? 0)}
+                </ThemedText>
+                <ThemedText type="small" style={tw`text-gray-500 mb-1`}>
+                  {t("reports:summary.totalIncome")}
                 </ThemedText>
               </ThemedView>
             </ThemedView>
 
             <ThemedView style={tw`flex-row gap-2`}>
-              <ThemedView style={tw`flex-1 bg-blue-50 rounded-xl p-3`}>
-                <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
-                  {t("reports:summary.totalOrders")}
-                </ThemedText>
-                <ThemedText type="h4" style={tw`text-blue-700`}>
+              <ThemedView
+                style={tw`flex-1  rounded-xl p-3 border border-gray-200`}
+              >
+                <ThemedText type="h4" style={tw``}>
                   {dailyReport?.summary?.totalOrders ?? 0}
                 </ThemedText>
+                <ThemedText type="small" style={tw` mb-1 text-gray-600`}>
+                  {t("reports:summary.totalOrders")}
+                </ThemedText>
               </ThemedView>
 
-              <ThemedView style={tw`flex-1 bg-purple-50 rounded-xl p-3`}>
-                <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
-                  {t("reports:summary.totalBills")}
-                </ThemedText>
-                <ThemedText type="h4" style={tw`text-purple-700`}>
+              <ThemedView
+                style={tw`flex-1  rounded-xl p-3 border border-gray-200`}
+              >
+                <ThemedText type="h4" style={tw``}>
                   {dailyReport?.summary?.totalBills ?? 0}
                 </ThemedText>
+                <ThemedText type="small" style={tw` mb-1 text-gray-600`}>
+                  {t("reports:summary.totalBills")}
+                </ThemedText>
               </ThemedView>
 
-              <ThemedView style={tw`flex-1 bg-orange-50 rounded-xl p-3`}>
-                <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
-                  {t("reports:summary.totalWaiters")}
-                </ThemedText>
-                <ThemedText type="h4" style={tw`text-orange-700`}>
+              <ThemedView
+                style={tw`flex-1  rounded-xl p-3 border border-gray-200`}
+              >
+                <ThemedText type="h4" style={tw``}>
                   {dailyReport?.summary?.totalWaiters ?? 0}
+                </ThemedText>
+                <ThemedText type="small" style={tw` mb-1 text-gray-600`}>
+                  {t("reports:summary.totalWaiters")}
                 </ThemedText>
               </ThemedView>
             </ThemedView>
