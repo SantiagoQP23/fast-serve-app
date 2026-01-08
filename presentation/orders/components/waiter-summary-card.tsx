@@ -26,11 +26,11 @@ export default function WaiterSummaryCard({
   return (
     <Pressable onPress={onPress}>
       <ThemedView
-        style={tw`rounded-xl border ${isSelected ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-white"} p-4 min-w-60`}
+        style={tw`rounded-xl border ${isSelected ? "border-light-primary bg-gray-100" : "border-gray-300 bg-white"} p-4 min-w-60`}
       >
         <ThemedView style={tw`flex-row items-center gap-2 mb-2 bg-transparent`}>
           <ThemedView
-            style={tw`w-10 h-10 rounded-full ${isSelected ? "bg-blue-500" : "bg-gray-200"} items-center justify-center`}
+            style={tw`w-10 h-10 rounded-full ${isSelected ? "bg-light-primary" : "bg-gray-200"} items-center justify-center`}
           >
             <Ionicons
               name="person"
@@ -41,7 +41,7 @@ export default function WaiterSummaryCard({
           <ThemedView style={tw`flex-1 bg-transparent`}>
             <ThemedText
               type="body2"
-              style={tw`font-semibold ${isSelected ? "text-blue-700" : "text-gray-900"}`}
+              style={tw`font-semibold ${isSelected ? "text-light-primary" : "text-gray-900"}`}
               numberOfLines={1}
             >
               {waiterName}
@@ -54,7 +54,7 @@ export default function WaiterSummaryCard({
           </ThemedText>
           <ThemedText
             type="h4"
-            style={tw`${isSelected ? "text-blue-700" : "text-gray-900"}`}
+            style={tw`${isSelected ? "text-light-primary" : "text-gray-900"}`}
           >
             {orderCount}
           </ThemedText>

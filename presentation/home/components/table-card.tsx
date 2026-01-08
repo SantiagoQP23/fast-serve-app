@@ -19,7 +19,11 @@ export default function TableCard({ table, onPress }: TableCardProps) {
     <ThemedView style={[tw`w-[48%]`]}>
       <Card
         onPress={onPress}
-        style={[hasOrders ? tw`border border-black` : tw`bg-transparent`]}
+        style={[
+          hasOrders
+            ? tw`border border-light-primary bg-gray-100`
+            : tw`bg-transparent`,
+        ]}
       >
         <ThemedView style={tw`mb-3 flex-row justify-end bg-transparent`}>
           <View
