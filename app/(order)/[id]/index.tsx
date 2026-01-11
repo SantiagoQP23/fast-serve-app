@@ -1,4 +1,11 @@
-import { Modal, ScrollView, View, Pressable, RefreshControl, Alert } from "react-native";
+import {
+  Modal,
+  ScrollView,
+  View,
+  Pressable,
+  RefreshControl,
+  Alert,
+} from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -70,7 +77,7 @@ export default function OrderScreen() {
 
   const onRefresh = useCallback(async () => {
     if (!order?.id) return;
-    
+
     try {
       setRefreshing(true);
       // Trigger haptic feedback
@@ -247,57 +254,86 @@ export default function OrderScreen() {
             <ThemedView
               style={tw`gap-1 bg-transparent flex-row justify-between`}
             >
-              <ThemedView style={tw`gap-1 bg-transparent`}>
-                <ThemedText type="h3">
-                  {order.type === OrderType.IN_PLACE
-                    ? `${t("common:labels.table")} ${order.table?.name}`
-                    : t("common:labels.takeAway")}{" "}
-                </ThemedText>
+              <ThemedView style={tw`gap-3 bg-transparent`}>
+                <ThemedView style={tw`gap-2 bg-transparent`}>
+                  <ThemedText type="body2" style={tw`text-gray-500`}>
+                    {date}
+                  </ThemedText>
+                </ThemedView>
                 <ThemedView
                   style={tw` flex-row  bg-transparent items-center gap-2`}
                 >
+                  <ThemedText type="h2">
+                    {order.type === OrderType.IN_PLACE
+                      ? `${t("common:labels.table")} ${order.table?.name}`
+                      : t("common:labels.takeAway")}{" "}
+                  </ThemedText>
+                  <ThemedText type="body2" style={tw`text-gray-500`}>
+                    •
+                  </ThemedText>
                   <Ionicons name="people-outline" size={18} />
                   <ThemedText type="body2">{order.people}</ThemedText>
                 </ThemedView>
-              </ThemedView>
-
-              <ThemedView
-                style={tw`flex-row items-center bg-transparent gap-2`}
-              >
-                {order.isPaid ? (
-                  <Label text={t("orders:details.paid")} color="success" />
-                ) : (
-                  <Label text={t("orders:details.unpaid")} color="warning" />
-                )}
                 <ThemedView
-                  style={tw`gap-1 flex-row items-center ${bgColor}/10 px-3 py-1 rounded-full`}
+                  style={tw` flex-row  bg-transparent items-center gap-2`}
                 >
-                  <Ionicons
-                    name={statusIcon}
-                    size={18}
-                    color={tw.color(statusIconColor)}
-                  />
-                  <ThemedText
-                    type="body2"
-                    style={tw`${statusTextColor} font-semibold`}
+                  <ThemedView
+                    style={tw`gap-1 flex-row items-center ${bgColor}/10 px-3 py-1 rounded-full`}
                   >
-                    {statusText}
-                  </ThemedText>
+                    <Ionicons
+                      name={statusIcon}
+                      size={18}
+                      color={tw.color(statusIconColor)}
+                    />
+                    <ThemedText
+                      type="body2"
+                      style={tw`${statusTextColor} font-semibold`}
+                    >
+                      {statusText}
+                    </ThemedText>
+                  </ThemedView>
+                  {order.isPaid ? (
+                    <Label text={t("orders:details.paid")} color="success" />
+                  ) : (
+                    <Label text={t("orders:details.unpaid")} color="warning" />
+                  )}
                 </ThemedView>
               </ThemedView>
+
+              {/* <ThemedView */}
+              {/*   style={tw`flex-row items-center bg-transparent gap-2`} */}
+              {/* > */}
+              {/*   {order.isPaid ? ( */}
+              {/*     <Label text={t("orders:details.paid")} color="success" /> */}
+              {/*   ) : ( */}
+              {/*     <Label text={t("orders:details.unpaid")} color="warning" /> */}
+              {/*   )} */}
+              {/*   <ThemedView */}
+              {/*     style={tw`gap-1 flex-row items-center ${bgColor}/10 px-3 py-1 rounded-full`} */}
+              {/*   > */}
+              {/*     <Ionicons */}
+              {/*       name={statusIcon} */}
+              {/*       size={18} */}
+              {/*       color={tw.color(statusIconColor)} */}
+              {/*     /> */}
+              {/*     <ThemedText */}
+              {/*       type="body2" */}
+              {/*       style={tw`${statusTextColor} font-semibold`} */}
+              {/*     > */}
+              {/*       {statusText} */}
+              {/*     </ThemedText> */}
+              {/*   </ThemedView> */}
+              {/* </ThemedView> */}
             </ThemedView>
             {/* <ThemedView style={tw`border-t border-dashed border-gray-700`} /> */}
-            <ThemedView style={tw`gap-2 bg-transparent`}>
-              <ThemedView>
-                {/* <ThemedText type="h4">Waiter</ThemedText> */}
-                <ThemedText type="body2">
-                  {order.user.person.firstName} {order.user.person.lastName}
-                </ThemedText>
-              </ThemedView>
-              <ThemedView>
-                {/* <ThemedText type="h4">Date</ThemedText> */}
-                <ThemedText type="body2">{date}</ThemedText>
-              </ThemedView>
+            <ThemedView style={tw`gap-2 flex-row items-center bg-transparent`}>
+              <Ionicons name="person-outline" size={16} />
+              {/* <ThemedText type="body2" style={tw`font-semibold`}> */}
+              {/*   Waiter: */}
+              {/* </ThemedText> */}
+              <ThemedText type="body2">
+                {order.user.person.firstName} {order.user.person.lastName}
+              </ThemedText>
             </ThemedView>
           </ThemedView>
           {order.notes && (

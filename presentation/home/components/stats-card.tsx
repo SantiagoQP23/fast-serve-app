@@ -16,14 +16,15 @@ export default function StatsCard({
   title,
   value,
   icon,
-  iconColor = "#3b82f6",
   loading = false,
 }: StatsCardProps) {
   return (
-    <ThemedView style={tw`flex-1 rounded-2xl border border-gray-300 p-4 shadow-sm`}>
+    <ThemedView
+      style={tw`flex-1 rounded-2xl border border-gray-300 p-4 shadow-sm`}
+    >
       <ThemedView style={tw`flex-row items-center justify-between`}>
         <ThemedView style={tw`flex-1`}>
-          <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
+          <ThemedText type="small" style={tw`text-gray-500 mb-1`}>
             {title}
           </ThemedText>
           {loading ? (
@@ -35,9 +36,9 @@ export default function StatsCard({
           )}
         </ThemedView>
         <ThemedView
-          style={tw`w-12 h-12 rounded-full bg-blue-50 items-center justify-center`}
+          style={tw`w-12 h-12 rounded-full bg-gray-50 items-center justify-center`}
         >
-          <Ionicons name={icon} size={24} color={iconColor} />
+          <Ionicons name={icon} size={24} color={tw.color(`light-primary`)} />
         </ThemedView>
       </ThemedView>
     </ThemedView>
