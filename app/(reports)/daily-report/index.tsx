@@ -64,7 +64,7 @@ export default function DailyReportScreen() {
         }
       >
         {/* Summary Header */}
-        <ThemedView style={tw` mb-6`}>
+        <ThemedView style={tw`px-4 mb-6`}>
           <ThemedView style={tw`bg-primary-50 rounded-2xl p-4`}>
             <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
               <ThemedText type="h3">{t("reports:summary.title")}</ThemedText>
@@ -95,12 +95,12 @@ export default function DailyReportScreen() {
                       </ThemedText>
                     </ThemedView>
                     <ThemedView
-                      style={tw`w-12 h-12 rounded-full  items-center justify-center`}
+                      style={tw`w-12 h-12 rounded-full items-center justify-center`}
                     >
                       <Ionicons
                         name="trending-up"
                         size={24}
-                        color={tw.color("")}
+                        color={tw.color("primary-600")}
                       />
                     </ThemedView>
                   </ThemedView>
@@ -118,9 +118,13 @@ export default function DailyReportScreen() {
                       </ThemedText>
                     </ThemedView>
                     <ThemedView
-                      style={tw`w-12 h-12 rounded-full  items-center justify-center`}
+                      style={tw`w-12 h-12 rounded-full items-center justify-center`}
                     >
-                      <Ionicons name="cash" size={24} color={tw.color("")} />
+                      <Ionicons
+                        name="cash"
+                        size={24}
+                        color={tw.color("primary-600")}
+                      />
                     </ThemedView>
                   </ThemedView>
                 </ThemedView>

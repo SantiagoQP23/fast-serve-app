@@ -10,7 +10,7 @@
     "totalOrders": "Pedidos",
     "totalBills": "Cuentas Totales",
     "totalWaiters": "Meseros Activos",
-    "collectionRate": "Tasa de Cobro",
+    "collectionRate": "Porcentaje de Cobro",
     "collected": "Cobrado",
     "pending": "Pendiente",
     "viewDetails": "Ver Detalles"
@@ -22,7 +22,7 @@
     "amount": "Monto",
     "orders": "Órdenes",
     "bills": "Cuentas",
-    "collectionRate": "Tasa de Cobro",
+    "collectionRate": "Porcentaje de Cobro",
     "viewOrders": "Ver Órdenes"
   },
   "orderSummary": {
