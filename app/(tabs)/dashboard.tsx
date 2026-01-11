@@ -5,6 +5,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import DailyReportSummaryCard from "@/presentation/home/components/daily-report-summary-card";
+import PaymentMethodSummaryCard from "@/presentation/home/components/payment-method-summary-card";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
@@ -23,9 +24,12 @@ export default function DashboardScreen() {
       // Trigger haptic feedback
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-      // Refetch daily report
+      // Refetch daily report and payment method report
       await queryClient.refetchQueries({
         queryKey: ["dailyReport", currentRestaurant?.id],
+      });
+      await queryClient.refetchQueries({
+        queryKey: ["paymentMethodReport", currentRestaurant?.id],
       });
     } catch {
       Alert.alert(
@@ -57,6 +61,7 @@ export default function DashboardScreen() {
       >
         <ThemedView style={tw`px-4`}>
           <DailyReportSummaryCard />
+          <PaymentMethodSummaryCard />
         </ThemedView>
       </ScrollView>
     </ThemedView>

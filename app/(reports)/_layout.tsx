@@ -11,7 +11,22 @@ export default function ReportsLayout() {
       <Stack.Screen
         name="daily-report/index"
         options={{
-          title: t("title"),
+          title: t("titles.dailyReport"),
+          headerShown: true,
+          headerShadowVisible: false,
+          headerLeft: () => (
+            <IconButton
+              icon="arrow-back"
+              onPress={() => router.back()}
+              style={{ marginRight: 10 }}
+            />
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="payment-method-report/index"
+        options={{
+          title: t("titles.paymentMethodReport"),
           headerShown: true,
           headerShadowVisible: false,
           headerLeft: () => (

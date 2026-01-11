@@ -1,5 +1,8 @@
 {
-  "title": "Daily Report",
+  "titles": {
+    "dailyReport": "Daily Report",
+    "paymentMethodReport": "Payment Method Report"
+  },
   "summary": {
     "title": "Today's Summary",
     "totalIncome": "Total Income",
@@ -36,6 +39,23 @@
     "title": "Bills ({{count}})",
     "billNumber": "Bill #{{num}}",
     "noBillsForOrder": "No bills for this order"
+  },
+  "paymentMethodReport": {
+    "title": "Income by Payment Method",
+    "byPaymentMethod": "By Payment Method",
+    "noData": "No payment data available"
+  },
+  "paymentMethod": {
+    "cash": "Cash",
+    "creditCard": "Credit Card",
+    "transfer": "Transfer"
+  },
+  "paymentMethodStats": {
+    "totalIncome": "Total Income",
+    "bills": "bills",
+    "percentage": "Percentage",
+    "avgBillAmount": "Avg Bill",
+    "shareOfTotal": "Share of Total"
   },
   "filters": {
     "date": "Date",

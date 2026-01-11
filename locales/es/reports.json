@@ -1,5 +1,8 @@
 {
-  "title": "Reporte Diario",
+  "titles": {
+    "dailyReport": "Reporte Diario",
+    "paymentMethodReport": "Reporte de Método de Pago"
+  },
   "summary": {
     "title": "Resumen de Hoy",
     "totalIncome": "Ingresos Totales",
@@ -36,6 +39,23 @@
     "title": "Cuentas ({{count}})",
     "billNumber": "Cuenta #{{num}}",
     "noBillsForOrder": "Sin cuentas para este pedido"
+  },
+  "paymentMethodReport": {
+    "title": "Ingresos por Método de Pago",
+    "byPaymentMethod": "Por Método de Pago",
+    "noData": "No hay datos de pagos disponibles"
+  },
+  "paymentMethod": {
+    "cash": "Efectivo",
+    "creditCard": "Tarjeta de Crédito",
+    "transfer": "Transferencia"
+  },
+  "paymentMethodStats": {
+    "totalIncome": "Ingresos Totales",
+    "bills": "cuentas",
+    "percentage": "Porcentaje",
+    "avgBillAmount": "Promedio",
+    "shareOfTotal": "Participación del Total"
   },
   "filters": {
     "date": "Fecha",
