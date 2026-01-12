@@ -16,6 +16,8 @@
     "receivedAmount": "Received amount",
     "change": "Change",
     "total": "Total",
+    "totalAmount": "Total Amount",
+    "items": "Items",
     "billPaid": "Bill Paid",
     "paid": "Paid",
     "unpaid": "Unpaid",

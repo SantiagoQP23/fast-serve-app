@@ -16,6 +16,8 @@
     "receivedAmount": "Monto recibido",
     "change": "Cambio",
     "total": "Total",
+    "totalAmount": "Monto Total",
+    "items": "Artículos",
     "billPaid": "Cuenta Pagada",
     "paid": "Pagado",
     "unpaid": "Sin Pagar",
