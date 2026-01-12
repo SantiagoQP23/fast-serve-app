@@ -38,7 +38,9 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
         <ThemedView
           style={tw` flex-row justify-between bg-transparent items-center `}
         >
-          <ThemedText type="body2">{date}</ThemedText>
+          <ThemedText type="body2" style={tw`text-gray-700`}>
+            {date}
+          </ThemedText>
           <ThemedText type="h3">{formatCurrency(bill.total)}</ThemedText>
         </ThemedView>
       </ThemedView>

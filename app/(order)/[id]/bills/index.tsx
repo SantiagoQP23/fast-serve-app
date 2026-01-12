@@ -114,7 +114,7 @@ export default function OrderBillsScreen() {
         <ScrollView
           style={tw`flex-1 gap-2 flex-column`}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={tw`gap-2 flex-column`}
+          contentContainerStyle={tw`gap-4 flex-column`}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
