@@ -225,9 +225,9 @@ export default function BillScreen() {
           </View>
         </View>
       </Modal>
-      <KeyboardAvoidingView 
-        style={tw`flex-1`} 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <KeyboardAvoidingView
+        style={tw`flex-1`}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ThemedView style={tw`px-4 pt-6 flex-1 gap-4`}>
           <ScrollView
@@ -245,10 +245,10 @@ export default function BillScreen() {
             {/* Header Section */}
             <ThemedView style={tw`items-center gap-4 mb-6`}>
               <ThemedView style={tw`bg-blue-500/10 p-4 rounded-full`}>
-                <Ionicons 
-                  name="receipt-outline" 
-                  size={40} 
-                  color={tw.color("blue-600")} 
+                <Ionicons
+                  name="receipt-outline"
+                  size={40}
+                  color={tw.color("blue-600")}
                 />
               </ThemedView>
               <ThemedView style={tw`gap-1 items-center`}>
@@ -256,35 +256,37 @@ export default function BillScreen() {
                   {t("bills:list.billNumber", { number: bill.num })}
                 </ThemedText>
                 <ThemedView style={tw`flex-row items-center gap-1.5`}>
-                  <Ionicons 
-                    name="time-outline" 
-                    size={16} 
-                    color={tw.color("gray-500")} 
+                  <Ionicons
+                    name="time-outline"
+                    size={16}
+                    color={tw.color("gray-500")}
                   />
                   <ThemedText type="body2" style={tw`text-gray-500`}>
                     {date}
                   </ThemedText>
                 </ThemedView>
               </ThemedView>
-              
+
               {/* Status Badge */}
               {bill.isPaid ? (
-                <Label 
-                  color="success" 
-                  text={t("bills:details.paid")} 
+                <Label
+                  color="success"
+                  text={t("bills:details.paid")}
                   leftIcon="checkmark-circle-outline"
                 />
               ) : (
-                <Label 
-                  color="warning" 
-                  text={t("bills:details.unpaid")} 
+                <Label
+                  color="warning"
+                  text={t("bills:details.unpaid")}
                   leftIcon="time-outline"
                 />
               )}
             </ThemedView>
 
             {/* Total Amount Card */}
-            <ThemedView style={tw`bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-2xl items-center gap-2 mb-6 shadow-sm border border-blue-200`}>
+            <ThemedView
+              style={tw`bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-2xl items-center gap-2 mb-6 shadow-sm border border-blue-200`}
+            >
               <ThemedText type="body2" style={tw`text-gray-600 font-medium`}>
                 {t("bills:details.totalAmount")}
               </ThemedText>
@@ -292,9 +294,15 @@ export default function BillScreen() {
                 {formatCurrency(totalAfterDiscount)}
               </ThemedText>
               {bill.discount > 0 && (
-                <ThemedView style={tw`bg-green-500/10 px-4 py-2 rounded-full mt-2`}>
-                  <ThemedText type="body2" style={tw`text-green-700 font-semibold`}>
-                    {t("bills:details.discount")}: -{formatCurrency(bill.discount)}
+                <ThemedView
+                  style={tw`bg-green-500/10 px-4 py-2 rounded-full mt-2`}
+                >
+                  <ThemedText
+                    type="body2"
+                    style={tw`text-green-700 font-semibold`}
+                  >
+                    {t("bills:details.discount")}: -
+                    {formatCurrency(bill.discount)}
                   </ThemedText>
                 </ThemedView>
               )}
@@ -303,10 +311,10 @@ export default function BillScreen() {
             {/* Items Section */}
             <ThemedView style={tw`mb-6`}>
               <ThemedView style={tw`flex-row items-center gap-2 mb-3`}>
-                <Ionicons 
-                  name="list-outline" 
-                  size={20} 
-                  color={tw.color("gray-700")} 
+                <Ionicons
+                  name="list-outline"
+                  size={20}
+                  color={tw.color("gray-700")}
                 />
                 <ThemedText type="h4" style={tw`font-semibold`}>
                   {t("bills:details.items")} ({bill.details.length})
@@ -320,9 +328,16 @@ export default function BillScreen() {
                     <ThemedView
                       style={tw`flex-row justify-between items-center px-4 py-3`}
                     >
-                      <ThemedView style={tw`flex-1 flex-row items-center gap-3`}>
-                        <ThemedView style={tw`bg-blue-500/10 px-2.5 py-1 rounded-lg min-w-10 items-center`}>
-                          <ThemedText type="body2" style={tw`font-bold text-blue-600`}>
+                      <ThemedView
+                        style={tw`flex-1 flex-row items-center gap-3`}
+                      >
+                        <ThemedView
+                          style={tw`bg-blue-500/10 px-2.5 py-1 rounded-lg min-w-10 items-center`}
+                        >
+                          <ThemedText
+                            type="body2"
+                            style={tw`font-bold text-blue-600`}
+                          >
                             {detail.quantity}x
                           </ThemedText>
                         </ThemedView>
@@ -346,17 +361,11 @@ export default function BillScreen() {
                 {/* Discount Section */}
                 <ThemedView style={tw`mb-6`}>
                   <ThemedView style={tw`flex-row items-center gap-2 mb-3`}>
-                    <Ionicons 
-                      name="pricetag-outline" 
-                      size={20} 
-                      color={tw.color("gray-700")} 
-                    />
                     <ThemedText type="h4" style={tw`font-semibold`}>
                       {t("bills:details.discount")} (Max 10%)
                     </ThemedText>
                   </ThemedView>
                   <TextInput
-                    label={t("bills:details.discount")}
                     inputMode="numeric"
                     value={discount}
                     onChangeText={setDiscount}
@@ -369,10 +378,10 @@ export default function BillScreen() {
                 {/* Payment Method Section */}
                 <ThemedView style={tw`gap-4 mb-6`}>
                   <ThemedView style={tw`flex-row items-center gap-2`}>
-                    <Ionicons 
-                      name="wallet-outline" 
-                      size={20} 
-                      color={tw.color("gray-700")} 
+                    <Ionicons
+                      name="wallet-outline"
+                      size={20}
+                      color={tw.color("gray-700")}
                     />
                     <ThemedText type="h4" style={tw`font-semibold`}>
                       {t("bills:details.paymentMethod")}
@@ -401,10 +410,10 @@ export default function BillScreen() {
                     style={tw`gap-4 mb-20 border border-gray-200 p-5 rounded-2xl bg-gray-50`}
                   >
                     <ThemedView style={tw`flex-row items-center gap-2`}>
-                      <Ionicons 
-                        name="cash-outline" 
-                        size={20} 
-                        color={tw.color("gray-700")} 
+                      <Ionicons
+                        name="cash-outline"
+                        size={20}
+                        color={tw.color("gray-700")}
                       />
                       <ThemedText type="h4" style={tw`font-semibold`}>
                         {t("bills:details.receivedAmount")}
@@ -417,7 +426,7 @@ export default function BillScreen() {
                       inputMode="numeric"
                       placeholder="0.00"
                     />
-                    
+
                     {/* Quick Amount Buttons */}
                     <ThemedView style={tw`gap-2`}>
                       <ThemedText type="body2" style={tw`text-gray-600`}>
@@ -449,21 +458,28 @@ export default function BillScreen() {
                         setReceivedAmount(String(totalAfterDiscount))
                       }
                     />
-                    
+
                     {/* Change Display */}
                     {+receivedAmount > totalAfterDiscount && (
-                      <ThemedView style={tw`items-center mt-4 gap-2 bg-green-50 p-4 rounded-xl border border-green-200`}>
+                      <ThemedView
+                        style={tw`items-center mt-4 gap-2 bg-green-50 p-4 rounded-xl border border-green-200`}
+                      >
                         <ThemedView style={tw`flex-row items-center gap-2`}>
-                          <Ionicons 
-                            name="arrow-back-outline" 
-                            size={18} 
-                            color={tw.color("green-700")} 
+                          <Ionicons
+                            name="arrow-back-outline"
+                            size={18}
+                            color={tw.color("green-700")}
                           />
-                          <ThemedText type="body2" style={tw`text-green-700 font-medium`}>
+                          <ThemedText
+                            type="body2"
+                            style={tw`text-green-700 font-medium`}
+                          >
                             {t("bills:details.change")}
                           </ThemedText>
                         </ThemedView>
-                        <ThemedText style={tw`text-4xl font-bold text-green-700`}>
+                        <ThemedText
+                          style={tw`text-4xl font-bold text-green-700`}
+                        >
                           {formatCurrency(+receivedAmount - totalAfterDiscount)}
                         </ThemedText>
                       </ThemedView>
@@ -474,7 +490,9 @@ export default function BillScreen() {
             ) : (
               <>
                 {/* Paid Bill Summary */}
-                <ThemedView style={tw`items-center mt-8 gap-4 bg-green-50 p-6 rounded-2xl border border-green-200`}>
+                <ThemedView
+                  style={tw`items-center mt-8 gap-4 bg-green-50 p-6 rounded-2xl border border-green-200`}
+                >
                   <ThemedView style={tw`bg-green-500/20 p-4 rounded-full`}>
                     <Ionicons
                       name="checkmark-circle"
@@ -486,18 +504,22 @@ export default function BillScreen() {
                     {t("bills:details.billPaid")}
                   </ThemedText>
                 </ThemedView>
-                
+
                 {/* Payment Details */}
-                <ThemedView style={tw`mt-6 gap-4 border border-gray-200 p-5 rounded-2xl bg-white`}>
+                <ThemedView
+                  style={tw`mt-6 gap-4 border border-gray-200 p-5 rounded-2xl bg-white`}
+                >
                   <ThemedText type="h4" style={tw`font-semibold mb-2`}>
                     Payment Details
                   </ThemedText>
-                  <ThemedView style={tw`flex-row justify-between items-center py-2`}>
+                  <ThemedView
+                    style={tw`flex-row justify-between items-center py-2`}
+                  >
                     <ThemedView style={tw`flex-row items-center gap-2`}>
-                      <Ionicons 
-                        name="wallet-outline" 
-                        size={18} 
-                        color={tw.color("gray-600")} 
+                      <Ionicons
+                        name="wallet-outline"
+                        size={18}
+                        color={tw.color("gray-600")}
                       />
                       <ThemedText type="body1" style={tw`text-gray-600`}>
                         {t("bills:details.paymentMethod")}
@@ -508,18 +530,23 @@ export default function BillScreen() {
                     </ThemedText>
                   </ThemedView>
                   {bill.discount > 0 && (
-                    <ThemedView style={tw`flex-row justify-between items-center py-2`}>
+                    <ThemedView
+                      style={tw`flex-row justify-between items-center py-2`}
+                    >
                       <ThemedView style={tw`flex-row items-center gap-2`}>
-                        <Ionicons 
-                          name="pricetag-outline" 
-                          size={18} 
-                          color={tw.color("gray-600")} 
+                        <Ionicons
+                          name="pricetag-outline"
+                          size={18}
+                          color={tw.color("gray-600")}
                         />
                         <ThemedText type="body1" style={tw`text-gray-600`}>
                           {t("bills:details.discount")}
                         </ThemedText>
                       </ThemedView>
-                      <ThemedText type="body1" style={tw`font-semibold text-green-600`}>
+                      <ThemedText
+                        type="body1"
+                        style={tw`font-semibold text-green-600`}
+                      >
                         -{formatCurrency(bill.discount)}
                       </ThemedText>
                     </ThemedView>

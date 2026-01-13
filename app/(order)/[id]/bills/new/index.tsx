@@ -138,7 +138,7 @@ export default function NewBillScreen() {
 
   return (
     <ThemedView style={tw`flex-1`}>
-      <ScrollView 
+      <ScrollView
         style={tw`flex-1`}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={tw`px-4 pt-6 pb-32`}
@@ -147,10 +147,10 @@ export default function NewBillScreen() {
         <ThemedView style={tw`gap-4 mb-6`}>
           <ThemedView style={tw`flex-row items-center gap-3`}>
             <ThemedView style={tw`bg-blue-500/10 p-3 rounded-full`}>
-              <Ionicons 
-                name="receipt-outline" 
-                size={28} 
-                color={tw.color("blue-600")} 
+              <Ionicons
+                name="receipt-outline"
+                size={28}
+                color={tw.color("blue-600")}
               />
             </ThemedView>
             <ThemedView style={tw`flex-1`}>
@@ -158,10 +158,10 @@ export default function NewBillScreen() {
                 {t("bills:newBill.title")}
               </ThemedText>
               <ThemedView style={tw`flex-row items-center gap-1.5 mt-1`}>
-                <Ionicons 
-                  name="restaurant-outline" 
-                  size={16} 
-                  color={tw.color("gray-500")} 
+                <Ionicons
+                  name="restaurant-outline"
+                  size={16}
+                  color={tw.color("gray-500")}
                 />
                 <ThemedText type="body2" style={tw`text-gray-500`}>
                   {t("bills:newBill.orderNumber", { number: order.num })}
@@ -171,7 +171,9 @@ export default function NewBillScreen() {
           </ThemedView>
 
           {/* Order Summary Card */}
-          <ThemedView style={tw`bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-2xl border border-gray-200`}>
+          <ThemedView
+            style={tw`bg-gradient-to-br from-gray-50 to-gray-100 p-4 rounded-2xl border border-gray-200`}
+          >
             <ThemedView style={tw`flex-row justify-between items-center`}>
               <ThemedView style={tw`gap-1`}>
                 <ThemedText type="caption" style={tw`text-gray-600`}>
@@ -208,27 +210,26 @@ export default function NewBillScreen() {
         <ThemedView style={tw`mb-6`}>
           <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
             <ThemedView style={tw`flex-row items-center gap-2`}>
-              <Ionicons 
-                name="list-outline" 
-                size={20} 
-                color={tw.color("gray-700")} 
+              <Ionicons
+                name="list-outline"
+                size={20}
+                color={tw.color("gray-700")}
               />
               <ThemedText type="h4" style={tw`font-semibold`}>
-                Available Items
+                Items
               </ThemedText>
             </ThemedView>
-            <Label 
-              color="info" 
-              text={`${detailsToPay.length} items`}
-            />
+            <Label color="info" text={`${detailsToPay.length} items`} />
           </ThemedView>
-          
+
           {detailsToPay.length === 0 ? (
-            <ThemedView style={tw`p-8 items-center gap-3 bg-gray-50 rounded-2xl border border-gray-200`}>
-              <Ionicons 
-                name="checkmark-circle-outline" 
-                size={48} 
-                color={tw.color("green-500")} 
+            <ThemedView
+              style={tw`p-8 items-center gap-3 bg-gray-50 rounded-2xl border border-gray-200`}
+            >
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={48}
+                color={tw.color("green-500")}
               />
               <ThemedText type="body1" style={tw`text-gray-600 text-center`}>
                 All items have been billed
@@ -253,31 +254,32 @@ export default function NewBillScreen() {
           <ThemedView style={tw`mb-6`}>
             <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
               <ThemedView style={tw`flex-row items-center gap-2`}>
-                <Ionicons 
-                  name="checkmark-circle-outline" 
-                  size={20} 
-                  color={tw.color("green-600")} 
+                <Ionicons
+                  name="checkmark-circle-outline"
+                  size={20}
+                  color={tw.color("green-600")}
                 />
                 <ThemedText type="h4" style={tw`font-semibold`}>
                   {t("bills:newBill.billedItems")}
                 </ThemedText>
               </ThemedView>
-              <Label 
-                color="success" 
-                text={`${paidDetails.length} items`}
-              />
+              <Label color="success" text={`${paidDetails.length} items`} />
             </ThemedView>
 
-            <ThemedView style={tw`border border-green-200 rounded-2xl overflow-hidden bg-green-50/50`}>
+            <ThemedView
+              style={tw`border border-green-200 rounded-2xl overflow-hidden bg-green-50/50`}
+            >
               {paidDetails.map((detail, index) => (
                 <ThemedView key={detail.id}>
-                  <ThemedView style={tw`flex-row items-center justify-between px-4 py-3`}>
+                  <ThemedView
+                    style={tw`flex-row items-center justify-between px-4 py-3`}
+                  >
                     <ThemedView style={tw`flex-row items-center gap-3 flex-1`}>
                       <ThemedView style={tw`bg-green-500/10 p-2 rounded-full`}>
-                        <Ionicons 
-                          name="checkmark" 
-                          size={16} 
-                          color={tw.color("green-600")} 
+                        <Ionicons
+                          name="checkmark"
+                          size={16}
+                          color={tw.color("green-600")}
                         />
                       </ThemedView>
                       <ThemedView style={tw`flex-1`}>
@@ -301,11 +303,13 @@ export default function NewBillScreen() {
         )}
 
         {paidDetails.length === 0 && (
-          <ThemedView style={tw`p-6 items-center gap-2 bg-gray-50 rounded-2xl border border-gray-200`}>
-            <Ionicons 
-              name="information-circle-outline" 
-              size={32} 
-              color={tw.color("gray-400")} 
+          <ThemedView
+            style={tw`p-6 items-center gap-2 bg-gray-50 rounded-2xl border border-gray-200`}
+          >
+            <Ionicons
+              name="information-circle-outline"
+              size={32}
+              color={tw.color("gray-400")}
             />
             <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
               {t("bills:newBill.noBilledItems")}
@@ -315,14 +319,16 @@ export default function NewBillScreen() {
       </ScrollView>
 
       {/* Fixed Bottom Bar */}
-      <ThemedView 
+      <ThemedView
         style={tw`absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-4 shadow-lg`}
       >
         {selectedTotal > 0 && (
-          <ThemedView style={tw`flex-row justify-between items-center mb-3 px-1`}>
+          <ThemedView
+            style={tw`flex-row justify-between items-center mb-3 px-1`}
+          >
             <ThemedView style={tw`gap-0.5`}>
               <ThemedText type="caption" style={tw`text-gray-600`}>
-                Selected: {selectedCount} item{selectedCount !== 1 ? 's' : ''}
+                Selected: {selectedCount} item{selectedCount !== 1 ? "s" : ""}
               </ThemedText>
               <ThemedText type="h3" style={tw`font-bold`}>
                 {formatCurrency(selectedTotal)}
@@ -337,8 +343,10 @@ export default function NewBillScreen() {
         )}
         <Button
           label={
-            selectedTotal > 0 
-              ? t("bills:newBill.createBill", { amount: selectedTotal.toFixed(2) })
+            selectedTotal > 0
+              ? t("bills:newBill.createBill", {
+                  amount: selectedTotal.toFixed(2),
+                })
               : t("bills:newBill.createBill", { amount: "0.00" })
           }
           onPress={onCreateBill}
