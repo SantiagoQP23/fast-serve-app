@@ -8,9 +8,14 @@ module.exports = {
         light: {
           primary: Colors.light.primary,
           secondary: Colors.light.secondary,
-          tertiary: Colors.light.tertiary,
+
           background: Colors.light.background,
+          surface: Colors.light.surface,
+
           text: Colors.light.text,
+          icon: Colors.light.icon,
+          border: Colors.light.border,
+          divider: Colors.light.divider,
         },
         dark: {
           primary: Colors.dark.primary,

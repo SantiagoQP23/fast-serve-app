@@ -10,14 +10,14 @@ export default function Card({
   ...rest
 }: PressableProps) {
   return (
-    <ThemedView style={tw`shadow-sm rounded-2xl`}>
+    <ThemedView style={tw` rounded-2xl`}>
       <Pressable
         {...rest}
         style={(state) =>
           [
-            tw`p-4 rounded-2xl border border-gray-300`,
+            tw`p-4 rounded-2xl border border-light-border`,
             state.pressed && tw`opacity-80`,
-            typeof style === 'function' ? style(state) : style,
+            typeof style === "function" ? style(state) : style,
           ].filter(Boolean)
         }
         onPress={onPress}
