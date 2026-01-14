@@ -197,10 +197,10 @@ const OrderOptionsBottomSheet = ({
                 size={22}
                 color={
                   option.disabled
-                    ? tw.color("gray-400")
+                    ? tw.color("light-primary")
                     : option.color
                       ? tw.color(option.color.replace("text-", ""))
-                      : tw.color("gray-700")
+                      : tw.color("light-primary")
                 }
               />
               <ThemedText
@@ -220,9 +220,7 @@ const OrderOptionsBottomSheet = ({
                 />
               )}
             </Pressable>
-            {option.divider && (
-              <ThemedView style={tw`h-px bg-gray-200 my-2`} />
-            )}
+            {option.divider && <ThemedView style={tw`h-px bg-gray-200 my-2`} />}
           </ThemedView>
         ))}
       </ThemedView>

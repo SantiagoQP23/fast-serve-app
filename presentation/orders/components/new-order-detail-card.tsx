@@ -37,17 +37,26 @@ export default function NewOrderDetailCard({
   return (
     <Pressable
       style={({ pressed }) => [
-        tw` rounded-2xl bg-gray-100 dark:bg-gray-800`,
+        tw` rounded-2xl  dark:bg-gray-800 border border-light-border`,
         pressed && tw`opacity-80`,
       ]}
       onPress={onPress}
     >
-      <ThemedView
-        style={tw`flex-row justify-between items-end bg-transparent p-4`}
-      >
+      <ThemedView style={tw`flex-col bg-transparent p-4 gap-4`}>
+        {/* <ThemedView */}
+        {/*   style={tw`absolute  rounded-full items-center justify-center  z-10 right-0 top-0`} */}
+        {/* ></ThemedView> */}
         <ThemedView
-          style={tw`absolute  rounded-full items-center justify-center  z-10 right-0 top-0`}
+          style={tw`flex-row bg-transparent justify-between items-start gap-2`}
         >
+          <ThemedView>
+            <ThemedText type="h3" style={tw` font-bold`}>
+              {detail.product.name}
+            </ThemedText>
+            {detail.description && (
+              <ThemedText type="body2">{detail.description}</ThemedText>
+            )}
+          </ThemedView>
           <IconButton
             icon="close-outline"
             style={tw`bg-gray-100`}
@@ -55,21 +64,21 @@ export default function NewOrderDetailCard({
             onPress={onRemoveDetail}
           />
         </ThemedView>
-        <ThemedView style={tw` bg-transparent justify-between gap-2`}>
-          <ThemedText type="h3" style={tw` font-bold`}>
-            {detail.product.name}
+        <ThemedView
+          style={tw`flex-row bg-transparent justify-between gap-2 items-center`}
+        >
+          <ThemedText type="body1" style={tw`text-light-primary font-semibold`}>
+            ${detail.product.price * counter}
           </ThemedText>
-          <ThemedText type="body1">${detail.product.price}</ThemedText>
-          <ThemedText type="body2">{detail.description}</ThemedText>
-        </ThemedView>
-        <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
-          <IconButton
-            icon="remove-outline"
-            onPress={decrement}
-            variant="outlined"
-          />
-          <ThemedText>{counter}</ThemedText>
-          <IconButton icon="add" onPress={increment} variant="outlined" />
+          <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
+            <IconButton
+              icon="remove-outline"
+              onPress={decrement}
+              variant="outlined"
+            />
+            <ThemedText>{counter}</ThemedText>
+            <IconButton icon="add" onPress={increment} variant="outlined" />
+          </ThemedView>
         </ThemedView>
       </ThemedView>
     </Pressable>

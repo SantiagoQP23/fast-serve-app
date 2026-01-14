@@ -133,7 +133,7 @@ export default function OrderDetailCard({
           </View>
         </View>
       </Modal>
-      
+
       <BottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={["30%"]}
@@ -192,10 +192,12 @@ export default function OrderDetailCard({
                 {/* </ThemedView> */}
               </ThemedView>
             </ThemedView>
-            <ProgressBar
-              progress={detail.qtyDelivered / detail.quantity}
-              height={1}
-            />
+            {detail.quantity > 1 && (
+              <ProgressBar
+                progress={detail.qtyDelivered / detail.quantity}
+                height={1}
+              />
+            )}
           </ThemedView>
         </Pressable>
       </ThemedView>

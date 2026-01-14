@@ -20,7 +20,7 @@ export default function ProductCard({ product, onPress }: ProductCardProps) {
   return (
     <Pressable
       style={({ pressed }) => [
-        tw` p-4 rounded-2xl bg-gray-100 dark:bg-gray-800`,
+        tw` p-4 rounded-2xl bg-light-surface dark:bg-gray-800`,
         pressed && tw`opacity-80`,
       ]}
       onPress={onPress}

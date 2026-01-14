@@ -37,7 +37,7 @@ export default function TextInput({
       <View
         style={tw.style(
           "flex-row items-center",
-          "border border-gray-300 rounded-xl px-3 py-1 text-gray-900 bg-white",
+          "border border-light-border rounded-xl px-3 py-1 text-gray-900 bg-white",
           error ? "border-red-500" : "border-gray-300",
         )}
       >

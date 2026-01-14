@@ -140,7 +140,7 @@ export default function RestaurantMenuScreen() {
         <ScrollView
           style={tw`flex-1 mb-20`}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={tw`gap-3 pb-20`}
+          contentContainerStyle={tw`gap-3 pb-40`}
         >
           {filteredProducts.map((product) => (
             <ProductCard
@@ -153,13 +153,10 @@ export default function RestaurantMenuScreen() {
       </ThemedView>
 
       {!order && details.length > 0 && (
-        <ThemedView style={tw`absolute bottom-4 left-4 right-4 `}>
-          <ThemedView style={tw`flex-row justify-between items-center`}>
-            <ThemedView>
-              <ThemedText>
-                {t("menu:addedProducts")} {details.length}
-              </ThemedText>
-            </ThemedView>
+        <ThemedView style={tw`absolute bottom-4 left-4 right-4 bg-transparent`}>
+          <ThemedView
+            style={tw`flex-row justify-end items-center bg-transparent`}
+          >
             <Button
               label={t("menu:goToCart")}
               leftIcon="cart-outline"

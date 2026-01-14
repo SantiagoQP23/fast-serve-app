@@ -1,13 +1,7 @@
-import { Platform, StyleSheet, ScrollView, Text } from "react-native";
-
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import OrderCard from "@/presentation/home/components/order-card";
-import ProductCard from "@/presentation/restaurant-menu/product-card";
-import ButtonGroup from "@/presentation/theme/components/button-group";
 import { useState } from "react";
-import Chip from "@/presentation/theme/components/chip";
 import { router, useRouter } from "expo-router";
 import Switch from "@/presentation/theme/components/switch";
 import TextInput from "@/presentation/theme/components/text-input";
@@ -101,13 +95,13 @@ export default function ProductScreen() {
   return (
     <>
       <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
-        <ThemedView style={tw`flex-row justify-between mb-4 items-center`}>
-          <ThemedView style={tw`gap-2`}>
-            <ThemedText type="h2">{activeProduct.name}</ThemedText>
-            <ThemedText type="body1">
-              {formatCurrency(activeProduct.price)}
-            </ThemedText>
-          </ThemedView>
+        <ThemedView
+          style={tw` justify-center text-center mb-4 items-center gap-2`}
+        >
+          <ThemedText type="h2">{activeProduct.name}</ThemedText>
+          <ThemedText type="body1">
+            {formatCurrency(activeProduct.price)}
+          </ThemedText>
           {/* <ThemedView style={tw`flex-row items-center gap-4`}> */}
           {/*   <IconButton */}
           {/*     icon="remove-outline" */}
