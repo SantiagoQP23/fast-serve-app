@@ -85,7 +85,7 @@ export default function DailyReportScreen() {
               <ThemedView style={tw`gap-3`}>
                 {/* Circular Progress Gauge - Income vs Amount */}
                 <ThemedView
-                  style={tw`bg-white rounded-xl p-6 shadow-sm items-center`}
+                  style={tw`bg-white rounded-xl p-6 border border-light-border items-center`}
                 >
                   <CircularProgressGauge
                     percentage={collectionRate * 100}
@@ -102,9 +102,9 @@ export default function DailyReportScreen() {
                 {/* Stats Row */}
                 <ThemedView style={tw`flex-row gap-2`}>
                   <ThemedView
-                    style={tw`flex-1 bg-white rounded-xl p-3 shadow-sm`}
+                    style={tw`flex-1 border border-light-border rounded-xl p-3 `}
                   >
-                    <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
+                    <ThemedText type="small" style={tw`text-gray-500 mb-1`}>
                       {t("reports:summary.totalOrders")}
                     </ThemedText>
                     <ThemedText type="h3" style={tw`text-primary-700`}>
@@ -113,9 +113,9 @@ export default function DailyReportScreen() {
                   </ThemedView>
 
                   <ThemedView
-                    style={tw`flex-1 bg-white rounded-xl p-3 shadow-sm`}
+                    style={tw`flex-1 border border-light-border rounded-xl p-3 `}
                   >
-                    <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
+                    <ThemedText type="small" style={tw`text-gray-500 mb-1`}>
                       {t("reports:summary.totalBills")}
                     </ThemedText>
                     <ThemedText type="h3" style={tw`text-primary-700`}>
@@ -124,9 +124,9 @@ export default function DailyReportScreen() {
                   </ThemedView>
 
                   <ThemedView
-                    style={tw`flex-1 bg-white rounded-xl p-3 shadow-sm`}
+                    style={tw`flex-1 border border-light-border rounded-xl p-3 `}
                   >
-                    <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
+                    <ThemedText type="small" style={tw`text-gray-500 mb-1`}>
                       {t("reports:summary.totalWaiters")}
                     </ThemedText>
                     <ThemedText type="h3" style={tw`text-primary-700`}>

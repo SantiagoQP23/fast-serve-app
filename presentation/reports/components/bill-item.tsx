@@ -4,10 +4,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import {
-  formatCurrency,
-  getPaymentMethodInfo,
-} from "@/core/i18n/utils";
+import { formatCurrency, getPaymentMethodInfo } from "@/core/i18n/utils";
 import { WaiterBillDto } from "@/core/orders/dto/daily-report-response.dto";
 import dayjs from "dayjs";
 
@@ -23,25 +20,14 @@ export default function BillItem({ bill }: BillItemProps) {
   const time = dayjs(bill.createdAt).format("HH:mm");
 
   return (
-    <ThemedView
-      style={tw`  py-3 px-3 bg-white border border-gray-200 rounded-xl shadow-sm`}
-    >
+    <ThemedView style={tw`  pb-3  bg-white  rounded-xl `}>
       <ThemedView style={tw`flex-row justify-between mb-2`}>
         {/* Bill Number */}
         <ThemedView
           style={tw`flex-row items-center gap-2 bg-transparent min-w-16`}
         >
-          <ThemedView
-            style={tw`w-7 h-7 rounded-full bg-gray-100 items-center justify-center`}
-          >
-            <Ionicons
-              name="receipt-outline"
-              size={16}
-              color={tw.color("gray-700")}
-            />
-          </ThemedView>
-          <ThemedText type="caption" style={tw`text-gray-900 font-bold`}>
-            #{bill.num}
+          <ThemedText type="body2" style={tw`text-gray-900 font-bold`}>
+            Cuenta #{bill.num}
           </ThemedText>
         </ThemedView>
         {/* Total */}
@@ -53,22 +39,22 @@ export default function BillItem({ bill }: BillItemProps) {
       </ThemedView>
       <ThemedView style={tw`flex-row gap-2 `}>
         {/* Payment Method */}
-        <ThemedView
-          style={tw`flex-1 flex-row items-center gap-2  bg-transparent`}
-        >
-          <ThemedView
-            style={tw`w-7 h-7 rounded-full ${paymentInfo.bgColor} items-center justify-center`}
-          >
-            <Ionicons
-              name={paymentInfo.icon}
-              size={16}
-              color={paymentInfo.color}
-            />
+        {bill.isPaid && (
+          <ThemedView style={tw` flex-row items-center gap-1  bg-transparent`}>
+            <ThemedView
+              style={tw`w-7 h-7 rounded-full  items-center justify-center`}
+            >
+              <Ionicons
+                name={paymentInfo.icon}
+                size={16}
+                color={paymentInfo.color}
+              />
+            </ThemedView>
+            <ThemedText type="small" style={tw`text-gray-700 font-medium`}>
+              {paymentMethodLabel}
+            </ThemedText>
           </ThemedView>
-          <ThemedText type="caption" style={tw`text-gray-700 font-medium`}>
-            {paymentMethodLabel}
-          </ThemedText>
-        </ThemedView>
+        )}
 
         {/* Time */}
         <ThemedView style={tw`flex-row items-center gap-1.5 bg-transparent`}>
