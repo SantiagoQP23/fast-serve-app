@@ -250,7 +250,7 @@ export default function OrderScreen() {
             />
           }
         >
-          <ThemedView style={tw` justify-between   rounded-lg gap-4 mb-4`}>
+          <ThemedView style={tw` justify-between gap-4 mb-4`}>
             <ThemedView
               style={tw`gap-1 bg-transparent flex-row justify-between`}
             >
@@ -397,7 +397,7 @@ export default function OrderScreen() {
 
           {/* Pending Items Section */}
           {pendingDetails.length > 0 && (
-            <ThemedView style={tw`gap-4`}>
+            <ThemedView style={tw`gap-4  rounded-lg`}>
               <ThemedView style={tw`flex-row justify-between items-center`}>
                 <ThemedText type="h4">
                   {t("orders:details.pendingItems")}

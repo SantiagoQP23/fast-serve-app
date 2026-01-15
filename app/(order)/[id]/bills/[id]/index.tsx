@@ -243,85 +243,53 @@ export default function BillScreen() {
             }
           >
             {/* Header Section */}
-            <ThemedView style={tw`items-center gap-4 mb-6`}>
-              <ThemedView style={tw`bg-blue-500/10 p-4 rounded-full`}>
-                <Ionicons
-                  name="receipt-outline"
-                  size={40}
-                  color={tw.color("blue-600")}
-                />
-              </ThemedView>
-              <ThemedView style={tw`gap-1 items-center`}>
-                <ThemedText type="h3" style={tw`font-bold`}>
-                  {t("bills:list.billNumber", { number: bill.num })}
-                </ThemedText>
-                <ThemedView style={tw`flex-row items-center gap-1.5`}>
-                  <Ionicons
-                    name="time-outline"
-                    size={16}
-                    color={tw.color("gray-500")}
-                  />
-                  <ThemedText type="body2" style={tw`text-gray-500`}>
-                    {date}
-                  </ThemedText>
-                </ThemedView>
-              </ThemedView>
-
-              {/* Status Badge */}
+            <ThemedView style={tw`mb-6 justify-center items-center`}>
+              <ThemedText type="h2" style={tw`font-bold mb-1`}>
+                {t("bills:list.billNumber", { number: bill.num })}
+              </ThemedText>
+              <ThemedText type="body2" style={tw`text-gray-500 mb-3`}>
+                {date}
+              </ThemedText>
               {bill.isPaid ? (
                 <Label
                   color="success"
                   text={t("bills:details.paid")}
-                  leftIcon="checkmark-circle-outline"
+                  leftIcon="checkmark-circle"
                 />
               ) : (
                 <Label
                   color="warning"
                   text={t("bills:details.unpaid")}
-                  leftIcon="time-outline"
+                  leftIcon="time"
                 />
               )}
             </ThemedView>
 
-            {/* Total Amount Card */}
+            {/* Total Amount */}
             <ThemedView
-              style={tw`bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-2xl items-center gap-2 mb-6 shadow-sm border border-blue-200`}
+              style={tw`mb-6 pb-6 border-b border-gray-200 items-center`}
             >
-              <ThemedText type="body2" style={tw`text-gray-600 font-medium`}>
+              <ThemedText type="caption" style={tw`text-gray-500 mb-2`}>
                 {t("bills:details.totalAmount")}
               </ThemedText>
-              <ThemedText style={tw`text-6xl font-bold text-gray-900`}>
+              <ThemedText style={tw`text-5xl font-bold mb-3`}>
                 {formatCurrency(totalAfterDiscount)}
               </ThemedText>
               {bill.discount > 0 && (
-                <ThemedView
-                  style={tw`bg-green-500/10 px-4 py-2 rounded-full mt-2`}
-                >
-                  <ThemedText
-                    type="body2"
-                    style={tw`text-green-700 font-semibold`}
-                  >
-                    {t("bills:details.discount")}: -
-                    {formatCurrency(bill.discount)}
-                  </ThemedText>
-                </ThemedView>
+                <ThemedText type="body2" style={tw`text-green-600`}>
+                  {t("bills:details.discount")}: -
+                  {formatCurrency(bill.discount)}
+                </ThemedText>
               )}
             </ThemedView>
 
-            {/* Items Section */}
+            {/* Items List */}
             <ThemedView style={tw`mb-6`}>
-              <ThemedView style={tw`flex-row items-center gap-2 mb-3`}>
-                <Ionicons
-                  name="list-outline"
-                  size={20}
-                  color={tw.color("gray-700")}
-                />
-                <ThemedText type="h4" style={tw`font-semibold`}>
-                  {t("bills:details.items")} ({bill.details.length})
-                </ThemedText>
-              </ThemedView>
+              <ThemedText type="body2" style={tw`text-gray-500 mb-3`}>
+                {t("bills:details.items")} ({bill.details.length})
+              </ThemedText>
               <ThemedView
-                style={tw`gap-3 border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm`}
+                style={tw`border border-gray-200 rounded-xl overflow-hidden`}
               >
                 {bill.details.map((detail, index) => (
                   <ThemedView key={detail.id}>
@@ -331,16 +299,12 @@ export default function BillScreen() {
                       <ThemedView
                         style={tw`flex-1 flex-row items-center gap-3`}
                       >
-                        <ThemedView
-                          style={tw`bg-blue-500/10 px-2.5 py-1 rounded-lg min-w-10 items-center`}
+                        <ThemedText
+                          type="body2"
+                          style={tw`text-gray-500 min-w-8`}
                         >
-                          <ThemedText
-                            type="body2"
-                            style={tw`font-bold text-blue-600`}
-                          >
-                            {detail.quantity}x
-                          </ThemedText>
-                        </ThemedView>
+                          {detail.quantity}×
+                        </ThemedText>
                         <ThemedText type="body1" style={tw`flex-1`}>
                           {detail.orderDetail.product.name}
                         </ThemedText>
@@ -350,47 +314,38 @@ export default function BillScreen() {
                       </ThemedText>
                     </ThemedView>
                     {index < bill.details.length - 1 && (
-                      <ThemedView style={tw`h-px bg-gray-100 mx-4`} />
+                      <ThemedView style={tw`h-px bg-gray-200`} />
                     )}
                   </ThemedView>
                 ))}
               </ThemedView>
             </ThemedView>
+
             {!bill.isPaid ? (
               <>
                 {/* Discount Section */}
                 <ThemedView style={tw`mb-6`}>
-                  <ThemedView style={tw`flex-row items-center gap-2 mb-3`}>
-                    <ThemedText type="h4" style={tw`font-semibold`}>
-                      {t("bills:details.discount")} (Max 10%)
-                    </ThemedText>
-                  </ThemedView>
+                  <ThemedText type="body2" style={tw`text-gray-500 mb-2`}>
+                    {t("bills:details.discount")} (Max 10%)
+                  </ThemedText>
                   <TextInput
                     inputMode="numeric"
                     value={discount}
                     onChangeText={setDiscount}
                     onBlur={validateDiscount}
-                    icon="pricetag-outline"
                     placeholder="0.00"
                   />
                 </ThemedView>
 
                 {/* Payment Method Section */}
-                <ThemedView style={tw`gap-4 mb-6`}>
-                  <ThemedView style={tw`flex-row items-center gap-2`}>
-                    <Ionicons
-                      name="wallet-outline"
-                      size={20}
-                      color={tw.color("gray-700")}
-                    />
-                    <ThemedText type="h4" style={tw`font-semibold`}>
-                      {t("bills:details.paymentMethod")}
-                    </ThemedText>
-                  </ThemedView>
+                <ThemedView style={tw`mb-6`}>
+                  <ThemedText type="body2" style={tw`text-gray-500 mb-3`}>
+                    {t("bills:details.paymentMethod")}
+                  </ThemedText>
                   <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={tw`gap-3 px-1`}
+                    contentContainerStyle={tw`gap-2`}
                     nestedScrollEnabled
                   >
                     {paymentMethods.map((method) => (
@@ -406,21 +361,11 @@ export default function BillScreen() {
 
                 {/* Cash Payment Section */}
                 {paymentMethod === PaymentMethodE.CASH && (
-                  <ThemedView
-                    style={tw`gap-4 mb-20 border border-gray-200 p-5 rounded-2xl bg-gray-50`}
-                  >
-                    <ThemedView style={tw`flex-row items-center gap-2`}>
-                      <Ionicons
-                        name="cash-outline"
-                        size={20}
-                        color={tw.color("gray-700")}
-                      />
-                      <ThemedText type="h4" style={tw`font-semibold`}>
-                        {t("bills:details.receivedAmount")}
-                      </ThemedText>
-                    </ThemedView>
+                  <ThemedView style={tw`mb-20`}>
+                    <ThemedText type="body2" style={tw`text-gray-500 mb-2`}>
+                      {t("bills:details.receivedAmount")}
+                    </ThemedText>
                     <TextInput
-                      icon="cash-outline"
                       value={receivedAmount}
                       onChangeText={setReceivedAmount}
                       inputMode="numeric"
@@ -428,32 +373,26 @@ export default function BillScreen() {
                     />
 
                     {/* Quick Amount Buttons */}
-                    <ThemedView style={tw`gap-2`}>
-                      <ThemedText type="body2" style={tw`text-gray-600`}>
-                        Quick amounts
-                      </ThemedText>
-                      <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={tw`gap-2`}
-                        nestedScrollEnabled
-                      >
-                        {moneyReceivedOptions.map((amount) => (
-                          <Button
-                            key={amount}
-                            label={`$${amount}`}
-                            variant="outline"
-                            size="small"
-                            onPress={() => setReceivedAmount(amount)}
-                          />
-                        ))}
-                      </ScrollView>
-                    </ThemedView>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={tw`gap-2 mt-3 mb-3`}
+                      nestedScrollEnabled
+                    >
+                      {moneyReceivedOptions.map((amount) => (
+                        <Button
+                          key={amount}
+                          label={`$${amount}`}
+                          variant="outline"
+                          size="small"
+                          onPress={() => setReceivedAmount(amount)}
+                        />
+                      ))}
+                    </ScrollView>
 
                     <Button
                       label={t("bills:details.exactAmount")}
                       variant="outline"
-                      leftIcon="calculator-outline"
                       onPress={() =>
                         setReceivedAmount(String(totalAfterDiscount))
                       }
@@ -462,23 +401,16 @@ export default function BillScreen() {
                     {/* Change Display */}
                     {+receivedAmount > totalAfterDiscount && (
                       <ThemedView
-                        style={tw`items-center mt-4 gap-2 bg-green-50 p-4 rounded-xl border border-green-200`}
+                        style={tw`mt-4 p-4  rounded-xl border border-green-200 items-center`}
                       >
-                        <ThemedView style={tw`flex-row items-center gap-2`}>
-                          <Ionicons
-                            name="arrow-back-outline"
-                            size={18}
-                            color={tw.color("green-700")}
-                          />
-                          <ThemedText
-                            type="body2"
-                            style={tw`text-green-700 font-medium`}
-                          >
-                            {t("bills:details.change")}
-                          </ThemedText>
-                        </ThemedView>
                         <ThemedText
-                          style={tw`text-4xl font-bold text-green-700`}
+                          type="caption"
+                          style={tw`text-green-700 mb-1`}
+                        >
+                          {t("bills:details.change")}
+                        </ThemedText>
+                        <ThemedText
+                          style={tw`text-3xl font-bold text-green-700`}
                         >
                           {formatCurrency(+receivedAmount - totalAfterDiscount)}
                         </ThemedText>
@@ -490,66 +422,51 @@ export default function BillScreen() {
             ) : (
               <>
                 {/* Paid Bill Summary */}
-                <ThemedView
-                  style={tw`items-center mt-8 gap-4 bg-green-50 p-6 rounded-2xl border border-green-200`}
-                >
-                  <ThemedView style={tw`bg-green-500/20 p-4 rounded-full`}>
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={56}
-                      color={tw.color("green-600")}
-                    />
-                  </ThemedView>
-                  <ThemedText type="h3" style={tw`font-bold text-green-700`}>
+                <ThemedView style={tw`items-center py-8 mb-6`}>
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={64}
+                    color={tw.color("green-500")}
+                  />
+                  <ThemedText
+                    type="h3"
+                    style={tw`font-bold text-green-600 mt-3`}
+                  >
                     {t("bills:details.billPaid")}
                   </ThemedText>
                 </ThemedView>
 
                 {/* Payment Details */}
                 <ThemedView
-                  style={tw`mt-6 gap-4 border border-gray-200 p-5 rounded-2xl bg-white`}
+                  style={tw`border border-gray-200 rounded-xl overflow-hidden`}
                 >
-                  <ThemedText type="h4" style={tw`font-semibold mb-2`}>
-                    Payment Details
-                  </ThemedText>
                   <ThemedView
-                    style={tw`flex-row justify-between items-center py-2`}
+                    style={tw`flex-row justify-between items-center px-4 py-3`}
                   >
-                    <ThemedView style={tw`flex-row items-center gap-2`}>
-                      <Ionicons
-                        name="wallet-outline"
-                        size={18}
-                        color={tw.color("gray-600")}
-                      />
-                      <ThemedText type="body1" style={tw`text-gray-600`}>
-                        {t("bills:details.paymentMethod")}
-                      </ThemedText>
-                    </ThemedView>
+                    <ThemedText type="body2" style={tw`text-gray-500`}>
+                      {t("bills:details.paymentMethod")}
+                    </ThemedText>
                     <ThemedText type="body1" style={tw`font-semibold`}>
                       {bill.paymentMethod}
                     </ThemedText>
                   </ThemedView>
                   {bill.discount > 0 && (
-                    <ThemedView
-                      style={tw`flex-row justify-between items-center py-2`}
-                    >
-                      <ThemedView style={tw`flex-row items-center gap-2`}>
-                        <Ionicons
-                          name="pricetag-outline"
-                          size={18}
-                          color={tw.color("gray-600")}
-                        />
-                        <ThemedText type="body1" style={tw`text-gray-600`}>
+                    <>
+                      <ThemedView style={tw`h-px bg-gray-200`} />
+                      <ThemedView
+                        style={tw`flex-row justify-between items-center px-4 py-3`}
+                      >
+                        <ThemedText type="body2" style={tw`text-gray-500`}>
                           {t("bills:details.discount")}
                         </ThemedText>
+                        <ThemedText
+                          type="body1"
+                          style={tw`font-semibold text-green-600`}
+                        >
+                          -{formatCurrency(bill.discount)}
+                        </ThemedText>
                       </ThemedView>
-                      <ThemedText
-                        type="body1"
-                        style={tw`font-semibold text-green-600`}
-                      >
-                        -{formatCurrency(bill.discount)}
-                      </ThemedText>
-                    </ThemedView>
+                    </>
                   )}
                 </ThemedView>
               </>
@@ -558,7 +475,7 @@ export default function BillScreen() {
 
           {!bill.isPaid && (
             <ThemedView
-              style={tw`flex-row justify-between items-center mb-4 gap-3 bg-white border-t border-gray-200 pt-4`}
+              style={tw`flex-row items-center mb-4 gap-3 border-t border-gray-200 pt-4`}
             >
               <IconButton
                 icon="trash-outline"
@@ -566,12 +483,7 @@ export default function BillScreen() {
                 onPress={() => setVisible(true)}
               />
               <ThemedView style={tw`flex-1`}>
-                <Button
-                  label={t("bills:details.payBill")}
-                  onPress={payBill}
-                  leftIcon="checkmark-circle-outline"
-                  size="large"
-                />
+                <Button label={t("bills:details.payBill")} onPress={payBill} />
               </ThemedView>
             </ThemedView>
           )}
