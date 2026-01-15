@@ -35,21 +35,25 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
       <Pressable onPress={toggleExpand}>
         <ThemedView style={tw`p-4 bg-white`}>
           {/* Header with icon and name */}
-          <ThemedView style={tw`flex-row items-center mb-3 bg-transparent`}>
-            <ThemedView
-              style={tw`w-12 h-12 rounded-full bg-primary-50 items-center justify-center mr-3`}
-            >
-              <Ionicons
-                name="person"
-                size={24}
-                color={tw.color("primary-600")}
-              />
-            </ThemedView>
-            <ThemedView style={tw`flex-1 bg-transparent`}>
-              <ThemedText type="h4">{waiterStats.fullName}</ThemedText>
-              <ThemedText type="caption" style={tw`text-gray-500`}>
-                {waiterStats.roleName} • {waiterStats.totalOrders} {t("reports:waiterStats.orders")} • {waiterStats.totalBills} {t("reports:waiterStats.bills")}
-              </ThemedText>
+          <ThemedView
+            style={tw`flex-row items-center justify-between mb-4 bg-transparent`}
+          >
+            <ThemedView style={tw`flex-row items-center flex-1`}>
+              <ThemedView
+                style={tw`w-12 h-12 rounded-full bg-primary-50 items-center justify-center mr-3`}
+              >
+                <Ionicons
+                  name="person"
+                  size={24}
+                  color={tw.color("primary-600")}
+                />
+              </ThemedView>
+              <ThemedView style={tw`flex-1 bg-transparent`}>
+                <ThemedText type="h4">{waiterStats.fullName}</ThemedText>
+                <ThemedText type="caption" style={tw`text-gray-500`}>
+                  {waiterStats.roleName}
+                </ThemedText>
+              </ThemedView>
             </ThemedView>
             <Ionicons
               name={isExpanded ? "chevron-up" : "chevron-down"}
@@ -58,52 +62,61 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
             />
           </ThemedView>
 
-          {/* Total Income - Highlighted */}
-          <ThemedView style={tw`bg-primary-50 rounded-xl p-3 mb-3`}>
-            <ThemedText type="caption" style={tw`text-gray-600 mb-1`}>
-              {t("reports:waiterStats.income")}
-            </ThemedText>
-            <ThemedText type="h2" style={tw`text-primary-700`}>
-              {formatCurrency(waiterStats.totalIncome)}
-            </ThemedText>
-          </ThemedView>
+          {/* Income vs Amount with Progress Bar */}
+          <ThemedView style={tw`bg-light-surface rounded-xl p-4`}>
+            {/* Values Row */}
+            <ThemedView
+              style={tw`flex-row justify-between mb-3 bg-transparent`}
+            >
+              <ThemedView style={tw`flex-1 bg-transparent`}>
+                <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
+                  {t("reports:waiterStats.income")}
+                </ThemedText>
+                <ThemedText type="h3" style={tw`text-primary-700`}>
+                  {formatCurrency(waiterStats.totalIncome)}
+                </ThemedText>
+              </ThemedView>
 
-          {/* Stats Row */}
-          <ThemedView style={tw`flex-row gap-2 mb-3`}>
-            <ThemedView style={tw`flex-1 bg-gray-50 rounded-xl p-3`}>
-              <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
-                {t("reports:waiterStats.amount")}
-              </ThemedText>
-              <ThemedText type="h3" style={tw`text-gray-700`}>
-                {formatCurrency(waiterStats.totalAmount)}
-              </ThemedText>
+              <ThemedView style={tw`flex-1 items-end bg-transparent`}>
+                <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
+                  {t("reports:waiterStats.amount")}
+                </ThemedText>
+                <ThemedText type="h3" style={tw`text-gray-700`}>
+                  {formatCurrency(waiterStats.totalAmount)}
+                </ThemedText>
+              </ThemedView>
             </ThemedView>
 
-            <ThemedView style={tw`flex-1 bg-gray-50 rounded-xl p-3`}>
-              <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
-                {t("reports:waiterStats.collectionRate")}
-              </ThemedText>
-              <ThemedText type="h3" style={tw`text-gray-700`}>
-                {Math.round(collectionRate * 100)}%
-              </ThemedText>
+            {/* Progress Bar */}
+            <ThemedView style={tw`bg-transparent`}>
+              <ThemedView
+                style={tw`flex-row items-center justify-end mb-2 bg-transparent`}
+              >
+                <ThemedText
+                  type="small"
+                  style={tw`font-semibold text-primary-700`}
+                >
+                  {Math.round(collectionRate * 100)}%
+                </ThemedText>
+              </ThemedView>
+              <ProgressBar
+                progress={collectionRate}
+                height={2}
+                bgColor="bg-gray-200"
+              />
             </ThemedView>
-          </ThemedView>
 
-          {/* Collection Rate Progress */}
-          <ThemedView style={tw`bg-transparent`}>
-            <ThemedView style={tw`flex-row items-center justify-between mb-2`}>
-              <ThemedText type="caption" style={tw`text-gray-500`}>
-                {t("reports:waiterStats.collectionRate")}
+            {/* Stats Summary */}
+            <ThemedView
+              style={tw`flex-row justify-between mt-3 pt-3 border-t border-gray-200 bg-transparent`}
+            >
+              <ThemedText type="small" style={tw`text-gray-600`}>
+                {waiterStats.totalOrders} {t("reports:waiterStats.orders")}
               </ThemedText>
-              <ThemedText type="small" style={tw`font-semibold text-gray-700`}>
-                {Math.round(collectionRate * 100)}%
+              <ThemedText type="small" style={tw`text-gray-600`}>
+                {waiterStats.totalBills} {t("reports:waiterStats.bills")}
               </ThemedText>
             </ThemedView>
-            <ProgressBar
-              progress={collectionRate}
-              height={1.5}
-              bgColor="bg-gray-200"
-            />
           </ThemedView>
         </ThemedView>
       </Pressable>

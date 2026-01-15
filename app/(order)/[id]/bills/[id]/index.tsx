@@ -26,7 +26,11 @@ import { UpdateBillDto } from "@/core/orders/dto/update-bill.dto";
 import { PaymentMethod as PaymentMethodE } from "@/core/orders/enums/payment-method";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatCurrency, i18nAlert } from "@/core/i18n/utils";
+import {
+  formatCurrency,
+  i18nAlert,
+  translatePaymentMethod,
+} from "@/core/i18n/utils";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
@@ -447,7 +451,7 @@ export default function BillScreen() {
                       {t("bills:details.paymentMethod")}
                     </ThemedText>
                     <ThemedText type="body1" style={tw`font-semibold`}>
-                      {bill.paymentMethod}
+                      {translatePaymentMethod(bill.paymentMethod)}
                     </ThemedText>
                   </ThemedView>
                   {bill.discount > 0 && (

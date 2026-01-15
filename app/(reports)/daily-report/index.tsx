@@ -9,10 +9,10 @@ import { formatCurrency } from "@/core/i18n/utils";
 import { useDailyReport } from "@/presentation/orders/hooks/useDailyReport";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import WaiterStatsCard from "@/presentation/reports/components/waiter-stats-card";
+import CircularProgressGauge from "@/presentation/theme/components/circular-progress-gauge";
 import { ReportMode } from "@/core/orders/dto/daily-report-filters.dto";
 import * as Haptics from "expo-haptics";
 import dayjs from "dayjs";
-import ProgressBar from "@/presentation/theme/components/progress-bar";
 
 export default function DailyReportScreen() {
   const { t } = useTranslation(["reports", "common"]);
@@ -65,7 +65,7 @@ export default function DailyReportScreen() {
       >
         {/* Summary Header */}
         <ThemedView style={tw`px-4 mb-6`}>
-          <ThemedView style={tw`bg-primary-50 rounded-2xl p-4`}>
+          <ThemedView style={tw`bg-primary-50 rounded-2xl py-4`}>
             <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
               <ThemedText type="h3">{t("reports:summary.title")}</ThemedText>
               <ThemedView style={tw`bg-white rounded-full px-3 py-1`}>
@@ -83,85 +83,20 @@ export default function DailyReportScreen() {
               </ThemedView>
             ) : (
               <ThemedView style={tw`gap-3`}>
-                {/* Total Income - Full Width */}
-                <ThemedView style={tw`bg-white rounded-xl p-4 shadow-sm`}>
-                  <ThemedView style={tw`flex-row items-center justify-between`}>
-                    <ThemedView style={tw`flex-1`}>
-                      <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
-                        {t("reports:summary.totalIncome")}
-                      </ThemedText>
-                      <ThemedText type="h2" style={tw``}>
-                        {formatCurrency(summary?.totalIncome ?? 0)}
-                      </ThemedText>
-                    </ThemedView>
-                    <ThemedView
-                      style={tw`w-12 h-12 rounded-full items-center justify-center`}
-                    >
-                      <Ionicons
-                        name="trending-up"
-                        size={24}
-                        color={tw.color("primary-600")}
-                      />
-                    </ThemedView>
-                  </ThemedView>
-                </ThemedView>
-
-                {/* Total Amount - Full Width */}
-                <ThemedView style={tw`bg-white rounded-xl p-4 shadow-sm`}>
-                  <ThemedView style={tw`flex-row items-center justify-between`}>
-                    <ThemedView style={tw`flex-1`}>
-                      <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
-                        {t("reports:summary.totalAmount")}
-                      </ThemedText>
-                      <ThemedText type="h2" style={tw``}>
-                        {formatCurrency(summary?.totalAmount ?? 0)}
-                      </ThemedText>
-                    </ThemedView>
-                    <ThemedView
-                      style={tw`w-12 h-12 rounded-full items-center justify-center`}
-                    >
-                      <Ionicons
-                        name="cash"
-                        size={24}
-                        color={tw.color("primary-600")}
-                      />
-                    </ThemedView>
-                  </ThemedView>
-                </ThemedView>
-
-                {/* Collection Rate Progress */}
-                <ThemedView style={tw`bg-white rounded-xl p-4 shadow-sm`}>
-                  <ThemedView
-                    style={tw`flex-row items-center justify-between mb-2`}
-                  >
-                    <ThemedText type="caption" style={tw`text-gray-500`}>
-                      {t("reports:summary.collectionRate")}
-                    </ThemedText>
-                    <ThemedText
-                      type="body2"
-                      style={tw`font-semibold text-gray-700`}
-                    >
-                      {Math.round(collectionRate * 100)}%
-                    </ThemedText>
-                  </ThemedView>
-                  <ProgressBar
-                    progress={collectionRate}
-                    height={1.5}
-                    bgColor="bg-gray-200"
+                {/* Circular Progress Gauge - Income vs Amount */}
+                <ThemedView
+                  style={tw`bg-white rounded-xl p-6 shadow-sm items-center`}
+                >
+                  <CircularProgressGauge
+                    percentage={collectionRate * 100}
+                    currentValue={summary?.totalIncome ?? 0}
+                    goalValue={summary?.totalAmount ?? 0}
+                    currentLabel={t("reports:summary.collected")}
+                    goalLabel={t("reports:summary.totalAmount")}
+                    formatValue={(val) => formatCurrency(val)}
+                    size={180}
+                    strokeWidth={14}
                   />
-                  <ThemedView style={tw`flex-row justify-between mt-2`}>
-                    <ThemedText type="small" style={tw`text-gray-400`}>
-                      {t("reports:summary.collected")}:{" "}
-                      {formatCurrency(summary?.totalIncome ?? 0)}
-                    </ThemedText>
-                    <ThemedText type="small" style={tw`text-gray-400`}>
-                      {t("reports:summary.pending")}:{" "}
-                      {formatCurrency(
-                        (summary?.totalAmount ?? 0) -
-                          (summary?.totalIncome ?? 0),
-                      )}
-                    </ThemedText>
-                  </ThemedView>
                 </ThemedView>
 
                 {/* Stats Row */}
@@ -172,7 +107,7 @@ export default function DailyReportScreen() {
                     <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
                       {t("reports:summary.totalOrders")}
                     </ThemedText>
-                    <ThemedText type="h3" style={tw``}>
+                    <ThemedText type="h3" style={tw`text-primary-700`}>
                       {summary?.totalOrders ?? 0}
                     </ThemedText>
                   </ThemedView>
@@ -183,7 +118,7 @@ export default function DailyReportScreen() {
                     <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
                       {t("reports:summary.totalBills")}
                     </ThemedText>
-                    <ThemedText type="h3" style={tw``}>
+                    <ThemedText type="h3" style={tw`text-primary-700`}>
                       {summary?.totalBills ?? 0}
                     </ThemedText>
                   </ThemedView>
@@ -194,7 +129,7 @@ export default function DailyReportScreen() {
                     <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
                       {t("reports:summary.totalWaiters")}
                     </ThemedText>
-                    <ThemedText type="h3" style={tw``}>
+                    <ThemedText type="h3" style={tw`text-primary-700`}>
                       {summary?.totalWaiters ?? 0}
                     </ThemedText>
                   </ThemedView>

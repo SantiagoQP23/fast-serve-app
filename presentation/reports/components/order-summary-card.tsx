@@ -45,7 +45,7 @@ export default function OrderSummaryCard({ order }: OrderSummaryCardProps) {
         </ThemedView>
 
         <ThemedView style={tw`items-end`}>
-          <ThemedText type="body1" style={tw`font-semibold text-green-700`}>
+          <ThemedText type="body1" style={tw`font-semibold text-primary-700`}>
             {formatCurrency(order.total)}
           </ThemedText>
           <ThemedText type="caption" style={tw`text-gray-500`}>
@@ -78,7 +78,7 @@ export default function OrderSummaryCard({ order }: OrderSummaryCardProps) {
             <ThemedView style={tw`flex-row justify-between items-center mb-2`}>
               <ThemedText
                 type="caption"
-                style={tw`font-semibold text-gray-700`}
+                style={tw`font-semibold text-primary-700`}
               >
                 {t("reports:billDetails.title", { count: order.bills.length })}
               </ThemedText>

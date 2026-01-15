@@ -5,24 +5,10 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatCurrency } from "@/core/i18n/utils";
+import { formatCurrency, getPaymentMethodIcon, translatePaymentMethod } from "@/core/i18n/utils";
 import { usePaymentMethodReport } from "@/presentation/orders/hooks/usePaymentMethodReport";
 import { useRouter } from "expo-router";
 import { PaymentMethod } from "@/core/orders/enums/payment-method";
-
-// Helper function to get payment method icon
-const getPaymentMethodIcon = (method: PaymentMethod): keyof typeof Ionicons.glyphMap => {
-  switch (method) {
-    case PaymentMethod.CASH:
-      return "cash";
-    case PaymentMethod.CREDIT_CARD:
-      return "card";
-    case PaymentMethod.TRANSFER:
-      return "swap-horizontal";
-    default:
-      return "wallet";
-  }
-};
 
 export default function PaymentMethodSummaryCard() {
   const { t } = useTranslation(["reports", "common"]);
@@ -87,11 +73,7 @@ export default function PaymentMethodSummaryCard() {
                       />
                       <ThemedView style={tw`flex-1 bg-transparent`}>
                         <ThemedText type="small" style={tw`text-gray-600`}>
-                          {method.paymentMethod === PaymentMethod.CASH
-                            ? t("reports:paymentMethod.cash")
-                            : method.paymentMethod === PaymentMethod.CREDIT_CARD
-                              ? t("reports:paymentMethod.creditCard")
-                              : t("reports:paymentMethod.transfer")}
+                          {translatePaymentMethod(method.paymentMethod)}
                         </ThemedText>
                       </ThemedView>
                     </ThemedView>

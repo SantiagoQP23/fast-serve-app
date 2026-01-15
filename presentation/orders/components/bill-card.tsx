@@ -5,44 +5,19 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { Ionicons } from "@expo/vector-icons";
 import { PressableProps } from "react-native";
 import { Bill } from "@/core/orders/models/bill.model";
-import { PaymentMethod } from "@/core/orders/enums/payment-method";
 import dayjs from "dayjs";
 import Label from "@/presentation/theme/components/label";
 import Card from "@/presentation/theme/components/card";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatCurrency } from "@/core/i18n/utils";
+import {
+  formatCurrency,
+  getPaymentMethodIcon,
+  translatePaymentMethod,
+} from "@/core/i18n/utils";
 
 interface BillCardProps extends PressableProps {
   bill: Bill;
 }
-
-const getPaymentMethodIcon = (
-  method: PaymentMethod,
-): keyof typeof Ionicons.glyphMap => {
-  switch (method) {
-    case PaymentMethod.CASH:
-      return "cash-outline";
-    case PaymentMethod.CREDIT_CARD:
-      return "card-outline";
-    case PaymentMethod.TRANSFER:
-      return "swap-horizontal-outline";
-    default:
-      return "wallet-outline";
-  }
-};
-
-const getPaymentMethodLabel = (method: PaymentMethod): string => {
-  switch (method) {
-    case PaymentMethod.CASH:
-      return "Cash";
-    case PaymentMethod.CREDIT_CARD:
-      return "Card";
-    case PaymentMethod.TRANSFER:
-      return "Transfer";
-    default:
-      return method;
-  }
-};
 
 export default function BillCard({ onPress, bill }: BillCardProps) {
   const { t } = useTranslation(["common", "bills"]);
@@ -80,19 +55,6 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
           <ThemedText type="h3" style={tw`font-semibold `}>
             {formatCurrency(bill.total)}
           </ThemedText>
-          {/* {bill.isPaid ? ( */}
-          {/*   <Label */}
-          {/*     color="success" */}
-          {/*     text={t("bills:details.paid")} */}
-          {/*     leftIcon="checkmark-circle-outline" */}
-          {/*   /> */}
-          {/* ) : ( */}
-          {/*   <Label */}
-          {/*     color="warning" */}
-          {/*     text={t("bills:details.unpaid")} */}
-          {/*     leftIcon="time-outline" */}
-          {/*   /> */}
-          {/* )} */}
         </ThemedView>
 
         {/* Divider */}
@@ -123,7 +85,7 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
                 color={tw.color("gray-600")}
               />
               <ThemedText type="body2" style={tw`text-gray-600`}>
-                {getPaymentMethodLabel(bill.paymentMethod)}
+                {translatePaymentMethod(bill.paymentMethod)}
               </ThemedText>
             </ThemedView>
           ) : (

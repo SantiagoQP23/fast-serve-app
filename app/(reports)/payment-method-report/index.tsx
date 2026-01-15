@@ -86,7 +86,7 @@ export default function PaymentMethodReportScreen() {
                       <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
                         {t("reports:summary.totalIncome")}
                       </ThemedText>
-                      <ThemedText type="h2" style={tw``}>
+                      <ThemedText type="h2" style={tw`text-primary-700`}>
                         {formatCurrency(summary?.totalIncome ?? 0)}
                       </ThemedText>
                     </ThemedView>
@@ -109,7 +109,7 @@ export default function PaymentMethodReportScreen() {
                       <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
                         {t("reports:summary.totalBills")}
                       </ThemedText>
-                      <ThemedText type="h2" style={tw``}>
+                      <ThemedText type="h2" style={tw`text-primary-700`}>
                         {summary?.totalBills ?? 0}
                       </ThemedText>
                     </ThemedView>

@@ -4,7 +4,10 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatCurrency } from "@/core/i18n/utils";
+import {
+  formatCurrency,
+  getPaymentMethodInfo,
+} from "@/core/i18n/utils";
 import { WaiterBillDto } from "@/core/orders/dto/daily-report-response.dto";
 import dayjs from "dayjs";
 
@@ -12,47 +15,11 @@ interface BillItemProps {
   bill: WaiterBillDto;
 }
 
-// Map payment method to icon, color, and translation key
-const getPaymentMethodInfo = (paymentMethod: string) => {
-  const method = paymentMethod.toUpperCase();
-
-  switch (method) {
-    case "CASH":
-      return {
-        icon: "cash-outline" as const,
-        key: "cash",
-        color: "#10b981", // green-600
-        bgColor: "bg-green-50",
-      };
-    case "CREDIT_CARD":
-      return {
-        icon: "card-outline" as const,
-        key: "creditCard",
-        color: "#3b82f6", // blue-600
-        bgColor: "bg-blue-50",
-      };
-    case "TRANSFER":
-      return {
-        icon: "swap-horizontal-outline" as const,
-        key: "transfer",
-        color: "#8b5cf6", // purple-600
-        bgColor: "bg-purple-50",
-      };
-    default:
-      return {
-        icon: "wallet-outline" as const,
-        key: "cash",
-        color: "#6b7280", // gray-600
-        bgColor: "bg-gray-50",
-      };
-  }
-};
-
 export default function BillItem({ bill }: BillItemProps) {
   const { t } = useTranslation(["reports", "bills"]);
 
   const paymentInfo = getPaymentMethodInfo(bill.paymentMethod);
-  const paymentMethodLabel = t(`bills:paymentMethods.${paymentInfo.key}`);
+  const paymentMethodLabel = t(paymentInfo.translationKey);
   const time = dayjs(bill.createdAt).format("HH:mm");
 
   return (

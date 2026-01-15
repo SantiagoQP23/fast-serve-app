@@ -4,7 +4,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatCurrency } from "@/core/i18n/utils";
+import { formatCurrency, getPaymentMethodIcon, translatePaymentMethod } from "@/core/i18n/utils";
 import { PaymentMethodStatsDto } from "@/core/orders/dto/payment-method-report-response.dto";
 import { PaymentMethod } from "@/core/orders/enums/payment-method";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
@@ -13,39 +13,11 @@ interface PaymentMethodCardProps {
   paymentMethodStats: PaymentMethodStatsDto;
 }
 
-// Helper function to get payment method icon
-const getPaymentMethodIcon = (method: PaymentMethod): keyof typeof Ionicons.glyphMap => {
-  switch (method) {
-    case PaymentMethod.CASH:
-      return "cash";
-    case PaymentMethod.CREDIT_CARD:
-      return "card";
-    case PaymentMethod.TRANSFER:
-      return "swap-horizontal";
-    default:
-      return "wallet";
-  }
-};
-
-// Helper function to get payment method name
-const getPaymentMethodName = (method: PaymentMethod, t: any): string => {
-  switch (method) {
-    case PaymentMethod.CASH:
-      return t("reports:paymentMethod.cash");
-    case PaymentMethod.CREDIT_CARD:
-      return t("reports:paymentMethod.creditCard");
-    case PaymentMethod.TRANSFER:
-      return t("reports:paymentMethod.transfer");
-    default:
-      return method;
-  }
-};
-
 export default function PaymentMethodCard({ paymentMethodStats }: PaymentMethodCardProps) {
   const { t } = useTranslation(["reports", "common"]);
 
   const iconName = getPaymentMethodIcon(paymentMethodStats.paymentMethod);
-  const methodName = getPaymentMethodName(paymentMethodStats.paymentMethod, t);
+  const methodName = translatePaymentMethod(paymentMethodStats.paymentMethod);
 
   return (
     <ThemedView style={tw`rounded-2xl border border-gray-200 shadow-sm overflow-hidden`}>
@@ -81,23 +53,23 @@ export default function PaymentMethodCard({ paymentMethodStats }: PaymentMethodC
 
         {/* Stats Row */}
         <ThemedView style={tw`flex-row gap-2 mb-3`}>
-          <ThemedView style={tw`flex-1 bg-gray-50 rounded-xl p-3`}>
-            <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
-              {t("reports:paymentMethodStats.percentage")}
-            </ThemedText>
-            <ThemedText type="h3" style={tw`text-gray-700`}>
-              {paymentMethodStats.percentage.toFixed(2)}%
-            </ThemedText>
-          </ThemedView>
+            <ThemedView style={tw`flex-1 bg-gray-50 rounded-xl p-3`}>
+              <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
+                {t("reports:paymentMethodStats.percentage")}
+              </ThemedText>
+              <ThemedText type="h3" style={tw`text-primary-700`}>
+                {paymentMethodStats.percentage.toFixed(2)}%
+              </ThemedText>
+            </ThemedView>
 
-          <ThemedView style={tw`flex-1 bg-gray-50 rounded-xl p-3`}>
-            <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
-              {t("reports:paymentMethodStats.avgBillAmount")}
-            </ThemedText>
-            <ThemedText type="h3" style={tw`text-gray-700`}>
-              {formatCurrency(paymentMethodStats.avgBillAmount)}
-            </ThemedText>
-          </ThemedView>
+            <ThemedView style={tw`flex-1 bg-gray-50 rounded-xl p-3`}>
+              <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
+                {t("reports:paymentMethodStats.avgBillAmount")}
+              </ThemedText>
+              <ThemedText type="h3" style={tw`text-primary-700`}>
+                {formatCurrency(paymentMethodStats.avgBillAmount)}
+              </ThemedText>
+            </ThemedView>
         </ThemedView>
 
         {/* Percentage Progress Bar */}
@@ -106,7 +78,7 @@ export default function PaymentMethodCard({ paymentMethodStats }: PaymentMethodC
             <ThemedText type="caption" style={tw`text-gray-500`}>
               {t("reports:paymentMethodStats.shareOfTotal")}
             </ThemedText>
-            <ThemedText type="small" style={tw`font-semibold text-gray-700`}>
+            <ThemedText type="small" style={tw`font-semibold text-primary-700`}>
               {paymentMethodStats.percentage.toFixed(1)}%
             </ThemedText>
           </ThemedView>
