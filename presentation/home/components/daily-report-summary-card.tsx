@@ -8,6 +8,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { useDailyReport } from "@/presentation/orders/hooks/useDailyReport";
 import { useRouter } from "expo-router";
+import CircularProgressGauge from "@/presentation/theme/components/circular-progress-gauge";
 
 export default function DailyReportSummaryCard() {
   const { t } = useTranslation(["reports", "common"]);
@@ -17,6 +18,14 @@ export default function DailyReportSummaryCard() {
   const handlePress = () => {
     router.push("/(reports)/daily-report");
   };
+
+  const summary = dailyReport?.summary;
+
+  // Calculate collection rate (income vs amount)
+  const collectionRate =
+    summary && summary.totalAmount > 0
+      ? summary.totalIncome / summary.totalAmount
+      : 0;
 
   return (
     <Pressable onPress={handlePress}>
@@ -40,51 +49,21 @@ export default function DailyReportSummaryCard() {
           </ThemedView>
         ) : (
           <ThemedView style={tw`gap-3`}>
-            <ThemedView style={tw`flex-row justify-between`}>
-              <ThemedView style={tw`flex-1  rounded-xl p-3`}>
-                <ThemedText type="h3" style={tw``}>
-                  {formatCurrency(dailyReport?.summary?.totalIncome ?? 0)}
-                </ThemedText>
-                <ThemedText type="small" style={tw`text-gray-500 mb-1`}>
-                  {t("reports:summary.totalIncome")}
-                </ThemedText>
-              </ThemedView>
+            {/* Circular Progress Gauge - Income vs Amount */}
+            <ThemedView style={tw`items-center py-2`}>
+              <CircularProgressGauge
+                percentage={collectionRate * 100}
+                currentValue={summary?.totalIncome ?? 0}
+                goalValue={summary?.totalAmount ?? 0}
+                currentLabel={t("reports:summary.collected")}
+                goalLabel={t("reports:summary.totalAmount")}
+                formatValue={(val) => formatCurrency(val)}
+                size={160}
+                strokeWidth={12}
+              />
             </ThemedView>
 
-            <ThemedView style={tw`flex-row gap-2`}>
-              <ThemedView
-                style={tw`flex-1  rounded-xl p-3 border border-gray-200`}
-              >
-                <ThemedText type="h4" style={tw``}>
-                  {dailyReport?.summary?.totalOrders ?? 0}
-                </ThemedText>
-                <ThemedText type="small" style={tw` mb-1 text-gray-600`}>
-                  {t("reports:summary.totalOrders")}
-                </ThemedText>
-              </ThemedView>
-
-              <ThemedView
-                style={tw`flex-1  rounded-xl p-3 border border-gray-200`}
-              >
-                <ThemedText type="h4" style={tw``}>
-                  {dailyReport?.summary?.totalBills ?? 0}
-                </ThemedText>
-                <ThemedText type="small" style={tw` mb-1 text-gray-600`}>
-                  {t("reports:summary.totalBills")}
-                </ThemedText>
-              </ThemedView>
-
-              <ThemedView
-                style={tw`flex-1  rounded-xl p-3 border border-gray-200`}
-              >
-                <ThemedText type="h4" style={tw``}>
-                  {dailyReport?.summary?.totalWaiters ?? 0}
-                </ThemedText>
-                <ThemedText type="small" style={tw` mb-1 text-gray-600`}>
-                  {t("reports:summary.totalWaiters")}
-                </ThemedText>
-              </ThemedView>
-            </ThemedView>
+            {/* Stats Row */}
           </ThemedView>
         )}
       </ThemedView>
