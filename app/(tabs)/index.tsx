@@ -139,12 +139,20 @@ export default function HomeScreen() {
         }
       >
         <ThemedView style={tw`px-4 mb-4 gap-4`}>
-          <StatsCard
-            title={t("common:stats.totalOrders")}
-            value={dashboardStats?.totalOrders ?? 0}
-            icon="receipt-outline"
-            loading={isLoadingStats}
-          />
+          <ThemedView style={tw`flex-row gap-4`}>
+            <StatsCard
+              title={t("common:stats.totalOrders")}
+              value={dashboardStats?.totalOrders ?? 0}
+              icon="receipt-outline"
+              loading={isLoadingStats}
+            />
+            <StatsCard
+              title={t("common:stats.ordersPendingPayment")}
+              value={orders.filter((order) => !order.isPaid).length}
+              icon="receipt-outline"
+              loading={isLoadingStats}
+            />
+          </ThemedView>
           <ThemedView
             style={tw`px-4  border border-light-border rounded-2xl p-4 gap-4`}
           >

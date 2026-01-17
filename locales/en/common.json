@@ -82,7 +82,8 @@
     "totalOrders": "Total Orders",
     "totalAmount": "Total Amount",
     "collectionRate": "Collection Rate",
-    "totalIncome": "Total Income"
+    "totalIncome": "Total Income",
+    "ordersPendingPayment": "Orders Pending Payment"
   },
   "connection": {
     "offline": "Connection Lost",

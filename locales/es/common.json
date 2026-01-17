@@ -82,7 +82,8 @@
     "totalOrders": "Pedidos",
     "totalAmount": "Monto Total",
     "collectionRate": "Ingresos",
-    "totalIncome": "Total Cobrado"
+    "totalIncome": "Total Cobrado",
+    "ordersPendingPayment": "Por cobrar"
   },
   "connection": {
     "offline": "Conexión Perdida",
