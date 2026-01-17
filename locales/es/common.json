@@ -80,7 +80,9 @@
   },
   "stats": {
     "totalOrders": "Pedidos",
-    "totalAmount": "Monto Total"
+    "totalAmount": "Monto Total",
+    "collectionRate": "Ingresos",
+    "totalIncome": "Total Cobrado"
   },
   "connection": {
     "offline": "Conexión Perdida",

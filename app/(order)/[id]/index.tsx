@@ -6,16 +6,14 @@ import {
   RefreshControl,
   Alert,
 } from "react-native";
-
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter, useNavigation } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
-import IconButton from "@/presentation/theme/components/icon-button";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -27,7 +25,7 @@ import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import Label from "@/presentation/theme/components/label";
 import { useModal } from "@/presentation/shared/hooks/useModal";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatCurrency, getRelativeDate } from "@/core/i18n/utils";
+import { formatCurrency } from "@/core/i18n/utils";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
@@ -236,11 +234,11 @@ export default function OrderScreen() {
           </View>
         </View>
       </Modal>
-      <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
+      <ThemedView style={tw`px-4 pt-6 flex-1`}>
         <ScrollView
           style={tw`flex-1`}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={tw`gap-4 pb-4`}
+          contentContainerStyle={tw`pb-4`}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -250,164 +248,122 @@ export default function OrderScreen() {
             />
           }
         >
-          <ThemedView style={tw` justify-between gap-4 mb-4`}>
-            <ThemedView
-              style={tw`gap-1 bg-transparent flex-row justify-between`}
-            >
-              <ThemedView style={tw`gap-3 bg-transparent`}>
-                <ThemedView style={tw`gap-2 bg-transparent`}>
-                  <ThemedText type="body2" style={tw`text-gray-500`}>
-                    {date}
-                  </ThemedText>
-                </ThemedView>
-                <ThemedView
-                  style={tw` flex-row  bg-transparent items-center gap-2`}
-                >
-                  <ThemedText type="h2">
-                    {order.type === OrderType.IN_PLACE
-                      ? `${t("common:labels.table")} ${order.table?.name}`
-                      : t("common:labels.takeAway")}{" "}
-                  </ThemedText>
-                  <ThemedText type="body2" style={tw`text-gray-500`}>
-                    •
-                  </ThemedText>
-                  <Ionicons name="people-outline" size={18} />
-                  <ThemedText type="body2">{order.people}</ThemedText>
-                </ThemedView>
-                <ThemedView
-                  style={tw` flex-row  bg-transparent items-center gap-2`}
-                >
-                  <ThemedView
-                    style={tw`gap-1 flex-row items-center ${bgColor}/10 px-3 py-1 rounded-full`}
-                  >
-                    <Ionicons
-                      name={statusIcon}
-                      size={18}
-                      color={tw.color(statusIconColor)}
-                    />
-                    <ThemedText
-                      type="body2"
-                      style={tw`${statusTextColor} font-semibold`}
-                    >
-                      {statusText}
-                    </ThemedText>
-                  </ThemedView>
-                  {order.isPaid ? (
-                    <Label text={t("orders:details.paid")} color="success" />
-                  ) : (
-                    <Label text={t("orders:details.unpaid")} color="warning" />
-                  )}
-                </ThemedView>
-              </ThemedView>
+          {/* Header Section */}
+          <ThemedView style={tw`mb-6 gap-4`}>
+            {/* Date */}
+            <ThemedText type="caption" style={tw`text-gray-500`}>
+              {date}
+            </ThemedText>
 
-              {/* <ThemedView */}
-              {/*   style={tw`flex-row items-center bg-transparent gap-2`} */}
-              {/* > */}
-              {/*   {order.isPaid ? ( */}
-              {/*     <Label text={t("orders:details.paid")} color="success" /> */}
-              {/*   ) : ( */}
-              {/*     <Label text={t("orders:details.unpaid")} color="warning" /> */}
-              {/*   )} */}
-              {/*   <ThemedView */}
-              {/*     style={tw`gap-1 flex-row items-center ${bgColor}/10 px-3 py-1 rounded-full`} */}
-              {/*   > */}
-              {/*     <Ionicons */}
-              {/*       name={statusIcon} */}
-              {/*       size={18} */}
-              {/*       color={tw.color(statusIconColor)} */}
-              {/*     /> */}
-              {/*     <ThemedText */}
-              {/*       type="body2" */}
-              {/*       style={tw`${statusTextColor} font-semibold`} */}
-              {/*     > */}
-              {/*       {statusText} */}
-              {/*     </ThemedText> */}
-              {/*   </ThemedView> */}
-              {/* </ThemedView> */}
+            {/* Table/Location & People */}
+            <ThemedView style={tw`flex-row items-center gap-2`}>
+              <Ionicons
+                name={
+                  order.type === OrderType.IN_PLACE
+                    ? "restaurant-outline"
+                    : "bag-outline"
+                }
+                size={24}
+                color={tw.color("primary-600")}
+              />
+              <ThemedText type="h2">
+                {order.type === OrderType.IN_PLACE
+                  ? `${t("common:labels.table")} ${order.table?.name}`
+                  : t("common:labels.takeAway")}
+              </ThemedText>
+              <ThemedView style={tw`flex-row items-center gap-1 ml-2`}>
+                <Ionicons
+                  name="people-outline"
+                  size={18}
+                  color={tw.color("gray-600")}
+                />
+                <ThemedText type="body2" style={tw`text-gray-600`}>
+                  {order.people}
+                </ThemedText>
+              </ThemedView>
             </ThemedView>
-            {/* <ThemedView style={tw`border-t border-dashed border-gray-700`} /> */}
-            <ThemedView style={tw`gap-2 flex-row items-center bg-transparent`}>
-              <Ionicons name="person-outline" size={16} />
-              {/* <ThemedText type="body2" style={tw`font-semibold`}> */}
-              {/*   Waiter: */}
-              {/* </ThemedText> */}
-              <ThemedText type="body2">
+
+            {/* Status & Payment Labels */}
+            <ThemedView style={tw`flex-row items-center gap-2`}>
+              <ThemedView
+                style={tw`flex-row items-center gap-1.5 ${bgColor}/10 px-3 py-1.5 rounded-full`}
+              >
+                <Ionicons
+                  name={statusIcon}
+                  size={16}
+                  color={tw.color(statusIconColor)}
+                />
+                <ThemedText
+                  type="small"
+                  style={tw`${statusTextColor} font-semibold`}
+                >
+                  {statusText}
+                </ThemedText>
+              </ThemedView>
+              {order.isPaid ? (
+                <Label text={t("orders:details.paid")} color="success" />
+              ) : (
+                <Label text={t("orders:details.unpaid")} color="warning" />
+              )}
+            </ThemedView>
+
+            {/* Waiter Info */}
+            <ThemedView
+              style={tw`flex-row items-center gap-2 pt-2 border-t border-gray-200`}
+            >
+              <Ionicons
+                name="person-outline"
+                size={16}
+                color={tw.color("gray-500")}
+              />
+              <ThemedText type="body2" style={tw`text-gray-600`}>
                 {order.user.person.firstName} {order.user.person.lastName}
               </ThemedText>
             </ThemedView>
           </ThemedView>
+
+          {/* Notes Section */}
           {order.notes && (
-            <ThemedView style={tw`gap-2`}>
-              <ThemedText type="caption">{t("common:labels.notes")}</ThemedText>
-              <ThemedText type="body2">{order.notes}</ThemedText>
+            <ThemedView style={tw`mb-6 p-4 bg-gray-50 rounded-xl`}>
+              <ThemedView style={tw`flex-row items-center gap-2 mb-2`}>
+                <Ionicons
+                  name="document-text-outline"
+                  size={16}
+                  color={tw.color("gray-500")}
+                />
+                <ThemedText
+                  type="caption"
+                  style={tw`text-gray-500 font-semibold`}
+                >
+                  {t("common:labels.notes")}
+                </ThemedText>
+              </ThemedView>
+              <ThemedText type="body2" style={tw`text-gray-700`}>
+                {order.notes}
+              </ThemedText>
             </ThemedView>
           )}
-          {/* <View style={tw`flex-row gap-4`}> */}
-          {/*   <Button */}
-          {/*     label="Start" */}
-          {/*     icon="play-outline" */}
-          {/*     layout="vertical" */}
-          {/*     variant="secondary" */}
-          {/*   /> */}
-          {/*   <Button */}
-          {/*     label="Tables" */}
-          {/*     icon="grid-outline" */}
-          {/*     layout="vertical" */}
-          {/*     variant="secondary" */}
-          {/*   /> */}
-          {/*   <Button */}
-          {/*     label="Menu" */}
-          {/*     icon="restaurant-outline" */}
-          {/*     layout="vertical" */}
-          {/*     variant="outline" */}
-          {/*   /> */}
-          {/* </View> */}
-          {/* {order.status !== OrderStatus.DELIVERED && ( */}
-          {/*   <ThemedView style={tw`flex-row justify-between items-center`}> */}
-          {/*     {order.status === OrderStatus.IN_PROGRESS && ( */}
-          {/*       <Button */}
-          {/*         label="Pause" */}
-          {/*         variant="outline" */}
-          {/*         rightIcon="pause-outline" */}
-          {/*         size="small" */}
-          {/*         onPress={() => updateStatus(OrderStatus.PENDING)} */}
-          {/*       /> */}
-          {/*     )} */}
-          {/*     <ThemedView style={tw`flex-row items-center gap-2`}></ThemedView> */}
-          {/*     {order.status === OrderStatus.IN_PROGRESS && ( */}
-          {/*       <Button */}
-          {/*         label="Deliver" */}
-          {/*         variant="outline" */}
-          {/*         rightIcon="checkmark-done-outline" */}
-          {/*         size="small" */}
-          {/*         onPress={() => updateStatus(OrderStatus.DELIVERED)} */}
-          {/*       /> */}
-          {/*     )} */}
-          {/*     {order.status === OrderStatus.PENDING && ( */}
-          {/*       <Button */}
-          {/*         label="Start" */}
-          {/*         variant="outline" */}
-          {/*         rightIcon="play-outline" */}
-          {/*         size="small" */}
-          {/*         onPress={() => updateStatus(OrderStatus.IN_PROGRESS)} */}
-          {/*       /> */}
-          {/*     )} */}
-          {/*   </ThemedView> */}
-          {/* )} */}
 
           {/* Pending Items Section */}
           {pendingDetails.length > 0 && (
-            <ThemedView style={tw`gap-4  rounded-lg`}>
-              <ThemedView style={tw`flex-row justify-between items-center`}>
+            <ThemedView style={tw`mb-6`}>
+              <ThemedView
+                style={tw`flex-row justify-between items-center mb-4`}
+              >
                 <ThemedText type="h4">
                   {t("orders:details.pendingItems")}
                 </ThemedText>
-                <ThemedText type="small">
-                  {t("common:labels.count")}: {pendingDetails.length}
-                </ThemedText>
+                <ThemedView style={tw`bg-primary-50 px-2.5 py-1 rounded-full`}>
+                  <ThemedText
+                    type="small"
+                    style={tw`text-primary-700 font-semibold`}
+                  >
+                    {pendingDetails.length}
+                  </ThemedText>
+                </ThemedView>
               </ThemedView>
-              <ThemedView style={tw`gap-8`}>
-                {pendingDetails.map((detail, index) => (
+              <ThemedView style={tw`gap-6`}>
+                {pendingDetails.map((detail) => (
                   <OrderDetailCard
                     key={detail.id}
                     detail={detail}
@@ -420,18 +376,27 @@ export default function OrderScreen() {
 
           {/* Delivered Items Section - Expandable */}
           {deliveredDetails.length > 0 && (
-            <ThemedView style={tw`gap-4`}>
+            <ThemedView style={tw`mb-6`}>
               <Pressable onPress={toggleDeliveredSection}>
                 <ThemedView
-                  style={tw`flex-row justify-between items-center py-3`}
+                  style={tw`flex-row justify-between items-center py-3 px-1`}
                 >
                   <ThemedView style={tw`flex-row items-center gap-2`}>
-                    <ThemedText type="h4">
+                    <Ionicons
+                      name="checkmark-circle-outline"
+                      size={20}
+                      color={tw.color("gray-400")}
+                    />
+                    <ThemedText type="h4" style={tw`text-gray-600`}>
                       {t("orders:details.deliveredItems")}
                     </ThemedText>
-                    <ThemedText type="small">
-                      ({deliveredDetails.length})
-                    </ThemedText>
+                    <ThemedView
+                      style={tw`bg-gray-100 px-2 py-0.5 rounded-full`}
+                    >
+                      <ThemedText type="caption" style={tw`text-gray-600`}>
+                        {deliveredDetails.length}
+                      </ThemedText>
+                    </ThemedView>
                   </ThemedView>
                   <Ionicons
                     name={
@@ -440,13 +405,14 @@ export default function OrderScreen() {
                         : "chevron-down-outline"
                     }
                     size={20}
+                    color={tw.color("gray-400")}
                   />
                 </ThemedView>
               </Pressable>
 
               {isDeliveredExpanded && (
-                <ThemedView style={tw`gap-8 opacity-60`}>
-                  {deliveredDetails.map((detail, index) => (
+                <ThemedView style={tw`gap-3 mt-2 opacity-60`}>
+                  {deliveredDetails.map((detail) => (
                     <OrderDetailCard
                       key={detail.id}
                       detail={detail}
@@ -458,6 +424,7 @@ export default function OrderScreen() {
             </ThemedView>
           )}
 
+          {/* Add Product Button */}
           <Button
             leftIcon="add-outline"
             label={t("orders:details.addProduct")}
@@ -466,29 +433,17 @@ export default function OrderScreen() {
           />
         </ScrollView>
       </ThemedView>
-      <ThemedView style={tw`gap-4 p-4 rounded-lg `}>
+
+      {/* Footer - Total */}
+      <ThemedView style={tw`px-4 py-4 border-t border-gray-200 bg-white`}>
         <ThemedView style={tw`flex-row justify-between items-center`}>
-          <ThemedText type="h3">{t("common:labels.total")}</ThemedText>
-          <ThemedText type="h2">{formatCurrency(order.total)}</ThemedText>
+          <ThemedText type="h4" style={tw`text-gray-600`}>
+            {t("common:labels.total")}
+          </ThemedText>
+          <ThemedText type="h2" style={tw`text-primary-700`}>
+            {formatCurrency(order.total)}
+          </ThemedText>
         </ThemedView>
-        {/* <ThemedView style={tw`flex-row justify-between items-center`}> */}
-        {/*   <ThemedView style={tw`flex-row items-center gap-2`}> */}
-        {/*     {order.status === OrderStatus.DELIVERED && order.isPaid && ( */}
-        {/*       <Button */}
-        {/*         label="Close" */}
-        {/*         variant="secondary" */}
-        {/*         onPress={openCloseModal} */}
-        {/*         leftIcon="lock-closed-outline" */}
-        {/*       ></Button> */}
-        {/*     )} */}
-        {/*   </ThemedView> */}
-        {/*   <Button */}
-        {/*     label="Payments" */}
-        {/*     variant="secondary" */}
-        {/*     onPress={() => router.push(`/(order)/${order.id}/bills`)} */}
-        {/*     rightIcon="arrow-forward-outline" */}
-        {/*   ></Button> */}
-        {/* </ThemedView> */}
       </ThemedView>
     </>
   );

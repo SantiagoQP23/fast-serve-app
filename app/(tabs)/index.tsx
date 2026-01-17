@@ -26,6 +26,7 @@ import StatsCard from "@/presentation/home/components/stats-card";
 import { useDashboardStats } from "@/presentation/orders/hooks/useDashboardStats";
 import DailyReportSummaryCard from "@/presentation/home/components/daily-report-summary-card";
 import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
+import ProgressBar from "@/presentation/theme/components/progress-bar";
 
 export default function HomeScreen() {
   const { t } = useTranslation(["common", "orders", "errors"]);
@@ -98,6 +99,9 @@ export default function HomeScreen() {
 
   const haveAnOpenOrder = details.length > 0;
 
+  const collectionRate: number =
+    (dashboardStats?.totalIncome || 0) / (dashboardStats?.totalAmount || 1);
+
   return (
     <ThemedView style={tw` pt-8 flex-1 `}>
       <ThemedView style={tw`mb-6 px-4`}>
@@ -134,20 +138,59 @@ export default function HomeScreen() {
           />
         }
       >
-        <ThemedView style={tw`px-4 mb-4`}>
-          <ThemedView style={tw`flex-row gap-3`}>
-            <StatsCard
-              title={t("common:stats.totalOrders")}
-              value={dashboardStats?.totalOrders ?? 0}
-              icon="receipt-outline"
-              loading={isLoadingStats}
+        <ThemedView style={tw`px-4 mb-4 gap-4`}>
+          <StatsCard
+            title={t("common:stats.totalOrders")}
+            value={dashboardStats?.totalOrders ?? 0}
+            icon="receipt-outline"
+            loading={isLoadingStats}
+          />
+          <ThemedView
+            style={tw`px-4  border border-light-border rounded-2xl p-4 gap-4`}
+          >
+            <ThemedView style={tw`flex-row justify-between items-center`}>
+              <ThemedText type="body1" style={tw` mb-1`}>
+                {t("common:stats.collectionRate")}
+              </ThemedText>
+              <ThemedText type="body2">
+                {(collectionRate * 100).toFixed(0)}%
+              </ThemedText>
+            </ThemedView>
+            <ProgressBar
+              height={2}
+              progress={
+                (dashboardStats?.totalIncome || 0) /
+                (dashboardStats?.totalAmount || 1)
+              }
             />
-            <StatsCard
-              title={t("common:stats.totalAmount")}
-              value={`${t("common:currency.symbol")}${dashboardStats?.totalAmount?.toFixed(2) ?? "0.00"}`}
-              icon="cash-outline"
-              loading={isLoadingStats}
-            />
+            <ThemedView style={tw`flex-row gap-3 `}>
+              <ThemedView
+                style={tw`mt-2 flex-row justify-around w-full max-w-xs`}
+              >
+                <ThemedView style={tw`items-center flex-1`}>
+                  <ThemedText type="small" style={tw`text-gray-500 mb-1`}>
+                    {t("common:stats.totalIncome")}
+                  </ThemedText>
+                  <ThemedText
+                    type="body1"
+                    style={[tw`font-semibold`, { color: primaryColor }]}
+                  >
+                    {`${t("common:currency.symbol")}${dashboardStats?.totalIncome?.toFixed(2) ?? "0.00"}`}
+                  </ThemedText>
+                </ThemedView>
+                <ThemedView style={tw`items-center flex-1`}>
+                  <ThemedText type="small" style={tw`text-gray-500 mb-1`}>
+                    {t("common:stats.totalAmount")}
+                  </ThemedText>
+                  <ThemedText
+                    type="body1"
+                    style={[tw`font-semibold`, { color: primaryColor }]}
+                  >
+                    {`${t("common:currency.symbol")}${dashboardStats?.totalAmount?.toFixed(2) ?? "0.00"}`}
+                  </ThemedText>
+                </ThemedView>
+              </ThemedView>
+            </ThemedView>
           </ThemedView>
         </ThemedView>
 

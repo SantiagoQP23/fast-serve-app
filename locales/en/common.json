@@ -80,7 +80,9 @@
   },
   "stats": {
     "totalOrders": "Total Orders",
-    "totalAmount": "Total Amount"
+    "totalAmount": "Total Amount",
+    "collectionRate": "Collection Rate",
+    "totalIncome": "Total Income"
   },
   "connection": {
     "offline": "Connection Lost",
