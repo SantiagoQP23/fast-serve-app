@@ -9,6 +9,8 @@
     "unpaid": "Unpaid",
     "noPendingProducts": "All products delivered",
     "noPendingProductsDescription": "Great job! There are no pending products to deliver.",
+    "closedOrders": "Closed Orders",
+    "noClosedOrders": "No closed orders found",
     "filter": {
       "all": "All",
       "pending": "Pending",

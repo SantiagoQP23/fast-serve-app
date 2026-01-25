@@ -40,4 +40,20 @@ export class OrdersService {
     );
     return resp.data;
   }
+
+  static async getUserClosedOrders(
+    limit: number = 20,
+    offset: number = 0,
+  ): Promise<{ orders: Order[]; count?: number }> {
+    const resp = await restaurantApi.get<{ orders: Order[]; count?: number }>(
+      "/orders/user-closed-orders",
+      {
+        params: {
+          limit,
+          offset,
+        },
+      },
+    );
+    return resp.data;
+  }
 }

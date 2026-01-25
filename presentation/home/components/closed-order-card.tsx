@@ -10,30 +10,18 @@ import React from "react";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";
 import { useTranslation } from "react-i18next";
-import ProgressBar from "@/presentation/theme/components/progress-bar";
 import { getRelativeTime } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
-import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 
-interface OrderCardProps {
+interface ClosedOrderCardProps {
   order: Order;
 }
 
-export default function OrderCard({ order }: OrderCardProps) {
+export default function ClosedOrderCard({ order }: ClosedOrderCardProps) {
   const { t } = useTranslation(["common", "orders"]);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const { statusText, statusTextColor, bgColor, statusIcon, statusIconColor } =
     useOrderStatus(order.status);
-
-  // Calculate delivery progress - handle missing details
-  const hasDetails = order.details && order.details.length > 0;
-  const totalItems = hasDetails
-    ? order.details.reduce((sum, detail) => sum + detail.quantity, 0)
-    : 0;
-  const deliveredItems = hasDetails
-    ? order.details.reduce((sum, detail) => sum + detail.qtyDelivered, 0)
-    : 0;
-  const deliveryProgress = totalItems > 0 ? deliveredItems / totalItems : 0;
 
   // Get relative time
   const relativeTime = getRelativeTime(order.createdAt);
@@ -41,14 +29,13 @@ export default function OrderCard({ order }: OrderCardProps) {
   const openOrder = () => {
     setActiveOrder(order);
     router.push(`/(order)/${order.num}`);
-    // router.replace("/(new-order)/order-confirmation", { withAnchor: true });
   };
 
   return (
-    <ThemedView style={tw`mb-3  rounded-2xl  `}>
+    <ThemedView style={tw`mb-3 rounded-2xl opacity-75`}>
       <Card onPress={openOrder}>
-        <ThemedView style={tw`gap-4 bg-white `}>
-          {/* Header Section - Table Name */}
+        <ThemedView style={tw`gap-4 bg-white`}>
+          {/* Header Section - Status & Payment */}
           <ThemedView style={tw`flex-row items-center bg-transparent gap-2`}>
             <ThemedView
               style={tw`gap-1 flex-row items-center ${bgColor}/10 px-3 py-1 rounded-full`}
@@ -68,7 +55,22 @@ export default function OrderCard({ order }: OrderCardProps) {
             {order.isPaid && (
               <Label text={t("orders:details.paid")} color="success" />
             )}
+            {/* Closed badge */}
+            <ThemedView
+              style={tw`gap-1 flex-row items-center bg-gray-500/10 px-3 py-1 rounded-full`}
+            >
+              <Ionicons
+                name="archive-outline"
+                size={16}
+                color={tw.color("gray-600")}
+              />
+              <ThemedText type="body2" style={tw`text-gray-600 font-semibold`}>
+                {t("common:labels.closed")}
+              </ThemedText>
+            </ThemedView>
           </ThemedView>
+
+          {/* Table/Type Info */}
           <ThemedView style={tw`gap-2 bg-transparent`}>
             <ThemedView
               style={tw`flex-row items-center bg-transparent justify-between`}
@@ -87,28 +89,6 @@ export default function OrderCard({ order }: OrderCardProps) {
             </ThemedText>
           </ThemedView>
 
-          {/* Progress Indicator */}
-          {hasDetails &&
-            (order.status === OrderStatus.IN_PROGRESS ||
-              order.status === OrderStatus.PENDING) && (
-              <ThemedView style={tw`gap-2 bg-transparent`}>
-                <ThemedView
-                  style={tw`flex-row items-center bg-transparent justify-between`}
-                >
-                  <ThemedText type="caption" style={tw`text-gray-500`}>
-                    {t("common:status.delivered")}: {deliveredItems}/{totalItems}
-                  </ThemedText>
-                  <ThemedText type="caption" style={tw`text-gray-500`}>
-                    {Math.round(deliveryProgress * 100)}%
-                  </ThemedText>
-                </ThemedView>
-                <ProgressBar progress={deliveryProgress} height={1.5} />
-              </ThemedView>
-            )}
-
-          {/* Separator */}
-          {/* <ThemedView style={tw`h-px bg-gray-200`} /> */}
-
           {/* Bottom Metrics Row */}
           <ThemedView
             style={tw`flex-row items-center bg-transparent justify-between`}
@@ -122,21 +102,6 @@ export default function OrderCard({ order }: OrderCardProps) {
                 />{" "}
                 {order.people}
               </ThemedText>
-              {hasDetails && (
-                <>
-                  <ThemedText type="body2" style={tw`text-gray-600`}>
-                    •
-                  </ThemedText>
-                  <ThemedText type="body2" style={tw`text-gray-600`}>
-                    <Ionicons
-                      name="cart-outline"
-                      size={18}
-                      color={tw.color("gray-600")}
-                    />{" "}
-                    {order.details.length}
-                  </ThemedText>
-                </>
-              )}
               <ThemedText type="body2" style={tw`text-gray-600`}>
                 •
               </ThemedText>

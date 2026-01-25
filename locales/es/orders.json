@@ -9,6 +9,8 @@
     "unpaid": "Sin Pagar",
     "noPendingProducts": "Todos los productos entregados",
     "noPendingProductsDescription": "¡Buen trabajo! No hay productos pendientes por entregar.",
+    "closedOrders": "Pedidos Cerrados",
+    "noClosedOrders": "No se encontraron pedidos cerrados",
     "filter": {
       "all": "Todos",
       "pending": "Pendiente",

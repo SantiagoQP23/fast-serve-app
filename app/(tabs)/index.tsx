@@ -31,6 +31,8 @@ import ProgressBar from "@/presentation/theme/components/progress-bar";
 import OrderDetailCard from "@/presentation/orders/components/order-detail-card";
 import ButtonGroup from "@/presentation/theme/components/button-group";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
+import CollapsibleOrderSection from "@/presentation/orders/components/collapsible-order-section";
+import { useClosedOrders } from "@/presentation/orders/hooks/useClosedOrders";
 
 export default function HomeScreen() {
   const { t } = useTranslation(["common", "orders", "errors"]);
@@ -55,6 +57,16 @@ export default function HomeScreen() {
     isLoading: isLoadingStats,
     refetch: refetchStats,
   } = useDashboardStats();
+
+  // Closed orders hook
+  const {
+    closedOrders,
+    totalCount: closedOrdersCount,
+    isLoading: isLoadingClosedOrders,
+    refetch: refetchClosedOrders,
+    loadMore: loadMoreClosedOrders,
+    hasMore: hasMoreClosedOrders,
+  } = useClosedOrders();
 
   // ref
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -409,6 +421,17 @@ export default function HomeScreen() {
                 <OrderList
                   title={t("common:status.delivered")}
                   orders={deliveredOrders}
+                />
+
+                {/* Collapsible Closed Orders Section */}
+                <CollapsibleOrderSection
+                  title={t("orders:list.closedOrders")}
+                  totalCount={closedOrdersCount}
+                  orders={closedOrders}
+                  isLoading={isLoadingClosedOrders}
+                  onExpand={refetchClosedOrders}
+                  hasMore={hasMoreClosedOrders}
+                  onLoadMore={loadMoreClosedOrders}
                 />
               </>
             )}
