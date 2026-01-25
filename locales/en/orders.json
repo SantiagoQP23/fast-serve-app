@@ -4,12 +4,21 @@
     "orderNumber": "Order #{{number}}",
     "noOrders": "No orders yet",
     "noOrdersDescription": "You have no orders at the moment. Create a new order to get started.",
+    "pendingProducts": "Pending Products",
+    "itemsPending": "items pending",
+    "unpaid": "Unpaid",
+    "noPendingProducts": "All products delivered",
+    "noPendingProductsDescription": "Great job! There are no pending products to deliver.",
     "filter": {
       "all": "All",
       "pending": "Pending",
       "inProgress": "In Progress",
       "delivered": "Delivered"
     }
+  },
+  "views": {
+    "products": "Products",
+    "orders": "Orders"
   },
   "details": {
     "title": "Order N° {{num}}",

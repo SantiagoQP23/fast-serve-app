@@ -24,7 +24,7 @@ export default function StatsCard({
         style={tw`flex-row items-center justify-between bg-transparent`}
       >
         <ThemedView style={tw`flex-1 bg-transparent`}>
-          <ThemedText type="body1" style={tw` mb-1`}>
+          <ThemedText type="body2" style={tw` mb-1 `}>
             {title}
           </ThemedText>
           {loading ? (

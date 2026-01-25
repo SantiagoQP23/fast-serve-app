@@ -1,4 +1,4 @@
-import { ScrollView, RefreshControl, Alert } from "react-native";
+import { ScrollView, RefreshControl, Alert, Pressable } from "react-native";
 
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 
@@ -20,6 +20,7 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import OrderList from "@/presentation/orders/molecules/order-list";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { getRelativeTime } from "@/core/i18n/utils";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
 import StatsCard from "@/presentation/home/components/stats-card";
@@ -27,6 +28,9 @@ import { useDashboardStats } from "@/presentation/orders/hooks/useDashboardStats
 import DailyReportSummaryCard from "@/presentation/home/components/daily-report-summary-card";
 import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
+import OrderDetailCard from "@/presentation/orders/components/order-detail-card";
+import ButtonGroup from "@/presentation/theme/components/button-group";
+import { OrderType } from "@/core/orders/enums/order-type.enum";
 
 export default function HomeScreen() {
   const { t } = useTranslation(["common", "orders", "errors"]);
@@ -34,11 +38,16 @@ export default function HomeScreen() {
   const orders = useOrdersStore((state) => state.orders).filter(
     (order) => order.user.id === user?.id,
   );
+  const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
+  const setActiveOrderDetail = useOrdersStore(
+    (state) => state.setActiveOrderDetail,
+  );
   const router = useRouter();
   const details = useNewOrderStore((state) => state.details);
   const queryClient = useQueryClient();
   const { currentRestaurant } = useAuthStore();
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedView, setSelectedView] = useState<"pending-products" | "order-lists">("pending-products");
   const primaryColor = useThemeColor({}, "primary");
   useActiveOrders();
   const {
@@ -102,6 +111,29 @@ export default function HomeScreen() {
   const collectionRate: number =
     (dashboardStats?.totalIncome || 0) / (dashboardStats?.totalAmount || 1);
 
+  const handleOpenOrder = useCallback(
+    (orderNum: number, orderId: string) => {
+      const order = orders.find((o) => o.id === orderId);
+      if (order) {
+        setActiveOrder(order);
+        router.push(`/(order)/${orderNum}`);
+      }
+    },
+    [orders, setActiveOrder, router],
+  );
+
+  const handleEditOrderDetail = useCallback(
+    (orderNum: number, orderId: string, detail: any) => {
+      const order = orders.find((o) => o.id === orderId);
+      if (order) {
+        setActiveOrder(order);
+        setActiveOrderDetail(detail);
+        router.push(`/(order)/${orderNum}/edit-order-detail`);
+      }
+    },
+    [orders, setActiveOrder, setActiveOrderDetail, router],
+  );
+
   return (
     <ThemedView style={tw` pt-8 flex-1 `}>
       <ThemedView style={tw`mb-6 px-4`}>
@@ -157,7 +189,7 @@ export default function HomeScreen() {
             style={tw`px-4  border border-light-border rounded-2xl p-4 gap-4`}
           >
             <ThemedView style={tw`flex-row justify-between items-center`}>
-              <ThemedText type="body1" style={tw` mb-1`}>
+              <ThemedText type="body2" style={tw` mb-1 font-semibold`}>
                 {t("common:stats.collectionRate")}
               </ThemedText>
               <ThemedText type="body2">
@@ -218,18 +250,168 @@ export default function HomeScreen() {
           </ThemedView>
         ) : (
           <ThemedView style={tw`gap-4`}>
-            <OrderList
-              title={t("common:status.pending")}
-              orders={pendingOrders}
-            />
-            <OrderList
-              title={t("common:status.inProgress")}
-              orders={inProgressOrders}
-            />
-            <OrderList
-              title={t("common:status.delivered")}
-              orders={deliveredOrders}
-            />
+            {/* ButtonGroup for view toggle */}
+            <ThemedView style={tw`px-4`}>
+              <ButtonGroup
+                options={[
+                  { label: t("orders:views.products"), value: "pending-products" },
+                  { label: t("orders:views.orders"), value: "order-lists" },
+                ]}
+                selected={selectedView}
+                onChange={setSelectedView}
+              />
+            </ThemedView>
+
+            {/* Pending Products View */}
+            {selectedView === "pending-products" && (
+              <>
+                {orders.some((order) =>
+                  order.details.some(
+                    (detail) => detail.quantity !== detail.qtyDelivered,
+                  ),
+                ) ? (
+                  <ThemedView style={tw`px-4`}>
+                    <ThemedText type="h3" style={tw`mb-4`}>
+                      {t("orders:list.pendingProducts")}
+                    </ThemedText>
+                    {orders
+                      .filter((order) =>
+                        order.details.some(
+                          (detail) => detail.quantity !== detail.qtyDelivered,
+                        ),
+                      )
+                      .map((order) => {
+                        const pendingCount = order.details.filter(
+                          (detail) => detail.quantity !== detail.qtyDelivered,
+                        ).length;
+                        const relativeTime = getRelativeTime(order.createdAt);
+
+                        return (
+                          <ThemedView key={order.id} style={tw`mb-6`}>
+                            <Pressable
+                              onPress={() => handleOpenOrder(order.num, order.id)}
+                            >
+                              <ThemedView style={tw`mb-3`}>
+                                <ThemedView
+                                  style={tw`flex-row items-center justify-between`}
+                                >
+                                  <ThemedText type="body1" style={tw`font-bold`}>
+                                    {order.type === OrderType.IN_PLACE
+                                      ? `${t("common:labels.table")} ${order.table?.name}`
+                                      : t("common:labels.takeAway")}{" "}
+                                    -{" "}
+                                    {t("orders:details.orderNumber", {
+                                      num: order.num,
+                                    })}
+                                  </ThemedText>
+                                  <Ionicons
+                                    name="chevron-forward"
+                                    size={20}
+                                    color={tw.color("gray-500")}
+                                  />
+                                </ThemedView>
+                                <ThemedView
+                                  style={tw`flex-row items-center gap-2 mt-1`}
+                                >
+                                  <ThemedText
+                                    type="small"
+                                    style={tw`text-gray-500`}
+                                  >
+                                    {relativeTime}
+                                  </ThemedText>
+                                  <ThemedText
+                                    type="small"
+                                    style={tw`text-gray-500`}
+                                  >
+                                    •
+                                  </ThemedText>
+                                  <ThemedText
+                                    type="small"
+                                    style={tw`text-gray-500`}
+                                  >
+                                    {pendingCount} {t("orders:list.itemsPending")}
+                                  </ThemedText>
+                                  {!order.isPaid && (
+                                    <>
+                                      <ThemedText
+                                        type="small"
+                                        style={tw`text-gray-500`}
+                                      >
+                                        •
+                                      </ThemedText>
+                                      <ThemedText
+                                        type="small"
+                                        style={tw`text-orange-500 font-semibold`}
+                                      >
+                                        {t("orders:list.unpaid")}
+                                      </ThemedText>
+                                    </>
+                                  )}
+                                </ThemedView>
+                              </ThemedView>
+                            </Pressable>
+                            <ThemedView style={tw`gap-4`}>
+                              {order.details
+                                .filter(
+                                  (detail) =>
+                                    detail.quantity !== detail.qtyDelivered,
+                                )
+                                .map((detail) => (
+                                  <OrderDetailCard
+                                    key={detail.id}
+                                    detail={detail}
+                                    orderId={order.id}
+                                    onPress={() =>
+                                      handleEditOrderDetail(
+                                        order.num,
+                                        order.id,
+                                        detail,
+                                      )
+                                    }
+                                  />
+                                ))}
+                            </ThemedView>
+                          </ThemedView>
+                        );
+                      })}
+                  </ThemedView>
+                ) : (
+                  <ThemedView
+                    style={tw`items-center justify-center flex-1 gap-4 mt-20`}
+                  >
+                    <Ionicons
+                      name="checkmark-circle-outline"
+                      size={80}
+                      color={tw.color("green-500")}
+                    />
+                    <ThemedText type="h3">
+                      {t("orders:list.noPendingProducts")}
+                    </ThemedText>
+                    <ThemedText type="body2" style={tw`text-center max-w-xs`}>
+                      {t("orders:list.noPendingProductsDescription")}
+                    </ThemedText>
+                  </ThemedView>
+                )}
+              </>
+            )}
+
+            {/* Order Lists View */}
+            {selectedView === "order-lists" && (
+              <>
+                <OrderList
+                  title={t("common:status.pending")}
+                  orders={pendingOrders}
+                />
+                <OrderList
+                  title={t("common:status.inProgress")}
+                  orders={inProgressOrders}
+                />
+                <OrderList
+                  title={t("common:status.delivered")}
+                  orders={deliveredOrders}
+                />
+              </>
+            )}
           </ThemedView>
         )}
       </ScrollView>

@@ -4,12 +4,21 @@
     "orderNumber": "Pedido #{{number}}",
     "noOrders": "No hay pedidos aún",
     "noOrdersDescription": "No tiene pedidos en este momento. Cree un nuevo pedido para comenzar.",
+    "pendingProducts": "Productos Pendientes",
+    "itemsPending": "productos pendientes",
+    "unpaid": "Sin Pagar",
+    "noPendingProducts": "Todos los productos entregados",
+    "noPendingProductsDescription": "¡Buen trabajo! No hay productos pendientes por entregar.",
     "filter": {
       "all": "Todos",
       "pending": "Pendiente",
       "inProgress": "En Progreso",
       "delivered": "Entregado"
     }
+  },
+  "views": {
+    "products": "Productos",
+    "orders": "Pedidos"
   },
   "details": {
     "title": "Pedido N° {{num}}",

@@ -15,11 +15,13 @@ import OrderDetailActionsBottomSheet from "./order-detail-actions-bottom-sheet";
 
 interface OrderDetailCardProps extends PressableProps {
   detail: OrderDetail;
+  orderId?: string;
 }
 
 export default function OrderDetailCard({
   detail,
   onPress,
+  orderId,
 }: OrderDetailCardProps) {
   const { t } = useTranslation(["common", "orders"]);
   const order = useOrdersStore((state) => state.activeOrder);
@@ -58,10 +60,13 @@ export default function OrderDetailCard({
   };
 
   const handleConfirmDelete = () => {
+    const currentOrderId = orderId || order?.id;
+    if (!currentOrderId) return;
+
     removeOrderDetail(
       {
         detailId: detail.id,
-        orderId: order!.id,
+        orderId: currentOrderId,
       },
       {
         onSuccess: () => {
@@ -78,12 +83,15 @@ export default function OrderDetailCard({
   };
 
   const onCheckedChange = (newValue: boolean) => {
+    const currentOrderId = orderId || order?.id;
+    if (!currentOrderId) return;
+
     const newQtyDelivered = newValue ? detail.quantity : 0;
     updateOrderDetail(
       {
         id: detail.id,
         quantity: detail.quantity,
-        orderId: order!.id,
+        orderId: currentOrderId,
         qtyDelivered: newQtyDelivered,
       },
       {
@@ -153,51 +161,28 @@ export default function OrderDetailCard({
           <ThemedView style={tw` bg-transparent gap-4`}>
             <ThemedView style={tw`flex-row bg-transparent items-center gap-4`}>
               <Checkbox value={isChecked} onValueChange={onCheckedChange} />
-              <ThemedView style={tw` bg-transparent  gap-2`}>
-                <ThemedView
-                  style={tw`flex-row justify-between bg-transparent `}
-                >
-                  <ThemedText type="body1" style={tw`font-bold`}>
-                    {detail.quantity} - {detail.product.name}
-                  </ThemedText>
-                  {/* <ThemedText type="body1">${detail.product.price}</ThemedText> */}
+              <ThemedView style={tw`flex-1 bg-transparent gap-2`}>
+                <ThemedView style={tw` bg-transparent  gap-2`}>
+                  <ThemedView
+                    style={tw`flex-row justify-between bg-transparent `}
+                  >
+                    <ThemedText type="body1" style={tw`font-normal`}>
+                      {detail.quantity} - {detail.product.name}
+                    </ThemedText>
+                    {/* <ThemedText type="body1">${detail.product.price}</ThemedText> */}
+                  </ThemedView>
+                  {detail.description && (
+                    <ThemedText type="body2">{detail.description}</ThemedText>
+                  )}
                 </ThemedView>
-                {detail.description && (
-                  <ThemedText type="body2">{detail.description}</ThemedText>
+                {detail.quantity > 1 && (
+                  <ProgressBar
+                    progress={detail.qtyDelivered / detail.quantity}
+                    height={1}
+                  />
                 )}
               </ThemedView>
-              <ThemedView style={tw`justify-end items-end bg-transparent`}>
-                {/* <ThemedView */}
-                {/*   style={tw`flex-row items-center gap-3 bg-transparent`} */}
-                {/* > */}
-                {/*   {detail.quantity !== counter && ( */}
-                {/*     <IconButton */}
-                {/*       icon="save-outline" */}
-                {/*       onPress={onUpdateOrderDetail} */}
-                {/*       variant="outlined" */}
-                {/*     /> */}
-                {/*   )} */}
-                {/**/}
-                {/*   <IconButton */}
-                {/*     icon="remove-outline" */}
-                {/*     onPress={decrement} */}
-                {/*     variant="outlined" */}
-                {/*   /> */}
-                {/*   <ThemedText>{counter}</ThemedText> */}
-                {/*   <IconButton */}
-                {/*     icon="add" */}
-                {/*     onPress={increment} */}
-                {/*     variant="outlined" */}
-                {/*   /> */}
-                {/* </ThemedView> */}
-              </ThemedView>
             </ThemedView>
-            {detail.quantity > 1 && (
-              <ProgressBar
-                progress={detail.qtyDelivered / detail.quantity}
-                height={1}
-              />
-            )}
           </ThemedView>
         </Pressable>
       </ThemedView>
