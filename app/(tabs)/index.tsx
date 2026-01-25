@@ -49,7 +49,9 @@ export default function HomeScreen() {
   const queryClient = useQueryClient();
   const { currentRestaurant } = useAuthStore();
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedView, setSelectedView] = useState<"pending-products" | "order-lists">("pending-products");
+  const [selectedView, setSelectedView] = useState<
+    "pending-products" | "order-lists"
+  >("pending-products");
   const primaryColor = useThemeColor({}, "primary");
   useActiveOrders();
   const {
@@ -266,7 +268,10 @@ export default function HomeScreen() {
             <ThemedView style={tw`px-4`}>
               <ButtonGroup
                 options={[
-                  { label: t("orders:views.products"), value: "pending-products" },
+                  {
+                    label: t("orders:views.products"),
+                    value: "pending-products",
+                  },
                   { label: t("orders:views.orders"), value: "order-lists" },
                 ]}
                 selected={selectedView}
@@ -299,15 +304,20 @@ export default function HomeScreen() {
                         const relativeTime = getRelativeTime(order.createdAt);
 
                         return (
-                          <ThemedView key={order.id} style={tw`mb-6`}>
+                          <ThemedView key={order.id} style={tw`mb-8`}>
                             <Pressable
-                              onPress={() => handleOpenOrder(order.num, order.id)}
+                              onPress={() =>
+                                handleOpenOrder(order.num, order.id)
+                              }
                             >
-                              <ThemedView style={tw`mb-3`}>
+                              <ThemedView style={tw`mb-4`}>
                                 <ThemedView
                                   style={tw`flex-row items-center justify-between`}
                                 >
-                                  <ThemedText type="body1" style={tw`font-bold`}>
+                                  <ThemedText
+                                    type="body1"
+                                    style={tw`font-bold`}
+                                  >
                                     {order.type === OrderType.IN_PLACE
                                       ? `${t("common:labels.table")} ${order.table?.name}`
                                       : t("common:labels.takeAway")}{" "}
@@ -341,7 +351,8 @@ export default function HomeScreen() {
                                     type="small"
                                     style={tw`text-gray-500`}
                                   >
-                                    {pendingCount} {t("orders:list.itemsPending")}
+                                    {pendingCount}{" "}
+                                    {t("orders:list.itemsPending")}
                                   </ThemedText>
                                   {!order.isPaid && (
                                     <>
@@ -424,15 +435,15 @@ export default function HomeScreen() {
                 />
 
                 {/* Collapsible Closed Orders Section */}
-                <CollapsibleOrderSection
-                  title={t("orders:list.closedOrders")}
-                  totalCount={closedOrdersCount}
-                  orders={closedOrders}
-                  isLoading={isLoadingClosedOrders}
-                  onExpand={refetchClosedOrders}
-                  hasMore={hasMoreClosedOrders}
-                  onLoadMore={loadMoreClosedOrders}
-                />
+                {/* <CollapsibleOrderSection */}
+                {/*   title={t("orders:list.closedOrders")} */}
+                {/*   totalCount={closedOrdersCount} */}
+                {/*   orders={closedOrders} */}
+                {/*   isLoading={isLoadingClosedOrders} */}
+                {/*   onExpand={refetchClosedOrders} */}
+                {/*   hasMore={hasMoreClosedOrders} */}
+                {/*   onLoadMore={loadMoreClosedOrders} */}
+                {/* /> */}
               </>
             )}
           </ThemedView>
