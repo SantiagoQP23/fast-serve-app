@@ -36,7 +36,11 @@
     "paid": "Pagado",
     "unpaid": "Sin Pagar",
     "pendingItems": "Pendiente",
-    "deliveredItems": "Entregado"
+    "deliveredItems": "Entregado",
+    "closedOrder": "Cerrado",
+    "allItems": "Todos los Productos",
+    "orderClosed": "Este pedido ha sido cerrado",
+    "noItemsInOrder": "No hay productos en este pedido"
   },
   "actions": {
     "start": "Iniciar",

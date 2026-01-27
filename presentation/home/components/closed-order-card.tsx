@@ -35,41 +35,6 @@ export default function ClosedOrderCard({ order }: ClosedOrderCardProps) {
     <ThemedView style={tw`mb-3 rounded-2xl opacity-75`}>
       <Card onPress={openOrder}>
         <ThemedView style={tw`gap-4 bg-white`}>
-          {/* Header Section - Status & Payment */}
-          <ThemedView style={tw`flex-row items-center bg-transparent gap-2`}>
-            <ThemedView
-              style={tw`gap-1 flex-row items-center ${bgColor}/10 px-3 py-1 rounded-full`}
-            >
-              <Ionicons
-                name={statusIcon}
-                size={18}
-                color={tw.color(statusIconColor)}
-              />
-              <ThemedText
-                type="body2"
-                style={tw`${statusTextColor} font-semibold`}
-              >
-                {statusText}
-              </ThemedText>
-            </ThemedView>
-            {order.isPaid && (
-              <Label text={t("orders:details.paid")} color="success" />
-            )}
-            {/* Closed badge */}
-            <ThemedView
-              style={tw`gap-1 flex-row items-center bg-gray-500/10 px-3 py-1 rounded-full`}
-            >
-              <Ionicons
-                name="archive-outline"
-                size={16}
-                color={tw.color("gray-600")}
-              />
-              <ThemedText type="body2" style={tw`text-gray-600 font-semibold`}>
-                {t("common:labels.closed")}
-              </ThemedText>
-            </ThemedView>
-          </ThemedView>
-
           {/* Table/Type Info */}
           <ThemedView style={tw`gap-2 bg-transparent`}>
             <ThemedView

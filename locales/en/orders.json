@@ -36,7 +36,11 @@
     "paid": "Paid",
     "unpaid": "Unpaid",
     "pendingItems": "Pending Items",
-    "deliveredItems": "Delivered Items"
+    "deliveredItems": "Delivered Items",
+    "closedOrder": "Closed",
+    "allItems": "All Items",
+    "orderClosed": "This order has been closed",
+    "noItemsInOrder": "No items in this order"
   },
   "actions": {
     "start": "Start",

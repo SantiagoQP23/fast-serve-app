@@ -433,17 +433,16 @@ export default function HomeScreen() {
                   title={t("common:status.delivered")}
                   orders={deliveredOrders}
                 />
-
                 {/* Collapsible Closed Orders Section */}
-                {/* <CollapsibleOrderSection */}
-                {/*   title={t("orders:list.closedOrders")} */}
-                {/*   totalCount={closedOrdersCount} */}
-                {/*   orders={closedOrders} */}
-                {/*   isLoading={isLoadingClosedOrders} */}
-                {/*   onExpand={refetchClosedOrders} */}
-                {/*   hasMore={hasMoreClosedOrders} */}
-                {/*   onLoadMore={loadMoreClosedOrders} */}
-                {/* /> */}
+                <CollapsibleOrderSection
+                  title={t("orders:list.closedOrders")}
+                  totalCount={closedOrdersCount}
+                  orders={closedOrders}
+                  isLoading={isLoadingClosedOrders}
+                  onExpand={refetchClosedOrders}
+                  hasMore={hasMoreClosedOrders}
+                  onLoadMore={loadMoreClosedOrders}
+                />
               </>
             )}
           </ThemedView>

@@ -2,7 +2,12 @@ import React, { useState } from "react";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { Dimensions, FlatList, Pressable, ActivityIndicator } from "react-native";
+import {
+  Dimensions,
+  FlatList,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Order } from "@/core/orders/models/order.model";
 import ClosedOrderCard from "@/presentation/home/components/closed-order-card";
@@ -43,9 +48,7 @@ export default function CollapsibleOrderSection({
     <ThemedView style={tw`mb-4`}>
       {/* Header */}
       <Pressable onPress={handleToggle}>
-        <ThemedView
-          style={tw`px-4 flex-row items-center justify-between py-3 bg-gray-50 dark:bg-gray-800 rounded-lg mx-4`}
-        >
+        <ThemedView style={tw`px-4 flex-row items-center justify-between `}>
           <ThemedView style={tw`flex-1`}>
             <ThemedText type="h4">{title}</ThemedText>
             <ThemedText type="small" style={tw`text-gray-500`}>
@@ -90,7 +93,7 @@ export default function CollapsibleOrderSection({
                 style={tw`pr-4`}
                 contentContainerStyle={tw`px-4`}
               />
-              
+
               {/* Load More Button */}
               {hasMore && (
                 <ThemedView style={tw`px-4 mt-4`}>

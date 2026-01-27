@@ -49,7 +49,11 @@ export default function OrderScreen() {
   const primaryColor = useThemeColor({}, "primary");
 
   // Fetch and sync the order data (this enables the query for refetch)
-  useOrder(order?.id || null);
+  const {
+    isLoading: isLoadingOrder,
+    isError: isOrderError,
+    isRefetching,
+  } = useOrder(order?.id || null);
 
   // Update header title dynamically with order number
   useEffect(() => {
@@ -104,8 +108,23 @@ export default function OrderScreen() {
     );
   }
 
+  // Show loading state while fetching order details (especially for closed orders)
+  if (isLoadingOrder && !order.details) {
+    return (
+      <ThemedView style={tw`flex-1 justify-center items-center`}>
+        <ThemedText type="h2">{t("common:status.loading")}</ThemedText>
+      </ThemedView>
+    );
+  }
+
+  // Check if this is a closed order
+  const isClosed = order.isClosed === true;
+
   // Non-hook functions and computed values can be after the early return
   const openProduct = (detail: OrderDetail) => {
+    // Prevent editing if order is closed
+    if (isClosed) return;
+    
     setActiveOrderDetail(detail);
     router.push("/(order)/edit-order-detail");
   };
@@ -159,12 +178,18 @@ export default function OrderScreen() {
   };
 
   // Filter order details into pending and delivered
-  const pendingDetails = order.details.filter(
-    (detail) => detail.qtyDelivered < detail.quantity,
-  );
-  const deliveredDetails = order.details.filter(
-    (detail) => detail.qtyDelivered === detail.quantity,
-  );
+  // Add defensive check for undefined details
+  const hasDetails = order.details && Array.isArray(order.details);
+  const pendingDetails = hasDetails
+    ? order.details.filter((detail) => detail.qtyDelivered < detail.quantity)
+    : [];
+  const deliveredDetails = hasDetails
+    ? order.details.filter((detail) => detail.qtyDelivered === detail.quantity)
+    : [];
+
+  // For closed orders, show all items together
+  const allDetails = hasDetails ? order.details : [];
+  const hasItems = allDetails.length > 0;
 
   const toggleDeliveredSection = () => {
     setIsDeliveredExpanded(!isDeliveredExpanded);
@@ -305,6 +330,23 @@ export default function OrderScreen() {
               ) : (
                 <Label text={t("orders:details.unpaid")} color="warning" />
               )}
+              {isClosed && (
+                <ThemedView
+                  style={tw`flex-row items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-full`}
+                >
+                  <Ionicons
+                    name="archive-outline"
+                    size={16}
+                    color={tw.color("gray-600")}
+                  />
+                  <ThemedText
+                    type="small"
+                    style={tw`text-gray-700 font-semibold`}
+                  >
+                    {t("orders:details.closedOrder")}
+                  </ThemedText>
+                </ThemedView>
+              )}
             </ThemedView>
 
             {/* Waiter Info */}
@@ -345,7 +387,7 @@ export default function OrderScreen() {
           )}
 
           {/* Pending Items Section */}
-          {pendingDetails.length > 0 && (
+          {!isClosed && pendingDetails.length > 0 && (
             <ThemedView style={tw`mb-6`}>
               <ThemedView
                 style={tw`flex-row justify-between items-center mb-4`}
@@ -374,8 +416,8 @@ export default function OrderScreen() {
             </ThemedView>
           )}
 
-          {/* Delivered Items Section - Expandable */}
-          {deliveredDetails.length > 0 && (
+          {/* Delivered Items Section - Expandable (for active orders) */}
+          {!isClosed && deliveredDetails.length > 0 && (
             <ThemedView style={tw`mb-6`}>
               <Pressable onPress={toggleDeliveredSection}>
                 <ThemedView
@@ -424,13 +466,59 @@ export default function OrderScreen() {
             </ThemedView>
           )}
 
-          {/* Add Product Button */}
-          <Button
-            leftIcon="add-outline"
-            label={t("orders:details.addProduct")}
-            variant="outline"
-            onPress={() => router.push("/restaurant-menu")}
-          />
+          {/* All Items Section - For closed orders */}
+          {isClosed && hasItems && (
+            <ThemedView style={tw`mb-6`}>
+              <ThemedView
+                style={tw`flex-row justify-between items-center mb-4`}
+              >
+                <ThemedText type="h4">
+                  {t("orders:details.allItems")}
+                </ThemedText>
+                <ThemedView style={tw`bg-gray-100 px-2.5 py-1 rounded-full`}>
+                  <ThemedText
+                    type="small"
+                    style={tw`text-gray-700 font-semibold`}
+                  >
+                    {allDetails.length}
+                  </ThemedText>
+                </ThemedView>
+              </ThemedView>
+              <ThemedView style={tw`gap-6`}>
+                {allDetails.map((detail) => (
+                  <OrderDetailCard
+                    key={detail.id}
+                    detail={detail}
+                    onPress={() => {}} // No action for closed orders
+                  />
+                ))}
+              </ThemedView>
+            </ThemedView>
+          )}
+
+          {/* Empty state for closed orders with no items */}
+          {isClosed && !hasItems && (
+            <ThemedView style={tw`mb-6 p-8 items-center justify-center`}>
+              <Ionicons
+                name="document-outline"
+                size={48}
+                color={tw.color("gray-300")}
+              />
+              <ThemedText type="body1" style={tw`text-gray-500 mt-4 text-center`}>
+                {t("orders:details.noItemsInOrder")}
+              </ThemedText>
+            </ThemedView>
+          )}
+
+          {/* Add Product Button - Only for active orders */}
+          {!isClosed && (
+            <Button
+              leftIcon="add-outline"
+              label={t("orders:details.addProduct")}
+              variant="outline"
+              onPress={() => router.push("/restaurant-menu")}
+            />
+          )}
         </ScrollView>
       </ThemedView>
 

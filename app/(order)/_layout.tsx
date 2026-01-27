@@ -14,6 +14,9 @@ export default function OrdersLayout() {
   const order = useOrdersStore((state) => state.activeOrder);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
+  // Check if the order is closed
+  const isClosed = order?.isClosed === true;
+
   const closeEditBottomSheet = () => {
     editBottomSheetRef.current?.close();
   };
@@ -46,18 +49,19 @@ export default function OrdersLayout() {
             headerShown: true,
             title: "Order",
             headerShadowVisible: false,
-            headerRight: () => (
-              <ThemedView style={tw`flex-row items-center gap-2`}>
-                <IconButton
-                  icon="create-outline"
-                  onPress={handlePresentEditModal}
-                ></IconButton>
-                <IconButton
-                  icon="ellipsis-horizontal"
-                  onPress={handlePresentOptionsModal}
-                ></IconButton>
-              </ThemedView>
-            ),
+            headerRight: () =>
+              !isClosed ? (
+                <ThemedView style={tw`flex-row items-center gap-2`}>
+                  <IconButton
+                    icon="create-outline"
+                    onPress={handlePresentEditModal}
+                  ></IconButton>
+                  <IconButton
+                    icon="ellipsis-horizontal"
+                    onPress={handlePresentOptionsModal}
+                  ></IconButton>
+                </ThemedView>
+              ) : null,
           }}
         />
         <Stack.Screen
