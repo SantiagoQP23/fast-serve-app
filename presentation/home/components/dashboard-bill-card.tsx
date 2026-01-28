@@ -60,9 +60,7 @@ export default function DashboardBillCard({
                 {t("bills:list.billNumber", { number: bill.num })}
               </ThemedText>
               {bill.discount > 0 && (
-                <ThemedView
-                  style={tw`bg-blue-50 px-1.5 py-0.5 rounded`}
-                >
+                <ThemedView style={tw`bg-blue-50 px-1.5 py-0.5 rounded`}>
                   <ThemedText type="caption" style={tw`text-blue-700 text-xs`}>
                     -{formatCurrency(bill.discount)}
                   </ThemedText>
@@ -70,12 +68,6 @@ export default function DashboardBillCard({
               )}
             </ThemedView>
             <ThemedView style={tw`flex-row items-center gap-1.5 mt-0.5`}>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {bill.order.tableName}
-              </ThemedText>
-              <ThemedText type="small" style={tw`text-gray-400`}>
-                •
-              </ThemedText>
               <ThemedText type="small" style={tw`text-gray-500`}>
                 {relativeTime}
               </ThemedText>

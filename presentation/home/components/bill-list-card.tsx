@@ -25,24 +25,27 @@ export default function BillListCard() {
   };
 
   return (
-    <ThemedView
-      style={tw`rounded-2xl border border-gray-300 p-4 shadow-sm mb-4`}
-    >
+    <ThemedView style={tw` py-4  mb-4`}>
       <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
         <ThemedText type="h4">{t("bills:list.todaysBills")}</ThemedText>
         <ThemedView style={tw`flex-row items-center gap-2`}>
           {count > 0 && (
             <ThemedView style={tw`bg-primary-50 px-2 py-0.5 rounded-full`}>
-              <ThemedText type="caption" style={tw`text-primary-700 font-semibold`}>
+              <ThemedText
+                type="caption"
+                style={tw`text-primary-700 font-semibold`}
+              >
                 {count}
               </ThemedText>
             </ThemedView>
           )}
-          <Ionicons
-            name="chevron-forward"
-            size={20}
-            color={tw.color("gray-500")}
-          />
+          <Pressable onPress={handleSeeAll} style={tw`p-1`}>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={tw.color("gray-500")}
+            />
+          </Pressable>
         </ThemedView>
       </ThemedView>
 
@@ -55,7 +58,7 @@ export default function BillListCard() {
       ) : bills.length > 0 ? (
         <ThemedView>
           {/* Bill list */}
-          <ThemedView style={tw`-mx-4`}>
+          <ThemedView style={tw``}>
             {bills.map((bill) => (
               <DashboardBillCard
                 key={bill.id}
