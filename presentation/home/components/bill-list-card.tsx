@@ -8,26 +8,16 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useBillsList } from "@/presentation/orders/hooks/useBillsList";
 import { useRouter } from "expo-router";
 import DashboardBillCard from "./dashboard-bill-card";
-import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import Button from "@/presentation/theme/components/button";
 
 export default function BillListCard() {
   const { t } = useTranslation(["bills", "common"]);
   const { bills, count, isLoading } = useBillsList({ limit: 10 });
   const router = useRouter();
-  const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
   const handleBillPress = (billItem: any) => {
-    // Set minimal order data for navigation
-    const order = {
-      id: billItem.order.id,
-      num: billItem.order.num,
-      total: billItem.order.total,
-      // Other fields will be fetched by useOrder hook
-    } as any;
-    
-    setActiveOrder(order);
-    router.push(`/(order)/${billItem.order.num}`);
+    // Navigate to view-only screen using order ID
+    router.push(`/(order-view)/${billItem.order.id}`);
   };
 
   const handleSeeAll = () => {

@@ -7,7 +7,6 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useBillsList } from "@/presentation/orders/hooks/useBillsList";
 import { useRouter } from "expo-router";
 import DashboardBillCard from "@/presentation/home/components/dashboard-bill-card";
-import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { Ionicons } from "@expo/vector-icons";
@@ -18,7 +17,6 @@ import { formatCurrency } from "@/core/i18n/utils";
 export default function BillsListScreen() {
   const { t } = useTranslation(["bills", "common", "errors"]);
   const router = useRouter();
-  const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const [refreshing, setRefreshing] = useState(false);
   const primaryColor = useThemeColor({}, "primary");
   const [filterModalVisible, setFilterModalVisible] = useState(false);
@@ -42,14 +40,8 @@ export default function BillsListScreen() {
   }, [refetch, t]);
 
   const handleBillPress = (billItem: any) => {
-    const order = {
-      id: billItem.order.id,
-      num: billItem.order.num,
-      total: billItem.order.total,
-    } as any;
-
-    setActiveOrder(order);
-    router.push(`/(order)/${billItem.order.num}`);
+    // Navigate to view-only screen using order ID
+    router.push(`/(order-view)/${billItem.order.id}`);
   };
 
   const handleApplyFilters = (newFilters: BillListFiltersDto) => {

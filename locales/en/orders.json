@@ -121,5 +121,12 @@
     "title": "Waiters Overview",
     "orders": "Orders",
     "all": "All Waiters"
+  },
+  "viewOrder": {
+    "title": "Order Details",
+    "viewOnly": "View Only",
+    "viewOnlyDescription": "This order is read-only and cannot be modified",
+    "noOrder": "Order not found",
+    "noOrderDescription": "The order you're looking for doesn't exist or has been deleted"
   }
 }

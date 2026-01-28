@@ -121,5 +121,12 @@
     "title": "Resumen de Meseros",
     "orders": "Pedidos",
     "all": "Todos los Meseros"
+  },
+  "viewOrder": {
+    "title": "Detalles del Pedido",
+    "viewOnly": "Solo Vista",
+    "viewOnlyDescription": "Este pedido es de solo lectura y no se puede modificar",
+    "noOrder": "Pedido no encontrado",
+    "noOrderDescription": "El pedido que buscas no existe o ha sido eliminado"
   }
 }

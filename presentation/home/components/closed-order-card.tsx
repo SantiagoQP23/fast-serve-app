@@ -7,7 +7,6 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
-import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";
 import { useTranslation } from "react-i18next";
 import { getRelativeTime } from "@/core/i18n/utils";
@@ -19,7 +18,6 @@ interface ClosedOrderCardProps {
 
 export default function ClosedOrderCard({ order }: ClosedOrderCardProps) {
   const { t } = useTranslation(["common", "orders"]);
-  const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const { statusText, statusTextColor, bgColor, statusIcon, statusIconColor } =
     useOrderStatus(order.status);
 
@@ -27,8 +25,7 @@ export default function ClosedOrderCard({ order }: ClosedOrderCardProps) {
   const relativeTime = getRelativeTime(order.createdAt);
 
   const openOrder = () => {
-    setActiveOrder(order);
-    router.push(`/(order)/${order.num}`);
+    router.push(`/(order-view)/${order.id}`);
   };
 
   return (

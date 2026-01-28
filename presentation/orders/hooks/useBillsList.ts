@@ -6,9 +6,15 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 export const useBillsList = (filters?: BillListFiltersDto) => {
   const { currentRestaurant } = useAuthStore();
 
+  // Add default startDate (today) if not provided
+  const filtersWithDefaults: BillListFiltersDto = {
+    startDate: new Date().toISOString().split('T')[0], // YYYY-MM-DD format
+    ...filters,
+  };
+
   const billsListQuery = useQuery({
-    queryKey: ["billsList", currentRestaurant?.id, filters],
-    queryFn: () => BillsService.getBillList(filters),
+    queryKey: ["billsList", currentRestaurant?.id, filtersWithDefaults],
+    queryFn: () => BillsService.getBillList(filtersWithDefaults),
     staleTime: 30000, // 30 seconds
     enabled: !!currentRestaurant?.id,
   });
