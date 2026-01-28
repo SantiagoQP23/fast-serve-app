@@ -6,7 +6,14 @@
     "billNumber": "Bill #{{number}}",
     "noBills": "No bills yet",
     "noBillsDescription": "There are no bills for this order yet. Tap the button below to add a new bill.",
-    "addBill": "Add bill"
+    "addBill": "Add bill",
+    "todaysBills": "Today's Bills",
+    "allBills": "All Bills",
+    "seeAllBills": "See All Bills ({{count}})",
+    "noBillsToday": "No bills today",
+    "noBillsTodayDescription": "No bills have been created today yet.",
+    "filterBills": "Filter Bills",
+    "showingBills": "Showing {{count}} bills"
   },
   "details": {
     "title": "Bill #{{number}}",
@@ -55,5 +62,19 @@
     "insufficientAmount": "Received amount is less than the total bill amount.",
     "discountExceeded": "Discount Exceeded",
     "maxDiscountAllowed": "Maximum discount allowed is {{amount}}"
+  },
+  "filters": {
+    "title": "Filter Bills",
+    "waiter": "Waiter",
+    "paymentMethod": "Payment Method",
+    "paymentStatus": "Payment Status",
+    "allWaiters": "All Waiters",
+    "allPaymentMethods": "All Payment Methods",
+    "allStatuses": "All Statuses",
+    "apply": "Apply Filters",
+    "reset": "Reset",
+    "paid": "Paid Only",
+    "unpaid": "Unpaid Only",
+    "all": "All"
   }
 }

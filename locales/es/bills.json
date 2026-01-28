@@ -6,7 +6,14 @@
     "billNumber": "Cuenta #{{number}}",
     "noBills": "No hay cuentas aún",
     "noBillsDescription": "No hay cuentas para este pedido aún. Presione el botón de abajo para agregar una nueva cuenta.",
-    "addBill": "Agregar cuenta"
+    "addBill": "Agregar cuenta",
+    "todaysBills": "Cuentas de Hoy",
+    "allBills": "Todas las Cuentas",
+    "seeAllBills": "Ver Todas las Cuentas ({{count}})",
+    "noBillsToday": "No hay cuentas hoy",
+    "noBillsTodayDescription": "No se han creado cuentas hoy aún.",
+    "filterBills": "Filtrar Cuentas",
+    "showingBills": "Mostrando {{count}} cuentas"
   },
   "details": {
     "title": "Cuenta #{{number}}",
@@ -55,5 +62,19 @@
     "insufficientAmount": "El monto recibido es menor que el total de la cuenta.",
     "discountExceeded": "Descuento Excedido",
     "maxDiscountAllowed": "El descuento máximo permitido es {{amount}}"
+  },
+  "filters": {
+    "title": "Filtrar Cuentas",
+    "waiter": "Mesero",
+    "paymentMethod": "Método de Pago",
+    "paymentStatus": "Estado de Pago",
+    "allWaiters": "Todos los Meseros",
+    "allPaymentMethods": "Todos los Métodos",
+    "allStatuses": "Todos los Estados",
+    "apply": "Aplicar Filtros",
+    "reset": "Reiniciar",
+    "paid": "Solo Pagadas",
+    "unpaid": "Solo Sin Pagar",
+    "all": "Todas"
   }
 }
