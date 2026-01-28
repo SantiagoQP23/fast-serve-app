@@ -27,6 +27,14 @@ export default function OrdersLayout() {
             headerShadowVisible: false,
           }}
         />
+        <Stack.Screen
+          name="cached-menu"
+          options={{
+            headerShown: true,
+            title: "Stored Menu",
+            headerShadowVisible: false,
+          }}
+        />
         {/* <Stack.Screen */}
         {/*   name="[id]/edit-order-detail/index" */}
         {/*   options={{ */}

@@ -29,5 +29,13 @@
     "createOrder": "Crear pedido",
     "empty": "Su carrito está vacío",
     "emptyDescription": "Agregue algunos productos para comenzar"
+  },
+  "noMenu": {
+    "title": "Sin Menú Cargado",
+    "description": "El menú aún no se ha cargado. Toque el botón a continuación para cargarlo.",
+    "loadButton": "Cargar Menú",
+    "loading": "Cargando...",
+    "retry": "Reintentar",
+    "error": "Error al cargar el menú. Por favor, inténtelo de nuevo."
   }
 }

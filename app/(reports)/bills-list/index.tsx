@@ -10,7 +10,11 @@ import DashboardBillCard from "@/presentation/home/components/dashboard-bill-car
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { Ionicons } from "@expo/vector-icons";
-import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  useBottomSheetSpringConfigs,
+} from "@gorhom/bottom-sheet";
 import BillsFilterBottomSheet from "@/presentation/orders/components/bills-filter-bottom-sheet";
 import { BillListFiltersDto } from "@/core/orders/dto/bill-list-filters.dto";
 import { formatCurrency } from "@/core/i18n/utils";
@@ -24,6 +28,14 @@ export default function BillsListScreen() {
   const primaryColor = useThemeColor({}, "primary");
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [filters, setFilters] = useState<BillListFiltersDto>({});
+
+  // Animation config for smooth, iOS-like bottom sheet animations
+  const animationConfigs = useBottomSheetSpringConfigs({
+    damping: 50,
+    stiffness: 300,
+    mass: 1,
+    overshootClamping: true,
+  });
 
   const { bills, count, isLoading, refetch } = useBillsList(filters);
 
@@ -307,6 +319,7 @@ export default function BillsListScreen() {
       <BottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={["60%"]}
+        animationConfigs={animationConfigs}
         backdropComponent={(props) => (
           <BottomSheetBackdrop
             {...props}

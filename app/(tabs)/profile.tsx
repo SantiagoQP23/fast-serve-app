@@ -28,7 +28,7 @@ export default function OrdersScreen() {
   const language = useGlobalStore((state) => state.language);
   const setLanguage = useGlobalStore((state) => state.setLanguage);
 
-  const handleLanguageChange = async (value: string) => {
+  const handleLanguageChange = async (value: string | number) => {
     await setLanguage(value as LanguageCode);
   };
 
@@ -75,6 +75,17 @@ export default function OrdersScreen() {
           >
             <Ionicons name="settings-outline" size={24} />
             <ThemedText type="h4">{t('profile.settings')}</ThemedText>
+          </Pressable>
+          <Pressable
+            style={({ pressed }) =>
+              tw.style(`flex-row items-center gap-4`, pressed && "opacity-70")
+            }
+            onPress={() => {
+              router.push("/(profile)/cached-menu");
+            }}
+          >
+            <Ionicons name="server-outline" size={24} />
+            <ThemedText type="h4">{t('profile.cachedMenu')}</ThemedText>
           </Pressable>
           <ThemedView style={tw`gap-2`}>
             <Select

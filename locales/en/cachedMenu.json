@@ -1,0 +1,21 @@
+{
+  "title": "Stored Menu",
+  "restaurant": "Restaurant",
+  "lastUpdated": "Last updated",
+  "summary": "Summary",
+  "sections": "Sections",
+  "categories": "Categories",
+  "products": "Products",
+  "refetch": "Refetch menu",
+  "refetching": "Refetching...",
+  "noCache": "No stored menu",
+  "noCacheDescription": "No menu data available. Please go to the menu screen to load data.",
+  "noData": "No data",
+  "clearCache": {
+    "button": "Clear stored menu",
+    "title": "Clear Storage",
+    "message": "Are you sure you want to clear the stored menu? You will need to refetch the menu from the server.",
+    "confirm": "Clear",
+    "cancel": "Cancel"
+  }
+}

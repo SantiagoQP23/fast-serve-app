@@ -29,5 +29,13 @@
     "createOrder": "Create order",
     "empty": "Your cart is empty",
     "emptyDescription": "Add some products to get started"
+  },
+  "noMenu": {
+    "title": "No Menu Loaded",
+    "description": "The menu hasn't been loaded yet. Tap the button below to load it.",
+    "loadButton": "Load Menu",
+    "loading": "Loading...",
+    "retry": "Retry",
+    "error": "Failed to load menu. Please try again."
   }
 }

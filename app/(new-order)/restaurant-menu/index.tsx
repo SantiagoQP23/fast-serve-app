@@ -17,6 +17,7 @@ import Button from "@/presentation/theme/components/button";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function RestaurantMenuScreen() {
   const { t } = useTranslation(["menu"]);
@@ -30,6 +31,18 @@ export default function RestaurantMenuScreen() {
   const { setActiveProduct } = useMenuStore();
   const details = useNewOrderStore((state) => state.details);
   const order = useOrdersStore((state) => state.activeOrder);
+  const [isLoadingMenu, setIsLoadingMenu] = useState(false);
+
+  const handleLoadMenu = async () => {
+    setIsLoadingMenu(true);
+    try {
+      await menuQuery.refetch();
+    } catch (error) {
+      // Error is handled by React Query
+    } finally {
+      setIsLoadingMenu(false);
+    }
+  };
 
   const openProduct = (product: Product) => {
     setActiveProduct(product);
@@ -85,9 +98,41 @@ export default function RestaurantMenuScreen() {
     }
   }, [filteredCategories, category, onChangeCategory]);
 
-  useEffect(() => {
-    menuQuery.refetch();
-  }, []);
+  // Check if menu is loaded
+  const hasMenu = sections.length > 0 || categories.length > 0 || products.length > 0;
+
+  // Show empty state if no menu loaded
+  if (!hasMenu) {
+    return (
+      <ThemedView style={tw`flex-1 px-4 pt-8 items-center justify-center gap-4`}>
+        <Ionicons name="restaurant-outline" size={64} color="#999" />
+        <ThemedView style={tw`gap-2 items-center`}>
+          <ThemedText type="h2">{t("menu:noMenu.title")}</ThemedText>
+          <ThemedText type="body2" style={tw`text-center text-gray-500 px-8`}>
+            {t("menu:noMenu.description")}
+          </ThemedText>
+        </ThemedView>
+        <Button
+          label={
+            menuQuery.isError
+              ? t("menu:noMenu.retry")
+              : isLoadingMenu
+              ? t("menu:noMenu.loading")
+              : t("menu:noMenu.loadButton")
+          }
+          leftIcon="cloud-download-outline"
+          onPress={handleLoadMenu}
+          disabled={isLoadingMenu}
+          loading={isLoadingMenu}
+        />
+        {menuQuery.isError && (
+          <ThemedText type="body2" style={tw`text-red-500 text-center px-8`}>
+            {t("menu:noMenu.error")}
+          </ThemedText>
+        )}
+      </ThemedView>
+    );
+  }
 
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
