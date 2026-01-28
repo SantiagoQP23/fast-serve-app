@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo, useRef } from "react";
 import { ScrollView, RefreshControl, Alert, Pressable } from "react-native";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -10,16 +10,19 @@ import DashboardBillCard from "@/presentation/home/components/dashboard-bill-car
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { Ionicons } from "@expo/vector-icons";
-import BillsFilterModal from "@/presentation/orders/components/bills-filter-modal";
+import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
+import BillsFilterBottomSheet from "@/presentation/orders/components/bills-filter-bottom-sheet";
 import { BillListFiltersDto } from "@/core/orders/dto/bill-list-filters.dto";
 import { formatCurrency } from "@/core/i18n/utils";
+import { translatePaymentMethod, getPaymentMethodIcon } from "@/core/i18n/utils";
+import { PaymentMethod } from "@/core/orders/enums/payment-method";
 
 export default function BillsListScreen() {
   const { t } = useTranslation(["bills", "common", "errors"]);
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
   const primaryColor = useThemeColor({}, "primary");
-  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [filters, setFilters] = useState<BillListFiltersDto>({});
 
   const { bills, count, isLoading, refetch } = useBillsList(filters);
@@ -44,12 +47,40 @@ export default function BillsListScreen() {
     router.push(`/(order-view)/${billItem.order.id}`);
   };
 
-  const handleApplyFilters = (newFilters: BillListFiltersDto) => {
+  const handleOpenFilters = useCallback(() => {
+    bottomSheetModalRef.current?.present();
+  }, []);
+
+  const handleCloseFilters = useCallback(() => {
+    bottomSheetModalRef.current?.dismiss();
+  }, []);
+
+  const handleApplyFilters = useCallback((newFilters: BillListFiltersDto) => {
     setFilters(newFilters);
-  };
+    bottomSheetModalRef.current?.dismiss();
+  }, []);
+
+  const handleResetFilters = useCallback(() => {
+    setFilters({});
+  }, []);
 
   const hasActiveFilters =
-    filters.paymentMethod !== undefined || filters.isPaid !== undefined;
+    filters.paymentMethod !== undefined ||
+    filters.isPaid !== undefined ||
+    filters.ownerId !== undefined;
+
+  // Compute available waiters from bills
+  const availableWaiters = useMemo(() => {
+    const waiterMap = new Map<string, string>();
+    bills.forEach((bill) => {
+      if (!waiterMap.has(bill.owner.id)) {
+        waiterMap.set(bill.owner.id, bill.owner.fullName);
+      }
+    });
+    return Array.from(waiterMap.entries())
+      .map(([id, fullName]) => ({ id, fullName }))
+      .sort((a, b) => a.fullName.localeCompare(b.fullName));
+  }, [bills]);
 
   // Calculate totals
   const totalAmount = bills.reduce((sum, bill) => sum + bill.total, 0);
@@ -63,7 +94,7 @@ export default function BillsListScreen() {
         <ThemedView style={tw`flex-row items-center justify-between`}>
           <ThemedText type="h2">{t("bills:list.allBills")}</ThemedText>
           <Pressable
-            onPress={() => setFilterModalVisible(true)}
+            onPress={handleOpenFilters}
             style={tw`p-2 rounded-lg ${
               hasActiveFilters ? "bg-primary-50" : "bg-gray-100"
             }`}
@@ -112,20 +143,112 @@ export default function BillsListScreen() {
 
         {/* Active filters indicator */}
         {hasActiveFilters && (
-          <ThemedView style={tw`flex-row items-center gap-2`}>
-            <Ionicons
-              name="filter"
-              size={14}
-              color={tw.color("primary-600")}
-            />
-            <ThemedText type="small" style={tw`text-primary-700`}>
-              {t("bills:list.showingBills", { count: bills.length })}
-            </ThemedText>
-            <Pressable onPress={() => setFilters({})}>
-              <ThemedText type="small" style={tw`text-primary-600 underline`}>
-                {t("bills:filters.reset")}
-              </ThemedText>
-            </Pressable>
+          <ThemedView style={tw`gap-2`}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={tw`gap-2`}
+            >
+              {/* Payment Method Chip */}
+              {filters.paymentMethod && (
+                <Pressable
+                  onPress={() =>
+                    setFilters({ ...filters, paymentMethod: undefined })
+                  }
+                >
+                  <ThemedView
+                    style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 border border-primary-300`}
+                  >
+                    <Ionicons
+                      name={getPaymentMethodIcon(filters.paymentMethod as PaymentMethod)}
+                      size={14}
+                      color={tw.color("primary-700")}
+                    />
+                    <ThemedText type="small" style={tw`text-primary-700 font-medium`}>
+                      {translatePaymentMethod(filters.paymentMethod as PaymentMethod)}
+                    </ThemedText>
+                    <Ionicons
+                      name="close-circle"
+                      size={16}
+                      color={tw.color("primary-600")}
+                    />
+                  </ThemedView>
+                </Pressable>
+              )}
+
+              {/* Payment Status Chip */}
+              {filters.isPaid !== undefined && (
+                <Pressable
+                  onPress={() => setFilters({ ...filters, isPaid: undefined })}
+                >
+                  <ThemedView
+                    style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 border border-primary-300`}
+                  >
+                    <Ionicons
+                      name={
+                        filters.isPaid
+                          ? "checkmark-circle-outline"
+                          : "time-outline"
+                      }
+                      size={14}
+                      color={tw.color("primary-700")}
+                    />
+                    <ThemedText type="small" style={tw`text-primary-700 font-medium`}>
+                      {filters.isPaid
+                        ? t("bills:filters.paid")
+                        : t("bills:filters.unpaid")}
+                    </ThemedText>
+                    <Ionicons
+                      name="close-circle"
+                      size={16}
+                      color={tw.color("primary-600")}
+                    />
+                  </ThemedView>
+                </Pressable>
+              )}
+
+              {/* Waiter Chip */}
+              {filters.ownerId && (
+                <Pressable
+                  onPress={() => setFilters({ ...filters, ownerId: undefined })}
+                >
+                  <ThemedView
+                    style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 border border-primary-300`}
+                  >
+                    <Ionicons
+                      name="person-outline"
+                      size={14}
+                      color={tw.color("primary-700")}
+                    />
+                    <ThemedText type="small" style={tw`text-primary-700 font-medium`}>
+                      {availableWaiters.find((w) => w.id === filters.ownerId)
+                        ?.fullName || t("bills:filters.waiter")}
+                    </ThemedText>
+                    <Ionicons
+                      name="close-circle"
+                      size={16}
+                      color={tw.color("primary-600")}
+                    />
+                  </ThemedView>
+                </Pressable>
+              )}
+
+              {/* Reset All Chip */}
+              <Pressable onPress={handleResetFilters}>
+                <ThemedView
+                  style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 border border-gray-300`}
+                >
+                  <Ionicons
+                    name="refresh-outline"
+                    size={14}
+                    color={tw.color("gray-700")}
+                  />
+                  <ThemedText type="small" style={tw`text-gray-700 font-medium`}>
+                    {t("bills:filters.reset")}
+                  </ThemedText>
+                </ThemedView>
+              </Pressable>
+            </ScrollView>
           </ThemedView>
         )}
       </ThemedView>
@@ -180,13 +303,26 @@ export default function BillsListScreen() {
         )}
       </ScrollView>
 
-      {/* Filter Modal */}
-      <BillsFilterModal
-        visible={filterModalVisible}
-        onClose={() => setFilterModalVisible(false)}
-        onApply={handleApplyFilters}
-        initialFilters={filters}
-      />
+      {/* Filter Bottom Sheet */}
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        snapPoints={["60%"]}
+        backdropComponent={(props) => (
+          <BottomSheetBackdrop
+            {...props}
+            disappearsOnIndex={-1}
+            appearsOnIndex={0}
+          />
+        )}
+        enablePanDownToClose
+      >
+        <BillsFilterBottomSheet
+          onApply={handleApplyFilters}
+          onClose={handleCloseFilters}
+          initialFilters={filters}
+          availableWaiters={availableWaiters}
+        />
+      </BottomSheetModal>
     </ThemedView>
   );
 }
