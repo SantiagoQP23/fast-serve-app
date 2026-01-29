@@ -173,7 +173,7 @@ export default function HomeScreen() {
       {/* Stats Cards */}
 
       <ScrollView
-        contentContainerStyle={tw`pb-20`}
+        contentContainerStyle={tw`pb-20 gap-4`}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -185,6 +185,34 @@ export default function HomeScreen() {
         }
       >
         <ThemedView style={tw`px-4 mb-4 gap-4`}>
+          <ThemedView style={tw`gap-4 rounded-lg `}>
+            <ThemedView style={tw`bg-transparent gap-1 `}>
+              <ThemedText type="small" style={tw``}>
+                {t("common:stats.totalAmount")}
+              </ThemedText>
+              <ThemedText style={tw`text-6xl `}>
+                {`${t("common:currency.symbol")}${dashboardStats?.totalAmount?.toFixed(2) ?? "0.00"}`}
+              </ThemedText>
+            </ThemedView>
+            <ProgressBar
+              height={2}
+              progress={
+                (dashboardStats?.totalIncome || 0) /
+                (dashboardStats?.totalAmount || 1)
+              }
+            />
+            <ThemedView style={tw`flex-1 flex-row  items-center gap-1`}>
+              <ThemedText type="small" style={tw``}>
+                {t("common:stats.totalIncome")}:
+              </ThemedText>
+              <ThemedText
+                type="body1"
+                style={[tw`font-semibold text-light-primary`]}
+              >
+                {`${t("common:currency.symbol")}${dashboardStats?.totalIncome?.toFixed(2) ?? "0.00"}`}
+              </ThemedText>
+            </ThemedView>
+          </ThemedView>
           <ThemedView style={tw`flex-row gap-4`}>
             <StatsCard
               title={t("common:stats.totalOrders")}
@@ -198,53 +226,6 @@ export default function HomeScreen() {
               icon="receipt-outline"
               loading={isLoadingStats}
             />
-          </ThemedView>
-          <ThemedView
-            style={tw`px-4  border border-light-border rounded-2xl p-4 gap-4`}
-          >
-            <ThemedView style={tw`flex-row justify-between items-center`}>
-              <ThemedText type="body2" style={tw` mb-1 font-semibold`}>
-                {t("common:stats.collectionRate")}
-              </ThemedText>
-              <ThemedText type="body2">
-                {(collectionRate * 100).toFixed(0)}%
-              </ThemedText>
-            </ThemedView>
-            <ProgressBar
-              height={2}
-              progress={
-                (dashboardStats?.totalIncome || 0) /
-                (dashboardStats?.totalAmount || 1)
-              }
-            />
-            <ThemedView style={tw`flex-row gap-3 `}>
-              <ThemedView
-                style={tw`mt-2 flex-row justify-around w-full max-w-xs`}
-              >
-                <ThemedView style={tw`items-center flex-1`}>
-                  <ThemedText type="small" style={tw`text-gray-500 mb-1`}>
-                    {t("common:stats.totalIncome")}
-                  </ThemedText>
-                  <ThemedText
-                    type="body1"
-                    style={[tw`font-semibold`, { color: primaryColor }]}
-                  >
-                    {`${t("common:currency.symbol")}${dashboardStats?.totalIncome?.toFixed(2) ?? "0.00"}`}
-                  </ThemedText>
-                </ThemedView>
-                <ThemedView style={tw`items-center flex-1`}>
-                  <ThemedText type="small" style={tw`text-gray-500 mb-1`}>
-                    {t("common:stats.totalAmount")}
-                  </ThemedText>
-                  <ThemedText
-                    type="body1"
-                    style={[tw`font-semibold`, { color: primaryColor }]}
-                  >
-                    {`${t("common:currency.symbol")}${dashboardStats?.totalAmount?.toFixed(2) ?? "0.00"}`}
-                  </ThemedText>
-                </ThemedView>
-              </ThemedView>
-            </ThemedView>
           </ThemedView>
         </ThemedView>
 
@@ -263,7 +244,7 @@ export default function HomeScreen() {
             </ThemedText>
           </ThemedView>
         ) : (
-          <ThemedView style={tw`gap-4`}>
+          <ThemedView style={tw`gap-6`}>
             {/* ButtonGroup for view toggle */}
             <ThemedView style={tw`px-4`}>
               <ButtonGroup
@@ -288,7 +269,7 @@ export default function HomeScreen() {
                   ),
                 ) ? (
                   <ThemedView style={tw`px-4`}>
-                    <ThemedText type="h3" style={tw`mb-4`}>
+                    <ThemedText type="h3" style={tw`mb-4 font-semibold`}>
                       {t("orders:list.pendingProducts")}
                     </ThemedText>
                     {orders
@@ -316,7 +297,7 @@ export default function HomeScreen() {
                                 >
                                   <ThemedText
                                     type="body1"
-                                    style={tw`font-bold`}
+                                    style={tw`font-semibold`}
                                   >
                                     {order.type === OrderType.IN_PLACE
                                       ? `${t("common:labels.table")} ${order.table?.name}`

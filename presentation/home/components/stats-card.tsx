@@ -19,7 +19,7 @@ export default function StatsCard({
   loading = false,
 }: StatsCardProps) {
   return (
-    <ThemedView style={tw`flex-1 rounded-2xl  p-4 border border-light-border`}>
+    <ThemedView style={tw`flex-1 rounded-2xl  p-4  bg-light-surface`}>
       <ThemedView
         style={tw`flex-row items-center justify-between bg-transparent`}
       >
