@@ -12,9 +12,17 @@ import { PieChart } from "react-native-gifted-charts";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/presentation/theme/hooks/use-color-scheme";
 
-export default function PaymentMethodSummaryCard() {
+export default function PaymentMethodSummaryCard({ 
+  startDate, 
+  endDate 
+}: { 
+  startDate?: string; 
+  endDate?: string;
+}) {
   const { t } = useTranslation(["reports", "common", "bills"]);
-  const { paymentMethodReport, isLoading } = usePaymentMethodReport();
+  const { paymentMethodReport, isLoading } = usePaymentMethodReport(
+    startDate && endDate ? { startDate, endDate } : undefined
+  );
   const router = useRouter();
   const colorScheme = useColorScheme();
   const themePrimaryColor = colorScheme === "dark" ? Colors.dark.primary : Colors.light.primary;

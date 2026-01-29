@@ -10,9 +10,19 @@ import { useRouter } from "expo-router";
 import DashboardBillCard from "./dashboard-bill-card";
 import Button from "@/presentation/theme/components/button";
 
-export default function BillListCard() {
+export default function BillListCard({ 
+  startDate, 
+  endDate 
+}: { 
+  startDate?: string; 
+  endDate?: string;
+}) {
   const { t } = useTranslation(["bills", "common"]);
-  const { bills, count, isLoading } = useBillsList({ limit: 10 });
+  const { bills, count, isLoading } = useBillsList({ 
+    limit: 10,
+    ...(startDate && { startDate }),
+    ...(endDate && { endDate }),
+  });
   const router = useRouter();
 
   const handleBillPress = (billItem: any) => {

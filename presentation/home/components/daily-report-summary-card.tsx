@@ -10,9 +10,9 @@ import { useDailyReport } from "@/presentation/orders/hooks/useDailyReport";
 import { useRouter } from "expo-router";
 import CircularProgressGauge from "@/presentation/theme/components/circular-progress-gauge";
 
-export default function DailyReportSummaryCard() {
+export default function DailyReportSummaryCard({ date }: { date?: string }) {
   const { t } = useTranslation(["reports", "common"]);
-  const { dailyReport, isLoading } = useDailyReport();
+  const { dailyReport, isLoading } = useDailyReport(date ? { date } : undefined);
   const router = useRouter();
 
   const handlePress = () => {
