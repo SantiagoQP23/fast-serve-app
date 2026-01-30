@@ -25,7 +25,6 @@ import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
 import StatsCard from "@/presentation/home/components/stats-card";
 import { useDashboardStats } from "@/presentation/orders/hooks/useDashboardStats";
-import DailyReportSummaryCard from "@/presentation/home/components/daily-report-summary-card";
 import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
 import OrderDetailCard from "@/presentation/orders/components/order-detail-card";
