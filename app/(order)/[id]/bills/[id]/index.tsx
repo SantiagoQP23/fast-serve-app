@@ -87,26 +87,8 @@ export default function BillScreen() {
   };
 
   const moneyReceivedOptions = [
-    "5",
-    "10",
-    "15",
-    "20",
-    "25",
-    "30",
-    "35",
-    "40",
-    "45",
-    "50",
-    "55",
-    "60",
-    "65",
-    "70",
-    "75",
-    "80",
-    "85",
-    "90",
-    "95",
-    "100",
+    5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95,
+    100,
   ];
   const date = getFormattedDate(bill.createdAt);
 
@@ -383,15 +365,17 @@ export default function BillScreen() {
                       contentContainerStyle={tw`gap-2 mt-3 mb-3`}
                       nestedScrollEnabled
                     >
-                      {moneyReceivedOptions.map((amount) => (
-                        <Button
-                          key={amount}
-                          label={`$${amount}`}
-                          variant="outline"
-                          size="small"
-                          onPress={() => setReceivedAmount(amount)}
-                        />
-                      ))}
+                      {moneyReceivedOptions
+                        .filter((value) => value >= totalAfterDiscount)
+                        .map((amount) => (
+                          <Button
+                            key={amount}
+                            label={`$${amount}`}
+                            variant="outline"
+                            size="small"
+                            onPress={() => setReceivedAmount(amount.toString())}
+                          />
+                        ))}
                     </ScrollView>
 
                     <Button
