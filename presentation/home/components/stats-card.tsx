@@ -19,12 +19,20 @@ export default function StatsCard({
   loading = false,
 }: StatsCardProps) {
   return (
-    <ThemedView style={tw`flex-1 rounded-2xl  p-4  bg-light-surface`}>
+    <ThemedView style={tw`flex-1 rounded-2xl  p-4 border border-light-border`}>
       <ThemedView
-        style={tw`flex-row items-center justify-between bg-transparent`}
+        style={tw`flex-row items-center justify-between bg-transparent gap-2`}
       >
+        <ThemedView
+          style={tw`w-10 h-10 rounded-lg bg-light-surface items-center justify-center`}
+        >
+          <Ionicons name={icon} size={24} color={tw.color(`black`)} />
+        </ThemedView>
         <ThemedView style={tw`flex-1 bg-transparent`}>
-          <ThemedText type="body2" style={tw` mb-1 `}>
+          <ThemedText
+            type="body2"
+            style={tw` mb-1 font-semibold text-gray-500`}
+          >
             {title}
           </ThemedText>
           {loading ? (
@@ -34,11 +42,6 @@ export default function StatsCard({
           ) : (
             <ThemedText type="h3">{value}</ThemedText>
           )}
-        </ThemedView>
-        <ThemedView
-          style={tw`w-12 h-12 rounded-full bg-gray-50 items-center justify-center`}
-        >
-          <Ionicons name={icon} size={24} color={tw.color(`light-primary`)} />
         </ThemedView>
       </ThemedView>
     </ThemedView>
