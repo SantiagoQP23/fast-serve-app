@@ -96,7 +96,8 @@ export default function OrderCard({ order }: OrderCardProps) {
                   style={tw`flex-row items-center bg-transparent justify-between`}
                 >
                   <ThemedText type="caption" style={tw`text-gray-500`}>
-                    {t("common:status.delivered")}: {deliveredItems}/{totalItems}
+                    {t("common:status.delivered")}: {deliveredItems}/
+                    {totalItems}
                   </ThemedText>
                   <ThemedText type="caption" style={tw`text-gray-500`}>
                     {Math.round(deliveryProgress * 100)}%

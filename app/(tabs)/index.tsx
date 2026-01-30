@@ -301,10 +301,6 @@ export default function HomeScreen() {
                                     {order.type === OrderType.IN_PLACE
                                       ? `${t("common:labels.table")} ${order.table?.name}`
                                       : t("common:labels.takeAway")}{" "}
-                                    -{" "}
-                                    {t("orders:details.orderNumber", {
-                                      num: order.num,
-                                    })}
                                   </ThemedText>
                                   <Ionicons
                                     name="chevron-forward"
@@ -317,9 +313,11 @@ export default function HomeScreen() {
                                 >
                                   <ThemedText
                                     type="small"
-                                    style={tw`text-gray-500`}
+                                    style={tw`text-gray-500 font-semibold`}
                                   >
-                                    {relativeTime}
+                                    {t("orders:details.orderNumber", {
+                                      num: order.num,
+                                    })}
                                   </ThemedText>
                                   <ThemedText
                                     type="small"
@@ -329,11 +327,11 @@ export default function HomeScreen() {
                                   </ThemedText>
                                   <ThemedText
                                     type="small"
-                                    style={tw`text-gray-500`}
+                                    style={tw`text-gray-500 font-semibold`}
                                   >
-                                    {pendingCount}{" "}
-                                    {t("orders:list.itemsPending")}
+                                    {relativeTime}
                                   </ThemedText>
+
                                   {!order.isPaid && (
                                     <>
                                       <ThemedText
