@@ -71,7 +71,9 @@ export default function OrderScreen() {
   } = useModal();
 
   const [visible, setVisible] = useState(false);
-  const [isDeliveredExpanded, setIsDeliveredExpanded] = useState(false);
+  const [isDeliveredExpanded, setIsDeliveredExpanded] = useState(
+    order?.status === OrderStatus.DELIVERED,
+  );
 
   // Call all hooks before any conditional returns
   const { statusText, statusTextColor, statusIcon, statusIconColor, bgColor } =
@@ -124,7 +126,7 @@ export default function OrderScreen() {
   const openProduct = (detail: OrderDetail) => {
     // Prevent editing if order is closed
     if (isClosed) return;
-    
+
     setActiveOrderDetail(detail);
     router.push("/(order)/edit-order-detail");
   };
@@ -504,7 +506,10 @@ export default function OrderScreen() {
                 size={48}
                 color={tw.color("gray-300")}
               />
-              <ThemedText type="body1" style={tw`text-gray-500 mt-4 text-center`}>
+              <ThemedText
+                type="body1"
+                style={tw`text-gray-500 mt-4 text-center`}
+              >
                 {t("orders:details.noItemsInOrder")}
               </ThemedText>
             </ThemedView>
