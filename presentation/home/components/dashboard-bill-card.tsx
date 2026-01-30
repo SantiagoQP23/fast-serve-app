@@ -54,7 +54,7 @@ export default function DashboardBillCard({
           </ThemedView>
 
           {/* Bill details */}
-          <ThemedView style={tw`flex-1`}>
+          <ThemedView style={tw`flex-1 gap-1`}>
             <ThemedView style={tw`flex-row items-center gap-2`}>
               <ThemedText type="body1" style={tw`font-semibold`}>
                 {t("bills:list.billNumber", { number: bill.num })}
@@ -67,6 +67,7 @@ export default function DashboardBillCard({
                 </ThemedView>
               )}
             </ThemedView>
+            <ThemedText type="body2">{bill.owner.fullName}</ThemedText>
             <ThemedView style={tw`flex-row items-center gap-1.5 mt-0.5`}>
               <ThemedText type="small" style={tw`text-gray-500`}>
                 {relativeTime}

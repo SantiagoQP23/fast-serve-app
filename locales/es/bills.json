@@ -1,6 +1,6 @@
 {
-  "bill": "cuenta",
-  "bills": "cuentas",
+  "bill": "Cuenta",
+  "bills": "Cuentas",
   "list": {
     "title": "Cuentas",
     "billNumber": "Cuenta #{{number}}",

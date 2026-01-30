@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, ViewStyle } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import tw from "twrnc";
+import tw from "@/presentation/theme/lib/tailwind";
 
 interface IconButtonProps {
   icon: keyof typeof Ionicons.glyphMap;
@@ -41,8 +41,8 @@ export default function IconButton({
   };
 
   const variantStyles = {
-    filled: colors[color] || color,
-    outlined: "border border-gray-300",
+    filled: "bg-light-surface",
+    outlined: "border border-light-border",
     text: "",
   };
 
@@ -57,7 +57,6 @@ export default function IconButton({
           //   : !disabled
           //     ? "#e5e7eb"
           //     : backgroundColor,
-          backgroundColor: backgroundColor,
         },
         style,
       ]}

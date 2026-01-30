@@ -1,5 +1,17 @@
-import React, { useCallback, useState, useEffect, useRef, useMemo } from "react";
-import { ScrollView, RefreshControl, Alert, Pressable, FlatList } from "react-native";
+import React, {
+  useCallback,
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+} from "react";
+import {
+  ScrollView,
+  RefreshControl,
+  Alert,
+  Pressable,
+  FlatList,
+} from "react-native";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -23,10 +35,15 @@ import {
 import BillsFilterBottomSheet from "@/presentation/orders/components/bills-filter-bottom-sheet";
 import { BillListFiltersDto } from "@/core/orders/dto/bill-list-filters.dto";
 import { useBillsList } from "@/presentation/orders/hooks/useBillsList";
-import { formatCurrency, translatePaymentMethod, getPaymentMethodIcon } from "@/core/i18n/utils";
+import {
+  formatCurrency,
+  translatePaymentMethod,
+  getPaymentMethodIcon,
+} from "@/core/i18n/utils";
 import { PaymentMethod } from "@/core/orders/enums/payment-method";
 import { useRouter } from "expo-router";
 import { BillListItemDto } from "@/core/orders/dto/bill-list-response.dto";
+import IconButton from "@/presentation/theme/components/icon-button";
 
 const STORAGE_KEY = "dashboard_selected_date";
 
@@ -83,7 +100,12 @@ export default function DashboardScreen() {
     endDate: dateFilter,
     ...filters,
   };
-  const { bills, count, isLoading: billsLoading, refetch: refetchBills } = useBillsList(billsFilters);
+  const {
+    bills,
+    count,
+    isLoading: billsLoading,
+    refetch: refetchBills,
+  } = useBillsList(billsFilters);
 
   // Filter handlers
   const handleOpenFilters = useCallback(() => {
@@ -127,9 +149,12 @@ export default function DashboardScreen() {
   const unpaidCount = bills.filter((b) => !b.isPaid).length;
 
   // Bill press handler
-  const handleBillPress = useCallback((billItem: BillListItemDto) => {
-    router.push(`/(order-view)/${billItem.order.id}`);
-  }, [router]);
+  const handleBillPress = useCallback(
+    (billItem: BillListItemDto) => {
+      router.push(`/(order-view)/${billItem.order.id}`);
+    },
+    [router],
+  );
 
   const onRefresh = useCallback(async () => {
     try {
@@ -140,10 +165,18 @@ export default function DashboardScreen() {
       // Refetch daily report, payment method report, and bills list with current date filter
       await Promise.all([
         queryClient.refetchQueries({
-          queryKey: ["dailyReport", currentRestaurant?.id, { startDate: dateFilter, endDate: dateFilter }],
+          queryKey: [
+            "dailyReport",
+            currentRestaurant?.id,
+            { startDate: dateFilter, endDate: dateFilter },
+          ],
         }),
         queryClient.refetchQueries({
-          queryKey: ["paymentMethodReport", currentRestaurant?.id, { startDate: dateFilter, endDate: dateFilter }],
+          queryKey: [
+            "paymentMethodReport",
+            currentRestaurant?.id,
+            { startDate: dateFilter, endDate: dateFilter },
+          ],
         }),
         refetchBills(),
       ]);
@@ -186,37 +219,43 @@ export default function DashboardScreen() {
       >
         <ThemedView style={tw`px-4`}>
           <DailyReportSummaryCard startDate={dateFilter} endDate={dateFilter} />
-          <PaymentMethodSummaryCard startDate={dateFilter} endDate={dateFilter} />
-          
+          <PaymentMethodSummaryCard
+            startDate={dateFilter}
+            endDate={dateFilter}
+          />
+
           {/* Bills Section */}
           <ThemedView style={tw`mb-4`}>
             {/* Section Header with Filter Button */}
             <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
               <ThemedText type="h4">{t("bills:bills")}</ThemedText>
-              <Pressable
+              <IconButton
+                icon="filter"
+                variant={hasActiveFilters ? "filled" : "outlined"}
                 onPress={handleOpenFilters}
-                style={tw`p-2 rounded-lg ${
-                  hasActiveFilters ? "bg-primary-50" : "bg-gray-100"
-                }`}
-              >
-                <Ionicons
-                  name="filter"
-                  size={20}
-                  color={
-                    hasActiveFilters
-                      ? tw.color("primary-600")
-                      : tw.color("gray-600")
-                  }
-                />
-              </Pressable>
+              />
+              {/* <Pressable */}
+              {/*   onPress={handleOpenFilters} */}
+              {/*   style={tw`p-2 rounded-lg ${ */}
+              {/*     hasActiveFilters ? "bg-primary-50" : "bg-gray-100" */}
+              {/*   }`} */}
+              {/* > */}
+              {/*   <Ionicons */}
+              {/*     name="filter" */}
+              {/*     size={20} */}
+              {/*     color={ */}
+              {/*       hasActiveFilters */}
+              {/*         ? tw.color("primary-600") */}
+              {/*         : tw.color("gray-600") */}
+              {/*     } */}
+              {/*   /> */}
+              {/* </Pressable> */}
             </ThemedView>
 
             {/* Summary Stats */}
             {bills.length > 0 && (
               <ThemedView style={tw`flex-row gap-3 mb-3`}>
-                <ThemedView
-                  style={tw`flex-1 bg-gray-50 p-3 rounded-xl border border-gray-200`}
-                >
+                <ThemedView style={tw`flex-1 bg-light-surface p-3 rounded-xl `}>
                   <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
                     {t("common:labels.total")}
                   </ThemedText>
@@ -224,14 +263,14 @@ export default function DashboardScreen() {
                     {formatCurrency(totalAmount)}
                   </ThemedText>
                 </ThemedView>
-                <ThemedView
-                  style={tw`flex-1 bg-gray-50 p-3 rounded-xl border border-gray-200`}
-                >
+                <ThemedView style={tw`flex-1 bg-light-surface p-3 rounded-xl `}>
                   <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
                     {t("bills:details.paid")} / {t("bills:details.unpaid")}
                   </ThemedText>
                   <ThemedText type="h4">
-                    <ThemedText style={tw`text-green-700`}>{paidCount}</ThemedText>
+                    <ThemedText style={tw`text-green-700`}>
+                      {paidCount}
+                    </ThemedText>
                     <ThemedText style={tw`text-gray-400`}> / </ThemedText>
                     <ThemedText style={tw`text-orange-700`}>
                       {unpaidCount}
@@ -260,12 +299,19 @@ export default function DashboardScreen() {
                         style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 border border-primary-300`}
                       >
                         <Ionicons
-                          name={getPaymentMethodIcon(filters.paymentMethod as PaymentMethod)}
+                          name={getPaymentMethodIcon(
+                            filters.paymentMethod as PaymentMethod,
+                          )}
                           size={14}
                           color={tw.color("primary-700")}
                         />
-                        <ThemedText type="small" style={tw`text-primary-700 font-medium`}>
-                          {translatePaymentMethod(filters.paymentMethod as PaymentMethod)}
+                        <ThemedText
+                          type="small"
+                          style={tw`text-primary-700 font-medium`}
+                        >
+                          {translatePaymentMethod(
+                            filters.paymentMethod as PaymentMethod,
+                          )}
                         </ThemedText>
                         <Ionicons
                           name="close-circle"
@@ -279,7 +325,9 @@ export default function DashboardScreen() {
                   {/* Payment Status Chip */}
                   {filters.isPaid !== undefined && (
                     <Pressable
-                      onPress={() => setFilters({ ...filters, isPaid: undefined })}
+                      onPress={() =>
+                        setFilters({ ...filters, isPaid: undefined })
+                      }
                     >
                       <ThemedView
                         style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 border border-primary-300`}
@@ -293,7 +341,10 @@ export default function DashboardScreen() {
                           size={14}
                           color={tw.color("primary-700")}
                         />
-                        <ThemedText type="small" style={tw`text-primary-700 font-medium`}>
+                        <ThemedText
+                          type="small"
+                          style={tw`text-primary-700 font-medium`}
+                        >
                           {filters.isPaid
                             ? t("bills:filters.paid")
                             : t("bills:filters.unpaid")}
@@ -310,7 +361,9 @@ export default function DashboardScreen() {
                   {/* Waiter Chip */}
                   {filters.ownerId && (
                     <Pressable
-                      onPress={() => setFilters({ ...filters, ownerId: undefined })}
+                      onPress={() =>
+                        setFilters({ ...filters, ownerId: undefined })
+                      }
                     >
                       <ThemedView
                         style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 border border-primary-300`}
@@ -320,9 +373,13 @@ export default function DashboardScreen() {
                           size={14}
                           color={tw.color("primary-700")}
                         />
-                        <ThemedText type="small" style={tw`text-primary-700 font-medium`}>
-                          {availableWaiters.find((w) => w.id === filters.ownerId)
-                            ?.fullName || t("bills:filters.waiter")}
+                        <ThemedText
+                          type="small"
+                          style={tw`text-primary-700 font-medium`}
+                        >
+                          {availableWaiters.find(
+                            (w) => w.id === filters.ownerId,
+                          )?.fullName || t("bills:filters.waiter")}
                         </ThemedText>
                         <Ionicons
                           name="close-circle"
@@ -343,7 +400,10 @@ export default function DashboardScreen() {
                         size={14}
                         color={tw.color("gray-700")}
                       />
-                      <ThemedText type="small" style={tw`text-gray-700 font-medium`}>
+                      <ThemedText
+                        type="small"
+                        style={tw`text-gray-700 font-medium`}
+                      >
                         {t("bills:filters.reset")}
                       </ThemedText>
                     </ThemedView>
@@ -360,7 +420,7 @@ export default function DashboardScreen() {
                 </ThemedText>
               </ThemedView>
             ) : bills.length > 0 ? (
-              <ThemedView style={tw`bg-white rounded-2xl shadow-sm border border-gray-200`}>
+              <ThemedView style={tw`bg-white rounded-2xl `}>
                 <FlatList
                   data={bills}
                   keyExtractor={(item) => item.id.toString()}
@@ -381,7 +441,10 @@ export default function DashboardScreen() {
                   size={64}
                   color={tw.color("gray-300")}
                 />
-                <ThemedText type="h4" style={tw`text-gray-500 mt-4 text-center`}>
+                <ThemedText
+                  type="h4"
+                  style={tw`text-gray-500 mt-4 text-center`}
+                >
                   {t("bills:list.noBillsToday")}
                 </ThemedText>
                 <ThemedText
