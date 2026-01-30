@@ -4,7 +4,8 @@ export enum ReportMode {
 }
 
 export interface FilterDailyReportDto {
-  date?: string;
+  startDate?: string;
+  endDate?: string;
   userId?: string;
   mode?: ReportMode;
   includeOrderDetails?: boolean;

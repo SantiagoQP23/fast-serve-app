@@ -140,7 +140,7 @@ export default function DashboardScreen() {
       // Refetch daily report, payment method report, and bills list with current date filter
       await Promise.all([
         queryClient.refetchQueries({
-          queryKey: ["dailyReport", currentRestaurant?.id, { date: dateFilter }],
+          queryKey: ["dailyReport", currentRestaurant?.id, { startDate: dateFilter, endDate: dateFilter }],
         }),
         queryClient.refetchQueries({
           queryKey: ["paymentMethodReport", currentRestaurant?.id, { startDate: dateFilter, endDate: dateFilter }],
@@ -185,7 +185,7 @@ export default function DashboardScreen() {
         }
       >
         <ThemedView style={tw`px-4`}>
-          <DailyReportSummaryCard date={dateFilter} />
+          <DailyReportSummaryCard startDate={dateFilter} endDate={dateFilter} />
           <PaymentMethodSummaryCard startDate={dateFilter} endDate={dateFilter} />
           
           {/* Bills Section */}
