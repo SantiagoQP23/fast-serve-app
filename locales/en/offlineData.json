@@ -1,0 +1,41 @@
+{
+  "title": "Restaurant Offline Data",
+  "lastUpdated": "Last updated",
+  "noData": "No data",
+  "menu": {
+    "title": "Menu",
+    "sections": "Sections",
+    "categories": "Categories",
+    "products": "Products",
+    "refetch": "Refetch menu",
+    "refetching": "Refetching...",
+    "loading": "Loading...",
+    "noCache": "No menu data",
+    "noCacheDescription": "Go to the menu screen to load data.",
+    "loadButton": "Load Menu",
+    "clearCache": {
+      "button": "Clear menu data",
+      "title": "Clear Menu",
+      "message": "Are you sure you want to clear the menu data?",
+      "confirm": "Clear",
+      "cancel": "Cancel"
+    }
+  },
+  "tables": {
+    "title": "Tables",
+    "totalTables": "Total tables",
+    "refetch": "Refetch tables",
+    "refetching": "Refetching...",
+    "loading": "Loading...",
+    "noCache": "No tables data",
+    "noCacheDescription": "Go to the tables screen to load data.",
+    "loadButton": "Load Tables",
+    "clearCache": {
+      "button": "Clear tables data",
+      "title": "Clear Tables",
+      "message": "Are you sure you want to clear the tables data?",
+      "confirm": "Clear",
+      "cancel": "Cancel"
+    }
+  }
+}

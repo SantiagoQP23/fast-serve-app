@@ -19,5 +19,13 @@
   "card": {
     "table": "Table {{name}}"
   },
-  "activeCount": "{{count}} active"
+  "activeCount": "{{count}} active",
+  "noTables": {
+    "title": "No Tables Loaded",
+    "description": "The tables haven't been loaded yet. Tap the button below to load them.",
+    "loadButton": "Load Tables",
+    "loading": "Loading...",
+    "retry": "Retry",
+    "error": "Failed to load tables. Please try again."
+  }
 }

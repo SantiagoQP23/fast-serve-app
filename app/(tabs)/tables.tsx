@@ -35,18 +35,20 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { Ionicons } from "@expo/vector-icons";
+import Button from "@/presentation/theme/components/button";
 
 export default function TablesScreen() {
   const { t } = useTranslation(["tables", "errors"]);
   const [selectedStatus, setSelectedStatus] = useState<boolean | "all">("all");
   const { setTable, setOrderType } = useNewOrderStore();
-  const { tables, isLoading } = useTables();
+  const { tables, isLoading, tablesQuery } = useTables();
   const orders = useOrdersStore((state) => state.orders);
   const [activeTable, setActiveTable] = useState<Table | null>(null);
   const queryClient = useQueryClient();
   const { currentRestaurant } = useAuthStore();
-  const [refreshing, setRefreshing] = useState(false);
   const primaryColor = useThemeColor({}, "primary");
+  const [isLoadingTables, setIsLoadingTables] = useState(false);
 
   const tabs: { label: string; value: boolean | "all" }[] = [
     { label: t("list.filter.all"), value: "all" },
@@ -56,6 +58,17 @@ export default function TablesScreen() {
 
   const [filteredTables, setFilteredTables] = useState<Table[]>(tables);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+  const handleLoadTables = async () => {
+    setIsLoadingTables(true);
+    try {
+      await tablesQuery.refetch();
+    } catch (error) {
+      // Error is handled by React Query
+    } finally {
+      setIsLoadingTables(false);
+    }
+  };
 
   const handleNavigate = () => {
     bottomSheetModalRef.current?.close(); // Close sheet before navigating
@@ -90,26 +103,6 @@ export default function TablesScreen() {
     console.log("handleSheetChanges", index);
   }, []);
 
-  const onRefresh = useCallback(async () => {
-    try {
-      setRefreshing(true);
-      // Trigger haptic feedback
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-      // Refetch tables using the centralized query
-      await queryClient.refetchQueries({
-        queryKey: ["tables", currentRestaurant?.id],
-      });
-    } catch {
-      Alert.alert(
-        t("errors:table.fetchError"),
-        t("errors:table.tablesFetchFailed"),
-      );
-    } finally {
-      setRefreshing(false);
-    }
-  }, [queryClient, currentRestaurant?.id, t]);
-
   const onChangeStatus = (status: boolean | "all") => {
     setSelectedStatus(status);
 
@@ -125,11 +118,38 @@ export default function TablesScreen() {
     setFilteredTables(tables);
   }, [tables]);
 
-  // Show loading indicator on initial load
-  if (isLoading && tables.length === 0) {
+  // Check if tables are loaded
+  const hasTables = tables.length > 0;
+
+  // Show empty state if no tables loaded
+  if (!hasTables) {
     return (
-      <ThemedView style={tw`flex-1 justify-center items-center`}>
-        <ActivityIndicator size="large" color={primaryColor} />
+      <ThemedView style={tw`flex-1 px-4 pt-8 items-center justify-center gap-4`}>
+        <Ionicons name="grid-outline" size={64} color="#999" />
+        <ThemedView style={tw`gap-2 items-center`}>
+          <ThemedText type="h2">{t("tables:noTables.title")}</ThemedText>
+          <ThemedText type="body2" style={tw`text-center text-gray-500 px-8`}>
+            {t("tables:noTables.description")}
+          </ThemedText>
+        </ThemedView>
+        <Button
+          label={
+            tablesQuery.isError
+              ? t("tables:noTables.retry")
+              : isLoadingTables
+              ? t("tables:noTables.loading")
+              : t("tables:noTables.loadButton")
+          }
+          leftIcon="cloud-download-outline"
+          onPress={handleLoadTables}
+          disabled={isLoadingTables}
+          loading={isLoadingTables}
+        />
+        {tablesQuery.isError && (
+          <ThemedText type="body2" style={tw`text-red-500 text-center px-8`}>
+            {t("tables:noTables.error")}
+          </ThemedText>
+        )}
       </ThemedView>
     );
   }
@@ -165,14 +185,6 @@ export default function TablesScreen() {
         columnWrapperStyle={tw`justify-between mb-4`}
         contentContainerStyle={tw`pb-20`}
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={primaryColor}
-            colors={[primaryColor]}
-          />
-        }
       />
 
       <BottomSheetModal

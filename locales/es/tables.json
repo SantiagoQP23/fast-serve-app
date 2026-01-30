@@ -19,5 +19,13 @@
   "card": {
     "table": "Mesa {{name}}"
   },
-  "activeCount": "{{count}} activo"
+  "activeCount": "{{count}} activo",
+  "noTables": {
+    "title": "Sin Mesas Cargadas",
+    "description": "Las mesas aún no se han cargado. Toque el botón a continuación para cargarlas.",
+    "loadButton": "Cargar Mesas",
+    "loading": "Cargando...",
+    "retry": "Reintentar",
+    "error": "Error al cargar las mesas. Por favor, inténtelo de nuevo."
+  }
 }

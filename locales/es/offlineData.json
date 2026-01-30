@@ -1,0 +1,41 @@
+{
+  "title": "Datos sin conexión",
+  "lastUpdated": "Última actualización",
+  "noData": "Sin datos",
+  "menu": {
+    "title": "Menú",
+    "sections": "Secciones",
+    "categories": "Categorías",
+    "products": "Productos",
+    "refetch": "Recargar menú",
+    "refetching": "Recargando...",
+    "loading": "Cargando...",
+    "noCache": "Sin datos del menú",
+    "noCacheDescription": "Ve a la pantalla de menú para cargar datos.",
+    "loadButton": "Cargar Menú",
+    "clearCache": {
+      "button": "Borrar datos del menú",
+      "title": "Borrar Menú",
+      "message": "¿Estás seguro de que quieres borrar los datos del menú?",
+      "confirm": "Borrar",
+      "cancel": "Cancelar"
+    }
+  },
+  "tables": {
+    "title": "Mesas",
+    "totalTables": "Total de mesas",
+    "refetch": "Recargar mesas",
+    "refetching": "Recargando...",
+    "loading": "Cargando...",
+    "noCache": "Sin datos de mesas",
+    "noCacheDescription": "Ve a la pantalla de mesas para cargar datos.",
+    "loadButton": "Cargar Mesas",
+    "clearCache": {
+      "button": "Borrar datos de mesas",
+      "title": "Borrar Mesas",
+      "message": "¿Estás seguro de que quieres borrar los datos de mesas?",
+      "confirm": "Borrar",
+      "cancel": "Cancelar"
+    }
+  }
+}

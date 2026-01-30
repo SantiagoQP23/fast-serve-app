@@ -81,11 +81,11 @@ export default function OrdersScreen() {
               tw.style(`flex-row items-center gap-4`, pressed && "opacity-70")
             }
             onPress={() => {
-              router.push("/(profile)/cached-menu");
+              router.push("/(profile)/restaurant-offline-data");
             }}
           >
-            <Ionicons name="server-outline" size={24} />
-            <ThemedText type="h4">{t('profile.cachedMenu')}</ThemedText>
+            <Ionicons name="cloud-offline-outline" size={24} />
+            <ThemedText type="h4">{t('profile.offlineData')}</ThemedText>
           </Pressable>
           <ThemedView style={tw`gap-2`}>
             <Select

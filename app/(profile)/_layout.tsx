@@ -28,10 +28,10 @@ export default function OrdersLayout() {
           }}
         />
         <Stack.Screen
-          name="cached-menu"
+          name="restaurant-offline-data"
           options={{
             headerShown: true,
-            title: "Stored Menu",
+            title: "Restaurant Offline Data",
             headerShadowVisible: false,
           }}
         />
