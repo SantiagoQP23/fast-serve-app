@@ -32,6 +32,7 @@ import ButtonGroup from "@/presentation/theme/components/button-group";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import CollapsibleOrderSection from "@/presentation/orders/components/collapsible-order-section";
 import { useClosedOrders } from "@/presentation/orders/hooks/useClosedOrders";
+import Button from "@/presentation/theme/components/button";
 
 export default function HomeScreen() {
   const { t } = useTranslation(["common", "orders", "errors"]);
@@ -268,9 +269,6 @@ export default function HomeScreen() {
                   ),
                 ) ? (
                   <ThemedView style={tw`px-4`}>
-                    <ThemedText type="h3" style={tw`mb-4 font-semibold`}>
-                      {t("orders:list.pendingProducts")}
-                    </ThemedText>
                     {orders
                       .filter((order) =>
                         order.details.some(
@@ -295,18 +293,27 @@ export default function HomeScreen() {
                                   style={tw`flex-row items-center justify-between`}
                                 >
                                   <ThemedText
-                                    type="body1"
+                                    type="h3"
                                     style={tw`font-semibold`}
                                   >
                                     {order.type === OrderType.IN_PLACE
                                       ? `${t("common:labels.table")} ${order.table?.name}`
                                       : t("common:labels.takeAway")}{" "}
                                   </ThemedText>
-                                  <Ionicons
-                                    name="chevron-forward"
-                                    size={20}
-                                    color={tw.color("gray-500")}
+                                  <Button
+                                    label="Editar"
+                                    variant="text"
+                                    size="small"
+                                    rightIcon="chevron-forward"
+                                    onPress={() =>
+                                      handleOpenOrder(order.num, order.id)
+                                    }
                                   />
+                                  {/* <Ionicons */}
+                                  {/*   name="chevron-forward" */}
+                                  {/*   size={20} */}
+                                  {/*   color={tw.color("gray-500")} */}
+                                  {/* /> */}
                                 </ThemedView>
                                 <ThemedView
                                   style={tw`flex-row items-center gap-2 mt-1`}

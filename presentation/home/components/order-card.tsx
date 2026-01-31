@@ -81,10 +81,19 @@ export default function OrderCard({ order }: OrderCardProps) {
             </ThemedView>
 
             {/* Meta Info Row - Time and Waiter */}
-            <ThemedText type="small" style={tw`text-gray-500`}>
-              {relativeTime} • {order.user.person.firstName}{" "}
-              {order.user.person.lastName}
-            </ThemedText>
+            <ThemedView
+              style={tw`flex-row items-center bg-transparent gap-1 font-bold`}
+            >
+              <ThemedText type="small" style={tw`text-gray-500 font-bold`}>
+                {relativeTime}{" "}
+              </ThemedText>
+              <ThemedText type="small" style={tw`text-gray-500`}>
+                •{" "}
+              </ThemedText>
+              <ThemedText type="small" style={tw`text-gray-500 `}>
+                {order.user.person.firstName} {order.user.person.lastName}
+              </ThemedText>
+            </ThemedView>
           </ThemedView>
 
           {/* Progress Indicator */}

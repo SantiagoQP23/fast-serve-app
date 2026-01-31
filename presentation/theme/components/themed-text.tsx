@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
   small: {
     fontSize: 12,
     lineHeight: 16,
+    fontWeight: "800",
   },
   caption: {
     fontSize: 12,

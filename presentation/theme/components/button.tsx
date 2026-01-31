@@ -12,7 +12,7 @@ import { ThemedView } from "./themed-view";
 
 export interface ButtonProps extends PressableProps {
   label?: string;
-  variant?: "primary" | "secondary" | "outline";
+  variant?: "primary" | "secondary" | "outline" | "text";
   size?: "small" | "medium" | "large";
   loading?: boolean;
   disabled?: boolean;
@@ -44,6 +44,7 @@ export default function Button({
     primary: "bg-light-primary",
     secondary: "bg-gray-100",
     outline: "border border-gray-200 bg-transparent",
+    text: "bg-transparent",
   };
 
   const sizeStyles = {
@@ -80,12 +81,14 @@ export default function Button({
     primary: "text-white",
     secondary: "text-light-primary",
     outline: "text-light-primary",
+    text: "text-gray-800",
   };
 
   const iconColors = {
     primary: "#fff",
     secondary: Colors.light.primary,
     outline: Colors.light.primary,
+    text: tw.color("gray-800"),
   };
 
   const currentIconSize = isVertical
