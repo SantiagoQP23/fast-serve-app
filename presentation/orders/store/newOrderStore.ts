@@ -38,7 +38,7 @@ const initialState: NewOrderState = {
   details: [],
   amount: 0,
   table: null,
-  people: 0,
+  people: 1,
   orderType: OrderType.IN_PLACE,
   totalProducts: 0,
   notes: "",
