@@ -18,7 +18,10 @@ import {
 import BillsFilterBottomSheet from "@/presentation/orders/components/bills-filter-bottom-sheet";
 import { BillListFiltersDto } from "@/core/orders/dto/bill-list-filters.dto";
 import { formatCurrency } from "@/core/i18n/utils";
-import { translatePaymentMethod, getPaymentMethodIcon } from "@/core/i18n/utils";
+import {
+  translatePaymentMethod,
+  getPaymentMethodIcon,
+} from "@/core/i18n/utils";
 import { PaymentMethod } from "@/core/orders/enums/payment-method";
 
 export default function BillsListScreen() {
@@ -47,7 +50,7 @@ export default function BillsListScreen() {
     } catch {
       Alert.alert(
         t("errors:order.fetchError"),
-        t("errors:order.ordersFetchFailed")
+        t("errors:order.ordersFetchFailed"),
       );
     } finally {
       setRefreshing(false);
@@ -169,15 +172,22 @@ export default function BillsListScreen() {
                   }
                 >
                   <ThemedView
-                    style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 border border-primary-300`}
+                    style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 border `}
                   >
                     <Ionicons
-                      name={getPaymentMethodIcon(filters.paymentMethod as PaymentMethod)}
+                      name={getPaymentMethodIcon(
+                        filters.paymentMethod as PaymentMethod,
+                      )}
                       size={14}
                       color={tw.color("primary-700")}
                     />
-                    <ThemedText type="small" style={tw`text-primary-700 font-medium`}>
-                      {translatePaymentMethod(filters.paymentMethod as PaymentMethod)}
+                    <ThemedText
+                      type="small"
+                      style={tw`text-primary-700 font-medium`}
+                    >
+                      {translatePaymentMethod(
+                        filters.paymentMethod as PaymentMethod,
+                      )}
                     </ThemedText>
                     <Ionicons
                       name="close-circle"
@@ -205,7 +215,10 @@ export default function BillsListScreen() {
                       size={14}
                       color={tw.color("primary-700")}
                     />
-                    <ThemedText type="small" style={tw`text-primary-700 font-medium`}>
+                    <ThemedText
+                      type="small"
+                      style={tw`text-primary-700 font-medium`}
+                    >
                       {filters.isPaid
                         ? t("bills:filters.paid")
                         : t("bills:filters.unpaid")}
@@ -232,7 +245,10 @@ export default function BillsListScreen() {
                       size={14}
                       color={tw.color("primary-700")}
                     />
-                    <ThemedText type="small" style={tw`text-primary-700 font-medium`}>
+                    <ThemedText
+                      type="small"
+                      style={tw`text-primary-700 font-medium`}
+                    >
                       {availableWaiters.find((w) => w.id === filters.ownerId)
                         ?.fullName || t("bills:filters.waiter")}
                     </ThemedText>
@@ -255,7 +271,10 @@ export default function BillsListScreen() {
                     size={14}
                     color={tw.color("gray-700")}
                   />
-                  <ThemedText type="small" style={tw`text-gray-700 font-medium`}>
+                  <ThemedText
+                    type="small"
+                    style={tw`text-gray-700 font-medium`}
+                  >
                     {t("bills:filters.reset")}
                   </ThemedText>
                 </ThemedView>
@@ -286,7 +305,9 @@ export default function BillsListScreen() {
             </ThemedText>
           </ThemedView>
         ) : bills.length > 0 ? (
-          <ThemedView style={tw`px-4 bg-white rounded-2xl mx-4 py-2 shadow-sm border border-gray-200`}>
+          <ThemedView
+            style={tw`px-4 bg-white rounded-2xl mx-4 py-2 shadow-sm border border-gray-200`}
+          >
             {bills.map((bill, index) => (
               <DashboardBillCard
                 key={bill.id}

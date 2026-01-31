@@ -45,6 +45,7 @@ import { useRouter } from "expo-router";
 import { BillListItemDto } from "@/core/orders/dto/bill-list-response.dto";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Button from "@/presentation/theme/components/button";
+import StatsCard from "@/presentation/home/components/stats-card";
 
 const STORAGE_KEY = "dashboard_selected_date";
 
@@ -126,11 +127,14 @@ export default function DashboardScreen() {
     bottomSheetModalRef.current?.dismiss();
   }, []);
 
-  const handleApplyFilters = useCallback((newFilters: BillListFiltersDto) => {
-    setFilters(newFilters);
-    resetBillsPagination();
-    bottomSheetModalRef.current?.dismiss();
-  }, [resetBillsPagination]);
+  const handleApplyFilters = useCallback(
+    (newFilters: BillListFiltersDto) => {
+      setFilters(newFilters);
+      resetBillsPagination();
+      bottomSheetModalRef.current?.dismiss();
+    },
+    [resetBillsPagination],
+  );
 
   const handleResetFilters = useCallback(() => {
     setFilters({});
@@ -266,28 +270,30 @@ export default function DashboardScreen() {
             {/* Summary Stats */}
             {bills.length > 0 && (
               <ThemedView style={tw`flex-row gap-3 mb-3`}>
-                <ThemedView style={tw`flex-1 bg-light-surface p-3 rounded-xl `}>
-                  <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
-                    {t("common:labels.total")}
-                  </ThemedText>
-                  <ThemedText type="h4" style={tw`text-primary-700`}>
-                    {formatCurrency(totalAmount)}
-                  </ThemedText>
-                </ThemedView>
-                <ThemedView style={tw`flex-1 bg-light-surface p-3 rounded-xl `}>
-                  <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
-                    {t("bills:details.paid")} / {t("bills:details.unpaid")}
-                  </ThemedText>
-                  <ThemedText type="h4">
-                    <ThemedText style={tw`text-green-700`}>
-                      {paidCount}
-                    </ThemedText>
-                    <ThemedText style={tw`text-gray-400`}> / </ThemedText>
-                    <ThemedText style={tw`text-orange-700`}>
-                      {unpaidCount}
-                    </ThemedText>
-                  </ThemedText>
-                </ThemedView>
+                <StatsCard
+                  title={t("common:labels.total")}
+                  value={formatCurrency(totalAmount)}
+                  icon="receipt-outline"
+                />
+                <StatsCard
+                  title={t("bills:details.unpaid")}
+                  value={unpaidCount.toString()}
+                  icon="checkmark-circle-outline"
+                />
+                {/* <ThemedView style={tw`flex-1 bg-light-surface p-3 rounded-xl `}> */}
+                {/*   <ThemedText type="caption" style={tw`text-gray-500 mb-1`}> */}
+                {/*     {t("bills:details.paid")} / {t("bills:details.unpaid")} */}
+                {/*   </ThemedText> */}
+                {/*   <ThemedText type="h4"> */}
+                {/*     <ThemedText style={tw`text-green-700`}> */}
+                {/*       {paidCount} */}
+                {/*     </ThemedText> */}
+                {/*     <ThemedText style={tw`text-gray-400`}> / </ThemedText> */}
+                {/*     <ThemedText style={tw`text-orange-700`}> */}
+                {/*       {unpaidCount} */}
+                {/*     </ThemedText> */}
+                {/*   </ThemedText> */}
+                {/* </ThemedView> */}
               </ThemedView>
             )}
 
