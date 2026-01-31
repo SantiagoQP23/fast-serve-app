@@ -25,7 +25,8 @@
     "next": "Siguiente",
     "search": "Buscar",
     "filter": "Filtrar",
-    "select": "Seleccionar"
+    "select": "Seleccionar",
+    "loadMore": "Cargar Más"
   },
   "status": {
     "pending": "Pendiente",

@@ -38,10 +38,10 @@ export default function DailyReportSummaryCard({
   return (
     <Pressable onPress={handlePress}>
       <ThemedView
-        style={tw`rounded-2xl border border-gray-300 p-4 shadow-sm mb-4`}
+        style={tw`rounded-2xl border border-light-border p-4 shadow-sm mb-4`}
       >
         <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
-          <ThemedText type="h4">{t("reports:summary.title")}</ThemedText>
+          <ThemedText type="h3">{t("reports:summary.title")}</ThemedText>
           <Ionicons
             name="chevron-forward"
             size={20}

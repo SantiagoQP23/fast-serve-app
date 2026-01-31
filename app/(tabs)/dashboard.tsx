@@ -44,6 +44,7 @@ import { PaymentMethod } from "@/core/orders/enums/payment-method";
 import { useRouter } from "expo-router";
 import { BillListItemDto } from "@/core/orders/dto/bill-list-response.dto";
 import IconButton from "@/presentation/theme/components/icon-button";
+import Button from "@/presentation/theme/components/button";
 
 const STORAGE_KEY = "dashboard_selected_date";
 
@@ -104,8 +105,17 @@ export default function DashboardScreen() {
     bills,
     count,
     isLoading: billsLoading,
+    isLoadingMore,
     refetch: refetchBills,
+    loadMore,
+    reset: resetBillsPagination,
+    hasMore,
   } = useBillsList(billsFilters);
+
+  // Reset pagination when date changes
+  useEffect(() => {
+    resetBillsPagination();
+  }, [dateFilter, resetBillsPagination]);
 
   // Filter handlers
   const handleOpenFilters = useCallback(() => {
@@ -118,8 +128,9 @@ export default function DashboardScreen() {
 
   const handleApplyFilters = useCallback((newFilters: BillListFiltersDto) => {
     setFilters(newFilters);
+    resetBillsPagination();
     bottomSheetModalRef.current?.dismiss();
-  }, []);
+  }, [resetBillsPagination]);
 
   const handleResetFilters = useCallback(() => {
     setFilters({});
@@ -413,27 +424,46 @@ export default function DashboardScreen() {
             )}
 
             {/* Bills List */}
-            {billsLoading && !refreshing ? (
+            {billsLoading && !refreshing && bills.length === 0 ? (
               <ThemedView style={tw`py-20 items-center`}>
                 <ThemedText type="body2" style={tw`text-gray-400`}>
                   {t("common:status.loading")}
                 </ThemedText>
               </ThemedView>
             ) : bills.length > 0 ? (
-              <ThemedView style={tw`bg-white rounded-2xl `}>
-                <FlatList
-                  data={bills}
-                  keyExtractor={(item) => item.id.toString()}
-                  renderItem={({ item }) => (
-                    <DashboardBillCard
-                      bill={item}
-                      onPress={() => handleBillPress(item)}
+              <>
+                <ThemedView style={tw`bg-white rounded-2xl `}>
+                  <FlatList
+                    data={bills}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={({ item }) => (
+                      <DashboardBillCard
+                        bill={item}
+                        onPress={() => handleBillPress(item)}
+                      />
+                    )}
+                    scrollEnabled={false}
+                    contentContainerStyle={tw`py-2`}
+                  />
+                </ThemedView>
+
+                {/* Load More Button */}
+                {hasMore && (
+                  <ThemedView style={tw`mt-4`}>
+                    <Button
+                      label={
+                        isLoadingMore
+                          ? t("common:labels.loading")
+                          : t("common:actions.loadMore")
+                      }
+                      onPress={loadMore}
+                      variant="outline"
+                      disabled={isLoadingMore}
+                      loading={isLoadingMore}
                     />
-                  )}
-                  scrollEnabled={false}
-                  contentContainerStyle={tw`py-2`}
-                />
-              </ThemedView>
+                  </ThemedView>
+                )}
+              </>
             ) : (
               <ThemedView style={tw`py-20 items-center px-4`}>
                 <Ionicons

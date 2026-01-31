@@ -5,27 +5,32 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatCurrency, translatePaymentMethod, getPaymentMethodInfo } from "@/core/i18n/utils";
+import {
+  formatCurrency,
+  translatePaymentMethod,
+  getPaymentMethodInfo,
+} from "@/core/i18n/utils";
 import { usePaymentMethodReport } from "@/presentation/orders/hooks/usePaymentMethodReport";
 import { useRouter } from "expo-router";
 import { PieChart } from "react-native-gifted-charts";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/presentation/theme/hooks/use-color-scheme";
 
-export default function PaymentMethodSummaryCard({ 
-  startDate, 
-  endDate 
-}: { 
-  startDate?: string; 
+export default function PaymentMethodSummaryCard({
+  startDate,
+  endDate,
+}: {
+  startDate?: string;
   endDate?: string;
 }) {
   const { t } = useTranslation(["reports", "common", "bills"]);
   const { paymentMethodReport, isLoading } = usePaymentMethodReport(
-    startDate && endDate ? { startDate, endDate } : undefined
+    startDate && endDate ? { startDate, endDate } : undefined,
   );
   const router = useRouter();
   const colorScheme = useColorScheme();
-  const themePrimaryColor = colorScheme === "dark" ? Colors.dark.primary : Colors.light.primary;
+  const themePrimaryColor =
+    colorScheme === "dark" ? Colors.dark.primary : Colors.light.primary;
 
   const handlePress = () => {
     router.push("/(reports)/payment-method-report");
@@ -33,14 +38,14 @@ export default function PaymentMethodSummaryCard({
 
   // Payment method data
   const paymentMethods = paymentMethodReport?.paymentMethods || [];
-  
+
   // Prepare pie chart data
   const pieData = paymentMethods.map((pm) => {
     const info = getPaymentMethodInfo(pm.paymentMethod);
     const percentage = paymentMethodReport?.summary?.totalIncome
       ? (pm.totalIncome / paymentMethodReport.summary.totalIncome) * 100
       : 0;
-    
+
     return {
       value: pm.totalIncome,
       color: info.color,
@@ -51,10 +56,12 @@ export default function PaymentMethodSummaryCard({
   return (
     <Pressable onPress={handlePress}>
       <ThemedView
-        style={tw`rounded-2xl border border-gray-300 p-4 shadow-sm mb-4`}
+        style={tw`rounded-2xl border border-light-border p-4 shadow-sm mb-4`}
       >
         <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
-          <ThemedText type="h4">{t("reports:paymentMethodReport.title")}</ThemedText>
+          <ThemedText type="h3" style={tw`font-bold`}>
+            {t("reports:paymentMethodReport.title")}
+          </ThemedText>
           <Ionicons
             name="chevron-forward"
             size={20}
@@ -83,8 +90,13 @@ export default function PaymentMethodSummaryCard({
                     <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
                       {t("reports:summary.totalIncome")}
                     </ThemedText>
-                    <ThemedText type="h3" style={[tw`font-bold`, { color: themePrimaryColor }]}>
-                      {formatCurrency(paymentMethodReport?.summary?.totalIncome ?? 0)}
+                    <ThemedText
+                      type="h3"
+                      style={[tw`font-bold`, { color: themePrimaryColor }]}
+                    >
+                      {formatCurrency(
+                        paymentMethodReport?.summary?.totalIncome ?? 0,
+                      )}
                     </ThemedText>
                   </ThemedView>
                 )}
@@ -102,7 +114,8 @@ export default function PaymentMethodSummaryCard({
               {paymentMethods.map((pm) => {
                 const info = getPaymentMethodInfo(pm.paymentMethod);
                 const percentage = paymentMethodReport?.summary?.totalIncome
-                  ? (pm.totalIncome / paymentMethodReport.summary.totalIncome) * 100
+                  ? (pm.totalIncome / paymentMethodReport.summary.totalIncome) *
+                    100
                   : 0;
 
                 return (
@@ -127,7 +140,10 @@ export default function PaymentMethodSummaryCard({
                       </ThemedText>
                       <ThemedView style={tw`flex-row items-center gap-1.5`}>
                         <ThemedText type="caption" style={tw`text-gray-500`}>
-                          {pm.billCount} {pm.billCount === 1 ? t("bills:bill") : t("bills:bills")}
+                          {pm.billCount}{" "}
+                          {pm.billCount === 1
+                            ? t("bills:bill")
+                            : t("bills:bills")}
                         </ThemedText>
                         <ThemedText type="caption" style={tw`text-gray-400`}>
                           •
