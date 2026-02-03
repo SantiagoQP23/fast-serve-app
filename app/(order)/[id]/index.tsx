@@ -131,9 +131,13 @@ export default function OrderScreen() {
     router.push("/(order)/edit-order-detail");
   };
 
-  const date = dayjs(order.createdAt).isSame(dayjs(), "day")
-    ? `${t("common:time.today")}, ${dayjs(order.createdAt).format("HH:mm")}`
-    : dayjs(order.createdAt).format("dddd, HH:mm");
+  const createdAt = dayjs(order.createdAt);
+  const deliveryTime = order.deliveryTime ? dayjs(order.deliveryTime) : null;
+  const date = createdAt.isSame(dayjs(), "day")
+    ? `${t("common:time.today")}, ${createdAt.format("HH:mm")}`
+    : createdAt.format("dddd, HH:mm");
+  const showDeliveryTime =
+    deliveryTime !== null && !deliveryTime.isSame(createdAt, "minute");
 
   const updateStatus = (status: OrderStatus) => {
     updateOrder(
@@ -282,12 +286,16 @@ export default function OrderScreen() {
               <ThemedText type="small" style={tw`text-gray-500`}>
                 {date}
               </ThemedText>
-              <ThemedView style={tw`flex-row items-center gap-1`}>
-                <ThemedText type="small">Hora de entrega</ThemedText>
-                <ThemedText type="small" style={tw``}>
-                  {dayjs(order.deliveryTime).format(" HH:mm")}
-                </ThemedText>
-              </ThemedView>
+              {showDeliveryTime && deliveryTime && (
+                <ThemedView style={tw`flex-row items-center gap-1`}>
+                  <ThemedText type="small">
+                    {t("orders:details.deliveryTime")}
+                  </ThemedText>
+                  <ThemedText type="small">
+                    {deliveryTime.format("HH:mm")}
+                  </ThemedText>
+                </ThemedView>
+              )}
             </ThemedView>
 
             {/* Table/Location & People */}
