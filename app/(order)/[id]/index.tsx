@@ -278,9 +278,17 @@ export default function OrderScreen() {
           {/* Header Section */}
           <ThemedView style={tw`mb-6 gap-4`}>
             {/* Date */}
-            <ThemedText type="caption" style={tw`text-gray-500`}>
-              {date}
-            </ThemedText>
+            <ThemedView style={tw`flex-row items-center gap-2 justify-between`}>
+              <ThemedText type="small" style={tw`text-gray-500`}>
+                {date}
+              </ThemedText>
+              <ThemedView style={tw`flex-row items-center gap-1`}>
+                <ThemedText type="small">Hora de entrega</ThemedText>
+                <ThemedText type="small" style={tw``}>
+                  {dayjs(order.deliveryTime).format(" HH:mm")}
+                </ThemedText>
+              </ThemedView>
+            </ThemedView>
 
             {/* Table/Location & People */}
             <ThemedView style={tw`flex-row items-center gap-2`}>
