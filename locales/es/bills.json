@@ -13,7 +13,9 @@
     "noBillsToday": "No hay cuentas hoy",
     "noBillsTodayDescription": "No se han creado cuentas hoy aún.",
     "filterBills": "Filtrar Cuentas",
-    "showingBills": "Mostrando {{count}} cuentas"
+    "showingBills": "Mostrando {{count}} cuentas",
+    "remaining": "Monto por pagar",
+    "remainingDescription": "Pendiente del pedido"
   },
   "details": {
     "title": "Cuenta #{{number}}",

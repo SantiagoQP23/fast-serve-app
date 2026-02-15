@@ -13,7 +13,9 @@
     "noBillsToday": "No bills today",
     "noBillsTodayDescription": "No bills have been created today yet.",
     "filterBills": "Filter Bills",
-    "showingBills": "Showing {{count}} bills"
+    "showingBills": "Showing {{count}} bills",
+    "remaining": "Amount to pay",
+    "remainingDescription": "Still pending from the order"
   },
   "details": {
     "title": "Bill #{{number}}",

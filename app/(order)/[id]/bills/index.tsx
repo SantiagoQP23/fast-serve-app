@@ -5,12 +5,10 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useState, useCallback } from "react";
 import { useRouter } from "expo-router";
-import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { Ionicons } from "@expo/vector-icons";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
 import BillCard from "@/presentation/orders/components/bill-card";
-import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useBills } from "@/presentation/orders/hooks/useBills";
 import { Bill } from "@/core/orders/models/bill.model";
@@ -72,10 +70,11 @@ export default function OrderBillsScreen() {
         .map((bill) => bill.total + bill.discount)
         .reduce((acc, curr) => acc + (curr ?? 0), 0)
     : 0;
+  const remainingAmount = Math.max(order.total - orderAmountInBills, 0);
 
   return (
     <ThemedView style={tw`px-4 pt-8 flex-1 gap-8`}>
-      <ThemedView style={tw`  items-center gap-8`}>
+      <ThemedView style={tw`  items-center gap-4`}>
         <ThemedView style={tw`gap-1 items-center`}>
           <ThemedText type="h3">
             {t("orders:list.orderNumber", { number: order.num })}
@@ -87,9 +86,24 @@ export default function OrderBillsScreen() {
           </ThemedText>
           {/* <ThemedText type="small">Today, 11:30</ThemedText> */}
         </ThemedView>
-        <ThemedText style={tw`text-7xl `}>
-          {formatCurrency(order.total)}
-        </ThemedText>
+        <ThemedView>
+          <ThemedText style={tw`text-7xl `}>
+            {formatCurrency(order.total)}
+          </ThemedText>
+
+          {remainingAmount > 0 && (
+            <ThemedView style={tw`flex-row justify-center gap-2 items-center`}>
+              <ThemedView>
+                <ThemedText type="body2" style={tw`text-primary-700`}>
+                  {t("bills:list.remaining")}
+                </ThemedText>
+              </ThemedView>
+              <ThemedText type="h4" style={tw`text-primary-900`}>
+                {formatCurrency(remainingAmount)}
+              </ThemedText>
+            </ThemedView>
+          )}
+        </ThemedView>
       </ThemedView>
 
       {/* <ThemedView style={tw`flex-1 justify-center items-center`}> */}
@@ -133,11 +147,11 @@ export default function OrderBillsScreen() {
           ))}
         </ScrollView>
       )}
-      {order.total > orderAmountInBills && (
+      {remainingAmount > 0 && (
         <Button
           label={t("bills:list.addBill")}
-          onPress={() => router.push('/(order)/${"sd"}/bills/new')}
-        ></Button>
+          onPress={() => router.push(`/(order)/${order.id}/bills/new`)}
+        />
       )}
     </ThemedView>
   );
