@@ -5,11 +5,11 @@ import {
   BottomSheetBackdrop,
   BottomSheetView,
   BottomSheetFlatList,
-  BottomSheetTextInput,
   useBottomSheetSpringConfigs,
 } from "@gorhom/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "../lib/tailwind";
+import TextInput from "./text-input";
 
 type Option = {
   label: string;
@@ -35,7 +35,7 @@ export default function Select({
   onChange,
   searchable,
   searchPlaceholder = "Search...",
-  snapPoints = ["40%", "70%"],
+  snapPoints = ["40%", "70%", "90%"],
 }: SelectProps) {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -49,7 +49,8 @@ export default function Select({
   });
 
   // Smart default: enable search if more than 5 options, or if explicitly set
-  const isSearchable = searchable !== undefined ? searchable : options.length > 5;
+  const isSearchable =
+    searchable !== undefined ? searchable : options.length > 5;
 
   // Find selected option to display its label
   const selectedOption = options.find((opt) => opt.value === value);
@@ -64,7 +65,7 @@ export default function Select({
       onChange(selectedValue);
       bottomSheetModalRef.current?.dismiss();
     },
-    [onChange]
+    [onChange],
   );
 
   const handleClose = useCallback(() => {
@@ -75,7 +76,7 @@ export default function Select({
   const filteredOptions = useMemo(() => {
     if (!searchQuery.trim()) return options;
     return options.filter((opt) =>
-      opt.label.toLowerCase().includes(searchQuery.toLowerCase())
+      opt.label.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }, [options, searchQuery]);
 
@@ -95,7 +96,9 @@ export default function Select({
         >
           <Text
             style={tw.style(
-              selectedOption ? "text-gray-900 dark:text-white" : "text-gray-400"
+              selectedOption
+                ? "text-gray-900 dark:text-white"
+                : "text-gray-400",
             )}
           >
             {selectedOption ? selectedOption.label : placeholder}
@@ -116,96 +119,92 @@ export default function Select({
             appearsOnIndex={0}
           />
         )}
-        enablePanDownToClose
       >
         <BottomSheetView style={tw`flex-1 px-4 pb-4`}>
           {/* Header */}
           <View style={tw`flex-row items-center justify-between mb-4`}>
-            <Text style={tw`text-lg font-semibold text-gray-900 dark:text-white`}>
+            <Text
+              style={tw`text-lg font-semibold text-gray-900 dark:text-white`}
+            >
               {label || "Select an option"}
             </Text>
             <Pressable onPress={handleClose} hitSlop={8}>
-              <Ionicons name="close" size={24} color={tw.color("gray-600")} />
+              <Ionicons name="close" size={24} color={tw.color("gray-400")} />
             </Pressable>
           </View>
+        </BottomSheetView>
 
-          {/* Search Input */}
-          {isSearchable && (
-            <View style={tw`mb-3`}>
-              <View
-                style={tw`flex-row items-center border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2 bg-gray-50 dark:bg-gray-800`}
-              >
-                <Ionicons
-                  name="search"
-                  size={20}
-                  color="#9ca3af"
-                  style={tw`mr-2`}
-                />
-                <BottomSheetTextInput
-                  style={tw`flex-1 text-gray-900 dark:text-white text-base`}
-                  placeholder={searchPlaceholder}
-                  placeholderTextColor="#9ca3af"
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                />
-                {searchQuery.length > 0 && (
+        {/* Search Input */}
+        {isSearchable && (
+          <View style={tw`mb-6 mt-12 px-4`}>
+            <TextInput
+              bottomSheet
+              icon="search"
+              placeholder={searchPlaceholder}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              leftIcon={
+                searchQuery.length > 0 ? (
                   <Pressable onPress={() => setSearchQuery("")} hitSlop={8}>
                     <Ionicons name="close-circle" size={20} color="#9ca3af" />
                   </Pressable>
-                )}
-              </View>
-            </View>
-          )}
-
-          {/* Options List */}
-          {filteredOptions.length > 0 ? (
-            <BottomSheetFlatList
-              data={filteredOptions}
-              keyExtractor={(item: Option) => item.value.toString()}
-              showsVerticalScrollIndicator={false}
-              keyboardShouldPersistTaps="handled"
-              renderItem={({ item }: { item: Option }) => (
-                <Pressable
-                  onPress={() => handleSelect(item.value)}
-                  style={({ pressed }) =>
-                    tw.style(
-                      "flex-row items-center justify-between py-3 px-3 rounded-xl",
-                      pressed && "bg-gray-100 dark:bg-gray-700"
-                    )
-                  }
-                >
-                  <Text
-                    style={tw.style(
-                      "text-base text-gray-900 dark:text-white",
-                      value === item.value && "font-semibold"
-                    )}
-                  >
-                    {item.label}
-                  </Text>
-                  {value === item.value && (
-                    <Ionicons
-                      name="checkmark"
-                      size={22}
-                      color={tw.color("primary-600")}
-                    />
-                  )}
-                </Pressable>
-              )}
+                ) : null
+              }
             />
-          ) : (
-            <View style={tw`py-12 items-center`}>
-              <Ionicons name="search-outline" size={48} color="#d1d5db" />
-              <Text style={tw`text-gray-400 mt-3 text-base`}>
-                No results found
-              </Text>
-              {searchQuery && (
-                <Text style={tw`text-gray-400 text-sm mt-1`}>
-                  Try a different search term
+          </View>
+        )}
+
+        {/* Options List */}
+        {filteredOptions.length > 0 ? (
+          <BottomSheetFlatList
+            style={tw`pb-6`}
+            contentContainerStyle={tw`mx-4 bg-light-surface rounded-xl`}
+            data={filteredOptions}
+            keyExtractor={(item: Option) => item.value.toString()}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            renderItem={({ item }: { item: Option }) => (
+              <Pressable
+                onPress={() => handleSelect(item.value)}
+                style={({ pressed }) =>
+                  tw.style(
+                    "flex-row items-center justify-between py-3 px-3 rounded-xl",
+                    pressed && "bg-gray-100 dark:bg-gray-700",
+                  )
+                }
+              >
+                <Text
+                  style={tw.style(
+                    "text-base text-gray-900 dark:text-white",
+                    value === item.value && "font-semibold",
+                  )}
+                >
+                  {item.label}
                 </Text>
-              )}
-            </View>
-          )}
-        </BottomSheetView>
+                {value === item.value && (
+                  <Ionicons
+                    name="checkmark"
+                    size={22}
+                    color={tw.color("primary-600")}
+                  />
+                )}
+              </Pressable>
+            )}
+          />
+        ) : (
+          <View style={tw`py-12 items-center`}>
+            <Ionicons name="search-outline" size={48} color="#d1d5db" />
+            <Text style={tw`text-gray-400 mt-3 text-base`}>
+              No results found
+            </Text>
+            {searchQuery && (
+              <Text style={tw`text-gray-400 text-sm mt-1`}>
+                Try a different search term
+              </Text>
+            )}
+          </View>
+        )}
+        <View style={tw`h-4`} />
       </BottomSheetModal>
     </>
   );

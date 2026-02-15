@@ -4,9 +4,11 @@ import {
   TextInput as RNTextInput,
   Text,
   TextInputProps,
+  StyleProp,
+  ViewStyle,
+  TextStyle,
 } from "react-native";
 import tw from "../lib/tailwind";
-import { useThemeColor } from "../hooks/use-theme-color";
 import { ThemedView } from "./themed-view";
 import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { ThemedText } from "./themed-text";
@@ -17,6 +19,7 @@ interface Props extends TextInputProps {
   icon?: keyof typeof Ionicons.glyphMap;
   bottomSheet?: boolean;
   leftIcon?: React.ReactNode;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
 export default function TextInput({
@@ -24,9 +27,12 @@ export default function TextInput({
   error,
   icon,
   leftIcon,
-  ...props
+  bottomSheet,
+  containerStyle,
+  style,
+  ...inputProps
 }: Props) {
-  const textColor = useThemeColor({}, "text");
+  const InputComponent = bottomSheet ? BottomSheetTextInput : RNTextInput;
   return (
     <ThemedView>
       {label && (
@@ -35,11 +41,14 @@ export default function TextInput({
         </ThemedText>
       )}
       <View
-        style={tw.style(
-          "flex-row items-center",
-          "border border-light-border rounded-xl px-3 py-1 text-gray-900 bg-white",
-          error ? "border-red-500" : "border-gray-300",
-        )}
+        style={[
+          tw.style(
+            "flex-row items-center",
+            "border border-light-border rounded-xl px-3 py-1 text-gray-900 bg-white",
+            error ? "border-red-500" : "border-gray-300",
+          ),
+          containerStyle,
+        ]}
       >
         {icon && (
           <Ionicons
@@ -48,19 +57,11 @@ export default function TextInput({
             style={[tw`text-gray-500`, { marginRight: 10 }]}
           />
         )}
-        {!props.bottomSheet ? (
-          <RNTextInput
-            style={tw`flex-1`}
-            placeholderTextColor="#9CA3AF"
-            {...props}
-          />
-        ) : (
-          <BottomSheetTextInput
-            style={tw`flex-1`}
-            placeholderTextColor="#9CA3AF"
-            {...props}
-          />
-        )}
+        <InputComponent
+          style={[tw`flex-1`, style as StyleProp<TextStyle>]}
+          placeholderTextColor="#9CA3AF"
+          {...inputProps}
+        />
 
         {leftIcon && leftIcon}
       </View>

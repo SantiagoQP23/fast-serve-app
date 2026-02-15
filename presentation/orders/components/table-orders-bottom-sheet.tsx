@@ -1,17 +1,5 @@
-import {
-  BottomSheetTextInput,
-  BottomSheetView,
-  BottomSheetFlatList,
-  BottomSheetScrollView,
-} from "@gorhom/bottom-sheet";
-import {
-  View,
-  Text,
-  Alert,
-  ButtonProps,
-  Dimensions,
-  ScrollView,
-} from "react-native";
+import { BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import { View, Text, Alert, ButtonProps, Dimensions } from "react-native";
 import { useCallback, useMemo, useState } from "react";
 import { OrderType, orderTypes } from "@/core/orders/enums/order-type.enum";
 import { Table } from "@/core/tables/models/table.model";
@@ -98,45 +86,16 @@ const TableOrdersBottomSheet = ({
               Orders: 3 (1 Pending, 1 In Progress, 1 Delivered)
             </ThemedText>
           </ThemedView>
-          {/* <ScrollView */}
-          {/*   horizontal */}
-          {/*   showsHorizontalScrollIndicator={false} */}
-          {/*   contentContainerStyle={tw`pb-4 gap-4`} */}
-          {/* > */}
-          {/*   { */}
-          {/**/}
-          {/*     deliveredOrders.length > 0 && */}
-          {/*       deliveredOrders.map((order, index) => ( */}
-          {/*         <ThemedView */}
-          {/*           key={order.num} */}
-          {/*           style={[index !== deliveredOrders.length - 1 && tw`mb-4`]} */}
-          {/*         > */}
-          {/*           <OrderCard order={order} /> */}
-          {/*         </ThemedView> */}
-          {/*       )) */}
-          {/*   } */}
-          {/* </ScrollView> */}
-          <ScrollView contentContainerStyle={tw`pb-4 gap-4 flex-1 h-100 `}>
-            {orders.length > 0 &&
-              orders.map((order, index) => (
-                <ThemedView key={order.num}>
-                  <OrderCard order={order} />
-                </ThemedView>
-              ))}
-          </ScrollView>
-          {/* <BottomSheetScrollView */}
-          {/*   contentContainerStyle={tw`pb-4 gap-4 flex-1 h-100 `} */}
-          {/* > */}
-          {/*   {orders.length > 0 && */}
-          {/*     orders.map((order, index) => ( */}
-          {/*       <ThemedView */}
-          {/*         key={order.num} */}
-          {/*         style={[index !== orders.length - 1 && tw`mb-4`]} */}
-          {/*       > */}
-          {/*         <OrderCard order={order} /> */}
-          {/*       </ThemedView> */}
-          {/*     ))} */}
-          {/* </BottomSheetScrollView> */}
+          <BottomSheetFlatList
+            data={orders}
+            keyExtractor={(order) => order.num.toString()}
+            contentContainerStyle={tw`pb-4 gap-4`}
+            renderItem={({ item }) => (
+              <ThemedView>
+                <OrderCard order={item} />
+              </ThemedView>
+            )}
+          />
 
           <ThemedView>
             <Button

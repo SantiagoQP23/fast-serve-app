@@ -4,7 +4,7 @@
     "paymentMethodReport": "Reporte de Método de Pago"
   },
   "summary": {
-    "title": "Resumen de Hoy",
+    "title": "Resumen",
     "totalIncome": "Ingresos Totales",
     "totalAmount": "Monto Total",
     "totalOrders": "Pedidos",

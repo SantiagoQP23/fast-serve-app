@@ -195,7 +195,7 @@ const EditOrderBottomSheet = ({
               onChangeText={(value) => setForm({ ...form, notes: value })}
               value={form.notes}
             />
-            )}
+          )}
         </ThemedView>
 
         <ThemedView style={tw`gap-2`}>
@@ -208,7 +208,9 @@ const EditOrderBottomSheet = ({
             onPress={openTimePicker}
           />
           {Platform.OS === "ios" && showTimePicker && (
-            <ThemedView style={tw`border border-gray-300 dark:border-gray-700 rounded-2xl overflow-hidden`}>
+            <ThemedView
+              style={tw`border border-gray-300 dark:border-gray-700 rounded-2xl overflow-hidden`}
+            >
               <DateTimePicker
                 value={form.deliveryTime}
                 mode="time"
@@ -227,7 +229,7 @@ const EditOrderBottomSheet = ({
             <DateTimePicker
               value={form.deliveryTime}
               mode="time"
-              is24Hour={true}
+              is24Hour={false}
               display="default"
               onChange={handleTimeChange}
             />

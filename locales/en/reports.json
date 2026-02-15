@@ -4,7 +4,7 @@
     "paymentMethodReport": "Payment Method Report"
   },
   "summary": {
-    "title": "Today's Summary",
+    "title": "Summary",
     "totalIncome": "Total Income",
     "totalAmount": "Total Amount",
     "totalOrders": "Total Orders",

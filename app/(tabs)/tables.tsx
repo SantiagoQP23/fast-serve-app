@@ -18,10 +18,9 @@ import TableCard from "@/presentation/home/components/table-card";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import tw from "@/presentation/theme/lib/tailwind";
 import * as Haptics from "expo-haptics";
-import BottomSheet, {
+import {
   BottomSheetBackdrop,
   BottomSheetModal,
-  BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import { router } from "expo-router";
