@@ -30,6 +30,7 @@ import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOrder } from "@/presentation/orders/hooks/useOrder";
+import IconButton from "@/presentation/theme/components/icon-button";
 
 dayjs.extend(relativeTime);
 
@@ -540,7 +541,28 @@ export default function OrderScreen() {
               onPress={() => router.push("/restaurant-menu")}
             />
           )}
+
+          <ThemedView style={tw`h-px bg-gray-200 my-6`} />
+
+          <ThemedView>
+            <ThemedText type="h4">{t("orders:details.actions")}</ThemedText>
+            <ThemedView style={tw`flex-row gap-4 mt-3`}>
+              <ThemedView style={tw`gap-2 items-center`}>
+                <Pressable
+                  style={tw`flex items-center gap-2 p-4 bg-gray-100 rounded-lg min-w-15 w-20`}
+                  onPress={() => router.push(`/(order)/${order.id}/bills`)}
+                >
+                  <Ionicons name={"cash-outline"} size={30} style={tw``} />
+                </Pressable>
+
+                <ThemedText type="body1">
+                  {t("orders:details.payments")}
+                </ThemedText>
+              </ThemedView>
+            </ThemedView>
+          </ThemedView>
         </ScrollView>
+        {/* divider */}
       </ThemedView>
 
       {/* Footer - Total */}

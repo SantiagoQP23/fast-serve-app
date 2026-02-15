@@ -41,7 +41,9 @@
     "closedOrder": "Cerrado",
     "allItems": "Todos los Productos",
     "orderClosed": "Este pedido ha sido cerrado",
-    "noItemsInOrder": "No hay productos en este pedido"
+    "noItemsInOrder": "No hay productos en este pedido",
+    "actions": "Acciones",
+    "payments": "Pagos"
   },
   "actions": {
     "start": "Iniciar",

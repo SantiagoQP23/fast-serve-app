@@ -178,6 +178,7 @@ const EditOrderBottomSheet = ({
               onChangeText={(value) => setForm({ ...form, people: +value })}
               value={form.people ? form.people.toString() : ""}
               style={tw`w-10`}
+              containerStyle={tw`w-15 min-w-15`}
             />
           </ThemedView>
         </ThemedView>
