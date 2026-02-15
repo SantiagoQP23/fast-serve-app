@@ -42,7 +42,10 @@ export default function BillScreen() {
   const bill = useOrdersStore((state) => state.activeBill);
   const [receivedAmount, setReceivedAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
+
   const [discount, setDiscount] = useState("");
+  const [withDiscount, setWithDiscount] = useState(false);
+
   const order = useOrdersStore((state) => state.activeOrder);
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
@@ -310,18 +313,27 @@ export default function BillScreen() {
             {!bill.isPaid ? (
               <>
                 {/* Discount Section */}
-                <ThemedView style={tw`mb-6`}>
-                  <ThemedText type="body2" style={tw`text-gray-500 mb-2`}>
-                    {t("bills:details.discount")} (Max 10%)
-                  </ThemedText>
-                  <TextInput
-                    inputMode="numeric"
-                    value={discount}
-                    onChangeText={setDiscount}
-                    onBlur={validateDiscount}
-                    placeholder="0.00"
+                {!withDiscount && (
+                  <Button
+                    label={t("bills:details.addDiscount")}
+                    variant="text"
+                    onPress={() => setWithDiscount((prev) => !prev)}
                   />
-                </ThemedView>
+                )}
+                {withDiscount && (
+                  <ThemedView style={tw`mb-6`}>
+                    <ThemedText type="body2" style={tw`text-gray-500 mb-2`}>
+                      {t("bills:details.discount")} (Max 10%)
+                    </ThemedText>
+                    <TextInput
+                      inputMode="numeric"
+                      value={discount}
+                      onChangeText={setDiscount}
+                      onBlur={validateDiscount}
+                      placeholder="0.00"
+                    />
+                  </ThemedView>
+                )}
 
                 {/* Payment Method Section */}
                 <ThemedView style={tw`mb-6`}>

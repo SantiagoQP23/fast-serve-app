@@ -90,9 +90,7 @@ export default function CartScreen() {
         </ThemedView>
         {notes && (
           <ThemedView style={tw`gap-2`}>
-            <ThemedText type="caption">
-              {t("common:labels.notes")}
-            </ThemedText>
+            <ThemedText type="caption">{t("common:labels.notes")}</ThemedText>
             <ThemedText type="body2">{notes}</ThemedText>
           </ThemedView>
         )}
@@ -143,7 +141,7 @@ export default function CartScreen() {
         <Button
           label={t("menu:cart.createOrder")}
           onPress={onCreateOrder}
-          disabled={!isOnline || isLoading}
+          disabled={!isOnline || isLoading || details.length === 0}
         ></Button>
       </ThemedView>
     </>

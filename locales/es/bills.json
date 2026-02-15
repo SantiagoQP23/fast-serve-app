@@ -23,6 +23,7 @@
     "discount": "Descuento",
     "paymentMethod": "Método de pago",
     "receivedAmount": "Monto recibido",
+    "addDiscount": "Agregar descuento",
     "change": "Cambio",
     "total": "Total",
     "totalAmount": "Monto Total",
