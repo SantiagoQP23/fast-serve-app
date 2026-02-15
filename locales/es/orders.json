@@ -77,7 +77,8 @@
     "cannotDeleteItemMessage": "Este producto no se puede eliminar porque ya ha sido entregado. Solo se pueden eliminar productos con 0 cantidad entregada."
   },
   "alerts": {
-    "selectTable": "Por favor seleccione una mesa"
+    "selectTable": "Por favor seleccione una mesa",
+    "inputPeople": "Por favor ingrese el número de personas"
   },
   "confirmation": {
     "title": "Pedido Confirmado",

@@ -77,7 +77,8 @@
     "cannotDeleteItemMessage": "This item cannot be deleted because it has already been delivered. Only items with 0 delivered quantity can be removed."
   },
   "alerts": {
-    "selectTable": "Please select a table"
+    "selectTable": "Please select a table",
+    "inputPeople": "Please enter the number of people"
   },
   "confirmation": {
     "title": "Order Confirmed",

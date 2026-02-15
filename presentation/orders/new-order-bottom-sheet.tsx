@@ -27,7 +27,7 @@ const NewOrderBottomSheet = ({
   onCreateOrder,
   buttonProps,
 }: NewOrderBottomSheetProps) => {
-  const { t } = useTranslation('orders');
+  const { t } = useTranslation("orders");
   const orderTypes = useOrderTypes();
   const {
     orderType,
@@ -45,7 +45,11 @@ const NewOrderBottomSheet = ({
 
   const validateNewOrder = () => {
     if (orderType === OrderType.IN_PLACE && !table) {
-      i18nAlert(t('alerts.selectTable'));
+      i18nAlert(t("alerts.selectTable"));
+      return false;
+    }
+    if (people <= 0) {
+      i18nAlert(t("alerts.inputPeople"));
       return false;
     }
     setActiveOrder(null); // Reset active order
@@ -57,7 +61,7 @@ const NewOrderBottomSheet = ({
     <BottomSheetView style={tw`p-4 items-center justify-center`}>
       <ThemedView style={tw`w-full gap-6`}>
         <ThemedText type="h2" style={tw`text-center`}>
-          {t('newOrder.title')}
+          {t("newOrder.title")}
         </ThemedText>
         <ButtonGroup
           options={orderTypes}
@@ -67,11 +71,11 @@ const NewOrderBottomSheet = ({
 
         {orderType === OrderType.IN_PLACE && (
           <Select
-            label={t('newOrder.selectTable')}
-            placeholder={t('newOrder.selectTable')}
+            label={t("newOrder.selectTable")}
+            placeholder={t("newOrder.selectTable")}
             options={tables.map((table) => ({
               value: table.id,
-              label: t('details.table') + " " + table.name,
+              label: t("details.table") + " " + table.name,
             }))}
             value={table?.id}
             onChange={(value) =>
@@ -81,7 +85,7 @@ const NewOrderBottomSheet = ({
         )}
         <ThemedView style={tw`gap-2`}>
           <Text style={tw`text-gray-700 dark:text-gray-300  font-semibold`}>
-            {t('newOrder.people')}
+            {t("newOrder.people")}
           </Text>
           <ThemedView style={tw`flex-row gap-2 items-center`}>
             <ThemedView style={tw`flex-1`}>
@@ -104,13 +108,13 @@ const NewOrderBottomSheet = ({
               bottomSheet
               onChangeText={(value) => setPeople(+value)}
               value={people ? people.toString() : ""}
-              style={tw`w-10`}
+              containerStyle={tw`w-15 min-w-15`}
             />
           </ThemedView>
         </ThemedView>
         <ThemedView>
           <Switch
-            label={t('newOrder.addNote')}
+            label={t("newOrder.addNote")}
             value={withNotes}
             onValueChange={setWithNotes}
           />
@@ -127,7 +131,7 @@ const NewOrderBottomSheet = ({
 
         <ThemedView style={tw`w-full `}>
           <Button
-            label={t('newOrder.createOrder')}
+            label={t("newOrder.createOrder")}
             onPress={() =>
               validateNewOrder() && onCreateOrder && onCreateOrder()
             }
