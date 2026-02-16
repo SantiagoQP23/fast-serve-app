@@ -49,6 +49,7 @@ export default function BillScreen() {
   const [receivedAmount, setReceivedAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [cardCommission, setCardCommission] = useState("2.4");
+  const [transferNote, setTransferNote] = useState("");
 
   const [discount, setDiscount] = useState("");
   const [withDiscount, setWithDiscount] = useState(false);
@@ -61,8 +62,10 @@ export default function BillScreen() {
   const [visible, setVisible] = useState(false);
   const cashBottomSheetRef = useRef<BottomSheetModal>(null);
   const creditBottomSheetRef = useRef<BottomSheetModal>(null);
+  const transferBottomSheetRef = useRef<BottomSheetModal>(null);
   const cashSnapPoints = useMemo(() => ["60%", "70%"], []);
   const creditSnapPoints = useMemo(() => ["45%"], []);
+  const transferSnapPoints = useMemo(() => ["35%"], []);
   const { mutate: updateBill } = useBills().updateBill;
   const { mutate: removeBill } = useBills().removeBill;
 
@@ -111,6 +114,12 @@ export default function BillScreen() {
     if (paymentMethod === PaymentMethodE.CREDIT_CARD) {
       creditBottomSheetRef.current?.present();
       cashBottomSheetRef.current?.dismiss();
+      transferBottomSheetRef.current?.dismiss();
+    }
+    if (paymentMethod === PaymentMethodE.TRANSFER) {
+      transferBottomSheetRef.current?.present();
+      cashBottomSheetRef.current?.dismiss();
+      creditBottomSheetRef.current?.dismiss();
     }
   }, [cardCommission, paymentMethod]);
 
@@ -145,6 +154,10 @@ export default function BillScreen() {
       paymentMethod,
       receivedAmount: amountToRegister,
       isPaid: true,
+      comments:
+        paymentMethod === PaymentMethodE.TRANSFER && transferNote
+          ? transferNote
+          : "",
       // cashRegisterId: activeCashRegister!.id,
     };
 
@@ -223,17 +236,54 @@ export default function BillScreen() {
     if (methodValue === PaymentMethodE.CASH) {
       cashBottomSheetRef.current?.present();
       creditBottomSheetRef.current?.dismiss();
+      transferBottomSheetRef.current?.dismiss();
     } else if (methodValue === PaymentMethodE.CREDIT_CARD) {
       creditBottomSheetRef.current?.present();
       cashBottomSheetRef.current?.dismiss();
+      transferBottomSheetRef.current?.dismiss();
+    } else if (methodValue === PaymentMethodE.TRANSFER) {
+      transferBottomSheetRef.current?.present();
+      cashBottomSheetRef.current?.dismiss();
+      creditBottomSheetRef.current?.dismiss();
     } else {
       cashBottomSheetRef.current?.dismiss();
       creditBottomSheetRef.current?.dismiss();
+      transferBottomSheetRef.current?.dismiss();
     }
   };
 
   return (
     <>
+      <BottomSheetModal
+        ref={transferBottomSheetRef}
+        index={0}
+        snapPoints={transferSnapPoints}
+        backdropComponent={(props) => (
+          <BottomSheetBackdrop
+            {...props}
+            disappearsOnIndex={-1}
+            appearsOnIndex={0}
+          />
+        )}
+        enablePanDownToClose
+      >
+        <BottomSheetView style={tw`p-6 gap-4`}>
+          <ThemedView style={tw`gap-1`}>
+            <ThemedText type="h4">{t("bills:details.transferNote")}</ThemedText>
+            <ThemedText type="body2" style={tw`text-gray-500`}>
+              {t("bills:details.totalAmount")}:{" "}
+              {formatCurrency(totalAfterDiscount)}
+            </ThemedText>
+          </ThemedView>
+          <TextInput
+            value={transferNote}
+            onChangeText={setTransferNote}
+            placeholder={t("bills:details.transferNotePlaceholder")}
+            bottomSheet
+          />
+          <Button label={t("bills:details.payBill")} onPress={payBill} />
+        </BottomSheetView>
+      </BottomSheetModal>
       <BottomSheetModal
         ref={creditBottomSheetRef}
         index={0}
@@ -561,6 +611,13 @@ export default function BillScreen() {
                     label={t("bills:details.commission")}
                     variant="secondary"
                     onPress={() => creditBottomSheetRef.current?.present()}
+                  />
+                )}
+                {paymentMethod === PaymentMethodE.TRANSFER && (
+                  <Button
+                    label={t("bills:details.transferNote")}
+                    variant="secondary"
+                    onPress={() => transferBottomSheetRef.current?.present()}
                   />
                 )}
               </>

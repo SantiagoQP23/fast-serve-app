@@ -36,7 +36,9 @@
     "exactAmount": "Exact amount",
     "payBill": "Pay bill",
     "commission": "Commission",
-    "totalToPay": "Total to pay"
+    "totalToPay": "Total to pay",
+    "transferNote": "Transfer note",
+    "transferNotePlaceholder": "Add reference or confirmation info"
   },
   "paymentMethods": {
     "cash": "Cash",

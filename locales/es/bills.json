@@ -36,7 +36,9 @@
     "exactAmount": "Monto exacto",
     "payBill": "Pagar cuenta",
     "commission": "Comisión",
-    "totalToPay": "Total a pagar"
+    "totalToPay": "Total a pagar",
+    "transferNote": "Nota de transferencia",
+    "transferNotePlaceholder": "Agrega referencia o información de confirmación"
   },
   "paymentMethods": {
     "cash": "Efectivo",

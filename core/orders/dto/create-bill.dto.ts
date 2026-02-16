@@ -9,4 +9,5 @@ export interface CreateBillDto {
   details: CreateBillDetailDto[];
   receivedAmount?: number;
   discount?: number;
+  comments?: string;
 }
