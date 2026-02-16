@@ -83,6 +83,13 @@ export default function DashboardBillCard({
                 </>
               )}
             </ThemedView>
+            {bill.comments && (
+              <ThemedView style={tw`bg-gray-50 px-2 py-1 rounded mt-1`}>
+                <ThemedText type="caption" style={tw`text-gray-600`}>
+                  {bill.comments}
+                </ThemedText>
+              </ThemedView>
+            )}
           </ThemedView>
         </ThemedView>
 

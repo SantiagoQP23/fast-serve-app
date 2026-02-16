@@ -163,6 +163,7 @@ export default function BillScreen() {
 
     updateBill(data, {
       onSuccess: (order) => {
+        console.log("Updating bill with data:", data);
         router.back();
       },
     });

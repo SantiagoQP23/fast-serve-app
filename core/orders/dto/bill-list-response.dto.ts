@@ -17,6 +17,7 @@ export interface BillListItemDto {
   id: number;
   num: number;
   total: number;
+  comments: string;
   subtotal: number;
   discount: number;
   isPaid: boolean;
