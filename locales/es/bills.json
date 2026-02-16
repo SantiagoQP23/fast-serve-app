@@ -34,7 +34,9 @@
     "paid": "Pagado",
     "unpaid": "Sin Pagar",
     "exactAmount": "Monto exacto",
-    "payBill": "Pagar cuenta"
+    "payBill": "Pagar cuenta",
+    "commission": "Comisión",
+    "totalToPay": "Total a pagar"
   },
   "paymentMethods": {
     "cash": "Efectivo",

@@ -34,7 +34,9 @@
     "paid": "Paid",
     "unpaid": "Unpaid",
     "exactAmount": "Exact amount",
-    "payBill": "Pay bill"
+    "payBill": "Pay bill",
+    "commission": "Commission",
+    "totalToPay": "Total to pay"
   },
   "paymentMethods": {
     "cash": "Cash",
