@@ -18,10 +18,7 @@ import TableCard from "@/presentation/home/components/table-card";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import tw from "@/presentation/theme/lib/tailwind";
 import * as Haptics from "expo-haptics";
-import {
-  BottomSheetBackdrop,
-  BottomSheetModal,
-} from "@gorhom/bottom-sheet";
+import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import { router } from "expo-router";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
@@ -48,6 +45,7 @@ export default function TablesScreen() {
   const { currentRestaurant } = useAuthStore();
   const primaryColor = useThemeColor({}, "primary");
   const [isLoadingTables, setIsLoadingTables] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const tabs: { label: string; value: boolean | "all" }[] = [
     { label: t("list.filter.all"), value: "all" },
@@ -117,13 +115,35 @@ export default function TablesScreen() {
     setFilteredTables(tables);
   }, [tables]);
 
+  const onRefresh = useCallback(async () => {
+    try {
+      setRefreshing(true);
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      await Promise.all([
+        queryClient.refetchQueries({
+          queryKey: ["activeOrders", currentRestaurant?.id],
+        }),
+        // tablesQuery.refetch(),
+      ]);
+    } catch (error) {
+      Alert.alert(
+        t("errors:order.fetchError"),
+        t("errors:order.ordersFetchFailed"),
+      );
+    } finally {
+      setRefreshing(false);
+    }
+  }, [queryClient, currentRestaurant?.id, t, tablesQuery]);
+
   // Check if tables are loaded
   const hasTables = tables.length > 0;
 
   // Show empty state if no tables loaded
   if (!hasTables) {
     return (
-      <ThemedView style={tw`flex-1 px-4 pt-8 items-center justify-center gap-4`}>
+      <ThemedView
+        style={tw`flex-1 px-4 pt-8 items-center justify-center gap-4`}
+      >
         <Ionicons name="grid-outline" size={64} color="#999" />
         <ThemedView style={tw`gap-2 items-center`}>
           <ThemedText type="h2">{t("tables:noTables.title")}</ThemedText>
@@ -136,8 +156,8 @@ export default function TablesScreen() {
             tablesQuery.isError
               ? t("tables:noTables.retry")
               : isLoadingTables
-              ? t("tables:noTables.loading")
-              : t("tables:noTables.loadButton")
+                ? t("tables:noTables.loading")
+                : t("tables:noTables.loadButton")
           }
           leftIcon="cloud-download-outline"
           onPress={handleLoadTables}
@@ -184,6 +204,14 @@ export default function TablesScreen() {
         columnWrapperStyle={tw`justify-between mb-4`}
         contentContainerStyle={tw`pb-20`}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={primaryColor}
+            colors={[primaryColor]}
+          />
+        }
       />
 
       <BottomSheetModal

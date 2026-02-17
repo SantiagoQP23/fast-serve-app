@@ -124,32 +124,32 @@ export default function OrderCard({ order }: OrderCardProps) {
             style={tw`flex-row items-center bg-transparent justify-between`}
           >
             <ThemedView style={tw`flex-row items-center bg-transparent gap-3`}>
-              <ThemedText type="body2" style={tw`text-gray-600`}>
-                <Ionicons
-                  name="people-outline"
-                  size={18}
-                  color={tw.color("gray-600")}
-                />{" "}
-                {order.people}
-              </ThemedText>
-              {hasDetails && (
-                <>
-                  <ThemedText type="body2" style={tw`text-gray-600`}>
-                    •
-                  </ThemedText>
-                  <ThemedText type="body2" style={tw`text-gray-600`}>
-                    <Ionicons
-                      name="cart-outline"
-                      size={18}
-                      color={tw.color("gray-600")}
-                    />{" "}
-                    {order.details.length}
-                  </ThemedText>
-                </>
-              )}
-              <ThemedText type="body2" style={tw`text-gray-600`}>
-                •
-              </ThemedText>
+              {/* <ThemedText type="body2" style={tw`text-gray-600`}> */}
+              {/*   <Ionicons */}
+              {/*     name="people-outline" */}
+              {/*     size={18} */}
+              {/*     color={tw.color("gray-600")} */}
+              {/*   />{" "} */}
+              {/*   {order.people} */}
+              {/* </ThemedText> */}
+              {/* {hasDetails && ( */}
+              {/*   <> */}
+              {/*     <ThemedText type="body2" style={tw`text-gray-600`}> */}
+              {/*       • */}
+              {/*     </ThemedText> */}
+              {/*     <ThemedText type="body2" style={tw`text-gray-600`}> */}
+              {/*       <Ionicons */}
+              {/*         name="cart-outline" */}
+              {/*         size={18} */}
+              {/*         color={tw.color("gray-600")} */}
+              {/*       />{" "} */}
+              {/*       {order.details.length} */}
+              {/*     </ThemedText> */}
+              {/*   </> */}
+              {/* )} */}
+              {/* <ThemedText type="body2" style={tw`text-gray-600`}> */}
+              {/*   • */}
+              {/* </ThemedText> */}
               <ThemedText type="body2" style={tw`text-gray-600`}>
                 {t("orders:details.orderNumber", { num: order.num })}
               </ThemedText>
