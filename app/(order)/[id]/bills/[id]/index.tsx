@@ -39,7 +39,6 @@ import {
   BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetView,
-  BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
 
 export default function BillScreen() {
@@ -63,7 +62,7 @@ export default function BillScreen() {
   const cashBottomSheetRef = useRef<BottomSheetModal>(null);
   const creditBottomSheetRef = useRef<BottomSheetModal>(null);
   const transferBottomSheetRef = useRef<BottomSheetModal>(null);
-  const cashSnapPoints = useMemo(() => ["60%", "70%"], []);
+  const cashSnapPoints = useMemo(() => ["70%"], []);
   const creditSnapPoints = useMemo(() => ["45%"], []);
   const transferSnapPoints = useMemo(() => ["35%"], []);
   const { mutate: updateBill } = useBills().updateBill;
@@ -361,7 +360,7 @@ export default function BillScreen() {
         )}
         enablePanDownToClose
       >
-        <ThemedView style={tw`p-4 gap-4 mb-8`}>
+        <BottomSheetView style={tw`p-4 gap-4 mb-8`}>
           <ThemedView style={tw`gap-1`}>
             <ThemedText type="h4">
               {t("bills:details.receivedAmount")}
@@ -378,12 +377,13 @@ export default function BillScreen() {
             inputMode="numeric"
             placeholder="0.00"
             bottomSheet
+            icon="cash-outline"
           />
 
-          <BottomSheetScrollView
+          <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={tw`gap-2 mt-1`}
+            contentContainerStyle={tw`gap-2 mt-1 `}
             nestedScrollEnabled
           >
             {moneyReceivedOptions
@@ -397,7 +397,7 @@ export default function BillScreen() {
                   onPress={() => setReceivedAmount(amount.toString())}
                 />
               ))}
-          </BottomSheetScrollView>
+          </ScrollView>
 
           <Button
             label={t("bills:details.exactAmount")}
@@ -423,7 +423,7 @@ export default function BillScreen() {
             onPress={payBill}
             disabled={+receivedAmount < totalAfterDiscount}
           />
-        </ThemedView>
+        </BottomSheetView>
       </BottomSheetModal>
       <Modal
         transparent

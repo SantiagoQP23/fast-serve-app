@@ -51,7 +51,7 @@ const OrderOptionsBottomSheet = ({
               {
                 onSuccess: () => {
                   onClose?.();
-                  router.replace("/(tabs)");
+                  router.back();
                 },
               },
             );
@@ -87,7 +87,7 @@ const OrderOptionsBottomSheet = ({
               onSuccess: () => {
                 onClose?.();
                 setActiveOrder(null);
-                router.replace("/(tabs)");
+                router.back();
               },
             });
           },
