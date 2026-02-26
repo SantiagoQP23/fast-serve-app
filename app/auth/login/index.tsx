@@ -48,7 +48,10 @@ const LoginScreen = () => {
   // Function to handle form submission
   const onSubmit = async (data: LoginFormData) => {
     console.log(data);
-    const wasSuccessful = await login(data.username, data.password);
+    const wasSuccessful = await login(
+      data.username.trim(),
+      data.password.trim(),
+    );
 
     if (wasSuccessful) {
       router.replace("/");
