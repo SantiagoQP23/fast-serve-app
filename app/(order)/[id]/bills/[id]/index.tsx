@@ -407,12 +407,12 @@ export default function BillScreen() {
 
           {+receivedAmount > totalAfterDiscount && (
             <ThemedView
-              style={tw`mt-2 p-4 rounded-xl border border-green-200 items-center`}
+              style={tw`mt-2 p-4 rounded-xl border border-light-border items-center`}
             >
-              <ThemedText type="caption" style={tw`text-green-700 mb-1`}>
+              <ThemedText type="caption" style={tw` mb-1`}>
                 {t("bills:details.change")}
               </ThemedText>
-              <ThemedText style={tw`text-3xl font-bold text-green-700`}>
+              <ThemedText type="h1" style={tw``}>
                 {formatCurrency(+receivedAmount - totalAfterDiscount)}
               </ThemedText>
             </ThemedView>

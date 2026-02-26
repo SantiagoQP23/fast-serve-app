@@ -2,7 +2,7 @@
 
 ## Overview
 
-This Fast-Serve restaurant app now supports internationalization (i18n) for English and Spanish. The implementation uses:
+This Teikio restaurant app now supports internationalization (i18n) for English and Spanish. The implementation uses:
 - **i18next** - Core i18n framework
 - **react-i18next** - React bindings
 - **expo-localization** - Device locale detection
