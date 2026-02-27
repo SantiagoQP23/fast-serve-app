@@ -65,7 +65,8 @@ const LoginScreen = () => {
 
   // Function to handle sign up redirect
   const handleSignUp = async () => {
-    const signupUrl = process.env.EXPO_PUBLIC_SIGNUP_URL;
+    const appUrl = process.env.EXPO_PUBLIC_APP_URL;
+    const signupUrl = `${appUrl}/auth/register`;
 
     if (!signupUrl) {
       i18nAlert("Error", "Sign up URL is not configured");
@@ -76,6 +77,28 @@ const LoginScreen = () => {
       const canOpen = await Linking.canOpenURL(signupUrl);
       if (canOpen) {
         await Linking.openURL(signupUrl);
+      } else {
+        i18nAlert("Error", "Cannot open sign up page");
+      }
+    } catch (error) {
+      console.error("Error opening sign up URL:", error);
+      i18nAlert("Error", "Failed to open sign up page");
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    const appUrl = process.env.EXPO_PUBLIC_APP_URL;
+    const forgotPasswordUrl = `${appUrl}/auth/forgot-password`;
+
+    if (!forgotPasswordUrl) {
+      i18nAlert("Error", "Sign up URL is not configured");
+      return;
+    }
+
+    try {
+      const canOpen = await Linking.canOpenURL(forgotPasswordUrl);
+      if (canOpen) {
+        await Linking.openURL(forgotPasswordUrl);
       } else {
         i18nAlert("Error", "Cannot open sign up page");
       }
@@ -122,18 +145,22 @@ const LoginScreen = () => {
                 onChangeText={onChange}
                 error={errors.password ? errors.password.message : undefined}
                 leftIcon={
-                  <Pressable onPress={() => setShowPassword((prev) => !prev)}>
-                    <Ionicons
-                      name={showPassword ? "eye-off-outline" : "eye-outline"}
-                      size={20}
-                      style={{ color: "#9CA3AF" }}
-                    />
-                  </Pressable>
+                  value && (
+                    <Pressable onPress={() => setShowPassword((prev) => !prev)}>
+                      <Ionicons
+                        name={showPassword ? "eye-off-outline" : "eye-outline"}
+                        size={20}
+                        style={{ color: "#9CA3AF" }}
+                      />
+                    </Pressable>
+                  )
                 }
               />
             )}
           />
-          <ThemedText type="body2">{t("login.forgotPassword")}</ThemedText>
+          <Pressable onPress={handleForgotPassword}>
+            <ThemedText type="body2">{t("login.forgotPassword")}</ThemedText>
+          </Pressable>
         </ThemedView>
         <ThemedView style={tw`w-full `}>
           <Button
