@@ -11,6 +11,7 @@ import {
   Linking,
   Pressable,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
 import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
@@ -32,6 +33,7 @@ const LoginScreen = () => {
   const { t } = useTranslation("auth");
   const { height } = useWindowDimensions();
   const { login, changeStatus } = useAuthStore();
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     control,
@@ -113,12 +115,21 @@ const LoginScreen = () => {
               <TextInput
                 label={t("login.password")}
                 autoCapitalize="none"
-                secureTextEntry
+                secureTextEntry={!showPassword}
                 icon="lock-closed-outline"
                 onBlur={onBlur}
                 value={value}
                 onChangeText={onChange}
                 error={errors.password ? errors.password.message : undefined}
+                leftIcon={
+                  <Pressable onPress={() => setShowPassword((prev) => !prev)}>
+                    <Ionicons
+                      name={showPassword ? "eye-off-outline" : "eye-outline"}
+                      size={20}
+                      style={{ color: "#9CA3AF" }}
+                    />
+                  </Pressable>
+                }
               />
             )}
           />
