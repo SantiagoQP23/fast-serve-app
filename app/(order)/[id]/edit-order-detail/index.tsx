@@ -24,7 +24,7 @@ export default function EditOrderDetailScreen() {
     orderDetail?.quantity,
     1,
     20,
-    orderDetail?.qtyDelivered,
+    orderDetail?.qtyDelivered || 1,
   );
 
   const {
@@ -117,9 +117,7 @@ export default function EditOrderDetailScreen() {
 
         <ThemedView style={tw`flex-row justify-between mb-4 items-center`}>
           <ThemedView>
-            <ThemedText type="h4">
-              {t("common:status.delivered")}
-            </ThemedText>
+            <ThemedText type="h4">{t("common:status.delivered")}</ThemedText>
           </ThemedView>
           <ThemedView style={tw`flex-row items-center gap-4`}>
             <IconButton

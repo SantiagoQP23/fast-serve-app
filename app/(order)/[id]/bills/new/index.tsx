@@ -234,14 +234,14 @@ export default function NewBillScreen() {
                       <Ionicons
                         name="checkmark-circle"
                         size={18}
-                        color={tw.color("green-600")}
+                        color={tw.color("light-primary")}
                       />
-                      <ThemedText type="body2">
+                      <ThemedText type="body1">
                         {detail.product.name}
                       </ThemedText>
                     </ThemedView>
-                    <ThemedText type="caption" style={tw`text-gray-500`}>
-                      ×{detail.qtyPaid}
+                    <ThemedText type="body2" style={tw`text-gray-500`}>
+                      × {detail.qtyPaid}
                     </ThemedText>
                   </ThemedView>
                   {index < paidDetails.length - 1 && (

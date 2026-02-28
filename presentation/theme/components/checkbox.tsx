@@ -62,9 +62,7 @@ export default function Checkbox({
       <View>
         <CheckboxBox />
         {error && (
-          <ThemedText style={tw`text-red-500 text-sm mt-1`}>
-            {error}
-          </ThemedText>
+          <ThemedText style={tw`text-red-500 text-sm mt-1`}>{error}</ThemedText>
         )}
       </View>
     );

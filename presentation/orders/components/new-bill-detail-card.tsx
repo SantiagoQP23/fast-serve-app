@@ -58,7 +58,7 @@ export default function NewBillDetailCard({
           <ThemedText type="body1" style={tw`font-semibold mb-0.5`}>
             {detail.product.name}
           </ThemedText>
-          <ThemedText type="caption" style={tw`text-gray-500`}>
+          <ThemedText type="body2" style={tw`text-gray-500`}>
             {formatCurrency(detail.price)} × {availableQty}{" "}
             {t("bills:newBill.available")}
           </ThemedText>
@@ -67,23 +67,22 @@ export default function NewBillDetailCard({
         {/* Counter Controls */}
         <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}>
           <IconButton
-            icon="remove-circle-outline"
+            icon="remove-outline"
+            variant="outlined"
             onPress={decrement}
-            color={counter === 0 ? tw.color("gray-300") : tw.color("gray-700")}
-            disabled={counter === 0}
           />
           <ThemedText type="h4" style={tw`font-bold min-w-8 text-center`}>
             {counter}
           </ThemedText>
           <IconButton
-            icon="add-circle-outline"
+            icon="add-outline"
             onPress={increment}
+            variant="outlined"
             color={
               counter === availableQty
                 ? tw.color("gray-300")
                 : tw.color("blue-600")
             }
-            disabled={counter === availableQty}
           />
         </ThemedView>
       </ThemedView>
