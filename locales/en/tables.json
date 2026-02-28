@@ -19,6 +19,8 @@
   "card": {
     "table": "Table {{name}}"
   },
+  "totalOrders": "Orders",
+  "totalRevenue": "Amount",
   "activeCount": "{{count}} active",
   "noTables": {
     "title": "No Tables Loaded",

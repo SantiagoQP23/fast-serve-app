@@ -14,6 +14,8 @@ import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
+import Label from "@/presentation/theme/components/label";
+import StatsCard from "@/presentation/home/components/stats-card";
 
 export default function TableOrdersScreen() {
   const { t } = useTranslation(["common", "tables"]);
@@ -49,50 +51,37 @@ export default function TableOrdersScreen() {
 
   return (
     <>
-      <ThemedView style={tw` pt-8 flex-1`}>
-        <ThemedView style={tw`mb-6 px-4`}>
-          <ThemedText type="h1">
+      <ThemedView style={tw`flex-1`}>
+        <ThemedView
+          style={tw`mb-6 px-4 mt-2 flex-row items-center justify-between`}
+        >
+          <ThemedText type="h2">
             {t("tables:details.table", { name: tableName })}
           </ThemedText>
-          <ThemedView style={tw`flex-row items-center mt-4 gap-4`}>
+          <ThemedView style={tw`flex-row items-center  gap-4`}>
             <ThemedView style={tw`flex-row items-center gap-2`}>
-              <View
-                style={[
-                  tw`w-3 h-3 rounded-full`,
-                  hasOrders ? tw`bg-black` : tw`border border-black-500`,
-                ]}
+              <Label
+                text={
+                  hasOrders
+                    ? t("common:status.occupied")
+                    : t("common:status.available")
+                }
+                color={hasOrders ? "error" : "success"}
               />
-              <ThemedText type="body2" style={tw`text-gray-600`}>
-                {hasOrders
-                  ? t("common:status.occupied")
-                  : t("common:status.available")}
-              </ThemedText>
             </ThemedView>
-            {hasOrders && (
-              <>
-                <ThemedView style={tw`flex-row items-center gap-1`}>
-                  <Ionicons
-                    name="receipt-outline"
-                    size={18}
-                    color={tw.color("gray-600")}
-                  />
-                  <ThemedText type="body2" style={tw`text-gray-600`}>
-                    {t("tables:activeCount", { count: activeOrdersCount })}
-                  </ThemedText>
-                </ThemedView>
-                <ThemedView style={tw`flex-row items-center gap-1`}>
-                  <Ionicons
-                    name="cash-outline"
-                    size={18}
-                    color={tw.color("gray-600")}
-                  />
-                  <ThemedText type="body2" style={tw`text-gray-600`}>
-                    {formatCurrency(totalAmount)}
-                  </ThemedText>
-                </ThemedView>
-              </>
-            )}
           </ThemedView>
+        </ThemedView>
+        <ThemedView style={tw`px-4 mb-4 flex-row items-center gap-4`}>
+          <StatsCard
+            title={t("tables:totalOrders")}
+            value={activeOrdersCount}
+            icon="receipt-outline"
+          />
+          <StatsCard
+            title={t("tables:totalRevenue")}
+            value={formatCurrency(totalAmount)}
+            icon="cash-outline"
+          />
         </ThemedView>
 
         {!hasOrders ? (

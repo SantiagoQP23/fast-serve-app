@@ -13,6 +13,7 @@ import ProgressBar from "@/presentation/theme/components/progress-bar";
 import { getRelativeTime } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
+import { Ionicons } from "@expo/vector-icons";
 
 interface OrderCardProps {
   order: Order;
@@ -21,8 +22,7 @@ interface OrderCardProps {
 export default function OrderCard({ order }: OrderCardProps) {
   const { t } = useTranslation(["common", "orders"]);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
-  const { statusText, statusIcon, labelColor } =
-    useOrderStatus(order.status);
+  const { statusText, statusIcon, labelColor } = useOrderStatus(order.status);
 
   // Calculate delivery progress - handle missing details
   const hasDetails = order.details && order.details.length > 0;
@@ -109,14 +109,6 @@ export default function OrderCard({ order }: OrderCardProps) {
             style={tw`flex-row items-center bg-transparent justify-between`}
           >
             <ThemedView style={tw`flex-row items-center bg-transparent gap-3`}>
-              {/* <ThemedText type="body2" style={tw`text-gray-600`}> */}
-              {/*   <Ionicons */}
-              {/*     name="people-outline" */}
-              {/*     size={18} */}
-              {/*     color={tw.color("gray-600")} */}
-              {/*   />{" "} */}
-              {/*   {order.people} */}
-              {/* </ThemedText> */}
               {/* {hasDetails && ( */}
               {/*   <> */}
               {/*     <ThemedText type="body2" style={tw`text-gray-600`}> */}
@@ -132,11 +124,20 @@ export default function OrderCard({ order }: OrderCardProps) {
               {/*     </ThemedText> */}
               {/*   </> */}
               {/* )} */}
-              {/* <ThemedText type="body2" style={tw`text-gray-600`}> */}
-              {/*   • */}
-              {/* </ThemedText> */}
               <ThemedText type="body2" style={tw`text-gray-600`}>
                 {t("orders:details.orderNumber", { num: order.num })}
+              </ThemedText>
+              <ThemedText type="body2" style={tw`text-gray-600`}>
+                •
+              </ThemedText>
+
+              <ThemedText type="body2" style={tw`text-gray-600`}>
+                <Ionicons
+                  name="people-outline"
+                  size={18}
+                  color={tw.color("gray-600")}
+                />{" "}
+                {order.people}
               </ThemedText>
             </ThemedView>
             <ThemedText type="h3">${order.total}</ThemedText>

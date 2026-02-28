@@ -18,7 +18,7 @@ export default function OrderList({ title, orders }: OrderListProps) {
       <ThemedView>
         <ThemedView style={tw`px-4 justify-between mb-4`}>
           <ThemedText type="h4">{title}</ThemedText>
-          <ThemedText type="small">
+          <ThemedText type="small" style={tw`text-gray-500`}>
             {t("common:labels.count")}: {orders.length}
           </ThemedText>
         </ThemedView>

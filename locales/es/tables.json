@@ -19,6 +19,8 @@
   "card": {
     "table": "Mesa {{name}}"
   },
+  "totalOrders": "Pedidos",
+  "totalRevenue": "Monto",
   "activeCount": "{{count}} activo",
   "noTables": {
     "title": "Sin Mesas Cargadas",
