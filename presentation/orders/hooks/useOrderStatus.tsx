@@ -1,6 +1,7 @@
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { LabelProps } from "@/presentation/theme/components/label";
 
 export function useOrderStatus(status: OrderStatus) {
   const { t } = useTranslation('common');
@@ -41,11 +42,19 @@ export function useOrderStatus(status: OrderStatus) {
       [OrderStatus.CANCELLED]: "close-circle-outline",
     };
 
+  const labelColors: { [key in OrderStatus]: LabelProps["color"] } = {
+    [OrderStatus.DELIVERED]: "success",
+    [OrderStatus.IN_PROGRESS]: "info",
+    [OrderStatus.PENDING]: "warning",
+    [OrderStatus.CANCELLED]: "error",
+  };
+
   return {
     statusText: statusText[status],
     statusTextColor: statusTextColor[status],
     bgColor: backgroundColors[status],
     statusIcon: statusIcons[status],
     statusIconColor: statusIconColor[status],
+    labelColor: labelColors[status],
   };
 }

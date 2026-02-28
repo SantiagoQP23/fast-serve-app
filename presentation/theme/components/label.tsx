@@ -49,16 +49,16 @@ export default function Label({
 
   const textColors = {
     success: "text-green-600",
-    warning: "text-yellow-600",
+    warning: "text-orange-500",
     error: "text-red-600",
     info: "text-blue-600",
   };
 
   const iconColors = {
-    success: "green-600",
-    warning: "yellow-600",
-    error: "red-600",
-    info: "blue-600",
+    success: "green-500",
+    warning: "orange-400",
+    error: "red-500",
+    info: "blue-500",
   };
 
   return (

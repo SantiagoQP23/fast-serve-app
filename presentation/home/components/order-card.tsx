@@ -4,7 +4,6 @@ import Card from "@/presentation/theme/components/card";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
@@ -22,7 +21,7 @@ interface OrderCardProps {
 export default function OrderCard({ order }: OrderCardProps) {
   const { t } = useTranslation(["common", "orders"]);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
-  const { statusText, statusTextColor, bgColor, statusIcon, statusIconColor } =
+  const { statusText, statusIcon, labelColor } =
     useOrderStatus(order.status);
 
   // Calculate delivery progress - handle missing details
@@ -50,21 +49,7 @@ export default function OrderCard({ order }: OrderCardProps) {
         <ThemedView style={tw`gap-4 bg-white `}>
           {/* Header Section - Table Name */}
           <ThemedView style={tw`flex-row items-center bg-transparent gap-2`}>
-            <ThemedView
-              style={tw`gap-1 flex-row items-center ${bgColor}/10 px-3 py-1 rounded-full`}
-            >
-              <Ionicons
-                name={statusIcon}
-                size={18}
-                color={tw.color(statusIconColor)}
-              />
-              <ThemedText
-                type="body2"
-                style={tw`${statusTextColor} font-semibold`}
-              >
-                {statusText}
-              </ThemedText>
-            </ThemedView>
+            <Label text={statusText} color={labelColor} leftIcon={statusIcon} />
             {order.isPaid && (
               <Label text={t("orders:details.paid")} color="success" />
             )}

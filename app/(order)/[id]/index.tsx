@@ -77,8 +77,14 @@ export default function OrderScreen() {
   );
 
   // Call all hooks before any conditional returns
-  const { statusText, statusTextColor, statusIcon, statusIconColor, bgColor } =
-    useOrderStatus(order?.status || OrderStatus.PENDING);
+  const {
+    statusText,
+    labelColor,
+    statusTextColor,
+    statusIcon,
+    statusIconColor,
+    bgColor,
+  } = useOrderStatus(order?.status || OrderStatus.PENDING);
 
   const onRefresh = useCallback(async () => {
     if (!order?.id) return;
@@ -329,21 +335,11 @@ export default function OrderScreen() {
 
             {/* Status & Payment Labels */}
             <ThemedView style={tw`flex-row items-center gap-2`}>
-              <ThemedView
-                style={tw`flex-row items-center gap-1.5 ${bgColor}/10 px-3 py-1.5 rounded-full`}
-              >
-                <Ionicons
-                  name={statusIcon}
-                  size={16}
-                  color={tw.color(statusIconColor)}
-                />
-                <ThemedText
-                  type="small"
-                  style={tw`${statusTextColor} font-semibold`}
-                >
-                  {statusText}
-                </ThemedText>
-              </ThemedView>
+              <Label
+                text={statusText}
+                color={labelColor}
+                leftIcon={statusIcon}
+              />
               {order.isPaid ? (
                 <Label text={t("orders:details.paid")} color="success" />
               ) : (

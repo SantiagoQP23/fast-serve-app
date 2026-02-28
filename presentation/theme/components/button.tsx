@@ -80,14 +80,14 @@ export default function Button({
   const textColors = {
     primary: "text-white",
     secondary: "text-light-primary",
-    outline: "text-light-primary",
+    outline: "text-light-text",
     text: "text-gray-800",
   };
 
   const iconColors = {
     primary: "#fff",
     secondary: Colors.light.primary,
-    outline: Colors.light.primary,
+    outline: Colors.light.text,
     text: tw.color("gray-800"),
   };
 
