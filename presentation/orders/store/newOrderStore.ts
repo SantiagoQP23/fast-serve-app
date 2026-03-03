@@ -80,6 +80,7 @@ export const useNewOrderStore = create<NewOrderState & NewOrderActions>()(
                   ...d,
                   quantity: detail.quantity,
                   description: detail.description,
+                  price: detail.price,
                 }
               : d,
           ),

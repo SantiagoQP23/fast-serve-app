@@ -68,7 +68,7 @@ export default function NewOrderDetailCard({
           style={tw`flex-row bg-transparent justify-between gap-2 items-center`}
         >
           <ThemedText type="body1" style={tw`text-light-primary font-semibold`}>
-            ${detail.product.price * counter}
+            ${(detail.price ?? detail.product.price) * counter}
           </ThemedText>
           <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
             <IconButton

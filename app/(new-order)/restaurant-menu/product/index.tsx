@@ -27,6 +27,12 @@ export default function ProductScreen() {
   const [withNotes, setWithNotes] = useState(!!activeOrderDetail?.description);
   const { activeProduct } = useMenuStore();
   const [notes, setNotes] = useState(activeOrderDetail?.description || "");
+  const [withCustomPrice, setWithCustomPrice] = useState(
+    !!activeOrderDetail?.price,
+  );
+  const [customPrice, setCustomPrice] = useState(
+    String(activeOrderDetail?.price ?? activeProduct?.price ?? ""),
+  );
 
   const addDetail = useNewOrderStore((state) => state.addDetail);
   const updateDetail = useNewOrderStore((state) => state.updateDetail);
@@ -49,13 +55,17 @@ export default function ProductScreen() {
     return null;
   }
 
+  const effectivePrice = withCustomPrice
+    ? parseFloat(customPrice) || activeProduct!.price
+    : undefined;
+
   const addProductToOrder = () => {
     if (activeProduct && order)
       addOrderDetailToOrder(
         {
           productId: activeProduct!.id,
           quantity: counter,
-          price: activeProduct!.price,
+          price: effectivePrice ?? activeProduct!.price,
           description: notes,
           orderId: order!.id,
         },
@@ -69,12 +79,14 @@ export default function ProductScreen() {
         quantity: counter,
         product: activeProduct!,
         description: notes,
+        price: effectivePrice,
       });
     } else {
       updateDetail({
         quantity: counter,
         product: activeProduct!,
         description: notes,
+        price: effectivePrice,
       });
     }
   };
@@ -130,12 +142,31 @@ export default function ProductScreen() {
             />
           )}
         </ThemedView>
+        <ThemedView>
+          <Switch
+            label={t("orders:newOrder.customPrice")}
+            value={withCustomPrice}
+            onValueChange={(val) => {
+              setWithCustomPrice(val);
+              if (val && !customPrice) {
+                setCustomPrice(String(activeProduct!.price));
+              }
+            }}
+          />
+          {withCustomPrice && (
+            <TextInput
+              value={customPrice}
+              onChangeText={setCustomPrice}
+              keyboardType="decimal-pad"
+            />
+          )}
+        </ThemedView>
         <ThemedView style={tw`flex-1 `} />
       </ThemedView>
       <ThemedView style={tw`gap-4 p-4 rounded-xl shadow-xl `}>
         <ThemedView style={tw`flex-row justify-between items-center`}>
           <ThemedText type="h4">
-            {formatCurrency(activeProduct.price * counter)}
+            {formatCurrency((effectivePrice ?? activeProduct.price) * counter)}
           </ThemedText>
           <ThemedView style={tw`flex-row items-center gap-4`}>
             <IconButton

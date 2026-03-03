@@ -4,5 +4,6 @@ export interface NewOrderDetail {
   quantity: number;
   product: Product;
   description?: string;
+  price?: number;
   // productOption?: ProductOption;
 }

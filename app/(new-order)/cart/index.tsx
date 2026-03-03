@@ -57,7 +57,7 @@ export default function CartScreen() {
 
   useEffect(() => {
     const total = details.reduce((acc, detail) => {
-      return acc + detail.product.price * detail.quantity;
+      return acc + (detail.price ?? detail.product.price) * detail.quantity;
     }, 0);
     setTotal(total);
   }, [details]);
