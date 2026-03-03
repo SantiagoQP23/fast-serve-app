@@ -17,7 +17,7 @@ export interface LabelProps extends PressableProps {
   disabled?: boolean;
   leftIcon?: keyof typeof Ionicons.glyphMap;
   rightIcon?: keyof typeof Ionicons.glyphMap;
-  color?: "success" | "warning" | "error" | "info";
+  color?: "success" | "warning" | "error" | "info" | "default";
   text: string;
 }
 
@@ -45,6 +45,7 @@ export default function Label({
     warning: "bg-yellow-500",
     error: "bg-red-500",
     info: "bg-blue-500",
+    default: "bg-gray-500",
   };
 
   const textColors = {
@@ -52,6 +53,7 @@ export default function Label({
     warning: "text-orange-500",
     error: "text-red-600",
     info: "text-blue-600",
+    default: "text-gray-600",
   };
 
   const iconColors = {
@@ -59,6 +61,7 @@ export default function Label({
     warning: "orange-400",
     error: "red-500",
     info: "blue-500",
+    default: "gray-500",
   };
 
   return (

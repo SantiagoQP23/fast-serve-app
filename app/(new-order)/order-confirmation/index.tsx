@@ -91,7 +91,7 @@ export default function OrderConfirmationScreen() {
             {order.details.map((item, index) => (
               <ThemedView
                 style={tw`flex-row justify-between items-center bg-transparent `}
-                key={index}
+                key={item.id}
               >
                 <ThemedView
                   style={tw`flex-row items-center bg-transparent gap-3 `}

@@ -12,6 +12,8 @@ import Checkbox from "@/presentation/theme/components/checkbox";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import OrderDetailActionsBottomSheet from "./order-detail-actions-bottom-sheet";
+import { formatCurrency } from "@/core/i18n/utils";
+import Label from "@/presentation/theme/components/label";
 
 interface OrderDetailCardProps extends PressableProps {
   detail: OrderDetail;
@@ -163,12 +165,17 @@ export default function OrderDetailCard({
               <Checkbox value={isChecked} onValueChange={onCheckedChange} />
               <ThemedView style={tw`flex-1 bg-transparent gap-2`}>
                 <ThemedView style={tw` bg-transparent  gap-2`}>
-                  <ThemedView
-                    style={tw`flex-row justify-between bg-transparent `}
-                  >
+                  <ThemedView style={tw`flex-row bg-transparent gap-2`}>
                     <ThemedText type="body1" style={tw`font-normal`}>
-                      {detail.quantity} - {detail.product.name}
+                      {detail.quantity} - {detail.product.name}{" "}
                     </ThemedText>
+
+                    {detail.product.price !== detail.price && (
+                      <Label
+                        text={formatCurrency(detail.price)}
+                        color="default"
+                      />
+                    )}
                     {/* <ThemedText type="body1">${detail.product.price}</ThemedText> */}
                   </ThemedView>
                   {detail.description && (
