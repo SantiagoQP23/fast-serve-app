@@ -1,5 +1,6 @@
 import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bottom-sheet";
 import OrderOptionsBottomSheet from "@/presentation/orders/components/order-options-bottom-sheet";
+import ReassignOrderBottomSheet from "@/presentation/orders/components/reassign-order-bottom-sheet";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -11,6 +12,7 @@ import { useCallback, useEffect, useRef } from "react";
 export default function OrdersLayout() {
   const editBottomSheetRef = useRef<BottomSheetModal>(null);
   const optionsBottomSheetRef = useRef<BottomSheetModal>(null);
+  const reassignBottomSheetRef = useRef<BottomSheetModal>(null);
   const order = useOrdersStore((state) => state.activeOrder);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
@@ -25,6 +27,10 @@ export default function OrdersLayout() {
     optionsBottomSheetRef.current?.close();
   };
 
+  const closeReassignBottomSheet = () => {
+    reassignBottomSheetRef.current?.close();
+  };
+
   // callbacks
   const handlePresentEditModal = useCallback(() => {
     editBottomSheetRef.current?.present();
@@ -32,6 +38,10 @@ export default function OrdersLayout() {
 
   const handlePresentOptionsModal = useCallback(() => {
     optionsBottomSheetRef.current?.present();
+  }, []);
+
+  const handlePresentReassignModal = useCallback(() => {
+    reassignBottomSheetRef.current?.present();
   }, []);
 
   useEffect(() => {
@@ -99,7 +109,7 @@ export default function OrdersLayout() {
       </Stack>
 
       <BottomSheetModal
-        ref={editBottomSheetRef}
+        ref={optionsBottomSheetRef}
         backdropComponent={(props) => (
           <BottomSheetBackdrop
             {...props}
@@ -109,9 +119,28 @@ export default function OrdersLayout() {
         )}
       >
         {order && (
-          <EditOrderBottomSheet
+          <OrderOptionsBottomSheet
             order={order}
-            onOrderUpdated={closeEditBottomSheet}
+            onClose={closeOptionsBottomSheet}
+            onReassign={handlePresentReassignModal}
+          />
+        )}
+      </BottomSheetModal>
+
+      <BottomSheetModal
+        ref={reassignBottomSheetRef}
+        backdropComponent={(props) => (
+          <BottomSheetBackdrop
+            {...props}
+            disappearsOnIndex={-1}
+            appearsOnIndex={0}
+          />
+        )}
+      >
+        {order && (
+          <ReassignOrderBottomSheet
+            order={order}
+            onClose={closeReassignBottomSheet}
           />
         )}
       </BottomSheetModal>
@@ -130,6 +159,7 @@ export default function OrdersLayout() {
           <OrderOptionsBottomSheet
             order={order}
             onClose={closeOptionsBottomSheet}
+            onReassign={handlePresentReassignModal}
           />
         )}
       </BottomSheetModal>

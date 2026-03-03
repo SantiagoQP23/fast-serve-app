@@ -15,6 +15,7 @@ import { i18nAlert } from "@/core/i18n/utils";
 interface OrderOptionsBottomSheetProps {
   order: Order;
   onClose?: () => void;
+  onReassign?: () => void;
 }
 
 interface OptionItem {
@@ -29,6 +30,7 @@ interface OptionItem {
 const OrderOptionsBottomSheet = ({
   order,
   onClose,
+  onReassign,
 }: OrderOptionsBottomSheetProps) => {
   const { t } = useTranslation(["common", "orders"]);
   const { mutate: updateOrder } = useOrders().updateOrder;
@@ -128,6 +130,15 @@ const OrderOptionsBottomSheet = ({
       icon: "add-circle-outline",
       label: t("orders:options.addProduct"),
       onPress: handleNavigateToAddProduct,
+    },
+    {
+      icon: "person-outline",
+      label: t("orders:options.reassignOrder"),
+      onPress: () => {
+        onClose?.();
+        onReassign?.();
+      },
+      divider: true,
     },
     {
       icon: "card-outline",

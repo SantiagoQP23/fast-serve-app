@@ -366,16 +366,18 @@ export default function OrderScreen() {
 
             {/* Waiter Info */}
             <ThemedView
-              style={tw`flex-row items-center gap-2 pt-2 border-t border-gray-200`}
+              style={tw`flex-row items-center justify-between pt-2 border-t border-gray-200`}
             >
-              <Ionicons
-                name="person-outline"
-                size={16}
-                color={tw.color("gray-500")}
-              />
-              <ThemedText type="body2" style={tw`text-gray-600`}>
-                {order.user.person.firstName} {order.user.person.lastName}
-              </ThemedText>
+              <ThemedView style={tw`flex-row items-center gap-2 `}>
+                <Ionicons
+                  name="person-outline"
+                  size={16}
+                  color={tw.color("gray-500")}
+                />
+                <ThemedText type="body2" style={tw`text-gray-600`}>
+                  {order.user.person.firstName} {order.user.person.lastName}
+                </ThemedText>
+              </ThemedView>
             </ThemedView>
           </ThemedView>
 
