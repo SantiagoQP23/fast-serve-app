@@ -7,6 +7,7 @@ import Switch from "@/presentation/theme/components/switch";
 import TextInput from "@/presentation/theme/components/text-input";
 import Button from "@/presentation/theme/components/button";
 import IconButton from "@/presentation/theme/components/icon-button";
+import Label from "@/presentation/theme/components/label";
 import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
@@ -14,6 +15,7 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
+import { ProductStatus } from "@/core/menu/models/product.model";
 
 export default function ProductScreen() {
   const { t } = useTranslation(["menu", "orders"]);
@@ -54,6 +56,11 @@ export default function ProductScreen() {
   if (!activeProduct) {
     return null;
   }
+
+  const isUnavailable = activeProduct.status !== ProductStatus.AVAILABLE;
+
+  const statusLabelColor =
+    activeProduct.status === ProductStatus.OUT_OF_STOCK ? "error" : "warning";
 
   const effectivePrice = withCustomPrice
     ? parseFloat(customPrice) || activeProduct!.price
@@ -114,6 +121,12 @@ export default function ProductScreen() {
           <ThemedText type="body1">
             {formatCurrency(activeProduct.price)}
           </ThemedText>
+          {isUnavailable && (
+            <Label
+              text={t(`menu:product.status.${activeProduct.status}`)}
+              color={statusLabelColor}
+            />
+          )}
           {/* <ThemedView style={tw`flex-row items-center gap-4`}> */}
           {/*   <IconButton */}
           {/*     icon="remove-outline" */}
@@ -184,6 +197,7 @@ export default function ProductScreen() {
           })}
           onPress={onAddProduct}
           leftIcon="cart-outline"
+          disabled={isUnavailable}
         />
       </ThemedView>
     </>

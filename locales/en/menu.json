@@ -16,7 +16,11 @@
     "addToOrderOrCart": "Add to {{type}}",
     "quantity": "Quantity",
     "order": "order",
-    "cart": "cart"
+    "cart": "cart",
+    "status": {
+      "OUT_OF_STOCK": "Out of Stock",
+      "OUT_OF_SEASON": "Out of Season"
+    }
   },
   "cart": {
     "title": "Cart",

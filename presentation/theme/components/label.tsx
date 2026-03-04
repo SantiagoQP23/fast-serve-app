@@ -42,7 +42,7 @@ export default function Label({
 
   const bgColors = {
     success: "bg-green-500",
-    warning: "bg-yellow-500",
+    warning: "bg-orange-500",
     error: "bg-red-500",
     info: "bg-blue-500",
     default: "bg-gray-500",

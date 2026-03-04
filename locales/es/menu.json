@@ -16,7 +16,11 @@
     "addToOrderOrCart": "Agregar a {{type}}",
     "quantity": "Cantidad",
     "order": "pedido",
-    "cart": "carrito"
+    "cart": "carrito",
+    "status": {
+      "OUT_OF_STOCK": "Sin Stock",
+      "OUT_OF_SEASON": "Fuera de Temporada"
+    }
   },
   "cart": {
     "title": "Carrito",
