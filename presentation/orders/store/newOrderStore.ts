@@ -58,29 +58,30 @@ export const useNewOrderStore = create<NewOrderState & NewOrderActions>()(
 
       addDetail: (detail: NewOrderDetail) => {
         const details = get().details;
-
-        set({ details: [...details, detail] });
+        const id = Math.random().toString(36).slice(2);
+        set({ details: [...details, { ...detail, id }] });
       },
 
       removeDetail: (detail: NewOrderDetail) => {
         const details = get().details;
-
         set({
-          details: details.filter((d) => d.product.id !== detail.product.id),
+          details: details.filter((d) =>
+            detail.id ? d.id !== detail.id : d.product.id !== detail.product.id,
+          ),
         });
       },
 
       updateDetail: (detail: NewOrderDetail) => {
         const details = get().details;
-
         set({
           details: details.map((d) =>
-            d.product.id === detail.product.id
+            (detail.id ? d.id === detail.id : d.product.id === detail.product.id)
               ? {
                   ...d,
                   quantity: detail.quantity,
                   description: detail.description,
                   price: detail.price,
+                  tagIds: detail.tagIds,
                 }
               : d,
           ),

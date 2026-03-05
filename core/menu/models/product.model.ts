@@ -1,3 +1,5 @@
+import { Tag } from "./tag.model";
+
 export enum ProductStatus {
   AVAILABLE = "AVAILABLE",
   OUT_OF_STOCK = "OUT_OF_STOCK",
@@ -11,6 +13,7 @@ export interface Product {
   description: string;
   images: string;
   status: ProductStatus;
+  tags: Tag[];
   isActive: boolean;
   isPublic: boolean;
   unitCost: number;

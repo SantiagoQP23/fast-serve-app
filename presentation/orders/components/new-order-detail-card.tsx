@@ -5,6 +5,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { Ionicons } from "@expo/vector-icons";
 import { View, Pressable, PressableProps } from "react-native";
 import IconButton from "@/presentation/theme/components/icon-button";
+import Label from "@/presentation/theme/components/label";
 import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { router } from "expo-router";
 import { NewOrderDetail } from "@/core/orders/dto/new-order-detail.dto";
@@ -64,6 +65,15 @@ export default function NewOrderDetailCard({
             onPress={onRemoveDetail}
           />
         </ThemedView>
+        {detail.tagIds && detail.tagIds.length > 0 && (
+          <ThemedView style={tw`flex-row flex-wrap gap-2 bg-transparent`}>
+            {detail.product.tags
+              .filter((tag) => detail.tagIds!.includes(tag.id))
+              .map((tag) => (
+                <Label key={tag.id} text={tag.name} color="default" />
+              ))}
+          </ThemedView>
+        )}
         <ThemedView
           style={tw`flex-row bg-transparent justify-between gap-2 items-center`}
         >

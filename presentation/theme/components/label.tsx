@@ -17,7 +17,8 @@ export interface LabelProps extends PressableProps {
   disabled?: boolean;
   leftIcon?: keyof typeof Ionicons.glyphMap;
   rightIcon?: keyof typeof Ionicons.glyphMap;
-  color?: "success" | "warning" | "error" | "info" | "default";
+  color?: "success" | "warning" | "error" | "info" | "default" | "outline";
+  size?: "medium" | "small";
   text: string;
 }
 
@@ -29,6 +30,7 @@ export default function Label({
   leftIcon: icon,
   rightIcon,
   color = "info",
+  size = "medium",
   text,
   style,
 }: LabelProps) {
@@ -46,6 +48,7 @@ export default function Label({
     error: "bg-red-500",
     info: "bg-blue-500",
     default: "bg-gray-500",
+    outline: "bg-transparent",
   };
 
   const textColors = {
@@ -54,6 +57,7 @@ export default function Label({
     error: "text-red-600",
     info: "text-blue-600",
     default: "text-gray-600",
+    outline: "text-gray-600",
   };
 
   const iconColors = {
@@ -62,18 +66,31 @@ export default function Label({
     error: "red-500",
     info: "blue-500",
     default: "gray-500",
+    outline: "gray-500",
   };
 
+  const isOutline = color === "outline";
+  const isSmall = size === "small";
+
   return (
-    <ThemedView
-      style={tw`gap-1 flex-row items-center ${bgColors[color]}/10 px-3 py-1 rounded-full`}
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      style={tw`gap-1 flex-row items-center ${isOutline ? "border border-gray-400" : `${bgColors[color]}/10`} ${isSmall ? "px-2 py-0.5" : "px-3 py-1"} rounded-full`}
     >
       {icon && (
-        <Ionicons name={icon} size={18} color={tw.color(iconColors[color])} />
+        <Ionicons
+          name={icon}
+          size={isSmall ? 14 : 18}
+          color={tw.color(iconColors[color])}
+        />
       )}
-      <ThemedText type="body2" style={tw`${textColors[color]} font-semibold`}>
+      <ThemedText
+        type={isSmall ? "small" : "body2"}
+        style={tw`${textColors[color]} font-semibold`}
+      >
         {text}
       </ThemedText>
-    </ThemedView>
+    </Pressable>
   );
 }

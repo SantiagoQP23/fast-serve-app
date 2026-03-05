@@ -9,6 +9,7 @@ import Switch from "@/presentation/theme/components/switch";
 import TextInput from "@/presentation/theme/components/text-input";
 import Button from "@/presentation/theme/components/button";
 import IconButton from "@/presentation/theme/components/icon-button";
+import Label from "@/presentation/theme/components/label";
 import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
@@ -43,6 +44,15 @@ export default function EditOrderDetailScreen() {
   const [withNotes, setWithNotes] = useState(!!orderDetail?.description);
   const [notes, setNotes] = useState(orderDetail?.description || "");
   const [price, setPrice] = useState(orderDetail?.price.toString() || "");
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
+    orderDetail?.tags?.map((t) => t.id) ?? [],
+  );
+
+  const toggleTag = (id: string) => {
+    setSelectedTagIds((prev) =>
+      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
+    );
+  };
 
   const setActiveOrderDetail = useOrdersStore(
     (state) => state.setActiveOrderDetail,
@@ -65,6 +75,7 @@ export default function EditOrderDetailScreen() {
         description: withNotes ? notes : undefined,
         price: parseFloat(price),
         orderId: order!.id,
+        tagIds: selectedTagIds,
       },
       {
         onSuccess: () => {
@@ -86,6 +97,20 @@ export default function EditOrderDetailScreen() {
             </ThemedText>
           </ThemedView>
         </ThemedView>
+        {orderDetail.product.tags?.filter((tag) => tag.isActive && !tag.isArchived).length > 0 && (
+          <ThemedView style={tw`flex-row flex-wrap gap-2`}>
+            {orderDetail.product.tags
+              .filter((tag) => tag.isActive && !tag.isArchived)
+              .map((tag) => (
+                <Label
+                  key={tag.id}
+                  text={tag.name}
+                  color={selectedTagIds.includes(tag.id) ? "default" : "outline"}
+                  onPress={() => toggleTag(tag.id)}
+                />
+              ))}
+          </ThemedView>
+        )}
         {orderDetail.product.description && (
           <ThemedText type="body2">
             {orderDetail.product.description}

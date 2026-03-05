@@ -174,12 +174,27 @@ export default function OrderDetailCard({
                       <Label
                         text={formatCurrency(detail.price)}
                         color="default"
+                        size="small"
                       />
                     )}
                     {/* <ThemedText type="body1">${detail.product.price}</ThemedText> */}
                   </ThemedView>
                   {detail.description && (
                     <ThemedText type="body2">{detail.description}</ThemedText>
+                  )}
+                  {detail.tags?.length > 0 && (
+                    <ThemedView
+                      style={tw`flex-row flex-wrap gap-2 bg-transparent`}
+                    >
+                      {detail.tags.map((tag) => (
+                        <Label
+                          key={tag.id}
+                          text={tag.name}
+                          color="default"
+                          size="small"
+                        />
+                      ))}
+                    </ThemedView>
                   )}
                 </ThemedView>
                 {detail.quantity > 1 && (

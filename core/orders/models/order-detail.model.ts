@@ -1,4 +1,5 @@
 import { Product } from "@/core/menu/models/product.model";
+import { Tag } from "@/core/menu/models/tag.model";
 
 export interface OrderDetail {
   id: string;
@@ -22,6 +23,7 @@ export interface OrderDetail {
   isActive: boolean;
 
   price: number;
+  tags: Tag[];
 
   // typeOrderDetail: TypeOrder;
   // productOption?: ProductOption;

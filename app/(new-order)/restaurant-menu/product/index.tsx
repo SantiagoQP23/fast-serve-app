@@ -35,6 +35,15 @@ export default function ProductScreen() {
   const [customPrice, setCustomPrice] = useState(
     String(activeOrderDetail?.price ?? activeProduct?.price ?? ""),
   );
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
+    activeOrderDetail?.tagIds ?? [],
+  );
+
+  const toggleTag = (id: string) => {
+    setSelectedTagIds((prev) =>
+      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
+    );
+  };
 
   const addDetail = useNewOrderStore((state) => state.addDetail);
   const updateDetail = useNewOrderStore((state) => state.updateDetail);
@@ -75,18 +84,21 @@ export default function ProductScreen() {
           price: effectivePrice ?? activeProduct!.price,
           description: notes,
           orderId: order!.id,
+          tagIds: selectedTagIds,
         },
         {},
       );
   };
 
   const addProductToCart = () => {
+    console.log({ tagIds: selectedTagIds });
     if (!activeOrderDetail) {
       addDetail({
         quantity: counter,
         product: activeProduct!,
         description: notes,
         price: effectivePrice,
+        tagIds: selectedTagIds,
       });
     } else {
       updateDetail({
@@ -94,6 +106,7 @@ export default function ProductScreen() {
         product: activeProduct!,
         description: notes,
         price: effectivePrice,
+        tagIds: selectedTagIds,
       });
     }
   };
@@ -126,6 +139,23 @@ export default function ProductScreen() {
               text={t(`menu:product.status.${activeProduct.status}`)}
               color={statusLabelColor}
             />
+          )}
+          {activeProduct.tags?.filter((tag) => tag.isActive && !tag.isArchived)
+            .length > 0 && (
+            <ThemedView style={tw`flex-row flex-wrap gap-2 justify-center`}>
+              {activeProduct.tags
+                .filter((tag) => tag.isActive && !tag.isArchived)
+                .map((tag) => (
+                  <Label
+                    key={tag.id}
+                    text={tag.name}
+                    color={
+                      selectedTagIds.includes(tag.id) ? "default" : "outline"
+                    }
+                    onPress={() => toggleTag(tag.id)}
+                  />
+                ))}
+            </ThemedView>
           )}
           {/* <ThemedView style={tw`flex-row items-center gap-4`}> */}
           {/*   <IconButton */}
