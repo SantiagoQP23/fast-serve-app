@@ -2,6 +2,8 @@
   "navigation": {
     "home": "Inicio",
     "dashboard": "Panel",
+    "incomes": "Ingresos",
+    "sales": "Ventas",
     "tables": "Mesas",
     "orders": "Pedidos",
     "profile": "Perfil"

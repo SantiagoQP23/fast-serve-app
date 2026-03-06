@@ -75,13 +75,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="dashboard"
+        name="sales"
         options={{
-          title: t("navigation.dashboard"),
+          title: t("navigation.sales"),
           tabBarIcon: ({ color }) => (
-            <Ionicons color={color} name="stats-chart-outline" size={24} />
+            <Ionicons color={color} name="pricetag-outline" size={24} />
           ),
-          href: isAdmin ? "/(tabs)/dashboard" : null,
         }}
       />
       <Tabs.Screen
@@ -94,12 +93,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="orders"
+        name="incomes"
         options={{
-          title: t("navigation.orders"),
+          title: t("navigation.incomes"),
           tabBarIcon: ({ color }) => (
-            <Ionicons color={color} name="receipt-outline" size={24} />
+            <Ionicons color={color} name="stats-chart-outline" size={24} />
           ),
+          href: isAdmin ? "/(tabs)/incomes" : null,
         }}
       />
       <Tabs.Screen

@@ -47,9 +47,9 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import Button from "@/presentation/theme/components/button";
 import StatsCard from "@/presentation/home/components/stats-card";
 
-const STORAGE_KEY = "dashboard_selected_date";
+const STORAGE_KEY = "incomes_selected_date";
 
-export default function DashboardScreen() {
+export default function IncomesScreen() {
   const { t } = useTranslation(["common", "errors", "bills"]);
   const { currentRestaurant } = useAuthStore();
   const router = useRouter();
@@ -208,7 +208,7 @@ export default function DashboardScreen() {
   return (
     <ThemedView style={tw`flex-1 pt-8`}>
       <ThemedView style={tw`px-4 mb-4`}>
-        <ThemedText type="h2">{t("common:navigation.dashboard")}</ThemedText>
+        <ThemedText type="h2">{t("common:navigation.incomes")}</ThemedText>
       </ThemedView>
 
       {/* Date Picker */}

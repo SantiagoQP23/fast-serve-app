@@ -2,6 +2,8 @@
   "navigation": {
     "home": "Home",
     "dashboard": "Dashboard",
+    "incomes": "Incomes",
+    "sales": "Sales",
     "tables": "Tables",
     "orders": "Orders",
     "profile": "Profile"
