@@ -19,6 +19,7 @@
     }
   },
   "views": {
+    "title": "Vista de pedidos",
     "products": "Productos",
     "orders": "Pedidos"
   },

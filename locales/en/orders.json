@@ -19,6 +19,7 @@
     }
   },
   "views": {
+    "title": "Orders view",
     "products": "Products",
     "orders": "Orders"
   },

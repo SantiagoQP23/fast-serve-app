@@ -1,4 +1,4 @@
-import { ScrollView, RefreshControl, Alert, Pressable } from "react-native";
+import { ScrollView, RefreshControl, Alert, Pressable, View } from "react-native";
 
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 
@@ -28,8 +28,8 @@ import { useDashboardStats } from "@/presentation/orders/hooks/useDashboardStats
 import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
 import OrderDetailCard from "@/presentation/orders/components/order-detail-card";
-import ButtonGroup from "@/presentation/theme/components/button-group";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
+import Popover, { AnchorPosition } from "@/presentation/theme/components/popover";
 import CollapsibleOrderSection from "@/presentation/orders/components/collapsible-order-section";
 import { useClosedOrders } from "@/presentation/orders/hooks/useClosedOrders";
 import Button from "@/presentation/theme/components/button";
@@ -52,6 +52,9 @@ export default function HomeScreen() {
   const [selectedView, setSelectedView] = useState<
     "pending-products" | "order-lists"
   >("pending-products");
+  const [popoverVisible, setPopoverVisible] = useState(false);
+  const [popoverAnchor, setPopoverAnchor] = useState<AnchorPosition | null>(null);
+  const moreButtonRef = useRef<View>(null);
   const primaryColor = useThemeColor({}, "primary");
   useActiveOrders();
   const {
@@ -122,6 +125,13 @@ export default function HomeScreen() {
 
   const haveAnOpenOrder = details.length > 0;
 
+  const handleMorePress = () => {
+    moreButtonRef.current?.measure((_x, _y, width, height, pageX, pageY) => {
+      setPopoverAnchor({ x: pageX, y: pageY, width, height });
+      setPopoverVisible(true);
+    });
+  };
+
   const collectionRate: number =
     (dashboardStats?.totalIncome || 0) / (dashboardStats?.totalAmount || 1);
 
@@ -152,7 +162,7 @@ export default function HomeScreen() {
     <ThemedView style={tw` pt-8 flex-1 `}>
       <ThemedView style={tw`mb-6 px-4`}>
         <ThemedView
-          style={tw`absolute  rounded-full items-center justify-center  z-10 right-2 top-2`}
+          style={tw`absolute flex-row items-center gap-1 z-10 right-2 top-2`}
         >
           {haveAnOpenOrder && (
             <ThemedView style={tw`relative`}>
@@ -163,6 +173,12 @@ export default function HomeScreen() {
               <NotificationBadge value={details.length} />
             </ThemedView>
           )}
+          <View ref={moreButtonRef} collapsable={false}>
+            <IconButton
+              icon="ellipsis-vertical"
+              onPress={handleMorePress}
+            />
+          </View>
         </ThemedView>
         <ThemedText type="body1">{t("common:greetings.hello")},</ThemedText>
         <ThemedText type="h2" style={tw`mt-1`}>
@@ -245,21 +261,6 @@ export default function HomeScreen() {
           </ThemedView>
         ) : (
           <ThemedView style={tw`gap-6`}>
-            {/* ButtonGroup for view toggle */}
-            <ThemedView style={tw`px-4`}>
-              <ButtonGroup
-                options={[
-                  {
-                    label: t("orders:views.products"),
-                    value: "pending-products",
-                  },
-                  { label: t("orders:views.orders"), value: "order-lists" },
-                ]}
-                selected={selectedView}
-                onChange={setSelectedView}
-              />
-            </ThemedView>
-
             {/* Pending Products View */}
             {selectedView === "pending-products" && (
               <>
@@ -446,6 +447,27 @@ export default function HomeScreen() {
       >
         <NewOrderBottomSheet onCreateOrder={handleNavigate} />
       </BottomSheetModal>
+      <Popover
+        visible={popoverVisible}
+        onClose={() => setPopoverVisible(false)}
+        anchor={popoverAnchor}
+        title={t("orders:views.title")}
+        selectedValue={selectedView}
+        items={[
+          {
+            label: t("orders:views.products"),
+            value: "pending-products",
+            icon: "grid-outline",
+            onPress: () => setSelectedView("pending-products"),
+          },
+          {
+            label: t("orders:views.orders"),
+            value: "order-lists",
+            icon: "list-outline",
+            onPress: () => setSelectedView("order-lists"),
+          },
+        ]}
+      />
       <Fab icon="add-outline" onPress={handlePresentModalPress} />
     </ThemedView>
   );
