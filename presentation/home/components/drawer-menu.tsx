@@ -7,16 +7,18 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { useRouter } from "expo-router";
+import { DrawerActions } from "@react-navigation/native";
 
 interface DrawerMenuItem {
   label: string;
   icon: keyof typeof Ionicons.glyphMap;
-  routeName: string;
+  route: string;
 }
 
 export default function DrawerMenu(props: DrawerContentComponentProps) {
   const { t } = useTranslation("orders");
-  const { navigation, state } = props;
+  const { navigation } = props;
   const insets = useSafeAreaInsets();
   const primaryColor = useThemeColor({}, "primary");
   const textColor = useThemeColor({}, "text");
@@ -24,26 +26,30 @@ export default function DrawerMenu(props: DrawerContentComponentProps) {
     { light: "#e5e7eb", dark: "#374151" },
     "border" as any,
   );
+  const router = useRouter();
 
   const items: DrawerMenuItem[] = [
     {
       label: t("drawer.myOrders"),
       icon: "home-outline",
-      routeName: "my-orders",
+      route: "/(app)/(tabs)/(orders-module)/my-orders",
     },
     {
       label: t("drawer.allOrders"),
       icon: "people-outline",
-      routeName: "all-orders",
+      route: "/(app)/(tabs)/(orders-module)/all-orders",
     },
     {
       label: t("drawer.history"),
       icon: "time-outline",
-      routeName: "history",
+      route: "/(app)/(tabs)/(orders-module)/history",
     },
   ];
 
-  const currentRouteName = state.routes[state.index]?.name;
+  const handlePress = (route: string) => {
+    navigation.dispatch(DrawerActions.closeDrawer());
+    router.navigate(route as any);
+  };
 
   return (
     <DrawerContentScrollView
@@ -69,47 +75,30 @@ export default function DrawerMenu(props: DrawerContentComponentProps) {
       />
 
       {/* Nav items */}
-      {items.map((item) => {
-        const active = currentRouteName === item.routeName;
-        return (
-          <Pressable
-            key={item.routeName}
-            onPress={() => navigation.navigate(item.routeName)}
-            style={({ pressed }) =>
-              tw.style(
-                "flex-row items-center gap-3 mx-3 px-4 py-3 rounded-xl mb-1",
-                active && "bg-light-primary/10",
-                pressed && "opacity-70",
-              )
-            }
+      {items.map((item) => (
+        <Pressable
+          key={item.route}
+          onPress={() => handlePress(item.route)}
+          style={({ pressed }) =>
+            tw.style(
+              "flex-row items-center gap-3 mx-3 px-4 py-3 rounded-xl mb-1",
+              pressed && "opacity-70",
+            )
+          }
+        >
+          <Ionicons
+            name={item.icon}
+            size={22}
+            color={textColor}
+          />
+          <ThemedText
+            type="body1"
+            style={tw`font-medium`}
           >
-            <Ionicons
-              name={item.icon}
-              size={22}
-              color={active ? primaryColor : textColor}
-            />
-            <ThemedText
-              type="body1"
-              style={[
-                tw`font-medium`,
-                active && { color: primaryColor },
-              ]}
-            >
-              {item.label}
-            </ThemedText>
-            {active && (
-              <ThemedView style={tw`flex-1 items-end bg-transparent`}>
-                <ThemedView
-                  style={[
-                    tw`w-1.5 h-1.5 rounded-full`,
-                    { backgroundColor: primaryColor },
-                  ]}
-                />
-              </ThemedView>
-            )}
-          </Pressable>
-        );
-      })}
+            {item.label}
+          </ThemedText>
+        </Pressable>
+      ))}
     </DrawerContentScrollView>
   );
 }

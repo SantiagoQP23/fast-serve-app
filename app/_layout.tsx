@@ -35,7 +35,7 @@ import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
 export const queryClient = new QueryClient();
 
 export const unstable_settings = {
-  anchor: "(tabs)",
+  anchor: "(app)",
 };
 
 export default function RootLayout() {
@@ -66,7 +66,7 @@ export default function RootLayout() {
         <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen
-              name="(tabs)"
+              name="(app)"
               options={{
                 title: "",
                 headerShadowVisible: false,

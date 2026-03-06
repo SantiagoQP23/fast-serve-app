@@ -1,12 +1,12 @@
-import { Redirect, Tabs } from "expo-router";
+import { Redirect, Tabs, useNavigation, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/presentation/theme/hooks/use-color-scheme";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import {
   useOrderCreatedListener,
   useOrderDeletedListener,
@@ -15,6 +15,57 @@ import {
 } from "@/presentation/orders/hooks/useOrders";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { DrawerActions } from "@react-navigation/native";
+import IconButton from "@/presentation/theme/components/icon-button";
+import tw from "@/presentation/theme/lib/tailwind";
+import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
+import { useOrdersModuleContext } from "./(orders-module)/orders-module.context";
+import NotificationBadge from "@/presentation/theme/components/notification-badge";
+
+function MyOrdersHeaderLeft() {
+  const navigation = useNavigation();
+
+  const handleOpenDrawer = () => {
+    navigation.dispatch(DrawerActions.openDrawer());
+  };
+
+  return (
+    <ThemedView style={tw`ml-2`}>
+      <IconButton icon="menu-outline" onPress={handleOpenDrawer} size={24} />
+    </ThemedView>
+  );
+}
+
+function MyOrdersHeaderRight() {
+  const router = useRouter();
+  const details = useNewOrderStore((state) => state.details);
+  const haveAnOpenOrder = details.length > 0;
+  const { openViewPopover } = useOrdersModuleContext();
+  const moreButtonRef = useRef<View>(null);
+
+  const handleMorePress = () => {
+    moreButtonRef.current?.measure((_x, _y, width, height, pageX, pageY) => {
+      openViewPopover({ x: pageX, y: pageY, width, height });
+    });
+  };
+
+  return (
+    <View style={tw`flex-row items-center gap-4 mr-2`}>
+      {haveAnOpenOrder && (
+        <ThemedView style={tw``}>
+          <IconButton
+            icon="cart-outline"
+            onPress={() => router.push("/(new-order)/cart")}
+          />
+          <NotificationBadge value={details.length} />
+        </ThemedView>
+      )}
+      <View ref={moreButtonRef} collapsable={false}>
+        <IconButton icon="ellipsis-vertical" onPress={handleMorePress} />
+      </View>
+    </View>
+  );
+}
 
 export default function TabLayout() {
   const { t } = useTranslation("common");
@@ -72,6 +123,10 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <Ionicons color={color} name="home-outline" size={24} />
           ),
+          headerShown: true,
+          headerShadowVisible: false,
+          headerLeft: () => <MyOrdersHeaderLeft />,
+          headerRight: () => <MyOrdersHeaderRight />,
         }}
       />
       <Tabs.Screen
@@ -99,7 +154,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <Ionicons color={color} name="stats-chart-outline" size={24} />
           ),
-          href: isAdmin ? "/(tabs)/incomes" : null,
+          href: isAdmin ? "/(app)/(tabs)/incomes" : null,
         }}
       />
       <Tabs.Screen

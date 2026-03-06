@@ -169,7 +169,7 @@ export default function OrderScreen() {
       },
       {
         onSuccess: (resp) => {
-          router.replace("/(tabs)");
+          router.replace("/(app)/(tabs)");
           // Handle success if needed
         },
       },
@@ -185,7 +185,7 @@ export default function OrderScreen() {
       onSuccess: () => {
         closeModal();
         setActiveOrder(null);
-        router.replace("/(tabs)");
+        router.replace("/(app)/(tabs)");
       },
     });
   };

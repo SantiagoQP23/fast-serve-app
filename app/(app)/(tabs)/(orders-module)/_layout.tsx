@@ -1,17 +1,30 @@
 import { useRef } from "react";
 import { View } from "react-native";
-import { Drawer } from "expo-router/drawer";
+import { Stack } from "expo-router";
 import { useRouter } from "expo-router";
+import { DrawerActions } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import IconButton from "@/presentation/theme/components/icon-button";
 import NotificationBadge from "@/presentation/theme/components/notification-badge";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import {
-  OrdersModuleProvider,
-  useOrdersModuleContext,
-} from "./orders-module.context";
+import { useOrdersModuleContext } from "./orders-module.context";
+
+function MyOrdersHeaderLeft() {
+  const navigation = useNavigation();
+
+  const handleOpenDrawer = () => {
+    navigation.dispatch(DrawerActions.openDrawer());
+  };
+
+  return (
+    <View style={tw`ml-2`}>
+      <IconButton icon="menu-outline" onPress={handleOpenDrawer} />
+    </View>
+  );
+}
 
 function MyOrdersHeaderRight() {
   const router = useRouter();
@@ -62,44 +75,37 @@ function AllOrdersHeaderRight() {
   );
 }
 
-function OrdersDrawer() {
+export default function OrdersModuleLayout() {
   const { t } = useTranslation("orders");
 
   return (
-    <Drawer screenOptions={{ headerShown: true }}>
-      <Drawer.Screen
+    <Stack screenOptions={{ headerShown: true }}>
+      <Stack.Screen
         name="my-orders"
         options={{
-          drawerLabel: t("drawer.myOrders"),
+          headerShown: false,
           title: t("drawer.myOrders"),
           headerShadowVisible: false,
+          headerLeft: () => <MyOrdersHeaderLeft />,
           headerRight: () => <MyOrdersHeaderRight />,
         }}
       />
-      <Drawer.Screen
+      <Stack.Screen
         name="all-orders"
         options={{
-          drawerLabel: t("drawer.allOrders"),
           title: t("drawer.allOrders"),
           headerShadowVisible: false,
+          headerLeft: () => null,
           headerRight: () => <AllOrdersHeaderRight />,
         }}
       />
-      <Drawer.Screen
+      <Stack.Screen
         name="history"
         options={{
-          drawerLabel: t("drawer.history"),
           title: t("drawer.history"),
+          headerLeft: () => null,
         }}
       />
-    </Drawer>
-  );
-}
-
-export default function OrdersModuleLayout() {
-  return (
-    <OrdersModuleProvider>
-      <OrdersDrawer />
-    </OrdersModuleProvider>
+    </Stack>
   );
 }
