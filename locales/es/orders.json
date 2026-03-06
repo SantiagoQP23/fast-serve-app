@@ -23,6 +23,11 @@
     "products": "Productos",
     "orders": "Pedidos"
   },
+  "drawer": {
+    "myOrders": "Mis Pedidos",
+    "allOrders": "Todos los Pedidos",
+    "history": "Historial"
+  },
   "details": {
     "title": "Pedido N° {{num}}",
     "orderNumber": "Pedido N° {{num}}",

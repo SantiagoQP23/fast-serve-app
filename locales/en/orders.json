@@ -23,6 +23,11 @@
     "products": "Products",
     "orders": "Orders"
   },
+  "drawer": {
+    "myOrders": "My Orders",
+    "allOrders": "All Orders",
+    "history": "History"
+  },
   "details": {
     "title": "Order N° {{num}}",
     "orderNumber": "Order N° {{num}}",

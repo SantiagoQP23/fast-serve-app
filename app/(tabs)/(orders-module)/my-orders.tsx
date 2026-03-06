@@ -1,4 +1,4 @@
-import { ScrollView, RefreshControl, Alert, Pressable, View } from "react-native";
+import { ScrollView, RefreshControl, Alert, Pressable } from "react-native";
 
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 
@@ -8,14 +8,12 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Fab from "@/presentation/theme/components/fab";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "expo-router";
+import { useOrdersModuleContext } from "./orders-module.context";
 import * as Haptics from "expo-haptics";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
-import IconButton from "@/presentation/theme/components/icon-button";
-import NotificationBadge from "@/presentation/theme/components/notification-badge";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import OrderList from "@/presentation/orders/molecules/order-list";
@@ -34,7 +32,7 @@ import CollapsibleOrderSection from "@/presentation/orders/components/collapsibl
 import { useClosedOrders } from "@/presentation/orders/hooks/useClosedOrders";
 import Button from "@/presentation/theme/components/button";
 
-export default function HomeScreen() {
+export default function MyOrdersScreen() {
   const { t } = useTranslation(["common", "orders", "errors"]);
   const { user } = useAuthStore();
   const orders = useOrdersStore((state) => state.orders).filter(
@@ -45,7 +43,6 @@ export default function HomeScreen() {
     (state) => state.setActiveOrderDetail,
   );
   const router = useRouter();
-  const details = useNewOrderStore((state) => state.details);
   const queryClient = useQueryClient();
   const { currentRestaurant } = useAuthStore();
   const [refreshing, setRefreshing] = useState(false);
@@ -54,9 +51,17 @@ export default function HomeScreen() {
   >("pending-products");
   const [popoverVisible, setPopoverVisible] = useState(false);
   const [popoverAnchor, setPopoverAnchor] = useState<AnchorPosition | null>(null);
-  const moreButtonRef = useRef<View>(null);
   const primaryColor = useThemeColor({}, "primary");
+  const { registerOpenViewPopover } = useOrdersModuleContext();
   useActiveOrders();
+
+  useEffect(() => {
+    registerOpenViewPopover((anchor) => {
+      setPopoverAnchor(anchor);
+      setPopoverVisible(true);
+    });
+  }, []);
+
   const {
     dashboardStats,
     isLoading: isLoadingStats,
@@ -77,8 +82,8 @@ export default function HomeScreen() {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const handleNavigate = () => {
-    bottomSheetModalRef.current?.close(); // Close sheet before navigating
-    router.push("/restaurant-menu"); // Navigate to New Order screen
+    bottomSheetModalRef.current?.close();
+    router.push("/restaurant-menu");
   };
 
   // callbacks
@@ -93,10 +98,7 @@ export default function HomeScreen() {
   const onRefresh = useCallback(async () => {
     try {
       setRefreshing(true);
-      // Trigger haptic feedback
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-      // Refetch orders and stats using the centralized query
       await Promise.all([
         queryClient.refetchQueries({
           queryKey: ["activeOrders", currentRestaurant?.id],
@@ -123,18 +125,6 @@ export default function HomeScreen() {
     (order) => order.status === OrderStatus.DELIVERED,
   );
 
-  const haveAnOpenOrder = details.length > 0;
-
-  const handleMorePress = () => {
-    moreButtonRef.current?.measure((_x, _y, width, height, pageX, pageY) => {
-      setPopoverAnchor({ x: pageX, y: pageY, width, height });
-      setPopoverVisible(true);
-    });
-  };
-
-  const collectionRate: number =
-    (dashboardStats?.totalIncome || 0) / (dashboardStats?.totalAmount || 1);
-
   const handleOpenOrder = useCallback(
     (orderNum: number, orderId: string) => {
       const order = orders.find((o) => o.id === orderId);
@@ -159,34 +149,13 @@ export default function HomeScreen() {
   );
 
   return (
-    <ThemedView style={tw` pt-8 flex-1 `}>
+    <ThemedView style={tw`flex-1`}>
       <ThemedView style={tw`mb-6 px-4`}>
-        <ThemedView
-          style={tw`absolute flex-row items-center gap-1 z-10 right-2 top-2`}
-        >
-          {haveAnOpenOrder && (
-            <ThemedView style={tw`relative`}>
-              <IconButton
-                icon="cart-outline"
-                onPress={() => router.push("/(new-order)/cart")}
-              />
-              <NotificationBadge value={details.length} />
-            </ThemedView>
-          )}
-          <View ref={moreButtonRef} collapsable={false}>
-            <IconButton
-              icon="ellipsis-vertical"
-              onPress={handleMorePress}
-            />
-          </View>
-        </ThemedView>
         <ThemedText type="body1">{t("common:greetings.hello")},</ThemedText>
         <ThemedText type="h2" style={tw`mt-1`}>
           {user?.person.firstName}!
         </ThemedText>
       </ThemedView>
-
-      {/* Stats Cards */}
 
       <ScrollView
         contentContainerStyle={tw`pb-20 gap-4`}
@@ -310,11 +279,6 @@ export default function HomeScreen() {
                                       handleOpenOrder(order.num, order.id)
                                     }
                                   />
-                                  {/* <Ionicons */}
-                                  {/*   name="chevron-forward" */}
-                                  {/*   size={20} */}
-                                  {/*   color={tw.color("gray-500")} */}
-                                  {/* /> */}
                                 </ThemedView>
                                 <ThemedView
                                   style={tw`flex-row items-center gap-2 mt-1`}
