@@ -146,7 +146,7 @@ export default function OrdersLayout() {
       </BottomSheetModal>
 
       <BottomSheetModal
-        ref={optionsBottomSheetRef}
+        ref={editBottomSheetRef}
         backdropComponent={(props) => (
           <BottomSheetBackdrop
             {...props}
@@ -156,10 +156,9 @@ export default function OrdersLayout() {
         )}
       >
         {order && (
-          <OrderOptionsBottomSheet
+          <EditOrderBottomSheet
             order={order}
-            onClose={closeOptionsBottomSheet}
-            onReassign={handlePresentReassignModal}
+            onOrderUpdated={closeEditBottomSheet}
           />
         )}
       </BottomSheetModal>

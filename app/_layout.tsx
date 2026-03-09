@@ -84,6 +84,36 @@ export default function RootLayout() {
                 headerShown: false,
               }}
             />
+            <Stack.Screen
+              name="auth"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="(order)"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="(order-view)"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="(profile)"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="(tables)"
+              options={{
+                headerShown: false,
+              }}
+            />
           </Stack>
           <StatusBar style="auto" />
 

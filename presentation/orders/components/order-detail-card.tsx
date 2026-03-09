@@ -165,19 +165,27 @@ export default function OrderDetailCard({
               <Checkbox value={isChecked} onValueChange={onCheckedChange} />
               <ThemedView style={tw`flex-1 bg-transparent gap-2`}>
                 <ThemedView style={tw` bg-transparent  gap-2`}>
-                  <ThemedView style={tw`flex-row bg-transparent gap-2`}>
-                    <ThemedText type="body1" style={tw`font-normal`}>
-                      {detail.quantity} - {detail.product.name}{" "}
-                    </ThemedText>
+                  <ThemedView
+                    style={tw`flex-row justify-between bg-transparent gap-2 items-center`}
+                  >
+                    <ThemedView
+                      style={tw`flex-row justify-between bg-transparent gap-2 items-center`}
+                    >
+                      <ThemedText type="body1" style={tw`font-normal`}>
+                        {detail.quantity} - {detail.product.name}{" "}
+                      </ThemedText>
 
-                    {detail.product.price !== detail.price && (
-                      <Label
-                        text={formatCurrency(detail.price)}
-                        color="default"
-                        size="small"
-                      />
-                    )}
-                    {/* <ThemedText type="body1">${detail.product.price}</ThemedText> */}
+                      {detail.product.price !== detail.price && (
+                        <Label
+                          text={formatCurrency(detail.price)}
+                          color="default"
+                          size="small"
+                        />
+                      )}
+                    </ThemedView>
+                    <ThemedText type="body2">
+                      {formatCurrency(detail.amount)}
+                    </ThemedText>
                   </ThemedView>
                   {detail.description && (
                     <ThemedText type="body2">{detail.description}</ThemedText>
