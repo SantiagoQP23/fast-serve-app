@@ -114,6 +114,14 @@ export default function OrdersLayout() {
             headerShadowVisible: false,
           }}
         />
+        <Stack.Screen
+          name="[id]/bills/[id]/payment-method/account/index"
+          options={{
+            headerShown: true,
+            title: "Select Account",
+            headerShadowVisible: false,
+          }}
+        />
       </Stack>
 
       <BottomSheetModal

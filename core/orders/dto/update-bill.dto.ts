@@ -6,5 +6,6 @@ export interface UpdateBillDto extends Partial<CreateBillDto> {
   paymentMethod: string;
   isPaid?: boolean;
   // cashRegisterId?: number;
-  // accountId?: number;
+  accountId?: number;
+  transferNote?: string;
 }
