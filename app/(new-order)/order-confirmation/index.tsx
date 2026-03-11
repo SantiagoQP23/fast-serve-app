@@ -17,7 +17,7 @@ export default function OrderConfirmationScreen() {
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
   const goToHome = () => {
-    router.replace("/(app)/(tabs)");
+    router.replace("/(app)/(tabs)/(orders-module)/my-orders");
     setActiveOrder(null);
   };
 

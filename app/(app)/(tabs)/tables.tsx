@@ -69,7 +69,7 @@ export default function TablesScreen() {
 
   const handleNavigate = () => {
     bottomSheetModalRef.current?.close(); // Close sheet before navigating
-    router.push("/restaurant-menu"); // Navigate to New Order screen
+    router.push("/(new-order)/restaurant-menu"); // Navigate to New Order screen
   };
 
   // callbacks

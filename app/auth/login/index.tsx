@@ -56,7 +56,7 @@ const LoginScreen = () => {
     );
 
     if (wasSuccessful) {
-      router.replace("/(app)/(tabs)/my-orders");
+      router.replace("/(app)/(tabs)/(orders-module)/my-orders");
       return;
     }
 

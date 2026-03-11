@@ -11,72 +11,55 @@ import {
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Button from "@/presentation/theme/components/button";
-import PaymentMethodCard, {
-  PaymentMethod,
-} from "@/presentation/orders/components/payment-method-card";
 import TextInput from "@/presentation/theme/components/text-input";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { getFormattedDate } from "@/core/common/utils/date.util";
 import { useBills } from "@/presentation/orders/hooks/useBills";
-import { UpdateBillDto } from "@/core/orders/dto/update-bill.dto";
-import { PaymentMethod as PaymentMethodE } from "@/core/orders/enums/payment-method";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import {
   formatCurrency,
   i18nAlert,
-  translatePaymentMethod,
 } from "@/core/i18n/utils";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
 import Label from "@/presentation/theme/components/label";
-import {
-  BottomSheetBackdrop,
-  BottomSheetModal,
-  BottomSheetView,
-} from "@gorhom/bottom-sheet";
+import { translatePaymentMethod } from "@/core/i18n/utils";
 
 export default function BillScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
   const router = useRouter();
   const bill = useOrdersStore((state) => state.activeBill);
-  const [receivedAmount, setReceivedAmount] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const [cardCommission, setCardCommission] = useState("2.4");
-  const [transferNote, setTransferNote] = useState("");
+  const order = useOrdersStore((state) => state.activeOrder);
+  const setBillDiscount = useOrdersStore((state) => state.setBillDiscount);
 
   const [discount, setDiscount] = useState("");
   const [withDiscount, setWithDiscount] = useState(false);
 
-  const order = useOrdersStore((state) => state.activeOrder);
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
   const primaryColor = useThemeColor({}, "primary");
 
   const [visible, setVisible] = useState(false);
-  const cashBottomSheetRef = useRef<BottomSheetModal>(null);
-  const creditBottomSheetRef = useRef<BottomSheetModal>(null);
-  const transferBottomSheetRef = useRef<BottomSheetModal>(null);
-  const cashSnapPoints = useMemo(() => ["70%"], []);
-  const creditSnapPoints = useMemo(() => ["45%"], []);
-  const transferSnapPoints = useMemo(() => ["35%"], []);
-  const { mutate: updateBill } = useBills().updateBill;
   const { mutate: removeBill } = useBills().removeBill;
+
+  // Keep store in sync so the payment screen can read the current discount
+  useEffect(() => {
+    setBillDiscount(discount);
+  }, [discount, setBillDiscount]);
 
   const onRefresh = useCallback(async () => {
     if (!order?.id) return;
 
     try {
       setRefreshing(true);
-      // Trigger haptic feedback
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-      // Refetch bills for this order
       await queryClient.refetchQueries({
         queryKey: ["bills", order.id],
       });
@@ -102,107 +85,9 @@ export default function BillScreen() {
     setVisible(false);
   };
 
-  const moneyReceivedOptions = [
-    5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95,
-    100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170,
-    175, 180, 185, 190, 195, 200,
-  ];
-  const commissionOptions = [2.4, 4.5, 5.4];
   const date = getFormattedDate(bill.createdAt);
 
-  useEffect(() => {
-    if (paymentMethod === PaymentMethodE.CREDIT_CARD) {
-      creditBottomSheetRef.current?.present();
-      cashBottomSheetRef.current?.dismiss();
-      transferBottomSheetRef.current?.dismiss();
-    }
-    if (paymentMethod === PaymentMethodE.TRANSFER) {
-      transferBottomSheetRef.current?.present();
-      cashBottomSheetRef.current?.dismiss();
-      creditBottomSheetRef.current?.dismiss();
-    }
-  }, [cardCommission, paymentMethod]);
-
-  const payBill = () => {
-    if (!paymentMethod) {
-      alert(
-        t(
-          "errors:bill.selectPaymentMethod",
-          "errors:bill.paymentMethodRequired",
-        ),
-      );
-      return;
-    }
-
-    // Validate discount does not exceed 10%
-    if (!validateDiscount()) {
-      return;
-    }
-
-    if (paymentMethod === PaymentMethodE.CASH) {
-      if (+receivedAmount < totalAfterDiscount) {
-        alert(t("bills:alerts.insufficientAmount"));
-        return;
-      }
-    }
-
-    const amountToRegister = getReceivedAmountValue();
-
-    const data: UpdateBillDto = {
-      id: bill.id,
-      discount: +discount,
-      paymentMethod,
-      receivedAmount: amountToRegister,
-      isPaid: true,
-      comments:
-        paymentMethod === PaymentMethodE.TRANSFER && transferNote
-          ? transferNote
-          : "",
-      // cashRegisterId: activeCashRegister!.id,
-    };
-
-    updateBill(data, {
-      onSuccess: (order) => {
-        console.log("Updating bill with data:", data);
-        router.back();
-      },
-    });
-  };
-
-  const paymentMethods: PaymentMethod[] = [
-    {
-      name: t("bills:paymentMethods.cash"),
-      value: "CASH",
-      icon: "cash-outline",
-    },
-    {
-      name: t("bills:paymentMethods.creditCard"),
-      value: "CREDIT_CARD",
-      icon: "card-outline",
-    },
-    {
-      name: t("bills:paymentMethods.transfer"),
-      value: "TRANSFER",
-      icon: "wallet-outline",
-    },
-  ];
   const totalAfterDiscount = bill.total - +discount;
-  const parsedCommission = cardCommission ? parseFloat(cardCommission) : 0;
-  const commissionRate = Number.isNaN(parsedCommission)
-    ? 0
-    : parsedCommission / 100;
-  const commissionAmount = totalAfterDiscount * commissionRate;
-  const totalWithCommission = totalAfterDiscount + commissionAmount;
-
-  const getReceivedAmountValue = () => {
-    if (paymentMethod === PaymentMethodE.CASH) {
-      return +receivedAmount;
-    }
-    if (paymentMethod === PaymentMethodE.CREDIT_CARD) {
-      return totalWithCommission;
-    }
-    return totalAfterDiscount;
-  };
 
   // Validate discount does not exceed 10% of bill total
   const validateDiscount = () => {
@@ -219,6 +104,7 @@ export default function BillScreen() {
     }
     return true;
   };
+
   const onRemoveBill = () => {
     removeBill(
       { id: bill.id },
@@ -231,201 +117,13 @@ export default function BillScreen() {
     );
   };
 
-  const handlePaymentMethodPress = (methodValue: PaymentMethod["value"]) => {
-    setPaymentMethod(methodValue);
-
-    if (methodValue === PaymentMethodE.CASH) {
-      cashBottomSheetRef.current?.present();
-      creditBottomSheetRef.current?.dismiss();
-      transferBottomSheetRef.current?.dismiss();
-    } else if (methodValue === PaymentMethodE.CREDIT_CARD) {
-      creditBottomSheetRef.current?.present();
-      cashBottomSheetRef.current?.dismiss();
-      transferBottomSheetRef.current?.dismiss();
-    } else if (methodValue === PaymentMethodE.TRANSFER) {
-      transferBottomSheetRef.current?.present();
-      cashBottomSheetRef.current?.dismiss();
-      creditBottomSheetRef.current?.dismiss();
-    } else {
-      cashBottomSheetRef.current?.dismiss();
-      creditBottomSheetRef.current?.dismiss();
-      transferBottomSheetRef.current?.dismiss();
-    }
+  const handlePayBillPress = () => {
+    if (!validateDiscount()) return;
+    router.push(`/(order)/${order!.id}/bills/${bill.id}/payment-method`);
   };
 
   return (
     <>
-      <BottomSheetModal
-        ref={transferBottomSheetRef}
-        index={0}
-        snapPoints={transferSnapPoints}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            disappearsOnIndex={-1}
-            appearsOnIndex={0}
-          />
-        )}
-        enablePanDownToClose
-      >
-        <BottomSheetView style={tw`p-6 gap-4`}>
-          <ThemedView style={tw`gap-1`}>
-            <ThemedText type="h4">{t("bills:details.transferNote")}</ThemedText>
-            <ThemedText type="body2" style={tw`text-gray-500`}>
-              {t("bills:details.totalAmount")}:{" "}
-              {formatCurrency(totalAfterDiscount)}
-            </ThemedText>
-          </ThemedView>
-          <TextInput
-            value={transferNote}
-            onChangeText={setTransferNote}
-            placeholder={t("bills:details.transferNotePlaceholder")}
-            bottomSheet
-          />
-          <Button label={t("bills:details.payBill")} onPress={payBill} />
-        </BottomSheetView>
-      </BottomSheetModal>
-      <BottomSheetModal
-        ref={creditBottomSheetRef}
-        index={0}
-        snapPoints={creditSnapPoints}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            disappearsOnIndex={-1}
-            appearsOnIndex={0}
-          />
-        )}
-        enablePanDownToClose
-      >
-        <BottomSheetView style={tw`p-6 gap-4`}>
-          <ThemedView style={tw`gap-1`}>
-            <ThemedText type="h4">{t("bills:details.commission")}</ThemedText>
-            <ThemedText type="body2" style={tw`text-gray-500`}>
-              {t("bills:details.totalAmount")}:{" "}
-              {formatCurrency(totalAfterDiscount)}
-            </ThemedText>
-          </ThemedView>
-
-          <TextInput
-            value={cardCommission}
-            onChangeText={setCardCommission}
-            inputMode="decimal"
-            placeholder="0.0"
-            bottomSheet
-          />
-
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={tw`gap-2 mt-1`}
-            nestedScrollEnabled
-          >
-            {commissionOptions.map((option) => (
-              <Button
-                key={option}
-                label={`${option}%`}
-                variant={
-                  cardCommission === option.toString() ? "primary" : "outline"
-                }
-                size="small"
-                onPress={() => setCardCommission(option.toString())}
-              />
-            ))}
-          </ScrollView>
-
-          <ThemedView
-            style={tw`p-4 rounded-xl border border-gray-200 bg-gray-50 gap-1`}
-          >
-            <ThemedText type="body2" style={tw`text-gray-500`}>
-              {t("bills:details.totalToPay")}
-            </ThemedText>
-            <ThemedText style={tw`text-3xl font-bold`}>
-              {formatCurrency(totalWithCommission)}
-            </ThemedText>
-          </ThemedView>
-
-          <Button label={t("bills:details.payBill")} onPress={payBill} />
-        </BottomSheetView>
-      </BottomSheetModal>
-      <BottomSheetModal
-        ref={cashBottomSheetRef}
-        index={0}
-        snapPoints={cashSnapPoints}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            disappearsOnIndex={-1}
-            appearsOnIndex={0}
-          />
-        )}
-        enablePanDownToClose
-      >
-        <BottomSheetView style={tw`p-4 gap-4 mb-8`}>
-          <ThemedView style={tw`gap-1`}>
-            <ThemedText type="h4">
-              {t("bills:details.receivedAmount")}
-            </ThemedText>
-            <ThemedText type="body2" style={tw`text-gray-500`}>
-              {t("bills:details.totalAmount")}:{" "}
-              {formatCurrency(totalAfterDiscount)}
-            </ThemedText>
-          </ThemedView>
-
-          <TextInput
-            value={receivedAmount}
-            onChangeText={setReceivedAmount}
-            inputMode="numeric"
-            placeholder="0.00"
-            bottomSheet
-            icon="cash-outline"
-          />
-
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={tw`gap-2 mt-1 `}
-            nestedScrollEnabled
-          >
-            {moneyReceivedOptions
-              .filter((value) => value >= totalAfterDiscount)
-              .map((amount) => (
-                <Button
-                  key={amount}
-                  label={`$${amount}`}
-                  variant={amount === +receivedAmount ? "primary" : "outline"}
-                  size="small"
-                  onPress={() => setReceivedAmount(amount.toString())}
-                />
-              ))}
-          </ScrollView>
-
-          <Button
-            label={t("bills:details.exactAmount")}
-            variant="outline"
-            onPress={() => setReceivedAmount(String(totalAfterDiscount))}
-          />
-
-          {+receivedAmount > totalAfterDiscount && (
-            <ThemedView
-              style={tw`mt-2 p-4 rounded-xl border border-light-border items-center`}
-            >
-              <ThemedText type="caption" style={tw` mb-1`}>
-                {t("bills:details.change")}
-              </ThemedText>
-              <ThemedText type="h1" style={tw``}>
-                {formatCurrency(+receivedAmount - totalAfterDiscount)}
-              </ThemedText>
-            </ThemedView>
-          )}
-
-          <Button
-            label={t("bills:details.payBill")}
-            onPress={payBill}
-            disabled={+receivedAmount < totalAfterDiscount}
-          />
-        </BottomSheetView>
-      </BottomSheetModal>
       <Modal
         transparent
         visible={visible}
@@ -577,51 +275,6 @@ export default function BillScreen() {
                     />
                   </ThemedView>
                 )}
-
-                {/* Payment Method Section */}
-                <ThemedView style={tw`mb-6`}>
-                  <ThemedText type="body2" style={tw`text-gray-500 mb-3`}>
-                    {t("bills:details.paymentMethod")}
-                  </ThemedText>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={tw`gap-2`}
-                    nestedScrollEnabled
-                  >
-                    {paymentMethods.map((method) => (
-                      <PaymentMethodCard
-                        paymentMethod={method}
-                        key={method.value}
-                        active={paymentMethod === method.value}
-                        onPress={() => handlePaymentMethodPress(method.value)}
-                      />
-                    ))}
-                  </ScrollView>
-                </ThemedView>
-
-                {/* Cash Payment Section */}
-                {paymentMethod === PaymentMethodE.CASH && (
-                  <Button
-                    label={t("bills:details.receivedAmount")}
-                    variant="secondary"
-                    onPress={() => cashBottomSheetRef.current?.present()}
-                  />
-                )}
-                {paymentMethod === PaymentMethodE.CREDIT_CARD && (
-                  <Button
-                    label={t("bills:details.commission")}
-                    variant="secondary"
-                    onPress={() => creditBottomSheetRef.current?.present()}
-                  />
-                )}
-                {paymentMethod === PaymentMethodE.TRANSFER && (
-                  <Button
-                    label={t("bills:details.transferNote")}
-                    variant="secondary"
-                    onPress={() => transferBottomSheetRef.current?.present()}
-                  />
-                )}
               </>
             ) : (
               <>
@@ -686,6 +339,12 @@ export default function BillScreen() {
                 color={tw.color("red-500")}
                 onPress={() => setVisible(true)}
               />
+              <ThemedView style={tw`flex-1`}>
+                <Button
+                  label={t("bills:details.payBill")}
+                  onPress={handlePayBillPress}
+                />
+              </ThemedView>
             </ThemedView>
           )}
         </ThemedView>

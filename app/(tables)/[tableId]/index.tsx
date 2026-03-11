@@ -39,7 +39,7 @@ export default function TableOrdersScreen() {
 
   const handleNavigate = () => {
     bottomSheetModalRef.current?.close();
-    router.push("/restaurant-menu");
+    router.push("/(new-order)/restaurant-menu");
   };
 
   const handlePresentModalPress = useCallback(() => {

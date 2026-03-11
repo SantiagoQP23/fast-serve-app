@@ -40,7 +40,7 @@ export default function CartScreen() {
   const openProduct = (orderDetail: NewOrderDetail) => {
     setActiveDetail(orderDetail);
     setActiveProduct(orderDetail.product);
-    router.push("/restaurant-menu/product");
+    router.push("/(new-order)/restaurant-menu/product");
   };
 
   const onCreateOrder = () => {
@@ -112,7 +112,7 @@ export default function CartScreen() {
               leftIcon="add-outline"
               label={t("menu:cart.addProduct")}
               variant="outline"
-              onPress={() => router.push("/restaurant-menu")}
+              onPress={() => router.push("/(new-order)/restaurant-menu")}
             />
           }
         />

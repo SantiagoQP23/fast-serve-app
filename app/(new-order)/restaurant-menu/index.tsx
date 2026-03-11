@@ -46,7 +46,7 @@ export default function RestaurantMenuScreen() {
 
   const openProduct = (product: Product) => {
     setActiveProduct(product);
-    router.push("/restaurant-menu/product");
+    router.push("/(new-order)/restaurant-menu/product");
   };
 
   const onChangeCategory = useCallback(

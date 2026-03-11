@@ -8,10 +8,12 @@ interface OrdersState {
   activeOrder: Order | null;
   activeBill: Bill | null;
   activeOrderDetail: OrderDetail | null;
+  billDiscount: string;
   setOrders: (orders: Order[]) => void;
   setActiveOrder: (order: Order | null) => void;
   setActiveBill: (bill: Bill | null) => void;
   setActiveOrderDetail: (detail: OrderDetail | null) => void;
+  setBillDiscount: (discount: string) => void;
   addOrder: (order: Order) => void;
   updateOrder: (order: Order) => void;
   deleteOrder: (orderId: string) => void;
@@ -23,6 +25,7 @@ const initialState = {
   activeOrder: null,
   activeBill: null,
   activeOrderDetail: null,
+  billDiscount: "",
 };
 
 export const useOrdersStore = create<OrdersState>((set) => ({
@@ -40,6 +43,7 @@ export const useOrdersStore = create<OrdersState>((set) => ({
   setActiveBill: (bill: Bill | null) => set({ activeBill: bill }),
   setActiveOrderDetail: (detail: OrderDetail | null) =>
     set({ activeOrderDetail: detail }),
+  setBillDiscount: (discount: string) => set({ billDiscount: discount }),
   deleteOrder: (orderId: string) =>
     set((state) => ({
       orders: state.orders.filter((o) => o.id !== orderId),

@@ -135,7 +135,7 @@ export default function OrderScreen() {
     if (isClosed) return;
 
     setActiveOrderDetail(detail);
-    router.push("/(order)/edit-order-detail");
+    router.push(`/(order)/${order.num}/edit-order-detail`);
   };
 
   const createdAt = dayjs(order.createdAt);
@@ -169,7 +169,7 @@ export default function OrderScreen() {
       },
       {
         onSuccess: (resp) => {
-          router.replace("/(app)/(tabs)");
+          router.replace("/(app)/(tabs)/(orders-module)/my-orders");
           // Handle success if needed
         },
       },
@@ -185,7 +185,7 @@ export default function OrderScreen() {
       onSuccess: () => {
         closeModal();
         setActiveOrder(null);
-        router.replace("/(app)/(tabs)");
+        router.replace("/(app)/(tabs)/(orders-module)/my-orders");
       },
     });
   };
@@ -536,7 +536,7 @@ export default function OrderScreen() {
               leftIcon="add-outline"
               label={t("orders:details.addProduct")}
               variant="outline"
-              onPress={() => router.push("/restaurant-menu")}
+              onPress={() => router.push("/(new-order)/restaurant-menu")}
             />
           )}
 
