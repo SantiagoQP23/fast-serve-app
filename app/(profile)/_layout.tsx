@@ -28,10 +28,10 @@ export default function OrdersLayout() {
           }}
         />
         <Stack.Screen
-          name="restaurant-offline-data"
+          name="restaurant"
           options={{
             headerShown: true,
-            title: "Restaurant Offline Data",
+            title: "",
             headerShadowVisible: false,
           }}
         />

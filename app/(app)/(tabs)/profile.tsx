@@ -81,7 +81,7 @@ export default function OrdersScreen() {
               tw.style(`flex-row items-center gap-4`, pressed && "opacity-70")
             }
             onPress={() => {
-              router.push("/(profile)/restaurant-offline-data");
+              router.push("/(profile)/restaurant");
             }}
           >
             <Ionicons name="cloud-offline-outline" size={24} />

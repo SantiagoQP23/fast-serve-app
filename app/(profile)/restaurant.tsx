@@ -9,6 +9,8 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import Button from "@/presentation/theme/components/button";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
 import { useTables } from "@/presentation/tables/hooks/useTables";
+import { usePaymentMethods } from "@/presentation/restaurant/hooks/usePaymentMethods";
+import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 
@@ -35,6 +37,16 @@ export default function RestaurantOfflineDataScreen() {
   } = useTablesStore();
   const { tablesQuery } = useTables();
   const [isRefetchingTables, setIsRefetchingTables] = useState(false);
+
+  // Payment methods state
+  const {
+    paymentMethods,
+    lastUpdated: paymentMethodsLastUpdated,
+    clearPaymentMethods,
+  } = usePaymentMethodsStore();
+  const { paymentMethodsQuery } = usePaymentMethods();
+  const [isRefetchingPaymentMethods, setIsRefetchingPaymentMethods] =
+    useState(false);
 
   const formatDate = (timestamp: number | null) => {
     if (!timestamp) return t("offlineData:noData");
@@ -102,20 +114,45 @@ export default function RestaurantOfflineDataScreen() {
     );
   };
 
+  // Payment methods handlers
+  const handleRefetchPaymentMethods = async () => {
+    setIsRefetchingPaymentMethods(true);
+    try {
+      await paymentMethodsQuery.refetch();
+    } finally {
+      setIsRefetchingPaymentMethods(false);
+    }
+  };
+
+  const handleClearPaymentMethods = () => {
+    Alert.alert(
+      "Clear payment methods cache",
+      "This will remove the locally stored payment methods. They will be re-fetched next time.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Clear",
+          style: "destructive",
+          onPress: () => clearPaymentMethods(),
+        },
+      ],
+    );
+  };
+
   const hasMenu =
     sections.length > 0 || categories.length > 0 || products.length > 0;
   const hasTables = tables.length > 0;
+  const hasPaymentMethods = paymentMethods.length > 0;
 
   return (
-    <ThemedView style={tw`flex-1 px-4 pt-8`}>
+    <ThemedView style={tw`flex-1 px-4 pt-2`}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <ThemedView style={tw`gap-8 pb-8`}>
           {/* Header */}
           <ThemedView style={tw`gap-2`}>
-            <ThemedText type="h1">{t("offlineData:title")}</ThemedText>
-            <ThemedView style={tw`flex-row items-center gap-2`}>
-              <Ionicons name="storefront-outline" size={18} />
-              <ThemedText type="body1" style={tw``}>
+            <ThemedView style={tw`flex-row items-center gap-2 justify-center`}>
+              <Ionicons name="storefront-outline" size={20} />
+              <ThemedText type="h2" style={tw``}>
                 {currentRestaurant?.name}
               </ThemedText>
             </ThemedView>
@@ -315,6 +352,102 @@ export default function RestaurantOfflineDataScreen() {
                   onPress={handleRefetchTables}
                   disabled={isRefetchingTables}
                   loading={isRefetchingTables}
+                />
+              </ThemedView>
+            )}
+          </ThemedView>
+
+          {/* Divider */}
+          <ThemedView style={tw`h-px bg-gray-200 dark:bg-gray-700`} />
+
+          {/* Payment Methods Section */}
+          <ThemedView style={tw`gap-4`}>
+            <ThemedView style={tw`flex-row items-center gap-2`}>
+              <Ionicons name="card-outline" size={24} />
+              <ThemedText type="h2">Payment Methods</ThemedText>
+            </ThemedView>
+
+            {hasPaymentMethods ? (
+              <ThemedView style={tw`gap-4`}>
+                {/* Payment Methods Info */}
+                <ThemedView style={tw`flex-row items-center gap-2`}>
+                  <Ionicons name="time-outline" size={18} />
+                  <ThemedText type="body2" style={tw`text-gray-500`}>
+                    Last updated: {formatDate(paymentMethodsLastUpdated)}
+                  </ThemedText>
+                </ThemedView>
+
+                {/* Payment Methods Summary */}
+                <ThemedView
+                  style={tw`dark:bg-gray-800 rounded-lg p-4 gap-3 border border-light-border`}
+                >
+                  <ThemedView style={tw`flex-row items-center gap-3`}>
+                    <Ionicons name="card-outline" size={20} />
+                    <ThemedView style={tw`flex-1`}>
+                      <ThemedText type="body2" style={tw`text-gray-500`}>
+                        Total methods
+                      </ThemedText>
+                      <ThemedText type="h4">{paymentMethods.length}</ThemedText>
+                    </ThemedView>
+                  </ThemedView>
+
+                  <ThemedView style={tw`flex-row items-center gap-3`}>
+                    <Ionicons name="checkmark-circle-outline" size={20} />
+                    <ThemedView style={tw`flex-1`}>
+                      <ThemedText type="body2" style={tw`text-gray-500`}>
+                        Active
+                      </ThemedText>
+                      <ThemedText type="h4">
+                        {paymentMethods.filter((m) => m.isActive).length}
+                      </ThemedText>
+                    </ThemedView>
+                  </ThemedView>
+                </ThemedView>
+
+                {/* Payment Methods Actions */}
+                <ThemedView style={tw`gap-2`}>
+                  <Button
+                    label={
+                      isRefetchingPaymentMethods ? "Refreshing..." : "Refresh"
+                    }
+                    leftIcon="refresh-outline"
+                    onPress={handleRefetchPaymentMethods}
+                    disabled={isRefetchingPaymentMethods}
+                    loading={isRefetchingPaymentMethods}
+                    variant="primary"
+                  />
+                  <Button
+                    label="Clear cache"
+                    leftIcon="trash-outline"
+                    variant="outline"
+                    onPress={handleClearPaymentMethods}
+                  />
+                </ThemedView>
+              </ThemedView>
+            ) : (
+              <ThemedView
+                style={tw`items-center gap-3 py-6 bg-gray-50 dark:bg-gray-900 rounded-lg`}
+              >
+                <Ionicons name="card-outline" size={48} color="#999" />
+                <ThemedView style={tw`gap-1 items-center`}>
+                  <ThemedText type="body1" style={tw`font-semibold`}>
+                    No payment methods cached
+                  </ThemedText>
+                  <ThemedText
+                    type="body2"
+                    style={tw`text-center text-gray-500 px-4`}
+                  >
+                    Load payment methods to make them available offline.
+                  </ThemedText>
+                </ThemedView>
+                <Button
+                  label={
+                    isRefetchingPaymentMethods ? "Loading..." : "Load payment methods"
+                  }
+                  leftIcon="cloud-download-outline"
+                  onPress={handleRefetchPaymentMethods}
+                  disabled={isRefetchingPaymentMethods}
+                  loading={isRefetchingPaymentMethods}
                 />
               </ThemedView>
             )}
