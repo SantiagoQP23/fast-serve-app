@@ -18,4 +18,5 @@ export enum OrderSocketEvent {
   createBill = "createBill",
   deleteBill = "removeBill",
   updateBill = "updateBill",
+  payBillTransaction = "payBillTransaction",
 }

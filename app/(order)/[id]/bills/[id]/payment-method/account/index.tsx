@@ -32,8 +32,8 @@ export default function AccountScreen() {
   const billTransferNote = useOrdersStore((state) => state.billTransferNote);
   const setSelectedAccount = useOrdersStore((state) => state.setSelectedAccount);
 
-  const { updateBill } = useBills();
-  const { mutate, isLoading } = updateBill;
+  const { payBillTransaction } = useBills();
+  const { mutate, isLoading } = payBillTransaction;
 
   const totalAfterDiscount = bill ? bill.total - +discount : 0;
   const commissionRate = selectedPaymentMethod
@@ -82,16 +82,13 @@ export default function AccountScreen() {
 
     mutate(
       {
-        id: bill.id,
-        paymentMethod: String(selectedPaymentMethod.id),
-        isPaid: true,
-        discount: +discount || undefined,
+        name: String(bill.num),
+        amount: totalToPay,
+        paymentMethodId: selectedPaymentMethod.id,
         accountId: selectedAccountId,
-        ...(selectedPaymentMethod.type === PaymentMethodCategory.CASH && {
-          receivedAmount: +billReceivedAmount,
-        }),
+        billId: bill.id,
         ...(selectedPaymentMethod.type === PaymentMethodCategory.TRANSFER && {
-          transferNote: billTransferNote || undefined,
+          description: billTransferNote || undefined,
         }),
       },
       {
