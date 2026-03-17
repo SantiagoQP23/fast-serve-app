@@ -38,27 +38,29 @@ export default function TransactionCard({
               { backgroundColor: `${categoryColor}1A` },
             ]}
           >
-            <Ionicons
-              name="receipt-outline"
-              size={20}
-              color={categoryColor}
-            />
+            <Ionicons name="receipt-outline" size={20} color={categoryColor} />
           </ThemedView>
 
           {/* Transaction details */}
           <ThemedView style={tw`flex-1 gap-0.5`}>
-            <ThemedText type="body1" style={tw`font-semibold`} numberOfLines={1}>
+            <ThemedText
+              type="body1"
+              style={tw`font-semibold`}
+              numberOfLines={1}
+            >
               {transaction.name}
             </ThemedText>
+            <ThemedText type="body2" style={tw`text-gray-800`}>
+              {transaction.account.name}
+            </ThemedText>
             <ThemedView style={tw`flex-row items-center gap-1.5`}>
-              <ThemedText type="body2" style={tw`text-gray-500`} numberOfLines={1}>
-                {transaction.category.name}
-              </ThemedText>
-              <ThemedText type="small" style={tw`text-gray-400`}>
-                •
-              </ThemedText>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {relativeTime}
+              <ThemedText
+                type="small"
+                style={tw`text-gray-400`}
+                numberOfLines={1}
+              >
+                {transaction.createdBy.person.firstName}{" "}
+                {transaction.createdBy.person.lastName}
               </ThemedText>
             </ThemedView>
           </ThemedView>
@@ -73,8 +75,8 @@ export default function TransactionCard({
             {isIncome ? "+" : "-"}
             {formatCurrency(transaction.amount)}
           </ThemedText>
-          <ThemedText type="caption" style={tw`text-gray-400`}>
-            {transaction.account.name}
+          <ThemedText type="small" style={tw`text-gray-500`}>
+            {relativeTime}
           </ThemedText>
         </ThemedView>
       </ThemedView>

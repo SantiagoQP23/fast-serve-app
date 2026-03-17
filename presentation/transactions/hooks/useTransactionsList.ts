@@ -61,6 +61,8 @@ export const useTransactionsList = (filters?: FilterTransactionsDto) => {
   return {
     transactions: allTransactions,
     count: query.data?.count ?? 0,
+    totalIncome: query.data?.totalIncome ?? 0,
+    totalExpense: query.data?.totalExpense ?? 0,
     isLoading: query.isLoading,
     isLoadingMore: query.isLoading && page > 0,
     isError: query.isError,

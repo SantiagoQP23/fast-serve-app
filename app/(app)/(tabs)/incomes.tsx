@@ -61,6 +61,9 @@ export default function IncomesScreen() {
 
   // Fetch transactions for the selected date
   const {
+    totalIncome,
+    count,
+    totalExpense,
     transactions,
     isLoading: transactionsLoading,
     isLoadingMore,
@@ -74,15 +77,6 @@ export default function IncomesScreen() {
   useEffect(() => {
     resetTransactionsPagination();
   }, [dateFilter, resetTransactionsPagination]);
-
-  // Calculate totals
-  const totalIncome = transactions
-    .filter((t) => t.category.transactionType === TransactionType.INCOME)
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const totalExpense = transactions
-    .filter((t) => t.category.transactionType === TransactionType.EXPENSE)
-    .reduce((sum, t) => sum + t.amount, 0);
 
   const onRefresh = useCallback(async () => {
     try {
@@ -143,101 +137,97 @@ export default function IncomesScreen() {
           />
         }
       >
-        <ThemedView style={tw`px-4`}>
-          <DailyReportSummaryCard startDate={dateFilter} endDate={dateFilter} />
-          <PaymentMethodSummaryCard
-            startDate={dateFilter}
-            endDate={dateFilter}
-          />
-
-          {/* Transactions Section */}
-          <ThemedView style={tw`mb-4`}>
-            {/* Section Header */}
-            <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
-              <ThemedText type="h4">
-                {t("common:navigation.incomes")}
+        {count > 0 && (
+          <ThemedView style={tw`px-4`}>
+            {/* <DailyReportSummaryCard startDate={dateFilter} endDate={dateFilter} /> */}
+            <ThemedView style={tw` p-4 mb-4 items-center`}>
+              <ThemedText type="h1" style={tw`font-bold mb-1`}>
+                {formatCurrency(totalIncome - totalExpense)}
+              </ThemedText>
+              <ThemedText type="small" style={tw`text-gray-400`}>
+                {count} transactions
               </ThemedText>
             </ThemedView>
+            <PaymentMethodSummaryCard
+              startDate={dateFilter}
+              endDate={dateFilter}
+            />
 
-            {/* Summary Stats */}
-            {transactions.length > 0 && (
-              <ThemedView style={tw`flex-row gap-3 mb-3`}>
-                <StatsCard
-                  title={t("common:stats.totalIncome")}
-                  value={formatCurrency(totalIncome)}
-                  icon="trending-up-outline"
-                />
-                {totalExpense > 0 && (
-                  <StatsCard
-                    title={t("common:labels.total")}
-                    value={formatCurrency(totalExpense)}
-                    icon="trending-down-outline"
-                  />
-                )}
-              </ThemedView>
-            )}
-
-            {/* Transactions List */}
-            {transactionsLoading && !refreshing && transactions.length === 0 ? (
-              <ThemedView style={tw`py-20 items-center`}>
-                <ThemedText type="body2" style={tw`text-gray-400`}>
-                  {t("common:status.loading")}
+            {/* Transactions Section */}
+            <ThemedView style={tw`mb-4`}>
+              {/* Section Header */}
+              <ThemedView
+                style={tw`flex-row items-center justify-between mb-3`}
+              >
+                <ThemedText type="h4">
+                  {t("common:navigation.incomes")}
                 </ThemedText>
               </ThemedView>
-            ) : transactions.length > 0 ? (
-              <>
-                <ThemedView style={tw`bg-white rounded-2xl`}>
-                  <FlatList
-                    data={transactions}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={({ item }) => (
-                      <TransactionCard transaction={item} />
-                    )}
-                    scrollEnabled={false}
-                    contentContainerStyle={tw`py-2 px-4`}
-                  />
-                </ThemedView>
 
-                {/* Load More Button */}
-                {hasMore && (
-                  <ThemedView style={tw`mt-4`}>
-                    <Button
-                      label={
-                        isLoadingMore
-                          ? t("common:status.loading")
-                          : t("common:actions.loadMore")
-                      }
-                      onPress={loadMore}
-                      variant="outline"
-                      disabled={isLoadingMore}
-                      loading={isLoadingMore}
+              {/* Transactions List */}
+              {transactionsLoading &&
+              !refreshing &&
+              transactions.length === 0 ? (
+                <ThemedView style={tw`py-20 items-center`}>
+                  <ThemedText type="body2" style={tw`text-gray-400`}>
+                    {t("common:status.loading")}
+                  </ThemedText>
+                </ThemedView>
+              ) : transactions.length > 0 ? (
+                <>
+                  <ThemedView style={tw`bg-white rounded-2xl`}>
+                    <FlatList
+                      data={transactions}
+                      keyExtractor={(item) => item.id.toString()}
+                      renderItem={({ item }) => (
+                        <TransactionCard transaction={item} />
+                      )}
+                      scrollEnabled={false}
+                      contentContainerStyle={tw`py-2 px-4`}
                     />
                   </ThemedView>
-                )}
-              </>
-            ) : (
-              <ThemedView style={tw`py-20 items-center px-4`}>
-                <Ionicons
-                  name="receipt-outline"
-                  size={64}
-                  color={tw.color("gray-300")}
-                />
-                <ThemedText
-                  type="h4"
-                  style={tw`text-gray-500 mt-4 text-center`}
-                >
-                  {t("common:empty.noData")}
-                </ThemedText>
-                <ThemedText
-                  type="body2"
-                  style={tw`text-gray-400 mt-2 text-center max-w-xs`}
-                >
-                  {t("common:empty.noResults")}
-                </ThemedText>
-              </ThemedView>
-            )}
+
+                  {/* Load More Button */}
+                  {hasMore && (
+                    <ThemedView style={tw`mt-4`}>
+                      <Button
+                        label={
+                          isLoadingMore
+                            ? t("common:status.loading")
+                            : t("common:actions.loadMore")
+                        }
+                        onPress={loadMore}
+                        variant="outline"
+                        disabled={isLoadingMore}
+                        loading={isLoadingMore}
+                      />
+                    </ThemedView>
+                  )}
+                </>
+              ) : (
+                <ThemedView style={tw`py-20 items-center px-4`}>
+                  <Ionicons
+                    name="receipt-outline"
+                    size={64}
+                    color={tw.color("gray-300")}
+                  />
+                  <ThemedText
+                    type="h4"
+                    style={tw`text-gray-500 mt-4 text-center`}
+                  >
+                    {t("common:empty.noData")}
+                  </ThemedText>
+                  <ThemedText
+                    type="body2"
+                    style={tw`text-gray-400 mt-2 text-center max-w-xs`}
+                  >
+                    {t("common:empty.noResults")}
+                  </ThemedText>
+                </ThemedView>
+              )}
+            </ThemedView>
           </ThemedView>
-        </ThemedView>
+        )}
       </ScrollView>
     </ThemedView>
   );

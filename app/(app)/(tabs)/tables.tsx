@@ -1,15 +1,4 @@
-import {
-  Platform,
-  StyleSheet,
-  ScrollView,
-  Text,
-  FlatList,
-  Pressable,
-  View,
-  RefreshControl,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
+import { FlatList, RefreshControl, Alert } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -142,7 +131,7 @@ export default function TablesScreen() {
   if (!hasTables) {
     return (
       <ThemedView
-        style={tw`flex-1 px-4 pt-8 items-center justify-center gap-4`}
+        style={tw`flex-1 px-4 pt-8 items-center justify-center gap-4 bg-light-background`}
       >
         <Ionicons name="grid-outline" size={64} color="#999" />
         <ThemedView style={tw`gap-2 items-center`}>
@@ -174,7 +163,7 @@ export default function TablesScreen() {
   }
 
   return (
-    <ThemedView style={tw`px-4 pt-8 flex-1`}>
+    <ThemedView style={tw`px-4 pt-8 flex-1 bg-light-background`}>
       <ThemedText type="h1">{t("list.title")}</ThemedText>
       <ThemedView style={tw`mt-8`} />
       <ThemedView style={tw`flex-row mb-4 gap-2`}>

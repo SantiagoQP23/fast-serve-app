@@ -55,9 +55,7 @@ export default function PaymentMethodSummaryCard({
 
   return (
     <Pressable onPress={handlePress}>
-      <ThemedView
-        style={tw`rounded-2xl border border-light-border p-4 shadow-sm mb-4`}
-      >
+      <ThemedView style={tw`rounded-2xl border border-light-border p-4  mb-4`}>
         <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
           <ThemedText type="h3" style={tw`font-bold`}>
             {t("reports:paymentMethodReport.title")}
