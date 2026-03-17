@@ -23,6 +23,7 @@ import {
   getPaymentMethodIcon,
 } from "@/core/i18n/utils";
 import { PaymentMethod } from "@/core/orders/enums/payment-method";
+import { BillStatus } from "@/core/orders/models/bill.model";
 
 export default function BillsListScreen() {
   const { t } = useTranslation(["bills", "common", "errors"]);
@@ -81,7 +82,7 @@ export default function BillsListScreen() {
 
   const hasActiveFilters =
     filters.paymentMethod !== undefined ||
-    filters.isPaid !== undefined ||
+    filters.status !== undefined ||
     filters.ownerId !== undefined;
 
   // Compute available waiters from bills
@@ -99,8 +100,8 @@ export default function BillsListScreen() {
 
   // Calculate totals
   const totalAmount = bills.reduce((sum, bill) => sum + bill.total, 0);
-  const paidCount = bills.filter((b) => b.isPaid).length;
-  const unpaidCount = bills.filter((b) => !b.isPaid).length;
+  const paidCount = bills.filter((b) => b.status === BillStatus.PAID).length;
+  const unpaidCount = bills.filter((b) => b.status !== BillStatus.PAID).length;
 
   return (
     <ThemedView style={tw`flex-1 pt-6`}>
@@ -199,16 +200,16 @@ export default function BillsListScreen() {
               )}
 
               {/* Payment Status Chip */}
-              {filters.isPaid !== undefined && (
+              {filters.status !== undefined && (
                 <Pressable
-                  onPress={() => setFilters({ ...filters, isPaid: undefined })}
+                  onPress={() => setFilters({ ...filters, status: undefined })}
                 >
                   <ThemedView
                     style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 border border-primary-300`}
                   >
                     <Ionicons
                       name={
-                        filters.isPaid
+                        filters.status === BillStatus.PAID
                           ? "checkmark-circle-outline"
                           : "time-outline"
                       }
@@ -219,7 +220,7 @@ export default function BillsListScreen() {
                       type="small"
                       style={tw`text-primary-700 font-medium`}
                     >
-                      {filters.isPaid
+                      {filters.status === BillStatus.PAID
                         ? t("bills:filters.paid")
                         : t("bills:filters.unpaid")}
                     </ThemedText>

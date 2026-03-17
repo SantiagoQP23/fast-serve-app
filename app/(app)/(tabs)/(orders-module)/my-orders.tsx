@@ -27,7 +27,9 @@ import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
 import OrderDetailCard from "@/presentation/orders/components/order-detail-card";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
-import Popover, { AnchorPosition } from "@/presentation/theme/components/popover";
+import Popover, {
+  AnchorPosition,
+} from "@/presentation/theme/components/popover";
 import CollapsibleOrderSection from "@/presentation/orders/components/collapsible-order-section";
 import { useClosedOrders } from "@/presentation/orders/hooks/useClosedOrders";
 import Button from "@/presentation/theme/components/button";
@@ -50,7 +52,9 @@ export default function MyOrdersScreen() {
     "pending-products" | "order-lists"
   >("pending-products");
   const [popoverVisible, setPopoverVisible] = useState(false);
-  const [popoverAnchor, setPopoverAnchor] = useState<AnchorPosition | null>(null);
+  const [popoverAnchor, setPopoverAnchor] = useState<AnchorPosition | null>(
+    null,
+  );
   const primaryColor = useThemeColor({}, "primary");
   const { registerOpenViewPopover } = useOrdersModuleContext();
   useActiveOrders();
@@ -149,7 +153,7 @@ export default function MyOrdersScreen() {
   );
 
   return (
-    <ThemedView style={tw`flex-1`}>
+    <ThemedView style={tw`flex-1 bg-light-background`}>
       <ThemedView style={tw`mb-6 px-4`}>
         <ThemedText type="body1">{t("common:greetings.hello")},</ThemedText>
         <ThemedText type="h2" style={tw`mt-1`}>
@@ -186,13 +190,13 @@ export default function MyOrdersScreen() {
                 (dashboardStats?.totalAmount || 1)
               }
             />
-            <ThemedView style={tw`flex-1 flex-row  items-center gap-1`}>
+            <ThemedView style={tw`flex-row  items-center gap-1`}>
               <ThemedText type="small" style={tw``}>
                 {t("common:stats.totalIncome")}:
               </ThemedText>
               <ThemedText
                 type="body1"
-                style={[tw`font-semibold text-light-primary`]}
+                style={tw`font-semibold text-light-primary`}
               >
                 {`${t("common:currency.symbol")}${dashboardStats?.totalIncome?.toFixed(2) ?? "0.00"}`}
               </ThemedText>
@@ -252,15 +256,18 @@ export default function MyOrdersScreen() {
                         const relativeTime = getRelativeTime(order.createdAt);
 
                         return (
-                          <ThemedView key={order.id} style={tw`mb-8`}>
+                          <ThemedView
+                            key={order.id}
+                            style={tw`mb-8 bg-light-surface rounded-lg p-4`}
+                          >
                             <Pressable
                               onPress={() =>
                                 handleOpenOrder(order.num, order.id)
                               }
                             >
-                              <ThemedView style={tw`mb-4`}>
+                              <ThemedView style={tw`mb-4 bg-transparent`}>
                                 <ThemedView
-                                  style={tw`flex-row items-center justify-between`}
+                                  style={tw`flex-row items-center justify-between bg-transparent`}
                                 >
                                   <ThemedText
                                     type="h3"

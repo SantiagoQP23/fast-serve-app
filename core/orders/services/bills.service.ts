@@ -23,6 +23,11 @@ export class BillsService {
     return resp.data;
   }
 
+  static async getBillById(id: number): Promise<Bill> {
+    const resp = await restaurantApi.get<Bill>(`/bills/${id}`);
+    return resp.data;
+  }
+
   static async getBillList(
     filters?: BillListFiltersDto,
   ): Promise<BillListResponseDto> {

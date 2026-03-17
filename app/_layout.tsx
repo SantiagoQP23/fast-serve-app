@@ -97,6 +97,12 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen
+              name="(bills)"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
               name="(order-view)"
               options={{
                 headerShown: false,

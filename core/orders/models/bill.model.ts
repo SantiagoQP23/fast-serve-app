@@ -2,6 +2,12 @@ import { User } from "@/core/auth/models/user.model";
 import { PaymentMethod } from "../enums/payment-method";
 import { BillDetail } from "./bill.detail.model";
 
+export enum BillStatus {
+  OPEN = "open",
+  PARTIALLY_PAID = "partially_paid",
+  PAID = "paid",
+}
+
 export interface Bill {
   id: number;
   num: number;
@@ -14,8 +20,7 @@ export interface Bill {
   discount: number;
 
   total: number;
-
-  isPaid: boolean;
+  status: BillStatus;
 
   // client: IClient;
 

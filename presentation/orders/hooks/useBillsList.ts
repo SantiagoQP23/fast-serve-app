@@ -50,7 +50,8 @@ export const useBillsList = (filters?: BillListFiltersDto) => {
 
   const reset = useCallback(() => {
     setPage(0);
-    setAllBills([]);
+    // Do not clear allBills here — the page=0 fetch will replace them when it resolves,
+    // avoiding an empty-list flash while the request is in flight.
   }, []);
 
   const hasMore = billsListQuery.data?.count

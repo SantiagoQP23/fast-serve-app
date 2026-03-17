@@ -7,6 +7,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import Button from "@/presentation/theme/components/button";
 import Select from "@/presentation/theme/components/select";
 import { PaymentMethod } from "@/core/orders/enums/payment-method";
+import { BillStatus } from "@/core/orders/models/bill.model";
 import { translatePaymentMethod } from "@/core/i18n/utils";
 import { BillListFiltersDto } from "@/core/orders/dto/bill-list-filters.dto";
 
@@ -31,9 +32,9 @@ export default function BillsFilterBottomSheet({
     initialFilters?.paymentMethod || "all"
   );
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatusFilter>(
-    initialFilters?.isPaid === undefined
+    initialFilters?.status === undefined
       ? "all"
-      : initialFilters.isPaid
+      : initialFilters.status === BillStatus.PAID
       ? "paid"
       : "unpaid"
   );
@@ -45,9 +46,9 @@ export default function BillsFilterBottomSheet({
   useEffect(() => {
     setPaymentMethod(initialFilters?.paymentMethod || "all");
     setPaymentStatus(
-      initialFilters?.isPaid === undefined
+      initialFilters?.status === undefined
         ? "all"
-        : initialFilters.isPaid
+        : initialFilters.status === BillStatus.PAID
         ? "paid"
         : "unpaid"
     );
@@ -70,9 +71,9 @@ export default function BillsFilterBottomSheet({
     }
 
     if (paymentStatus === "paid") {
-      filters.isPaid = true;
+      filters.status = BillStatus.PAID;
     } else if (paymentStatus === "unpaid") {
-      filters.isPaid = false;
+      filters.status = BillStatus.OPEN;
     }
 
     if (ownerId !== "all") {

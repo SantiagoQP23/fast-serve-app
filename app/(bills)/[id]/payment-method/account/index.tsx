@@ -4,13 +4,11 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useState, useEffect } from "react";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import Button from "@/presentation/theme/components/button";
 import Label from "@/presentation/theme/components/label";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
-import {
-  PaymentMethodCategory,
-} from "@/core/restaurant/models/payment-method.model";
+import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.model";
 import { Account, AccountType } from "@/core/restaurant/models/account.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
@@ -22,8 +20,11 @@ export default function AccountScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
   const router = useRouter();
 
-  const bill = useOrdersStore((state) => state.activeBill);
-  const order = useOrdersStore((state) => state.activeOrder);
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const billId = Number(id);
+
+  const { data: bill } = useBills().billByIdQuery(billId);
+
   const discount = useOrdersStore((state) => state.billDiscount);
   const selectedPaymentMethod = useOrdersStore(
     (state) => state.selectedPaymentMethod,
@@ -39,8 +40,7 @@ export default function AccountScreen() {
   const commissionRate = selectedPaymentMethod
     ? selectedPaymentMethod.commissionPercentage / 100
     : 0;
-  const isCard =
-    selectedPaymentMethod?.type === PaymentMethodCategory.CARD;
+  const isCard = selectedPaymentMethod?.type === PaymentMethodCategory.CARD;
   const totalToPay = isCard
     ? totalAfterDiscount * (1 + commissionRate)
     : totalAfterDiscount;
@@ -63,7 +63,7 @@ export default function AccountScreen() {
     }
   }, []);
 
-  if (!bill || !order || !selectedPaymentMethod) {
+  if (!bill || !selectedPaymentMethod) {
     return (
       <ThemedView style={tw`flex-1 justify-center items-center`}>
         <ThemedText>{t("bills:list.noBills")}</ThemedText>
@@ -216,9 +216,7 @@ export default function AccountScreen() {
       </ScrollView>
 
       {/* Pay button */}
-      <ThemedView
-        style={tw`px-4 pb-6 pt-4 border-t border-gray-200`}
-      >
+      <ThemedView style={tw`px-4 pb-6 pt-4 border-t border-gray-200`}>
         <Button
           label={`Pay ${formatCurrency(totalToPay)}`}
           onPress={handlePay}

@@ -4,7 +4,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useState, useMemo, useRef, useEffect } from "react";
-import { useRouter, useNavigation } from "expo-router";
+import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
 import { ActivityIndicator } from "react-native";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { usePaymentMethods } from "@/presentation/restaurant/hooks/usePaymentMethods";
@@ -27,6 +27,7 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
+import { useBills } from "@/presentation/orders/hooks/useBills";
 
 const iconForType = (
   type: PaymentMethodCategory,
@@ -50,8 +51,11 @@ export default function PaymentMethodScreen() {
   const router = useRouter();
   const navigation = useNavigation();
 
-  const bill = useOrdersStore((state) => state.activeBill);
-  const order = useOrdersStore((state) => state.activeOrder);
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const billId = Number(id);
+
+  const { data: bill } = useBills().billByIdQuery(billId);
+
   const discount = useOrdersStore((state) => state.billDiscount);
   const setSelectedPaymentMethod = useOrdersStore(
     (state) => state.setSelectedPaymentMethod,
@@ -104,7 +108,7 @@ export default function PaymentMethodScreen() {
     175, 180, 185, 190, 195, 200,
   ];
 
-  if (!bill || !order) {
+  if (!bill) {
     return (
       <ThemedView style={tw`flex-1 justify-center items-center`}>
         <ThemedText>{t("bills:list.noBills")}</ThemedText>
@@ -138,9 +142,7 @@ export default function PaymentMethodScreen() {
   const navigateToAccount = (method: PaymentMethod) => {
     setSelectedPaymentMethod(method);
     setTimeout(() => {
-      router.push(
-        `/(order)/${order.id}/bills/${bill.id}/payment-method/account`,
-      );
+      router.push(`/(bills)/${bill.id}/payment-method/account`);
     }, 100);
   };
 

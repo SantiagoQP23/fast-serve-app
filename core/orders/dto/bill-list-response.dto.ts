@@ -1,9 +1,16 @@
 import { PaymentMethod } from "../enums/payment-method";
+import { BillStatus } from "../models/bill.model";
+
+export interface BillOwnerPersonDto {
+  firstName: string;
+  lastName: string;
+}
 
 export interface BillOwnerDto {
   id: string;
   username: string;
   fullName: string;
+  person: BillOwnerPersonDto;
 }
 
 export interface BillOrderDto {
@@ -20,7 +27,7 @@ export interface BillListItemDto {
   comments: string;
   subtotal: number;
   discount: number;
-  isPaid: boolean;
+  status: BillStatus;
   paymentMethod: PaymentMethod;
   createdAt: string; // ISO date string
   owner: BillOwnerDto;

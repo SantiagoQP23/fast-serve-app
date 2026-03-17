@@ -6,6 +6,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency, getPaymentMethodInfo } from "@/core/i18n/utils";
 import { WaiterBillDto } from "@/core/orders/dto/daily-report-response.dto";
+import { BillStatus } from "@/core/orders/models/bill.model";
 import dayjs from "dayjs";
 
 interface BillItemProps {
@@ -39,7 +40,7 @@ export default function BillItem({ bill }: BillItemProps) {
       </ThemedView>
       <ThemedView style={tw`flex-row gap-2 `}>
         {/* Payment Method */}
-        {bill.isPaid && (
+        {bill.status === BillStatus.PAID && (
           <ThemedView style={tw` flex-row items-center gap-1  bg-transparent`}>
             <ThemedView
               style={tw`w-7 h-7 rounded-full  items-center justify-center`}

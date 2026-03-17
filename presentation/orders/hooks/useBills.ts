@@ -79,8 +79,16 @@ export const useBills = () => {
       queryFn: async () => BillsService.getBillByOrders(orderId),
     });
 
+  const billByIdQuery = (billId: number) =>
+    useQuery({
+      queryKey: ["bill", billId],
+      queryFn: () => BillsService.getBillById(billId),
+      enabled: !!billId,
+    });
+
   return {
     billsByOrderQuery,
+    billByIdQuery,
     createBill: createBillEmitter,
     updateBill: updateBillEmitter,
     removeBill: removeBillEmitter,

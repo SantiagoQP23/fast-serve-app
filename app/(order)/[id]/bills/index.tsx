@@ -22,7 +22,6 @@ export default function OrderBillsScreen() {
   const { t } = useTranslation(["common", "orders", "bills", "errors"]);
   const router = useRouter();
   const order = useOrdersStore((state) => state.activeOrder);
-  const setActiveBill = useOrdersStore((state) => state.setActiveBill);
   const billsByOrderQuery = useBills().billsByOrderQuery;
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
@@ -61,8 +60,7 @@ export default function OrderBillsScreen() {
   const { data: bills } = billsByOrderQuery(order.id);
 
   const openBill = (bill: Bill) => {
-    setActiveBill(bill);
-    router.push(`/(order)/${order.id}/bills/${bill.id}`);
+    router.push(`/(bills)/${bill.id}`);
   };
 
   const orderAmountInBills: number = bills
@@ -73,7 +71,7 @@ export default function OrderBillsScreen() {
   const remainingAmount = Math.max(order.total - orderAmountInBills, 0);
 
   return (
-    <ThemedView style={tw`px-4 pt-8 flex-1 gap-8`}>
+    <ThemedView style={tw`px-4 pt-8 flex-1 gap-8 bg-light-background`}>
       <ThemedView style={tw`  items-center gap-4`}>
         <ThemedView style={tw`gap-1 items-center`}>
           <ThemedText type="h3">

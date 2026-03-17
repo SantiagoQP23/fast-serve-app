@@ -272,7 +272,7 @@ export default function OrderScreen() {
           </View>
         </View>
       </Modal>
-      <ThemedView style={tw`px-4 pt-6 flex-1`}>
+      <ThemedView style={tw`px-4 pt-6 flex-1 bg-light-background`}>
         <ScrollView
           style={tw`flex-1`}
           showsVerticalScrollIndicator={false}

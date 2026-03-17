@@ -43,6 +43,7 @@ import {
 import { PaymentMethod } from "@/core/orders/enums/payment-method";
 import { useRouter } from "expo-router";
 import { BillListItemDto } from "@/core/orders/dto/bill-list-response.dto";
+import { BillStatus } from "@/core/orders/models/bill.model";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Button from "@/presentation/theme/components/button";
 import StatsCard from "@/presentation/home/components/stats-card";
@@ -142,7 +143,7 @@ export default function IncomesScreen() {
 
   const hasActiveFilters =
     filters.paymentMethod !== undefined ||
-    filters.isPaid !== undefined ||
+    filters.status !== undefined ||
     filters.ownerId !== undefined;
 
   // Compute available waiters from bills
@@ -160,8 +161,8 @@ export default function IncomesScreen() {
 
   // Calculate totals
   const totalAmount = bills.reduce((sum, bill) => sum + bill.total, 0);
-  const paidCount = bills.filter((b) => b.isPaid).length;
-  const unpaidCount = bills.filter((b) => !b.isPaid).length;
+  const paidCount = bills.filter((b) => b.status === BillStatus.PAID).length;
+  const unpaidCount = bills.filter((b) => b.status !== BillStatus.PAID).length;
 
   // Bill press handler
   const handleBillPress = useCallback(
@@ -340,10 +341,10 @@ export default function IncomesScreen() {
                   )}
 
                   {/* Payment Status Chip */}
-                  {filters.isPaid !== undefined && (
+                  {filters.status !== undefined && (
                     <Pressable
                       onPress={() =>
-                        setFilters({ ...filters, isPaid: undefined })
+                        setFilters({ ...filters, status: undefined })
                       }
                     >
                       <ThemedView
@@ -351,7 +352,7 @@ export default function IncomesScreen() {
                       >
                         <Ionicons
                           name={
-                            filters.isPaid
+                            filters.status === BillStatus.PAID
                               ? "checkmark-circle-outline"
                               : "time-outline"
                           }
@@ -362,7 +363,7 @@ export default function IncomesScreen() {
                           type="small"
                           style={tw`text-primary-700 font-medium`}
                         >
-                          {filters.isPaid
+                          {filters.status === BillStatus.PAID
                             ? t("bills:filters.paid")
                             : t("bills:filters.unpaid")}
                         </ThemedText>

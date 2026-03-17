@@ -12,10 +12,7 @@ export function ThemedView({
   ...otherProps
 }: ThemedViewProps) {
   return (
-    <View
-      style={[tw`bg-light-background dark:bg-black`, style]}
-      {...otherProps}
-    >
+    <View style={[tw`bg-transparent dark:bg-black`, style]} {...otherProps}>
       {children}
     </View>
   );
