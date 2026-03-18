@@ -63,6 +63,7 @@ export const useBillsList = (filters?: BillListFiltersDto) => {
   return {
     bills: allBills,
     count: billsListQuery.data?.count || 0,
+    data: billsListQuery.data,
     isLoading: billsListQuery.isLoading,
     isLoadingMore,
     isError: billsListQuery.isError,

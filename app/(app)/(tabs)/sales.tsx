@@ -36,6 +36,7 @@ import dayjs from "dayjs";
 import { BillStatus } from "@/core/orders/models/bill.model";
 import BillCard from "@/presentation/orders/components/bill-card";
 import Chip from "@/presentation/theme/components/chip";
+import { BillStatusFilter } from "@/core/orders/dto/bill-list-filters.dto";
 
 const STORAGE_KEY = "sales_selected_date";
 
@@ -88,16 +89,23 @@ export default function SalesScreen() {
     count,
     isLoading,
     isLoadingMore,
+    data,
     refetch,
     loadMore,
     hasMore,
     reset,
   } = useBillsList({ startDate: dateFilter, ...filters });
 
-  // Reset pagination when date changes
+  // Reset pagination when date or filters change
   useEffect(() => {
     reset();
-  }, [dateFilter, reset]);
+  }, [
+    dateFilter,
+    filters.status,
+    filters.paymentMethod,
+    filters.ownerId,
+    reset,
+  ]);
 
   const onRefresh = useCallback(async () => {
     try {
@@ -159,10 +167,6 @@ export default function SalesScreen() {
       .sort((a, b) => a.fullName.localeCompare(b.fullName));
   }, [bills]);
 
-  const totalAmount = bills.reduce((sum, bill) => sum + bill.total, 0);
-  const paidCount = bills.filter((b) => b.status === BillStatus.PAID).length;
-  const unpaidCount = bills.filter((b) => b.status !== BillStatus.PAID).length;
-
   return (
     <>
       <ThemedView style={tw`flex-1 pt-8 bg-light-background`}>
@@ -172,7 +176,7 @@ export default function SalesScreen() {
             <ThemedText type="h2">{t("common:navigation.sales")}</ThemedText>
             <Pressable
               onPress={handleOpenFilters}
-              style={tw`p-2 rounded-lg ${hasActiveFilters ? "bg-primary-50" : "bg-gray-100"}`}
+              style={tw`p-2 rounded-lg ${hasActiveFilters ? "bg-light-surface" : "bg-transparent"}`}
             >
               <Ionicons
                 name="filter"
@@ -186,158 +190,126 @@ export default function SalesScreen() {
             </Pressable>
           </ThemedView>
 
-          {/* Summary stats */}
-          {count > 0 && (
-            <ThemedView style={tw`flex-row gap-3`}>
-              <ThemedView
-                style={tw`flex-1 bg-gray-50 p-3 rounded-xl border border-gray-200`}
-              >
-                <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
-                  {t("common:labels.total")}
-                </ThemedText>
-                <ThemedText type="h4" style={tw`text-primary-700`}>
-                  {formatCurrency(totalAmount)}
-                </ThemedText>
-              </ThemedView>
-              <ThemedView
-                style={tw`flex-1 bg-gray-50 p-3 rounded-xl border border-gray-200`}
-              >
-                <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
-                  {t("bills:details.paid")} / {t("bills:details.unpaid")}
-                </ThemedText>
-                <ThemedText type="h4">
-                  <ThemedText style={tw`text-green-700`}>
-                    {paidCount}
-                  </ThemedText>
-                  <ThemedText style={tw`text-gray-400`}> / </ThemedText>
-                  <ThemedText style={tw`text-orange-700`}>
-                    {unpaidCount}
-                  </ThemedText>
-                </ThemedText>
-              </ThemedView>
-            </ThemedView>
-          )}
-
           {/* Active filter chips */}
-          {hasActiveFilters && (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={tw`gap-2`}
-            >
-              {filters.paymentMethod && (
-                <Pressable
-                  onPress={() =>
-                    setFilters({ ...filters, paymentMethod: undefined })
-                  }
-                >
-                  <ThemedView
-                    style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 border border-primary-300`}
-                  >
-                    <Ionicons
-                      name={getPaymentMethodIcon(
-                        filters.paymentMethod as PaymentMethod,
-                      )}
-                      size={14}
-                      color={tw.color("primary-700")}
-                    />
-                    <ThemedText
-                      type="small"
-                      style={tw`text-primary-700 font-medium`}
-                    >
-                      {translatePaymentMethod(
-                        filters.paymentMethod as PaymentMethod,
-                      )}
-                    </ThemedText>
-                    <Ionicons
-                      name="close-circle"
-                      size={16}
-                      color={tw.color("primary-600")}
-                    />
-                  </ThemedView>
-                </Pressable>
-              )}
-
-              {filters.status !== undefined && (
-                <Pressable
-                  onPress={() => setFilters({ ...filters, status: undefined })}
-                >
-                  <ThemedView
-                    style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 border border-primary-300`}
-                  >
-                    <Ionicons
-                      name={
-                        filters.status === BillStatus.PAID
-                          ? "checkmark-circle-outline"
-                          : "time-outline"
-                      }
-                      size={14}
-                      color={tw.color("primary-700")}
-                    />
-                    <ThemedText
-                      type="small"
-                      style={tw`text-primary-700 font-medium`}
-                    >
-                      {filters.status === BillStatus.PAID
-                        ? t("bills:filters.paid")
-                        : t("bills:filters.unpaid")}
-                    </ThemedText>
-                    <Ionicons
-                      name="close-circle"
-                      size={16}
-                      color={tw.color("primary-600")}
-                    />
-                  </ThemedView>
-                </Pressable>
-              )}
-
-              {filters.ownerId && (
-                <Pressable
-                  onPress={() => setFilters({ ...filters, ownerId: undefined })}
-                >
-                  <ThemedView
-                    style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 border border-primary-300`}
-                  >
-                    <Ionicons
-                      name="person-outline"
-                      size={14}
-                      color={tw.color("primary-700")}
-                    />
-                    <ThemedText
-                      type="small"
-                      style={tw`text-primary-700 font-medium`}
-                    >
-                      {availableWaiters.find((w) => w.id === filters.ownerId)
-                        ?.fullName ?? t("bills:filters.waiter")}
-                    </ThemedText>
-                    <Ionicons
-                      name="close-circle"
-                      size={16}
-                      color={tw.color("primary-600")}
-                    />
-                  </ThemedView>
-                </Pressable>
-              )}
-
-              <Pressable onPress={handleResetFilters}>
-                <ThemedView
-                  style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 border border-gray-300`}
-                >
-                  <Ionicons
-                    name="refresh-outline"
-                    size={14}
-                    color={tw.color("gray-700")}
-                  />
-                  <ThemedText
-                    type="small"
-                    style={tw`text-gray-700 font-medium`}
-                  >
-                    {t("bills:filters.reset")}
-                  </ThemedText>
-                </ThemedView>
-              </Pressable>
-            </ScrollView>
-          )}
+          {/* {hasActiveFilters && ( */}
+          {/*   <ScrollView */}
+          {/*     horizontal */}
+          {/*     showsHorizontalScrollIndicator={false} */}
+          {/*     contentContainerStyle={tw`gap-2`} */}
+          {/*   > */}
+          {/*     {filters.paymentMethod && ( */}
+          {/*       <Pressable */}
+          {/*         onPress={() => */}
+          {/*           setFilters({ ...filters, paymentMethod: undefined }) */}
+          {/*         } */}
+          {/*       > */}
+          {/*         <ThemedView */}
+          {/*           style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 border border-primary-300`} */}
+          {/*         > */}
+          {/*           <Ionicons */}
+          {/*             name={getPaymentMethodIcon( */}
+          {/*               filters.paymentMethod as PaymentMethod, */}
+          {/*             )} */}
+          {/*             size={14} */}
+          {/*             color={tw.color("primary-700")} */}
+          {/*           /> */}
+          {/*           <ThemedText */}
+          {/*             type="small" */}
+          {/*             style={tw`text-primary-700 font-medium`} */}
+          {/*           > */}
+          {/*             {translatePaymentMethod( */}
+          {/*               filters.paymentMethod as PaymentMethod, */}
+          {/*             )} */}
+          {/*           </ThemedText> */}
+          {/*           <Ionicons */}
+          {/*             name="close-circle" */}
+          {/*             size={16} */}
+          {/*             color={tw.color("primary-600")} */}
+          {/*           /> */}
+          {/*         </ThemedView> */}
+          {/*       </Pressable> */}
+          {/*     )} */}
+          {/**/}
+          {/*     {filters.status !== undefined && ( */}
+          {/*       <Pressable */}
+          {/*         onPress={() => setFilters({ ...filters, status: undefined })} */}
+          {/*       > */}
+          {/*         <ThemedView */}
+          {/*           style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 border border-primary-300`} */}
+          {/*         > */}
+          {/*           <Ionicons */}
+          {/*             name={ */}
+          {/*               filters.status === BillStatusFilter.PAID */}
+          {/*                 ? "checkmark-circle-outline" */}
+          {/*                 : "time-outline" */}
+          {/*             } */}
+          {/*             size={14} */}
+          {/*             color={tw.color("primary-700")} */}
+          {/*           /> */}
+          {/*           <ThemedText */}
+          {/*             type="small" */}
+          {/*             style={tw`text-primary-700 font-medium`} */}
+          {/*           > */}
+          {/*             {filters.status === BillStatusFilter.PAID */}
+          {/*               ? t("bills:filters.paid") */}
+          {/*               : t("bills:filters.unpaid")} */}
+          {/*           </ThemedText> */}
+          {/*           <Ionicons */}
+          {/*             name="close-circle" */}
+          {/*             size={16} */}
+          {/*             color={tw.color("primary-600")} */}
+          {/*           /> */}
+          {/*         </ThemedView> */}
+          {/*       </Pressable> */}
+          {/*     )} */}
+          {/**/}
+          {/*     {filters.ownerId && ( */}
+          {/*       <Pressable */}
+          {/*         onPress={() => setFilters({ ...filters, ownerId: undefined })} */}
+          {/*       > */}
+          {/*         <ThemedView */}
+          {/*           style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 border border-primary-300`} */}
+          {/*         > */}
+          {/*           <Ionicons */}
+          {/*             name="person-outline" */}
+          {/*             size={14} */}
+          {/*             color={tw.color("primary-700")} */}
+          {/*           /> */}
+          {/*           <ThemedText */}
+          {/*             type="small" */}
+          {/*             style={tw`text-primary-700 font-medium`} */}
+          {/*           > */}
+          {/*             {availableWaiters.find((w) => w.id === filters.ownerId) */}
+          {/*               ?.fullName ?? t("bills:filters.waiter")} */}
+          {/*           </ThemedText> */}
+          {/*           <Ionicons */}
+          {/*             name="close-circle" */}
+          {/*             size={16} */}
+          {/*             color={tw.color("primary-600")} */}
+          {/*           /> */}
+          {/*         </ThemedView> */}
+          {/*       </Pressable> */}
+          {/*     )} */}
+          {/**/}
+          {/*     <Pressable onPress={handleResetFilters}> */}
+          {/*       <ThemedView */}
+          {/*         style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 border border-gray-300`} */}
+          {/*       > */}
+          {/*         <Ionicons */}
+          {/*           name="refresh-outline" */}
+          {/*           size={14} */}
+          {/*           color={tw.color("gray-700")} */}
+          {/*         /> */}
+          {/*         <ThemedText */}
+          {/*           type="small" */}
+          {/*           style={tw`text-gray-700 font-medium`} */}
+          {/*         > */}
+          {/*           {t("bills:filters.reset")} */}
+          {/*         </ThemedText> */}
+          {/*       </ThemedView> */}
+          {/*     </Pressable> */}
+          {/*   </ScrollView> */}
+          {/* )} */}
         </ThemedView>
 
         {/* Date Picker */}
@@ -349,10 +321,49 @@ export default function SalesScreen() {
           />
         </ThemedView>
 
+        <ThemedView style={tw` p-4 mb-4 items-center`}>
+          <ThemedText type="h1" style={tw`font-bold mb-1`}>
+            {formatCurrency(data?.totalSales || 0)}
+          </ThemedText>
+          <ThemedText type="small" style={tw`text-gray-400`}>
+            {count} sales
+          </ThemedText>
+        </ThemedView>
+
         <ThemedView style={tw`flex-row gap-2 pb-4 px-4 justify-items-stretch`}>
-          <Chip label="All" />
-          <Chip label="Paid" />
-          <Chip label="Unpaid" />
+          <Chip
+            label="All"
+            selected={filters.status === undefined}
+            onPress={() =>
+              setFilters((prev) => ({ ...prev, status: undefined }))
+            }
+          />
+          <Chip
+            label={`Paid ${data?.countPaid ?? 0}`}
+            selected={filters.status === BillStatusFilter.PAID}
+            onPress={() =>
+              setFilters((prev) => ({
+                ...prev,
+                status:
+                  prev.status === BillStatusFilter.PAID
+                    ? undefined
+                    : BillStatusFilter.PAID,
+              }))
+            }
+          />
+          <Chip
+            label={`Unpaid ${data?.countUnpaid ?? 0}`}
+            selected={filters.status === BillStatusFilter.UNPAID}
+            onPress={() =>
+              setFilters((prev) => ({
+                ...prev,
+                status:
+                  prev.status === BillStatusFilter.UNPAID
+                    ? undefined
+                    : BillStatusFilter.UNPAID,
+              }))
+            }
+          />
         </ThemedView>
 
         {/* Bills list */}
@@ -377,9 +388,6 @@ export default function SalesScreen() {
             </ThemedView>
           ) : count > 0 ? (
             <ThemedView style={tw`px-4 gap-4`}>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {t("bills:list.showingBills", { count })}
-              </ThemedText>
               <ThemedView style={tw`bg-white rounded-2xl py-2 `}>
                 {bills.map((bill) => (
                   <BillCard

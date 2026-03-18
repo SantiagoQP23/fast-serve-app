@@ -37,4 +37,9 @@ export interface BillListItemDto {
 export interface BillListResponseDto {
   bills: BillListItemDto[];
   count: number;
+  totalSales: number;
+  totalPaid: number;
+  totalUnpaid: number;
+  countPaid: number;
+  countUnpaid: number;
 }
