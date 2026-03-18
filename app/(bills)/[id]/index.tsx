@@ -153,7 +153,7 @@ export default function BillScreen() {
       </Modal>
 
       <KeyboardAvoidingView
-        style={tw`flex-1`}
+        style={tw`flex-1 bg-light-background`}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ThemedView style={tw`px-4 pt-6 flex-1 gap-4`}>
@@ -204,7 +204,8 @@ export default function BillScreen() {
               </ThemedText>
               {bill.discount > 0 && (
                 <ThemedText type="body2" style={tw`text-green-600`}>
-                  {t("bills:details.discount")}: -{formatCurrency(bill.discount)}
+                  {t("bills:details.discount")}: -
+                  {formatCurrency(bill.discount)}
                 </ThemedText>
               )}
             </ThemedView>
@@ -222,7 +223,9 @@ export default function BillScreen() {
                     <ThemedView
                       style={tw`flex-row justify-between items-center px-4 py-3`}
                     >
-                      <ThemedView style={tw`flex-1 flex-row items-center gap-3`}>
+                      <ThemedView
+                        style={tw`flex-1 flex-row items-center gap-3`}
+                      >
                         <ThemedText
                           type="body2"
                           style={tw`text-gray-500 min-w-8`}
@@ -278,7 +281,10 @@ export default function BillScreen() {
                     size={64}
                     color={tw.color("green-500")}
                   />
-                  <ThemedText type="h3" style={tw`font-bold text-green-600 mt-3`}>
+                  <ThemedText
+                    type="h3"
+                    style={tw`font-bold text-green-600 mt-3`}
+                  >
                     {t("bills:details.billPaid")}
                   </ThemedText>
                 </ThemedView>

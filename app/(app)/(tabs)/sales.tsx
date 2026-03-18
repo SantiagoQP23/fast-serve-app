@@ -11,10 +11,12 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useBillsList } from "@/presentation/orders/hooks/useBillsList";
+import { useUsers } from "@/presentation/users/hooks/useUsers";
 import { useRouter } from "expo-router";
 import DashboardBillCard from "@/presentation/home/components/dashboard-bill-card";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Ionicons } from "@expo/vector-icons";
 import {
   BottomSheetBackdrop,
@@ -48,6 +50,7 @@ export default function SalesScreen() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [filters, setFilters] = useState<BillListFiltersDto>({});
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const { currentRestaurant, user } = useAuthStore();
 
   // Load persisted date on mount
   useEffect(() => {
@@ -155,17 +158,20 @@ export default function SalesScreen() {
     filters.status !== undefined ||
     filters.ownerId !== undefined;
 
+  const { users } = useUsers();
+  const isAdmin = user?.role?.name === "admin";
   const availableWaiters = useMemo(() => {
-    const waiterMap = new Map<string, string>();
-    bills.forEach((bill) => {
-      if (!waiterMap.has(bill.owner.id)) {
-        waiterMap.set(bill.owner.id, bill.owner.person.firstName);
-      }
-    });
-    return Array.from(waiterMap.entries())
-      .map(([id, fullName]) => ({ id, fullName }))
+    const filteredUsers = isAdmin 
+      ? users.filter(u => u.isActive)
+      : users.filter(u => u.isActive && u.id === user?.id);
+    
+    return filteredUsers
+      .map(u => ({
+        id: u.id,
+        fullName: `${u.person.firstName} ${u.person.lastName}`,
+      }))
       .sort((a, b) => a.fullName.localeCompare(b.fullName));
-  }, [bills]);
+  }, [users, user, isAdmin]);
 
   return (
     <>
@@ -388,7 +394,7 @@ export default function SalesScreen() {
             </ThemedView>
           ) : count > 0 ? (
             <ThemedView style={tw`px-4 gap-4`}>
-              <ThemedView style={tw`bg-white rounded-2xl py-2 `}>
+              <ThemedView style={tw`bg-white rounded-2xl py-2 gap-4 `}>
                 {bills.map((bill) => (
                   <BillCard
                     key={bill.id}
@@ -446,6 +452,7 @@ export default function SalesScreen() {
           onClose={handleCloseFilters}
           initialFilters={filters}
           availableWaiters={availableWaiters}
+          isAdmin={isAdmin}
         />
       </BottomSheetModal>
     </>

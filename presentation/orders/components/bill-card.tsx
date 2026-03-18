@@ -4,7 +4,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { Ionicons } from "@expo/vector-icons";
 import { PressableProps } from "react-native";
-import { BillStatus } from "@/core/orders/models/bill.model";
+import { Bill, BillStatus } from "@/core/orders/models/bill.model";
 import dayjs from "dayjs";
 import Label from "@/presentation/theme/components/label";
 import Card from "@/presentation/theme/components/card";
@@ -32,7 +32,7 @@ interface BillCardItem {
 }
 
 interface BillCardProps extends PressableProps {
-  bill: BillCardItem;
+  bill: Bill;
 }
 
 export default function BillCard({ onPress, bill }: BillCardProps) {
@@ -42,7 +42,6 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
     : dayjs(bill.createdAt).format("dddd, HH:mm");
 
   const isPaid = bill.status === BillStatus.PAID;
-  const hasDiscount = bill.discount > 0;
 
   return (
     <Card onPress={onPress}>
@@ -67,6 +66,7 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
               leftIcon="time-outline"
             />
           )}
+          <Label color="default" text={bill.source} size="small" />
         </ThemedView>
         <ThemedView
           style={tw`flex-row bg-transparent justify-between items-center`}

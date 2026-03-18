@@ -1,5 +1,5 @@
 import { PaymentMethod } from "../enums/payment-method";
-import { BillStatus } from "../models/bill.model";
+import { Bill, BillStatus } from "../models/bill.model";
 
 export interface BillOwnerPersonDto {
   firstName: string;
@@ -35,7 +35,7 @@ export interface BillListItemDto {
 }
 
 export interface BillListResponseDto {
-  bills: BillListItemDto[];
+  bills: Bill[];
   count: number;
   totalSales: number;
   totalPaid: number;

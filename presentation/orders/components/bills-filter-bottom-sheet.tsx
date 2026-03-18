@@ -7,7 +7,6 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import Button from "@/presentation/theme/components/button";
 import Select from "@/presentation/theme/components/select";
 import { PaymentMethod } from "@/core/orders/enums/payment-method";
-import { BillStatus } from "@/core/orders/models/bill.model";
 import { translatePaymentMethod } from "@/core/i18n/utils";
 import { BillListFiltersDto } from "@/core/orders/dto/bill-list-filters.dto";
 
@@ -16,27 +15,20 @@ interface BillsFilterBottomSheetProps {
   onApply: (filters: BillListFiltersDto) => void;
   initialFilters?: BillListFiltersDto;
   availableWaiters: Array<{ id: string; fullName: string }>;
+  isAdmin?: boolean;
 }
-
-type PaymentStatusFilter = "all" | "paid" | "unpaid";
 
 export default function BillsFilterBottomSheet({
   onClose,
   onApply,
   initialFilters,
   availableWaiters,
+  isAdmin = true,
 }: BillsFilterBottomSheetProps) {
   const { t } = useTranslation(["bills", "common"]);
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "all">(
     initialFilters?.paymentMethod || "all",
-  );
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatusFilter>(
-    initialFilters?.status === undefined
-      ? "all"
-      : initialFilters.status === BillStatus.PAID
-        ? "paid"
-        : "unpaid",
   );
   const [ownerId, setOwnerId] = useState<string | "all">(
     initialFilters?.ownerId || "all",
@@ -45,19 +37,11 @@ export default function BillsFilterBottomSheet({
   // Sync internal state with initialFilters when they change
   useEffect(() => {
     setPaymentMethod(initialFilters?.paymentMethod || "all");
-    setPaymentStatus(
-      initialFilters?.status === undefined
-        ? "all"
-        : initialFilters.status === BillStatus.PAID
-          ? "paid"
-          : "unpaid",
-    );
     setOwnerId(initialFilters?.ownerId || "all");
   }, [initialFilters]);
 
   const handleReset = () => {
     setPaymentMethod("all");
-    setPaymentStatus("all");
     setOwnerId("all");
     onApply({});
     onClose();
@@ -68,12 +52,6 @@ export default function BillsFilterBottomSheet({
 
     if (paymentMethod !== "all") {
       filters.paymentMethod = paymentMethod as PaymentMethod;
-    }
-
-    if (paymentStatus === "paid") {
-      filters.status = BillStatus.PAID;
-    } else if (paymentStatus === "unpaid") {
-      filters.status = BillStatus.OPEN;
     }
 
     if (ownerId !== "all") {
@@ -104,16 +82,6 @@ export default function BillsFilterBottomSheet({
     [t],
   );
 
-  // Payment Status options
-  const paymentStatusOptions = useMemo(
-    () => [
-      { label: t("bills:filters.allStatuses"), value: "all" },
-      { label: t("bills:filters.paid"), value: "paid" },
-      { label: t("bills:filters.unpaid"), value: "unpaid" },
-    ],
-    [t],
-  );
-
   // Waiter options
   const waiterOptions = useMemo(
     () => [
@@ -134,32 +102,16 @@ export default function BillsFilterBottomSheet({
           {t("bills:filters.title")}
         </ThemedText>
 
-        {/* Payment Method Select */}
-        <Select
-          label={t("bills:filters.paymentMethod")}
-          placeholder={t("bills:filters.allPaymentMethods")}
-          options={paymentMethodOptions}
-          value={paymentMethod}
-          onChange={(value) => setPaymentMethod(value as PaymentMethod | "all")}
-        />
-
-        {/* Payment Status Select */}
-        {/* <Select */}
-        {/*   label={t("bills:filters.paymentStatus")} */}
-        {/*   placeholder={t("bills:filters.allStatuses")} */}
-        {/*   options={paymentStatusOptions} */}
-        {/*   value={paymentStatus} */}
-        {/*   onChange={(value) => setPaymentStatus(value as PaymentStatusFilter)} */}
-        {/* /> */}
-
-        {/* Waiter Select */}
-        <Select
-          label={t("bills:filters.waiter")}
-          placeholder={t("bills:filters.allWaiters")}
-          options={waiterOptions}
-          value={ownerId}
-          onChange={(value) => setOwnerId(value as string)}
-        />
+        {/* Waiter Select - Only show for admin users */}
+        {isAdmin && (
+          <Select
+            label={t("bills:filters.waiter")}
+            placeholder={t("bills:filters.allWaiters")}
+            options={waiterOptions}
+            value={ownerId}
+            onChange={(value) => setOwnerId(value as string)}
+          />
+        )}
 
         {/* Action Buttons */}
         <ThemedView style={tw`flex-row gap-3`}>

@@ -8,12 +8,18 @@ export enum BillStatus {
   PAID = "paid",
 }
 
+export enum BillSource {
+  DIRECT = "direct",
+  ORDER = "order",
+}
+
 export interface Bill {
   id: number;
   num: number;
   comments: string;
   paymentMethod: PaymentMethod;
   receivedAmount: number;
+  source: BillSource;
 
   change: number;
 
