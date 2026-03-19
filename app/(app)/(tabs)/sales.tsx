@@ -161,12 +161,12 @@ export default function SalesScreen() {
   const { users } = useUsers();
   const isAdmin = user?.role?.name === "admin";
   const availableWaiters = useMemo(() => {
-    const filteredUsers = isAdmin 
-      ? users.filter(u => u.isActive)
-      : users.filter(u => u.isActive && u.id === user?.id);
-    
+    const filteredUsers = isAdmin
+      ? users.filter((u) => u.isActive)
+      : users.filter((u) => u.isActive && u.id === user?.id);
+
     return filteredUsers
-      .map(u => ({
+      .map((u) => ({
         id: u.id,
         fullName: `${u.person.firstName} ${u.person.lastName}`,
       }))
@@ -187,11 +187,7 @@ export default function SalesScreen() {
               <Ionicons
                 name="filter"
                 size={20}
-                color={
-                  hasActiveFilters
-                    ? tw.color("primary-600")
-                    : tw.color("gray-600")
-                }
+                color={hasActiveFilters ? tw.color("") : tw.color("gray-600")}
               />
             </Pressable>
           </ThemedView>
@@ -332,20 +328,20 @@ export default function SalesScreen() {
             {formatCurrency(data?.totalSales || 0)}
           </ThemedText>
           <ThemedText type="small" style={tw`text-gray-400`}>
-            {count} sales
+            {t("bills:list.salesCount", { count })}
           </ThemedText>
         </ThemedView>
 
         <ThemedView style={tw`flex-row gap-2 pb-4 px-4 justify-items-stretch`}>
           <Chip
-            label="All"
+            label={t("bills:filters.all")}
             selected={filters.status === undefined}
             onPress={() =>
               setFilters((prev) => ({ ...prev, status: undefined }))
             }
           />
           <Chip
-            label={`Paid ${data?.countPaid ?? 0}`}
+            label={t("bills:filters.paidCount", { count: data?.countPaid ?? 0 })}
             selected={filters.status === BillStatusFilter.PAID}
             onPress={() =>
               setFilters((prev) => ({
@@ -358,7 +354,7 @@ export default function SalesScreen() {
             }
           />
           <Chip
-            label={`Unpaid ${data?.countUnpaid ?? 0}`}
+            label={t("bills:filters.unpaidCount", { count: data?.countUnpaid ?? 0 })}
             selected={filters.status === BillStatusFilter.UNPAID}
             onPress={() =>
               setFilters((prev) => ({

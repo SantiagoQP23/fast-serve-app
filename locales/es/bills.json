@@ -15,7 +15,8 @@
     "filterBills": "Filtrar Cuentas",
     "showingBills": "Mostrando {{count}} cuentas",
     "remaining": "Monto por pagar",
-    "remainingDescription": "Pendiente del pedido"
+    "remainingDescription": "Pendiente del pedido",
+    "salesCount": "{{count}} ventas"
   },
   "details": {
     "title": "Cuenta #{{number}}",
@@ -85,6 +86,8 @@
     "reset": "Reiniciar",
     "paid": "Solo Pagadas",
     "unpaid": "Solo Sin Pagar",
-    "all": "Todas"
+    "all": "Todas",
+    "paidCount": "{{count}} Pagadas",
+    "unpaidCount": "{{count}} Sin Pagar"
   }
 }

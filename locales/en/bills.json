@@ -15,7 +15,8 @@
     "filterBills": "Filter Bills",
     "showingBills": "Showing {{count}} bills",
     "remaining": "Amount to pay",
-    "remainingDescription": "Still pending from the order"
+    "remainingDescription": "Still pending from the order",
+    "salesCount": "{{count}} sales"
   },
   "details": {
     "title": "Bill #{{number}}",
@@ -85,6 +86,8 @@
     "reset": "Reset",
     "paid": "Paid Only",
     "unpaid": "Unpaid Only",
-    "all": "All"
+    "all": "All",
+    "paidCount": "{{count}} Paid",
+    "unpaidCount": "{{count}} Unpaid"
   }
 }

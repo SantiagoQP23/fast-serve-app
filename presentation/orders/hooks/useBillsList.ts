@@ -4,11 +4,12 @@ import { BillListFiltersDto } from "@/core/orders/dto/bill-list-filters.dto";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useState, useCallback, useEffect } from "react";
 import { BillListItemDto } from "@/core/orders/dto/bill-list-response.dto";
+import { Bill } from "@/core/orders/models/bill.model";
 
 export const useBillsList = (filters?: BillListFiltersDto) => {
   const { currentRestaurant } = useAuthStore();
   const [page, setPage] = useState(0);
-  const [allBills, setAllBills] = useState<BillListItemDto[]>([]);
+  const [allBills, setAllBills] = useState<Bill[]>([]);
   const limit = 10;
 
   // Add default startDate (today) if not provided, plus pagination params
