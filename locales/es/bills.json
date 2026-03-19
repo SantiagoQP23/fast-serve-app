@@ -42,8 +42,11 @@
   },
   "paymentMethods": {
     "cash": "Efectivo",
+    "card": "Tarjeta",
     "creditCard": "Tarjeta de Crédito",
-    "transfer": "Transferencia"
+    "transfer": "Transferencia",
+    "digitalWallet": "Billetera Digital",
+    "other": "Otro"
   },
   "newBill": {
     "title": "Nueva Cuenta",

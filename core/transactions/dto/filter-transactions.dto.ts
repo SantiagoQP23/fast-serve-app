@@ -3,4 +3,6 @@ export interface FilterTransactionsDto {
   offset?: number;
   startDate?: string;
   endDate?: string;
+  paymentMethodId?: number;
+  accountId?: number;
 }

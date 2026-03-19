@@ -42,8 +42,11 @@
   },
   "paymentMethods": {
     "cash": "Cash",
+    "card": "Card",
     "creditCard": "Credit Card",
-    "transfer": "Transfer"
+    "transfer": "Transfer",
+    "digitalWallet": "Digital Wallet",
+    "other": "Other"
   },
   "newBill": {
     "title": "New Bill",

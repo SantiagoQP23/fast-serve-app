@@ -1,5 +1,11 @@
-import React, { useCallback, useState, useEffect } from "react";
-import { ScrollView, RefreshControl, Alert, FlatList } from "react-native";
+import React, { useCallback, useState, useEffect, useRef } from "react";
+import {
+  ScrollView,
+  RefreshControl,
+  Alert,
+  FlatList,
+  Pressable,
+} from "react-native";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -20,30 +26,58 @@ import { formatCurrency } from "@/core/i18n/utils";
 import { TransactionType } from "@/core/transactions/models/transaction-category.model";
 import StatsCard from "@/presentation/home/components/stats-card";
 import Button from "@/presentation/theme/components/button";
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  useBottomSheetSpringConfigs,
+} from "@gorhom/bottom-sheet";
+import TransactionsFilterBottomSheet from "@/presentation/transactions/components/transactions-filter-bottom-sheet";
+import Chip from "@/presentation/theme/components/chip";
+import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
+import { FilterTransactionsDto } from "@/core/transactions/dto/filter-transactions.dto";
+import IconButton from "@/presentation/theme/components/icon-button";
 
 const STORAGE_KEY = "incomes_selected_date";
+const FILTERS_STORAGE_KEY = "incomes_filters";
 
 export default function IncomesScreen() {
   const { t } = useTranslation(["common", "errors"]);
   const { currentRestaurant } = useAuthStore();
   const [refreshing, setRefreshing] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [filters, setFilters] = useState<FilterTransactionsDto>({});
   const primaryColor = useThemeColor({}, "primary");
   const queryClient = useQueryClient();
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const { paymentMethods } = usePaymentMethodsStore();
 
-  // Load persisted date on mount
+  // Animation config for bottom sheet
+  const animationConfigs = useBottomSheetSpringConfigs({
+    damping: 50,
+    stiffness: 300,
+    mass: 1,
+    overshootClamping: true,
+  });
+
+  // Load persisted date and filters on mount
   useEffect(() => {
-    const loadPersistedDate = async () => {
+    const loadPersistedData = async () => {
       try {
-        const savedDate = await AsyncStorage.getItem(STORAGE_KEY);
+        const [savedDate, savedFilters] = await Promise.all([
+          AsyncStorage.getItem(STORAGE_KEY),
+          AsyncStorage.getItem(FILTERS_STORAGE_KEY),
+        ]);
         if (savedDate) {
           setSelectedDate(new Date(savedDate));
         }
+        if (savedFilters) {
+          setFilters(JSON.parse(savedFilters));
+        }
       } catch {
-        // Silently fail, keep default date
+        // Silently fail, keep default values
       }
     };
-    loadPersistedDate();
+    loadPersistedData();
   }, []);
 
   // Persist date whenever it changes
@@ -51,6 +85,56 @@ export default function IncomesScreen() {
     setSelectedDate(date);
     try {
       await AsyncStorage.setItem(STORAGE_KEY, date.toISOString());
+    } catch {
+      // Silently fail
+    }
+  }, []);
+
+  // Handle filter changes
+  const handleFiltersChange = useCallback(
+    async (newFilters: FilterTransactionsDto) => {
+      setFilters(newFilters);
+      try {
+        await AsyncStorage.setItem(
+          FILTERS_STORAGE_KEY,
+          JSON.stringify(newFilters),
+        );
+      } catch {
+        // Silently fail
+      }
+    },
+    [],
+  );
+
+  // Helper functions for filter display
+  const getPaymentMethodName = useCallback(
+    (id: number) => {
+      const pm = paymentMethods.find((p) => p.id === id);
+      return pm?.name || "";
+    },
+    [paymentMethods],
+  );
+
+  const getAccountName = useCallback(
+    (id: number) => {
+      // Find account from payment method's allowed destination accounts
+      for (const pm of paymentMethods) {
+        const account = pm.allowedDestinationAccounts.find((a) => a.id === id);
+        if (account) return account.name;
+      }
+      return "";
+    },
+    [paymentMethods],
+  );
+
+  const removeFilters = useCallback(async () => {
+    const newFilters = {};
+    setFilters(newFilters);
+    try {
+      await AsyncStorage.setItem(
+        FILTERS_STORAGE_KEY,
+        JSON.stringify(newFilters),
+      );
     } catch {
       // Silently fail
     }
@@ -71,12 +155,20 @@ export default function IncomesScreen() {
     loadMore,
     reset: resetTransactionsPagination,
     hasMore,
-  } = useTransactionsList({ startDate: dateFilter, endDate: dateFilter });
+  } = useTransactionsList({
+    startDate: dateFilter,
+    endDate: dateFilter,
+    ...filters,
+  });
 
-  // Reset pagination when date changes
+  const openFilterBottomSheet = () => {
+    bottomSheetModalRef.current?.present();
+  };
+
+  // Reset pagination when date or filters change
   useEffect(() => {
     resetTransactionsPagination();
-  }, [dateFilter, resetTransactionsPagination]);
+  }, [dateFilter, filters, resetTransactionsPagination]);
 
   const onRefresh = useCallback(async () => {
     try {
@@ -110,6 +202,9 @@ export default function IncomesScreen() {
     }
   }, [queryClient, currentRestaurant?.id, dateFilter, refetchTransactions, t]);
 
+  const thereAreFiltersApplied =
+    !!filters.paymentMethodId || !!filters.accountId;
+
   return (
     <ThemedView style={tw`flex-1 pt-8 bg-light-background`}>
       <ThemedView style={tw`px-4 mb-4`}>
@@ -117,13 +212,52 @@ export default function IncomesScreen() {
       </ThemedView>
 
       {/* Date Picker */}
-      <ThemedView style={tw`px-4 mb-4`}>
-        <DatePicker
-          value={selectedDate}
-          onChange={handleDateChange}
-          showTodayButton={true}
+      <ThemedView style={tw`flex-row items-center gap-4 px-4 mb-4`}>
+        <ThemedView style={tw` flex-1`}>
+          <DatePicker
+            value={selectedDate}
+            onChange={handleDateChange}
+            showTodayButton={true}
+          />
+        </ThemedView>
+        <IconButton
+          icon="filter"
+          onPress={openFilterBottomSheet}
+          style={tw``}
+          variant={thereAreFiltersApplied ? "filled" : "text"}
         />
       </ThemedView>
+
+      {/* Active Filter Chips */}
+      {thereAreFiltersApplied && (
+        <ThemedView style={tw`px-4 mb-4 flex-row flex-wrap gap-2`}>
+          {filters.paymentMethodId && (
+            <Chip
+              label={getPaymentMethodName(filters.paymentMethodId)}
+              selected
+              onPress={() =>
+                handleFiltersChange({
+                  ...filters,
+                  paymentMethodId: undefined,
+                  accountId: undefined,
+                })
+              }
+              icon="close"
+            />
+          )}
+          {filters.accountId && (
+            <Chip
+              label={getAccountName(filters.accountId)}
+              selected
+              onPress={() =>
+                handleFiltersChange({ ...filters, accountId: undefined })
+              }
+              icon="close"
+            />
+          )}
+          <Chip label={t("common:actions.clearAll")} onPress={removeFilters} />
+        </ThemedView>
+      )}
 
       <ScrollView
         contentContainerStyle={tw`pb-20`}
@@ -229,6 +363,30 @@ export default function IncomesScreen() {
           </ThemedView>
         )}
       </ScrollView>
+
+      {/* Filter Bottom Sheet */}
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        snapPoints={["75%"]}
+        enablePanDownToClose
+        animationConfigs={animationConfigs}
+        backdropComponent={(props) => (
+          <BottomSheetBackdrop
+            {...props}
+            appearsOnIndex={0}
+            disappearsOnIndex={-1}
+          />
+        )}
+      >
+        <TransactionsFilterBottomSheet
+          initialFilters={filters}
+          onApply={(newFilters: FilterTransactionsDto) => {
+            handleFiltersChange(newFilters);
+            bottomSheetModalRef.current?.dismiss();
+          }}
+          onClose={() => bottomSheetModalRef.current?.dismiss()}
+        />
+      </BottomSheetModal>
     </ThemedView>
   );
 }

@@ -1,11 +1,12 @@
-import { Alert, AlertButton } from 'react-native';
-import i18n from './i18n.config';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import 'dayjs/locale/es';
-import 'dayjs/locale/en';
-import { PaymentMethod } from '../orders/enums/payment-method';
-import { Ionicons } from '@expo/vector-icons';
+import { Alert, AlertButton } from "react-native";
+import i18n from "./i18n.config";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import "dayjs/locale/es";
+import "dayjs/locale/en";
+import { PaymentMethod } from "../orders/enums/payment-method";
+import { PaymentMethodCategory } from "../restaurant/models/payment-method.model";
+import { Ionicons } from "@expo/vector-icons";
 
 // Extend dayjs with relativeTime plugin
 dayjs.extend(relativeTime);
@@ -18,12 +19,12 @@ export const i18nAlert = (
   title: string,
   message?: string,
   buttons?: AlertButton[],
-  options?: any
+  options?: any,
 ) => {
   // Translate default button labels if not provided
   const translatedButtons = buttons?.map((button) => ({
     ...button,
-    text: button.text || i18n.t('common:actions.ok'),
+    text: button.text || i18n.t("common:actions.ok"),
   }));
 
   Alert.alert(title, message, translatedButtons, options);
@@ -42,21 +43,21 @@ export const formatCurrency = (amount: number): string => {
  * Always uses DD/MM format as per requirements
  */
 export const formatDate = (date: Date | string | dayjs.Dayjs): string => {
-  return dayjs(date).format('DD/MM/YYYY');
+  return dayjs(date).format("DD/MM/YYYY");
 };
 
 /**
  * Format time
  */
 export const formatTime = (date: Date | string | dayjs.Dayjs): string => {
-  return dayjs(date).format('HH:mm');
+  return dayjs(date).format("HH:mm");
 };
 
 /**
  * Format date and time
  */
 export const formatDateTime = (date: Date | string | dayjs.Dayjs): string => {
-  return dayjs(date).format('DD/MM/YYYY HH:mm');
+  return dayjs(date).format("DD/MM/YYYY HH:mm");
 };
 
 /**
@@ -65,19 +66,19 @@ export const formatDateTime = (date: Date | string | dayjs.Dayjs): string => {
 export const getRelativeDate = (date: Date | string | dayjs.Dayjs): string => {
   const d = dayjs(date);
   const today = dayjs();
-  
-  if (d.isSame(today, 'day')) {
-    return i18n.t('common:time.today');
+
+  if (d.isSame(today, "day")) {
+    return i18n.t("common:time.today");
   }
-  
-  if (d.isSame(today.subtract(1, 'day'), 'day')) {
-    return i18n.t('common:time.yesterday');
+
+  if (d.isSame(today.subtract(1, "day"), "day")) {
+    return i18n.t("common:time.yesterday");
   }
-  
-  if (d.isSame(today.add(1, 'day'), 'day')) {
-    return i18n.t('common:time.tomorrow');
+
+  if (d.isSame(today.add(1, "day"), "day")) {
+    return i18n.t("common:time.tomorrow");
   }
-  
+
   return formatDate(d);
 };
 
@@ -103,7 +104,7 @@ export const initializeDayjs = () => {
 };
 
 // Subscribe to language changes
-i18n.on('languageChanged', (lng) => {
+i18n.on("languageChanged", (lng) => {
   updateDayjsLocale(lng);
 });
 
@@ -122,20 +123,31 @@ export interface PaymentMethodInfo {
  * Get translation key for payment method
  */
 export const getPaymentMethodTranslationKey = (
-  method: PaymentMethod | string
+  method: PaymentMethod | PaymentMethodCategory | string,
 ): string => {
   switch (method) {
     case PaymentMethod.CASH:
-    case 'CASH':
-      return 'bills:paymentMethods.cash';
+    case PaymentMethodCategory.CASH:
+    case "CASH":
+      return "bills:paymentMethods.cash";
     case PaymentMethod.CREDIT_CARD:
-    case 'CREDIT_CARD':
-      return 'bills:paymentMethods.creditCard';
+    case "CREDIT_CARD":
+      return "bills:paymentMethods.creditCard";
+    case PaymentMethodCategory.CARD:
+    case "CARD":
+      return "bills:paymentMethods.card";
     case PaymentMethod.TRANSFER:
-    case 'TRANSFER':
-      return 'bills:paymentMethods.transfer';
+    case PaymentMethodCategory.TRANSFER:
+    case "TRANSFER":
+      return "bills:paymentMethods.transfer";
+    case PaymentMethodCategory.DIGITAL_WALLET:
+    case "DIGITAL_WALLET":
+      return "bills:paymentMethods.digitalWallet";
+    case PaymentMethodCategory.OTHER:
+    case "OTHER":
+      return "bills:paymentMethods.other";
     default:
-      return 'bills:paymentMethods.cash'; // fallback
+      return "bills:paymentMethods.other"; // fallback
   }
 };
 
@@ -143,20 +155,30 @@ export const getPaymentMethodTranslationKey = (
  * Get icon for payment method
  */
 export const getPaymentMethodIcon = (
-  method: PaymentMethod | string
+  method: PaymentMethod | PaymentMethodCategory | string,
 ): keyof typeof Ionicons.glyphMap => {
   switch (method) {
     case PaymentMethod.CASH:
-    case 'CASH':
-      return 'cash-outline';
+    case PaymentMethodCategory.CASH:
+    case "CASH":
+      return "cash-outline";
     case PaymentMethod.CREDIT_CARD:
-    case 'CREDIT_CARD':
-      return 'card-outline';
+    case "CREDIT_CARD":
+    case PaymentMethodCategory.CARD:
+    case "CARD":
+      return "card-outline";
     case PaymentMethod.TRANSFER:
-    case 'TRANSFER':
-      return 'swap-horizontal-outline';
+    case PaymentMethodCategory.TRANSFER:
+    case "TRANSFER":
+      return "swap-horizontal-outline";
+    case PaymentMethodCategory.DIGITAL_WALLET:
+    case "DIGITAL_WALLET":
+      return "phone-portrait-outline";
+    case PaymentMethodCategory.OTHER:
+    case "OTHER":
+      return "wallet-outline";
     default:
-      return 'wallet-outline';
+      return "wallet-outline";
   }
 };
 
@@ -164,39 +186,65 @@ export const getPaymentMethodIcon = (
  * Get complete payment method information (icon, translation key, colors)
  */
 export const getPaymentMethodInfo = (
-  method: PaymentMethod | string
+  method: PaymentMethod | PaymentMethodCategory | string,
 ): PaymentMethodInfo => {
   switch (method) {
     case PaymentMethod.CASH:
-    case 'CASH':
+    case PaymentMethodCategory.CASH:
+    case "CASH":
       return {
-        icon: 'cash-outline',
-        translationKey: 'bills:paymentMethods.cash',
-        color: '#10b981', // green-600
-        bgColor: 'bg-green-50',
+        icon: "cash-outline",
+        translationKey: "bills:paymentMethods.cash",
+        color: "#10b981", // green-600
+        bgColor: "bg-green-50",
       };
     case PaymentMethod.CREDIT_CARD:
-    case 'CREDIT_CARD':
+    case "CREDIT_CARD":
       return {
-        icon: 'card-outline',
-        translationKey: 'bills:paymentMethods.creditCard',
-        color: '#3b82f6', // blue-600
-        bgColor: 'bg-blue-50',
+        icon: "card-outline",
+        translationKey: "bills:paymentMethods.creditCard",
+        color: "#3b82f6", // blue-600
+        bgColor: "bg-blue-50",
+      };
+    case PaymentMethodCategory.CARD:
+    case "CARD":
+      return {
+        icon: "card-outline",
+        translationKey: "bills:paymentMethods.card",
+        color: "#3b82f6", // blue-600
+        bgColor: "bg-blue-50",
       };
     case PaymentMethod.TRANSFER:
-    case 'TRANSFER':
+    case PaymentMethodCategory.TRANSFER:
+    case "TRANSFER":
       return {
-        icon: 'swap-horizontal-outline',
-        translationKey: 'bills:paymentMethods.transfer',
-        color: '#8b5cf6', // purple-600
-        bgColor: 'bg-purple-50',
+        icon: "swap-horizontal-outline",
+        translationKey: "bills:paymentMethods.transfer",
+        color: "#8b5cf6", // purple-600
+        bgColor: "bg-purple-50",
+      };
+    case PaymentMethodCategory.DIGITAL_WALLET:
+    case "DIGITAL_WALLET":
+      return {
+        icon: "phone-portrait-outline",
+        translationKey: "bills:paymentMethods.digitalWallet",
+        color: "#f97316", // orange-600
+        bgColor: "bg-orange-50",
+      };
+    case PaymentMethodCategory.OTHER:
+    case "OTHER":
+      return {
+        icon: "wallet-outline",
+        translationKey: "bills:paymentMethods.other",
+        color: "#64748b", // slate-600
+        bgColor: "bg-slate-50",
       };
     default:
       return {
-        icon: 'wallet-outline',
-        translationKey: 'bills:paymentMethods.cash',
-        color: '#6b7280', // gray-600
-        bgColor: 'bg-gray-50',
+        icon: "wallet-outline",
+        translationKey: "bills:paymentMethods.other",
+        color: "#6b7280", // gray-600
+        bgColor: "bg-gray-50",
       };
   }
 };
@@ -204,7 +252,9 @@ export const getPaymentMethodInfo = (
 /**
  * Translate payment method using current language
  */
-export const translatePaymentMethod = (method: PaymentMethod | string): string => {
+export const translatePaymentMethod = (
+  method: PaymentMethod | PaymentMethodCategory | string,
+): string => {
   const translationKey = getPaymentMethodTranslationKey(method);
   return i18n.t(translationKey);
 };

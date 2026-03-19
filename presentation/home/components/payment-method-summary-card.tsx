@@ -10,7 +10,7 @@ import {
   translatePaymentMethod,
   getPaymentMethodInfo,
 } from "@/core/i18n/utils";
-import { usePaymentMethodReport } from "@/presentation/orders/hooks/usePaymentMethodReport";
+import { useTransactionPaymentMethodReport } from "@/presentation/transactions/hooks/useTransactionPaymentMethodReport";
 import { useRouter } from "expo-router";
 import { PieChart } from "react-native-gifted-charts";
 import { Colors } from "@/constants/theme";
@@ -24,7 +24,7 @@ export default function PaymentMethodSummaryCard({
   endDate?: string;
 }) {
   const { t } = useTranslation(["reports", "common", "bills"]);
-  const { paymentMethodReport, isLoading } = usePaymentMethodReport(
+  const { paymentMethodReport, isLoading } = useTransactionPaymentMethodReport(
     startDate && endDate ? { startDate, endDate } : undefined,
   );
   const router = useRouter();
@@ -37,11 +37,31 @@ export default function PaymentMethodSummaryCard({
   };
 
   // Payment method data
-  const paymentMethods = paymentMethodReport?.paymentMethods || [];
+  const paymentMethods = paymentMethodReport?.report || [];
+
+  // DEBUG: Log the payment method data to investigate gray color issue
+  React.useEffect(() => {
+    if (paymentMethods.length > 0) {
+      console.log("=== PAYMENT METHOD DEBUG ===");
+      console.log("Total payment methods:", paymentMethods.length);
+      paymentMethods.forEach((pm, index) => {
+        const info = getPaymentMethodInfo(pm.paymentMethodType);
+        console.log(`\nPayment Method ${index + 1}:`);
+        console.log("  - ID:", pm.paymentMethodId);
+        console.log("  - Name:", pm.paymentMethodName);
+        console.log("  - Type:", pm.paymentMethodType);
+        console.log("  - Type typeof:", typeof pm.paymentMethodType);
+        console.log("  - Resolved Color:", info.color);
+        console.log("  - Resolved Icon:", info.icon);
+        console.log("  - Total Income:", pm.totalIncome);
+      });
+      console.log("=== END DEBUG ===");
+    }
+  }, [paymentMethods]);
 
   // Prepare pie chart data
   const pieData = paymentMethods.map((pm) => {
-    const info = getPaymentMethodInfo(pm.paymentMethod);
+    const info = getPaymentMethodInfo(pm.paymentMethodType);
     const percentage = paymentMethodReport?.summary?.totalIncome
       ? (pm.totalIncome / paymentMethodReport.summary.totalIncome) * 100
       : 0;
@@ -54,17 +74,12 @@ export default function PaymentMethodSummaryCard({
   });
 
   return (
-    <Pressable onPress={handlePress}>
+    <Pressable>
       <ThemedView style={tw`rounded-2xl border border-light-border p-4  mb-4`}>
         <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
-          <ThemedText type="h3" style={tw`font-bold`}>
+          <ThemedText type="h4" style={tw`font-bold`}>
             {t("reports:paymentMethodReport.title")}
           </ThemedText>
-          <Ionicons
-            name="chevron-forward"
-            size={20}
-            color={tw.color("gray-500")}
-          />
         </ThemedView>
 
         {isLoading ? (
@@ -110,7 +125,7 @@ export default function PaymentMethodSummaryCard({
             {/* Legend */}
             <ThemedView style={tw`gap-2`}>
               {paymentMethods.map((pm) => {
-                const info = getPaymentMethodInfo(pm.paymentMethod);
+                const info = getPaymentMethodInfo(pm.paymentMethodType);
                 const percentage = paymentMethodReport?.summary?.totalIncome
                   ? (pm.totalIncome / paymentMethodReport.summary.totalIncome) *
                     100
@@ -118,7 +133,7 @@ export default function PaymentMethodSummaryCard({
 
                 return (
                   <ThemedView
-                    key={pm.paymentMethod}
+                    key={pm.paymentMethodId}
                     style={tw`flex-row items-center justify-between`}
                   >
                     <ThemedView style={tw`flex-row items-center gap-2 flex-1`}>
@@ -129,7 +144,7 @@ export default function PaymentMethodSummaryCard({
                         ]}
                       />
                       <ThemedText type="small" style={tw`flex-1 text-gray-600`}>
-                        {translatePaymentMethod(pm.paymentMethod)}
+                        {pm.paymentMethodName}
                       </ThemedText>
                     </ThemedView>
                     <ThemedView style={tw`items-end gap-0.5`}>
@@ -138,8 +153,8 @@ export default function PaymentMethodSummaryCard({
                       </ThemedText>
                       <ThemedView style={tw`flex-row items-center gap-1.5`}>
                         <ThemedText type="caption" style={tw`text-gray-500`}>
-                          {pm.billCount}{" "}
-                          {pm.billCount === 1
+                          {pm.transactionCount}{" "}
+                          {pm.transactionCount === 1
                             ? t("bills:bill")
                             : t("bills:bills")}
                         </ThemedText>

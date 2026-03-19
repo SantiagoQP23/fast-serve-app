@@ -29,9 +29,13 @@ export default function AccountScreen() {
   const selectedPaymentMethod = useOrdersStore(
     (state) => state.selectedPaymentMethod,
   );
-  const billReceivedAmount = useOrdersStore((state) => state.billReceivedAmount);
+  const billReceivedAmount = useOrdersStore(
+    (state) => state.billReceivedAmount,
+  );
   const billTransferNote = useOrdersStore((state) => state.billTransferNote);
-  const setSelectedAccount = useOrdersStore((state) => state.setSelectedAccount);
+  const setSelectedAccount = useOrdersStore(
+    (state) => state.setSelectedAccount,
+  );
 
   const { payBillTransaction } = useBills();
   const { mutate, isLoading } = payBillTransaction;
@@ -55,9 +59,7 @@ export default function AccountScreen() {
   // Pre-select the default destination account on mount
   useEffect(() => {
     if (selectedPaymentMethod?.defaultDestinationAccount) {
-      setSelectedAccountId(
-        selectedPaymentMethod.defaultDestinationAccount.id,
-      );
+      setSelectedAccountId(selectedPaymentMethod.defaultDestinationAccount.id);
     } else if (accounts.length === 1) {
       setSelectedAccountId(accounts[0].id);
     }
@@ -73,17 +75,21 @@ export default function AccountScreen() {
 
   const handlePay = () => {
     if (!selectedAccountId) {
-      Alert.alert("Select an account", "Please select a destination account to continue.");
+      Alert.alert(
+        "Select an account",
+        "Please select a destination account to continue.",
+      );
       return;
     }
 
-    const selectedAcc = accounts.find((a) => a.id === selectedAccountId) ?? null;
+    const selectedAcc =
+      accounts.find((a) => a.id === selectedAccountId) ?? null;
     setSelectedAccount(selectedAcc);
 
     mutate(
       {
-        name: String(bill.num),
-        amount: totalToPay,
+        name: `Sale ${String(bill.num)}`,
+        amount: totalAfterDiscount,
         paymentMethodId: selectedPaymentMethod.id,
         accountId: selectedAccountId,
         billId: bill.id,
@@ -121,8 +127,9 @@ export default function AccountScreen() {
           </ThemedText>
           {isCard && commissionRate > 0 && (
             <ThemedText type="body2" style={tw`text-gray-500 mt-1`}>
-              {t("bills:details.totalAmount")}: {formatCurrency(totalAfterDiscount)}{" "}
-              + {selectedPaymentMethod.commissionPercentage}%{" "}
+              {t("bills:details.totalAmount")}:{" "}
+              {formatCurrency(totalAfterDiscount)} +{" "}
+              {selectedPaymentMethod.commissionPercentage}%{" "}
               {t("bills:details.commission").toLowerCase()}
             </ThemedText>
           )}
@@ -132,12 +139,16 @@ export default function AccountScreen() {
         <ThemedView
           style={tw`flex-row items-center gap-3 p-4 rounded-2xl border border-gray-200 mb-6`}
         >
-          <Ionicons name="card-outline" size={20} color={tw.color("gray-500")} />
+          <Ionicons
+            name="card-outline"
+            size={20}
+            color={tw.color("gray-500")}
+          />
           <ThemedText type="body2" style={tw`flex-1 text-gray-700`}>
             {selectedPaymentMethod.name}
           </ThemedText>
           {selectedPaymentMethod.type === PaymentMethodCategory.CASH &&
-            billReceivedAmount ? (
+          billReceivedAmount ? (
             <ThemedText type="body2" style={tw`text-gray-500`}>
               Received: {formatCurrency(+billReceivedAmount)}
             </ThemedText>
@@ -197,7 +208,9 @@ export default function AccountScreen() {
                   </ThemedView>
                   <Label
                     text={account.type === AccountType.BANK ? "Bank" : "Cash"}
-                    color={account.type === AccountType.BANK ? "info" : "default"}
+                    color={
+                      account.type === AccountType.BANK ? "info" : "default"
+                    }
                     size="small"
                   />
                   {isSelected && (
@@ -218,7 +231,7 @@ export default function AccountScreen() {
       {/* Pay button */}
       <ThemedView style={tw`px-4 pb-6 pt-4 border-t border-gray-200`}>
         <Button
-          label={`Pay ${formatCurrency(totalToPay)}`}
+          label={`Pay ${formatCurrency(totalAfterDiscount)}`}
           onPress={handlePay}
           disabled={!selectedAccountId || isLoading || accounts.length === 0}
           loading={isLoading}

@@ -29,7 +29,8 @@
     "filter": "Filter",
     "select": "Select",
     "loadMore": "Load More",
-    "continue": "Continue"
+    "continue": "Continue",
+    "clearAll": "Clear All"
   },
   "status": {
     "pending": "Pending",

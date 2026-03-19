@@ -179,7 +179,7 @@ export default function MyOrdersScreen() {
               <ThemedText type="small" style={tw``}>
                 {t("common:stats.totalAmount")}
               </ThemedText>
-              <ThemedText style={tw`text-6xl `}>
+              <ThemedText style={tw`text-5xl `}>
                 {`${t("common:currency.symbol")}${dashboardStats?.totalAmount?.toFixed(2) ?? "0.00"}`}
               </ThemedText>
             </ThemedView>

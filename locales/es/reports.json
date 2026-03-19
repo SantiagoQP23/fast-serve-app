@@ -41,7 +41,7 @@
     "noBillsForOrder": "Sin cuentas para este pedido"
   },
   "paymentMethodReport": {
-    "title": "Ingresos por Método de Pago",
+    "title": "Ingresos por método de pago",
     "byPaymentMethod": "Por Método de Pago",
     "noData": "No hay datos de pagos disponibles"
   },
