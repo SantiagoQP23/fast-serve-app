@@ -37,7 +37,7 @@ export default function OrderBillsScreen() {
 
       // Refetch bills for this order
       await queryClient.refetchQueries({
-        queryKey: ["bills", "order", order.id],
+        queryKey: ["bills", order.id],
       });
     } catch {
       Alert.alert(

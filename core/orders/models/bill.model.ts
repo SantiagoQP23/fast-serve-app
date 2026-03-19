@@ -1,6 +1,7 @@
 import { User } from "@/core/auth/models/user.model";
 import { PaymentMethod } from "../enums/payment-method";
 import { BillDetail } from "./bill.detail.model";
+import { Transaction } from "@/core/transactions/models/transaction.model";
 
 export enum BillStatus {
   OPEN = "open",
@@ -40,4 +41,5 @@ export interface Bill {
   isActive: boolean;
 
   details: BillDetail[];
+  transactions: Transaction[];
 }

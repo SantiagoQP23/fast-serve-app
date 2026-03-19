@@ -27,6 +27,7 @@ import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import Label from "@/presentation/theme/components/label";
 import { translatePaymentMethod } from "@/core/i18n/utils";
 import { BillStatus } from "@/core/orders/models/bill.model";
+import TransactionCard from "@/presentation/transactions/components/transaction-card";
 
 export default function BillScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
@@ -275,34 +276,32 @@ export default function BillScreen() {
             ) : (
               <>
                 {/* Paid Bill Summary */}
-                <ThemedView style={tw`items-center py-8 mb-6`}>
-                  <Ionicons
-                    name="checkmark-circle"
-                    size={64}
-                    color={tw.color("green-500")}
-                  />
-                  <ThemedText
-                    type="h3"
-                    style={tw`font-bold text-green-600 mt-3`}
-                  >
-                    {t("bills:details.billPaid")}
-                  </ThemedText>
+                {/* <ThemedView style={tw`items-center py-8 mb-6`}> */}
+                {/*   <Ionicons */}
+                {/*     name="checkmark-circle" */}
+                {/*     size={64} */}
+                {/*     color={tw.color("green-500")} */}
+                {/*   /> */}
+                {/*   <ThemedText */}
+                {/*     type="h3" */}
+                {/*     style={tw`font-bold text-green-600 mt-3`} */}
+                {/*   > */}
+                {/*     {t("bills:details.billPaid")} */}
+                {/*   </ThemedText> */}
+                {/* </ThemedView> */}
+                <ThemedView>
+                  {bill.transactions.map((transaction) => (
+                    <TransactionCard
+                      key={transaction.id}
+                      transaction={transaction}
+                    />
+                  ))}
                 </ThemedView>
 
                 {/* Payment Details */}
                 <ThemedView
                   style={tw`border border-gray-200 rounded-xl overflow-hidden`}
                 >
-                  <ThemedView
-                    style={tw`flex-row justify-between items-center px-4 py-3`}
-                  >
-                    <ThemedText type="body2" style={tw`text-gray-500`}>
-                      {t("bills:details.paymentMethod")}
-                    </ThemedText>
-                    <ThemedText type="body1" style={tw`font-semibold`}>
-                      {translatePaymentMethod(bill.paymentMethod)}
-                    </ThemedText>
-                  </ThemedView>
                   {bill.discount > 0 && (
                     <>
                       <ThemedView style={tw`h-px bg-gray-200`} />
