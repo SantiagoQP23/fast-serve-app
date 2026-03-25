@@ -89,7 +89,7 @@ export default function AccountScreen() {
 
     mutate(
       {
-        name: `Sale ${String(bill.num)}`,
+        name: `Ingreso por Venta #${String(bill.num)}`,
         amount: totalAfterDiscount,
         paymentMethodId: selectedPaymentMethod.id,
         accountId: selectedAccountId,
@@ -151,7 +151,8 @@ export default function AccountScreen() {
           {selectedPaymentMethod.type === PaymentMethodCategory.CASH &&
           billReceivedAmount ? (
             <ThemedText type="body2" style={tw`text-gray-500`}>
-              {t("bills:account.received")}: {formatCurrency(+billReceivedAmount)}
+              {t("bills:account.received")}:{" "}
+              {formatCurrency(+billReceivedAmount)}
             </ThemedText>
           ) : null}
         </ThemedView>
@@ -208,7 +209,11 @@ export default function AccountScreen() {
                     ) : null}
                   </ThemedView>
                   <Label
-                    text={account.type === AccountType.BANK ? t("bills:account.accountTypeBank") : t("bills:account.accountTypeCash")}
+                    text={
+                      account.type === AccountType.BANK
+                        ? t("bills:account.accountTypeBank")
+                        : t("bills:account.accountTypeCash")
+                    }
                     color={
                       account.type === AccountType.BANK ? "info" : "default"
                     }
@@ -232,7 +237,9 @@ export default function AccountScreen() {
       {/* Pay button */}
       <ThemedView style={tw`px-4 pb-6 pt-4 border-t border-gray-200`}>
         <Button
-          label={t("bills:account.payButton", { amount: formatCurrency(totalAfterDiscount) })}
+          label={t("bills:account.payButton", {
+            amount: formatCurrency(totalAfterDiscount),
+          })}
           onPress={handlePay}
           disabled={!selectedAccountId || isLoading || accounts.length === 0}
           loading={isLoading}

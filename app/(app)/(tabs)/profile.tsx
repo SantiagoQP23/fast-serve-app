@@ -68,7 +68,7 @@ export default function OrdersScreen() {
                 tw.style(`flex-row items-center gap-4`, pressed && "opacity-70")
               }
               onPress={() => {
-                router.push("/(app)/(tabs)/(orders-module)/all-orders");
+                router.push("/(profile)/all-orders");
               }}
             >
               <Ionicons name="people-outline" size={20} />
@@ -79,7 +79,7 @@ export default function OrdersScreen() {
                 tw.style(`flex-row items-center gap-4`, pressed && "opacity-70")
               }
               onPress={() => {
-                router.push("/(app)/(tabs)/(orders-module)/history");
+                router.push("/(profile)/history");
               }}
             >
               <Ionicons name="time-outline" size={20} />

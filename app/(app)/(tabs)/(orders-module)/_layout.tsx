@@ -85,7 +85,7 @@ export default function OrdersModuleLayout() {
           name="my-orders"
           options={{
             headerShown: false,
-            title: t("drawer.myOrders"),
+            // title: t("drawer.myOrders"),
             headerShadowVisible: false,
             headerLeft: () => <MyOrdersHeaderLeft />,
             headerRight: () => <MyOrdersHeaderRight />,

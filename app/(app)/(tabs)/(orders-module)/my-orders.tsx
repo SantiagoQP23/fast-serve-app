@@ -154,13 +154,6 @@ export default function MyOrdersScreen() {
 
   return (
     <ThemedView style={tw`flex-1 bg-light-background`}>
-      <ThemedView style={tw`mb-6 px-4`}>
-        <ThemedText type="body1">{t("common:greetings.hello")},</ThemedText>
-        <ThemedText type="h2" style={tw`mt-1`}>
-          {user?.person.firstName}!
-        </ThemedText>
-      </ThemedView>
-
       <ScrollView
         contentContainerStyle={tw`pb-20 gap-4`}
         showsVerticalScrollIndicator={false}
@@ -173,6 +166,12 @@ export default function MyOrdersScreen() {
           />
         }
       >
+        <ThemedView style={tw`px-4`}>
+          <ThemedText type="body1">{t("common:greetings.hello")},</ThemedText>
+          <ThemedText type="h2" style={tw`mt-1`}>
+            {user?.person.firstName}!
+          </ThemedText>
+        </ThemedView>
         <ThemedView style={tw`px-4 mb-4 gap-4`}>
           <ThemedView style={tw`gap-4 rounded-lg `}>
             <ThemedView style={tw`bg-transparent gap-1 `}>
@@ -389,16 +388,6 @@ export default function MyOrdersScreen() {
                 <OrderList
                   title={t("common:status.delivered")}
                   orders={deliveredOrders}
-                />
-                {/* Collapsible Closed Orders Section */}
-                <CollapsibleOrderSection
-                  title={t("orders:list.closedOrders")}
-                  totalCount={closedOrdersCount}
-                  orders={closedOrders}
-                  isLoading={isLoadingClosedOrders}
-                  onExpand={refetchClosedOrders}
-                  hasMore={hasMoreClosedOrders}
-                  onLoadMore={loadMoreClosedOrders}
                 />
               </>
             )}
