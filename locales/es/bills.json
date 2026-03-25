@@ -89,5 +89,15 @@
     "all": "Todas",
     "paidCount": "{{count}} Pagadas",
     "unpaidCount": "{{count}} Sin Pagar"
+  },
+  "account": {
+    "selectAccountTitle": "Seleccionar una cuenta",
+    "selectAccountMessage": "Por favor seleccione una cuenta de destino para continuar.",
+    "received": "Recibido",
+    "destinationAccount": "Cuenta de destino",
+    "noAccountsAvailable": "No hay cuentas disponibles para este método de pago.",
+    "accountTypeBank": "Banco",
+    "accountTypeCash": "Efectivo",
+    "payButton": "Pagar {{amount}}"
   }
 }

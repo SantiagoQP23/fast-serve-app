@@ -89,5 +89,15 @@
     "all": "All",
     "paidCount": "{{count}} Paid",
     "unpaidCount": "{{count}} Unpaid"
+  },
+  "account": {
+    "selectAccountTitle": "Select an account",
+    "selectAccountMessage": "Please select a destination account to continue.",
+    "received": "Received",
+    "destinationAccount": "Destination account",
+    "noAccountsAvailable": "No accounts available for this payment method.",
+    "accountTypeBank": "Bank",
+    "accountTypeCash": "Cash",
+    "payButton": "Pay {{amount}}"
   }
 }

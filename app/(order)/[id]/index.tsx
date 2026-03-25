@@ -31,6 +31,7 @@ import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOrder } from "@/presentation/orders/hooks/useOrder";
 import IconButton from "@/presentation/theme/components/icon-button";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 dayjs.extend(relativeTime);
 
@@ -272,7 +273,7 @@ export default function OrderScreen() {
           </View>
         </View>
       </Modal>
-      <ThemedView style={tw`px-4 pt-6 flex-1`}>
+      <ScreenLayout style={tw`px-4 pt-6 flex-1`}>
         <ScrollView
           style={tw`flex-1`}
           showsVerticalScrollIndicator={false}
@@ -561,7 +562,7 @@ export default function OrderScreen() {
           </ThemedView>
         </ScrollView>
         {/* divider */}
-      </ThemedView>
+      </ScreenLayout>
 
       {/* Footer - Total */}
       <ThemedView style={tw`px-4 py-4 border-t border-gray-200 bg-white`}>

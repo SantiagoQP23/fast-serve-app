@@ -17,6 +17,7 @@ import { formatCurrency } from "@/core/i18n/utils";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 export default function OrderBillsScreen() {
   const { t } = useTranslation(["common", "orders", "bills", "errors"]);
@@ -71,7 +72,7 @@ export default function OrderBillsScreen() {
   const remainingAmount = Math.max(order.total - orderAmountInBills, 0);
 
   return (
-    <ThemedView style={tw`px-4 pt-8 flex-1 gap-8`}>
+    <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-8`}>
       <ThemedView style={tw`  items-center gap-4`}>
         <ThemedView style={tw`gap-1 items-center`}>
           <ThemedText type="h3">
@@ -151,6 +152,6 @@ export default function OrderBillsScreen() {
           onPress={() => router.push(`/(order)/${order.id}/bills/new`)}
         />
       )}
-    </ThemedView>
+    </ScreenLayout>
   );
 }

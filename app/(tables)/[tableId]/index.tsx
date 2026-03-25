@@ -16,6 +16,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
 import StatsCard from "@/presentation/home/components/stats-card";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 export default function TableOrdersScreen() {
   const { t } = useTranslation(["common", "tables"]);
@@ -51,7 +52,7 @@ export default function TableOrdersScreen() {
 
   return (
     <>
-      <ThemedView style={tw`flex-1`}>
+      <ScreenLayout style={tw`flex-1`}>
         <ThemedView
           style={tw`mb-6 px-4 mt-2 flex-row items-center justify-between`}
         >
@@ -128,7 +129,7 @@ export default function TableOrdersScreen() {
         >
           <NewOrderBottomSheet onCreateOrder={handleNavigate} />
         </BottomSheetModal>
-      </ThemedView>
+      </ScreenLayout>
       <Fab icon="add-outline" onPress={handlePresentModalPress} />
     </>
   );

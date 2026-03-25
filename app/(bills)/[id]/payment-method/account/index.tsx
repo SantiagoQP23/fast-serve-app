@@ -15,6 +15,7 @@ import { formatCurrency } from "@/core/i18n/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { useBills } from "@/presentation/orders/hooks/useBills";
 import { Pressable } from "react-native";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 export default function AccountScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
@@ -76,8 +77,8 @@ export default function AccountScreen() {
   const handlePay = () => {
     if (!selectedAccountId) {
       Alert.alert(
-        "Select an account",
-        "Please select a destination account to continue.",
+        t("bills:account.selectAccountTitle"),
+        t("bills:account.selectAccountMessage"),
       );
       return;
     }
@@ -111,7 +112,7 @@ export default function AccountScreen() {
   };
 
   return (
-    <ThemedView style={tw`flex-1`}>
+    <ScreenLayout style={tw`flex-1`}>
       <ScrollView
         style={tw`flex-1`}
         contentContainerStyle={tw`px-4 pt-6 pb-4`}
@@ -150,14 +151,14 @@ export default function AccountScreen() {
           {selectedPaymentMethod.type === PaymentMethodCategory.CASH &&
           billReceivedAmount ? (
             <ThemedText type="body2" style={tw`text-gray-500`}>
-              Received: {formatCurrency(+billReceivedAmount)}
+              {t("bills:account.received")}: {formatCurrency(+billReceivedAmount)}
             </ThemedText>
           ) : null}
         </ThemedView>
 
         {/* Account list */}
         <ThemedText type="body2" style={tw`text-gray-500 mb-3`}>
-          Destination account
+          {t("bills:account.destinationAccount")}
         </ThemedText>
 
         {accounts.length === 0 ? (
@@ -168,7 +169,7 @@ export default function AccountScreen() {
               color={tw.color("gray-400")}
             />
             <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
-              No accounts available for this payment method.
+              {t("bills:account.noAccountsAvailable")}
             </ThemedText>
           </ThemedView>
         ) : (
@@ -207,7 +208,7 @@ export default function AccountScreen() {
                     ) : null}
                   </ThemedView>
                   <Label
-                    text={account.type === AccountType.BANK ? "Bank" : "Cash"}
+                    text={account.type === AccountType.BANK ? t("bills:account.accountTypeBank") : t("bills:account.accountTypeCash")}
                     color={
                       account.type === AccountType.BANK ? "info" : "default"
                     }
@@ -231,12 +232,12 @@ export default function AccountScreen() {
       {/* Pay button */}
       <ThemedView style={tw`px-4 pb-6 pt-4 border-t border-gray-200`}>
         <Button
-          label={`Pay ${formatCurrency(totalAfterDiscount)}`}
+          label={t("bills:account.payButton", { amount: formatCurrency(totalAfterDiscount) })}
           onPress={handlePay}
           disabled={!selectedAccountId || isLoading || accounts.length === 0}
           loading={isLoading}
         />
       </ThemedView>
-    </ThemedView>
+    </ScreenLayout>
   );
 }

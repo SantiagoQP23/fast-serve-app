@@ -18,6 +18,7 @@ import { mapStoreToCreateOrderDto } from "@/presentation/orders/mappers/createOr
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 export default function CartScreen() {
   const { t } = useTranslation(["common", "menu"]);
@@ -64,7 +65,7 @@ export default function CartScreen() {
 
   return (
     <>
-      <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
+      <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
         <ThemedView style={tw`flex-row justify-between items-center`}>
           <ThemedView style={tw`gap-2`}>
             <ThemedText type="h1">{t("menu:cart.title")}</ThemedText>
@@ -131,19 +132,18 @@ export default function CartScreen() {
         {/*     onPress={() => router.push("/restaurant-menu")} */}
         {/*   /> */}
         {/* </ScrollView> */}
-      </ThemedView>
-
-      <ThemedView style={tw`gap-4 p-4 rounded-xl shadow-xl `}>
-        <ThemedView style={tw`flex-row justify-between items-center`}>
-          <ThemedText type="h3">{t("common:labels.total")}</ThemedText>
-          <ThemedText type="h2">{formatCurrency(total)}</ThemedText>
+        <ThemedView style={tw`gap-4 pb-2 `}>
+          <ThemedView style={tw`flex-row justify-between items-center`}>
+            <ThemedText type="h3">{t("common:labels.total")}</ThemedText>
+            <ThemedText type="h2">{formatCurrency(total)}</ThemedText>
+          </ThemedView>
+          <Button
+            label={t("menu:cart.createOrder")}
+            onPress={onCreateOrder}
+            disabled={!isOnline || isLoading || details.length === 0}
+          ></Button>
         </ThemedView>
-        <Button
-          label={t("menu:cart.createOrder")}
-          onPress={onCreateOrder}
-          disabled={!isOnline || isLoading || details.length === 0}
-        ></Button>
-      </ThemedView>
+      </ScreenLayout>
     </>
   );
 }

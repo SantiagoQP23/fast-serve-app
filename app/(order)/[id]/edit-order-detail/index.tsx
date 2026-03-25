@@ -15,6 +15,7 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 export default function EditOrderDetailScreen() {
   const { t } = useTranslation(["common", "orders"]);
@@ -87,100 +88,106 @@ export default function EditOrderDetailScreen() {
   };
 
   return (
-    <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
-      <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
-        <ThemedView style={tw`flex-row justify-between mb-4 items-center`}>
-          <ThemedView>
-            <ThemedText type="h2">{orderDetail.product.name}</ThemedText>
-            <ThemedText type="body1">
-              {formatCurrency(orderDetail.price)}
-            </ThemedText>
+    <ScreenLayout>
+      <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
+        <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
+          <ThemedView style={tw`flex-row justify-between mb-4 items-center`}>
+            <ThemedView>
+              <ThemedText type="h2">{orderDetail.product.name}</ThemedText>
+              <ThemedText type="body1">
+                {formatCurrency(orderDetail.price)}
+              </ThemedText>
+            </ThemedView>
           </ThemedView>
-        </ThemedView>
-        {orderDetail.product.tags?.filter((tag) => tag.isActive && !tag.isArchived).length > 0 && (
-          <ThemedView style={tw`flex-row flex-wrap gap-2`}>
-            {orderDetail.product.tags
-              .filter((tag) => tag.isActive && !tag.isArchived)
-              .map((tag) => (
-                <Label
-                  key={tag.id}
-                  text={tag.name}
-                  color={selectedTagIds.includes(tag.id) ? "default" : "outline"}
-                  onPress={() => toggleTag(tag.id)}
-                />
-              ))}
-          </ThemedView>
-        )}
-        {orderDetail.product.description && (
-          <ThemedText type="body2">
-            {orderDetail.product.description}
-          </ThemedText>
-        )}
-
-        <TextInput
-          label={t("common:labels.price")}
-          keyboardType="numeric"
-          icon="pricetag-outline"
-          value={price}
-          onChangeText={setPrice}
-        />
-        <ThemedView>
-          <Switch
-            label={t("orders:newOrder.addNote")}
-            value={withNotes}
-            onValueChange={setWithNotes}
-          />
-          {withNotes && (
-            <TextInput
-              numberOfLines={5}
-              multiline
-              value={notes}
-              onChangeText={setNotes}
-            />
+          {orderDetail.product.tags?.filter(
+            (tag) => tag.isActive && !tag.isArchived,
+          ).length > 0 && (
+            <ThemedView style={tw`flex-row flex-wrap gap-2`}>
+              {orderDetail.product.tags
+                .filter((tag) => tag.isActive && !tag.isArchived)
+                .map((tag) => (
+                  <Label
+                    key={tag.id}
+                    text={tag.name}
+                    color={
+                      selectedTagIds.includes(tag.id) ? "default" : "outline"
+                    }
+                    onPress={() => toggleTag(tag.id)}
+                  />
+                ))}
+            </ThemedView>
           )}
-        </ThemedView>
+          {orderDetail.product.description && (
+            <ThemedText type="body2">
+              {orderDetail.product.description}
+            </ThemedText>
+          )}
 
-        <ThemedView style={tw`flex-row justify-between mb-4 items-center`}>
+          <TextInput
+            label={t("common:labels.price")}
+            keyboardType="numeric"
+            icon="pricetag-outline"
+            value={price}
+            onChangeText={setPrice}
+          />
           <ThemedView>
-            <ThemedText type="h4">{t("common:status.delivered")}</ThemedText>
-          </ThemedView>
-          <ThemedView style={tw`flex-row items-center gap-4`}>
-            <IconButton
-              icon="remove-outline"
-              onPress={decrementDelivered}
-              variant="outlined"
+            <Switch
+              label={t("orders:newOrder.addNote")}
+              value={withNotes}
+              onValueChange={setWithNotes}
             />
-            <ThemedText>{deliveredCounter}</ThemedText>
-            <IconButton
-              icon="add"
-              onPress={incrementDelivered}
-              variant="outlined"
-            />
+            {withNotes && (
+              <TextInput
+                numberOfLines={5}
+                multiline
+                value={notes}
+                onChangeText={setNotes}
+              />
+            )}
           </ThemedView>
+
+          <ThemedView style={tw`flex-row justify-between mb-4 items-center`}>
+            <ThemedView>
+              <ThemedText type="h4">{t("common:status.delivered")}</ThemedText>
+            </ThemedView>
+            <ThemedView style={tw`flex-row items-center gap-4`}>
+              <IconButton
+                icon="remove-outline"
+                onPress={decrementDelivered}
+                variant="outlined"
+              />
+              <ThemedText>{deliveredCounter}</ThemedText>
+              <IconButton
+                icon="add"
+                onPress={incrementDelivered}
+                variant="outlined"
+              />
+            </ThemedView>
+          </ThemedView>
+          <ThemedView style={tw`flex-1 `} />
         </ThemedView>
-        <ThemedView style={tw`flex-1 `} />
-      </ThemedView>
-      <ThemedView style={tw`gap-4 p-4 rounded-xl shadow-xl `}>
-        <ThemedView style={tw`flex-row justify-between items-center`}>
-          <ThemedText type="h4">
-            {formatCurrency(orderDetail.price * counter)}
-          </ThemedText>
-          <ThemedView style={tw`flex-row items-center gap-4`}>
-            <IconButton
-              icon="remove-outline"
-              onPress={decrement}
-              variant="outlined"
-            />
-            <ThemedText>{counter}</ThemedText>
-            <IconButton icon="add" onPress={increment} variant="outlined" />
+        <ThemedView style={tw`gap-4 p-4 border-t border-gray-200`}>
+          <ThemedView style={tw`flex-row justify-between items-center`}>
+            <ThemedText type="h4">
+              {formatCurrency(orderDetail.price * counter)}
+            </ThemedText>
+            <ThemedView style={tw`flex-row items-center gap-4`}>
+              <IconButton
+                icon="remove-outline"
+                onPress={decrement}
+                variant="outlined"
+              />
+              <ThemedText>{counter}</ThemedText>
+              <IconButton icon="add" onPress={increment} variant="outlined" />
+            </ThemedView>
           </ThemedView>
+          <Button
+            label={t("orders:edit.saveChanges")}
+            onPress={onUpdateOrderDetail}
+            leftIcon="save-outline"
+          />
         </ThemedView>
-        <Button
-          label={t("orders:edit.saveChanges")}
-          onPress={onUpdateOrderDetail}
-          leftIcon="save-outline"
-        />
-      </ThemedView>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </ScreenLayout>
   );
 }

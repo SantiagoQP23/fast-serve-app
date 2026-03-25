@@ -28,6 +28,7 @@ import {
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import { useBills } from "@/presentation/orders/hooks/useBills";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 const iconForType = (
   type: PaymentMethodCategory,
@@ -358,7 +359,7 @@ export default function PaymentMethodScreen() {
         </BottomSheetView>
       </BottomSheetModal>
 
-      <ThemedView style={tw`flex-1 px-4 pt-6`}>
+      <ScreenLayout style={tw`flex-1 px-4 pt-6`}>
         {/* Total display */}
         <ThemedView style={tw`items-center mb-8`}>
           <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
@@ -388,7 +389,7 @@ export default function PaymentMethodScreen() {
             />
           ))}
         </ThemedView>
-      </ThemedView>
+      </ScreenLayout>
     </>
   );
 }
