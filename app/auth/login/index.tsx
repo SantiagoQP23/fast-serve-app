@@ -110,7 +110,9 @@ const LoginScreen = () => {
 
   return (
     <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
-      <ThemedView style={tw`flex-1 px-4 gap-8`}>
+      <ThemedView
+        style={tw`flex-1 px-4 gap-8 bg-light-background dark:bg-dark-background`}
+      >
         <ThemedView style={[{ paddingTop: height * 0.2 }]}>
           <ThemedText type="h1">{t("login.title")}</ThemedText>
           <ThemedText>{t("login.enterCredentials")}</ThemedText>

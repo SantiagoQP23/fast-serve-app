@@ -79,33 +79,35 @@ export default function OrdersModuleLayout() {
   const { t } = useTranslation("orders");
 
   return (
-    <Stack screenOptions={{ headerShown: true }}>
-      <Stack.Screen
-        name="my-orders"
-        options={{
-          headerShown: false,
-          title: t("drawer.myOrders"),
-          headerShadowVisible: false,
-          headerLeft: () => <MyOrdersHeaderLeft />,
-          headerRight: () => <MyOrdersHeaderRight />,
-        }}
-      />
-      <Stack.Screen
-        name="all-orders"
-        options={{
-          title: t("drawer.allOrders"),
-          headerShadowVisible: false,
-          headerLeft: () => null,
-          headerRight: () => <AllOrdersHeaderRight />,
-        }}
-      />
-      <Stack.Screen
-        name="history"
-        options={{
-          title: t("drawer.history"),
-          headerLeft: () => null,
-        }}
-      />
-    </Stack>
+    <ThemedView style={tw`flex-1 bg-light-background `}>
+      <Stack screenOptions={{ headerShown: true }}>
+        <Stack.Screen
+          name="my-orders"
+          options={{
+            headerShown: false,
+            title: t("drawer.myOrders"),
+            headerShadowVisible: false,
+            headerLeft: () => <MyOrdersHeaderLeft />,
+            headerRight: () => <MyOrdersHeaderRight />,
+          }}
+        />
+        <Stack.Screen
+          name="all-orders"
+          options={{
+            title: t("drawer.allOrders"),
+            headerShadowVisible: false,
+            headerLeft: () => null,
+            headerRight: () => <AllOrdersHeaderRight />,
+          }}
+        />
+        <Stack.Screen
+          name="history"
+          options={{
+            title: t("drawer.history"),
+            headerLeft: () => null,
+          }}
+        />
+      </Stack>
+    </ThemedView>
   );
 }

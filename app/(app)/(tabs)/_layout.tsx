@@ -15,26 +15,11 @@ import {
 } from "@/presentation/orders/hooks/useOrders";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { DrawerActions } from "@react-navigation/native";
 import IconButton from "@/presentation/theme/components/icon-button";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersModuleContext } from "./(orders-module)/orders-module.context";
 import NotificationBadge from "@/presentation/theme/components/notification-badge";
-
-function MyOrdersHeaderLeft() {
-  const navigation = useNavigation();
-
-  const handleOpenDrawer = () => {
-    navigation.dispatch(DrawerActions.openDrawer());
-  };
-
-  return (
-    <ThemedView style={tw`ml-2`}>
-      <IconButton icon="menu-outline" onPress={handleOpenDrawer} size={24} />
-    </ThemedView>
-  );
-}
 
 function MyOrdersHeaderRight() {
   const router = useRouter();
@@ -106,67 +91,68 @@ export default function TabLayout() {
   // activeOrdersQuery.refetch();
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].primary,
-        headerShown: false,
-        // tabBarActiveTintColor: Colors["light"].tint,
-        // tabBarStyle: {
-        //   backgroundColor: Colors["light"].background,
-        // },
-      }}
-    >
-      <Tabs.Screen
-        name="(orders-module)"
-        options={{
-          title: t("navigation.home"),
-          tabBarIcon: ({ color }) => (
-            <Ionicons color={color} name="home-outline" size={24} />
-          ),
-          headerShown: true,
-          headerShadowVisible: false,
-          headerLeft: () => <MyOrdersHeaderLeft />,
-          headerRight: () => <MyOrdersHeaderRight />,
+    <ThemedView style={tw`flex-1 bg-light-background `}>
+      <Tabs
+        screenOptions={{
+          tabBarActiveTintColor: Colors[colorScheme ?? "light"].primary,
+          headerShown: false,
+          // tabBarActiveTintColor: Colors["light"].tint,
+          // tabBarStyle: {
+          //   backgroundColor: Colors["light"].background,
+          // },
         }}
-      />
-      <Tabs.Screen
-        name="sales"
-        options={{
-          title: t("navigation.sales"),
-          tabBarIcon: ({ color }) => (
-            <Ionicons color={color} name="pricetag-outline" size={24} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="tables"
-        options={{
-          title: t("navigation.tables"),
-          tabBarIcon: ({ color }) => (
-            <Ionicons color={color} name="grid-outline" size={24} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="incomes"
-        options={{
-          title: t("navigation.incomes"),
-          tabBarIcon: ({ color }) => (
-            <Ionicons color={color} name="stats-chart-outline" size={24} />
-          ),
-          href: isAdmin ? "/(app)/(tabs)/incomes" : null,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: t("navigation.profile"),
-          // headerShown: true,
-          tabBarIcon: ({ color }) => (
-            <Ionicons color={color} name="person-outline" size={24} />
-          ),
-        }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen
+          name="(orders-module)"
+          options={{
+            title: t("navigation.home"),
+            tabBarIcon: ({ color }) => (
+              <Ionicons color={color} name="home-outline" size={24} />
+            ),
+            headerShown: true,
+            headerShadowVisible: false,
+            headerRight: () => <MyOrdersHeaderRight />,
+          }}
+        />
+        <Tabs.Screen
+          name="sales"
+          options={{
+            title: t("navigation.sales"),
+            tabBarIcon: ({ color }) => (
+              <Ionicons color={color} name="pricetag-outline" size={24} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="tables"
+          options={{
+            title: t("navigation.tables"),
+            tabBarIcon: ({ color }) => (
+              <Ionicons color={color} name="grid-outline" size={24} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="incomes"
+          options={{
+            title: t("navigation.incomes"),
+            tabBarIcon: ({ color }) => (
+              <Ionicons color={color} name="stats-chart-outline" size={24} />
+            ),
+            href: isAdmin ? "/(app)/(tabs)/incomes" : null,
+          }}
+        />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: t("navigation.profile"),
+            // headerShown: true,
+            tabBarIcon: ({ color }) => (
+              <Ionicons color={color} name="person-outline" size={24} />
+            ),
+          }}
+        />
+      </Tabs>
+    </ThemedView>
   );
 }

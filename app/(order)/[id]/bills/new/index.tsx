@@ -135,7 +135,7 @@ export default function NewBillScreen() {
   const selectedCount = getSelectedItemsCount();
 
   return (
-    <ThemedView style={tw`flex-1 bg-light-background`}>
+    <ThemedView style={tw`flex-1`}>
       <ScrollView
         style={tw`flex-1`}
         showsVerticalScrollIndicator={false}

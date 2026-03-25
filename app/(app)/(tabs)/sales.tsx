@@ -39,6 +39,7 @@ import { BillStatus } from "@/core/orders/models/bill.model";
 import BillCard from "@/presentation/orders/components/bill-card";
 import Chip from "@/presentation/theme/components/chip";
 import { BillStatusFilter } from "@/core/orders/dto/bill-list-filters.dto";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 const STORAGE_KEY = "sales_selected_date";
 
@@ -175,7 +176,7 @@ export default function SalesScreen() {
 
   return (
     <>
-      <ThemedView style={tw`flex-1 pt-8 bg-light-background`}>
+      <ScreenLayout style={tw`pt-8`}>
         {/* Header */}
         <ThemedView style={tw`px-4 mb-4 gap-3`}>
           <ThemedView style={tw`flex-row items-center justify-between`}>
@@ -341,7 +342,9 @@ export default function SalesScreen() {
             }
           />
           <Chip
-            label={t("bills:filters.paidCount", { count: data?.countPaid ?? 0 })}
+            label={t("bills:filters.paidCount", {
+              count: data?.countPaid ?? 0,
+            })}
             selected={filters.status === BillStatusFilter.PAID}
             onPress={() =>
               setFilters((prev) => ({
@@ -354,7 +357,9 @@ export default function SalesScreen() {
             }
           />
           <Chip
-            label={t("bills:filters.unpaidCount", { count: data?.countUnpaid ?? 0 })}
+            label={t("bills:filters.unpaidCount", {
+              count: data?.countUnpaid ?? 0,
+            })}
             selected={filters.status === BillStatusFilter.UNPAID}
             onPress={() =>
               setFilters((prev) => ({
@@ -427,7 +432,7 @@ export default function SalesScreen() {
             </ThemedView>
           )}
         </ScrollView>
-      </ThemedView>
+      </ScreenLayout>
 
       {/* Filter Bottom Sheet */}
       <BottomSheetModal

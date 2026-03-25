@@ -71,7 +71,7 @@ export default function OrderBillsScreen() {
   const remainingAmount = Math.max(order.total - orderAmountInBills, 0);
 
   return (
-    <ThemedView style={tw`px-4 pt-8 flex-1 gap-8 bg-light-background`}>
+    <ThemedView style={tw`px-4 pt-8 flex-1 gap-8`}>
       <ThemedView style={tw`  items-center gap-4`}>
         <ThemedView style={tw`gap-1 items-center`}>
           <ThemedText type="h3">

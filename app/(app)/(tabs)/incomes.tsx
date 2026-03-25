@@ -36,6 +36,7 @@ import Chip from "@/presentation/theme/components/chip";
 import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
 import { FilterTransactionsDto } from "@/core/transactions/dto/filter-transactions.dto";
 import IconButton from "@/presentation/theme/components/icon-button";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 const STORAGE_KEY = "incomes_selected_date";
 const FILTERS_STORAGE_KEY = "incomes_filters";
@@ -206,7 +207,7 @@ export default function IncomesScreen() {
     !!filters.paymentMethodId || !!filters.accountId;
 
   return (
-    <ThemedView style={tw`flex-1 pt-8 bg-light-background`}>
+    <ScreenLayout style={tw`flex-1 pt-8`}>
       <ThemedView style={tw`px-4 mb-4`}>
         <ThemedText type="h2">{t("common:navigation.incomes")}</ThemedText>
       </ThemedView>
@@ -387,6 +388,6 @@ export default function IncomesScreen() {
           onClose={() => bottomSheetModalRef.current?.dismiss()}
         />
       </BottomSheetModal>
-    </ThemedView>
+    </ScreenLayout>
   );
 }

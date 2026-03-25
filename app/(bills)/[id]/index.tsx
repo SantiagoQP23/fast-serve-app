@@ -154,7 +154,7 @@ export default function BillScreen() {
       </Modal>
 
       <KeyboardAvoidingView
-        style={tw`flex-1 bg-light-background`}
+        style={tw`flex-1`}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ThemedView style={tw`px-4 pt-6 flex-1 gap-4`}>
