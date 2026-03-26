@@ -40,7 +40,7 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
           >
             <ThemedView style={tw`flex-row items-center flex-1`}>
               <ThemedView
-                style={tw`w-12 h-12 rounded-full bg-primary-50 items-center justify-center mr-3`}
+                style={tw`w-12 h-12 rounded-full  items-center justify-center mr-3`}
               >
                 <Ionicons
                   name="person"

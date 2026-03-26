@@ -21,6 +21,7 @@ import { router } from "expo-router";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { i18nAlert } from "@/core/i18n/utils";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 const loginSchema = z.object({
   username: z.string({ message: "Username is required" }),
@@ -110,9 +111,7 @@ const LoginScreen = () => {
 
   return (
     <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
-      <ThemedView
-        style={tw`flex-1 px-4 gap-8 bg-light-background dark:bg-dark-background`}
-      >
+      <ScreenLayout style={tw`flex-1 px-4 gap-8 `}>
         <ThemedView style={[{ paddingTop: height * 0.2 }]}>
           <ThemedText type="h1">{t("login.title")}</ThemedText>
           <ThemedText>{t("login.enterCredentials")}</ThemedText>
@@ -177,7 +176,7 @@ const LoginScreen = () => {
             <ThemedText type="body2">{t("login.signUp")}</ThemedText>
           </Pressable>
         </ThemedView>
-      </ThemedView>
+      </ScreenLayout>
     </KeyboardAvoidingView>
   );
 };

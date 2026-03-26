@@ -11,7 +11,8 @@ const tintColorDark = "#fff";
 export const Colors = {
   light: {
     // primary: "#3F72AF",
-    primary: "#0977CA",
+    primary: "#1c1c1e",
+    // primary: "#0977CA",
     secondary: "#0E5A8A",
 
     surface: "#f4f6f8", // cards, lists, inputs

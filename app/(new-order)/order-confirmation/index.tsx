@@ -9,6 +9,7 @@ import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 export default function OrderConfirmationScreen() {
   const { t } = useTranslation(["common", "orders"]);
@@ -29,7 +30,7 @@ export default function OrderConfirmationScreen() {
 
   return (
     <>
-      <ThemedView
+      <ScreenLayout
         style={tw`px-4 pt-8 flex-1 gap-8 items-center justify-center`}
       >
         <ThemedView style={tw` items-center gap-2`}>
@@ -130,7 +131,7 @@ export default function OrderConfirmationScreen() {
             variant="primary"
           ></Button>
         </ThemedView>
-      </ThemedView>
+      </ScreenLayout>
     </>
   );
 }
