@@ -39,26 +39,6 @@ export default function PaymentMethodSummaryCard({
   // Payment method data
   const paymentMethods = paymentMethodReport?.report || [];
 
-  // DEBUG: Log the payment method data to investigate gray color issue
-  React.useEffect(() => {
-    if (paymentMethods.length > 0) {
-      console.log("=== PAYMENT METHOD DEBUG ===");
-      console.log("Total payment methods:", paymentMethods.length);
-      paymentMethods.forEach((pm, index) => {
-        const info = getPaymentMethodInfo(pm.paymentMethodType);
-        console.log(`\nPayment Method ${index + 1}:`);
-        console.log("  - ID:", pm.paymentMethodId);
-        console.log("  - Name:", pm.paymentMethodName);
-        console.log("  - Type:", pm.paymentMethodType);
-        console.log("  - Type typeof:", typeof pm.paymentMethodType);
-        console.log("  - Resolved Color:", info.color);
-        console.log("  - Resolved Icon:", info.icon);
-        console.log("  - Total Income:", pm.totalIncome);
-      });
-      console.log("=== END DEBUG ===");
-    }
-  }, [paymentMethods]);
-
   // Prepare pie chart data
   const pieData = paymentMethods.map((pm) => {
     const info = getPaymentMethodInfo(pm.paymentMethodType);

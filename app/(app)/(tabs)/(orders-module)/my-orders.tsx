@@ -182,23 +182,27 @@ export default function MyOrdersScreen() {
                 {`${t("common:currency.symbol")}${dashboardStats?.totalAmount?.toFixed(2) ?? "0.00"}`}
               </ThemedText>
             </ThemedView>
-            <ProgressBar
-              height={2}
-              progress={
-                (dashboardStats?.totalIncome || 0) /
-                (dashboardStats?.totalAmount || 1)
-              }
-            />
-            <ThemedView style={tw`flex-row  items-center gap-1`}>
-              <ThemedText type="small" style={tw``}>
-                {t("common:stats.totalIncome")}:
-              </ThemedText>
-              <ThemedText
-                type="body1"
-                style={tw`font-semibold text-light-primary`}
+            <ThemedView style={tw`gap-2`}>
+              <ThemedView
+                style={tw`flex-row justify-between items-center gap-1`}
               >
-                {`${t("common:currency.symbol")}${dashboardStats?.totalIncome?.toFixed(2) ?? "0.00"}`}
-              </ThemedText>
+                <ThemedText type="small" style={tw``}>
+                  {t("common:stats.totalIncome")}
+                </ThemedText>
+                <ThemedText
+                  type="body1"
+                  style={tw`font-semibold text-light-primary`}
+                >
+                  {`${t("common:currency.symbol")}${dashboardStats?.totalIncome?.toFixed(2) ?? "0.00"}`}
+                </ThemedText>
+              </ThemedView>
+              <ProgressBar
+                height={2}
+                progress={
+                  (dashboardStats?.totalIncome || 0) /
+                  (dashboardStats?.totalAmount || 1)
+                }
+              />
             </ThemedView>
           </ThemedView>
           <ThemedView style={tw`flex-row gap-4`}>
