@@ -20,6 +20,8 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import useOrdersModuleContext from "./(orders-module)/orders-module.context";
 import NotificationBadge from "@/presentation/theme/components/notification-badge";
+import { getRoutes } from "expo-router/build/getRoutesCore";
+import { ROUTES } from "@/constants/routes";
 
 function MyOrdersHeaderRight() {
   const router = useRouter();
@@ -85,7 +87,7 @@ export default function TabLayout() {
   }
 
   if (status === "unauthenticated") {
-    return <Redirect href="/auth/login" />;
+    return <Redirect href={ROUTES.AUTH.LOGIN} />;
   }
 
   // activeOrdersQuery.refetch();
