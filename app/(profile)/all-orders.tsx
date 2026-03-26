@@ -18,6 +18,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import WaiterSummaryCard from "@/presentation/orders/components/waiter-summary-card";
 import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import DailyReportSummaryCard from "@/presentation/home/components/daily-report-summary-card";
 
 export default function AllOrdersScreen() {
   const { t } = useTranslation(["common", "orders"]);
@@ -81,17 +82,20 @@ export default function AllOrdersScreen() {
   return (
     <ScreenLayout style={tw`flex-1`}>
       {orders.length === 0 ? (
-        <ThemedView style={tw`items-center justify-center flex-1 gap-4`}>
-          <Ionicons
-            name="document-text-outline"
-            size={80}
-            color={tw.color("gray-500")}
-          />
-          <ThemedText type="h3">{t("orders:list.noOrders")}</ThemedText>
-          <ThemedText type="body2" style={tw`text-center max-w-xs`}>
-            {t("orders:list.noOrdersDescription")}
-          </ThemedText>
-        </ThemedView>
+        <>
+          <DailyReportSummaryCard />
+          <ThemedView style={tw`items-center justify-center flex-1 gap-4`}>
+            <Ionicons
+              name="document-text-outline"
+              size={80}
+              color={tw.color("gray-500")}
+            />
+            <ThemedText type="h3">{t("orders:list.noOrders")}</ThemedText>
+            <ThemedText type="body2" style={tw`text-center max-w-xs`}>
+              {t("orders:list.noOrdersDescription")}
+            </ThemedText>
+          </ThemedView>
+        </>
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -105,9 +109,12 @@ export default function AllOrdersScreen() {
             />
           }
         >
+          <ThemedView style={tw`px-4 pt-4`}>
+            <DailyReportSummaryCard />
+          </ThemedView>
           {waiterStats.length > 0 && (
             <ThemedView>
-              <ThemedText type="h3" style={tw`mb-3 px-4 pt-4`}>
+              <ThemedText type="h3" style={tw`mb-3 px-4 `}>
                 {t("orders:waiterSummary.title")}
               </ThemedText>
               <ScrollView
