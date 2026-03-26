@@ -85,7 +85,7 @@ export default function TabLayout() {
   }
 
   if (status === "unauthenticated") {
-    return <Redirect href="/auth/login" />;
+    return <Redirect href="/auth/login/index" />;
   }
 
   // activeOrdersQuery.refetch();
