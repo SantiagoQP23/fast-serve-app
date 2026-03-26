@@ -10,7 +10,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { useOrdersModuleContext } from "./orders-module.context";
+import useOrdersModuleContext from "./orders-module.context";
 
 function MyOrdersHeaderLeft() {
   const navigation = useNavigation();

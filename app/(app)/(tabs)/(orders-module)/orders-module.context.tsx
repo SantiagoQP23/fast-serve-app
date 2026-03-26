@@ -25,12 +25,14 @@ export function OrdersModuleProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <OrdersModuleContext.Provider value={{ registerOpenViewPopover, openViewPopover }}>
+    <OrdersModuleContext.Provider
+      value={{ registerOpenViewPopover, openViewPopover }}
+    >
       {children}
     </OrdersModuleContext.Provider>
   );
 }
 
-export function useOrdersModuleContext() {
+export default function useOrdersModuleContext() {
   return useContext(OrdersModuleContext);
 }

@@ -18,7 +18,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import IconButton from "@/presentation/theme/components/icon-button";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
-import { useOrdersModuleContext } from "./(orders-module)/orders-module.context";
+import useOrdersModuleContext from "./(orders-module)/orders-module.context";
 import NotificationBadge from "@/presentation/theme/components/notification-badge";
 
 function MyOrdersHeaderRight() {
@@ -85,7 +85,7 @@ export default function TabLayout() {
   }
 
   if (status === "unauthenticated") {
-    return <Redirect href="/auth/login/index" />;
+    return <Redirect href="/auth/login" />;
   }
 
   // activeOrdersQuery.refetch();

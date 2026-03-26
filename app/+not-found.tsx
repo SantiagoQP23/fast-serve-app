@@ -1,6 +1,9 @@
+import Button from "@/presentation/theme/components/button";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
+import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import tw from "@/presentation/theme/lib/tailwind";
+import { router } from "expo-router";
 
 export default function NotFound() {
   return (
@@ -9,6 +12,18 @@ export default function NotFound() {
       <ThemedText type="body1">
         The page you are looking for does not exist.
       </ThemedText>
+      <ThemedView style={tw`flex-row gap-4 mt-4`}>
+        <Button
+          onPress={() => router.push("/(app)/(tabs)/(orders-module)/my-orders")}
+          style={tw`mt-4`}
+          label="Go Home"
+        />
+        <Button
+          onPress={() => router.push("/auth/login")}
+          style={tw`mt-4`}
+          label="Go Login"
+        />
+      </ThemedView>
     </ScreenLayout>
   );
 }
