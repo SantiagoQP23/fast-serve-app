@@ -55,7 +55,7 @@ export default function CartScreen() {
       createSale(data, {
         onSuccess: (resp) => {
           resetNewOrder();
-          if (resp.data) router.push(`/(bills)/${resp.data.id}`);
+          if (resp.data) router.replace(`/(bills)/${resp.data.id}`);
         },
       });
     } else {
