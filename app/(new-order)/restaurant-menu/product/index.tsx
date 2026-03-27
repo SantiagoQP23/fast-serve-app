@@ -16,6 +16,7 @@ import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { ProductStatus } from "@/core/menu/models/product.model";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 export default function ProductScreen() {
   const { t } = useTranslation(["menu", "orders"]);
@@ -126,7 +127,7 @@ export default function ProductScreen() {
 
   return (
     <>
-      <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
+      <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
         <ThemedView
           style={tw` justify-center text-center mb-4 items-center gap-2`}
         >
@@ -205,31 +206,33 @@ export default function ProductScreen() {
           )}
         </ThemedView>
         <ThemedView style={tw`flex-1 `} />
-      </ThemedView>
-      <ThemedView style={tw`gap-4 p-4 rounded-xl shadow-xl `}>
-        <ThemedView style={tw`flex-row justify-between items-center`}>
-          <ThemedText type="h4">
-            {formatCurrency((effectivePrice ?? activeProduct.price) * counter)}
-          </ThemedText>
-          <ThemedView style={tw`flex-row items-center gap-4`}>
-            <IconButton
-              icon="remove-outline"
-              onPress={decrement}
-              variant="outlined"
-            />
-            <ThemedText>{counter}</ThemedText>
-            <IconButton icon="add" onPress={increment} variant="outlined" />
+        <ThemedView style={tw`gap-4`}>
+          <ThemedView style={tw`flex-row justify-between items-center`}>
+            <ThemedText type="h4">
+              {formatCurrency(
+                (effectivePrice ?? activeProduct.price) * counter,
+              )}
+            </ThemedText>
+            <ThemedView style={tw`flex-row items-center gap-4`}>
+              <IconButton
+                icon="remove-outline"
+                onPress={decrement}
+                variant="outlined"
+              />
+              <ThemedText>{counter}</ThemedText>
+              <IconButton icon="add" onPress={increment} variant="outlined" />
+            </ThemedView>
           </ThemedView>
+          <Button
+            label={t("menu:product.addToOrderOrCart", {
+              type: order ? t("menu:product.order") : t("menu:product.cart"),
+            })}
+            onPress={onAddProduct}
+            leftIcon="cart-outline"
+            disabled={isUnavailable}
+          />
         </ThemedView>
-        <Button
-          label={t("menu:product.addToOrderOrCart", {
-            type: order ? t("menu:product.order") : t("menu:product.cart"),
-          })}
-          onPress={onAddProduct}
-          leftIcon="cart-outline"
-          disabled={isUnavailable}
-        />
-      </ThemedView>
+      </ScreenLayout>
     </>
   );
 }

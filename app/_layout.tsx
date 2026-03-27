@@ -15,8 +15,6 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useDeviceContext } from "twrnc";
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import IconButton from "@/presentation/theme/components/icon-button";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SocketProvider } from "@/presentation/shared/context/SocketContext";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -28,9 +26,6 @@ import { WebSocketIndicator } from "@/presentation/shared/components/websocket-i
 // Initialize i18n
 import "@/core/i18n/i18n.config";
 import { initializeDayjs } from "@/core/i18n/utils";
-import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
-
-// Create a client
 
 export const queryClient = new QueryClient();
 
@@ -63,7 +58,7 @@ export default function RootLayout() {
   const renderContent = () => {
     const content = (
       <BottomSheetModalProvider>
-        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <ThemedView style={tw`flex-1 `}>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen
               name="(app)"
@@ -85,13 +80,19 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen
-              name="auth"
+              name="auth/login/index"
               options={{
                 headerShown: false,
               }}
             />
             <Stack.Screen
               name="(order)"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="(bills)"
               options={{
                 headerShown: false,
               }}
@@ -137,7 +138,7 @@ export default function RootLayout() {
               <ActivityIndicator size="large" color="#fff" />
             </ThemedView>
           )}
-        </ThemeProvider>
+        </ThemedView>
       </BottomSheetModalProvider>
     );
 
@@ -151,8 +152,10 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView>
-        <SafeAreaView style={tw`flex-1 bg-white dark:bg-black`}>
+      <GestureHandlerRootView style={tw`flex-1`}>
+        <SafeAreaView
+          style={tw`flex-1 bg-light-background dark:bg-dark-background`}
+        >
           {renderContent()}
         </SafeAreaView>
       </GestureHandlerRootView>

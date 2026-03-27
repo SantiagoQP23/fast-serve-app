@@ -1,3 +1,5 @@
+import { BillStatus } from "../models/bill.model";
+
 export interface WaiterOrderDetailDto {
   id: string;
   productName: string;
@@ -19,7 +21,7 @@ export interface WaiterBillDto {
   subtotal: number;
   discount: number;
   paymentMethod: string;
-  isPaid: boolean;
+  status: BillStatus;
   createdAt: Date;
   details: WaiterBillDetailDto[];
 }

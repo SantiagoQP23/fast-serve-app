@@ -4,7 +4,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { Ionicons } from "@expo/vector-icons";
 import { PressableProps } from "react-native";
-import { Bill } from "@/core/orders/models/bill.model";
+import { Bill, BillStatus } from "@/core/orders/models/bill.model";
 import dayjs from "dayjs";
 import Label from "@/presentation/theme/components/label";
 import Card from "@/presentation/theme/components/card";
@@ -14,6 +14,22 @@ import {
   getPaymentMethodIcon,
   translatePaymentMethod,
 } from "@/core/i18n/utils";
+
+/** Minimal shape required by BillCard — satisfied by both Bill and BillListItemDto */
+interface BillCardItem {
+  id: number;
+  num: number;
+  total: number;
+  discount: number;
+  status: BillStatus;
+  createdAt: string | Date;
+  owner: {
+    person: {
+      firstName: string;
+      lastName: string;
+    };
+  };
+}
 
 interface BillCardProps extends PressableProps {
   bill: Bill;
@@ -25,72 +41,61 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
     ? `${t("common:time.today")}, ${dayjs(bill.createdAt).format("HH:mm")}`
     : dayjs(bill.createdAt).format("dddd, HH:mm");
 
-  const hasDiscount = bill.discount > 0;
-  const itemCount = bill.details?.length || 0;
+  const isPaid = bill.status === BillStatus.PAID;
 
   return (
     <Card onPress={onPress}>
       <ThemedView style={tw`bg-transparent gap-3`}>
         {/* Header: Bill number and status */}
+
         <ThemedView
           style={tw`flex-row bg-transparent justify-between items-center`}
         >
-          <ThemedView style={tw`flex-row bg-transparent items-center gap-2`}>
-            <ThemedView style={tw`bg-light-surface p-2 rounded-full`}>
-              <Ionicons
-                name="receipt-outline"
-                size={20}
-                color={tw.color("light-primary")}
-              />
-            </ThemedView>
-            <ThemedView style={tw`bg-transparent`}>
-              <ThemedText type="body1" style={tw`font-bold`}>
-                {t("bills:list.billNumber", { number: bill.num })}
-              </ThemedText>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {date}
-              </ThemedText>
-            </ThemedView>
-          </ThemedView>
-          <ThemedText type="h3" style={tw`font-semibold `}>
-            {formatCurrency(bill.total)}
-          </ThemedText>
-        </ThemedView>
-
-        {/* Divider */}
-        <ThemedView style={tw`h-px bg-gray-200`} />
-
-        {/* Payment info and date */}
-        <ThemedView
-          style={tw`flex-row bg-transparent justify-between items-center`}
-        >
-          {bill.isPaid ? (
+          {isPaid ? (
             <Label
               color="success"
+              size="small"
               text={t("bills:details.paid")}
               leftIcon="checkmark-circle-outline"
             />
           ) : (
             <Label
               color="warning"
+              size="small"
               text={t("bills:details.unpaid")}
               leftIcon="time-outline"
             />
           )}
-          {bill.isPaid ? (
-            <ThemedView style={tw`flex-row bg-transparent items-center gap-2`}>
+          <Label color="default" text={bill.source} size="small" />
+        </ThemedView>
+        <ThemedView
+          style={tw`flex-row bg-transparent justify-between items-center`}
+        >
+          <ThemedView style={tw`flex-row bg-transparent items-center gap-2`}>
+            <ThemedView style={tw`bg-light-surface p-2 rounded-md`}>
               <Ionicons
-                name={getPaymentMethodIcon(bill.paymentMethod)}
-                size={18}
-                color={tw.color("gray-600")}
+                name="receipt-outline"
+                size={20}
+                color={tw.color("black")}
               />
-              <ThemedText type="body2" style={tw`text-gray-600`}>
-                {translatePaymentMethod(bill.paymentMethod)}
+            </ThemedView>
+            <ThemedView style={tw`bg-transparent gap-1`}>
+              <ThemedText type="body1" style={tw`font-bold`}>
+                {t("bills:list.billNumber", { number: bill.num })}
+              </ThemedText>
+              <ThemedText type="small" style={tw`text-gray-500`}>
+                {bill.owner.person.firstName} {bill.owner.person.lastName}
               </ThemedText>
             </ThemedView>
-          ) : (
-            <ThemedView style={tw`bg-transparent`} />
-          )}
+          </ThemedView>
+          <ThemedView style={tw`bg-transparent gap-1 items-end`}>
+            <ThemedText type="h3" style={tw`font-semibold `}>
+              {formatCurrency(bill.total)}
+            </ThemedText>
+            <ThemedText type="small" style={tw`text-gray-500`}>
+              {date}
+            </ThemedText>
+          </ThemedView>
         </ThemedView>
       </ThemedView>
     </Card>

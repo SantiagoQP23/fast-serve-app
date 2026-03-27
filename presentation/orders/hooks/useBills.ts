@@ -1,5 +1,6 @@
 import { queryClient } from "@/app/_layout";
 import { CreateBillDto } from "@/core/orders/dto/create-bill.dto";
+import { PayBillTransactionDto } from "@/core/orders/dto/pay-bill-transaction.dto";
 import { RemoveBillDto } from "@/core/orders/dto/remove-bill.dto";
 import { UpdateBillDto } from "@/core/orders/dto/update-bill.dto";
 import { OrderSocketEvent } from "@/core/orders/enums/socket-events.enum";
@@ -57,16 +58,40 @@ export const useBills = () => {
     },
   );
 
+  const payBillTransactionEmitter = useWebsocketEventEmitter<Order, PayBillTransactionDto>(
+    OrderSocketEvent.payBillTransaction,
+    {
+      onSuccess: (resp) => {
+        if (resp.data)
+          queryClient.invalidateQueries({
+            queryKey: ["bills", resp.data.id],
+          });
+      },
+      onError: (resp) => {
+        Alert.alert("Error", resp.msg);
+      },
+    },
+  );
+
   const billsByOrderQuery = (orderId: string) =>
     useQuery({
       queryKey: ["bills", orderId],
       queryFn: async () => BillsService.getBillByOrders(orderId),
     });
 
+  const billByIdQuery = (billId: number) =>
+    useQuery({
+      queryKey: ["bill", billId],
+      queryFn: () => BillsService.getBillById(billId),
+      enabled: !!billId,
+    });
+
   return {
     billsByOrderQuery,
+    billByIdQuery,
     createBill: createBillEmitter,
     updateBill: updateBillEmitter,
     removeBill: removeBillEmitter,
+    payBillTransaction: payBillTransactionEmitter,
   };
 };

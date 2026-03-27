@@ -91,26 +91,10 @@ export default function OrdersLayout() {
           }}
         />
         <Stack.Screen
-          name="[id]/bills/[id]/index"
-          options={{
-            headerShown: true,
-            title: "Bill payment",
-            headerShadowVisible: false,
-          }}
-        />
-        <Stack.Screen
           name="[id]/bills/new/index"
           options={{
             headerShown: true,
             title: "",
-            headerShadowVisible: false,
-          }}
-        />
-        <Stack.Screen
-          name="[id]/bills/[id]/payment-method/index"
-          options={{
-            headerShown: true,
-            title: "Payment Method",
             headerShadowVisible: false,
           }}
         />

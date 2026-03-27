@@ -15,48 +15,33 @@ interface BillsFilterBottomSheetProps {
   onApply: (filters: BillListFiltersDto) => void;
   initialFilters?: BillListFiltersDto;
   availableWaiters: Array<{ id: string; fullName: string }>;
+  isAdmin?: boolean;
 }
-
-type PaymentStatusFilter = "all" | "paid" | "unpaid";
 
 export default function BillsFilterBottomSheet({
   onClose,
   onApply,
   initialFilters,
   availableWaiters,
+  isAdmin = true,
 }: BillsFilterBottomSheetProps) {
   const { t } = useTranslation(["bills", "common"]);
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "all">(
-    initialFilters?.paymentMethod || "all"
-  );
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatusFilter>(
-    initialFilters?.isPaid === undefined
-      ? "all"
-      : initialFilters.isPaid
-      ? "paid"
-      : "unpaid"
+    initialFilters?.paymentMethod || "all",
   );
   const [ownerId, setOwnerId] = useState<string | "all">(
-    initialFilters?.ownerId || "all"
+    initialFilters?.ownerId || "all",
   );
 
   // Sync internal state with initialFilters when they change
   useEffect(() => {
     setPaymentMethod(initialFilters?.paymentMethod || "all");
-    setPaymentStatus(
-      initialFilters?.isPaid === undefined
-        ? "all"
-        : initialFilters.isPaid
-        ? "paid"
-        : "unpaid"
-    );
     setOwnerId(initialFilters?.ownerId || "all");
   }, [initialFilters]);
 
   const handleReset = () => {
     setPaymentMethod("all");
-    setPaymentStatus("all");
     setOwnerId("all");
     onApply({});
     onClose();
@@ -69,43 +54,45 @@ export default function BillsFilterBottomSheet({
       filters.paymentMethod = paymentMethod as PaymentMethod;
     }
 
-    if (paymentStatus === "paid") {
-      filters.isPaid = true;
-    } else if (paymentStatus === "unpaid") {
-      filters.isPaid = false;
-    }
-
     if (ownerId !== "all") {
       filters.ownerId = ownerId;
     }
-    
+
     onApply(filters);
     onClose();
   };
 
   // Payment Method options
-  const paymentMethodOptions = useMemo(() => [
-    { label: t("bills:filters.allPaymentMethods"), value: "all" },
-    { label: translatePaymentMethod(PaymentMethod.CASH), value: PaymentMethod.CASH },
-    { label: translatePaymentMethod(PaymentMethod.CREDIT_CARD), value: PaymentMethod.CREDIT_CARD },
-    { label: translatePaymentMethod(PaymentMethod.TRANSFER), value: PaymentMethod.TRANSFER },
-  ], [t]);
-
-  // Payment Status options
-  const paymentStatusOptions = useMemo(() => [
-    { label: t("bills:filters.allStatuses"), value: "all" },
-    { label: t("bills:filters.paid"), value: "paid" },
-    { label: t("bills:filters.unpaid"), value: "unpaid" },
-  ], [t]);
+  const paymentMethodOptions = useMemo(
+    () => [
+      { label: t("bills:filters.allPaymentMethods"), value: "all" },
+      {
+        label: translatePaymentMethod(PaymentMethod.CASH),
+        value: PaymentMethod.CASH,
+      },
+      {
+        label: translatePaymentMethod(PaymentMethod.CREDIT_CARD),
+        value: PaymentMethod.CREDIT_CARD,
+      },
+      {
+        label: translatePaymentMethod(PaymentMethod.TRANSFER),
+        value: PaymentMethod.TRANSFER,
+      },
+    ],
+    [t],
+  );
 
   // Waiter options
-  const waiterOptions = useMemo(() => [
-    { label: t("bills:filters.allWaiters"), value: "all" },
-    ...availableWaiters.map((waiter) => ({
-      label: waiter.fullName,
-      value: waiter.id,
-    })),
-  ], [availableWaiters, t]);
+  const waiterOptions = useMemo(
+    () => [
+      { label: t("bills:filters.allWaiters"), value: "all" },
+      ...availableWaiters.map((waiter) => ({
+        label: waiter.fullName,
+        value: waiter.id,
+      })),
+    ],
+    [availableWaiters, t],
+  );
 
   return (
     <BottomSheetView style={tw`p-4`}>
@@ -115,32 +102,16 @@ export default function BillsFilterBottomSheet({
           {t("bills:filters.title")}
         </ThemedText>
 
-        {/* Payment Method Select */}
-        <Select
-          label={t("bills:filters.paymentMethod")}
-          placeholder={t("bills:filters.allPaymentMethods")}
-          options={paymentMethodOptions}
-          value={paymentMethod}
-          onChange={(value) => setPaymentMethod(value as PaymentMethod | "all")}
-        />
-
-        {/* Payment Status Select */}
-        <Select
-          label={t("bills:filters.paymentStatus")}
-          placeholder={t("bills:filters.allStatuses")}
-          options={paymentStatusOptions}
-          value={paymentStatus}
-          onChange={(value) => setPaymentStatus(value as PaymentStatusFilter)}
-        />
-
-        {/* Waiter Select */}
-        <Select
-          label={t("bills:filters.waiter")}
-          placeholder={t("bills:filters.allWaiters")}
-          options={waiterOptions}
-          value={ownerId}
-          onChange={(value) => setOwnerId(value as string)}
-        />
+        {/* Waiter Select - Only show for admin users */}
+        {isAdmin && (
+          <Select
+            label={t("bills:filters.waiter")}
+            placeholder={t("bills:filters.allWaiters")}
+            options={waiterOptions}
+            value={ownerId}
+            onChange={(value) => setOwnerId(value as string)}
+          />
+        )}
 
         {/* Action Buttons */}
         <ThemedView style={tw`flex-row gap-3`}>
@@ -152,10 +123,7 @@ export default function BillsFilterBottomSheet({
             />
           </ThemedView>
           <ThemedView style={tw`flex-1`}>
-            <Button
-              label={t("bills:filters.apply")}
-              onPress={handleApply}
-            />
+            <Button label={t("bills:filters.apply")} onPress={handleApply} />
           </ThemedView>
         </ThemedView>
       </ThemedView>

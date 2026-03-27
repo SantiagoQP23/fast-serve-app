@@ -13,6 +13,7 @@ import { usePaymentMethods } from "@/presentation/restaurant/hooks/usePaymentMet
 import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 export default function RestaurantOfflineDataScreen() {
   const { t } = useTranslation(["offlineData", "auth"]);
@@ -145,7 +146,7 @@ export default function RestaurantOfflineDataScreen() {
   const hasPaymentMethods = paymentMethods.length > 0;
 
   return (
-    <ThemedView style={tw`flex-1 px-4 pt-2`}>
+    <ScreenLayout style={tw`flex-1 px-4 pt-2`}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <ThemedView style={tw`gap-8 pb-8`}>
           {/* Header */}
@@ -442,7 +443,9 @@ export default function RestaurantOfflineDataScreen() {
                 </ThemedView>
                 <Button
                   label={
-                    isRefetchingPaymentMethods ? "Loading..." : "Load payment methods"
+                    isRefetchingPaymentMethods
+                      ? "Loading..."
+                      : "Load payment methods"
                   }
                   leftIcon="cloud-download-outline"
                   onPress={handleRefetchPaymentMethods}
@@ -454,6 +457,6 @@ export default function RestaurantOfflineDataScreen() {
           </ThemedView>
         </ThemedView>
       </ScrollView>
-    </ThemedView>
+    </ScreenLayout>
   );
 }

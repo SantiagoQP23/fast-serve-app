@@ -5,6 +5,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { Ionicons } from "@expo/vector-icons";
 import { BillListItemDto } from "@/core/orders/dto/bill-list-response.dto";
+import { BillStatus } from "@/core/orders/models/bill.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import {
   formatCurrency,
@@ -24,6 +25,8 @@ export default function DashboardBillCard({
 }: DashboardBillCardProps) {
   const { t } = useTranslation(["bills"]);
 
+  const isPaid = bill.status === BillStatus.PAID;
+
   // Get relative time
   const relativeTime = getRelativeTime(bill.createdAt);
 
@@ -37,18 +40,18 @@ export default function DashboardBillCard({
           {/* Payment method icon */}
           <ThemedView
             style={tw`w-10 h-10 rounded-full ${
-              bill.isPaid ? "bg-green-50" : "bg-orange-50"
+              isPaid ? "bg-green-50" : "bg-orange-50"
             } items-center justify-center`}
           >
             <Ionicons
               name={
-                bill.isPaid
+                isPaid
                   ? getPaymentMethodIcon(bill.paymentMethod)
                   : "time-outline"
               }
               size={20}
               color={
-                bill.isPaid ? tw.color("green-600") : tw.color("orange-600")
+                isPaid ? tw.color("green-600") : tw.color("orange-600")
               }
             />
           </ThemedView>
@@ -72,7 +75,7 @@ export default function DashboardBillCard({
               <ThemedText type="small" style={tw`text-gray-500`}>
                 {relativeTime}
               </ThemedText>
-              {bill.isPaid && (
+              {isPaid && (
                 <>
                   <ThemedText type="small" style={tw`text-gray-400`}>
                     •
@@ -98,12 +101,12 @@ export default function DashboardBillCard({
           <ThemedText
             type="body1"
             style={tw`font-semibold ${
-              bill.isPaid ? "text-green-700" : "text-orange-700"
+              isPaid ? "text-green-700" : "text-orange-700"
             }`}
           >
             {formatCurrency(bill.total)}
           </ThemedText>
-          {!bill.isPaid && (
+          {!isPaid && (
             <ThemedText type="caption" style={tw`text-orange-600`}>
               {t("bills:details.unpaid")}
             </ThemedText>

@@ -17,12 +17,12 @@ import { formatCurrency } from "@/core/i18n/utils";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 export default function OrderBillsScreen() {
   const { t } = useTranslation(["common", "orders", "bills", "errors"]);
   const router = useRouter();
   const order = useOrdersStore((state) => state.activeOrder);
-  const setActiveBill = useOrdersStore((state) => state.setActiveBill);
   const billsByOrderQuery = useBills().billsByOrderQuery;
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
@@ -38,7 +38,7 @@ export default function OrderBillsScreen() {
 
       // Refetch bills for this order
       await queryClient.refetchQueries({
-        queryKey: ["bills", "order", order.id],
+        queryKey: ["bills", order.id],
       });
     } catch {
       Alert.alert(
@@ -61,8 +61,7 @@ export default function OrderBillsScreen() {
   const { data: bills } = billsByOrderQuery(order.id);
 
   const openBill = (bill: Bill) => {
-    setActiveBill(bill);
-    router.push(`/(order)/${order.id}/bills/${bill.id}`);
+    router.push(`/(bills)/${bill.id}`);
   };
 
   const orderAmountInBills: number = bills
@@ -73,7 +72,7 @@ export default function OrderBillsScreen() {
   const remainingAmount = Math.max(order.total - orderAmountInBills, 0);
 
   return (
-    <ThemedView style={tw`px-4 pt-8 flex-1 gap-8`}>
+    <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-8`}>
       <ThemedView style={tw`  items-center gap-4`}>
         <ThemedView style={tw`gap-1 items-center`}>
           <ThemedText type="h3">
@@ -153,6 +152,6 @@ export default function OrderBillsScreen() {
           onPress={() => router.push(`/(order)/${order.id}/bills/new`)}
         />
       )}
-    </ThemedView>
+    </ScreenLayout>
   );
 }

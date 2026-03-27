@@ -51,7 +51,7 @@ export default function NewOrderDetailCard({
           style={tw`flex-row bg-transparent justify-between items-start gap-2`}
         >
           <ThemedView>
-            <ThemedText type="h3" style={tw` font-bold`}>
+            <ThemedText type="h4" style={tw` font-bold`}>
               {detail.product.name}
             </ThemedText>
             {detail.description && (

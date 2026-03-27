@@ -30,6 +30,7 @@ import {
   getPaymentMethodIcon,
   translatePaymentMethod,
 } from "@/core/i18n/utils";
+import { BillStatus } from "@/core/orders/models/bill.model";
 
 dayjs.extend(relativeTime);
 
@@ -380,18 +381,18 @@ export default function ViewOrderScreen() {
                         {/* Payment method icon */}
                         <ThemedView
                           style={tw`w-10 h-10 rounded-full ${
-                            bill.isPaid ? "bg-green-50" : "bg-orange-50"
+                            bill.status === BillStatus.PAID ? "bg-green-50" : "bg-orange-50"
                           } items-center justify-center`}
                         >
                           <Ionicons
                             name={
-                              bill.isPaid
+                              bill.status === BillStatus.PAID
                                 ? getPaymentMethodIcon(bill.paymentMethod)
                                 : "time-outline"
                             }
                             size={20}
                             color={
-                              bill.isPaid
+                              bill.status === BillStatus.PAID
                                 ? tw.color("green-600")
                                 : tw.color("orange-600")
                             }
@@ -406,12 +407,12 @@ export default function ViewOrderScreen() {
                           <ThemedView
                             style={tw`flex-row items-center gap-1.5 mt-0.5`}
                           >
-                            {bill.isPaid && (
+                            {bill.status === BillStatus.PAID && (
                               <ThemedText type="small" style={tw`text-gray-500`}>
                                 {translatePaymentMethod(bill.paymentMethod)}
                               </ThemedText>
                             )}
-                            {!bill.isPaid && (
+                            {bill.status !== BillStatus.PAID && (
                               <ThemedText type="small" style={tw`text-orange-600`}>
                                 {t("bills:details.unpaid")}
                               </ThemedText>
@@ -425,7 +426,7 @@ export default function ViewOrderScreen() {
                         <ThemedText
                           type="body1"
                           style={tw`font-semibold ${
-                            bill.isPaid ? "text-green-700" : "text-orange-700"
+                            bill.status === BillStatus.PAID ? "text-green-700" : "text-orange-700"
                           }`}
                         >
                           {formatCurrency(bill.total)}

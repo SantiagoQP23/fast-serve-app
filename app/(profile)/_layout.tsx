@@ -1,3 +1,4 @@
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
@@ -5,6 +6,7 @@ import { router, Stack } from "expo-router";
 import { useCallback, useRef } from "react";
 
 export default function OrdersLayout() {
+  const { t } = useTranslation("orders");
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const closeBottomSheet = () => {
@@ -35,6 +37,24 @@ export default function OrdersLayout() {
             headerShadowVisible: false,
           }}
         />
+        <Stack.Screen
+          name="all-orders"
+          options={{
+            headerShown: true,
+            title: t("drawer.allOrders"),
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="history"
+          options={{
+            headerShown: true,
+            title: t("drawer.history"),
+            headerShadowVisible: false,
+          }}
+        />
+
         {/* <Stack.Screen */}
         {/*   name="[id]/edit-order-detail/index" */}
         {/*   options={{ */}

@@ -5,6 +5,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { switchRestaurantMutation } from "@/presentation/profile/hooks/useSwitchRestaurant";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 export default function RestaurantsScreen() {
   const switchRestaurant = switchRestaurantMutation();
@@ -13,7 +14,7 @@ export default function RestaurantsScreen() {
     switchRestaurant.mutate(restaurantId);
   };
   return (
-    <ThemedView style={tw`px-4  flex-1 gap-4`}>
+    <ScreenLayout style={tw`px-4  flex-1 gap-4`}>
       <ThemedView style={tw`mt-4`}>
         <ThemedView style={tw`rounded-lg  p-4 gap-4`}>
           {user?.restaurantRoles.map((restaurantRole) => (
@@ -41,6 +42,6 @@ export default function RestaurantsScreen() {
           ))}
         </ThemedView>
       </ThemedView>
-    </ThemedView>
+    </ScreenLayout>
   );
 }

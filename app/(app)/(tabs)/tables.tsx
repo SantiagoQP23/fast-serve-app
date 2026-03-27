@@ -1,15 +1,4 @@
-import {
-  Platform,
-  StyleSheet,
-  ScrollView,
-  Text,
-  FlatList,
-  Pressable,
-  View,
-  RefreshControl,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
+import { FlatList, RefreshControl, Alert } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -33,6 +22,7 @@ import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Ionicons } from "@expo/vector-icons";
 import Button from "@/presentation/theme/components/button";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 export default function TablesScreen() {
   const { t } = useTranslation(["tables", "errors"]);
@@ -174,7 +164,7 @@ export default function TablesScreen() {
   }
 
   return (
-    <ThemedView style={tw`px-4 pt-8 flex-1`}>
+    <ScreenLayout style={tw`px-4 pt-8 flex-1`}>
       <ThemedText type="h1">{t("list.title")}</ThemedText>
       <ThemedView style={tw`mt-8`} />
       <ThemedView style={tw`flex-row mb-4 gap-2`}>
@@ -227,6 +217,6 @@ export default function TablesScreen() {
       >
         <NewOrderBottomSheet onCreateOrder={handleNavigate} />
       </BottomSheetModal>
-    </ThemedView>
+    </ScreenLayout>
   );
 }

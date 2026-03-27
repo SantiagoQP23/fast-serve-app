@@ -4,11 +4,12 @@ import { BillListFiltersDto } from "@/core/orders/dto/bill-list-filters.dto";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useState, useCallback, useEffect } from "react";
 import { BillListItemDto } from "@/core/orders/dto/bill-list-response.dto";
+import { Bill } from "@/core/orders/models/bill.model";
 
 export const useBillsList = (filters?: BillListFiltersDto) => {
   const { currentRestaurant } = useAuthStore();
   const [page, setPage] = useState(0);
-  const [allBills, setAllBills] = useState<BillListItemDto[]>([]);
+  const [allBills, setAllBills] = useState<Bill[]>([]);
   const limit = 10;
 
   // Add default startDate (today) if not provided, plus pagination params
@@ -50,7 +51,8 @@ export const useBillsList = (filters?: BillListFiltersDto) => {
 
   const reset = useCallback(() => {
     setPage(0);
-    setAllBills([]);
+    // Do not clear allBills here — the page=0 fetch will replace them when it resolves,
+    // avoiding an empty-list flash while the request is in flight.
   }, []);
 
   const hasMore = billsListQuery.data?.count
@@ -62,6 +64,7 @@ export const useBillsList = (filters?: BillListFiltersDto) => {
   return {
     bills: allBills,
     count: billsListQuery.data?.count || 0,
+    data: billsListQuery.data,
     isLoading: billsListQuery.isLoading,
     isLoadingMore,
     isError: billsListQuery.isError,

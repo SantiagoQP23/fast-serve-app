@@ -22,6 +22,7 @@ import { useBills } from "@/presentation/orders/hooks/useBills";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency, i18nAlert } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 interface SelectedDetails {
   [id: string]: {
@@ -135,7 +136,7 @@ export default function NewBillScreen() {
   const selectedCount = getSelectedItemsCount();
 
   return (
-    <ThemedView style={tw`flex-1`}>
+    <ScreenLayout style={tw`flex-1`}>
       <ScrollView
         style={tw`flex-1`}
         showsVerticalScrollIndicator={false}
@@ -280,6 +281,6 @@ export default function NewBillScreen() {
           disabled={selectedTotal === 0}
         />
       </ThemedView>
-    </ThemedView>
+    </ScreenLayout>
   );
 }

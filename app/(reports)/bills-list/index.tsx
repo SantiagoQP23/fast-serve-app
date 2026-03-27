@@ -5,6 +5,8 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useBillsList } from "@/presentation/orders/hooks/useBillsList";
+import { useUsers } from "@/presentation/users/hooks/useUsers";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useRouter } from "expo-router";
 import DashboardBillCard from "@/presentation/home/components/dashboard-bill-card";
 import * as Haptics from "expo-haptics";
@@ -16,13 +18,14 @@ import {
   useBottomSheetSpringConfigs,
 } from "@gorhom/bottom-sheet";
 import BillsFilterBottomSheet from "@/presentation/orders/components/bills-filter-bottom-sheet";
-import { BillListFiltersDto } from "@/core/orders/dto/bill-list-filters.dto";
+import { BillListFiltersDto, BillStatusFilter } from "@/core/orders/dto/bill-list-filters.dto";
 import { formatCurrency } from "@/core/i18n/utils";
 import {
   translatePaymentMethod,
   getPaymentMethodIcon,
 } from "@/core/i18n/utils";
 import { PaymentMethod } from "@/core/orders/enums/payment-method";
+import { BillStatus } from "@/core/orders/models/bill.model";
 
 export default function BillsListScreen() {
   const { t } = useTranslation(["bills", "common", "errors"]);
@@ -31,6 +34,7 @@ export default function BillsListScreen() {
   const primaryColor = useThemeColor({}, "primary");
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [filters, setFilters] = useState<BillListFiltersDto>({});
+  const { user } = useAuthStore();
 
   // Animation config for smooth, iOS-like bottom sheet animations
   const animationConfigs = useBottomSheetSpringConfigs({
@@ -81,26 +85,29 @@ export default function BillsListScreen() {
 
   const hasActiveFilters =
     filters.paymentMethod !== undefined ||
-    filters.isPaid !== undefined ||
+    filters.status !== undefined ||
     filters.ownerId !== undefined;
 
-  // Compute available waiters from bills
+  // Get users and check if current user is admin
+  const { users } = useUsers();
+  const isAdmin = user?.role?.name === "admin";
   const availableWaiters = useMemo(() => {
-    const waiterMap = new Map<string, string>();
-    bills.forEach((bill) => {
-      if (!waiterMap.has(bill.owner.id)) {
-        waiterMap.set(bill.owner.id, bill.owner.fullName);
-      }
-    });
-    return Array.from(waiterMap.entries())
-      .map(([id, fullName]) => ({ id, fullName }))
+    const filteredUsers = isAdmin 
+      ? users.filter(u => u.isActive)
+      : users.filter(u => u.isActive && u.id === user?.id);
+    
+    return filteredUsers
+      .map(u => ({
+        id: u.id,
+        fullName: `${u.person.firstName} ${u.person.lastName}`,
+      }))
       .sort((a, b) => a.fullName.localeCompare(b.fullName));
-  }, [bills]);
+  }, [users, user, isAdmin]);
 
   // Calculate totals
   const totalAmount = bills.reduce((sum, bill) => sum + bill.total, 0);
-  const paidCount = bills.filter((b) => b.isPaid).length;
-  const unpaidCount = bills.filter((b) => !b.isPaid).length;
+  const paidCount = bills.filter((b) => b.status === BillStatus.PAID).length;
+  const unpaidCount = bills.filter((b) => b.status !== BillStatus.PAID).length;
 
   return (
     <ThemedView style={tw`flex-1 pt-6`}>
@@ -199,16 +206,16 @@ export default function BillsListScreen() {
               )}
 
               {/* Payment Status Chip */}
-              {filters.isPaid !== undefined && (
+              {filters.status !== undefined && (
                 <Pressable
-                  onPress={() => setFilters({ ...filters, isPaid: undefined })}
+                  onPress={() => setFilters({ ...filters, status: undefined })}
                 >
                   <ThemedView
                     style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 border border-primary-300`}
                   >
                     <Ionicons
                       name={
-                        filters.isPaid
+                        filters.status === BillStatusFilter.PAID
                           ? "checkmark-circle-outline"
                           : "time-outline"
                       }
@@ -219,7 +226,7 @@ export default function BillsListScreen() {
                       type="small"
                       style={tw`text-primary-700 font-medium`}
                     >
-                      {filters.isPaid
+                      {filters.status === BillStatusFilter.PAID
                         ? t("bills:filters.paid")
                         : t("bills:filters.unpaid")}
                     </ThemedText>
@@ -355,6 +362,7 @@ export default function BillsListScreen() {
           onClose={handleCloseFilters}
           initialFilters={filters}
           availableWaiters={availableWaiters}
+          isAdmin={isAdmin}
         />
       </BottomSheetModal>
     </ThemedView>

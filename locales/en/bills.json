@@ -15,7 +15,8 @@
     "filterBills": "Filter Bills",
     "showingBills": "Showing {{count}} bills",
     "remaining": "Amount to pay",
-    "remainingDescription": "Still pending from the order"
+    "remainingDescription": "Still pending from the order",
+    "salesCount": "{{count}} sales"
   },
   "details": {
     "title": "Bill #{{number}}",
@@ -42,8 +43,11 @@
   },
   "paymentMethods": {
     "cash": "Cash",
+    "card": "Card",
     "creditCard": "Credit Card",
-    "transfer": "Transfer"
+    "transfer": "Transfer",
+    "digitalWallet": "Digital Wallet",
+    "other": "Other"
   },
   "newBill": {
     "title": "New Bill",
@@ -82,6 +86,18 @@
     "reset": "Reset",
     "paid": "Paid Only",
     "unpaid": "Unpaid Only",
-    "all": "All"
+    "all": "All",
+    "paidCount": "{{count}} Paid",
+    "unpaidCount": "{{count}} Unpaid"
+  },
+  "account": {
+    "selectAccountTitle": "Select an account",
+    "selectAccountMessage": "Please select a destination account to continue.",
+    "received": "Received",
+    "destinationAccount": "Destination account",
+    "noAccountsAvailable": "No accounts available for this payment method.",
+    "accountTypeBank": "Bank",
+    "accountTypeCash": "Cash",
+    "payButton": "Pay {{amount}}"
   }
 }

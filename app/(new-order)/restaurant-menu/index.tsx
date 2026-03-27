@@ -18,6 +18,7 @@ import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { Ionicons } from "@expo/vector-icons";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 export default function RestaurantMenuScreen() {
   const { t } = useTranslation(["menu"]);
@@ -99,12 +100,15 @@ export default function RestaurantMenuScreen() {
   }, [filteredCategories, category, onChangeCategory]);
 
   // Check if menu is loaded
-  const hasMenu = sections.length > 0 || categories.length > 0 || products.length > 0;
+  const hasMenu =
+    sections.length > 0 || categories.length > 0 || products.length > 0;
 
   // Show empty state if no menu loaded
   if (!hasMenu) {
     return (
-      <ThemedView style={tw`flex-1 px-4 pt-8 items-center justify-center gap-4`}>
+      <ThemedView
+        style={tw`flex-1 px-4 pt-8 items-center justify-center gap-4`}
+      >
         <Ionicons name="restaurant-outline" size={64} color="#999" />
         <ThemedView style={tw`gap-2 items-center`}>
           <ThemedText type="h2">{t("menu:noMenu.title")}</ThemedText>
@@ -117,8 +121,8 @@ export default function RestaurantMenuScreen() {
             menuQuery.isError
               ? t("menu:noMenu.retry")
               : isLoadingMenu
-              ? t("menu:noMenu.loading")
-              : t("menu:noMenu.loadButton")
+                ? t("menu:noMenu.loading")
+                : t("menu:noMenu.loadButton")
           }
           leftIcon="cloud-download-outline"
           onPress={handleLoadMenu}
@@ -135,7 +139,7 @@ export default function RestaurantMenuScreen() {
   }
 
   return (
-    <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
+    <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
       <ThemedText type="h1">{t("menu:title")}</ThemedText>
       <TextInput
         value={search}
@@ -210,6 +214,6 @@ export default function RestaurantMenuScreen() {
           </ThemedView>
         </ThemedView>
       )}
-    </ThemedView>
+    </ScreenLayout>
   );
 }

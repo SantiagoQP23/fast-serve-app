@@ -1,6 +1,18 @@
 import { User } from "@/core/auth/models/user.model";
 import { PaymentMethod } from "../enums/payment-method";
 import { BillDetail } from "./bill.detail.model";
+import { Transaction } from "@/core/transactions/models/transaction.model";
+
+export enum BillStatus {
+  OPEN = "open",
+  PARTIALLY_PAID = "partially_paid",
+  PAID = "paid",
+}
+
+export enum BillSource {
+  DIRECT = "direct",
+  ORDER = "order",
+}
 
 export interface Bill {
   id: number;
@@ -8,14 +20,14 @@ export interface Bill {
   comments: string;
   paymentMethod: PaymentMethod;
   receivedAmount: number;
+  source: BillSource;
 
   change: number;
 
   discount: number;
 
   total: number;
-
-  isPaid: boolean;
+  status: BillStatus;
 
   // client: IClient;
 
@@ -29,4 +41,5 @@ export interface Bill {
   isActive: boolean;
 
   details: BillDetail[];
+  transactions: Transaction[];
 }

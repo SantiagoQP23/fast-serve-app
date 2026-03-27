@@ -230,7 +230,7 @@ const EditOrderBottomSheet = ({
             <DateTimePicker
               value={form.deliveryTime}
               mode="time"
-              is24Hour={false}
+              is24Hour={true}
               display="default"
               onChange={handleTimeChange}
             />

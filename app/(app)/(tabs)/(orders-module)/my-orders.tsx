@@ -10,7 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "expo-router";
-import { useOrdersModuleContext } from "./orders-module.context";
+import useOrdersModuleContext from "./orders-module.context";
 import * as Haptics from "expo-haptics";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
@@ -27,7 +27,9 @@ import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
 import OrderDetailCard from "@/presentation/orders/components/order-detail-card";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
-import Popover, { AnchorPosition } from "@/presentation/theme/components/popover";
+import Popover, {
+  AnchorPosition,
+} from "@/presentation/theme/components/popover";
 import CollapsibleOrderSection from "@/presentation/orders/components/collapsible-order-section";
 import { useClosedOrders } from "@/presentation/orders/hooks/useClosedOrders";
 import Button from "@/presentation/theme/components/button";
@@ -50,7 +52,9 @@ export default function MyOrdersScreen() {
     "pending-products" | "order-lists"
   >("pending-products");
   const [popoverVisible, setPopoverVisible] = useState(false);
-  const [popoverAnchor, setPopoverAnchor] = useState<AnchorPosition | null>(null);
+  const [popoverAnchor, setPopoverAnchor] = useState<AnchorPosition | null>(
+    null,
+  );
   const primaryColor = useThemeColor({}, "primary");
   const { registerOpenViewPopover } = useOrdersModuleContext();
   useActiveOrders();
@@ -149,14 +153,7 @@ export default function MyOrdersScreen() {
   );
 
   return (
-    <ThemedView style={tw`flex-1`}>
-      <ThemedView style={tw`mb-6 px-4`}>
-        <ThemedText type="body1">{t("common:greetings.hello")},</ThemedText>
-        <ThemedText type="h2" style={tw`mt-1`}>
-          {user?.person.firstName}!
-        </ThemedText>
-      </ThemedView>
-
+    <ThemedView style={tw`flex-1 bg-light-background`}>
       <ScrollView
         contentContainerStyle={tw`pb-20 gap-4`}
         showsVerticalScrollIndicator={false}
@@ -169,33 +166,43 @@ export default function MyOrdersScreen() {
           />
         }
       >
+        <ThemedView style={tw`px-4`}>
+          <ThemedText type="body1">{t("common:greetings.hello")},</ThemedText>
+          <ThemedText type="h2" style={tw`mt-1`}>
+            {user?.person.firstName}!
+          </ThemedText>
+        </ThemedView>
         <ThemedView style={tw`px-4 mb-4 gap-4`}>
           <ThemedView style={tw`gap-4 rounded-lg `}>
             <ThemedView style={tw`bg-transparent gap-1 `}>
               <ThemedText type="small" style={tw``}>
                 {t("common:stats.totalAmount")}
               </ThemedText>
-              <ThemedText style={tw`text-6xl `}>
+              <ThemedText style={tw`text-5xl `}>
                 {`${t("common:currency.symbol")}${dashboardStats?.totalAmount?.toFixed(2) ?? "0.00"}`}
               </ThemedText>
             </ThemedView>
-            <ProgressBar
-              height={2}
-              progress={
-                (dashboardStats?.totalIncome || 0) /
-                (dashboardStats?.totalAmount || 1)
-              }
-            />
-            <ThemedView style={tw`flex-1 flex-row  items-center gap-1`}>
-              <ThemedText type="small" style={tw``}>
-                {t("common:stats.totalIncome")}:
-              </ThemedText>
-              <ThemedText
-                type="body1"
-                style={[tw`font-semibold text-light-primary`]}
+            <ThemedView style={tw`gap-2`}>
+              <ThemedView
+                style={tw`flex-row justify-between items-center gap-1`}
               >
-                {`${t("common:currency.symbol")}${dashboardStats?.totalIncome?.toFixed(2) ?? "0.00"}`}
-              </ThemedText>
+                <ThemedText type="small" style={tw``}>
+                  {t("common:stats.totalIncome")}
+                </ThemedText>
+                <ThemedText
+                  type="body1"
+                  style={tw`font-semibold text-light-primary`}
+                >
+                  {`${t("common:currency.symbol")}${dashboardStats?.totalIncome?.toFixed(2) ?? "0.00"}`}
+                </ThemedText>
+              </ThemedView>
+              <ProgressBar
+                height={2}
+                progress={
+                  (dashboardStats?.totalIncome || 0) /
+                  (dashboardStats?.totalAmount || 1)
+                }
+              />
             </ThemedView>
           </ThemedView>
           <ThemedView style={tw`flex-row gap-4`}>
@@ -252,15 +259,18 @@ export default function MyOrdersScreen() {
                         const relativeTime = getRelativeTime(order.createdAt);
 
                         return (
-                          <ThemedView key={order.id} style={tw`mb-8`}>
+                          <ThemedView
+                            key={order.id}
+                            style={tw`mb-8 bg-light-surface rounded-lg p-4`}
+                          >
                             <Pressable
                               onPress={() =>
                                 handleOpenOrder(order.num, order.id)
                               }
                             >
-                              <ThemedView style={tw`mb-4`}>
+                              <ThemedView style={tw`mb-4 bg-transparent`}>
                                 <ThemedView
-                                  style={tw`flex-row items-center justify-between`}
+                                  style={tw`flex-row items-center justify-between bg-transparent`}
                                 >
                                   <ThemedText
                                     type="h3"
@@ -382,16 +392,6 @@ export default function MyOrdersScreen() {
                 <OrderList
                   title={t("common:status.delivered")}
                   orders={deliveredOrders}
-                />
-                {/* Collapsible Closed Orders Section */}
-                <CollapsibleOrderSection
-                  title={t("orders:list.closedOrders")}
-                  totalCount={closedOrdersCount}
-                  orders={closedOrders}
-                  isLoading={isLoadingClosedOrders}
-                  onExpand={refetchClosedOrders}
-                  hasMore={hasMoreClosedOrders}
-                  onLoadMore={loadMoreClosedOrders}
                 />
               </>
             )}

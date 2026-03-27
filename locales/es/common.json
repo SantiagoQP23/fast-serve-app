@@ -28,7 +28,9 @@
     "search": "Buscar",
     "filter": "Filtrar",
     "select": "Seleccionar",
-    "loadMore": "Cargar Más"
+    "loadMore": "Cargar Más",
+    "continue": "Continuar",
+    "clearAll": "Limpiar Todo"
   },
   "status": {
     "pending": "Pendiente",
