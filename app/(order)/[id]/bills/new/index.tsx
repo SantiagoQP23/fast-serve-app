@@ -214,9 +214,16 @@ export default function NewBillScreen() {
           </ThemedView>
         )}
 
+        <Button
+          leftIcon="add-outline"
+          label={t("orders:details.addProduct")}
+          variant="outline"
+          onPress={() => router.push("/(new-order)/restaurant-menu")}
+        />
+
         {/* Already Billed Items Section */}
         {paidDetails.length > 0 && (
-          <ThemedView style={tw`mb-6`}>
+          <ThemedView style={tw`mb-6 mt-6`}>
             <ThemedText type="body2" style={tw`text-gray-500 mb-3`}>
               {t("bills:newBill.billedItems")}
             </ThemedText>
