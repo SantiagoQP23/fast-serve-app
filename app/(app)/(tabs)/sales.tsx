@@ -40,6 +40,8 @@ import BillCard from "@/presentation/orders/components/bill-card";
 import Chip from "@/presentation/theme/components/chip";
 import { BillStatusFilter } from "@/core/orders/dto/bill-list-filters.dto";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import Fab from "@/presentation/theme/components/fab";
+import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 
 const STORAGE_KEY = "sales_selected_date";
 
@@ -51,6 +53,7 @@ export default function SalesScreen() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [filters, setFilters] = useState<BillListFiltersDto>({});
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const { setCartType: setType } = useNewOrderStore();
   const { currentRestaurant, user } = useAuthStore();
 
   // Load persisted date on mount
@@ -173,6 +176,11 @@ export default function SalesScreen() {
       }))
       .sort((a, b) => a.fullName.localeCompare(b.fullName));
   }, [users, user, isAdmin]);
+
+  const onNewSale = () => {
+    router.push("/(new-order)/restaurant-menu");
+    setType("sale");
+  };
 
   return (
     <>
@@ -432,6 +440,7 @@ export default function SalesScreen() {
             </ThemedView>
           )}
         </ScrollView>
+        <Fab icon="add-outline" onPress={onNewSale} />
       </ScreenLayout>
 
       {/* Filter Bottom Sheet */}

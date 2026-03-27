@@ -1,9 +1,11 @@
 import { queryClient } from "@/app/_layout";
 import { CreateBillDto } from "@/core/orders/dto/create-bill.dto";
+import { CreateSaleDto } from "@/core/orders/dto/create-sale.dto";
 import { PayBillTransactionDto } from "@/core/orders/dto/pay-bill-transaction.dto";
 import { RemoveBillDto } from "@/core/orders/dto/remove-bill.dto";
 import { UpdateBillDto } from "@/core/orders/dto/update-bill.dto";
 import { OrderSocketEvent } from "@/core/orders/enums/socket-events.enum";
+import { Bill } from "@/core/orders/models/bill.model";
 import { Order } from "@/core/orders/models/order.model";
 import { BillsService } from "@/core/orders/services/bills.service";
 import { useWebsocketEventEmitter } from "@/presentation/shared/hooks/useWebsocketEventEmitter";
@@ -21,6 +23,21 @@ export const useBills = () => {
           queryClient.invalidateQueries({
             queryKey: ["bills", resp.data.id],
           });
+      },
+      onError: (resp) => {
+        Alert.alert("Error", resp.msg);
+      },
+    },
+  );
+
+  const createSaleEmitter = useWebsocketEventEmitter<Bill, CreateSaleDto>(
+    OrderSocketEvent.createSale,
+    {
+      onSuccess: (resp) => {
+        // if (resp.data)
+        //   queryClient.invalidateQueries({
+        //     queryKey: ["bills", resp.data.id],
+        //   });
       },
       onError: (resp) => {
         Alert.alert("Error", resp.msg);
@@ -58,20 +75,20 @@ export const useBills = () => {
     },
   );
 
-  const payBillTransactionEmitter = useWebsocketEventEmitter<Order, PayBillTransactionDto>(
-    OrderSocketEvent.payBillTransaction,
-    {
-      onSuccess: (resp) => {
-        if (resp.data)
-          queryClient.invalidateQueries({
-            queryKey: ["bills", resp.data.id],
-          });
-      },
-      onError: (resp) => {
-        Alert.alert("Error", resp.msg);
-      },
+  const payBillTransactionEmitter = useWebsocketEventEmitter<
+    Order,
+    PayBillTransactionDto
+  >(OrderSocketEvent.payBillTransaction, {
+    onSuccess: (resp) => {
+      if (resp.data)
+        queryClient.invalidateQueries({
+          queryKey: ["bills", resp.data.id],
+        });
     },
-  );
+    onError: (resp) => {
+      Alert.alert("Error", resp.msg);
+    },
+  });
 
   const billsByOrderQuery = (orderId: string) =>
     useQuery({
@@ -90,6 +107,7 @@ export const useBills = () => {
     billsByOrderQuery,
     billByIdQuery,
     createBill: createBillEmitter,
+    createSale: createSaleEmitter,
     updateBill: updateBillEmitter,
     removeBill: removeBillEmitter,
     payBillTransaction: payBillTransactionEmitter,

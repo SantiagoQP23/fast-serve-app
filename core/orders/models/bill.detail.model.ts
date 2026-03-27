@@ -1,3 +1,4 @@
+import { Product } from "@/core/menu/models/product.model";
 import { Bill } from "./bill.model";
 import { OrderDetail } from "./order-detail.model";
 
@@ -7,7 +8,8 @@ export interface BillDetail {
   price: number;
   total: number;
   bill: Bill;
-  orderDetail: OrderDetail;
+  orderDetail?: OrderDetail;
+  product?: Product;
   createdAt: Date;
   updatedAt: Date;
 }

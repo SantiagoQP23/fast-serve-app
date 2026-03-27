@@ -19,20 +19,25 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import { useBills } from "@/presentation/orders/hooks/useBills";
+import { mapStoreToCreateSaleDto } from "@/presentation/orders/mappers/createBill.mapper";
 
 export default function CartScreen() {
   const { t } = useTranslation(["common", "menu"]);
   const people = useNewOrderStore((state) => state.people);
+  const cartType = useNewOrderStore((state) => state.cartType);
   const orderType = useNewOrderStore((state) => state.orderType);
   const table = useNewOrderStore((state) => state.table);
   const notes = useNewOrderStore((state) => state.notes);
   const details = useNewOrderStore((state) => state.details);
   const resetNewOrder = useNewOrderStore((state) => state.reset);
-  // const setActiveProduct = useNewOrderStore( (state) => state.setActiveProduct);
   const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
   const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
   const newOrder = useNewOrderStore();
   const { isOnline, isLoading, mutate: createOrder } = useOrders().createOrder;
+  const { isLoading: createSaleIsLoading, mutate: createSale } =
+    useBills().createSale;
+
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
   const [total, setTotal] = useState(0);
@@ -45,15 +50,27 @@ export default function CartScreen() {
   };
 
   const onCreateOrder = () => {
-    const data = mapStoreToCreateOrderDto(newOrder);
+    if (cartType === "sale") {
+      const data = mapStoreToCreateSaleDto(newOrder);
+      createSale(data, {
+        onSuccess: (resp) => {
+          resetNewOrder();
+          if (resp.data) router.push(`/(bills)/${resp.data.id}`);
+        },
+      });
+    } else {
+      const data = mapStoreToCreateOrderDto(newOrder);
 
-    createOrder(data, {
-      onSuccess: (resp) => {
-        resetNewOrder();
-        if (resp.data) setActiveOrder(resp.data);
-        router.replace("/(new-order)/order-confirmation", { withAnchor: true });
-      },
-    });
+      createOrder(data, {
+        onSuccess: (resp) => {
+          resetNewOrder();
+          if (resp.data) setActiveOrder(resp.data);
+          router.replace("/(new-order)/order-confirmation", {
+            withAnchor: true,
+          });
+        },
+      });
+    }
   };
 
   useEffect(() => {
@@ -73,21 +90,23 @@ export default function CartScreen() {
               {t("menu:cart.products")} {details.length}
             </ThemedText>
           </ThemedView>
-          <ThemedView style={tw`gap-2`}>
-            <ThemedView>
-              <ThemedText type="h4">
-                {orderType === OrderType.IN_PLACE
-                  ? `${t("common:labels.table")} ${table?.name}`
-                  : t("common:labels.takeAway")}
-              </ThemedText>
+          {cartType === "order" && (
+            <ThemedView style={tw`gap-2`}>
+              <ThemedView>
+                <ThemedText type="h4">
+                  {orderType === OrderType.IN_PLACE
+                    ? `${t("common:labels.table")} ${table?.name}`
+                    : t("common:labels.takeAway")}
+                </ThemedText>
+              </ThemedView>
+              <ThemedView
+                style={tw` flex-row justify-end bg-transparent items-center gap-2`}
+              >
+                <Ionicons name="people-outline" size={18} />
+                <ThemedText type="body2">{people}</ThemedText>
+              </ThemedView>
             </ThemedView>
-            <ThemedView
-              style={tw` flex-row justify-end bg-transparent items-center gap-2`}
-            >
-              <Ionicons name="people-outline" size={18} />
-              <ThemedText type="body2">{people}</ThemedText>
-            </ThemedView>
-          </ThemedView>
+          )}
         </ThemedView>
         {notes && (
           <ThemedView style={tw`gap-2`}>
@@ -138,7 +157,11 @@ export default function CartScreen() {
             <ThemedText type="h2">{formatCurrency(total)}</ThemedText>
           </ThemedView>
           <Button
-            label={t("menu:cart.createOrder")}
+            label={t(
+              cartType === "order"
+                ? "menu:cart.createOrder"
+                : "menu:cart.createSale",
+            )}
             onPress={onCreateOrder}
             disabled={!isOnline || isLoading || details.length === 0}
           ></Button>

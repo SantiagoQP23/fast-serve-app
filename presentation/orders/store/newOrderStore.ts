@@ -5,7 +5,10 @@ import { create } from "zustand";
 import { createJSONStorage, persist, PersistStorage } from "zustand/middleware";
 import { AsyncStorageAdapter } from "@/helpers/adapters/async-storage.adapter";
 
+export type CartType = "order" | "sale";
+
 export interface NewOrderState {
+  cartType: CartType;
   table: Table | null;
   amount: number;
   details: NewOrderDetail[];
@@ -19,6 +22,7 @@ export interface NewOrderState {
 
 interface NewOrderActions {
   setTable: (table: Table | null) => void;
+  setCartType: (type: CartType) => void;
   setAmount: (amount: number) => void;
   setDetails: (details: NewOrderDetail[]) => void;
   setPeople: (people: number) => void;
@@ -35,6 +39,7 @@ interface NewOrderActions {
 }
 
 const initialState: NewOrderState = {
+  cartType: "order",
   details: [],
   amount: 0,
   table: null,
@@ -75,7 +80,11 @@ export const useNewOrderStore = create<NewOrderState & NewOrderActions>()(
         const details = get().details;
         set({
           details: details.map((d) =>
-            (detail.id ? d.id === detail.id : d.product.id === detail.product.id)
+            (
+              detail.id
+                ? d.id === detail.id
+                : d.product.id === detail.product.id
+            )
               ? {
                   ...d,
                   quantity: detail.quantity,
@@ -90,6 +99,7 @@ export const useNewOrderStore = create<NewOrderState & NewOrderActions>()(
 
       setPeople: (people: number) => set({ people }),
       setOrderType: (orderType: OrderType) => set({ orderType }),
+      setCartType: (type: CartType) => set({ cartType: type }),
       setTotalProducts: (totalProducts: number) => set({ totalProducts }),
       setNotes: (notes: string) => set({ notes }),
       setDeliveryTime: (deliveryTime: Date | null) => set({ deliveryTime }),

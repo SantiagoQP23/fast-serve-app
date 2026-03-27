@@ -41,6 +41,7 @@ const NewOrderBottomSheet = ({
   } = useNewOrderStore();
   const [withNotes, setWithNotes] = useState<boolean>(!!notes);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
+  const setCartType = useNewOrderStore((state) => state.setCartType);
   const { tables } = useTables();
 
   const validateNewOrder = () => {
@@ -55,6 +56,14 @@ const NewOrderBottomSheet = ({
     setActiveOrder(null); // Reset active order
 
     return true;
+  };
+
+  const createOrder = () => {
+    const isValidOrder = validateNewOrder();
+    if (!isValidOrder) return;
+
+    setCartType("order");
+    onCreateOrder && onCreateOrder();
   };
 
   return (
@@ -132,9 +141,7 @@ const NewOrderBottomSheet = ({
         <ThemedView style={tw`w-full `}>
           <Button
             label={t("newOrder.createOrder")}
-            onPress={() =>
-              validateNewOrder() && onCreateOrder && onCreateOrder()
-            }
+            onPress={createOrder}
             {...buttonProps}
           />
         </ThemedView>

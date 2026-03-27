@@ -26,7 +26,7 @@ import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import Label from "@/presentation/theme/components/label";
 import { translatePaymentMethod } from "@/core/i18n/utils";
-import { BillStatus } from "@/core/orders/models/bill.model";
+import { BillSource, BillStatus } from "@/core/orders/models/bill.model";
 import TransactionCard from "@/presentation/transactions/components/transaction-card";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
@@ -236,7 +236,9 @@ export default function BillScreen() {
                             {detail.quantity}×
                           </ThemedText>
                           <ThemedText type="body1" style={tw`flex-1`}>
-                            {detail.orderDetail.product.name}
+                            {bill.source === BillSource.ORDER
+                              ? detail.orderDetail?.product.name
+                              : detail.product?.name}
                           </ThemedText>
                         </ThemedView>
                         <ThemedText type="body1" style={tw`font-semibold`}>

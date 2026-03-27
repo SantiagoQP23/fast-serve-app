@@ -31,6 +31,7 @@
     "total": "Total",
     "addProduct": "Add product",
     "createOrder": "Create order",
+    "createSale": "Create sale",
     "empty": "Your cart is empty",
     "emptyDescription": "Add some products to get started"
   },

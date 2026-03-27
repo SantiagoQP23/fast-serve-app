@@ -16,6 +16,7 @@ export default function NewOrderLayout() {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
   const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
+  const cartType = useNewOrderStore((state) => state.cartType);
   const order = useOrdersStore((state) => state.activeOrder);
   const { details } = useNewOrderStore();
 
@@ -78,12 +79,13 @@ export default function NewOrderLayout() {
             headerShown: true,
             title: "",
             headerShadowVisible: false,
-            headerRight: () => (
-              <IconButton
-                icon="create-outline"
-                onPress={handlePresentModalPress}
-              ></IconButton>
-            ),
+            headerRight: () =>
+              cartType === "order" && (
+                <IconButton
+                  icon="create-outline"
+                  onPress={handlePresentModalPress}
+                ></IconButton>
+              ),
           }}
         />
       </Stack>
