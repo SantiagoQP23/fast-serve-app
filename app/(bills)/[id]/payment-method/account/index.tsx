@@ -100,9 +100,13 @@ export default function AccountScreen() {
       },
       {
         onSuccess: () => {
-          router.back();
-          router.back();
-          router.back();
+          if (bill.source === "direct") {
+            router.replace("/(app)/(tabs)/sales");
+          } else {
+            router.back();
+            router.back();
+            router.back();
+          }
         },
         onError: (resp) => {
           Alert.alert(t("errors:general.error"), resp.msg);

@@ -3,7 +3,8 @@
   "bills": "Cuentas",
   "list": {
     "title": "Cuentas",
-    "billNumber": "Cuenta #{{number}}",
+    "order": "Cuenta #{{number}}",
+    "direct": "Venta #{{number}}",
     "noBills": "No hay cuentas aún",
     "noBillsDescription": "No hay cuentas para este pedido aún. Presione el botón de abajo para agregar una nueva cuenta.",
     "addBill": "Agregar cuenta",

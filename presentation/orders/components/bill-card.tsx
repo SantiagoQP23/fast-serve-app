@@ -66,7 +66,7 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
               leftIcon="time-outline"
             />
           )}
-          <Label color="default" text={bill.source} size="small" />
+          {/* <Label color="default" text={bill.source} size="small" /> */}
         </ThemedView>
         <ThemedView
           style={tw`flex-row bg-transparent justify-between items-center`}
@@ -81,7 +81,7 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
             </ThemedView>
             <ThemedView style={tw`bg-transparent gap-1`}>
               <ThemedText type="body1" style={tw`font-bold`}>
-                {t("bills:list.billNumber", { number: bill.num })}
+                {t(`bills:list.${bill.source}`, { number: bill.num })}
               </ThemedText>
               <ThemedText type="small" style={tw`text-gray-500`}>
                 {bill.owner.person.firstName} {bill.owner.person.lastName}

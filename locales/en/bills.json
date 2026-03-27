@@ -3,7 +3,8 @@
   "bills": "bills",
   "list": {
     "title": "Bills",
-    "billNumber": "Bill #{{number}}",
+    "order": "Bill #{{number}}",
+    "direct": "Sale #{{number}}",
     "noBills": "No bills yet",
     "noBillsDescription": "There are no bills for this order yet. Tap the button below to add a new bill.",
     "addBill": "Add bill",

@@ -175,7 +175,7 @@ export default function BillScreen() {
               {/* Header Section */}
               <ThemedView style={tw`mb-6 justify-center items-center`}>
                 <ThemedText type="h2" style={tw`font-bold mb-1`}>
-                  {t("bills:list.billNumber", { number: bill.num })}
+                  {t(`bills:list.${bill.source}`, { number: bill.num })}
                 </ThemedText>
                 <ThemedText type="body2" style={tw`text-gray-500 mb-3`}>
                   {date}
