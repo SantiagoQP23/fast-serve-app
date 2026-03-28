@@ -352,9 +352,12 @@ export default function SalesScreen() {
             }
           />
           <Chip
-            label={t("bills:filters.paidCount", {
-              count: data?.countPaid ?? 0,
-            })}
+            label={t("bills:filters.paidCount")}
+            rightContent={
+              <ThemedText type="small" style={tw`text-gray-500`}>
+                {data?.countPaid ?? 0}
+              </ThemedText>
+            }
             selected={filters.status === BillStatusFilter.PAID}
             onPress={() =>
               setFilters((prev) => ({
@@ -367,9 +370,12 @@ export default function SalesScreen() {
             }
           />
           <Chip
-            label={t("bills:filters.unpaidCount", {
-              count: data?.countUnpaid ?? 0,
-            })}
+            label={t("bills:filters.unpaidCount")}
+            rightContent={
+              <ThemedText type="small" style={tw`text-gray-500`}>
+                {data?.countUnpaid ?? 0}
+              </ThemedText>
+            }
             selected={filters.status === BillStatusFilter.UNPAID}
             onPress={() =>
               setFilters((prev) => ({

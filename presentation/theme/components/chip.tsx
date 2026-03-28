@@ -10,26 +10,35 @@ type ChipProps = {
   selected?: boolean;
   onPress?: () => void;
   icon?: keyof typeof Ionicons.glyphMap;
+  rightContent?: React.ReactNode;
+  leftContent?: React.ReactNode;
 };
 
-export default function Chip({ label, selected, onPress, icon }: ChipProps) {
+export default function Chip({
+  label,
+  selected,
+  onPress,
+  icon,
+  rightContent,
+  leftContent,
+}: ChipProps) {
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
-        tw`flex-row items-center px-3 py-1.5 rounded-full border`,
+        tw`flex-row items-center px-3 py-1.5 rounded-full border gap-2`,
         selected
           ? tw`bg-light-primary border-light-primary`
           : tw`bg-white border-gray-200`,
         pressed && tw`opacity-75`,
       ]}
     >
+      {leftContent && leftContent}
       {icon && (
         <Ionicons
           name={icon}
           size={16}
           color={selected ? "white" : "#4b5563"}
-          style={tw`mr-2`}
         />
       )}
       <ThemedText
@@ -38,6 +47,7 @@ export default function Chip({ label, selected, onPress, icon }: ChipProps) {
       >
         {label}
       </ThemedText>
+      {rightContent && rightContent}
     </Pressable>
   );
 }

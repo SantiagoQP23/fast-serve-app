@@ -82,7 +82,9 @@
     "hello": "Hello"
   },
   "filters": {
-    "all": "All"
+    "all": "All",
+    "user": "User",
+    "allUsers": "All Users"
   },
   "stats": {
     "totalOrders": "Total Orders",

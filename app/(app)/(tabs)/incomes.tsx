@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect, useRef } from "react";
+import React, { useCallback, useState, useEffect, useRef, useMemo } from "react";
 import {
   ScrollView,
   RefreshControl,
@@ -16,6 +16,7 @@ import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { useUsers } from "@/presentation/users/hooks/useUsers";
 import DatePicker from "@/presentation/theme/components/date-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import dayjs from "dayjs";
@@ -51,6 +52,22 @@ export default function IncomesScreen() {
   const queryClient = useQueryClient();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const { paymentMethods } = usePaymentMethodsStore();
+
+  const { user } = useAuthStore();
+  const { users } = useUsers();
+  const isAdmin = user?.role?.name === "admin";
+  const availableWaiters = useMemo(() => {
+    const filteredUsers = isAdmin
+      ? users.filter((u) => u.isActive)
+      : users.filter((u) => u.isActive && u.id === user?.id);
+
+    return filteredUsers
+      .map((u) => ({
+        id: u.id,
+        fullName: `${u.person.firstName} ${u.person.lastName}`,
+      }))
+      .sort((a, b) => a.fullName.localeCompare(b.fullName));
+  }, [users, user, isAdmin]);
 
   // Animation config for bottom sheet
   const animationConfigs = useBottomSheetSpringConfigs({
@@ -204,7 +221,7 @@ export default function IncomesScreen() {
   }, [queryClient, currentRestaurant?.id, dateFilter, refetchTransactions, t]);
 
   const thereAreFiltersApplied =
-    !!filters.paymentMethodId || !!filters.accountId;
+    !!filters.paymentMethodId || !!filters.accountId || !!filters.createdById;
 
   return (
     <ScreenLayout style={tw`flex-1 pt-8`}>
@@ -252,6 +269,19 @@ export default function IncomesScreen() {
               selected
               onPress={() =>
                 handleFiltersChange({ ...filters, accountId: undefined })
+              }
+              icon="close"
+            />
+          )}
+          {filters.createdById && (
+            <Chip
+              label={
+                availableWaiters.find((w) => w.id === filters.createdById)
+                  ?.fullName ?? t("common:filters.user")
+              }
+              selected
+              onPress={() =>
+                handleFiltersChange({ ...filters, createdById: undefined })
               }
               icon="close"
             />
@@ -386,6 +416,8 @@ export default function IncomesScreen() {
             bottomSheetModalRef.current?.dismiss();
           }}
           onClose={() => bottomSheetModalRef.current?.dismiss()}
+          availableUsers={availableWaiters}
+          isAdmin={isAdmin}
         />
       </BottomSheetModal>
     </ScreenLayout>

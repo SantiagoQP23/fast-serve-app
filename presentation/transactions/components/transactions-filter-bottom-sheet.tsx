@@ -13,12 +13,16 @@ interface TransactionsFilterBottomSheetProps {
   onClose: () => void;
   onApply: (filters: FilterTransactionsDto) => void;
   initialFilters?: FilterTransactionsDto;
+  availableUsers: Array<{ id: string; fullName: string }>;
+  isAdmin?: boolean;
 }
 
 export default function TransactionsFilterBottomSheet({
   onClose,
   onApply,
   initialFilters,
+  availableUsers,
+  isAdmin = true,
 }: TransactionsFilterBottomSheetProps) {
   const { t } = useTranslation(["common", "bills"]);
   const { paymentMethods } = usePaymentMethodsStore();
@@ -29,11 +33,15 @@ export default function TransactionsFilterBottomSheet({
   const [accountId, setAccountId] = useState<number | "all">(
     initialFilters?.accountId || "all",
   );
+  const [createdById, setCreatedById] = useState<string | "all">(
+    initialFilters?.createdById || "all",
+  );
 
   // Sync internal state with initialFilters when they change
   useEffect(() => {
     setPaymentMethodId(initialFilters?.paymentMethodId || "all");
     setAccountId(initialFilters?.accountId || "all");
+    setCreatedById(initialFilters?.createdById || "all");
   }, [initialFilters]);
 
   // Get selected payment method
@@ -63,6 +71,7 @@ export default function TransactionsFilterBottomSheet({
   const handleReset = () => {
     setPaymentMethodId("all");
     setAccountId("all");
+    setCreatedById("all");
     onApply({});
     onClose();
   };
@@ -76,6 +85,10 @@ export default function TransactionsFilterBottomSheet({
 
     if (accountId !== "all" && paymentMethodId !== "all") {
       filters.accountId = accountId as number;
+    }
+
+    if (createdById !== "all") {
+      filters.createdById = createdById;
     }
 
     onApply(filters);
@@ -111,6 +124,18 @@ export default function TransactionsFilterBottomSheet({
     ];
   }, [selectedPaymentMethod, t]);
 
+  // User options
+  const userOptions = useMemo(
+    () => [
+      { label: t("common:filters.allUsers"), value: "all" },
+      ...availableUsers.map((user) => ({
+        label: user.fullName,
+        value: user.id,
+      })),
+    ],
+    [availableUsers, t],
+  );
+
   return (
     <BottomSheetView style={tw`p-4`}>
       <ThemedView style={tw`w-full gap-6`}>
@@ -136,6 +161,17 @@ export default function TransactionsFilterBottomSheet({
             options={accountOptions}
             value={accountId}
             onChange={(value) => setAccountId(value as number | "all")}
+          />
+        )}
+
+        {/* User Select - Only show for admin users */}
+        {isAdmin && (
+          <Select
+            label={t("common:filters.user")}
+            placeholder={t("common:filters.allUsers")}
+            options={userOptions}
+            value={createdById}
+            onChange={(value) => setCreatedById(value as string)}
           />
         )}
 

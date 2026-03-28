@@ -5,4 +5,5 @@ export interface FilterTransactionsDto {
   endDate?: string;
   paymentMethodId?: number;
   accountId?: number;
+  createdById?: string;
 }

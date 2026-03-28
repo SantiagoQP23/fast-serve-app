@@ -82,7 +82,9 @@
     "hello": "Hola"
   },
   "filters": {
-    "all": "Todos"
+    "all": "Todos",
+    "user": "Usuario",
+    "allUsers": "Todos los Usuarios"
   },
   "stats": {
     "totalOrders": "Pedidos",

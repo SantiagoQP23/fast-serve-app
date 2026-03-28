@@ -83,7 +83,9 @@ export default function AllOrdersScreen() {
     <ScreenLayout style={tw`flex-1`}>
       {orders.length === 0 ? (
         <>
-          <DailyReportSummaryCard />
+          <ThemedView style={tw`px-4 pt-4`}>
+            <DailyReportSummaryCard />
+          </ThemedView>
           <ThemedView style={tw`items-center justify-center flex-1 gap-4`}>
             <Ionicons
               name="document-text-outline"
