@@ -1,4 +1,5 @@
 import { PaymentMethod } from "../enums/payment-method";
+import { BillSource } from "../models/bill.model";
 
 export enum BillStatusFilter {
   PAID = "paid",
@@ -12,6 +13,7 @@ export interface BillListFiltersDto {
   ownerId?: string; // Filter by waiter
   paymentMethod?: PaymentMethod;
   status?: BillStatusFilter;
+  source?: BillSource;
   limit?: number;
   offset?: number;
 }

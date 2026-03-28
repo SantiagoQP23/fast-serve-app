@@ -9,6 +9,7 @@ import Select from "@/presentation/theme/components/select";
 import { PaymentMethod } from "@/core/orders/enums/payment-method";
 import { translatePaymentMethod } from "@/core/i18n/utils";
 import { BillListFiltersDto } from "@/core/orders/dto/bill-list-filters.dto";
+import { BillSource } from "@/core/orders/models/bill.model";
 
 interface BillsFilterBottomSheetProps {
   onClose: () => void;
@@ -33,16 +34,21 @@ export default function BillsFilterBottomSheet({
   const [ownerId, setOwnerId] = useState<string | "all">(
     initialFilters?.ownerId || "all",
   );
+  const [source, setSource] = useState<BillSource | "all">(
+    initialFilters?.source || "all",
+  );
 
   // Sync internal state with initialFilters when they change
   useEffect(() => {
     setPaymentMethod(initialFilters?.paymentMethod || "all");
     setOwnerId(initialFilters?.ownerId || "all");
+    setSource(initialFilters?.source || "all");
   }, [initialFilters]);
 
   const handleReset = () => {
     setPaymentMethod("all");
     setOwnerId("all");
+    setSource("all");
     onApply({});
     onClose();
   };
@@ -56,6 +62,10 @@ export default function BillsFilterBottomSheet({
 
     if (ownerId !== "all") {
       filters.ownerId = ownerId;
+    }
+
+    if (source !== "all") {
+      filters.source = source as BillSource;
     }
 
     onApply(filters);
@@ -94,6 +104,16 @@ export default function BillsFilterBottomSheet({
     [availableWaiters, t],
   );
 
+  // Source options
+  const sourceOptions = useMemo(
+    () => [
+      { label: t("bills:filters.allSources"), value: "all" },
+      { label: t("bills:filters.order"), value: BillSource.ORDER },
+      { label: t("bills:filters.direct"), value: BillSource.DIRECT },
+    ],
+    [t],
+  );
+
   return (
     <BottomSheetView style={tw`p-4`}>
       <ThemedView style={tw`w-full gap-6`}>
@@ -112,6 +132,15 @@ export default function BillsFilterBottomSheet({
             onChange={(value) => setOwnerId(value as string)}
           />
         )}
+
+        {/* Source Select */}
+        <Select
+          label={t("bills:filters.source")}
+          placeholder={t("bills:filters.allSources")}
+          options={sourceOptions}
+          value={source}
+          onChange={(value) => setSource(value as BillSource | "all")}
+        />
 
         {/* Action Buttons */}
         <ThemedView style={tw`flex-row gap-3`}>

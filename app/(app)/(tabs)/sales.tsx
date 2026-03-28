@@ -111,6 +111,7 @@ export default function SalesScreen() {
     filters.status,
     filters.paymentMethod,
     filters.ownerId,
+    filters.source,
     reset,
   ]);
 
@@ -160,7 +161,8 @@ export default function SalesScreen() {
   const hasActiveFilters =
     filters.paymentMethod !== undefined ||
     filters.status !== undefined ||
-    filters.ownerId !== undefined;
+    filters.ownerId !== undefined ||
+    filters.source !== undefined;
 
   const { users } = useUsers();
   const isAdmin = user?.role?.name === "admin";

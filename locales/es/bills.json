@@ -89,7 +89,11 @@
     "unpaid": "Solo Sin Pagar",
     "all": "Todas",
     "paidCount": "{{count}} Pagadas",
-    "unpaidCount": "{{count}} Sin Pagar"
+    "unpaidCount": "{{count}} Sin Pagar",
+    "source": "Origen",
+    "allSources": "Todos los Orígenes",
+    "order": "Pedido",
+    "direct": "Directa"
   },
   "account": {
     "selectAccountTitle": "Seleccionar una cuenta",
