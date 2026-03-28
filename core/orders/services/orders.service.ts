@@ -4,6 +4,7 @@ import { DashboardStatsDto } from "../dto/dashboard-stats.dto";
 import { DailyReportResponseDto } from "../dto/daily-report-response.dto";
 import { FilterDailyReportDto } from "../dto/daily-report-filters.dto";
 import { OrderHistoryFiltersDto } from "../dto/order-history-filters.dto";
+import { OrderHistoryRespDto } from "../dto/order-history-resp.dto";
 
 export class OrdersService {
   static async getActiveOrders(): Promise<Order[]> {
@@ -60,13 +61,10 @@ export class OrdersService {
 
   static async getOrderHistory(
     filters?: OrderHistoryFiltersDto,
-  ): Promise<{ orders: Order[]; count?: number }> {
-    const resp = await restaurantApi.get<{ orders: Order[]; count?: number }>(
-      "/orders",
-      {
-        params: { ...filters, period: "custom" },
-      },
-    );
+  ): Promise<OrderHistoryRespDto> {
+    const resp = await restaurantApi.get<OrderHistoryRespDto>("/orders", {
+      params: { ...filters, period: "custom" },
+    });
     return resp.data;
   }
 }

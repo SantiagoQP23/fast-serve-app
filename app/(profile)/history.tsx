@@ -32,6 +32,7 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Select from "@/presentation/theme/components/select";
 import { OrderHistoryFiltersDto } from "@/core/orders/dto/order-history-filters.dto";
+import { formatCurrency } from "@/core/i18n/utils";
 
 const STORAGE_KEY = "history_selected_date";
 const FILTERS_STORAGE_KEY = "history_filters";
@@ -104,6 +105,7 @@ export default function HistoryScreen() {
   const {
     orders,
     count,
+    totalAmount,
     isLoading,
     isLoadingMore,
     refetch,
@@ -249,6 +251,7 @@ export default function HistoryScreen() {
         </ThemedView>
 
         <ThemedView style={tw`px-4 mb-4 items-center`}>
+          <ThemedText type="h2">{formatCurrency(totalAmount)}</ThemedText>
           <ThemedText type="small" style={tw`text-gray-400`}>
             {count} {count === 1 ? "order" : "orders"}
           </ThemedText>

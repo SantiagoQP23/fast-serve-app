@@ -19,7 +19,12 @@ export const useOrderHistory = (filters?: OrderHistoryFiltersDto) => {
   };
 
   const query = useQuery({
-    queryKey: ["orderHistory", currentRestaurant?.id, page, filtersWithDefaults],
+    queryKey: [
+      "orderHistory",
+      currentRestaurant?.id,
+      page,
+      filtersWithDefaults,
+    ],
     queryFn: () => OrdersService.getOrderHistory(filtersWithDefaults),
     staleTime: 30000,
     enabled: !!currentRestaurant?.id,
@@ -36,10 +41,7 @@ export const useOrderHistory = (filters?: OrderHistoryFiltersDto) => {
   }, [query.data, page]);
 
   const loadMore = useCallback(() => {
-    if (
-      query.data?.count &&
-      allOrders.length < query.data.count
-    ) {
+    if (query.data?.count && allOrders.length < query.data.count) {
       setPage((prev) => prev + 1);
     }
   }, [query.data, allOrders.length]);
@@ -57,6 +59,7 @@ export const useOrderHistory = (filters?: OrderHistoryFiltersDto) => {
   return {
     orders: allOrders,
     count: query.data?.count || 0,
+    totalAmount: query.data?.totalAmount || 0,
     isLoading: query.isLoading,
     isLoadingMore,
     refetch: query.refetch,
