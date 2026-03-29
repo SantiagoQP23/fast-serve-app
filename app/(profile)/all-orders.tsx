@@ -19,6 +19,7 @@ import WaiterSummaryCard from "@/presentation/orders/components/waiter-summary-c
 import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import DailyReportSummaryCard from "@/presentation/home/components/daily-report-summary-card";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function AllOrdersScreen() {
   const { t } = useTranslation(["common", "orders"]);
@@ -26,6 +27,7 @@ export default function AllOrdersScreen() {
   const router = useRouter();
   const [selectedWaiterId, setSelectedWaiterId] = useState<string | null>(null);
   const { refetchOrders, isRefetching } = useActiveOrders();
+  const queryClient = useQueryClient();
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
@@ -44,6 +46,7 @@ export default function AllOrdersScreen() {
 
   const handleRefresh = useCallback(async () => {
     await refetchOrders();
+    queryClient.invalidateQueries({ queryKey: ["dailyReport"] });
   }, [refetchOrders]);
 
   const waiterStats = useMemo(() => {
