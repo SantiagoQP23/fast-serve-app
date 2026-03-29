@@ -85,6 +85,9 @@ export const useBills = () => {
         queryClient.invalidateQueries({
           queryKey: ["bills", resp.data.orderId],
         });
+      queryClient.invalidateQueries({
+        queryKey: ["billsList"],
+      });
     },
     onError: (resp) => {
       Alert.alert("Error", resp.msg);

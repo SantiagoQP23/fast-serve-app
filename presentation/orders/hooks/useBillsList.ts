@@ -21,7 +21,7 @@ export const useBillsList = (filters?: BillListFiltersDto) => {
   };
 
   const billsListQuery = useQuery({
-    queryKey: ["billsList", currentRestaurant?.id, page, filtersWithDefaults],
+    queryKey: ["billsList", page, filtersWithDefaults],
     queryFn: () => BillsService.getBillList(filtersWithDefaults),
     staleTime: 30000, // 30 seconds
     enabled: !!currentRestaurant?.id,
