@@ -42,6 +42,8 @@ import { BillStatusFilter } from "@/core/orders/dto/bill-list-filters.dto";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Fab from "@/presentation/theme/components/fab";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
+import { useOrders } from "@/presentation/orders/hooks/useOrders";
+import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 
 const STORAGE_KEY = "sales_selected_date";
 
@@ -54,6 +56,7 @@ export default function SalesScreen() {
   const [filters, setFilters] = useState<BillListFiltersDto>({});
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const { setCartType: setType } = useNewOrderStore();
+  const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const { currentRestaurant, user } = useAuthStore();
 
   // Load persisted date on mount
@@ -180,6 +183,7 @@ export default function SalesScreen() {
   }, [users, user, isAdmin]);
 
   const onNewSale = () => {
+    setActiveOrder(null);
     router.push("/(new-order)/restaurant-menu");
     setType("sale");
   };
