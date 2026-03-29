@@ -1,6 +1,7 @@
 import { queryClient } from "@/app/_layout";
 import { CreateBillDto } from "@/core/orders/dto/create-bill.dto";
 import { CreateSaleDto } from "@/core/orders/dto/create-sale.dto";
+import { PayBillTransactionRespDto } from "@/core/orders/dto/pay-bill-transaction-resp.dto";
 import { PayBillTransactionDto } from "@/core/orders/dto/pay-bill-transaction.dto";
 import { RemoveBillDto } from "@/core/orders/dto/remove-bill.dto";
 import { UpdateBillDto } from "@/core/orders/dto/update-bill.dto";
@@ -76,13 +77,13 @@ export const useBills = () => {
   );
 
   const payBillTransactionEmitter = useWebsocketEventEmitter<
-    Order,
+    PayBillTransactionRespDto,
     PayBillTransactionDto
   >(OrderSocketEvent.payBillTransaction, {
     onSuccess: (resp) => {
-      if (resp.data)
+      if (resp.data && resp.data.orderId)
         queryClient.invalidateQueries({
-          queryKey: ["bills", resp.data.id],
+          queryKey: ["bills", resp.data.orderId],
         });
     },
     onError: (resp) => {
