@@ -11,6 +11,7 @@ import { useRouter } from "expo-router";
 import { useOrdersStore } from "../store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { i18nAlert } from "@/core/i18n/utils";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 
 interface OrderOptionsBottomSheetProps {
   order: Order;
@@ -37,6 +38,8 @@ const OrderOptionsBottomSheet = ({
   const { mutate: deleteOrder } = useOrders().deleteOrder;
   const router = useRouter();
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
+  const { user } = useAuthStore();
+  const isAdmin = user?.role?.name === "admin";
 
   const handleCloseOrder = () => {
     Alert.alert(
@@ -123,7 +126,7 @@ const OrderOptionsBottomSheet = ({
     order.status !== OrderStatus.PENDING ||
     order.details.some((detail) => detail.qtyDelivered !== 0);
 
-  const canCloseOrder = order.status === OrderStatus.DELIVERED && order.isPaid;
+  const canCloseOrder = order.status === OrderStatus.DELIVERED && (order.isPaid || isAdmin);
 
   const options: OptionItem[] = [
     {
