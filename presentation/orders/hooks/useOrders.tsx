@@ -17,7 +17,7 @@ import { SocketEvent } from "@/core/common/dto/socket.dto";
 import { useWebsocketEventListener } from "@/presentation/shared/hooks/useWebsocketEventListener";
 
 export const useOrders = () => {
-  console.log('[useOrders] Hook called');
+  console.log("[useOrders] Hook called");
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const createOrderEmitter = useWebsocketEventEmitter<Order, CreateOrderDto>(
     OrderSocketEvent.createOrder,
@@ -115,6 +115,7 @@ export const useOrderCreatedListener = () => {
 
 export const useOrderUpdatedListener = () => {
   const updateOrder = useOrdersStore((state) => state.updateOrder);
+  const deleteOrder = useOrdersStore((state) => state.deleteOrder);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
   useWebsocketEventListener<Order>(
@@ -122,8 +123,10 @@ export const useOrderUpdatedListener = () => {
     ({ data: order }: SocketEvent<Order>) => {
       console.log("Received order update for order:", order?.id);
 
-      // Update the order in the list
-      updateOrder(order!);
+      if (order!.isClosed) deleteOrder(order!.id);
+      else
+        // Update the order in the list
+        updateOrder(order!);
 
       // Get current active order state at the time of the event
       const currentActiveOrder = useOrdersStore.getState().activeOrder;
