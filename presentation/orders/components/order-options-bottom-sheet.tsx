@@ -26,6 +26,7 @@ interface OptionItem {
   onPress: () => void;
   disabled?: boolean;
   divider?: boolean;
+  visible?: boolean;
 }
 
 const OrderOptionsBottomSheet = ({
@@ -126,7 +127,8 @@ const OrderOptionsBottomSheet = ({
     order.status !== OrderStatus.PENDING ||
     order.details.some((detail) => detail.qtyDelivered !== 0);
 
-  const canCloseOrder = order.status === OrderStatus.DELIVERED && (order.isPaid || isAdmin);
+  const canCloseOrder = order.status === OrderStatus.DELIVERED && order.isPaid;
+  const canForceCloseOrder = isAdmin && order.status === OrderStatus.DELIVERED && !order.isPaid;
 
   const options: OptionItem[] = [
     {
@@ -175,6 +177,14 @@ const OrderOptionsBottomSheet = ({
       disabled: !canCloseOrder,
     },
     {
+      icon: "lock-closed-outline",
+      label: t("orders:options.forceCloseOrder"),
+      onPress: handleCloseOrder,
+      disabled: !canForceCloseOrder,
+      visible: isAdmin,
+      divider: true,
+    },
+    {
       icon: "trash-outline",
       label: t("orders:options.deleteOrder"),
       color: "text-red-500",
@@ -182,6 +192,8 @@ const OrderOptionsBottomSheet = ({
       disabled: orderCantBeDeleted,
     },
   ];
+
+  const visibleOptions = options.filter((opt) => opt.visible !== false);
 
   return (
     <BottomSheetView style={tw`px-4 pb-6`}>
@@ -193,7 +205,7 @@ const OrderOptionsBottomSheet = ({
       </ThemedView>
 
       <ThemedView style={tw`gap-2`}>
-        {options.map((option, index) => (
+        {visibleOptions.map((option, index) => (
           <ThemedView key={index}>
             <Pressable
               onPress={option.onPress}

@@ -114,7 +114,8 @@
     "pauseOrder": "Pause Order",
     "markDelivered": "Mark as Delivered",
     "deleteOrder": "Delete Order",
-    "closeOrder": "Close Order"
+    "closeOrder": "Close Order",
+    "forceCloseOrder": "Close Order (Unpaid)"
   },
   "deleteAlerts": {
     "cannotDelete": "Cannot Delete",

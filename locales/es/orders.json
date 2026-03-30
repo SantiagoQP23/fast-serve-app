@@ -114,7 +114,8 @@
     "pauseOrder": "Pausar Pedido",
     "markDelivered": "Marcar como Entregado",
     "deleteOrder": "Eliminar Pedido",
-    "closeOrder": "Cerrar Pedido"
+    "closeOrder": "Cerrar Pedido",
+    "forceCloseOrder": "Cerrar Pedido (Sin Pagar)"
   },
   "deleteAlerts": {
     "cannotDelete": "No se Puede Eliminar",
