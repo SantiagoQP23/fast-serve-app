@@ -246,117 +246,106 @@ export default function MyOrdersScreen() {
                   ),
                 ) ? (
                   <ThemedView style={tw`px-4`}>
-                    {orders
-                      .filter((order) =>
-                        order.details.some(
-                          (detail) => detail.quantity !== detail.qtyDelivered,
-                        ),
-                      )
-                      .map((order) => {
-                        const pendingCount = order.details.filter(
-                          (detail) => detail.quantity !== detail.qtyDelivered,
-                        ).length;
-                        const relativeTime = getRelativeTime(order.createdAt);
+                    {orders.map((order) => {
+                      const pendingCount = order.details.filter(
+                        (detail) => detail.quantity !== detail.qtyDelivered,
+                      ).length;
+                      const relativeTime = getRelativeTime(order.createdAt);
 
-                        return (
-                          <ThemedView
-                            key={order.id}
-                            style={tw`mb-8 bg-light-surface rounded-lg p-4`}
+                      return (
+                        <ThemedView
+                          key={order.id}
+                          style={tw`mb-8 bg-light-surface rounded-lg p-4`}
+                        >
+                          <Pressable
+                            onPress={() => handleOpenOrder(order.num, order.id)}
                           >
-                            <Pressable
-                              onPress={() =>
-                                handleOpenOrder(order.num, order.id)
-                              }
-                            >
-                              <ThemedView style={tw`mb-4 bg-transparent`}>
-                                <ThemedView
-                                  style={tw`flex-row items-center justify-between bg-transparent`}
-                                >
-                                  <ThemedText
-                                    type="h3"
-                                    style={tw`font-semibold`}
-                                  >
-                                    {order.type === OrderType.IN_PLACE
-                                      ? `${t("common:labels.table")} ${order.table?.name}`
-                                      : t("common:labels.takeAway")}{" "}
-                                  </ThemedText>
-                                  <Button
-                                    label="Editar"
-                                    variant="text"
-                                    size="small"
-                                    rightIcon="chevron-forward"
-                                    onPress={() =>
-                                      handleOpenOrder(order.num, order.id)
-                                    }
-                                  />
-                                </ThemedView>
-                                <ThemedView
-                                  style={tw`flex-row items-center gap-2 mt-1`}
-                                >
-                                  <ThemedText
-                                    type="small"
-                                    style={tw`text-gray-500 font-semibold`}
-                                  >
-                                    {t("orders:details.orderNumber", {
-                                      num: order.num,
-                                    })}
-                                  </ThemedText>
-                                  <ThemedText
-                                    type="small"
-                                    style={tw`text-gray-500`}
-                                  >
-                                    •
-                                  </ThemedText>
-                                  <ThemedText
-                                    type="small"
-                                    style={tw`text-gray-500 font-semibold`}
-                                  >
-                                    {relativeTime}
-                                  </ThemedText>
-
-                                  {!order.isPaid && (
-                                    <>
-                                      <ThemedText
-                                        type="small"
-                                        style={tw`text-gray-500`}
-                                      >
-                                        •
-                                      </ThemedText>
-                                      <ThemedText
-                                        type="small"
-                                        style={tw`text-orange-500 font-semibold`}
-                                      >
-                                        {t("orders:list.unpaid")}
-                                      </ThemedText>
-                                    </>
-                                  )}
-                                </ThemedView>
+                            <ThemedView style={tw`mb-4 bg-transparent`}>
+                              <ThemedView
+                                style={tw`flex-row items-center justify-between bg-transparent`}
+                              >
+                                <ThemedText type="h3" style={tw`font-semibold`}>
+                                  {order.type === OrderType.IN_PLACE
+                                    ? `${t("common:labels.table")} ${order.table?.name}`
+                                    : t("common:labels.takeAway")}{" "}
+                                </ThemedText>
+                                <Button
+                                  label="Editar"
+                                  variant="text"
+                                  size="small"
+                                  rightIcon="chevron-forward"
+                                  onPress={() =>
+                                    handleOpenOrder(order.num, order.id)
+                                  }
+                                />
                               </ThemedView>
-                            </Pressable>
-                            <ThemedView style={tw`gap-4`}>
-                              {order.details
-                                .filter(
-                                  (detail) =>
-                                    detail.quantity !== detail.qtyDelivered,
-                                )
-                                .map((detail) => (
-                                  <OrderDetailCard
-                                    key={detail.id}
-                                    detail={detail}
-                                    orderId={order.id}
-                                    onPress={() =>
-                                      handleEditOrderDetail(
-                                        order.num,
-                                        order.id,
-                                        detail,
-                                      )
-                                    }
-                                  />
-                                ))}
+                              <ThemedView
+                                style={tw`flex-row items-center gap-2 mt-1`}
+                              >
+                                <ThemedText
+                                  type="small"
+                                  style={tw`text-gray-500 font-semibold`}
+                                >
+                                  {t("orders:details.orderNumber", {
+                                    num: order.num,
+                                  })}
+                                </ThemedText>
+                                <ThemedText
+                                  type="small"
+                                  style={tw`text-gray-500`}
+                                >
+                                  •
+                                </ThemedText>
+                                <ThemedText
+                                  type="small"
+                                  style={tw`text-gray-500 font-semibold`}
+                                >
+                                  {relativeTime}
+                                </ThemedText>
+
+                                {!order.isPaid && (
+                                  <>
+                                    <ThemedText
+                                      type="small"
+                                      style={tw`text-gray-500`}
+                                    >
+                                      •
+                                    </ThemedText>
+                                    <ThemedText
+                                      type="small"
+                                      style={tw`text-orange-500 font-semibold`}
+                                    >
+                                      {t("orders:list.unpaid")}
+                                    </ThemedText>
+                                  </>
+                                )}
+                              </ThemedView>
                             </ThemedView>
+                          </Pressable>
+                          <ThemedView style={tw`gap-4`}>
+                            {order.details
+                              .filter(
+                                (detail) =>
+                                  detail.quantity !== detail.qtyDelivered,
+                              )
+                              .map((detail) => (
+                                <OrderDetailCard
+                                  key={detail.id}
+                                  detail={detail}
+                                  orderId={order.id}
+                                  onPress={() =>
+                                    handleEditOrderDetail(
+                                      order.num,
+                                      order.id,
+                                      detail,
+                                    )
+                                  }
+                                />
+                              ))}
                           </ThemedView>
-                        );
-                      })}
+                        </ThemedView>
+                      );
+                    })}
                   </ThemedView>
                 ) : (
                   <ThemedView
