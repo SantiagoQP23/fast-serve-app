@@ -28,6 +28,7 @@
     "paymentMethod": "Payment method",
     "receivedAmount": "Received amount",
     "addDiscount": "Add discount",
+    "subtotal": "Subtotal",
     "change": "Change",
     "total": "Total",
     "totalAmount": "Total Amount",

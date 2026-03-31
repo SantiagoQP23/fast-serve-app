@@ -11,7 +11,7 @@ import {
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Button from "@/presentation/theme/components/button";
@@ -29,6 +29,13 @@ import { translatePaymentMethod } from "@/core/i18n/utils";
 import { BillSource, BillStatus } from "@/core/orders/models/bill.model";
 import TransactionCard from "@/presentation/transactions/components/transaction-card";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  BottomSheetView,
+  useBottomSheetSpringConfigs,
+} from "@gorhom/bottom-sheet";
+import Chip from "@/presentation/theme/components/chip";
 
 export default function BillScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
@@ -40,13 +47,22 @@ export default function BillScreen() {
   const setBillDiscount = useOrdersStore((state) => state.setBillDiscount);
 
   const [discount, setDiscount] = useState("");
-  const [withDiscount, setWithDiscount] = useState(false);
+  const [discountInput, setDiscountInput] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [visible, setVisible] = useState(false);
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
 
   const primaryColor = useThemeColor({}, "primary");
   const { mutate: removeBill } = useBills().removeBill;
+  const { mutate: updateBill } = useBills().updateBill;
   const { data: bill, isLoading, refetch } = useBills().billByIdQuery(billId);
+
+  const animationConfigs = useBottomSheetSpringConfigs({
+    damping: 50,
+    stiffness: 300,
+    mass: 1,
+    overshootClamping: true,
+  });
 
   // Keep store in sync so the payment screen can read the current discount
   useEffect(() => {
@@ -121,6 +137,35 @@ export default function BillScreen() {
   const handlePayBillPress = () => {
     if (!validateDiscount()) return;
     router.push(`/(bills)/${bill.id}/payment-method`);
+  };
+
+  const discount5 = bill ? Math.round(bill.total * 0.05 * 100) / 100 : 0;
+  const discount10 = bill ? Math.round(bill.total * 0.1 * 100) / 100 : 0;
+
+  const handleOpenDiscountSheet = () => {
+    setDiscountInput(discount || "");
+    bottomSheetRef.current?.present();
+  };
+
+  const handleSaveDiscount = () => {
+    const maxDiscount = bill.total * 0.1;
+    if (+discountInput > maxDiscount) {
+      i18nAlert(
+        t("bills:alerts.discountExceeded"),
+        t("bills:alerts.maxDiscountAllowed", {
+          amount: formatCurrency(maxDiscount),
+        }),
+      );
+      return;
+    }
+    const updateBillDto = { id: bill.id, discount: +discountInput };
+    console.log("Updating bill with discount:", updateBillDto);
+    updateBill(updateBillDto, {
+      onSuccess: () => {
+        setDiscount(discountInput);
+        bottomSheetRef.current?.dismiss();
+      },
+    });
   };
 
   return (
@@ -253,46 +298,81 @@ export default function BillScreen() {
                 </ThemedView>
               </ThemedView>
 
-              {bill.status !== BillStatus.PAID ? (
-                <>
-                  {!withDiscount && (
-                    <Button
-                      label={t("bills:details.addDiscount")}
-                      variant="text"
-                      onPress={() => setWithDiscount((prev) => !prev)}
-                    />
-                  )}
-                  {withDiscount && (
-                    <ThemedView style={tw`mb-6`}>
-                      <ThemedText type="body2" style={tw`text-gray-500 mb-2`}>
-                        {t("bills:details.discount")} (Max 10%)
-                      </ThemedText>
-                      <TextInput
-                        inputMode="numeric"
-                        value={discount}
-                        onChangeText={setDiscount}
-                        onBlur={validateDiscount}
-                        placeholder="0.00"
-                      />
-                    </ThemedView>
-                  )}
-                </>
+              {+discount === 0 ? (
+                <Button
+                  label={t("bills:details.addDiscount")}
+                  variant="secondary"
+                  onPress={handleOpenDiscountSheet}
+                />
               ) : (
+                <ThemedView
+                  style={tw`border border-gray-200 rounded-xl overflow-hidden mb-6`}
+                >
+                  {/* Subtotal */}
+                  <ThemedView
+                    style={tw`flex-row justify-between items-center px-4 py-3`}
+                  >
+                    <ThemedText type="body2" style={tw`text-gray-500`}>
+                      {t("bills:details.subtotal")}
+                    </ThemedText>
+                    <ThemedText type="body1" style={tw`font-semibold`}>
+                      {formatCurrency(bill.total)}
+                    </ThemedText>
+                  </ThemedView>
+
+                  {/* Discount row */}
+                  {(bill.discount > 0 ||
+                    discount ||
+                    bill.status !== BillStatus.PAID) && (
+                    <>
+                      <ThemedView style={tw`h-px bg-gray-200`} />
+                      <ThemedView
+                        style={tw`flex-row justify-between items-center px-4 py-3`}
+                      >
+                        <ThemedView style={tw`flex-row items-center gap-2`}>
+                          <ThemedText type="body2" style={tw`text-gray-500`}>
+                            {t("bills:details.discount")}
+                          </ThemedText>
+                          {bill.status !== BillStatus.PAID && (
+                            <IconButton
+                              icon="pencil-outline"
+                              size={16}
+                              onPress={handleOpenDiscountSheet}
+                              variant="text"
+                            />
+                          )}
+                        </ThemedView>
+                        <ThemedText
+                          type="body1"
+                          style={tw`font-semibold text-green-600`}
+                        >
+                          {discount
+                            ? `-${formatCurrency(+discount)}`
+                            : bill.discount > 0
+                              ? `-${formatCurrency(bill.discount)}`
+                              : "-"}
+                        </ThemedText>
+                      </ThemedView>
+                    </>
+                  )}
+
+                  {/* Total */}
+                  <ThemedView style={tw`h-px bg-gray-200`} />
+                  <ThemedView
+                    style={tw`flex-row justify-between items-center px-4 py-3`}
+                  >
+                    <ThemedText type="body1" style={tw`font-semibold`}>
+                      {t("bills:details.total")}
+                    </ThemedText>
+                    <ThemedText type="h3" style={tw`font-bold`}>
+                      {formatCurrency(totalAfterDiscount)}
+                    </ThemedText>
+                  </ThemedView>
+                </ThemedView>
+              )}
+
+              {bill.status === BillStatus.PAID && (
                 <>
-                  {/* Paid Bill Summary */}
-                  {/* <ThemedView style={tw`items-center py-8 mb-6`}> */}
-                  {/*   <Ionicons */}
-                  {/*     name="checkmark-circle" */}
-                  {/*     size={64} */}
-                  {/*     color={tw.color("green-500")} */}
-                  {/*   /> */}
-                  {/*   <ThemedText */}
-                  {/*     type="h3" */}
-                  {/*     style={tw`font-bold text-green-600 mt-3`} */}
-                  {/*   > */}
-                  {/*     {t("bills:details.billPaid")} */}
-                  {/*   </ThemedText> */}
-                  {/* </ThemedView> */}
                   <ThemedView>
                     {bill.transactions.map((transaction) => (
                       <TransactionCard
@@ -302,29 +382,25 @@ export default function BillScreen() {
                     ))}
                   </ThemedView>
 
-                  {/* Payment Details */}
-                  <ThemedView
-                    style={tw`border border-gray-200 rounded-xl overflow-hidden`}
-                  >
-                    {bill.discount > 0 && (
-                      <>
-                        <ThemedView style={tw`h-px bg-gray-200`} />
-                        <ThemedView
-                          style={tw`flex-row justify-between items-center px-4 py-3`}
+                  {bill.discount > 0 && (
+                    <ThemedView
+                      style={tw`border border-gray-200 rounded-xl overflow-hidden`}
+                    >
+                      <ThemedView
+                        style={tw`flex-row justify-between items-center px-4 py-3`}
+                      >
+                        <ThemedText type="body2" style={tw`text-gray-500`}>
+                          {t("bills:details.discount")}
+                        </ThemedText>
+                        <ThemedText
+                          type="body1"
+                          style={tw`font-semibold text-green-600`}
                         >
-                          <ThemedText type="body2" style={tw`text-gray-500`}>
-                            {t("bills:details.discount")}
-                          </ThemedText>
-                          <ThemedText
-                            type="body1"
-                            style={tw`font-semibold text-green-600`}
-                          >
-                            -{formatCurrency(bill.discount)}
-                          </ThemedText>
-                        </ThemedView>
-                      </>
-                    )}
-                  </ThemedView>
+                          -{formatCurrency(bill.discount)}
+                        </ThemedText>
+                      </ThemedView>
+                    </ThemedView>
+                  )}
                 </>
               )}
             </ScrollView>
@@ -349,6 +425,66 @@ export default function BillScreen() {
           </ThemedView>
         </KeyboardAvoidingView>
       </ScreenLayout>
+
+      {/* Discount Bottom Sheet */}
+      <BottomSheetModal
+        ref={bottomSheetRef}
+        snapPoints={["45%"]}
+        animationConfigs={animationConfigs}
+        backdropComponent={(props) => (
+          <BottomSheetBackdrop
+            {...props}
+            disappearsOnIndex={-1}
+            appearsOnIndex={0}
+          />
+        )}
+        enablePanDownToClose
+      >
+        <BottomSheetView style={tw`p-4 gap-4 `}>
+          <ThemedView style={tw` gap-1`}>
+            <ThemedText type="h3" style={tw`text-center`}>
+              {t("bills:details.discount")}
+            </ThemedText>
+            <ThemedText type="small" style={tw`text-gray-400 text-center `}>
+              The maximum discount allowed is 10% of total
+            </ThemedText>
+          </ThemedView>
+
+          <TextInput
+            inputMode="numeric"
+            bottomSheet
+            value={discountInput}
+            onChangeText={setDiscountInput}
+            placeholder="0.00"
+            icon="pricetag-outline"
+          />
+
+          <ThemedView style={tw`flex-row gap-2`}>
+            <Button
+              label={`5%`}
+              variant={
+                discountInput === String(discount5) ? "primary" : "outline"
+              }
+              onPress={() => setDiscountInput(String(discount5))}
+            />
+            <Button
+              label={`10%`}
+              variant={
+                discountInput === String(discount10) ? "primary" : "outline"
+              }
+              onPress={() => setDiscountInput(String(discount10))}
+            />
+          </ThemedView>
+
+          <Button
+            label={t("common:actions.save")}
+            onPress={handleSaveDiscount}
+            disabled={
+              discountInput === "" && discountInput === String(discount)
+            }
+          />
+        </BottomSheetView>
+      </BottomSheetModal>
     </>
   );
 }
