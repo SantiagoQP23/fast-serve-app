@@ -57,7 +57,7 @@ export default function PaymentMethodScreen() {
 
   const { data: bill } = useBills().billByIdQuery(billId);
 
-  const discount = useOrdersStore((state) => state.billDiscount);
+  const discount = useOrdersStore((state) => bill?.discount ?? 0);
   const setSelectedPaymentMethod = useOrdersStore(
     (state) => state.setSelectedPaymentMethod,
   );
@@ -97,11 +97,10 @@ export default function PaymentMethodScreen() {
   const cardSnapPoints = useMemo(() => ["40%"], []);
   const transferSnapPoints = useMemo(() => ["35%"], []);
 
-  const totalAfterDiscount = bill ? bill.total - +discount : 0;
   const commissionRate = selectedMethod
     ? selectedMethod.commissionPercentage / 100
     : 0;
-  const totalWithCommission = totalAfterDiscount * (1 + commissionRate);
+  const totalWithCommission = bill!.total * (1 + commissionRate);
 
   const moneyReceivedOptions = [
     5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95,
@@ -149,7 +148,7 @@ export default function PaymentMethodScreen() {
 
   const handleContinueCash = () => {
     if (!selectedMethod) return;
-    if (+receivedAmount < totalAfterDiscount) {
+    if (+receivedAmount < bill.total) {
       Alert.alert(t("bills:alerts.insufficientAmount"));
       return;
     }
@@ -217,8 +216,7 @@ export default function PaymentMethodScreen() {
           <ThemedView style={tw`gap-1`}>
             <ThemedText type="h4">{t("bills:details.transferNote")}</ThemedText>
             <ThemedText type="body2" style={tw`text-gray-500`}>
-              {t("bills:details.totalAmount")}:{" "}
-              {formatCurrency(totalAfterDiscount)}
+              {t("bills:details.totalAmount")}: {bill.total}
             </ThemedText>
           </ThemedView>
           <TextInput
@@ -252,8 +250,7 @@ export default function PaymentMethodScreen() {
           <ThemedView style={tw`gap-1`}>
             <ThemedText type="h4">{t("bills:details.commission")}</ThemedText>
             <ThemedText type="body2" style={tw`text-gray-500`}>
-              {t("bills:details.totalAmount")}:{" "}
-              {formatCurrency(totalAfterDiscount)}
+              {t("bills:details.totalAmount")}: {formatCurrency(bill.total)}
             </ThemedText>
           </ThemedView>
 
@@ -299,8 +296,7 @@ export default function PaymentMethodScreen() {
               {t("bills:details.receivedAmount")}
             </ThemedText>
             <ThemedText type="body2" style={tw`text-gray-500`}>
-              {t("bills:details.totalAmount")}:{" "}
-              {formatCurrency(totalAfterDiscount)}
+              {t("bills:details.totalAmount")}: {formatCurrency(bill.total)}
             </ThemedText>
           </ThemedView>
 
@@ -320,7 +316,7 @@ export default function PaymentMethodScreen() {
             nestedScrollEnabled
           >
             {moneyReceivedOptions
-              .filter((value) => value >= totalAfterDiscount)
+              .filter((value) => value >= bill.total)
               .map((amount) => (
                 <Button
                   key={amount}
@@ -335,10 +331,10 @@ export default function PaymentMethodScreen() {
           <Button
             label={t("bills:details.exactAmount")}
             variant="outline"
-            onPress={() => setReceivedAmount(String(totalAfterDiscount))}
+            onPress={() => setReceivedAmount(String(bill.total))}
           />
 
-          {+receivedAmount > totalAfterDiscount && (
+          {+receivedAmount > bill.total && (
             <ThemedView
               style={tw`mt-2 p-4 rounded-xl border border-light-border items-center`}
             >
@@ -346,7 +342,7 @@ export default function PaymentMethodScreen() {
                 {t("bills:details.change")}
               </ThemedText>
               <ThemedText type="h1">
-                {formatCurrency(+receivedAmount - totalAfterDiscount)}
+                {formatCurrency(+receivedAmount - bill.total)}
               </ThemedText>
             </ThemedView>
           )}
@@ -354,7 +350,7 @@ export default function PaymentMethodScreen() {
           <Button
             label={t("common:actions.continue")}
             onPress={handleContinueCash}
-            disabled={+receivedAmount < totalAfterDiscount}
+            disabled={+receivedAmount < bill.total}
           />
         </BottomSheetView>
       </BottomSheetModal>
@@ -366,7 +362,7 @@ export default function PaymentMethodScreen() {
             {t("bills:details.totalAmount")}
           </ThemedText>
           <ThemedText style={tw`text-5xl font-bold`}>
-            {formatCurrency(totalAfterDiscount)}
+            {formatCurrency(bill.total)}
           </ThemedText>
         </ThemedView>
 

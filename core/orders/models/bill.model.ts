@@ -23,6 +23,7 @@ export interface Bill {
   source: BillSource;
 
   change: number;
+  subtotal: number;
 
   discount: number;
 

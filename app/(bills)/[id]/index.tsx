@@ -44,9 +44,13 @@ export default function BillScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const billId = Number(id);
 
+  const { data: bill, isLoading, refetch } = useBills().billByIdQuery(billId);
+
   const setBillDiscount = useOrdersStore((state) => state.setBillDiscount);
 
-  const [discount, setDiscount] = useState("");
+  const [discount, setDiscount] = useState(
+    bill?.discount ? String(bill.discount) : "",
+  );
   const [discountInput, setDiscountInput] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -55,7 +59,6 @@ export default function BillScreen() {
   const primaryColor = useThemeColor({}, "primary");
   const { mutate: removeBill } = useBills().removeBill;
   const { mutate: updateBill } = useBills().updateBill;
-  const { data: bill, isLoading, refetch } = useBills().billByIdQuery(billId);
 
   const animationConfigs = useBottomSheetSpringConfigs({
     damping: 50,
@@ -105,10 +108,9 @@ export default function BillScreen() {
   const closeModal = () => setVisible(false);
 
   const date = getFormattedDate(bill.createdAt);
-  const totalAfterDiscount = bill.total - +discount;
 
   const validateDiscount = () => {
-    const maxDiscount = bill.total * 0.1;
+    const maxDiscount = bill.subtotal * 0.1;
     if (+discount > maxDiscount) {
       i18nAlert(
         t("bills:alerts.discountExceeded"),
@@ -139,8 +141,8 @@ export default function BillScreen() {
     router.push(`/(bills)/${bill.id}/payment-method`);
   };
 
-  const discount5 = bill ? Math.round(bill.total * 0.05 * 100) / 100 : 0;
-  const discount10 = bill ? Math.round(bill.total * 0.1 * 100) / 100 : 0;
+  const discount5 = bill ? Math.round(bill.subtotal * 0.05 * 100) / 100 : 0;
+  const discount10 = bill ? Math.round(bill.subtotal * 0.1 * 100) / 100 : 0;
 
   const handleOpenDiscountSheet = () => {
     setDiscountInput(discount || "");
@@ -148,7 +150,7 @@ export default function BillScreen() {
   };
 
   const handleSaveDiscount = () => {
-    const maxDiscount = bill.total * 0.1;
+    const maxDiscount = bill.subtotal * 0.1;
     if (+discountInput > maxDiscount) {
       i18nAlert(
         t("bills:alerts.discountExceeded"),
@@ -164,6 +166,7 @@ export default function BillScreen() {
       onSuccess: () => {
         setDiscount(discountInput);
         bottomSheetRef.current?.dismiss();
+        refetch();
       },
     });
   };
@@ -248,14 +251,14 @@ export default function BillScreen() {
                   {t("bills:details.totalAmount")}
                 </ThemedText>
                 <ThemedText style={tw`text-5xl font-bold mb-3`}>
-                  {formatCurrency(totalAfterDiscount)}
+                  {formatCurrency(bill.total)}
                 </ThemedText>
-                {bill.discount > 0 && (
-                  <ThemedText type="body2" style={tw`text-green-600`}>
-                    {t("bills:details.discount")}: -
-                    {formatCurrency(bill.discount)}
-                  </ThemedText>
-                )}
+                {/* {bill.discount > 0 && ( */}
+                {/*   <ThemedText type="body2" style={tw`text-green-600`}> */}
+                {/*     {t("bills:details.discount")}: - */}
+                {/*     {formatCurrency(bill.discount)} */}
+                {/*   </ThemedText> */}
+                {/* )} */}
               </ThemedView>
 
               {/* Items List */}
@@ -298,7 +301,7 @@ export default function BillScreen() {
                 </ThemedView>
               </ThemedView>
 
-              {+discount === 0 ? (
+              {bill.discount === 0 ? (
                 <Button
                   label={t("bills:details.addDiscount")}
                   variant="secondary"
@@ -316,7 +319,7 @@ export default function BillScreen() {
                       {t("bills:details.subtotal")}
                     </ThemedText>
                     <ThemedText type="body1" style={tw`font-semibold`}>
-                      {formatCurrency(bill.total)}
+                      {formatCurrency(bill.subtotal)}
                     </ThemedText>
                   </ThemedView>
 
@@ -365,7 +368,7 @@ export default function BillScreen() {
                       {t("bills:details.total")}
                     </ThemedText>
                     <ThemedText type="h3" style={tw`font-bold`}>
-                      {formatCurrency(totalAfterDiscount)}
+                      {formatCurrency(bill.total)}
                     </ThemedText>
                   </ThemedView>
                 </ThemedView>
