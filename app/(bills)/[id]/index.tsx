@@ -446,7 +446,9 @@ export default function BillScreen() {
               {t("bills:details.discount")}
             </ThemedText>
             <ThemedText type="small" style={tw`text-gray-400 text-center `}>
-              The maximum discount allowed is 10% of total
+              {t("bills:alerts.maxDiscountAllowed", {
+                amount: formatCurrency(discount10),
+              })}
             </ThemedText>
           </ThemedView>
 
