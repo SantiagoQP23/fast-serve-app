@@ -361,10 +361,13 @@ export default function PaymentMethodScreen() {
           <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
             {t("bills:details.totalAmount")}
           </ThemedText>
-          <ThemedText style={tw`text-5xl font-bold`}>
-            {formatCurrency(bill.total)}
-          </ThemedText>
+          <ThemedView style={tw`flex-row items-center gap-2`}>
+            <ThemedText style={tw`text-5xl font-bold`}>
+              {formatCurrency(bill.total)}
+            </ThemedText>
+          </ThemedView>
         </ThemedView>
+        {/* <Button label={t("bills:details.customAmount")} variant="outline" /> */}
 
         {/* Payment method list */}
         <ThemedText type="body2" style={tw`text-gray-500 mb-3`}>

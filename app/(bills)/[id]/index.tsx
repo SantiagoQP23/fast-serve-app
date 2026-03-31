@@ -301,77 +301,79 @@ export default function BillScreen() {
                 </ThemedView>
               </ThemedView>
 
-              {bill.discount === 0 ? (
+              {bill.discount === 0 && bill.status !== BillStatus.PAID ? (
                 <Button
                   label={t("bills:details.addDiscount")}
                   variant="secondary"
                   onPress={handleOpenDiscountSheet}
                 />
               ) : (
-                <ThemedView
-                  style={tw`border border-gray-200 rounded-xl overflow-hidden mb-6`}
-                >
-                  {/* Subtotal */}
+                bill.discount > 0 && (
                   <ThemedView
-                    style={tw`flex-row justify-between items-center px-4 py-3`}
+                    style={tw`border border-gray-200 rounded-xl overflow-hidden mb-6`}
                   >
-                    <ThemedText type="body2" style={tw`text-gray-500`}>
-                      {t("bills:details.subtotal")}
-                    </ThemedText>
-                    <ThemedText type="body1" style={tw`font-semibold`}>
-                      {formatCurrency(bill.subtotal)}
-                    </ThemedText>
-                  </ThemedView>
+                    {/* Subtotal */}
+                    <ThemedView
+                      style={tw`flex-row justify-between items-center px-4 py-3`}
+                    >
+                      <ThemedText type="body2" style={tw`text-gray-500`}>
+                        {t("bills:details.subtotal")}
+                      </ThemedText>
+                      <ThemedText type="body1" style={tw`font-semibold`}>
+                        {formatCurrency(bill.subtotal)}
+                      </ThemedText>
+                    </ThemedView>
 
-                  {/* Discount row */}
-                  {(bill.discount > 0 ||
-                    discount ||
-                    bill.status !== BillStatus.PAID) && (
-                    <>
-                      <ThemedView style={tw`h-px bg-gray-200`} />
-                      <ThemedView
-                        style={tw`flex-row justify-between items-center px-4 py-3`}
-                      >
-                        <ThemedView style={tw`flex-row items-center gap-2`}>
-                          <ThemedText type="body2" style={tw`text-gray-500`}>
-                            {t("bills:details.discount")}
-                          </ThemedText>
-                          {bill.status !== BillStatus.PAID && (
-                            <IconButton
-                              icon="pencil-outline"
-                              size={16}
-                              onPress={handleOpenDiscountSheet}
-                              variant="text"
-                            />
-                          )}
-                        </ThemedView>
-                        <ThemedText
-                          type="body1"
-                          style={tw`font-semibold text-green-600`}
+                    {/* Discount row */}
+                    {(bill.discount > 0 ||
+                      discount ||
+                      bill.status !== BillStatus.PAID) && (
+                      <>
+                        <ThemedView style={tw`h-px bg-gray-200`} />
+                        <ThemedView
+                          style={tw`flex-row justify-between items-center px-4 py-3`}
                         >
-                          {discount
-                            ? `-${formatCurrency(+discount)}`
-                            : bill.discount > 0
-                              ? `-${formatCurrency(bill.discount)}`
-                              : "-"}
-                        </ThemedText>
-                      </ThemedView>
-                    </>
-                  )}
+                          <ThemedView style={tw`flex-row items-center gap-2`}>
+                            <ThemedText type="body2" style={tw`text-gray-500`}>
+                              {t("bills:details.discount")}
+                            </ThemedText>
+                            {bill.status !== BillStatus.PAID && (
+                              <IconButton
+                                icon="pencil-outline"
+                                size={16}
+                                onPress={handleOpenDiscountSheet}
+                                variant="text"
+                              />
+                            )}
+                          </ThemedView>
+                          <ThemedText
+                            type="body1"
+                            style={tw`font-semibold text-green-600`}
+                          >
+                            {discount
+                              ? `-${formatCurrency(+discount)}`
+                              : bill.discount > 0
+                                ? `-${formatCurrency(bill.discount)}`
+                                : "-"}
+                          </ThemedText>
+                        </ThemedView>
+                      </>
+                    )}
 
-                  {/* Total */}
-                  <ThemedView style={tw`h-px bg-gray-200`} />
-                  <ThemedView
-                    style={tw`flex-row justify-between items-center px-4 py-3`}
-                  >
-                    <ThemedText type="body1" style={tw`font-semibold`}>
-                      {t("bills:details.total")}
-                    </ThemedText>
-                    <ThemedText type="h3" style={tw`font-bold`}>
-                      {formatCurrency(bill.total)}
-                    </ThemedText>
+                    {/* Total */}
+                    <ThemedView style={tw`h-px bg-gray-200`} />
+                    <ThemedView
+                      style={tw`flex-row justify-between items-center px-4 py-3`}
+                    >
+                      <ThemedText type="body1" style={tw`font-semibold`}>
+                        {t("bills:details.total")}
+                      </ThemedText>
+                      <ThemedText type="h3" style={tw`font-bold`}>
+                        {formatCurrency(bill.total)}
+                      </ThemedText>
+                    </ThemedView>
                   </ThemedView>
-                </ThemedView>
+                )
               )}
 
               {bill.status === BillStatus.PAID && (
@@ -384,26 +386,6 @@ export default function BillScreen() {
                       />
                     ))}
                   </ThemedView>
-
-                  {bill.discount > 0 && (
-                    <ThemedView
-                      style={tw`border border-gray-200 rounded-xl overflow-hidden`}
-                    >
-                      <ThemedView
-                        style={tw`flex-row justify-between items-center px-4 py-3`}
-                      >
-                        <ThemedText type="body2" style={tw`text-gray-500`}>
-                          {t("bills:details.discount")}
-                        </ThemedText>
-                        <ThemedText
-                          type="body1"
-                          style={tw`font-semibold text-green-600`}
-                        >
-                          -{formatCurrency(bill.discount)}
-                        </ThemedText>
-                      </ThemedView>
-                    </ThemedView>
-                  )}
                 </>
               )}
             </ScrollView>
