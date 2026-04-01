@@ -36,6 +36,7 @@ import {
   useBottomSheetSpringConfigs,
 } from "@gorhom/bottom-sheet";
 import Chip from "@/presentation/theme/components/chip";
+import { useBillStatus } from "@/presentation/orders/hooks/useBillStatus";
 
 export default function BillScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
@@ -45,6 +46,8 @@ export default function BillScreen() {
   const billId = Number(id);
 
   const { data: bill, isLoading, refetch } = useBills().billByIdQuery(billId);
+
+  const { status } = useBillStatus(bill?.status || BillStatus.OPEN);
 
   const setBillDiscount = useOrdersStore((state) => state.setBillDiscount);
   const setBillAmount = useOrdersStore((state) => state.setBillAmount);
@@ -234,19 +237,13 @@ export default function BillScreen() {
                 <ThemedText type="body2" style={tw`text-gray-500 mb-3`}>
                   {date}
                 </ThemedText>
-                {bill.status === BillStatus.PAID ? (
-                  <Label
-                    color="success"
-                    text={t("bills:details.paid")}
-                    leftIcon="checkmark-circle"
-                  />
-                ) : (
-                  <Label
-                    color="warning"
-                    text={t("bills:details.unpaid")}
-                    leftIcon="time"
-                  />
-                )}
+
+                <Label
+                  color={status.color}
+                  size="small"
+                  text={status.text}
+                  leftIcon={status.icon}
+                />
               </ThemedView>
 
               {/* Total Amount */}
@@ -308,11 +305,13 @@ export default function BillScreen() {
               </ThemedView>
 
               {bill.discount === 0 && bill.status !== BillStatus.PAID ? (
-                <Button
-                  label={t("bills:details.addDiscount")}
-                  variant="secondary"
-                  onPress={handleOpenDiscountSheet}
-                />
+                <ThemedView style={tw`mb-6 items-center`}>
+                  <Button
+                    label={t("bills:details.addDiscount")}
+                    variant="secondary"
+                    onPress={handleOpenDiscountSheet}
+                  />
+                </ThemedView>
               ) : (
                 bill.discount > 0 && (
                   <ThemedView

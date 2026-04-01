@@ -36,6 +36,7 @@
     "billPaid": "Cuenta Pagada",
     "paid": "Pagado",
     "unpaid": "Sin Pagar",
+    "partiallyPaid": "Parcialmente Pagado",
     "exactAmount": "Monto exacto",
     "payBill": "Pagar cuenta",
     "commission": "Comisión",

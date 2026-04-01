@@ -14,6 +14,7 @@ import {
   getPaymentMethodIcon,
   translatePaymentMethod,
 } from "@/core/i18n/utils";
+import { useBillStatus } from "../hooks/useBillStatus";
 
 /** Minimal shape required by BillCard — satisfied by both Bill and BillListItemDto */
 interface BillCardItem {
@@ -41,7 +42,7 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
     ? `${t("common:time.today")}, ${dayjs(bill.createdAt).format("HH:mm")}`
     : dayjs(bill.createdAt).format("dddd, HH:mm");
 
-  const isPaid = bill.status === BillStatus.PAID;
+  const { status } = useBillStatus(bill.status);
 
   return (
     <Card onPress={onPress}>
@@ -51,21 +52,12 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
         <ThemedView
           style={tw`flex-row bg-transparent justify-between items-center`}
         >
-          {isPaid ? (
-            <Label
-              color="success"
-              size="small"
-              text={t("bills:details.paid")}
-              leftIcon="checkmark-circle-outline"
-            />
-          ) : (
-            <Label
-              color="warning"
-              size="small"
-              text={t("bills:details.unpaid")}
-              leftIcon="time-outline"
-            />
-          )}
+          <Label
+            color={status.color}
+            size="small"
+            text={status.text}
+            leftIcon={status.icon}
+          />
           {/* <Label color="default" text={bill.source} size="small" /> */}
         </ThemedView>
         <ThemedView

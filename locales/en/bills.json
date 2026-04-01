@@ -36,6 +36,7 @@
     "billPaid": "Bill Paid",
     "paid": "Paid",
     "unpaid": "Unpaid",
+    "partiallyPaid": "Partially Paid",
     "exactAmount": "Exact amount",
     "payBill": "Pay bill",
     "commission": "Commission",
