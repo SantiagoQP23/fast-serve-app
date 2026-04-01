@@ -1,4 +1,10 @@
-import React, { useCallback, useState, useEffect, useRef, useMemo } from "react";
+import React, {
+  useCallback,
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+} from "react";
 import {
   ScrollView,
   RefreshControl,
@@ -10,7 +16,6 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import DailyReportSummaryCard from "@/presentation/home/components/daily-report-summary-card";
 import PaymentMethodSummaryCard from "@/presentation/home/components/payment-method-summary-card";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
@@ -24,8 +29,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTransactionsList } from "@/presentation/transactions/hooks/useTransactionsList";
 import TransactionCard from "@/presentation/transactions/components/transaction-card";
 import { formatCurrency } from "@/core/i18n/utils";
-import { TransactionType } from "@/core/transactions/models/transaction-category.model";
-import StatsCard from "@/presentation/home/components/stats-card";
 import Button from "@/presentation/theme/components/button";
 import {
   BottomSheetBackdrop,
@@ -203,7 +206,7 @@ export default function IncomesScreen() {
         }),
         queryClient.refetchQueries({
           queryKey: [
-            "paymentMethodReport",
+            "transactionPaymentMethodReport",
             currentRestaurant?.id,
             { startDate: dateFilter, endDate: dateFilter },
           ],
