@@ -11,6 +11,7 @@ interface OrdersState {
   activeBill: Bill | null;
   activeOrderDetail: OrderDetail | null;
   billDiscount: string;
+  billAmount: string;
   billReceivedAmount: string;
   billTransferNote: string;
   selectedPaymentMethod: PaymentMethod | null;
@@ -20,6 +21,7 @@ interface OrdersState {
   setActiveBill: (bill: Bill | null) => void;
   setActiveOrderDetail: (detail: OrderDetail | null) => void;
   setBillDiscount: (discount: string) => void;
+  setBillAmount: (amount: string) => void;
   setBillReceivedAmount: (amount: string) => void;
   setBillTransferNote: (note: string) => void;
   setSelectedPaymentMethod: (method: PaymentMethod | null) => void;
@@ -36,6 +38,7 @@ const initialState = {
   activeBill: null,
   activeOrderDetail: null,
   billDiscount: "",
+  billAmount: "",
   billReceivedAmount: "",
   billTransferNote: "",
   selectedPaymentMethod: null,
@@ -58,6 +61,7 @@ export const useOrdersStore = create<OrdersState>((set) => ({
   setActiveOrderDetail: (detail: OrderDetail | null) =>
     set({ activeOrderDetail: detail }),
   setBillDiscount: (discount: string) => set({ billDiscount: discount }),
+  setBillAmount: (amount: string) => set({ billAmount: amount }),
   setBillReceivedAmount: (amount: string) =>
     set({ billReceivedAmount: amount }),
   setBillTransferNote: (note: string) => set({ billTransferNote: note }),

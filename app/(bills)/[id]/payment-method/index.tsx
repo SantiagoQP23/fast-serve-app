@@ -3,7 +3,7 @@ import { ScrollView, Alert } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
 import { ActivityIndicator } from "react-native";
 import IconButton from "@/presentation/theme/components/icon-button";
@@ -29,6 +29,8 @@ import {
 } from "@gorhom/bottom-sheet";
 import { useBills } from "@/presentation/orders/hooks/useBills";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import Chip from "@/presentation/theme/components/chip";
+import { roundTo } from "@/core/common/utils/format.util";
 
 const iconForType = (
   type: PaymentMethodCategory,
@@ -67,6 +69,9 @@ export default function PaymentMethodScreen() {
   const setBillTransferNote = useOrdersStore(
     (state) => state.setBillTransferNote,
   );
+  const setBillAmount = useOrdersStore((state) => state.setBillAmount);
+  const paidAmount =
+    bill?.transactions.reduce((sum, t) => sum + t.amount, 0) ?? 0;
 
   const { paymentMethods } = usePaymentMethodsStore();
   const { paymentMethodsQuery } = usePaymentMethods();
@@ -89,6 +94,28 @@ export default function PaymentMethodScreen() {
   );
   const [receivedAmount, setReceivedAmount] = useState("");
   const [transferNote, setTransferNote] = useState("");
+
+  const baseAmount = bill ? bill.total : 0;
+  const [payAmount, setPayAmount] = useState("");
+  const [totalToPay, setTotalToPay] = useState(0);
+
+  // Initialize payAmount from bill
+  useEffect(() => {
+    if (bill && !payAmount) {
+      const totalToPay = bill.total - paidAmount;
+      setPayAmount(String(roundTo(totalToPay, 2)));
+      setTotalToPay(roundTo(totalToPay, 2));
+    }
+  }, [bill]);
+
+  // Sync to store
+  useEffect(() => {
+    setBillAmount(payAmount);
+  }, [payAmount, setBillAmount]);
+
+  const pct25 = Math.round(baseAmount * 0.25 * 100) / 100;
+  const pct50 = Math.round(baseAmount * 0.5 * 100) / 100;
+  const pct75 = Math.round(baseAmount * 0.75 * 100) / 100;
 
   const cashBottomSheetRef = useRef<BottomSheetModal>(null);
   const cardBottomSheetRef = useRef<BottomSheetModal>(null);
@@ -148,7 +175,7 @@ export default function PaymentMethodScreen() {
 
   const handleContinueCash = () => {
     if (!selectedMethod) return;
-    if (+receivedAmount < bill.total) {
+    if (+receivedAmount < +payAmount) {
       Alert.alert(t("bills:alerts.insufficientAmount"));
       return;
     }
@@ -296,7 +323,7 @@ export default function PaymentMethodScreen() {
               {t("bills:details.receivedAmount")}
             </ThemedText>
             <ThemedText type="body2" style={tw`text-gray-500`}>
-              {t("bills:details.totalAmount")}: {formatCurrency(bill.total)}
+              {t("bills:details.totalAmount")}: {formatCurrency(+payAmount)}
             </ThemedText>
           </ThemedView>
 
@@ -316,7 +343,7 @@ export default function PaymentMethodScreen() {
             nestedScrollEnabled
           >
             {moneyReceivedOptions
-              .filter((value) => value >= bill.total)
+              .filter((value) => value >= +payAmount)
               .map((amount) => (
                 <Button
                   key={amount}
@@ -331,10 +358,10 @@ export default function PaymentMethodScreen() {
           <Button
             label={t("bills:details.exactAmount")}
             variant="outline"
-            onPress={() => setReceivedAmount(String(bill.total))}
+            onPress={() => setReceivedAmount(payAmount.toString())}
           />
 
-          {+receivedAmount > bill.total && (
+          {+receivedAmount > +payAmount && (
             <ThemedView
               style={tw`mt-2 p-4 rounded-xl border border-light-border items-center`}
             >
@@ -342,7 +369,7 @@ export default function PaymentMethodScreen() {
                 {t("bills:details.change")}
               </ThemedText>
               <ThemedText type="h1">
-                {formatCurrency(+receivedAmount - bill.total)}
+                {formatCurrency(+receivedAmount - +payAmount)}
               </ThemedText>
             </ThemedView>
           )}
@@ -350,24 +377,53 @@ export default function PaymentMethodScreen() {
           <Button
             label={t("common:actions.continue")}
             onPress={handleContinueCash}
-            disabled={+receivedAmount < bill.total}
+            disabled={+receivedAmount < +payAmount}
           />
         </BottomSheetView>
       </BottomSheetModal>
 
       <ScreenLayout style={tw`flex-1 px-4 pt-6`}>
-        {/* Total display */}
-        <ThemedView style={tw`items-center mb-8`}>
-          <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
+        {/* Amount to Pay */}
+        <ThemedView style={tw`items-center mb-4`}>
+          <ThemedText type="caption" style={tw`text-gray-500 mb-2`}>
             {t("bills:details.totalAmount")}
           </ThemedText>
-          <ThemedView style={tw`flex-row items-center gap-2`}>
-            <ThemedText style={tw`text-5xl font-bold`}>
-              {formatCurrency(bill.total)}
-            </ThemedText>
-          </ThemedView>
+          <TextInput
+            inputMode="decimal"
+            value={payAmount}
+            onChangeText={setPayAmount}
+            placeholder="0.00"
+            style={tw`text-5xl font-bold text-center`}
+            containerStyle={tw`w-full`}
+          />
         </ThemedView>
-        {/* <Button label={t("bills:details.customAmount")} variant="outline" /> */}
+
+        {/* Percentage quick-select */}
+        <ThemedView style={tw`flex-row gap-2 mb-8 justify-center`}>
+          <Chip
+            label="25%"
+            selected={+payAmount === pct25}
+            onPress={() => setPayAmount(String(pct25))}
+            disabled={pct25 > totalToPay}
+          />
+          <Chip
+            label="50%"
+            selected={+payAmount === pct50}
+            onPress={() => setPayAmount(String(pct50))}
+            disabled={pct50 > totalToPay}
+          />
+          <Chip
+            label="75%"
+            selected={+payAmount === pct75}
+            onPress={() => setPayAmount(String(pct75))}
+            disabled={pct75 > totalToPay}
+          />
+          <Chip
+            label={t("bills:details.total")}
+            selected={+payAmount === totalToPay}
+            onPress={() => setPayAmount(String(totalToPay))}
+          />
+        </ThemedView>
 
         {/* Payment method list */}
         <ThemedText type="body2" style={tw`text-gray-500 mb-3`}>

@@ -8,6 +8,7 @@ import { ThemedText } from "./themed-text";
 type ChipProps = {
   label: string;
   selected?: boolean;
+  disabled?: boolean;
   onPress?: () => void;
   icon?: keyof typeof Ionicons.glyphMap;
   rightContent?: React.ReactNode;
@@ -21,16 +22,18 @@ export default function Chip({
   icon,
   rightContent,
   leftContent,
+  disabled,
 }: ChipProps) {
   return (
     <Pressable
-      onPress={onPress}
+      onPress={() => !disabled && onPress && onPress()}
       style={({ pressed }) => [
         tw`flex-row items-center px-3 py-1.5 rounded-full border gap-2`,
         selected
           ? tw`bg-light-primary border-light-primary`
           : tw`bg-white border-gray-200`,
         pressed && tw`opacity-75`,
+        disabled && tw`opacity-50`,
       ]}
     >
       {leftContent && leftContent}

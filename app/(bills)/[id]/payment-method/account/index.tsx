@@ -27,6 +27,7 @@ export default function AccountScreen() {
   const { data: bill } = useBills().billByIdQuery(billId);
 
   const discount = useOrdersStore((state) => state.billDiscount);
+  const billAmount = useOrdersStore((state) => state.billAmount);
   const selectedPaymentMethod = useOrdersStore(
     (state) => state.selectedPaymentMethod,
   );
@@ -41,7 +42,8 @@ export default function AccountScreen() {
   const { payBillTransaction } = useBills();
   const { mutate, isLoading } = payBillTransaction;
 
-  const totalAfterDiscount = bill ? bill.total - +discount : 0;
+  const baseAmount = bill ? bill.total - +discount : 0;
+  const totalAfterDiscount = billAmount ? +billAmount : baseAmount;
   const commissionRate = selectedPaymentMethod
     ? selectedPaymentMethod.commissionPercentage / 100
     : 0;

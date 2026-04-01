@@ -47,6 +47,12 @@ export default function BillScreen() {
   const { data: bill, isLoading, refetch } = useBills().billByIdQuery(billId);
 
   const setBillDiscount = useOrdersStore((state) => state.setBillDiscount);
+  const setBillAmount = useOrdersStore((state) => state.setBillAmount);
+
+  // Reset bill amount on mount so the payment flow starts fresh
+  useEffect(() => {
+    setBillAmount("");
+  }, [setBillAmount]);
 
   const [discount, setDiscount] = useState(
     bill?.discount ? String(bill.discount) : "",
@@ -376,18 +382,14 @@ export default function BillScreen() {
                 )
               )}
 
-              {bill.status === BillStatus.PAID && (
-                <>
-                  <ThemedView>
-                    {bill.transactions.map((transaction) => (
-                      <TransactionCard
-                        key={transaction.id}
-                        transaction={transaction}
-                      />
-                    ))}
-                  </ThemedView>
-                </>
-              )}
+              <ThemedView>
+                {bill.transactions.map((transaction) => (
+                  <TransactionCard
+                    key={transaction.id}
+                    transaction={transaction}
+                  />
+                ))}
+              </ThemedView>
             </ScrollView>
 
             {bill.status !== BillStatus.PAID && (
