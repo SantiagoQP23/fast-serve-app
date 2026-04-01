@@ -1,6 +1,13 @@
 import { StyleSheet, Text, type TextProps } from "react-native";
 import { useThemeColor } from "../hooks/use-theme-color";
-import tw, { useDeviceContext } from "twrnc";
+import {
+  useFonts,
+  Inter_900Black,
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_700Bold,
+  Inter_600SemiBold,
+} from "@expo-google-fonts/inter";
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
@@ -17,6 +24,17 @@ export function ThemedText({
   ...rest
 }: ThemedTextProps) {
   const color = useThemeColor({ light: lightColor, dark: darkColor }, "text");
+  let [fontsLoaded] = useFonts({
+    Inter_900Black,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_700Bold,
+    Inter_600SemiBold,
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <Text
@@ -45,38 +63,46 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     lineHeight: 32,
     height: 32,
+    fontFamily: "Inter_700Bold",
   },
   h2: {
     fontSize: 24,
     fontWeight: "bold",
     lineHeight: 30,
+    fontFamily: "Inter_700Bold",
   },
   h3: {
     fontSize: 18,
     fontWeight: "bold",
     lineHeight: 28,
+    fontFamily: "Inter_500Medium",
   },
   h4: {
     fontSize: 16,
     fontWeight: "bold",
     lineHeight: 24,
+    fontFamily: "Inter_500Medium",
   },
   body1: {
     fontSize: 16,
     lineHeight: 24,
+    fontFamily: "Inter_400Regular",
   },
   body2: {
     fontSize: 14,
     lineHeight: 20,
+    fontFamily: "Inter_500Medium",
   },
   small: {
     fontSize: 12,
     lineHeight: 16,
     fontWeight: "800",
+    fontFamily: "Inter_500Medium",
   },
   caption: {
     fontSize: 12,
     lineHeight: 14,
     textTransform: "uppercase",
+    fontFamily: "Inter600SemiBold",
   },
 });
