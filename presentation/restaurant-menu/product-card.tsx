@@ -26,8 +26,10 @@ export default function ProductCard({ product, onPress }: ProductCardProps) {
       onPress={onPress}
     >
       <ThemedView style={tw` bg-transparent gap-2 `}>
-        <ThemedText style={tw`text-base font-bold`}>{product.name}</ThemedText>
-        <ThemedText style={tw`text-base `}>${product.price}</ThemedText>
+        <ThemedText type="body1" style={tw`font-bold`}>
+          {product.name}
+        </ThemedText>
+        <ThemedText type="body2">${product.price}</ThemedText>
       </ThemedView>
     </Pressable>
   );
