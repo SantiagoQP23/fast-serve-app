@@ -45,7 +45,7 @@ export default function NewBillDetailCard({
     <Pressable
       style={({ pressed }) => [
         tw`p-4 rounded-xl border gap-3`,
-        isSelected ? tw`border-blue-400` : tw`border-gray-200`,
+        isSelected ? tw`border-light-primary` : tw`border-light-border`,
         pressed && tw`opacity-60`,
       ]}
       onPress={onPress}
@@ -81,7 +81,7 @@ export default function NewBillDetailCard({
             color={
               counter === availableQty
                 ? tw.color("gray-300")
-                : tw.color("blue-600")
+                : tw.color("border-light-primary")
             }
           />
         </ThemedView>

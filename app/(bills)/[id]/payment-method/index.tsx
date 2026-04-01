@@ -127,7 +127,7 @@ export default function PaymentMethodScreen() {
   const commissionRate = selectedMethod
     ? selectedMethod.commissionPercentage / 100
     : 0;
-  const totalWithCommission = bill!.total * (1 + commissionRate);
+  const totalWithCommission = +payAmount * (1 + commissionRate);
 
   const moneyReceivedOptions = [
     5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95,
@@ -197,10 +197,23 @@ export default function PaymentMethodScreen() {
     navigateToAccount(selectedMethod);
   };
 
+  const validateAmount = () => {
+    return +payAmount > totalToPay;
+  };
+
   const handlePaymentMethodPress = (method: PaymentMethod) => {
     setSelectedMethod(method);
     setReceivedAmount("");
     setTransferNote("");
+
+    if (validateAmount()) {
+      Alert.alert(
+        t("errors:validation.amountExceeds", {
+          amount: formatCurrency(totalToPay),
+        }),
+      );
+      return;
+    }
 
     if (method.type === PaymentMethodCategory.CASH) {
       cashBottomSheetRef.current?.present();
@@ -274,24 +287,22 @@ export default function PaymentMethodScreen() {
         enablePanDownToClose
       >
         <BottomSheetView style={tw`p-6 gap-4`}>
-          <ThemedView style={tw`gap-1`}>
-            <ThemedText type="h4">{t("bills:details.commission")}</ThemedText>
+          <ThemedView style={tw`gap-1 items-center`}>
+            <ThemedText type="h2">{t("bills:details.commission")}</ThemedText>
             <ThemedText type="body2" style={tw`text-gray-500`}>
               {t("bills:details.totalAmount")}: {formatCurrency(bill.total)}
             </ThemedText>
           </ThemedView>
 
-          <ThemedView
-            style={tw`p-4 rounded-xl border border-gray-200 bg-gray-50 gap-1`}
-          >
-            <ThemedText type="body2" style={tw`text-gray-500`}>
+          <ThemedView style={tw` rounded-xl  gap-1 items-center mb-4`}>
+            <ThemedText type="body1" style={tw``}>
               {selectedMethod?.commissionPercentage ?? 0}%{" "}
               {t("bills:details.commission").toLowerCase()}
             </ThemedText>
-            <ThemedText type="body2" style={tw`text-gray-500`}>
+            <ThemedText type="body2" style={tw`text-gray-500 mt-2`}>
               {t("bills:details.totalToPay")}
             </ThemedText>
-            <ThemedText style={tw`text-3xl font-bold`}>
+            <ThemedText type="h1">
               {formatCurrency(totalWithCommission)}
             </ThemedText>
           </ThemedView>
