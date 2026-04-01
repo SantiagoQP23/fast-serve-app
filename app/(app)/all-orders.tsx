@@ -1,4 +1,4 @@
-import { ScrollView, RefreshControl } from "react-native";
+import { ScrollView, RefreshControl, FlatList } from "react-native";
 
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 
@@ -17,6 +17,7 @@ import OrderList from "@/presentation/orders/molecules/order-list";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import WaiterSummaryCard from "@/presentation/orders/components/waiter-summary-card";
 import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
+import OrderCard from "@/presentation/home/components/order-card";
 
 export default function AllOrdersScreen() {
   const { t } = useTranslation(["common", "orders"]);
@@ -79,7 +80,6 @@ export default function AllOrdersScreen() {
 
   return (
     <ThemedView style={tw`flex-1`}>
-
       {orders.length === 0 ? (
         <ThemedView style={tw`items-center justify-center flex-1 gap-4`}>
           <Ionicons
@@ -147,6 +147,12 @@ export default function AllOrdersScreen() {
             title={t("common:status.delivered")}
             orders={deliveredOrders}
           />
+
+          {orders.map((order) => (
+            <ThemedView key={order.id}>
+              <OrderCard order={order} />
+            </ThemedView>
+          ))}
         </ScrollView>
       )}
 

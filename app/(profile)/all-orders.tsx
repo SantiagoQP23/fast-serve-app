@@ -20,16 +20,29 @@ import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import DailyReportSummaryCard from "@/presentation/home/components/daily-report-summary-card";
 import { useQueryClient } from "@tanstack/react-query";
+import OrderCard from "@/presentation/home/components/order-card";
+import Chip from "@/presentation/theme/components/chip";
+import { Order } from "@/core/orders/models/order.model";
 
 export default function AllOrdersScreen() {
   const { t } = useTranslation(["common", "orders"]);
   const orders = useOrdersStore((state) => state.orders);
   const router = useRouter();
   const [selectedWaiterId, setSelectedWaiterId] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "all">(
+    "all",
+  );
   const { refetchOrders, isRefetching } = useActiveOrders();
   const queryClient = useQueryClient();
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+  const tabs: { label: string; value: OrderStatus | "all" }[] = [
+    { label: t("tables:list.filter.all"), value: "all" },
+    { label: t("common:status.pending"), value: OrderStatus.PENDING },
+    { label: t("common:status.inProgress"), value: OrderStatus.IN_PROGRESS },
+    { label: t("common:status.delivered"), value: OrderStatus.DELIVERED },
+  ];
 
   const handleNavigate = () => {
     bottomSheetModalRef.current?.close();
@@ -67,10 +80,24 @@ export default function AllOrdersScreen() {
     }));
   }, [orders]);
 
-  const filteredOrders = useMemo(() => {
-    if (!selectedWaiterId) return orders;
-    return orders.filter((order) => order.user.id === selectedWaiterId);
+  const filteredOrdersByWaiters = useMemo(() => {
+    let ordersByWaiters: Order[] = [];
+    if (!selectedWaiterId) ordersByWaiters = orders;
+    else
+      ordersByWaiters = orders.filter(
+        (order) => order.user.id === selectedWaiterId,
+      );
+
+    if (selectedStatus === "all") return ordersByWaiters;
+    return ordersByWaiters.filter((order) => order.status === selectedStatus);
   }, [orders, selectedWaiterId]);
+
+  const filteredOrders = useMemo(() => {
+    if (selectedStatus === "all") return filteredOrdersByWaiters;
+    return filteredOrdersByWaiters.filter(
+      (order) => order.status === selectedStatus,
+    );
+  }, [filteredOrdersByWaiters, selectedStatus]);
 
   const pendingOrders = filteredOrders.filter(
     (order) => order.status === OrderStatus.PENDING,
@@ -147,18 +174,75 @@ export default function AllOrdersScreen() {
               </ScrollView>
             </ThemedView>
           )}
-          <OrderList
-            title={t("common:status.pending")}
-            orders={pendingOrders}
-          />
-          <OrderList
-            title={t("common:status.inProgress")}
-            orders={inProgressOrders}
-          />
-          <OrderList
-            title={t("common:status.delivered")}
-            orders={deliveredOrders}
-          />
+          {/* <OrderList */}
+          {/*   title={t("common:status.pending")} */}
+          {/*   orders={pendingOrders} */}
+          {/* /> */}
+          {/* <OrderList */}
+          {/*   title={t("common:status.inProgress")} */}
+          {/*   orders={inProgressOrders} */}
+          {/* /> */}
+          {/* <OrderList */}
+          {/*   title={t("common:status.delivered")} */}
+          {/*   orders={deliveredOrders} */}
+          {/* /> */}
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={tw`gap-2 px-4`}
+          >
+            {tabs.map((tab) => {
+              const isActive = tab.value === selectedStatus;
+              const activeOrdersCount =
+                tab.value === "all"
+                  ? filteredOrdersByWaiters.length
+                  : filteredOrdersByWaiters.filter(
+                      (order) => order.status === tab.value,
+                    ).length;
+
+              return (
+                <Chip
+                  key={tab.value.toString()}
+                  onPress={() => setSelectedStatus(tab.value)}
+                  selected={isActive}
+                  label={tab.label}
+                  rightContent={
+                    <ThemedText
+                      type="small"
+                      style={tw`${isActive ? "text-white" : ""}`}
+                    >
+                      {activeOrdersCount}
+                    </ThemedText>
+                  }
+                />
+              );
+            })}
+          </ScrollView>
+
+          {filteredOrders.length > 0 ? (
+            <ThemedView style={tw`px-4`}>
+              {filteredOrders.map((order) => (
+                <ThemedView key={order.id}>
+                  <OrderCard order={order} />
+                </ThemedView>
+              ))}
+            </ThemedView>
+          ) : (
+            <ThemedView
+              style={tw`items-center justify-center flex-1 gap-4 px-4 my-8`}
+            >
+              <Ionicons
+                name="document-text-outline"
+                size={80}
+                color={tw.color("gray-500")}
+              />
+              <ThemedText type="h3">{t("orders:list.noOrders")}</ThemedText>
+              <ThemedText type="body2" style={tw`text-center max-w-xs`}>
+                {t("orders:list.noOrdersDescription")}
+              </ThemedText>
+            </ThemedView>
+          )}
         </ScrollView>
       )}
 
