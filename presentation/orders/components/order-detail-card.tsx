@@ -14,6 +14,8 @@ import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import OrderDetailActionsBottomSheet from "./order-detail-actions-bottom-sheet";
 import { formatCurrency } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
+import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
+import IconButton from "@/presentation/theme/components/icon-button";
 
 interface OrderDetailCardProps extends PressableProps {
   detail: OrderDetail;
@@ -158,63 +160,79 @@ export default function OrderDetailCard({
         />
       </BottomSheetModal>
 
-      <ThemedView>
-        <Pressable onPress={onPress} onLongPress={handleOpenBottomSheet}>
-          <ThemedView style={tw` bg-transparent gap-4`}>
-            <ThemedView style={tw`flex-row bg-transparent items-center gap-4`}>
-              <Checkbox value={isChecked} onValueChange={onCheckedChange} />
-              <ThemedView style={tw`flex-1 bg-transparent gap-2`}>
-                <ThemedView style={tw` bg-transparent  gap-2`}>
-                  <ThemedView
-                    style={tw`flex-row justify-between bg-transparent gap-2 items-center`}
-                  >
+      <ThemedView style={tw``}>
+        <Swipeable
+          renderRightActions={() => (
+            <ThemedView style={tw`justify-center  pl-2 `}>
+              <IconButton
+                icon="trash-outline"
+                color="red"
+                onPress={onRemoveDetail}
+              />
+            </ThemedView>
+          )}
+        >
+          <Pressable onPress={onPress} onLongPress={handleOpenBottomSheet}>
+            <ThemedView
+              style={tw` bg-transparent gap-4 min-h-10 border-1 border-black  `}
+            >
+              <ThemedView
+                style={tw`flex-row bg-transparent items-center gap-4`}
+              >
+                <Checkbox value={isChecked} onValueChange={onCheckedChange} />
+                <ThemedView style={tw`flex-1 bg-transparent gap-2`}>
+                  <ThemedView style={tw` bg-transparent  gap-2`}>
                     <ThemedView
                       style={tw`flex-row justify-between bg-transparent gap-2 items-center`}
                     >
-                      <ThemedText type="body1" style={tw`font-normal`}>
-                        {detail.quantity} - {detail.product.name}{" "}
-                      </ThemedText>
+                      <ThemedView
+                        style={tw`flex-row justify-between bg-transparent gap-2 items-center`}
+                      >
+                        <ThemedText type="body1" style={tw`font-normal`}>
+                          {detail.quantity} - {detail.product.name}{" "}
+                        </ThemedText>
 
-                      {detail.product.price !== detail.price && (
-                        <Label
-                          text={formatCurrency(detail.price)}
-                          color="default"
-                          size="small"
-                        />
-                      )}
+                        {detail.product.price !== detail.price && (
+                          <Label
+                            text={formatCurrency(detail.price)}
+                            color="default"
+                            size="small"
+                          />
+                        )}
+                      </ThemedView>
+                      <ThemedText type="body2">
+                        {formatCurrency(detail.amount)}
+                      </ThemedText>
                     </ThemedView>
-                    <ThemedText type="body2">
-                      {formatCurrency(detail.amount)}
-                    </ThemedText>
+                    {detail.description && (
+                      <ThemedText type="body2">{detail.description}</ThemedText>
+                    )}
+                    {detail.tags?.length > 0 && (
+                      <ThemedView
+                        style={tw`flex-row flex-wrap gap-2 bg-transparent`}
+                      >
+                        {detail.tags.map((tag) => (
+                          <Label
+                            key={tag.id}
+                            text={tag.name}
+                            color="default"
+                            size="small"
+                          />
+                        ))}
+                      </ThemedView>
+                    )}
                   </ThemedView>
-                  {detail.description && (
-                    <ThemedText type="body2">{detail.description}</ThemedText>
-                  )}
-                  {detail.tags?.length > 0 && (
-                    <ThemedView
-                      style={tw`flex-row flex-wrap gap-2 bg-transparent`}
-                    >
-                      {detail.tags.map((tag) => (
-                        <Label
-                          key={tag.id}
-                          text={tag.name}
-                          color="default"
-                          size="small"
-                        />
-                      ))}
-                    </ThemedView>
+                  {detail.quantity > 1 && (
+                    <ProgressBar
+                      progress={detail.qtyDelivered / detail.quantity}
+                      height={1}
+                    />
                   )}
                 </ThemedView>
-                {detail.quantity > 1 && (
-                  <ProgressBar
-                    progress={detail.qtyDelivered / detail.quantity}
-                    height={1}
-                  />
-                )}
               </ThemedView>
             </ThemedView>
-          </ThemedView>
-        </Pressable>
+          </Pressable>
+        </Swipeable>
       </ThemedView>
     </>
   );
