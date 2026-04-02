@@ -23,12 +23,14 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Ionicons } from "@expo/vector-icons";
 import Button from "@/presentation/theme/components/button";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import { useTableByStatus } from "@/presentation/orders/hooks/useTableByStatus";
 
 export default function TablesScreen() {
   const { t } = useTranslation(["tables", "errors"]);
   const [selectedStatus, setSelectedStatus] = useState<boolean | "all">("all");
   const { setTable, setOrderType } = useNewOrderStore();
   const { tables, isLoading, tablesQuery } = useTables();
+  const { availableTables, occupiedTables } = useTableByStatus(tables);
   const orders = useOrdersStore((state) => state.orders);
   const [activeTable, setActiveTable] = useState<Table | null>(null);
   const queryClient = useQueryClient();
@@ -96,8 +98,11 @@ export default function TablesScreen() {
     if (status === "all") {
       setFilteredTables(tables);
     } else {
-      const filtered = tables.filter((table) => table.isAvailable === status);
-      setFilteredTables(filtered);
+      if (status) {
+        setFilteredTables(availableTables);
+      } else {
+        setFilteredTables(occupiedTables);
+      }
     }
   };
 
