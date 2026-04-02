@@ -7,6 +7,7 @@ import {
   Inter_500Medium,
   Inter_700Bold,
   Inter_600SemiBold,
+  Inter_800ExtraBold,
 } from "@expo-google-fonts/inter";
 
 export type ThemedTextProps = TextProps & {
@@ -30,6 +31,7 @@ export function ThemedText({
     Inter_500Medium,
     Inter_700Bold,
     Inter_600SemiBold,
+    Inter_800ExtraBold,
   });
 
   if (!fontsLoaded) {
@@ -60,28 +62,28 @@ export function ThemedText({
 const styles = StyleSheet.create({
   h1: {
     fontSize: 32,
-    fontWeight: "bold",
+    fontWeight: 900,
     lineHeight: 32,
     height: 32,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Inter_500Medium",
   },
   h2: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 900,
     lineHeight: 30,
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Inter_600SemiBold",
   },
   h3: {
     fontSize: 18,
     fontWeight: "bold",
     lineHeight: 28,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Inter_600SemiBold",
   },
   h4: {
     fontSize: 16,
     fontWeight: "bold",
     lineHeight: 24,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Inter_600SemiBold",
   },
   body1: {
     fontSize: 16,
@@ -91,7 +93,7 @@ const styles = StyleSheet.create({
   body2: {
     fontSize: 14,
     lineHeight: 20,
-    fontFamily: "Inter_500Medium",
+    fontFamily: "Inter_400Regular",
   },
   small: {
     fontSize: 12,
@@ -100,7 +102,7 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_500Medium",
   },
   caption: {
-    fontSize: 12,
+    fontSize: 10,
     lineHeight: 14,
     textTransform: "uppercase",
     fontFamily: "Inter600SemiBold",

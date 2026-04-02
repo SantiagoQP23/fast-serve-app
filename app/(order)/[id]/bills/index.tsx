@@ -73,9 +73,9 @@ export default function OrderBillsScreen() {
 
   return (
     <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-8`}>
-      <ThemedView style={tw`  items-center gap-4`}>
+      <ThemedView style={tw`  items-center gap-2`}>
         <ThemedView style={tw`gap-1 items-center`}>
-          <ThemedText type="h3">
+          <ThemedText type="body2">
             {t("orders:list.orderNumber", { number: order.num })}
           </ThemedText>
           <ThemedText type="body1">
@@ -86,18 +86,20 @@ export default function OrderBillsScreen() {
           {/* <ThemedText type="small">Today, 11:30</ThemedText> */}
         </ThemedView>
         <ThemedView>
-          <ThemedText style={tw`text-7xl `}>
+          <ThemedText style={tw`text-5xl `}>
             {formatCurrency(order.total)}
           </ThemedText>
 
           {remainingAmount > 0 && (
-            <ThemedView style={tw`flex-row justify-center gap-2 items-center`}>
+            <ThemedView
+              style={tw`flex-row justify-center gap-2 items-center mt-2`}
+            >
               <ThemedView>
-                <ThemedText type="body2" style={tw`text-primary-700`}>
+                <ThemedText type="small" style={tw`text-primary-700`}>
                   {t("bills:list.remaining")}
                 </ThemedText>
               </ThemedView>
-              <ThemedText type="h4" style={tw`text-primary-900`}>
+              <ThemedText type="body2" style={tw`text-primary-900`}>
                 {formatCurrency(remainingAmount)}
               </ThemedText>
             </ThemedView>

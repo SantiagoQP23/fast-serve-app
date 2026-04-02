@@ -317,7 +317,7 @@ export default function OrderScreen() {
                 size={24}
                 color={tw.color("primary-600")}
               />
-              <ThemedText type="h2">
+              <ThemedText type="h1" style={tw` font-bold`}>
                 {order.type === OrderType.IN_PLACE
                   ? `${t("common:labels.table")} ${order.table?.name}`
                   : t("common:labels.takeAway")}
@@ -570,7 +570,7 @@ export default function OrderScreen() {
           <ThemedText type="h4" style={tw`text-gray-600`}>
             {t("common:labels.total")}
           </ThemedText>
-          <ThemedText type="h2" style={tw`text-primary-700`}>
+          <ThemedText type="h2" style={tw`font-bold`}>
             {formatCurrency(order.total)}
           </ThemedText>
         </ThemedView>

@@ -81,7 +81,7 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
             </ThemedView>
           </ThemedView>
           <ThemedView style={tw`bg-transparent gap-1 items-end`}>
-            <ThemedText type="h3" style={tw`font-semibold `}>
+            <ThemedText type="h3" style={tw``}>
               {formatCurrency(bill.total)}
             </ThemedText>
             <ThemedText type="small" style={tw`text-gray-500`}>

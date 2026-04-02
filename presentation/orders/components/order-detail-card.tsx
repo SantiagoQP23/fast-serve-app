@@ -173,9 +173,7 @@ export default function OrderDetailCard({
           )}
         >
           <Pressable onPress={onPress} onLongPress={handleOpenBottomSheet}>
-            <ThemedView
-              style={tw` bg-transparent gap-4 min-h-10 border-1 border-black  `}
-            >
+            <ThemedView style={tw` bg-transparent gap-4 `}>
               <ThemedView
                 style={tw`flex-row bg-transparent items-center gap-4`}
               >
@@ -188,7 +186,7 @@ export default function OrderDetailCard({
                       <ThemedView
                         style={tw`flex-row justify-between bg-transparent gap-2 items-center`}
                       >
-                        <ThemedText type="body1" style={tw`font-normal`}>
+                        <ThemedText type="body1">
                           {detail.quantity} - {detail.product.name}{" "}
                         </ThemedText>
 

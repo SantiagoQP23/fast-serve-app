@@ -58,7 +58,7 @@ export default function OrderCard({ order }: OrderCardProps) {
             <ThemedView
               style={tw`flex-row items-center bg-transparent justify-between`}
             >
-              <ThemedText type="h3">
+              <ThemedText type="h3" style={tw``}>
                 {order.type === OrderType.IN_PLACE
                   ? `${t("common:labels.table")} ${order.table?.name}`
                   : t("common:labels.takeAway")}{" "}

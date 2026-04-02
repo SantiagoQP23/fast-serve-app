@@ -264,7 +264,7 @@ export default function MyOrdersScreen() {
                               <ThemedView
                                 style={tw`flex-row items-center justify-between bg-transparent`}
                               >
-                                <ThemedText type="h3" style={tw`font-semibold`}>
+                                <ThemedText type="h4">
                                   {order.type === OrderType.IN_PLACE
                                     ? `${t("common:labels.table")} ${order.table?.name}`
                                     : t("common:labels.takeAway")}{" "}
