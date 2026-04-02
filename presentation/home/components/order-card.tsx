@@ -14,6 +14,7 @@ import { getRelativeTime } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import { Ionicons } from "@expo/vector-icons";
+import dayjs from "dayjs";
 
 interface OrderCardProps {
   order: Order;
@@ -35,7 +36,7 @@ export default function OrderCard({ order }: OrderCardProps) {
   const deliveryProgress = totalItems > 0 ? deliveredItems / totalItems : 0;
 
   // Get relative time
-  const relativeTime = getRelativeTime(order.createdAt);
+  const relativeTime = getRelativeTime(order.deliveryTime);
 
   const openOrder = () => {
     setActiveOrder(order);
@@ -48,11 +49,21 @@ export default function OrderCard({ order }: OrderCardProps) {
       <Card onPress={openOrder}>
         <ThemedView style={tw`gap-4 bg-white `}>
           {/* Header Section - Table Name */}
-          <ThemedView style={tw`flex-row items-center bg-transparent gap-2`}>
-            <Label text={statusText} color={labelColor} leftIcon={statusIcon} />
-            {order.isPaid && (
-              <Label text={t("orders:details.paid")} color="success" />
-            )}
+          <ThemedView style={tw`flex-row justify-between items-center`}>
+            <ThemedView style={tw`flex-row items-center bg-transparent gap-2`}>
+              <Label
+                text={statusText}
+                color={labelColor}
+                leftIcon={statusIcon}
+              />
+              {order.isPaid && (
+                <Label text={t("orders:details.paid")} color="success" />
+              )}
+            </ThemedView>
+            <ThemedText type="small">
+              {t("orders:details.deliveryTime")}{" "}
+              {dayjs(order.deliveryTime).format("HH:mm")}
+            </ThemedText>
           </ThemedView>
           <ThemedView style={tw`gap-2 bg-transparent`}>
             <ThemedView
@@ -69,12 +80,12 @@ export default function OrderCard({ order }: OrderCardProps) {
             <ThemedView
               style={tw`flex-row items-center bg-transparent gap-1 font-bold`}
             >
-              <ThemedText type="small" style={tw`text-gray-500 font-bold`}>
-                {relativeTime}{" "}
-              </ThemedText>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                •{" "}
-              </ThemedText>
+              {/* <ThemedText type="small" style={tw`text-gray-500 font-bold`}> */}
+              {/*   {relativeTime}{" "} */}
+              {/* </ThemedText> */}
+              {/* <ThemedText type="small" style={tw`text-gray-500`}> */}
+              {/*   •{" "} */}
+              {/* </ThemedText> */}
               <ThemedText type="small" style={tw`text-gray-500 `}>
                 {order.user.person.firstName} {order.user.person.lastName}
               </ThemedText>
