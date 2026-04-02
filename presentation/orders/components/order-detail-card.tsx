@@ -184,9 +184,9 @@ export default function OrderDetailCard({
                       style={tw`flex-row justify-between bg-transparent gap-2 items-center`}
                     >
                       <ThemedView
-                        style={tw`flex-row justify-between bg-transparent gap-2 items-center`}
+                        style={tw`flex-row justify-between bg-transparent gap-2 items-center whitespace-normal`}
                       >
-                        <ThemedText type="body1">
+                        <ThemedText type="body1" style={tw`whitespace-wrap`}>
                           {detail.quantity} - {detail.product.name}{" "}
                         </ThemedText>
 

@@ -33,6 +33,7 @@ import Popover, {
 import CollapsibleOrderSection from "@/presentation/orders/components/collapsible-order-section";
 import { useClosedOrders } from "@/presentation/orders/hooks/useClosedOrders";
 import Button from "@/presentation/theme/components/button";
+import IconButton from "@/presentation/theme/components/icon-button";
 
 export default function MyOrdersScreen() {
   const { t } = useTranslation(["common", "orders", "errors"]);
@@ -250,7 +251,7 @@ export default function MyOrdersScreen() {
                       const pendingCount = order.details.filter(
                         (detail) => detail.quantity !== detail.qtyDelivered,
                       ).length;
-                      const relativeTime = getRelativeTime(order.createdAt);
+                      const relativeTime = getRelativeTime(order.deliveryTime);
 
                       return (
                         <ThemedView
@@ -269,11 +270,11 @@ export default function MyOrdersScreen() {
                                     ? `${t("common:labels.table")} ${order.table?.name}`
                                     : t("common:labels.takeAway")}{" "}
                                 </ThemedText>
-                                <Button
-                                  label="Editar"
+                                <IconButton
                                   variant="text"
-                                  size="small"
-                                  rightIcon="chevron-forward"
+                                  icon="chevron-forward"
+                                  color={tw.color("gray-500")}
+                                  size={20}
                                   onPress={() =>
                                     handleOpenOrder(order.num, order.id)
                                   }
