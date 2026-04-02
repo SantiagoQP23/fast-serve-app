@@ -39,10 +39,18 @@ export default function TablesScreen() {
   const [isLoadingTables, setIsLoadingTables] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const tabs: { label: string; value: boolean | "all" }[] = [
-    { label: t("list.filter.all"), value: "all" },
-    { label: t("list.filter.available"), value: true },
-    { label: t("list.filter.occupied"), value: false },
+  const tabs: { label: string; value: boolean | "all"; count: number }[] = [
+    { label: t("list.filter.all"), value: "all", count: tables.length },
+    {
+      label: t("list.filter.available"),
+      value: true,
+      count: availableTables.length,
+    },
+    {
+      label: t("list.filter.occupied"),
+      value: false,
+      count: occupiedTables.length,
+    },
   ];
 
   const [filteredTables, setFilteredTables] = useState<Table[]>(tables);
@@ -181,6 +189,14 @@ export default function TablesScreen() {
               onPress={() => onChangeStatus(tab.value)}
               selected={isActive}
               label={tab.label}
+              rightContent={
+                <ThemedText
+                  type="small"
+                  style={tw`${isActive ? "text-white" : ""}`}
+                >
+                  {tab.count}
+                </ThemedText>
+              }
             />
           );
         })}
