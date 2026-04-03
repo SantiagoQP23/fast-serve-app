@@ -34,6 +34,9 @@ import CollapsibleOrderSection from "@/presentation/orders/components/collapsibl
 import { useClosedOrders } from "@/presentation/orders/hooks/useClosedOrders";
 import Button from "@/presentation/theme/components/button";
 import IconButton from "@/presentation/theme/components/icon-button";
+import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";
+import Label from "@/presentation/theme/components/label";
+import OrderCard from "@/presentation/home/components/order-card";
 
 export default function MyOrdersScreen() {
   const { t } = useTranslation(["common", "orders", "errors"]);
@@ -248,12 +251,11 @@ export default function MyOrdersScreen() {
                 ) ? (
                   <ThemedView style={tw`px-4`}>
                     {orders.map((order) => {
-                      const pendingCount = order.details.filter(
-                        (detail) => detail.quantity !== detail.qtyDelivered,
-                      ).length;
                       const relativeTime = getRelativeTime(order.deliveryTime);
 
-                      return (
+                      return order.status === OrderStatus.DELIVERED ? (
+                        <OrderCard order={order} key={order.id} />
+                      ) : (
                         <ThemedView
                           key={order.id}
                           style={tw`mb-8 bg-light-surface rounded-lg p-4`}
@@ -265,11 +267,15 @@ export default function MyOrdersScreen() {
                               <ThemedView
                                 style={tw`flex-row items-center justify-between bg-transparent`}
                               >
-                                <ThemedText type="h4">
-                                  {order.type === OrderType.IN_PLACE
-                                    ? `${t("common:labels.table")} ${order.table?.name}`
-                                    : t("common:labels.takeAway")}{" "}
-                                </ThemedText>
+                                <ThemedView
+                                  style={tw`flex-row items-center gap-2`}
+                                >
+                                  <ThemedText type="h4">
+                                    {order.type === OrderType.IN_PLACE
+                                      ? `${t("common:labels.table")} ${order.table?.name}`
+                                      : t("common:labels.takeAway")}{" "}
+                                  </ThemedText>
+                                </ThemedView>
                                 <IconButton
                                   variant="text"
                                   icon="chevron-forward"

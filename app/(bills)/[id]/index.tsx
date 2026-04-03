@@ -134,6 +134,7 @@ export default function BillScreen() {
   };
 
   const onRemoveBill = () => {
+    closeModal();
     removeBill(
       { id: bill.id },
       {

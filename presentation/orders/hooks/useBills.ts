@@ -35,6 +35,9 @@ export const useBills = () => {
     OrderSocketEvent.createSale,
     {
       onSuccess: (resp) => {
+        queryClient.invalidateQueries({
+          queryKey: ["billsList"],
+        });
         // if (resp.data)
         //   queryClient.invalidateQueries({
         //     queryKey: ["bills", resp.data.id],
@@ -61,20 +64,24 @@ export const useBills = () => {
     },
   );
 
-  const removeBillEmitter = useWebsocketEventEmitter<Order, RemoveBillDto>(
-    OrderSocketEvent.deleteBill,
-    {
-      onSuccess: (resp) => {
-        if (resp.data)
-          queryClient.invalidateQueries({
-            queryKey: ["bills", resp.data.id],
-          });
-      },
-      onError: (resp) => {
-        Alert.alert("Error", resp.msg);
-      },
+  const removeBillEmitter = useWebsocketEventEmitter<
+    Order | null,
+    RemoveBillDto
+  >(OrderSocketEvent.deleteBill, {
+    onSuccess: (resp) => {
+      queryClient.invalidateQueries({
+        queryKey: ["billsList"],
+      });
+
+      if (resp.data && resp.data.id)
+        queryClient.invalidateQueries({
+          queryKey: ["bills", resp.data.id],
+        });
     },
-  );
+    onError: (resp) => {
+      Alert.alert("Error", resp.msg);
+    },
+  });
 
   const payBillTransactionEmitter = useWebsocketEventEmitter<
     PayBillTransactionRespDto,
