@@ -11,11 +11,14 @@ export const useBillsList = (filters?: BillListFiltersDto) => {
   const [page, setPage] = useState(0);
   const [allBills, setAllBills] = useState<Bill[]>([]);
   const limit = 10;
+  const { user } = useAuthStore();
+  const isAdmin = user?.role?.name === "admin";
 
   // Add default startDate (today) if not provided, plus pagination params
   const filtersWithDefaults: BillListFiltersDto = {
     startDate: new Date().toISOString().split("T")[0], // YYYY-MM-DD format
     ...filters,
+    ownerId: isAdmin ? filters?.ownerId : user?.id, // Non-admins only see their own bills0
     limit,
     offset: page * limit,
   };

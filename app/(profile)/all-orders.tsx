@@ -13,7 +13,6 @@ import { useRouter } from "expo-router";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
-import OrderList from "@/presentation/orders/molecules/order-list";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import WaiterSummaryCard from "@/presentation/orders/components/waiter-summary-card";
 import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
@@ -23,6 +22,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import OrderCard from "@/presentation/home/components/order-card";
 import Chip from "@/presentation/theme/components/chip";
 import { Order } from "@/core/orders/models/order.model";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 
 export default function AllOrdersScreen() {
   const { t } = useTranslation(["common", "orders"]);
@@ -109,13 +109,18 @@ export default function AllOrdersScreen() {
     (order) => order.status === OrderStatus.DELIVERED,
   );
 
+  const { user } = useAuthStore();
+  const isAdmin = user?.role?.name === "admin";
+
   return (
     <ScreenLayout style={tw`flex-1`}>
       {orders.length === 0 ? (
         <>
-          <ThemedView style={tw`px-4 pt-4`}>
-            <DailyReportSummaryCard />
-          </ThemedView>
+          {isAdmin && (
+            <ThemedView style={tw`px-4 pt-4`}>
+              <DailyReportSummaryCard />
+            </ThemedView>
+          )}
           <ThemedView style={tw`items-center justify-center flex-1 gap-4`}>
             <Ionicons
               name="document-text-outline"
@@ -141,9 +146,11 @@ export default function AllOrdersScreen() {
             />
           }
         >
-          <ThemedView style={tw`px-4 pt-4`}>
-            <DailyReportSummaryCard />
-          </ThemedView>
+          {isAdmin && (
+            <ThemedView style={tw`px-4 pt-4`}>
+              <DailyReportSummaryCard />
+            </ThemedView>
+          )}
           {waiterStats.length > 0 && (
             <ThemedView>
               <ThemedText type="h3" style={tw`mb-3 px-4 `}>

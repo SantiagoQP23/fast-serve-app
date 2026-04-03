@@ -10,10 +10,13 @@ export const useOrderHistory = (filters?: OrderHistoryFiltersDto) => {
   const [page, setPage] = useState(0);
   const [allOrders, setAllOrders] = useState<Order[]>([]);
   const limit = 10;
+  const { user } = useAuthStore();
+  const isAdmin = user?.role?.name === "admin";
 
   const filtersWithDefaults: OrderHistoryFiltersDto = {
     startDate: new Date().toISOString().split("T")[0],
     ...filters,
+    userId: isAdmin ? filters?.userId : user?.id, // Non-admins only see their own bills0
     limit,
     offset: page * limit,
   };

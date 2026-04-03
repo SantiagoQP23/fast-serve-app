@@ -81,7 +81,7 @@ export default function OrderCard({ order }: OrderCardProps) {
               style={tw`flex-row items-center bg-transparent gap-1 font-bold`}
             >
               <ThemedText type="small" style={tw`text-gray-500 font-bold`}>
-                {dayjs(order.createdAt).format("HH:mm")} ({relativeTime})
+                {dayjs(order.createdAt).format("HH:mm")}
               </ThemedText>
               <ThemedText type="small" style={tw`text-gray-500`}>
                 •{" "}
