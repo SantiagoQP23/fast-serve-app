@@ -96,5 +96,9 @@
   "connection": {
     "offline": "Conexión Perdida",
     "reconnecting": "Reconectando..."
+  },
+  "transactions": {
+    "deleteConfirmTitle": "Eliminar Transacción",
+    "deleteConfirmMessage": "¿Estás seguro de que deseas eliminar esta transacción? Esta acción no se puede deshacer."
   }
 }

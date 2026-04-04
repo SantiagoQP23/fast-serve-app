@@ -96,5 +96,9 @@
   "connection": {
     "offline": "Connection Lost",
     "reconnecting": "Reconnecting..."
+  },
+  "transactions": {
+    "deleteConfirmTitle": "Delete Transaction",
+    "deleteConfirmMessage": "Are you sure you want to delete this transaction? This action cannot be undone."
   }
 }
