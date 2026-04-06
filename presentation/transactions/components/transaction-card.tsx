@@ -51,11 +51,17 @@ export default function TransactionCard({
     setShowDeleteModal(false);
   };
 
+  //User can remove transaction if the creattion time is less than 15 minutes ago or if the user is an admin
+  const canRemoveTransaction =
+    isAdmin &&
+    new Date().getTime() - new Date(transaction.createdAt).getTime() <
+      15 * 60 * 1000;
+
   return (
     <>
       <Swipeable
         renderRightActions={
-          isAdmin
+          canRemoveTransaction
             ? () => (
                 <ThemedView style={tw`justify-center items-center px-4 `}>
                   <IconButton
