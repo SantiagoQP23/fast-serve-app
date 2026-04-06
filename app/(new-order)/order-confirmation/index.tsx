@@ -10,6 +10,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import { ROUTES } from "@/constants/routes";
 
 export default function OrderConfirmationScreen() {
   const { t } = useTranslation(["common", "orders"]);
@@ -18,7 +19,7 @@ export default function OrderConfirmationScreen() {
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
   const goToHome = () => {
-    router.replace("/(app)/(tabs)/(orders-module)/my-orders");
+    router.replace(ROUTES.APP.MY_ORDERS);
     setActiveOrder(null);
   };
 

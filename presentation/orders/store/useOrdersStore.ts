@@ -50,7 +50,9 @@ export const useOrdersStore = create<OrdersState>((set) => ({
   setOrders: (orders: Order[]) => set({ orders }),
   addOrder: (order: Order) =>
     set((state) => ({
-      orders: [...state.orders, order],
+      orders: state.orders.findLast((o) => o.id === order.id)
+        ? [...state.orders]
+        : [...state.orders, order],
     })),
   updateOrder: (order: Order) =>
     set((state) => ({

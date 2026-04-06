@@ -12,6 +12,7 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { useTransactions } from "@/presentation/transactions/hooks/useTransactions";
 import { useTranslation } from "react-i18next";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 
 interface TransactionCardProps extends PressableProps {
   transaction: Transaction;
@@ -24,8 +25,10 @@ export default function TransactionCard({
 }: TransactionCardProps) {
   const { t } = useTranslation();
   const { removeTransaction } = useTransactions();
+  const { user } = useAuthStore();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  const isAdmin = user?.role?.name === "admin";
   const isIncome =
     transaction.category.transactionType === TransactionType.INCOME;
   const relativeTime = getRelativeTime(transaction.createdAt);
@@ -51,15 +54,19 @@ export default function TransactionCard({
   return (
     <>
       <Swipeable
-        renderRightActions={() => (
-          <ThemedView style={tw`justify-center items-center px-4 `}>
-            <IconButton
-              icon="trash-outline"
-              color="red"
-              onPress={onRemoveTransaction}
-            />
-          </ThemedView>
-        )}
+        renderRightActions={
+          isAdmin
+            ? () => (
+                <ThemedView style={tw`justify-center items-center px-4 `}>
+                  <IconButton
+                    icon="trash-outline"
+                    color="red"
+                    onPress={onRemoveTransaction}
+                  />
+                </ThemedView>
+              )
+            : undefined
+        }
       >
         <Pressable onPress={onPress} {...rest}>
           <ThemedView
