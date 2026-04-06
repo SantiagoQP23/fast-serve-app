@@ -17,6 +17,7 @@ import { formatCurrency } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
 import StatsCard from "@/presentation/home/components/stats-card";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import OrderListByStatus from "@/presentation/orders/molecules/order-list-by-status";
 
 export default function TableOrdersScreen() {
   const { t } = useTranslation(["common", "tables"]);
@@ -100,19 +101,14 @@ export default function TableOrdersScreen() {
         ) : (
           <ScrollView
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={tw`pb-20`}
+            contentContainerStyle={tw`pb-20 gap-4`}
           >
-            <OrderList
-              title={t("common:status.pending")}
-              orders={pendingOrders}
-            />
-            <OrderList
-              title={t("common:status.inProgress")}
-              orders={inProgressOrders}
-            />
-            <OrderList
-              title={t("common:status.delivered")}
-              orders={deliveredOrders}
+            <OrderListByStatus
+              orders={[
+                ...pendingOrders,
+                ...inProgressOrders,
+                ...deliveredOrders,
+              ]}
             />
           </ScrollView>
         )}
