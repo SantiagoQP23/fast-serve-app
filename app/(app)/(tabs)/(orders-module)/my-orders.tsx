@@ -37,6 +37,7 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";
 import Label from "@/presentation/theme/components/label";
 import OrderCard from "@/presentation/home/components/order-card";
+import OrderListByStatus from "@/presentation/orders/molecules/order-list-by-status";
 
 export default function MyOrdersScreen() {
   const { t } = useTranslation(["common", "orders", "errors"]);
@@ -377,18 +378,7 @@ export default function MyOrdersScreen() {
             {/* Order Lists View */}
             {selectedView === "order-lists" && (
               <>
-                <OrderList
-                  title={t("common:status.pending")}
-                  orders={pendingOrders}
-                />
-                <OrderList
-                  title={t("common:status.inProgress")}
-                  orders={inProgressOrders}
-                />
-                <OrderList
-                  title={t("common:status.delivered")}
-                  orders={deliveredOrders}
-                />
+                <OrderListByStatus orders={orders} />
               </>
             )}
           </ThemedView>
