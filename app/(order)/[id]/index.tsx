@@ -170,7 +170,7 @@ export default function OrderScreen() {
       },
       {
         onSuccess: (resp) => {
-          router.replace("/(app)/(tabs)/(orders-module)/my-orders");
+          // router.replace("/(app)/(tabs)/(orders-module)/my-orders");
           // Handle success if needed
         },
       },
@@ -189,6 +189,10 @@ export default function OrderScreen() {
         router.replace("/(app)/(tabs)/(orders-module)/my-orders");
       },
     });
+  };
+
+  const handleCloseOrder = () => {
+    openCloseModal();
   };
 
   // Filter order details into pending and delivered
@@ -554,10 +558,30 @@ export default function OrderScreen() {
                   <Ionicons name={"cash-outline"} size={30} style={tw``} />
                 </Pressable>
 
-                <ThemedText type="body1">
+                <ThemedText type="body2">
                   {t("orders:details.payments")}
                 </ThemedText>
               </ThemedView>
+              {order.status === OrderStatus.DELIVERED &&
+                order.isClosed === false &&
+                order.isPaid === true && (
+                  <ThemedView style={tw`gap-2 items-center`}>
+                    <Pressable
+                      style={tw`flex items-center gap-2 p-4 bg-gray-100 rounded-lg min-w-15 w-20`}
+                      onPress={handleCloseOrder}
+                    >
+                      <Ionicons
+                        name={"lock-closed-outline"}
+                        size={30}
+                        style={tw``}
+                      />
+                    </Pressable>
+
+                    <ThemedText type="body2">
+                      {t("orders:options.closeOrder")}
+                    </ThemedText>
+                  </ThemedView>
+                )}
             </ThemedView>
           </ThemedView>
         </ScrollView>
