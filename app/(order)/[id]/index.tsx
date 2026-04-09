@@ -380,7 +380,8 @@ export default function OrderScreen() {
                   color={tw.color("gray-500")}
                 />
                 <ThemedText type="body2" style={tw`text-gray-600`}>
-                  {order.user.person.firstName} {order.user.person.lastName}
+                  {order.user.person.firstName}{" "}
+                  {order.user.person.lastName}{" "}
                 </ThemedText>
               </ThemedView>
             </ThemedView>
@@ -482,6 +483,7 @@ export default function OrderScreen() {
                       key={detail.id}
                       detail={detail}
                       onPress={() => openProduct(detail)}
+                      orderUserId={order.user.id}
                     />
                   ))}
                 </ThemedView>
@@ -513,6 +515,7 @@ export default function OrderScreen() {
                     key={detail.id}
                     detail={detail}
                     onPress={() => {}} // No action for closed orders
+                    orderUserId={order.user.id}
                   />
                 ))}
               </ThemedView>

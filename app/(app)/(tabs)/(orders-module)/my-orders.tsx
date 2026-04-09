@@ -341,6 +341,7 @@ export default function MyOrdersScreen() {
                                   key={detail.id}
                                   detail={detail}
                                   orderId={order.id}
+                                  orderUserId={order.user.id}
                                   onPress={() =>
                                     handleEditOrderDetail(
                                       order.num,
