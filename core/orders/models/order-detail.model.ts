@@ -1,3 +1,4 @@
+import { User } from "@/core/auth/models/user.model";
 import { Product } from "@/core/menu/models/product.model";
 import { Tag } from "@/core/menu/models/tag.model";
 
@@ -21,10 +22,10 @@ export interface OrderDetail {
   product: Product;
 
   isActive: boolean;
-
   price: number;
   tags: Tag[];
-
+  createdBy?: User;
+  updatedBy?: User;
   // typeOrderDetail: TypeOrder;
   // productOption?: ProductOption;
 }

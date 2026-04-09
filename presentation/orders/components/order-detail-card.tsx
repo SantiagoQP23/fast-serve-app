@@ -20,17 +20,25 @@ import IconButton from "@/presentation/theme/components/icon-button";
 interface OrderDetailCardProps extends PressableProps {
   detail: OrderDetail;
   orderId?: string;
+  orderUserId?: string;
 }
 
 export default function OrderDetailCard({
   detail,
   onPress,
   orderId,
+  orderUserId,
 }: OrderDetailCardProps) {
   const { t } = useTranslation(["common", "orders"]);
   const order = useOrdersStore((state) => state.activeOrder);
   const [visible, setVisible] = useState(false);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+  const createdBy = detail.createdBy;
+  const updatedBy = detail.updatedBy;
+
+  const showCreatedBy = createdBy && createdBy.id !== orderUserId;
+  const showUpdatedBy = updatedBy && updatedBy.id !== orderUserId;
 
   const { mutate: updateOrderDetail } = useOrders().updateOrderDetail;
 
@@ -173,7 +181,7 @@ export default function OrderDetailCard({
           )}
         >
           <Pressable onPress={onPress} onLongPress={handleOpenBottomSheet}>
-            <ThemedView style={tw` bg-transparent gap-4 `}>
+            <ThemedView style={tw` bg-transparent gap-2 `}>
               <ThemedView
                 style={tw`flex-row bg-transparent items-center gap-4`}
               >
@@ -228,6 +236,24 @@ export default function OrderDetailCard({
                   )}
                 </ThemedView>
               </ThemedView>
+              {(showCreatedBy || showUpdatedBy) && (
+                <ThemedView style={tw`flex-row justify-between bg-transparent`}>
+                  {showCreatedBy && (
+                    <ThemedText type="small">
+                      {t("orders:detailInfo.createdBy", {
+                        name: detail.createdBy?.person.firstName,
+                      })}
+                    </ThemedText>
+                  )}
+                  {showUpdatedBy && (
+                    <ThemedText type="small">
+                      {t("orders:detailInfo.updatedBy", {
+                        name: detail.updatedBy?.person.firstName,
+                      })}
+                    </ThemedText>
+                  )}
+                </ThemedView>
+              )}
             </ThemedView>
           </Pressable>
         </Swipeable>

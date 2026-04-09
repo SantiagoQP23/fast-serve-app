@@ -432,6 +432,7 @@ export default function OrderScreen() {
                     key={detail.id}
                     detail={detail}
                     onPress={() => openProduct(detail)}
+                    orderUserId={order.user.id}
                   />
                 ))}
               </ThemedView>

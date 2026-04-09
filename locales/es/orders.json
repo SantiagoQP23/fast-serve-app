@@ -142,5 +142,9 @@
     "viewOnlyDescription": "Este pedido es de solo lectura y no se puede modificar",
     "noOrder": "Pedido no encontrado",
     "noOrderDescription": "El pedido que buscas no existe o ha sido eliminado"
+  },
+  "detailInfo": {
+    "updatedBy": "Actualizado por {{name}}",
+    "createdBy": "Creado por {{name}}"
   }
 }
