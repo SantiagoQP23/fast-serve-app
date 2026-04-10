@@ -73,7 +73,7 @@ export default function EditOrderDetailScreen() {
         id: orderDetail.id,
         quantity: counter,
         qtyDelivered: deliveredCounter,
-        description: withNotes ? notes : undefined,
+        description: notes,
         price: parseFloat(price),
         orderId: order!.id,
         tagIds: selectedTagIds,
@@ -123,6 +123,17 @@ export default function EditOrderDetailScreen() {
             </ThemedText>
           )}
 
+          <ThemedView>
+            <TextInput
+              numberOfLines={5}
+              multiline
+              value={notes}
+              onChangeText={setNotes}
+              placeholder={t("orders:newOrder.addNote")}
+              containerStyle={tw`border-0 p-0`}
+              autoFocus={false}
+            />
+          </ThemedView>
           <TextInput
             label={t("common:labels.price")}
             keyboardType="numeric"
@@ -130,21 +141,6 @@ export default function EditOrderDetailScreen() {
             value={price}
             onChangeText={setPrice}
           />
-          <ThemedView>
-            <Switch
-              label={t("orders:newOrder.addNote")}
-              value={withNotes}
-              onValueChange={setWithNotes}
-            />
-            {withNotes && (
-              <TextInput
-                numberOfLines={5}
-                multiline
-                value={notes}
-                onChangeText={setNotes}
-              />
-            )}
-          </ThemedView>
 
           <ThemedView style={tw`flex-row justify-between mb-4 items-center`}>
             <ThemedView>
