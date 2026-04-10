@@ -68,7 +68,7 @@ export default function NewOrderDetailCard({
                 {detail.product.name}
               </ThemedText>
               {detail.description && (
-                <ThemedText type="body2">{detail.description}</ThemedText>
+                <ThemedText type="small">{detail.description}</ThemedText>
               )}
             </ThemedView>
             {/* <IconButton */}

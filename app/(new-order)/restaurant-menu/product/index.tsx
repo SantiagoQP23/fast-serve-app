@@ -172,19 +172,15 @@ export default function ProductScreen() {
           <ThemedText type="body2">{activeProduct.description}</ThemedText>
         )}
         <ThemedView>
-          <Switch
-            label={t("orders:newOrder.addNote")}
-            value={withNotes}
-            onValueChange={setWithNotes}
+          <TextInput
+            numberOfLines={5}
+            multiline
+            value={notes}
+            onChangeText={setNotes}
+            placeholder={t("orders:newOrder.addNote")}
+            containerStyle={tw`border-0 p-0`}
+            autoFocus={false}
           />
-          {withNotes && (
-            <TextInput
-              numberOfLines={5}
-              multiline
-              value={notes}
-              onChangeText={setNotes}
-            />
-          )}
         </ThemedView>
         <ThemedView>
           <Switch
