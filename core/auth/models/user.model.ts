@@ -8,9 +8,10 @@ export interface IRole {
 }
 
 export enum Roles {
-  admin = "Administrador",
-  mesero = "Mesero",
-  despachador = "Despachador",
+  ADMIN = "admin",
+  COOK = "cook",
+  WAITER = "waiter",
+  CASHIER = "cashier",
 }
 
 export interface RestaurantRole {

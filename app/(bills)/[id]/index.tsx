@@ -13,7 +13,6 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
@@ -25,7 +24,6 @@ import { formatCurrency, i18nAlert } from "@/core/i18n/utils";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import Label from "@/presentation/theme/components/label";
-import { translatePaymentMethod } from "@/core/i18n/utils";
 import { BillSource, BillStatus } from "@/core/orders/models/bill.model";
 import TransactionCard from "@/presentation/transactions/components/transaction-card";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
@@ -37,6 +35,8 @@ import {
 } from "@gorhom/bottom-sheet";
 import Chip from "@/presentation/theme/components/chip";
 import { useBillStatus } from "@/presentation/orders/hooks/useBillStatus";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { Roles } from "@/core/auth/models/user.model";
 
 export default function BillScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
@@ -68,6 +68,11 @@ export default function BillScreen() {
   const primaryColor = useThemeColor({}, "primary");
   const { mutate: removeBill } = useBills().removeBill;
   const { mutate: updateBill } = useBills().updateBill;
+
+  const { user } = useAuthStore();
+  const isAdmin = user?.role?.name === Roles.ADMIN;
+  const isCashier = user?.role?.name === Roles.CASHIER;
+  const canChargeBill = isAdmin || isCashier;
 
   const animationConfigs = useBottomSheetSpringConfigs({
     damping: 50,
@@ -401,12 +406,14 @@ export default function BillScreen() {
                   color={tw.color("red-500")}
                   onPress={() => setVisible(true)}
                 />
-                <ThemedView style={tw`flex-1`}>
-                  <Button
-                    label={t("bills:details.payBill")}
-                    onPress={handlePayBillPress}
-                  />
-                </ThemedView>
+                {canChargeBill && (
+                  <ThemedView style={tw`flex-1`}>
+                    <Button
+                      label={t("bills:details.payBill")}
+                      onPress={handlePayBillPress}
+                    />
+                  </ThemedView>
+                )}
               </ThemedView>
             )}
           </ThemedView>

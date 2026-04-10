@@ -39,18 +39,6 @@ export default function OrderDetailCard({
 
   const showCreatedBy = createdBy && createdBy.id !== orderUserId;
   const showUpdatedBy = updatedBy && updatedBy.id !== orderUserId;
-  console.log(
-    "OrderDetailCard render - createdBy:",
-    createdBy,
-    "orderUserId:",
-    orderUserId,
-  );
-  console.log(
-    "OrderDetailCard render - updatedBy:",
-    updatedBy,
-    "orderUserId:",
-    orderUserId,
-  );
 
   const { mutate: updateOrderDetail } = useOrders().updateOrderDetail;
 
