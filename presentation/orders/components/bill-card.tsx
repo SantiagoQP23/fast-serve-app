@@ -44,6 +44,8 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
 
   const { status } = useBillStatus(bill.status);
 
+  const showCreatedBy = bill.createdBy.id !== bill.owner.id;
+
   return (
     <Card onPress={onPress}>
       <ThemedView style={tw`bg-transparent gap-3`}>
@@ -75,7 +77,7 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
               <ThemedText type="body1" style={tw`font-bold`}>
                 {t(`bills:list.${bill.source}`, { number: bill.num })}
               </ThemedText>
-              <ThemedText type="small" style={tw`text-gray-500`}>
+              <ThemedText type="body2" style={tw`text-gray-500`}>
                 {bill.owner.person.firstName} {bill.owner.person.lastName}
               </ThemedText>
             </ThemedView>
@@ -90,6 +92,15 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
           </ThemedView>
         </ThemedView>
       </ThemedView>
+      {showCreatedBy && (
+        <ThemedView style={tw` pt-2`}>
+          <ThemedText type="small" style={tw`text-gray-500`}>
+            {t("orders:detailInfo.createdBy", {
+              name: `${bill.createdBy.person.firstName} ${bill.createdBy.person.lastName}`,
+            })}
+          </ThemedText>
+        </ThemedView>
+      )}
     </Card>
   );
 }

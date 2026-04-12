@@ -92,7 +92,6 @@ export default function ProductScreen() {
   };
 
   const addProductToCart = () => {
-    console.log({ tagIds: selectedTagIds });
     if (!activeOrderDetail) {
       addDetail({
         quantity: counter,
@@ -128,9 +127,7 @@ export default function ProductScreen() {
   return (
     <>
       <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
-        <ThemedView
-          style={tw` justify-center text-center mb-4 items-center gap-2`}
-        >
+        <ThemedView style={tw` text-center mb-4 gap-2`}>
           <ThemedText type="h2">{activeProduct.name}</ThemedText>
           <ThemedText type="body1">
             {formatCurrency(activeProduct.price)}
