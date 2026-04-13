@@ -305,39 +305,43 @@ export default function BillScreen() {
 
               {/* Items List */}
               <ThemedView style={tw`mb-6`}>
-                <ThemedText type="body2" style={tw`text-gray-500 mb-3`}>
-                  {t("bills:details.items")} ({bill.details.length})
-                </ThemedText>
-                <ThemedView
-                  style={tw`border border-gray-200 rounded-xl overflow-hidden`}
-                >
+                {/* <ThemedText type="body2" style={tw`text-gray-500 mb-3`}> */}
+                {/*   {t("bills:details.items")} ({bill.details.length}) */}
+                {/* </ThemedText> */}
+                <ThemedView style={tw` overflow-hidden`}>
                   {bill.details.map((detail, index) => (
                     <ThemedView key={detail.id}>
                       <ThemedView
-                        style={tw`flex-row justify-between items-center px-4 py-3`}
+                        style={tw`flex-row justify-between items-center px-4 py-1 `}
                       >
                         <ThemedView
-                          style={tw`flex-1 flex-row items-center gap-3`}
+                          style={tw`flex-1 flex-row items-center gap-3 text-gray-500`}
                         >
                           <ThemedText
-                            type="body2"
-                            style={tw`text-gray-500 min-w-8`}
+                            type="body1"
+                            style={tw` min-w-8 text-gray-600`}
                           >
-                            {detail.quantity}×
+                            {detail.quantity}
                           </ThemedText>
-                          <ThemedText type="body1" style={tw`flex-1`}>
+                          <ThemedText
+                            type="body1"
+                            style={tw`flex-1 text-gray-600`}
+                          >
                             {bill.source === BillSource.ORDER
                               ? detail.orderDetail?.product.name
                               : detail.product?.name}
                           </ThemedText>
                         </ThemedView>
-                        <ThemedText type="body1" style={tw`font-semibold`}>
+                        <ThemedText
+                          type="body1"
+                          style={tw`font-semibold text-gray-600`}
+                        >
                           {formatCurrency(detail.total)}
                         </ThemedText>
                       </ThemedView>
-                      {index < bill.details.length - 1 && (
-                        <ThemedView style={tw`h-px bg-gray-200`} />
-                      )}
+                      {/* {index < bill.details.length - 1 && ( */}
+                      {/*   <ThemedView style={tw`h-px bg-gray-200`} /> */}
+                      {/* )} */}
                     </ThemedView>
                   ))}
                 </ThemedView>
