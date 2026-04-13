@@ -55,7 +55,7 @@ export default function TransactionCard({
   const canRemoveTransaction =
     isAdmin &&
     new Date().getTime() - new Date(transaction.createdAt).getTime() <
-      15 * 60 * 1000;
+      60 * 60 * 1000;
 
   return (
     <>

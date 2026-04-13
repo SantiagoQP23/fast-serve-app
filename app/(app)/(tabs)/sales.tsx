@@ -52,6 +52,7 @@ export default function SalesScreen() {
   const router = useRouter();
   const primaryColor = useThemeColor({}, "primary");
   const [refreshing, setRefreshing] = useState(false);
+  const [showTotalSales, setShowTotalSales] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [filters, setFilters] = useState<BillListFiltersDto>({});
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -166,6 +167,10 @@ export default function SalesScreen() {
     filters.status !== undefined ||
     filters.ownerId !== undefined ||
     filters.source !== undefined;
+  const formattedTotalSales = formatCurrency(data?.totalSales || 0);
+  const displayedTotalSales = showTotalSales
+    ? formattedTotalSales
+    : formattedTotalSales.replace(/\d/g, "*");
 
   const { users } = useUsers();
   const isAdmin = user?.role?.name === "admin";
@@ -339,9 +344,21 @@ export default function SalesScreen() {
         </ThemedView>
 
         <ThemedView style={tw` p-4 mb-4 items-center`}>
-          <ThemedText type="h1" style={tw`font-bold mb-1`}>
-            {formatCurrency(data?.totalSales || 0)}
-          </ThemedText>
+          <ThemedView style={tw`flex-row items-center gap-2 mb-1`}>
+            <ThemedText type="h1" style={tw`font-bold`}>
+              {displayedTotalSales}
+            </ThemedText>
+            <Pressable
+              onPress={() => setShowTotalSales((prev) => !prev)}
+              hitSlop={8}
+            >
+              <Ionicons
+                name={showTotalSales ? "eye-off-outline" : "eye-outline"}
+                size={18}
+                color={tw.color("gray-500")}
+              />
+            </Pressable>
+          </ThemedView>
           <ThemedText type="small" style={tw`text-gray-400`}>
             {t("bills:list.salesCount", { count })}
           </ThemedText>

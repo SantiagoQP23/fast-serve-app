@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Pressable } from "react-native";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -24,6 +24,7 @@ export default function PaymentMethodSummaryCard({
   endDate?: string;
 }) {
   const { t } = useTranslation(["reports", "common", "bills"]);
+  const [showTotalIncome, setShowTotalIncome] = useState(false);
   const { paymentMethodReport, isLoading } = useTransactionPaymentMethodReport(
     startDate && endDate ? { startDate, endDate } : undefined,
   );
@@ -52,6 +53,12 @@ export default function PaymentMethodSummaryCard({
       text: `${percentage.toFixed(0)}%`,
     };
   });
+  const formattedTotalIncome = formatCurrency(
+    paymentMethodReport?.summary?.totalIncome ?? 0,
+  );
+  const displayedTotalIncome = showTotalIncome
+    ? formattedTotalIncome
+    : formattedTotalIncome.replace(/\d/g, "*");
 
   return (
     <Pressable>
@@ -60,6 +67,16 @@ export default function PaymentMethodSummaryCard({
           <ThemedText type="h4" style={tw`font-bold`}>
             {t("reports:paymentMethodReport.title")}
           </ThemedText>
+          <Pressable
+            onPress={() => setShowTotalIncome((prev) => !prev)}
+            hitSlop={8}
+          >
+            <Ionicons
+              name={showTotalIncome ? "eye-off-outline" : "eye-outline"}
+              size={18}
+              color={tw.color("gray-500")}
+            />
+          </Pressable>
         </ThemedView>
 
         {isLoading ? (
@@ -87,9 +104,7 @@ export default function PaymentMethodSummaryCard({
                       type="h3"
                       style={[tw`font-bold`, { color: themePrimaryColor }]}
                     >
-                      {formatCurrency(
-                        paymentMethodReport?.summary?.totalIncome ?? 0,
-                      )}
+                      {displayedTotalIncome}
                     </ThemedText>
                   </ThemedView>
                 )}
@@ -110,6 +125,12 @@ export default function PaymentMethodSummaryCard({
                   ? (pm.totalIncome / paymentMethodReport.summary.totalIncome) *
                     100
                   : 0;
+                const formattedPaymentMethodIncome = formatCurrency(
+                  pm.totalIncome,
+                );
+                const displayedPaymentMethodIncome = showTotalIncome
+                  ? formattedPaymentMethodIncome
+                  : formattedPaymentMethodIncome.replace(/\d/g, "*");
 
                 return (
                   <ThemedView
@@ -129,7 +150,7 @@ export default function PaymentMethodSummaryCard({
                     </ThemedView>
                     <ThemedView style={tw`items-end gap-0.5`}>
                       <ThemedText type="small" style={tw`font-semibold`}>
-                        {formatCurrency(pm.totalIncome)}
+                        {displayedPaymentMethodIncome}
                       </ThemedText>
                       <ThemedView style={tw`flex-row items-center gap-1.5`}>
                         <ThemedText type="caption" style={tw`text-gray-500`}>

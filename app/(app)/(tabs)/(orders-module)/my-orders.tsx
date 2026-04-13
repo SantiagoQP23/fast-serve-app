@@ -56,6 +56,7 @@ export default function MyOrdersScreen() {
   const [selectedView, setSelectedView] = useState<
     "pending-products" | "order-lists"
   >("pending-products");
+  const [showTotalAmount, setShowTotalAmount] = useState(false);
   const [popoverVisible, setPopoverVisible] = useState(false);
   const [popoverAnchor, setPopoverAnchor] = useState<AnchorPosition | null>(
     null,
@@ -133,6 +134,13 @@ export default function MyOrdersScreen() {
   const deliveredOrders = orders.filter(
     (order) => order.status === OrderStatus.DELIVERED,
   );
+  const currencySymbol = t("common:currency.symbol");
+  const totalAmountValue = dashboardStats?.totalAmount ?? 0;
+  const formattedTotalAmount = `${currencySymbol}${totalAmountValue.toFixed(2)}`;
+
+  const displayedTotalAmount = showTotalAmount
+    ? formattedTotalAmount
+    : formattedTotalAmount.replace(/\d/g, "*");
 
   const handleOpenOrder = useCallback(
     (orderNum: number, orderId: string) => {
@@ -180,11 +188,23 @@ export default function MyOrdersScreen() {
         <ThemedView style={tw`px-4 mb-4 gap-4`}>
           <ThemedView style={tw`gap-4 rounded-lg `}>
             <ThemedView style={tw`bg-transparent gap-1 `}>
-              <ThemedText type="small" style={tw``}>
-                {t("common:stats.totalAmount")}
-              </ThemedText>
+              <ThemedView style={tw`flex-row items-center gap-2`}>
+                <ThemedText type="small" style={tw``}>
+                  {t("common:stats.totalAmount")}
+                </ThemedText>
+                <Pressable
+                  onPress={() => setShowTotalAmount((prev) => !prev)}
+                  hitSlop={8}
+                >
+                  <Ionicons
+                    name={showTotalAmount ? "eye-off-outline" : "eye-outline"}
+                    size={18}
+                    color={tw.color("gray-500")}
+                  />
+                </Pressable>
+              </ThemedView>
               <ThemedText style={tw`text-5xl `}>
-                {`${t("common:currency.symbol")}${dashboardStats?.totalAmount?.toFixed(2) ?? "0.00"}`}
+                {displayedTotalAmount}
               </ThemedText>
             </ThemedView>
             <ThemedView style={tw`gap-2`}>

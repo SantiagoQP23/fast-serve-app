@@ -49,6 +49,7 @@ export default function IncomesScreen() {
   const { t } = useTranslation(["common", "errors"]);
   const { currentRestaurant } = useAuthStore();
   const [refreshing, setRefreshing] = useState(false);
+  const [showNetIncome, setShowNetIncome] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [filters, setFilters] = useState<FilterTransactionsDto>({});
   const primaryColor = useThemeColor({}, "primary");
@@ -225,6 +226,10 @@ export default function IncomesScreen() {
 
   const thereAreFiltersApplied =
     !!filters.paymentMethodId || !!filters.accountId || !!filters.createdById;
+  const formattedNetIncome = formatCurrency(totalIncome - totalExpense);
+  const displayedNetIncome = showNetIncome
+    ? formattedNetIncome
+    : formattedNetIncome.replace(/\d/g, "*");
 
   return (
     <ScreenLayout style={tw`flex-1 pt-8`}>
@@ -309,9 +314,21 @@ export default function IncomesScreen() {
           <ThemedView style={tw`px-4`}>
             {/* <DailyReportSummaryCard startDate={dateFilter} endDate={dateFilter} /> */}
             <ThemedView style={tw` p-4 mb-4 items-center`}>
-              <ThemedText type="h1" style={tw`font-bold mb-1`}>
-                {formatCurrency(totalIncome - totalExpense)}
-              </ThemedText>
+              <ThemedView style={tw`flex-row items-center gap-2 mb-1`}>
+                <ThemedText type="h1" style={tw`font-bold`}>
+                  {displayedNetIncome}
+                </ThemedText>
+                <Pressable
+                  onPress={() => setShowNetIncome((prev) => !prev)}
+                  hitSlop={8}
+                >
+                  <Ionicons
+                    name={showNetIncome ? "eye-off-outline" : "eye-outline"}
+                    size={18}
+                    color={tw.color("gray-500")}
+                  />
+                </Pressable>
+              </ThemedView>
               <ThemedText type="small" style={tw`text-gray-400`}>
                 {count} transactions
               </ThemedText>

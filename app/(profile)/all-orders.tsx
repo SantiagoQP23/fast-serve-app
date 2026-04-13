@@ -101,7 +101,7 @@ export default function AllOrdersScreen() {
         <>
           {isAdmin && (
             <ThemedView style={tw`px-4 pt-4`}>
-              <DailyReportSummaryCard />
+              <DailyReportSummaryCard enableAmountVisibilityToggle />
             </ThemedView>
           )}
           <ThemedView style={tw`items-center justify-center flex-1 gap-4`}>
@@ -131,7 +131,7 @@ export default function AllOrdersScreen() {
         >
           {isAdmin && (
             <ThemedView style={tw`px-4 pt-4`}>
-              <DailyReportSummaryCard />
+              <DailyReportSummaryCard enableAmountVisibilityToggle />
             </ThemedView>
           )}
           {waiterStats.length > 0 && (

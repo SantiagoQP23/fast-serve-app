@@ -41,6 +41,7 @@ export default function HistoryScreen() {
   const { t } = useTranslation(["common", "orders", "errors"]);
   const primaryColor = useThemeColor({}, "primary");
   const [refreshing, setRefreshing] = useState(false);
+  const [showTotalAmount, setShowTotalAmount] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [filters, setFilters] = useState<OrderHistoryFiltersDto>({});
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -199,6 +200,10 @@ export default function HistoryScreen() {
     removeFilters();
     bottomSheetModalRef.current?.dismiss();
   }, [removeFilters]);
+  const formattedTotalAmount = formatCurrency(totalAmount);
+  const displayedTotalAmount = showTotalAmount
+    ? formattedTotalAmount
+    : formattedTotalAmount.replace(/\d/g, "*");
 
   return (
     <>
@@ -251,7 +256,16 @@ export default function HistoryScreen() {
         </ThemedView>
 
         <ThemedView style={tw`px-4 mb-4 items-center`}>
-          <ThemedText type="h2">{formatCurrency(totalAmount)}</ThemedText>
+          <ThemedView style={tw`flex-row items-center gap-2`}>
+            <ThemedText type="h2">{displayedTotalAmount}</ThemedText>
+            <IconButton
+              icon={showTotalAmount ? "eye-off-outline" : "eye-outline"}
+              onPress={() => setShowTotalAmount((prev) => !prev)}
+              variant="text"
+              size={18}
+              style={tw`p-0`}
+            />
+          </ThemedView>
           <ThemedText type="small" style={tw`text-gray-400`}>
             {count} {count === 1 ? "order" : "orders"}
           </ThemedText>

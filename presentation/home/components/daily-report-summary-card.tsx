@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Pressable } from "react-native";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -13,15 +13,18 @@ import CircularProgressGauge from "@/presentation/theme/components/circular-prog
 export default function DailyReportSummaryCard({
   startDate,
   endDate,
+  enableAmountVisibilityToggle = false,
 }: {
   startDate?: string;
   endDate?: string;
+  enableAmountVisibilityToggle?: boolean;
 }) {
   const { t } = useTranslation(["reports", "common"]);
   const { dailyReport, isLoading } = useDailyReport(
     startDate && endDate ? { startDate, endDate } : undefined,
   );
   const router = useRouter();
+  const [showAmounts, setShowAmounts] = useState(false);
 
   const handlePress = () => {
     router.push("/(reports)/daily-report");
@@ -34,12 +37,28 @@ export default function DailyReportSummaryCard({
     summary && summary.totalAmount > 0
       ? summary.totalIncome / summary.totalAmount
       : 0;
+  const formatSummaryValue = (value: number) => {
+    const formattedValue = formatCurrency(value);
+    return showAmounts ? formattedValue : formattedValue.replace(/\d/g, "*");
+  };
 
   return (
     <Pressable>
       <ThemedView style={tw`rounded-2xl border border-light-border p-4  mb-4`}>
         <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
           <ThemedText type="h3">{t("reports:summary.title")}</ThemedText>
+          {enableAmountVisibilityToggle && (
+            <Pressable
+              onPress={() => setShowAmounts((prev) => !prev)}
+              hitSlop={8}
+            >
+              <Ionicons
+                name={showAmounts ? "eye-off-outline" : "eye-outline"}
+                size={18}
+                color={tw.color("gray-500")}
+              />
+            </Pressable>
+          )}
         </ThemedView>
 
         {isLoading ? (
@@ -58,7 +77,7 @@ export default function DailyReportSummaryCard({
                 goalValue={summary?.totalAmount ?? 0}
                 currentLabel={t("reports:summary.collected")}
                 goalLabel={t("reports:summary.totalAmount")}
-                formatValue={(val) => formatCurrency(val)}
+                formatValue={formatSummaryValue}
                 size={160}
                 strokeWidth={12}
               />

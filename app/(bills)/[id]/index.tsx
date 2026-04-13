@@ -37,6 +37,7 @@ import Chip from "@/presentation/theme/components/chip";
 import { useBillStatus } from "@/presentation/orders/hooks/useBillStatus";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles } from "@/core/auth/models/user.model";
+import { OrderType } from "@/core/orders/enums/order-type.enum";
 
 export default function BillScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
@@ -159,6 +160,8 @@ export default function BillScreen() {
   const discount5 = bill ? Math.round(bill.subtotal * 0.05 * 100) / 100 : 0;
   const discount10 = bill ? Math.round(bill.subtotal * 0.1 * 100) / 100 : 0;
 
+  const showCreatedBy = bill.createdBy.id !== bill.owner.id;
+
   const handleOpenDiscountSheet = () => {
     setDiscountInput(discount || "");
     bottomSheetRef.current?.present();
@@ -253,13 +256,11 @@ export default function BillScreen() {
               </ThemedView>
 
               {/* Total Amount */}
-              <ThemedView
-                style={tw`mb-6 pb-6 border-b border-gray-200 items-center`}
-              >
+              <ThemedView style={tw`mb-2 pb-6  items-center`}>
                 <ThemedText type="caption" style={tw`text-gray-500 mb-2`}>
                   {t("bills:details.totalAmount")}
                 </ThemedText>
-                <ThemedText style={tw`text-5xl font-bold mb-3`}>
+                <ThemedText style={tw`text-5xl font-bold `}>
                   {formatCurrency(bill.total)}
                 </ThemedText>
                 {/* {bill.discount > 0 && ( */}
@@ -269,6 +270,38 @@ export default function BillScreen() {
                 {/*   </ThemedText> */}
                 {/* )} */}
               </ThemedView>
+              <ThemedView style={tw`mb-6 items-center`}>
+                <ThemedText type="body1">
+                  {bill.owner.person.firstName} {bill.owner.person.lastName}
+                </ThemedText>
+
+                {showCreatedBy && (
+                  <ThemedView style={tw` pt-2`}>
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {t("orders:detailInfo.createdBy", {
+                        name: `${bill.createdBy.person.firstName} ${bill.createdBy.person.lastName}`,
+                      })}
+                    </ThemedText>
+                  </ThemedView>
+                )}
+              </ThemedView>
+              {bill.order && (
+                <ThemedView style={tw`mb-6 items-center`}>
+                  <ThemedView
+                    style={tw`flex-row items-center bg-transparent justify-between`}
+                  >
+                    <ThemedText type="h3" style={tw``}>
+                      {bill.order.type === OrderType.IN_PLACE
+                        ? `${t("common:labels.table")} ${bill.order.table?.name}`
+                        : t("common:labels.takeAway")}{" "}
+                    </ThemedText>
+                  </ThemedView>
+
+                  <ThemedText type="small" style={tw`text-gray-500`}>
+                    {t("orders:details.orderNumber", { num: bill.order.num })}
+                  </ThemedText>
+                </ThemedView>
+              )}
 
               {/* Items List */}
               <ThemedView style={tw`mb-6`}>
