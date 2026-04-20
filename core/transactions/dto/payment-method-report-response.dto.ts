@@ -8,6 +8,11 @@ export interface PaymentMethodReportItem {
   transactionCount: number;
   percentageOfIncome: number;
   percentageOfExpense: number;
+  incomeByAccount: {
+    accountId: number;
+    accountName: string;
+    totalIncome: number;
+  }[];
 }
 
 export interface PaymentMethodReportResponse {

@@ -78,6 +78,7 @@ export default function PaymentMethodSummaryCard({
             />
           </Pressable>
         </ThemedView>
+        {/* <ThemedText>{JSON.stringify(paymentMethods)}</ThemedText> */}
 
         {isLoading ? (
           <ThemedView style={tw`py-4`}>
@@ -133,39 +134,64 @@ export default function PaymentMethodSummaryCard({
                   : formattedPaymentMethodIncome.replace(/\d/g, "*");
 
                 return (
-                  <ThemedView
-                    key={pm.paymentMethodId}
-                    style={tw`flex-row items-center justify-between`}
-                  >
-                    <ThemedView style={tw`flex-row items-center gap-2 flex-1`}>
+                  <ThemedView key={pm.paymentMethodId}>
+                    <ThemedView
+                      style={tw`flex-row items-center justify-between`}
+                    >
                       <ThemedView
-                        style={[
-                          tw`w-3 h-3 rounded-full`,
-                          { backgroundColor: info.color },
-                        ]}
-                      />
-                      <ThemedText type="small" style={tw`flex-1 text-gray-600`}>
-                        {pm.paymentMethodName}
-                      </ThemedText>
-                    </ThemedView>
-                    <ThemedView style={tw`items-end gap-0.5`}>
-                      <ThemedText type="small" style={tw`font-semibold`}>
-                        {displayedPaymentMethodIncome}
-                      </ThemedText>
-                      <ThemedView style={tw`flex-row items-center gap-1.5`}>
-                        <ThemedText type="caption" style={tw`text-gray-500`}>
-                          {pm.transactionCount}{" "}
-                          {pm.transactionCount === 1
-                            ? t("bills:bill")
-                            : t("bills:bills")}
-                        </ThemedText>
-                        <ThemedText type="caption" style={tw`text-gray-400`}>
-                          •
-                        </ThemedText>
-                        <ThemedText type="caption" style={tw`text-gray-500`}>
-                          {percentage.toFixed(1)}%
+                        style={tw`flex-row items-center gap-2 flex-1`}
+                      >
+                        <ThemedView
+                          style={[
+                            tw`w-3 h-3 rounded-full`,
+                            { backgroundColor: info.color },
+                          ]}
+                        />
+                        <ThemedView style={tw`gap-1`}>
+                          <ThemedText type="body2" style={tw`flex-1`}>
+                            {pm.paymentMethodName}
+                          </ThemedText>
+                          <ThemedView style={tw`flex-row items-center gap-1.5`}>
+                            <ThemedText type="small" style={tw`text-gray-500`}>
+                              {pm.transactionCount}{" "}
+                              {pm.transactionCount === 1
+                                ? t("bills:bill")
+                                : t("bills:bills")}
+                            </ThemedText>
+                            <ThemedText type="small" style={tw`text-gray-400`}>
+                              •
+                            </ThemedText>
+                            <ThemedText type="small" style={tw`text-gray-500`}>
+                              {percentage.toFixed(1)}%
+                            </ThemedText>
+                          </ThemedView>
+                        </ThemedView>
+                      </ThemedView>
+                      <ThemedView style={tw`items-end gap-0.5`}>
+                        <ThemedText type="body2" style={tw`font-semibold`}>
+                          {displayedPaymentMethodIncome}
                         </ThemedText>
                       </ThemedView>
+                    </ThemedView>
+
+                    <ThemedView style={tw`ml-5 mt-1 p-1`}>
+                      {pm.incomeByAccount.map((account) => {
+                        const totalIncome = showTotalIncome
+                          ? formatCurrency(account.totalIncome)
+                          : formattedPaymentMethodIncome.replace(/\d/g, "*");
+
+                        return (
+                          <ThemedView
+                            key={account.accountId}
+                            style={tw`flex-row items-center justify-between gap-1`}
+                          >
+                            <ThemedText type="small">
+                              {account.accountName}
+                            </ThemedText>
+                            <ThemedText type="small">{totalIncome}</ThemedText>
+                          </ThemedView>
+                        );
+                      })}
                     </ThemedView>
                   </ThemedView>
                 );
