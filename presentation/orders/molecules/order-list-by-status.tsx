@@ -9,12 +9,17 @@ import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import { useMemo, useState } from "react";
 import Chip from "@/presentation/theme/components/chip";
 import { Ionicons } from "@expo/vector-icons";
+import OrderProductsCard from "@/presentation/home/components/order-products-card";
 
 export interface OrderListProps {
   orders: Order[];
+  showProducts?: boolean;
 }
 
-export default function OrderListByStatus({ orders }: OrderListProps) {
+export default function OrderListByStatus({
+  orders,
+  showProducts = false,
+}: OrderListProps) {
   const { t } = useTranslation(["common"]);
   const screenWidth = Dimensions.get("window").width;
 
@@ -71,7 +76,12 @@ export default function OrderListByStatus({ orders }: OrderListProps) {
         <ThemedView style={tw`px-4`}>
           {filteredOrders.map((order) => (
             <ThemedView key={order.id}>
-              <OrderCard order={order} />
+              {showProducts && order.status !== OrderStatus.DELIVERED ? (
+                <OrderProductsCard order={order} />
+              ) : (
+                <OrderCard order={order} />
+              )}
+              {/* <OrderCard order={order} /> */}
             </ThemedView>
           ))}
         </ThemedView>

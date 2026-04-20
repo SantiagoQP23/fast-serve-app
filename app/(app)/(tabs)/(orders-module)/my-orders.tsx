@@ -264,50 +264,45 @@ export default function MyOrdersScreen() {
         ) : (
           <ThemedView style={tw`gap-6`}>
             {/* Pending Products View */}
-            {selectedView === "pending-products" && (
-              <>
-                {orders.some((order) =>
-                  order.details.some(
-                    (detail) => detail.quantity !== detail.qtyDelivered,
-                  ),
-                ) ? (
-                  <ThemedView style={tw`px-4`}>
-                    {orders.map((order) => {
-                      const relativeTime = getRelativeTime(order.deliveryTime);
+            {/* {selectedView === "pending-products" && ( */}
+            {/*   <> */}
+            {/*     {orders.some((order) => */}
+            {/*       order.details.some( */}
+            {/*         (detail) => detail.quantity !== detail.qtyDelivered, */}
+            {/*       ), */}
+            {/*     ) ? ( */}
+            {/*       <ThemedView style={tw`px-4`}> */}
+            {/*         {orders.map((order) => { */}
+            {/*           const relativeTime = getRelativeTime(order.deliveryTime); */}
+            {/**/}
+            {/*           return order.status === OrderStatus.DELIVERED ? ( */}
+            {/*             <OrderCard order={order} key={order.id} /> */}
+            {/*           ) : ( */}
+            {/*             <OrderProductsCard order={order} key={order.id} /> */}
+            {/*           ); */}
+            {/*         })} */}
+            {/*       </ThemedView> */}
+            {/*     ) : ( */}
+            {/*       <ThemedView */}
+            {/*         style={tw`items-center justify-center flex-1 gap-4 mt-20`} */}
+            {/*       > */}
+            {/*         <Ionicons */}
+            {/*           name="checkmark-circle-outline" */}
+            {/*           size={80} */}
+            {/*           color={tw.color("green-500")} */}
+            {/*         /> */}
+            {/*         <ThemedText type="h3"> */}
+            {/*           {t("orders:list.noPendingProducts")} */}
+            {/*         </ThemedText> */}
+            {/*         <ThemedText type="body2" style={tw`text-center max-w-xs`}> */}
+            {/*           {t("orders:list.noPendingProductsDescription")} */}
+            {/*         </ThemedText> */}
+            {/*       </ThemedView> */}
+            {/*     )} */}
+            {/*   </> */}
+            {/* )} */}
 
-                      return order.status === OrderStatus.DELIVERED ? (
-                        <OrderCard order={order} key={order.id} />
-                      ) : (
-                        <OrderProductsCard order={order} key={order.id} />
-                      );
-                    })}
-                  </ThemedView>
-                ) : (
-                  <ThemedView
-                    style={tw`items-center justify-center flex-1 gap-4 mt-20`}
-                  >
-                    <Ionicons
-                      name="checkmark-circle-outline"
-                      size={80}
-                      color={tw.color("green-500")}
-                    />
-                    <ThemedText type="h3">
-                      {t("orders:list.noPendingProducts")}
-                    </ThemedText>
-                    <ThemedText type="body2" style={tw`text-center max-w-xs`}>
-                      {t("orders:list.noPendingProductsDescription")}
-                    </ThemedText>
-                  </ThemedView>
-                )}
-              </>
-            )}
-
-            {/* Order Lists View */}
-            {selectedView === "order-lists" && (
-              <>
-                <OrderListByStatus orders={orders} />
-              </>
-            )}
+            <OrderListByStatus orders={orders} showProducts />
           </ThemedView>
         )}
       </ScrollView>

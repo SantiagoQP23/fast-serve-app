@@ -69,7 +69,7 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
             style={tw`flex-row items-center justify-between bg-transparent`}
           >
             <ThemedView style={tw`flex-row items-center gap-2`}>
-              <ThemedText type="h4">
+              <ThemedText type="h3">
                 {order.type === OrderType.IN_PLACE
                   ? `${t("common:labels.table")} ${order.table?.name}`
                   : t("common:labels.takeAway")}{" "}
@@ -84,29 +84,30 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
             />
           </ThemedView>
           <ThemedView style={tw`flex-row items-center gap-2 mt-1`}>
-            <ThemedText type="small" style={tw`text-gray-500 font-semibold`}>
-              {t("orders:details.orderNumber", {
-                num: order.num,
-              })}
+            <ThemedText type="small" style={tw`text-gray-500 `}>
+              {relativeTime}
             </ThemedText>
             <ThemedText type="small" style={tw`text-gray-500`}>
               •
             </ThemedText>
-            <ThemedText type="small" style={tw`text-gray-500 font-semibold`}>
-              {relativeTime}
-            </ThemedText>
 
-            {!order.isPaid && (
+            <Label
+              text={statusText}
+              color={labelColor}
+              leftIcon={statusIcon}
+              size="small"
+            />
+
+            {order.isPaid && (
               <>
                 <ThemedText type="small" style={tw`text-gray-500`}>
                   •
                 </ThemedText>
-                <ThemedText
-                  type="small"
-                  style={tw`text-orange-500 font-semibold`}
-                >
-                  {t("orders:list.unpaid")}
-                </ThemedText>
+                <Label
+                  text={t("orders:details.paid")}
+                  color="success"
+                  size="small"
+                />
               </>
             )}
           </ThemedView>
@@ -124,6 +125,21 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
               onPress={() => handleEditOrderDetail(order.num, order.id, detail)}
             />
           ))}
+      </ThemedView>
+
+      <ThemedView style={tw`flex-row items-center gap-2 mt-4`}>
+        <ThemedText type="small" style={tw`text-gray-500 `}>
+          {t("orders:details.orderNumber", {
+            num: order.num,
+          })}
+        </ThemedText>
+
+        <ThemedText type="small" style={tw`text-gray-500`}>
+          •
+        </ThemedText>
+        <ThemedText type="small" style={tw`text-gray-500 `}>
+          {dayjs(order.createdAt).format("HH:mm")}
+        </ThemedText>
       </ThemedView>
     </ThemedView>
   );

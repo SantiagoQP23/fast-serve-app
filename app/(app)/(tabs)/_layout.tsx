@@ -47,9 +47,9 @@ function MyOrdersHeaderRight() {
           <NotificationBadge value={details.length} />
         </ThemedView>
       )}
-      <View ref={moreButtonRef} collapsable={false}>
-        <IconButton icon="ellipsis-vertical" onPress={handleMorePress} />
-      </View>
+      {/* <View ref={moreButtonRef} collapsable={false}> */}
+      {/*   <IconButton icon="ellipsis-vertical" onPress={handleMorePress} /> */}
+      {/* </View> */}
     </View>
   );
 }
