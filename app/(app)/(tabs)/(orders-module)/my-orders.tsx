@@ -38,6 +38,7 @@ import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";
 import Label from "@/presentation/theme/components/label";
 import OrderCard from "@/presentation/home/components/order-card";
 import OrderListByStatus from "@/presentation/orders/molecules/order-list-by-status";
+import OrderProductsCard from "@/presentation/home/components/order-products-card";
 
 export default function MyOrdersScreen() {
   const { t } = useTranslation(["common", "orders", "errors"]);
@@ -277,102 +278,7 @@ export default function MyOrdersScreen() {
                       return order.status === OrderStatus.DELIVERED ? (
                         <OrderCard order={order} key={order.id} />
                       ) : (
-                        <ThemedView
-                          key={order.id}
-                          style={tw`mb-8 bg-light-surface rounded-lg p-4`}
-                        >
-                          <Pressable
-                            onPress={() => handleOpenOrder(order.num, order.id)}
-                          >
-                            <ThemedView style={tw`mb-4 bg-transparent`}>
-                              <ThemedView
-                                style={tw`flex-row items-center justify-between bg-transparent`}
-                              >
-                                <ThemedView
-                                  style={tw`flex-row items-center gap-2`}
-                                >
-                                  <ThemedText type="h4">
-                                    {order.type === OrderType.IN_PLACE
-                                      ? `${t("common:labels.table")} ${order.table?.name}`
-                                      : t("common:labels.takeAway")}{" "}
-                                  </ThemedText>
-                                </ThemedView>
-                                <IconButton
-                                  variant="text"
-                                  icon="chevron-forward"
-                                  color={tw.color("gray-500")}
-                                  size={20}
-                                  onPress={() =>
-                                    handleOpenOrder(order.num, order.id)
-                                  }
-                                />
-                              </ThemedView>
-                              <ThemedView
-                                style={tw`flex-row items-center gap-2 mt-1`}
-                              >
-                                <ThemedText
-                                  type="small"
-                                  style={tw`text-gray-500 font-semibold`}
-                                >
-                                  {t("orders:details.orderNumber", {
-                                    num: order.num,
-                                  })}
-                                </ThemedText>
-                                <ThemedText
-                                  type="small"
-                                  style={tw`text-gray-500`}
-                                >
-                                  •
-                                </ThemedText>
-                                <ThemedText
-                                  type="small"
-                                  style={tw`text-gray-500 font-semibold`}
-                                >
-                                  {relativeTime}
-                                </ThemedText>
-
-                                {!order.isPaid && (
-                                  <>
-                                    <ThemedText
-                                      type="small"
-                                      style={tw`text-gray-500`}
-                                    >
-                                      •
-                                    </ThemedText>
-                                    <ThemedText
-                                      type="small"
-                                      style={tw`text-orange-500 font-semibold`}
-                                    >
-                                      {t("orders:list.unpaid")}
-                                    </ThemedText>
-                                  </>
-                                )}
-                              </ThemedView>
-                            </ThemedView>
-                          </Pressable>
-                          <ThemedView style={tw`gap-4`}>
-                            {order.details
-                              .filter(
-                                (detail) =>
-                                  detail.quantity !== detail.qtyDelivered,
-                              )
-                              .map((detail) => (
-                                <OrderDetailCard
-                                  key={detail.id}
-                                  detail={detail}
-                                  orderId={order.id}
-                                  orderUserId={order.user.id}
-                                  onPress={() =>
-                                    handleEditOrderDetail(
-                                      order.num,
-                                      order.id,
-                                      detail,
-                                    )
-                                  }
-                                />
-                              ))}
-                          </ThemedView>
-                        </ThemedView>
+                        <OrderProductsCard order={order} key={order.id} />
                       );
                     })}
                   </ThemedView>
