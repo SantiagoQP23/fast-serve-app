@@ -9,6 +9,7 @@ import { formatCurrency } from "@/core/i18n/utils";
 import { useDailyReport } from "@/presentation/orders/hooks/useDailyReport";
 import { useRouter } from "expo-router";
 import CircularProgressGauge from "@/presentation/theme/components/circular-progress-gauge";
+import ProgressBar from "@/presentation/theme/components/progress-bar";
 
 export default function DailyReportSummaryCard({
   startDate,
@@ -31,6 +32,7 @@ export default function DailyReportSummaryCard({
   };
 
   const summary = dailyReport?.summary;
+  const waiters = dailyReport?.waiterStats || [];
 
   // Calculate collection rate (income vs amount)
   const collectionRate =
@@ -42,24 +44,29 @@ export default function DailyReportSummaryCard({
     return showAmounts ? formattedValue : formattedValue.replace(/\d/g, "*");
   };
 
+  const formatWaiterValue = (value: number) => {
+    const formattedValue = formatCurrency(value);
+    return showAmounts ? formattedValue : formattedValue.replace(/\d/g, "*");
+  };
+
   return (
     <Pressable>
       <ThemedView style={tw`rounded-2xl border border-light-border p-4  mb-4`}>
-        <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
-          <ThemedText type="h3">{t("reports:summary.title")}</ThemedText>
-          {enableAmountVisibilityToggle && (
-            <Pressable
-              onPress={() => setShowAmounts((prev) => !prev)}
-              hitSlop={8}
-            >
-              <Ionicons
-                name={showAmounts ? "eye-off-outline" : "eye-outline"}
-                size={18}
-                color={tw.color("gray-500")}
-              />
-            </Pressable>
-          )}
-        </ThemedView>
+         <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
+           <ThemedText type="h3">{t("reports:summary.title")}</ThemedText>
+           {enableAmountVisibilityToggle && (
+             <Pressable
+               onPress={() => setShowAmounts((prev) => !prev)}
+               hitSlop={8}
+             >
+               <Ionicons
+                 name={showAmounts ? "eye-off-outline" : "eye-outline"}
+                 size={18}
+                 color={tw.color("gray-500")}
+               />
+             </Pressable>
+           )}
+         </ThemedView>
 
         {isLoading ? (
           <ThemedView style={tw`py-4`}>
@@ -84,6 +91,36 @@ export default function DailyReportSummaryCard({
             </ThemedView>
 
             {/* Stats Row */}
+            {/* <ThemedText>{JSON.stringify(waiters)}</ThemedText> */}
+            <ThemedView style={tw`gap-4`}>
+              {waiters.map((waiter) => (
+                <ThemedView key={waiter.userId} style={tw` gap-2`}>
+                  <ThemedView style={tw`gap-1`}>
+                    <ThemedText type="body2">{waiter.fullName}</ThemedText>
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      Orders: {waiter.totalOrders}
+                    </ThemedText>
+                  </ThemedView>
+                  <ThemedView
+                     style={tw`flex-row gap-4 items-center justify-between`}
+                   >
+                     <ThemedText type="small">
+                       {formatWaiterValue(waiter.totalIncome)}
+                     </ThemedText>
+                     <ThemedText type="small">
+                       {formatWaiterValue(waiter.totalAmount)}
+                     </ThemedText>
+                   </ThemedView>
+
+                  <ProgressBar
+                    height={2}
+                    progress={
+                      (waiter?.totalIncome || 0) / (waiter?.totalAmount || 1)
+                    }
+                  />
+                </ThemedView>
+              ))}
+            </ThemedView>
           </ThemedView>
         )}
       </ThemedView>

@@ -1,7 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { OrdersService } from "@/core/orders/services/orders.service";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { FilterDailyReportDto, ReportMode } from "@/core/orders/dto/daily-report-filters.dto";
+import {
+  FilterDailyReportDto,
+  ReportMode,
+} from "@/core/orders/dto/daily-report-filters.dto";
 
 export const useDailyReport = (filters?: FilterDailyReportDto) => {
   const { currentRestaurant } = useAuthStore((state) => state);
