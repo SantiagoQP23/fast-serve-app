@@ -22,7 +22,7 @@ export default function DailyReportSummaryCard({
 }) {
   const { t } = useTranslation(["reports", "common"]);
   const { dailyReport, isLoading } = useDailyReport(
-    startDate && endDate ? { startDate, endDate } : undefined,
+    startDate ? { startDate } : undefined,
   );
   const router = useRouter();
   const [showAmounts, setShowAmounts] = useState(false);
@@ -52,21 +52,21 @@ export default function DailyReportSummaryCard({
   return (
     <Pressable>
       <ThemedView style={tw`rounded-2xl border border-light-border p-4  mb-4`}>
-         <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
-           <ThemedText type="h3">{t("reports:summary.title")}</ThemedText>
-           {enableAmountVisibilityToggle && (
-             <Pressable
-               onPress={() => setShowAmounts((prev) => !prev)}
-               hitSlop={8}
-             >
-               <Ionicons
-                 name={showAmounts ? "eye-off-outline" : "eye-outline"}
-                 size={18}
-                 color={tw.color("gray-500")}
-               />
-             </Pressable>
-           )}
-         </ThemedView>
+        <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
+          <ThemedText type="h3">{t("reports:summary.title")}</ThemedText>
+          {enableAmountVisibilityToggle && (
+            <Pressable
+              onPress={() => setShowAmounts((prev) => !prev)}
+              hitSlop={8}
+            >
+              <Ionicons
+                name={showAmounts ? "eye-off-outline" : "eye-outline"}
+                size={18}
+                color={tw.color("gray-500")}
+              />
+            </Pressable>
+          )}
+        </ThemedView>
 
         {isLoading ? (
           <ThemedView style={tw`py-4`}>
@@ -102,15 +102,15 @@ export default function DailyReportSummaryCard({
                     </ThemedText>
                   </ThemedView>
                   <ThemedView
-                     style={tw`flex-row gap-4 items-center justify-between`}
-                   >
-                     <ThemedText type="small">
-                       {formatWaiterValue(waiter.totalIncome)}
-                     </ThemedText>
-                     <ThemedText type="small">
-                       {formatWaiterValue(waiter.totalAmount)}
-                     </ThemedText>
-                   </ThemedView>
+                    style={tw`flex-row gap-4 items-center justify-between`}
+                  >
+                    <ThemedText type="small">
+                      {formatWaiterValue(waiter.totalIncome)}
+                    </ThemedText>
+                    <ThemedText type="small">
+                      {formatWaiterValue(waiter.totalAmount)}
+                    </ThemedText>
+                  </ThemedView>
 
                   <ProgressBar
                     height={2}

@@ -39,6 +39,7 @@ import Label from "@/presentation/theme/components/label";
 import OrderCard from "@/presentation/home/components/order-card";
 import OrderListByStatus from "@/presentation/orders/molecules/order-list-by-status";
 import OrderProductsCard from "@/presentation/home/components/order-products-card";
+import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 
 export default function MyOrdersScreen() {
   const { t } = useTranslation(["common", "orders", "errors"]);
@@ -240,7 +241,11 @@ export default function MyOrdersScreen() {
             />
             <StatsCard
               title={t("common:stats.ordersPendingPayment")}
-              value={orders.filter((order) => !order.isPaid).length}
+              value={
+                orders.filter(
+                  (order) => order.paymentStatus !== OrderPaymentStatus.PAID,
+                ).length
+              }
               icon="receipt-outline"
               loading={isLoadingStats}
             />

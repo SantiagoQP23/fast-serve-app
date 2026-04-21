@@ -32,6 +32,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useOrder } from "@/presentation/orders/hooks/useOrder";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
+import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 
 dayjs.extend(relativeTime);
 
@@ -56,6 +58,9 @@ export default function OrderScreen() {
     isError: isOrderError,
     isRefetching,
   } = useOrder(order?.id || null);
+  const { paymentStatus } = useOrderPaymentStatus(
+    order?.paymentStatus || OrderPaymentStatus.UNPAID,
+  );
 
   // Update header title dynamically with order number
   useEffect(() => {
@@ -345,11 +350,8 @@ export default function OrderScreen() {
                 color={labelColor}
                 leftIcon={statusIcon}
               />
-              {order.isPaid ? (
-                <Label text={t("orders:details.paid")} color="success" />
-              ) : (
-                <Label text={t("orders:details.unpaid")} color="warning" />
-              )}
+
+              <Label text={paymentStatus.text} color={paymentStatus.color} />
               {isClosed && (
                 <ThemedView
                   style={tw`flex-row items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-full`}

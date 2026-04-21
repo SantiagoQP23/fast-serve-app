@@ -18,6 +18,8 @@ import dayjs from "dayjs";
 import OrderDetailCard from "@/presentation/orders/components/order-detail-card";
 import { Pressable } from "react-native";
 import IconButton from "@/presentation/theme/components/icon-button";
+import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
+import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 
 interface OrderProductsCardProps {
   order: Order;
@@ -30,6 +32,7 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
     (state) => state.setActiveOrderDetail,
   );
   const { statusText, statusIcon, labelColor } = useOrderStatus(order.status);
+  const { paymentStatus } = useOrderPaymentStatus(order.paymentStatus);
 
   // Calculate delivery progress - handle missing details
   const hasDetails = order.details && order.details.length > 0;
@@ -98,14 +101,14 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
               size="small"
             />
 
-            {order.isPaid && (
+            {order.paymentStatus !== OrderPaymentStatus.UNPAID && (
               <>
                 <ThemedText type="small" style={tw`text-gray-500`}>
                   •
                 </ThemedText>
                 <Label
-                  text={t("orders:details.paid")}
-                  color="success"
+                  text={paymentStatus.text}
+                  color={paymentStatus.color}
                   size="small"
                 />
               </>

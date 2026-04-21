@@ -39,12 +39,12 @@ const STORAGE_KEY = "history_selected_date";
 const FILTERS_STORAGE_KEY = "history_filters";
 
 export default function HistoryScreen() {
-   const { t } = useTranslation(["common", "orders", "errors"]);
-   const primaryColor = useThemeColor({}, "primary");
-   const [refreshing, setRefreshing] = useState(false);
-   const [showTotalAmount, setShowTotalAmount] = useState(false);
-   const [showDailyReportAmounts, setShowDailyReportAmounts] = useState(false);
-   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const { t } = useTranslation(["common", "orders", "errors"]);
+  const primaryColor = useThemeColor({}, "primary");
+  const [refreshing, setRefreshing] = useState(false);
+  const [showTotalAmount, setShowTotalAmount] = useState(false);
+  const [showDailyReportAmounts, setShowDailyReportAmounts] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [filters, setFilters] = useState<OrderHistoryFiltersDto>({});
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const { currentRestaurant, user } = useAuthStore();
@@ -274,29 +274,29 @@ export default function HistoryScreen() {
         </ThemedView>
 
         {/* Orders list */}
-         <ScrollView
-           style={tw`flex-1`}
-           contentContainerStyle={tw`pb-20`}
-           showsVerticalScrollIndicator={false}
-           refreshControl={
-             <RefreshControl
-               refreshing={refreshing}
-               onRefresh={onRefresh}
-               tintColor={primaryColor}
-               colors={[primaryColor]}
-             />
-           }
-         >
-           {isAdmin && (
-             <ThemedView style={tw`px-4 pt-4`}>
-               <DailyReportSummaryCard
-                 startDate={dateFilter}
-                 endDate={dateFilter}
-                 enableAmountVisibilityToggle
-               />
-             </ThemedView>
-           )}
-           {isLoading && !refreshing ? (
+        <ScrollView
+          style={tw`flex-1`}
+          contentContainerStyle={tw`pb-20`}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={primaryColor}
+              colors={[primaryColor]}
+            />
+          }
+        >
+          {isAdmin && (
+            <ThemedView style={tw`px-4 pt-4`}>
+              <DailyReportSummaryCard
+                startDate={dateFilter}
+                endDate={dateFilter}
+                enableAmountVisibilityToggle
+              />
+            </ThemedView>
+          )}
+          {isLoading && !refreshing ? (
             <ThemedView style={tw`py-20 items-center`}>
               <ThemedText type="body2" style={tw`text-gray-400`}>
                 {t("common:status.loading")}

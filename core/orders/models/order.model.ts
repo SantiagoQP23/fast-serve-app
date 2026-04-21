@@ -3,6 +3,7 @@ import { OrderDetail } from "./order-detail.model";
 import { User } from "@/core/auth/models/user.model";
 import { OrderStatus } from "../enums/order-status.enum";
 import { OrderType } from "../enums/order-type.enum";
+import { OrderPaymentStatus } from "../enums/order-payment-status.enum";
 
 export interface Order {
   notes: string;
@@ -20,5 +21,6 @@ export interface Order {
   updatedAt: Date;
   user: User;
   isClosed: boolean;
+  paymentStatus: OrderPaymentStatus;
   // bills: Bill[];
 }

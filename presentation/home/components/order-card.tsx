@@ -15,6 +15,8 @@ import Label from "@/presentation/theme/components/label";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
+import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
+import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 
 interface OrderCardProps {
   order: Order;
@@ -24,6 +26,7 @@ export default function OrderCard({ order }: OrderCardProps) {
   const { t } = useTranslation(["common", "orders"]);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const { statusText, statusIcon, labelColor } = useOrderStatus(order.status);
+  const { paymentStatus } = useOrderPaymentStatus(order.paymentStatus);
 
   // Calculate delivery progress - handle missing details
   const hasDetails = order.details && order.details.length > 0;
@@ -55,9 +58,14 @@ export default function OrderCard({ order }: OrderCardProps) {
                 text={statusText}
                 color={labelColor}
                 leftIcon={statusIcon}
+                size="small"
               />
-              {order.isPaid && (
-                <Label text={t("orders:details.paid")} color="success" />
+              {order.paymentStatus !== OrderPaymentStatus.UNPAID && (
+                <Label
+                  text={paymentStatus.text}
+                  color={paymentStatus.color}
+                  size="small"
+                />
               )}
             </ThemedView>
             <ThemedText type="small">
