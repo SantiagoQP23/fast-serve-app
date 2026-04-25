@@ -1,11 +1,8 @@
-import { KeyboardAvoidingView } from "react-native";
-
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useRouter } from "expo-router";
-import Switch from "@/presentation/theme/components/switch";
 import TextInput from "@/presentation/theme/components/text-input";
 import Button from "@/presentation/theme/components/button";
 import IconButton from "@/presentation/theme/components/icon-button";
@@ -16,9 +13,17 @@ import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import Chip from "@/presentation/theme/components/chip";
+import { ProductOption } from "@/core/menu/models/product-optionl.model";
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
 
 export default function EditOrderDetailScreen() {
-  const { t } = useTranslation(["common", "orders"]);
+  const { t } = useTranslation(["common", "orders", "menu"]);
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const orderDetail = useOrdersStore((state) => state.activeOrderDetail);
   const order = useOrdersStore((state) => state.activeOrder);
 
@@ -30,7 +35,7 @@ export default function EditOrderDetailScreen() {
   );
 
   const {
-    counter: deliveredCounter,
+    counter: qtyDelivered,
     increment: incrementDelivered,
     decrement: decrementDelivered,
   } = useCounter(orderDetail?.qtyDelivered, 1, orderDetail?.quantity, 0);
@@ -42,9 +47,15 @@ export default function EditOrderDetailScreen() {
     mutate: updateOrderDetail,
   } = useOrders().updateOrderDetail;
 
-  const [withNotes, setWithNotes] = useState(!!orderDetail?.description);
   const [notes, setNotes] = useState(orderDetail?.description || "");
-  const [price, setPrice] = useState(orderDetail?.price.toString() || "");
+  const [selectedOption, setSelectedOption] = useState<ProductOption | null>(
+    orderDetail?.productOption ??
+      orderDetail?.product.options.find((option) => option.isDefault) ??
+      null,
+  );
+  const [price, setPrice] = useState(
+    String(orderDetail?.price ?? selectedOption?.price ?? ""),
+  );
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
     orderDetail?.tags?.map((t) => t.id) ?? [],
   );
@@ -59,6 +70,25 @@ export default function EditOrderDetailScreen() {
     (state) => state.setActiveOrderDetail,
   );
 
+  const renderBackdrop = useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+      />
+    ),
+    [],
+  );
+
+  const openCustomBottomSheet = () => {
+    bottomSheetModalRef.current?.present();
+  };
+
+  const closeCustomBottomSheet = () => {
+    bottomSheetModalRef.current?.dismiss();
+  };
+
   if (!orderDetail) {
     return (
       <ThemedView style={tw`flex-1 justify-center items-center`}>
@@ -67,16 +97,27 @@ export default function EditOrderDetailScreen() {
     );
   }
 
+  const parsedPrice = parseFloat(price);
+  const effectivePrice = Number.isFinite(parsedPrice)
+    ? parsedPrice
+    : selectedOption?.price ?? orderDetail.price;
+
+  const onChangeSelectedOption = (option: ProductOption) => {
+    setSelectedOption(option);
+    setPrice(String(option.price));
+  };
+
   const onUpdateOrderDetail = () => {
     updateOrderDetail(
       {
         id: orderDetail.id,
         quantity: counter,
-        qtyDelivered: deliveredCounter,
+        qtyDelivered,
         description: notes,
-        price: parseFloat(price),
+        price: effectivePrice,
         orderId: order!.id,
         tagIds: selectedTagIds,
+        productOptionId: selectedOption?.id,
       },
       {
         onSuccess: () => {
@@ -88,21 +129,18 @@ export default function EditOrderDetailScreen() {
   };
 
   return (
-    <ScreenLayout>
-      <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
-        <ThemedView style={tw`px-4 pt-8 flex-1 gap-4`}>
-          <ThemedView style={tw`flex-row justify-between mb-4 items-center`}>
-            <ThemedView>
-              <ThemedText type="h2">{orderDetail.product.name}</ThemedText>
-              <ThemedText type="body1">
-                {formatCurrency(orderDetail.price)}
-              </ThemedText>
-            </ThemedView>
-          </ThemedView>
-          {orderDetail.product.tags?.filter(
-            (tag) => tag.isActive && !tag.isArchived,
-          ).length > 0 && (
-            <ThemedView style={tw`flex-row flex-wrap gap-2`}>
+    <>
+      <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
+        <ThemedView style={tw`flex-1`} />
+        <ThemedView style={tw`items-center text-center mb-4 gap-2`}>
+          <ThemedText type="h2">{orderDetail.product.name}</ThemedText>
+          <ThemedText type="body1" style={tw`text-gray-600`}>
+            {formatCurrency(effectivePrice)}
+          </ThemedText>
+
+          {orderDetail.product.tags?.filter((tag) => tag.isActive && !tag.isArchived)
+            .length > 0 && (
+            <ThemedView style={tw`flex-row flex-wrap gap-2 justify-center`}>
               {orderDetail.product.tags
                 .filter((tag) => tag.isActive && !tag.isArchived)
                 .map((tag) => (
@@ -117,42 +155,35 @@ export default function EditOrderDetailScreen() {
                 ))}
             </ThemedView>
           )}
-          {orderDetail.product.description && (
-            <ThemedText type="body2">
-              {orderDetail.product.description}
-            </ThemedText>
-          )}
+        </ThemedView>
 
-          <ThemedView>
-            <TextInput
-              numberOfLines={5}
-              multiline
-              value={notes}
-              onChangeText={setNotes}
-              placeholder={t("orders:newOrder.addNote")}
-              containerStyle={tw`border-0 p-0`}
-              autoFocus={false}
-            />
+        {orderDetail.product.description && (
+          <ThemedText type="body2">{orderDetail.product.description}</ThemedText>
+        )}
+
+        {orderDetail.product.options.length > 0 && (
+          <ThemedView style={tw`flex-row flex-wrap gap-2 justify-center`}>
+            {orderDetail.product.options.map((option) => (
+              <Chip
+                key={option.id}
+                label={`${option.name}`}
+                selected={selectedOption?.id === option.id}
+                onPress={() => onChangeSelectedOption(option)}
+              />
+            ))}
           </ThemedView>
-          <TextInput
-            label={t("common:labels.price")}
-            keyboardType="numeric"
-            icon="pricetag-outline"
-            value={price}
-            onChangeText={setPrice}
-          />
+        )}
 
-          <ThemedView style={tw`flex-row justify-between mb-4 items-center`}>
-            <ThemedView>
-              <ThemedText type="h4">{t("common:status.delivered")}</ThemedText>
-            </ThemedView>
+        <ThemedView style={tw`gap-8`}>
+          <ThemedView style={tw`flex-row justify-between items-center`}>
+            <ThemedText type="h4">{t("common:status.delivered")}</ThemedText>
             <ThemedView style={tw`flex-row items-center gap-4`}>
               <IconButton
                 icon="remove-outline"
                 onPress={decrementDelivered}
                 variant="outlined"
               />
-              <ThemedText>{deliveredCounter}</ThemedText>
+              <ThemedText>{qtyDelivered}</ThemedText>
               <IconButton
                 icon="add"
                 onPress={incrementDelivered}
@@ -160,13 +191,8 @@ export default function EditOrderDetailScreen() {
               />
             </ThemedView>
           </ThemedView>
-          <ThemedView style={tw`flex-1 `} />
-        </ThemedView>
-        <ThemedView style={tw`gap-4 p-4 border-t border-gray-200`}>
-          <ThemedView style={tw`flex-row justify-between items-center`}>
-            <ThemedText type="h4">
-              {formatCurrency(orderDetail.price * counter)}
-            </ThemedText>
+
+          <ThemedView style={tw`flex-row justify-center items-center`}>
             <ThemedView style={tw`flex-row items-center gap-4`}>
               <IconButton
                 icon="remove-outline"
@@ -177,13 +203,62 @@ export default function EditOrderDetailScreen() {
               <IconButton icon="add" onPress={increment} variant="outlined" />
             </ThemedView>
           </ThemedView>
-          <Button
-            label={t("orders:edit.saveChanges")}
-            onPress={onUpdateOrderDetail}
-            leftIcon="save-outline"
-          />
+
+          {notes && (
+            <ThemedView style={tw`justify-center items-center`}>
+              <ThemedText type="h4" style={tw`text-gray-600`}>
+                {notes}
+              </ThemedText>
+            </ThemedView>
+          )}
+
+          <ThemedView style={tw`flex-row gap-5 justify-center mb-4`}>
+            <Button
+              label={t("menu:product.customize")}
+              variant="outline"
+              onPress={openCustomBottomSheet}
+            />
+            <Button
+              label={t("orders:edit.saveChanges")}
+              onPress={onUpdateOrderDetail}
+              leftIcon="save-outline"
+            />
+          </ThemedView>
         </ThemedView>
-      </KeyboardAvoidingView>
-    </ScreenLayout>
+      </ScreenLayout>
+
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        snapPoints={["55%"]}
+        backdropComponent={renderBackdrop}
+        enablePanDownToClose
+      >
+        <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
+          <TextInput
+            numberOfLines={4}
+            multiline
+            value={notes}
+            onChangeText={setNotes}
+            placeholder={t("orders:newOrder.addNote")}
+            label={t("orders:newOrder.addNote")}
+            autoFocus={false}
+            bottomSheet
+          />
+
+          <TextInput
+            label={t("orders:newOrder.customPrice")}
+            value={price}
+            onChangeText={setPrice}
+            keyboardType="decimal-pad"
+            bottomSheet
+          />
+
+          <Button
+            label={t("menu:product.saveDetails")}
+            onPress={closeCustomBottomSheet}
+          />
+        </BottomSheetView>
+      </BottomSheetModal>
+    </>
   );
 }
