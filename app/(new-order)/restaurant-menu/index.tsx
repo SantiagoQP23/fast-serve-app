@@ -191,13 +191,15 @@ export default function RestaurantMenuScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`gap-3 pb-40`}
         >
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              onPress={() => openProduct(product)}
-              product={product}
-            ></ProductCard>
-          ))}
+          {filteredProducts
+            .filter((p) => p.isActive)
+            .map((product) => (
+              <ProductCard
+                key={product.id}
+                onPress={() => openProduct(product)}
+                product={product}
+              ></ProductCard>
+            ))}
         </ScrollView>
       </ThemedView>
 
