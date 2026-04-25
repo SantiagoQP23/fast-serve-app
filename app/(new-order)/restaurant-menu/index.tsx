@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, ScrollView, Text } from "react-native";
+import { RefreshControl, ScrollView } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -19,9 +19,11 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { Ionicons } from "@expo/vector-icons";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 
 export default function RestaurantMenuScreen() {
   const { t } = useTranslation(["menu"]);
+  const primaryColor = useThemeColor({}, "primary");
   const [section, setSection] = useState("");
   const [category, setCategory] = useState("");
   const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
@@ -33,6 +35,7 @@ export default function RestaurantMenuScreen() {
   const details = useNewOrderStore((state) => state.details);
   const order = useOrdersStore((state) => state.activeOrder);
   const [isLoadingMenu, setIsLoadingMenu] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const handleLoadMenu = async () => {
     setIsLoadingMenu(true);
@@ -44,6 +47,15 @@ export default function RestaurantMenuScreen() {
       setIsLoadingMenu(false);
     }
   };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await menuQuery.refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [menuQuery]);
 
   const openProduct = (product: Product) => {
     setActiveProduct(product);
@@ -94,10 +106,25 @@ export default function RestaurantMenuScreen() {
   }, [sections, section, onChangeSection]);
 
   useEffect(() => {
+    if (!section) return;
+    setFilteredCategories(categories.filter((c) => c.section.id === section));
+  }, [categories, section]);
+
+  useEffect(() => {
     if (filteredCategories.length > 0 && !category) {
       onChangeCategory(filteredCategories[0].id);
     }
   }, [filteredCategories, category, onChangeCategory]);
+
+  useEffect(() => {
+    if (search) {
+      setFilteredProducts(
+        products.filter((p) => p.name.toLowerCase().includes(search.toLowerCase())),
+      );
+      return;
+    }
+    setFilteredProducts(products.filter((p) => p.category.id === category));
+  }, [products, search, category]);
 
   // Check if menu is loaded
   const hasMenu =
@@ -140,68 +167,78 @@ export default function RestaurantMenuScreen() {
 
   return (
     <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
-      <ThemedText type="h1">{t("menu:title")}</ThemedText>
-      <TextInput
-        value={search}
-        onChangeText={(value) => onSearchChange(value)}
-        icon="search-outline"
-        leftIcon={
-          search && (
-            <IconButton
-              icon="close-circle-outline"
-              onPress={() => onSearchChange("")}
-            ></IconButton>
-          )
+      <ScrollView
+        style={tw`flex-1`}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={tw`gap-4 pb-40`}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={primaryColor}
+            colors={[primaryColor]}
+          />
         }
-      />
-      {!search && (
-        <ThemedView>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={tw`gap-2`}
-          >
-            {sections.map((f) => (
-              <ThemedView style={tw`mr-2`} key={f.id}>
-                <Chip
-                  label={f.name}
-                  selected={section === f.id}
-                  onPress={() => onChangeSection(f.id)}
-                />
-              </ThemedView>
-            ))}
-          </ScrollView>
-        </ThemedView>
-      )}
-      <ThemedView style={tw` flex-row gap-2`}>
+      >
+        <ThemedText type="h1">{t("menu:title")}</ThemedText>
+        <TextInput
+          value={search}
+          onChangeText={(value) => onSearchChange(value)}
+          icon="search-outline"
+          leftIcon={
+            search && (
+              <IconButton
+                icon="close-circle-outline"
+                onPress={() => onSearchChange("")}
+              ></IconButton>
+            )
+          }
+        />
         {!search && (
-          <ThemedView style={tw` flex-wrap gap-2 `}>
-            {filteredCategories.map((f) => (
-              <Chip
-                key={f.id}
-                label={f.name}
-                selected={category === f.id}
-                onPress={() => onChangeCategory(f.id)}
-              />
-            ))}
+          <ThemedView>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={tw`gap-2`}
+            >
+              {sections.map((f) => (
+                <ThemedView style={tw`mr-2`} key={f.id}>
+                  <Chip
+                    label={f.name}
+                    selected={section === f.id}
+                    onPress={() => onChangeSection(f.id)}
+                  />
+                </ThemedView>
+              ))}
+            </ScrollView>
           </ThemedView>
         )}
-        <ScrollView
-          style={tw`flex-1 mb-20`}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={tw`gap-3 pb-40`}
-        >
-          {filteredProducts
-            .filter((p) => p.isActive)
-            .map((product) => (
-              <ProductCard
-                key={product.id}
-                onPress={() => openProduct(product)}
-                product={product}
-              ></ProductCard>
-            ))}
-        </ScrollView>
-      </ThemedView>
+        <ThemedView style={tw`flex-row gap-2`}>
+          {!search && (
+            <ThemedView style={tw`flex-wrap gap-2`}>
+              {filteredCategories.map((f) => (
+                <Chip
+                  key={f.id}
+                  label={f.name}
+                  selected={category === f.id}
+                  onPress={() => onChangeCategory(f.id)}
+                />
+              ))}
+            </ThemedView>
+          )}
+          <ThemedView style={tw`flex-1 gap-3 mb-20`}>
+            {filteredProducts
+              .filter((p) => p.isActive)
+              .map((product) => (
+                <ProductCard
+                  key={product.id}
+                  onPress={() => openProduct(product)}
+                  product={product}
+                ></ProductCard>
+              ))}
+          </ThemedView>
+        </ThemedView>
+      </ScrollView>
 
       {!order && details.length > 0 && (
         <ThemedView style={tw`absolute bottom-4 left-4 right-4 bg-transparent`}>
