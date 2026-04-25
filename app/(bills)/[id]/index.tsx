@@ -309,41 +309,50 @@ export default function BillScreen() {
                 {/*   {t("bills:details.items")} ({bill.details.length}) */}
                 {/* </ThemedText> */}
                 <ThemedView style={tw` overflow-hidden`}>
-                  {bill.details.map((detail, index) => (
-                    <ThemedView key={detail.id}>
-                      <ThemedView
-                        style={tw`flex-row justify-between items-center px-4 py-1 `}
-                      >
+                  {bill.details.map((detail, index) => {
+                    const showProductOptionName =
+                      detail.product &&
+                      detail.product.options.length > 0 &&
+                      detail.productOption;
+
+                    return (
+                      <ThemedView key={detail.id}>
                         <ThemedView
-                          style={tw`flex-1 flex-row items-center gap-3 text-gray-500`}
+                          style={tw`flex-row justify-between items-center px-4 py-1 `}
                         >
+                          <ThemedView
+                            style={tw`flex-1 flex-row items-center gap-3 text-gray-500`}
+                          >
+                            <ThemedText
+                              type="body1"
+                              style={tw` min-w-8 text-gray-600`}
+                            >
+                              {detail.quantity}
+                            </ThemedText>
+                            <ThemedText
+                              type="body1"
+                              style={tw`flex-1 text-gray-600`}
+                            >
+                              {bill.source === BillSource.ORDER
+                                ? detail.orderDetail?.product.name
+                                : detail.product?.name}{" "}
+                              {showProductOptionName &&
+                                detail.productOption?.name}
+                            </ThemedText>
+                          </ThemedView>
                           <ThemedText
                             type="body1"
-                            style={tw` min-w-8 text-gray-600`}
+                            style={tw`font-semibold text-gray-600`}
                           >
-                            {detail.quantity}
-                          </ThemedText>
-                          <ThemedText
-                            type="body1"
-                            style={tw`flex-1 text-gray-600`}
-                          >
-                            {bill.source === BillSource.ORDER
-                              ? detail.orderDetail?.product.name
-                              : detail.product?.name}
+                            {formatCurrency(detail.total)}
                           </ThemedText>
                         </ThemedView>
-                        <ThemedText
-                          type="body1"
-                          style={tw`font-semibold text-gray-600`}
-                        >
-                          {formatCurrency(detail.total)}
-                        </ThemedText>
+                        {/* {index < bill.details.length - 1 && ( */}
+                        {/*   <ThemedView style={tw`h-px bg-gray-200`} /> */}
+                        {/* )} */}
                       </ThemedView>
-                      {/* {index < bill.details.length - 1 && ( */}
-                      {/*   <ThemedView style={tw`h-px bg-gray-200`} /> */}
-                      {/* )} */}
-                    </ThemedView>
-                  ))}
+                    );
+                  })}
                 </ThemedView>
               </ThemedView>
 

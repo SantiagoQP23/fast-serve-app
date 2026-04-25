@@ -41,6 +41,9 @@ export default function NewBillDetailCard({
   const availableQty = detail.quantity - detail.qtyPaid;
   const isSelected = counter > 0;
 
+  const showProductOptionName =
+    detail.product.options.length > 1 && detail.productOption;
+
   return (
     <Pressable
       style={({ pressed }) => [
@@ -56,7 +59,8 @@ export default function NewBillDetailCard({
       >
         <ThemedView style={tw`bg-transparent flex-1`}>
           <ThemedText type="body1" style={tw`font-semibold mb-0.5`}>
-            {detail.product.name}
+            {detail.product.name}{" "}
+            {showProductOptionName && `${detail.productOption?.name}`}
           </ThemedText>
           <ThemedText type="body2" style={tw`text-gray-500`}>
             {formatCurrency(detail.price)} × {availableQty}{" "}
