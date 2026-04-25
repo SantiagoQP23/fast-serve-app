@@ -15,4 +15,5 @@ export interface CreateOrderDetailDto {
   quantity: number;
   description?: string;
   price?: number;
+  productOptionId: number;
 }

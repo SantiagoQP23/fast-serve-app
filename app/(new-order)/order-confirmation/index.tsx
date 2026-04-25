@@ -99,7 +99,9 @@ export default function OrderConfirmationScreen() {
                   style={tw`flex-row items-center bg-transparent gap-3 `}
                 >
                   <ThemedText type="body1">{item.quantity}</ThemedText>
-                  <ThemedText type="body1">{item.product.name}</ThemedText>
+                  <ThemedText type="body1">
+                    {item.product.name} {item.productOption?.name}
+                  </ThemedText>
                 </ThemedView>
                 <ThemedText type="body1">
                   {formatCurrency(item.amount)}

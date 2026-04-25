@@ -1,3 +1,4 @@
+import { ProductOption } from "./product-optionl.model";
 import { Tag } from "./tag.model";
 
 export enum ProductStatus {
@@ -20,4 +21,5 @@ export interface Product {
   quantity: number;
   iva: number;
   category: { id: string; name: string };
+  options: ProductOption[];
 }

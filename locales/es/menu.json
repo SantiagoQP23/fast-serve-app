@@ -14,6 +14,8 @@
     "addToOrder": "Agregar al pedido",
     "addToCart": "Agregar al carrito",
     "addToOrderOrCart": "Agregar a {{type}}",
+    "customize": "Personalizar",
+    "saveDetails": "Guardar detalles",
     "quantity": "Cantidad",
     "order": "pedido",
     "cart": "carrito",

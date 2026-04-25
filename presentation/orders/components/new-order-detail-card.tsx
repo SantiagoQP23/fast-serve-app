@@ -37,6 +37,9 @@ export default function NewOrderDetailCard({
     removeDetail(detail);
   };
 
+  const showProductOptionName =
+    detail.product.options.length > 1 && detail.productOption;
+
   return (
     <Swipeable
       renderRightActions={() => (
@@ -65,7 +68,8 @@ export default function NewOrderDetailCard({
           >
             <ThemedView>
               <ThemedText type="h4" style={tw` font-bold`}>
-                {detail.product.name}
+                {detail.product.name}{" "}
+                {showProductOptionName && detail.productOption.name}
               </ThemedText>
               {detail.description && (
                 <ThemedText type="small">{detail.description}</ThemedText>

@@ -116,6 +116,9 @@ export default function OrderDetailCard({
     setVisible(false);
   };
 
+  const showProductOptionName =
+    detail.product.options.length > 1 && detail.productOption;
+
   return (
     <>
       <Modal
@@ -196,15 +199,17 @@ export default function OrderDetailCard({
                       >
                         <ThemedText type="body1" style={tw`whitespace-wrap`}>
                           {detail.quantity} - {detail.product.name}{" "}
+                          {showProductOptionName && detail.productOption?.name}
                         </ThemedText>
 
-                        {detail.product.price !== detail.price && (
-                          <Label
-                            text={formatCurrency(detail.price)}
-                            color="default"
-                            size="small"
-                          />
-                        )}
+                        {detail.productOption &&
+                          detail.productOption.price !== detail.price && (
+                            <Label
+                              text={formatCurrency(detail.price)}
+                              color="default"
+                              size="small"
+                            />
+                          )}
                       </ThemedView>
                       <ThemedText type="body2">
                         {formatCurrency(detail.amount)}
