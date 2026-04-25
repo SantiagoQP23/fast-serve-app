@@ -312,7 +312,7 @@ export default function BillScreen() {
                   {bill.details.map((detail, index) => {
                     const showProductOptionName =
                       detail.product &&
-                      detail.product.options.length > 0 &&
+                      detail.product.options.length > 1 &&
                       detail.productOption;
 
                     return (
