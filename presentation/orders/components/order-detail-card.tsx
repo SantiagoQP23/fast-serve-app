@@ -16,6 +16,8 @@ import { formatCurrency } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import IconButton from "@/presentation/theme/components/icon-button";
+import { useOrderDetailStatus } from "../hooks/useOrderDetailStatus";
+import { Ionicons } from "@expo/vector-icons";
 
 interface OrderDetailCardProps extends PressableProps {
   detail: OrderDetail;
@@ -43,6 +45,9 @@ export default function OrderDetailCard({
   const { mutate: updateOrderDetail } = useOrders().updateOrderDetail;
 
   const { mutate: removeOrderDetail } = useOrders().removeOrderDetail;
+  const { statusText, statusIcon, labelColor } = useOrderDetailStatus(
+    detail.status,
+  );
 
   // Derive checkbox state directly from props (no local state needed)
   const isChecked = detail.quantity === detail.qtyDelivered;
@@ -184,81 +189,102 @@ export default function OrderDetailCard({
           )}
         >
           <Pressable onPress={onPress} onLongPress={handleOpenBottomSheet}>
-            <ThemedView style={tw` bg-transparent gap-2 `}>
-              <ThemedView
-                style={tw`flex-row bg-transparent items-center gap-4`}
-              >
-                <Checkbox value={isChecked} onValueChange={onCheckedChange} />
-                <ThemedView style={tw`flex-1 bg-transparent gap-2`}>
-                  <ThemedView style={tw` bg-transparent  gap-2`}>
-                    <ThemedView
-                      style={tw`flex-row justify-between bg-transparent gap-2 items-center`}
-                    >
+            <ThemedView style={tw`flex-row items-start gap-4`}>
+              <Checkbox value={isChecked} onValueChange={onCheckedChange} />
+              <ThemedView style={tw` bg-transparent gap-2  flex-1`}>
+                <ThemedView
+                  style={tw`flex-row bg-transparent items-center gap-4`}
+                >
+                  <ThemedView style={tw`flex-1 bg-transparent gap-2`}>
+                    <ThemedView style={tw` bg-transparent  gap-2`}>
                       <ThemedView
-                        style={tw`flex-row justify-between bg-transparent gap-2 items-center whitespace-normal`}
+                        style={tw`flex-row justify-between bg-transparent gap-2 items-center`}
                       >
-                        <ThemedText type="body1" style={tw`whitespace-wrap`}>
-                          {detail.quantity} - {detail.product.name}{" "}
-                          {showProductOptionName && detail.productOption?.name}
-                        </ThemedText>
+                        <ThemedView
+                          style={tw`flex-row justify-between bg-transparent gap-2 items-center whitespace-normal`}
+                        >
+                          <ThemedText type="body1" style={tw`whitespace-wrap`}>
+                            {detail.quantity} - {detail.product.name}{" "}
+                            {showProductOptionName &&
+                              detail.productOption?.name}
+                          </ThemedText>
 
-                        {detail.productOption &&
-                          detail.productOption.price !== detail.price && (
+                          {detail.productOption &&
+                            detail.productOption.price !== detail.price && (
+                              <Label
+                                text={formatCurrency(detail.price)}
+                                color="default"
+                                size="small"
+                              />
+                            )}
+                        </ThemedView>
+                        <ThemedText type="body2">
+                          {formatCurrency(detail.amount)}
+                        </ThemedText>
+                      </ThemedView>
+                      {detail.description && (
+                        <ThemedText type="body2">
+                          {detail.description}
+                        </ThemedText>
+                      )}
+                      {detail.tags?.length > 0 && (
+                        <ThemedView
+                          style={tw`flex-row flex-wrap gap-2 bg-transparent`}
+                        >
+                          {detail.tags.map((tag) => (
                             <Label
-                              text={formatCurrency(detail.price)}
+                              key={tag.id}
+                              text={tag.name}
                               color="default"
                               size="small"
                             />
-                          )}
-                      </ThemedView>
-                      <ThemedText type="body2">
-                        {formatCurrency(detail.amount)}
-                      </ThemedText>
+                          ))}
+                        </ThemedView>
+                      )}
                     </ThemedView>
-                    {detail.description && (
-                      <ThemedText type="body2">{detail.description}</ThemedText>
-                    )}
-                    {detail.tags?.length > 0 && (
-                      <ThemedView
-                        style={tw`flex-row flex-wrap gap-2 bg-transparent`}
-                      >
-                        {detail.tags.map((tag) => (
-                          <Label
-                            key={tag.id}
-                            text={tag.name}
-                            color="default"
-                            size="small"
-                          />
-                        ))}
-                      </ThemedView>
+                    {detail.quantity > 1 && (
+                      <ProgressBar
+                        progress={detail.qtyDelivered / detail.quantity}
+                        height={1}
+                      />
                     )}
                   </ThemedView>
-                  {detail.quantity > 1 && (
-                    <ProgressBar
-                      progress={detail.qtyDelivered / detail.quantity}
-                      height={1}
-                    />
-                  )}
+                </ThemedView>
+                {(showCreatedBy || showUpdatedBy) && (
+                  <ThemedView
+                    style={tw`flex-row justify-between bg-transparent`}
+                  >
+                    {showCreatedBy && (
+                      <ThemedText type="small">
+                        {t("orders:detailInfo.createdBy", {
+                          name: detail.createdBy?.person.firstName,
+                        })}
+                      </ThemedText>
+                    )}
+                    {showUpdatedBy && (
+                      <ThemedText type="small">
+                        {t("orders:detailInfo.updatedBy", {
+                          name: detail.updatedBy?.person.firstName,
+                        })}
+                      </ThemedText>
+                    )}
+                  </ThemedView>
+                )}
+                <ThemedView style={tw`flex-row `}>
+                  <Label
+                    text={statusText}
+                    color={labelColor}
+                    leftIcon={statusIcon}
+                    size="small"
+                  />
+                  <ThemedView style={tw`flex-row items-center gap-1 ml-4`}>
+                    <Ionicons name="notifications-outline" />
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {detail.readyQuantity}/{detail.quantity}
+                    </ThemedText>
+                  </ThemedView>
                 </ThemedView>
               </ThemedView>
-              {(showCreatedBy || showUpdatedBy) && (
-                <ThemedView style={tw`flex-row justify-between bg-transparent`}>
-                  {showCreatedBy && (
-                    <ThemedText type="small">
-                      {t("orders:detailInfo.createdBy", {
-                        name: detail.createdBy?.person.firstName,
-                      })}
-                    </ThemedText>
-                  )}
-                  {showUpdatedBy && (
-                    <ThemedText type="small">
-                      {t("orders:detailInfo.updatedBy", {
-                        name: detail.updatedBy?.person.firstName,
-                      })}
-                    </ThemedText>
-                  )}
-                </ThemedView>
-              )}
             </ThemedView>
           </Pressable>
         </Swipeable>

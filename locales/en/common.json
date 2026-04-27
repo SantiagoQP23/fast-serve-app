@@ -35,6 +35,7 @@
   "status": {
     "pending": "Pending",
     "inProgress": "In Progress",
+    "ready": "Ready",
     "delivered": "Delivered",
     "cancelled": "Cancelled",
     "paid": "Paid",
