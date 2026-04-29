@@ -10,6 +10,7 @@ import { useOrdersStore } from "../store/useOrdersStore";
 import {
   AddOrderDetailToOrderDto,
   DeleteOrderDetailDto,
+  UpdateMultipleOrderDetailsStatusDto,
   UpdateOrderDetailDto,
   UpdateOrderDto,
 } from "@/core/orders/dto/update-order.dto";
@@ -55,6 +56,18 @@ export const useOrders = () => {
     },
   });
 
+  const updateMultipleOrderDetailsStatusEmitter = useWebsocketEventEmitter<
+    Order,
+    UpdateMultipleOrderDetailsStatusDto
+  >(OrderSocketEvent.updateOrderDetailsStatus, {
+    onSuccess: (resp) => {
+      if (resp.data) setActiveOrder(resp.data!);
+    },
+    onError: (resp) => {
+      Alert.alert("Error", resp.msg);
+    },
+  });
+
   const useOrderDetailToOrderEmitter = useWebsocketEventEmitter<
     Order,
     AddOrderDetailToOrderDto
@@ -92,6 +105,7 @@ export const useOrders = () => {
     updateOrderDetail: updateOrderDetailEmitter,
     addOrderDetailToOrder: useOrderDetailToOrderEmitter,
     updateOrder: updateOrderEmitter,
+    updateMultipleOrderDetailsStatus: updateMultipleOrderDetailsStatusEmitter,
     removeOrderDetail: removeOrderDetailEmitter,
     deleteOrder: deleteOrderEmitter,
   };

@@ -6,6 +6,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { Ionicons } from "@expo/vector-icons";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
+import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 import { useOrders } from "../hooks/useOrders";
 import { useRouter } from "expo-router";
 import { useOrdersStore } from "../store/useOrdersStore";
@@ -36,6 +37,8 @@ const OrderOptionsBottomSheet = ({
 }: OrderOptionsBottomSheetProps) => {
   const { t } = useTranslation(["common", "orders"]);
   const { mutate: updateOrder } = useOrders().updateOrder;
+  const { mutate: updateMultipleOrderDetailsStatus } =
+    useOrders().updateMultipleOrderDetailsStatus;
   const { mutate: deleteOrder } = useOrders().deleteOrder;
   const router = useRouter();
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
@@ -102,9 +105,12 @@ const OrderOptionsBottomSheet = ({
     );
   };
 
-  const handleChangeStatus = (status: OrderStatus) => {
-    updateOrder(
-      { id: order.id, status },
+  const handleChangeStatus = (status: OrderDetailStatus) => {
+    updateMultipleOrderDetailsStatus(
+      {
+        orderDetails: order.details.map((detail) => detail.id),
+        status,
+      },
       {
         onSuccess: () => {
           onClose?.();
@@ -128,7 +134,8 @@ const OrderOptionsBottomSheet = ({
     order.details.some((detail) => detail.qtyDelivered !== 0);
 
   const canCloseOrder = order.status === OrderStatus.DELIVERED && order.isPaid;
-  const canForceCloseOrder = isAdmin && order.status === OrderStatus.DELIVERED && !order.isPaid;
+  const canForceCloseOrder =
+    isAdmin && order.status === OrderStatus.DELIVERED && !order.isPaid;
 
   const options: OptionItem[] = [
     {
@@ -151,23 +158,12 @@ const OrderOptionsBottomSheet = ({
       onPress: handleNavigateToPayments,
     },
     {
-      icon: "play-outline",
-      label: t("orders:options.startOrder"),
-      onPress: () => handleChangeStatus(OrderStatus.IN_PROGRESS),
-      disabled: order.status !== OrderStatus.PENDING,
-      divider: true,
-    },
-    {
-      icon: "pause-outline",
-      label: t("orders:options.pauseOrder"),
-      onPress: () => handleChangeStatus(OrderStatus.PENDING),
-      disabled: order.status !== OrderStatus.IN_PROGRESS,
-    },
-    {
       icon: "checkmark-done-outline",
       label: t("orders:options.markDelivered"),
-      onPress: () => handleChangeStatus(OrderStatus.DELIVERED),
-      disabled: order.status === OrderStatus.DELIVERED,
+      onPress: () => handleChangeStatus(OrderDetailStatus.DELIVERED),
+      disabled: order.details.every(
+        (detail) => detail.status === OrderDetailStatus.DELIVERED,
+      ),
       divider: true,
     },
     {

@@ -1,4 +1,5 @@
 import { OrderType } from "../enums/order-type.enum";
+import { OrderDetailStatus } from "../models/order-detail.model";
 
 export interface UpdateOrderDto {
   id: string;
@@ -40,4 +41,9 @@ export interface AddOrderDetailToOrderDto {
 export interface DeleteOrderDetailDto {
   detailId: string;
   orderId: string;
+}
+
+export interface UpdateMultipleOrderDetailsStatusDto {
+  orderDetails: string[];
+  status: OrderDetailStatus;
 }
