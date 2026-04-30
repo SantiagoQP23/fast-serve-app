@@ -280,7 +280,7 @@ export default function OrderDetailCard({
                   <ThemedView style={tw`flex-row items-center gap-1 ml-4`}>
                     <Ionicons name="notifications-outline" />
                     <ThemedText type="small" style={tw`text-gray-500`}>
-                      {detail.readyQuantity}/{detail.quantity}
+                      {detail.readyQuantity}
                     </ThemedText>
                   </ThemedView>
                 </ThemedView>

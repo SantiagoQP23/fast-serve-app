@@ -20,6 +20,10 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
+import { useOrderDetailStatus } from "@/presentation/orders/hooks/useOrderDetailStatus";
+import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
+import { Ionicons } from "@expo/vector-icons";
+import { KeyboardAvoidingView } from "react-native";
 
 export default function EditOrderDetailScreen() {
   const { t } = useTranslation(["common", "orders", "menu"]);
@@ -70,6 +74,10 @@ export default function EditOrderDetailScreen() {
     (state) => state.setActiveOrderDetail,
   );
 
+  const { statusText, statusIcon, labelColor } = useOrderDetailStatus(
+    orderDetail?.status || OrderDetailStatus.PENDING,
+  );
+
   const renderBackdrop = useCallback(
     (props: any) => (
       <BottomSheetBackdrop
@@ -100,7 +108,7 @@ export default function EditOrderDetailScreen() {
   const parsedPrice = parseFloat(price);
   const effectivePrice = Number.isFinite(parsedPrice)
     ? parsedPrice
-    : selectedOption?.price ?? orderDetail.price;
+    : (selectedOption?.price ?? orderDetail.price);
 
   const onChangeSelectedOption = (option: ProductOption) => {
     setSelectedOption(option);
@@ -130,135 +138,174 @@ export default function EditOrderDetailScreen() {
 
   return (
     <>
-      <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
-        <ThemedView style={tw`flex-1`} />
-        <ThemedView style={tw`items-center text-center mb-4 gap-2`}>
-          <ThemedText type="h2">{orderDetail.product.name}</ThemedText>
-          <ThemedText type="body1" style={tw`text-gray-600`}>
-            {formatCurrency(effectivePrice)}
-          </ThemedText>
-
-          {orderDetail.product.tags?.filter((tag) => tag.isActive && !tag.isArchived)
-            .length > 0 && (
-            <ThemedView style={tw`flex-row flex-wrap gap-2 justify-center`}>
-              {orderDetail.product.tags
-                .filter((tag) => tag.isActive && !tag.isArchived)
-                .map((tag) => (
-                  <Label
-                    key={tag.id}
-                    text={tag.name}
-                    color={
-                      selectedTagIds.includes(tag.id) ? "default" : "outline"
-                    }
-                    onPress={() => toggleTag(tag.id)}
-                  />
-                ))}
+      <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
+        <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
+          <ThemedView style={tw`flex-1`} />
+          <ThemedView style={tw` text-center mb-4 gap-6`}>
+            <ThemedView style={tw` gap-2 `}>
+              <ThemedText type="h2">{orderDetail.product.name}</ThemedText>
+              {orderDetail.product.description && (
+                <ThemedText type="body1" style={tw`text-gray-600`}>
+                  {orderDetail.product.description}
+                </ThemedText>
+              )}
             </ThemedView>
-          )}
-        </ThemedView>
 
-        {orderDetail.product.description && (
-          <ThemedText type="body2">{orderDetail.product.description}</ThemedText>
-        )}
-
-        {orderDetail.product.options.length > 0 && (
-          <ThemedView style={tw`flex-row flex-wrap gap-2 justify-center`}>
-            {orderDetail.product.options.map((option) => (
-              <Chip
-                key={option.id}
-                label={`${option.name}`}
-                selected={selectedOption?.id === option.id}
-                onPress={() => onChangeSelectedOption(option)}
+            <ThemedView style={tw`flex-row `}>
+              <Label
+                text={statusText}
+                color={labelColor}
+                leftIcon={statusIcon}
+                size="small"
               />
-            ))}
-          </ThemedView>
-        )}
-
-        <ThemedView style={tw`gap-8`}>
-          <ThemedView style={tw`flex-row justify-between items-center`}>
-            <ThemedText type="h4">{t("common:status.delivered")}</ThemedText>
-            <ThemedView style={tw`flex-row items-center gap-4`}>
-              <IconButton
-                icon="remove-outline"
-                onPress={decrementDelivered}
-                variant="outlined"
-              />
-              <ThemedText>{qtyDelivered}</ThemedText>
-              <IconButton
-                icon="add"
-                onPress={incrementDelivered}
-                variant="outlined"
-              />
+              <ThemedView style={tw`flex-row items-center gap-1 ml-4`}>
+                <Ionicons name="notifications-outline" />
+                <ThemedText type="small" style={tw`text-gray-500`}>
+                  {orderDetail.readyQuantity}
+                </ThemedText>
+              </ThemedView>
             </ThemedView>
-          </ThemedView>
 
-          <ThemedView style={tw`flex-row justify-center items-center`}>
-            <ThemedView style={tw`flex-row items-center gap-4`}>
-              <IconButton
-                icon="remove-outline"
-                onPress={decrement}
-                variant="outlined"
-              />
-              <ThemedText>{counter}</ThemedText>
-              <IconButton icon="add" onPress={increment} variant="outlined" />
+            <ThemedView>
+              {orderDetail.product.options.length > 0 && (
+                <ThemedView style={tw`flex-row flex-wrap gap-2 `}>
+                  {orderDetail.product.options.map((option) => (
+                    <ThemedView
+                      key={option.id}
+                      style={tw`justify-center items-center gap-1`}
+                    >
+                      <Chip
+                        label={`${option.name}`}
+                        selected={selectedOption?.id === option.id}
+                        onPress={() => onChangeSelectedOption(option)}
+                      />
+                      <ThemedText
+                        type="body2"
+                        style={tw`text-center text-gray-500`}
+                      >
+                        {formatCurrency(option.price)}
+                      </ThemedText>
+                    </ThemedView>
+                  ))}
+                </ThemedView>
+              )}
             </ThemedView>
+            {orderDetail.product.tags?.filter(
+              (tag) => tag.isActive && !tag.isArchived,
+            ).length > 0 && (
+              <ThemedView style={tw`flex-row flex-wrap gap-2 `}>
+                {orderDetail.product.tags
+                  .filter((tag) => tag.isActive && !tag.isArchived)
+                  .map((tag) => (
+                    <Label
+                      key={tag.id}
+                      text={tag.name}
+                      color={
+                        selectedTagIds.includes(tag.id) ? "default" : "outline"
+                      }
+                      onPress={() => toggleTag(tag.id)}
+                    />
+                  ))}
+              </ThemedView>
+            )}
           </ThemedView>
 
-          {notes && (
-            <ThemedView style={tw`justify-center items-center`}>
-              <ThemedText type="h4" style={tw`text-gray-600`}>
-                {notes}
-              </ThemedText>
-            </ThemedView>
-          )}
-
-          <ThemedView style={tw`flex-row gap-5 justify-center mb-4`}>
-            <Button
-              label={t("menu:product.customize")}
-              variant="outline"
-              onPress={openCustomBottomSheet}
-            />
-            <Button
-              label={t("orders:edit.saveChanges")}
-              onPress={onUpdateOrderDetail}
-              leftIcon="save-outline"
-            />
-          </ThemedView>
-        </ThemedView>
-      </ScreenLayout>
-
-      <BottomSheetModal
-        ref={bottomSheetModalRef}
-        snapPoints={["55%"]}
-        backdropComponent={renderBackdrop}
-        enablePanDownToClose
-      >
-        <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
           <TextInput
             numberOfLines={4}
             multiline
             value={notes}
             onChangeText={setNotes}
             placeholder={t("orders:newOrder.addNote")}
-            label={t("orders:newOrder.addNote")}
             autoFocus={false}
-            bottomSheet
+            containerStyle={tw`border-0 p-0 mb-0 -ml-1`}
           />
 
-          <TextInput
-            label={t("orders:newOrder.customPrice")}
-            value={price}
-            onChangeText={setPrice}
-            keyboardType="decimal-pad"
-            bottomSheet
-          />
+          {orderDetail.product.description && (
+            <ThemedText type="body2">
+              {orderDetail.product.description}
+            </ThemedText>
+          )}
 
-          <Button
-            label={t("menu:product.saveDetails")}
-            onPress={closeCustomBottomSheet}
-          />
-        </BottomSheetView>
-      </BottomSheetModal>
+          <ThemedView style={tw`gap-8`}>
+            {/* <ThemedView style={tw`flex-row justify-between items-center`}> */}
+            {/*   <ThemedText type="h4">{t("common:status.delivered")}</ThemedText> */}
+            {/*   <ThemedView style={tw`flex-row items-center gap-4`}> */}
+            {/*     <IconButton */}
+            {/*       icon="remove-outline" */}
+            {/*       onPress={decrementDelivered} */}
+            {/*       variant="outlined" */}
+            {/*     /> */}
+            {/*     <ThemedText>{qtyDelivered}</ThemedText> */}
+            {/*     <IconButton */}
+            {/*       icon="add" */}
+            {/*       onPress={incrementDelivered} */}
+            {/*       variant="outlined" */}
+            {/*     /> */}
+            {/*   </ThemedView> */}
+            {/* </ThemedView> */}
+
+            <ThemedView style={tw`flex-row justify-between items-center`}>
+              <ThemedView>
+                <ThemedText>
+                  {formatCurrency(counter * effectivePrice)}
+                </ThemedText>
+              </ThemedView>
+              <ThemedView style={tw`flex-row items-center gap-4`}>
+                <IconButton
+                  icon="remove-outline"
+                  onPress={decrement}
+                  variant="outlined"
+                />
+                <ThemedText>{counter}</ThemedText>
+                <IconButton icon="add" onPress={increment} variant="outlined" />
+              </ThemedView>
+            </ThemedView>
+
+            {notes && (
+              <ThemedView style={tw`justify-center items-center`}>
+                <ThemedText type="h4" style={tw`text-gray-600`}>
+                  {notes}
+                </ThemedText>
+              </ThemedView>
+            )}
+
+            <ThemedView style={tw`flex-row gap-5 justify-center mb-4`}>
+              <Button
+                label={t("menu:product.customize")}
+                variant="text"
+                onPress={openCustomBottomSheet}
+              />
+              <Button
+                label={t("orders:edit.saveChanges")}
+                onPress={onUpdateOrderDetail}
+                leftIcon="save-outline"
+              />
+            </ThemedView>
+          </ThemedView>
+        </ScreenLayout>
+
+        <BottomSheetModal
+          ref={bottomSheetModalRef}
+          snapPoints={["55%"]}
+          backdropComponent={renderBackdrop}
+          enablePanDownToClose
+        >
+          <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
+            <TextInput
+              label={t("orders:newOrder.customPrice")}
+              value={price}
+              onChangeText={setPrice}
+              keyboardType="decimal-pad"
+              bottomSheet
+            />
+
+            <Button
+              label={t("menu:product.saveDetails")}
+              onPress={closeCustomBottomSheet}
+            />
+          </BottomSheetView>
+        </BottomSheetModal>
+      </KeyboardAvoidingView>
     </>
   );
 }
