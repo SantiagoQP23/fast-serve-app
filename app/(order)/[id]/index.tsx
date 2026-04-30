@@ -5,6 +5,7 @@ import {
   Pressable,
   RefreshControl,
   Alert,
+  Platform,
 } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -35,6 +36,7 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 import Chip from "@/presentation/theme/components/chip";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 dayjs.extend(relativeTime);
 
@@ -82,6 +84,7 @@ export default function OrderScreen() {
   const [isDeliveredExpanded, setIsDeliveredExpanded] = useState(
     order?.status === OrderStatus.DELIVERED,
   );
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   // Call all hooks before any conditional returns
   const {
@@ -208,6 +211,37 @@ export default function OrderScreen() {
     openCloseModal();
   };
 
+  const openTimePicker = () => setShowTimePicker(true);
+  const closeTimePicker = () => setShowTimePicker(false);
+
+  const handleTimeChange = (_: any, selectedDate?: Date) => {
+    if (Platform.OS === "android") {
+      setShowTimePicker(false);
+    }
+
+    if (!selectedDate) return;
+
+    const baseTime = deliveryTime ?? createdAt;
+    const nextTime = dayjs(selectedDate);
+    const merged = baseTime
+      .hour(nextTime.hour())
+      .minute(nextTime.minute())
+      .second(0)
+      .millisecond(0);
+
+    updateOrder(
+      {
+        id: order.id,
+        deliveryTime: merged.toDate(),
+      },
+      {
+        onSuccess: () => {
+          if (Platform.OS === "ios") closeTimePicker();
+        },
+      },
+    );
+  };
+
   // Filter order details into pending and delivered
   // Add defensive check for undefined details
   const hasDetails = order.details && Array.isArray(order.details);
@@ -315,10 +349,42 @@ export default function OrderScreen() {
                     text={deliveryTime.format("HH:mm")}
                     size="small"
                     color="outline"
+                    onPress={openTimePicker}
                   />
                 </ThemedView>
               )}
             </ThemedView>
+            {showDeliveryTime && showTimePicker && deliveryTime && (
+              <ThemedView style={tw`mt-3`}>
+                {Platform.OS === "ios" && (
+                  <ThemedView
+                    style={tw`border border-gray-300 rounded-2xl overflow-hidden`}
+                  >
+                    <DateTimePicker
+                      value={deliveryTime.toDate()}
+                      mode="time"
+                      display="spinner"
+                      onChange={handleTimeChange}
+                    />
+                    <Button
+                      label={t("common:actions.confirm")}
+                      onPress={closeTimePicker}
+                      variant="primary"
+                      size="small"
+                    />
+                  </ThemedView>
+                )}
+                {Platform.OS === "android" && (
+                  <DateTimePicker
+                    value={deliveryTime.toDate()}
+                    mode="time"
+                    is24Hour={true}
+                    display="default"
+                    onChange={handleTimeChange}
+                  />
+                )}
+              </ThemedView>
+            )}
 
             {/* Table/Location & People */}
             <ThemedView style={tw`flex-row items-center gap-2`}>
