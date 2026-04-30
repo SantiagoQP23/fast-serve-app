@@ -34,6 +34,7 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
+import Chip from "@/presentation/theme/components/chip";
 
 dayjs.extend(relativeTime);
 
@@ -145,12 +146,19 @@ export default function OrderScreen() {
   };
 
   const createdAt = dayjs(order.createdAt);
+  const updatedAt = dayjs(order.updatedAt);
   const deliveryTime = order.deliveryTime ? dayjs(order.deliveryTime) : null;
   const date = createdAt.isSame(dayjs(), "day")
     ? `${t("common:time.today")}, ${createdAt.format("HH:mm")}`
     : createdAt.format("dddd, HH:mm");
   const showDeliveryTime =
     deliveryTime !== null && !deliveryTime.isSame(createdAt, "minute");
+  const createdAtLabel = `${createdAt.fromNow()} · ${createdAt.format(
+    "MMM D, HH:mm",
+  )}`;
+  const updatedAtLabel = `${updatedAt.fromNow()} · ${updatedAt.format(
+    "MMM D, HH:mm",
+  )}`;
 
   const updateStatus = (status: OrderStatus) => {
     updateOrder(
@@ -300,17 +308,14 @@ export default function OrderScreen() {
           <ThemedView style={tw`mb-6 gap-4`}>
             {/* Date */}
             <ThemedView style={tw`flex-row items-center gap-2 justify-between`}>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {date}
-              </ThemedText>
               {showDeliveryTime && deliveryTime && (
                 <ThemedView style={tw`flex-row items-center gap-1`}>
-                  <ThemedText type="small">
-                    {t("orders:details.deliveryTime")}
-                  </ThemedText>
-                  <ThemedText type="small">
-                    {deliveryTime.format("HH:mm")}
-                  </ThemedText>
+                  <Label
+                    leftIcon="hourglass-outline"
+                    text={deliveryTime.format("HH:mm")}
+                    size="small"
+                    color="outline"
+                  />
                 </ThemedView>
               )}
             </ThemedView>
@@ -554,7 +559,9 @@ export default function OrderScreen() {
           <ThemedView style={tw`h-px bg-gray-200 my-6`} />
 
           <ThemedView>
-            <ThemedText type="h4">{t("orders:details.actions")}</ThemedText>
+            <ThemedText type="body2" style={tw`text-gray-500`}>
+              {t("orders:details.actions")}
+            </ThemedText>
             <ThemedView style={tw`flex-row gap-4 mt-3`}>
               <ThemedView style={tw`gap-2 items-center`}>
                 <Pressable
@@ -588,6 +595,40 @@ export default function OrderScreen() {
                     </ThemedText>
                   </ThemedView>
                 )}
+            </ThemedView>
+          </ThemedView>
+
+          <ThemedView style={tw`mt-10`}>
+            <ThemedText type="body2" style={tw`text-gray-500`}>
+              {t("orders:details.activity")}
+            </ThemedText>
+            <ThemedView style={tw`mt-3 gap-2`}>
+              <ThemedView style={tw`flex-row items-center gap-2`}>
+                <Ionicons
+                  name="ellipse-outline"
+                  size={12}
+                  color={tw.color("gray-500")}
+                />
+                <ThemedText type="body2" style={tw`text-gray-600`}>
+                  {t("orders:details.createdAt")}
+                </ThemedText>
+                <ThemedText type="body2" style={tw`text-gray-500`}>
+                  {createdAtLabel}
+                </ThemedText>
+              </ThemedView>
+              <ThemedView style={tw`flex-row items-center gap-2`}>
+                <Ionicons
+                  name="ellipse-outline"
+                  size={12}
+                  color={tw.color("gray-500")}
+                />
+                <ThemedText type="body2" style={tw`text-gray-600`}>
+                  {t("orders:details.updatedAt")}
+                </ThemedText>
+                <ThemedText type="body2" style={tw`text-gray-500`}>
+                  {updatedAtLabel}
+                </ThemedText>
+              </ThemedView>
             </ThemedView>
           </ThemedView>
         </ScrollView>

@@ -38,6 +38,11 @@ export default function EditOrderDetailScreen() {
     orderDetail?.qtyDelivered || 1,
   );
 
+  const deliveredSheetRef = useRef<BottomSheetModal>(null);
+  const [deliveredDraft, setDeliveredDraft] = useState(
+    orderDetail?.qtyDelivered || 0,
+  );
+
   const {
     counter: qtyDelivered,
     increment: incrementDelivered,
@@ -95,6 +100,15 @@ export default function EditOrderDetailScreen() {
 
   const closeCustomBottomSheet = () => {
     bottomSheetModalRef.current?.dismiss();
+  };
+
+  const openDeliveredBottomSheet = () => {
+    setDeliveredDraft(orderDetail?.qtyDelivered || 0);
+    deliveredSheetRef.current?.present();
+  };
+
+  const closeDeliveredBottomSheet = () => {
+    deliveredSheetRef.current?.dismiss();
   };
 
   if (!orderDetail) {
@@ -157,6 +171,7 @@ export default function EditOrderDetailScreen() {
                 color={labelColor}
                 leftIcon={statusIcon}
                 size="small"
+                onPress={openDeliveredBottomSheet}
               />
               <ThemedView style={tw`flex-row items-center gap-1 ml-4`}>
                 <Ionicons name="notifications-outline" />
@@ -302,6 +317,69 @@ export default function EditOrderDetailScreen() {
             <Button
               label={t("menu:product.saveDetails")}
               onPress={closeCustomBottomSheet}
+            />
+          </BottomSheetView>
+        </BottomSheetModal>
+
+        <BottomSheetModal
+          ref={deliveredSheetRef}
+          snapPoints={["30%"]}
+          backdropComponent={renderBackdrop}
+          enablePanDownToClose
+        >
+          <BottomSheetView style={tw`px-4 pb-6`}>
+            <ThemedView style={tw`mb-4`}>
+              <ThemedText type="h3">
+                {t("common:status.delivered")}
+              </ThemedText>
+              <ThemedText type="body2" style={tw`text-gray-500 mt-1`}>
+                {orderDetail.product.name}
+              </ThemedText>
+            </ThemedView>
+            <ThemedView style={tw`flex-row items-center justify-between mb-4`}>
+              <IconButton
+                icon="remove-outline"
+                onPress={() =>
+                  setDeliveredDraft((current) => Math.max(0, current - 1))
+                }
+                variant="outlined"
+                disabled={deliveredDraft <= 0}
+              />
+              <ThemedText type="h3">
+                {deliveredDraft} / {orderDetail.quantity}
+              </ThemedText>
+              <IconButton
+                icon="add"
+                onPress={() =>
+                  setDeliveredDraft((current) =>
+                    Math.min(orderDetail.quantity, current + 1),
+                  )
+                }
+                variant="outlined"
+                disabled={deliveredDraft >= orderDetail.quantity}
+              />
+            </ThemedView>
+            <Button
+              label={t("common:actions.save")}
+              onPress={() => {
+                updateOrderDetail(
+                  {
+                    id: orderDetail.id,
+                    quantity: counter,
+                    qtyDelivered: deliveredDraft,
+                    description: notes,
+                    price: effectivePrice,
+                    orderId: order!.id,
+                    tagIds: selectedTagIds,
+                    productOptionId: selectedOption?.id,
+                  },
+                  {
+                    onSuccess: () => {
+                      closeDeliveredBottomSheet();
+                    },
+                  },
+                );
+              }}
             />
           </BottomSheetView>
         </BottomSheetModal>

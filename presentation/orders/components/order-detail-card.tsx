@@ -10,7 +10,11 @@ import { useOrdersStore } from "../store/useOrdersStore";
 import Button from "@/presentation/theme/components/button";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
 import OrderDetailActionsBottomSheet from "./order-detail-actions-bottom-sheet";
 import { formatCurrency } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
@@ -35,6 +39,8 @@ export default function OrderDetailCard({
   const order = useOrdersStore((state) => state.activeOrder);
   const [visible, setVisible] = useState(false);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const deliveredSheetRef = useRef<BottomSheetModal>(null);
+  const [deliveredDraft, setDeliveredDraft] = useState(detail.qtyDelivered);
 
   const createdBy = detail.createdBy;
   const updatedBy = detail.updatedBy;
@@ -69,6 +75,15 @@ export default function OrderDetailCard({
 
   const handleCloseBottomSheet = () => {
     bottomSheetModalRef.current?.dismiss();
+  };
+
+  const handleOpenDeliveredSheet = () => {
+    setDeliveredDraft(detail.qtyDelivered);
+    deliveredSheetRef.current?.present();
+  };
+
+  const handleCloseDeliveredSheet = () => {
+    deliveredSheetRef.current?.dismiss();
   };
 
   const onRemoveDetail = () => {
@@ -119,6 +134,25 @@ export default function OrderDetailCard({
 
   const closeModal = () => {
     setVisible(false);
+  };
+
+  const handleSaveDelivered = () => {
+    const currentOrderId = orderId || order?.id;
+    if (!currentOrderId) return;
+
+    updateOrderDetail(
+      {
+        id: detail.id,
+        quantity: detail.quantity,
+        orderId: currentOrderId,
+        qtyDelivered: deliveredDraft,
+      },
+      {
+        onSuccess: () => {
+          handleCloseDeliveredSheet();
+        },
+      },
+    );
   };
 
   const showProductOptionName =
@@ -174,6 +208,49 @@ export default function OrderDetailCard({
           onDelete={onRemoveDetail}
           onClose={handleCloseBottomSheet}
         />
+      </BottomSheetModal>
+
+      <BottomSheetModal
+        ref={deliveredSheetRef}
+        snapPoints={["30%"]}
+        backdropComponent={renderBackdrop}
+        enablePanDownToClose
+      >
+        <BottomSheetView style={tw`px-4 pb-6`}>
+          <ThemedView style={tw`mb-4`}>
+            <ThemedText type="h3">{t("common:status.delivered")}</ThemedText>
+            <ThemedText type="body2" style={tw`text-gray-500 mt-1`}>
+              {detail.product.name}
+            </ThemedText>
+          </ThemedView>
+          <ThemedView style={tw`flex-row items-center justify-between mb-4`}>
+            <IconButton
+              icon="remove-outline"
+              onPress={() =>
+                setDeliveredDraft((current) => Math.max(0, current - 1))
+              }
+              variant="outlined"
+              disabled={deliveredDraft <= 0}
+            />
+            <ThemedText type="h3">
+              {deliveredDraft} / {detail.quantity}
+            </ThemedText>
+            <IconButton
+              icon="add"
+              onPress={() =>
+                setDeliveredDraft((current) =>
+                  Math.min(detail.quantity, current + 1),
+                )
+              }
+              variant="outlined"
+              disabled={deliveredDraft >= detail.quantity}
+            />
+          </ThemedView>
+          <Button
+            label={t("common:actions.save")}
+            onPress={handleSaveDelivered}
+          />
+        </BottomSheetView>
       </BottomSheetModal>
 
       <ThemedView style={tw``}>
@@ -276,6 +353,7 @@ export default function OrderDetailCard({
                     color={labelColor}
                     leftIcon={statusIcon}
                     size="small"
+                    onPress={handleOpenDeliveredSheet}
                   />
                   <ThemedView style={tw`flex-row items-center gap-1 ml-4`}>
                     <Ionicons name="notifications-outline" />

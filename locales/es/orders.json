@@ -49,7 +49,10 @@
     "orderClosed": "Este pedido ha sido cerrado",
     "noItemsInOrder": "No hay productos en este pedido",
     "actions": "Acciones",
-    "payments": "Pagos"
+    "payments": "Pagos",
+    "activity": "Actividad",
+    "createdAt": "Creado",
+    "updatedAt": "Actualizado"
   },
   "actions": {
     "start": "Iniciar",
