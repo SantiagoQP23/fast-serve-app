@@ -31,6 +31,7 @@ export default function OrderListByStatus({
     { label: t("tables:list.filter.all"), value: "all" },
     { label: t("common:status.pending"), value: OrderStatus.PENDING },
     { label: t("common:status.inProgress"), value: OrderStatus.IN_PROGRESS },
+    { label: t("common:status.ready"), value: OrderStatus.READY },
     { label: t("common:status.delivered"), value: OrderStatus.DELIVERED },
   ];
 
