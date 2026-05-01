@@ -68,9 +68,9 @@ export default function OrderScreen() {
   // Update header title dynamically with order number
   useEffect(() => {
     if (order) {
-      navigation.setOptions({
-        title: t("orders:details.orderNumber", { num: order.num }),
-      });
+      // navigation.setOptions({
+      //   title: t("orders:details.orderNumber", { num: order.num }),
+      // });
     }
   }, [navigation, order?.num, t]);
 
@@ -340,20 +340,6 @@ export default function OrderScreen() {
         >
           {/* Header Section */}
           <ThemedView style={tw`mb-6 gap-4`}>
-            {/* Date */}
-            <ThemedView style={tw`flex-row items-center gap-2 justify-between`}>
-              {showDeliveryTime && deliveryTime && (
-                <ThemedView style={tw`flex-row items-center gap-1`}>
-                  <Label
-                    leftIcon="hourglass-outline"
-                    text={deliveryTime.format("HH:mm")}
-                    size="small"
-                    color="outline"
-                    onPress={openTimePicker}
-                  />
-                </ThemedView>
-              )}
-            </ThemedView>
             {showDeliveryTime && showTimePicker && deliveryTime && (
               <ThemedView style={tw`mt-3`}>
                 {Platform.OS === "ios" && (
@@ -387,27 +373,41 @@ export default function OrderScreen() {
             )}
 
             {/* Table/Location & People */}
-            <ThemedView style={tw`flex-row items-center gap-2`}>
-              <Ionicons
-                name={
-                  order.type === OrderType.IN_PLACE
-                    ? "restaurant-outline"
-                    : "bag-outline"
-                }
-                size={24}
-                color={tw.color("primary-600")}
-              />
-              <ThemedText type="h2" style={tw` font-bold`}>
-                {order.type === OrderType.IN_PLACE
-                  ? `${t("common:labels.table")} ${order.table?.name}`
-                  : t("common:labels.takeAway")}
+            <ThemedView style={tw`gap-2`}>
+              <ThemedText type="body2" style={tw`text-gray-500`}>
+                {t("orders:details.orderNumber", { num: order.num })}
               </ThemedText>
+              <ThemedView style={tw`flex-row items-center gap-2`}>
+                <Ionicons
+                  name={
+                    order.type === OrderType.IN_PLACE
+                      ? "restaurant-outline"
+                      : "bag-outline"
+                  }
+                  size={24}
+                  color={tw.color("primary-600")}
+                />
+                <ThemedText type="h2" style={tw` font-bold`}>
+                  {order.type === OrderType.IN_PLACE
+                    ? `${t("common:labels.table")} ${order.table?.name}`
+                    : t("common:labels.takeAway")}
+                </ThemedText>
+              </ThemedView>
             </ThemedView>
 
             {/* Status & Payment Labels */}
             <ThemedView
               style={tw`flex-row items-center gap-2 flex-wrap p-2 bg-gray-100 rounded-xl`}
             >
+              {showDeliveryTime && deliveryTime && (
+                <Label
+                  leftIcon="hourglass-outline"
+                  text={deliveryTime.format("HH:mm")}
+                  size="small"
+                  color="outline"
+                  onPress={openTimePicker}
+                />
+              )}
               <Label
                 text={String(order.people)}
                 leftIcon="people-outline"
@@ -604,7 +604,7 @@ export default function OrderScreen() {
             />
           )}
 
-          <ThemedView style={tw`h-px bg-gray-200 my-6`} />
+          <ThemedView style={tw`mt-4 mb-6`} />
 
           <ThemedView>
             <ThemedText type="body2" style={tw`text-gray-500`}>
@@ -646,7 +646,7 @@ export default function OrderScreen() {
             </ThemedView>
           </ThemedView>
 
-          <ThemedView style={tw`mt-10`}>
+          <ThemedView style={tw`my-10`}>
             <ThemedText type="body2" style={tw`text-gray-500`}>
               {t("orders:details.activity")}
             </ThemedText>

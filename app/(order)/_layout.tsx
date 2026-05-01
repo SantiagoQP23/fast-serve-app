@@ -57,7 +57,7 @@ export default function OrdersLayout() {
           name="[id]/index"
           options={{
             headerShown: true,
-            title: "Order",
+            title: "",
             headerShadowVisible: false,
             headerRight: () =>
               !isClosed ? (
