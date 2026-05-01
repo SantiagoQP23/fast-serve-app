@@ -26,6 +26,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { KeyboardAvoidingView } from "react-native";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
 import OrderDetailActivityBottomSheet from "@/presentation/orders/components/order-detail-activity-bottom-sheet";
+import dayjs from "dayjs";
 
 export default function EditOrderDetailScreen() {
   const { t } = useTranslation(["common", "orders", "menu"]);
@@ -122,6 +123,8 @@ export default function EditOrderDetailScreen() {
     );
   }
 
+  const createdAtLabel = dayjs(orderDetail.createdAt).format("HH:mm");
+
   const parsedPrice = parseFloat(price);
   const effectivePrice = Number.isFinite(parsedPrice)
     ? parsedPrice
@@ -180,7 +183,7 @@ export default function EditOrderDetailScreen() {
               )}
             </ThemedView>
 
-            <ThemedView style={tw`flex-row `}>
+            <ThemedView style={tw`flex-row gap-2`}>
               <Label
                 text={statusText}
                 color={labelColor}
@@ -188,12 +191,19 @@ export default function EditOrderDetailScreen() {
                 size="small"
                 onPress={openDeliveredBottomSheet}
               />
-              <ThemedView style={tw`flex-row items-center gap-1 ml-4`}>
-                <Ionicons name="notifications-outline" />
-                <ThemedText type="small" style={tw`text-gray-500`}>
-                  {orderDetail.readyQuantity}
-                </ThemedText>
-              </ThemedView>
+              <Label
+                leftIcon="notifications-outline"
+                text={String(orderDetail.readyQuantity)}
+                color="outline"
+                size="small"
+              />
+              <Label
+                leftIcon="time-outline"
+                text={createdAtLabel}
+                color="outline"
+                size="small"
+                onPress={openActivityBottomSheet}
+              />
             </ThemedView>
 
             <ThemedView>
@@ -249,17 +259,6 @@ export default function EditOrderDetailScreen() {
             autoFocus={false}
             containerStyle={tw`border-0 p-0 mb-0 -ml-1`}
           />
-
-          <ThemedView style={tw`mt-6 flex-row items-center justify-between`}>
-            <ThemedText type="body2" style={tw`text-gray-500`}>
-              {t("orders:details.activity")}
-            </ThemedText>
-            <IconButton
-              icon="time-outline"
-              onPress={openActivityBottomSheet}
-              color="secondary"
-            />
-          </ThemedView>
 
           {orderDetail.product.description && (
             <ThemedText type="body2">
