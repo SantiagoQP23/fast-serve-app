@@ -24,10 +24,13 @@ import { useOrderDetailStatus } from "@/presentation/orders/hooks/useOrderDetail
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 import { Ionicons } from "@expo/vector-icons";
 import { KeyboardAvoidingView } from "react-native";
+import ProgressBar from "@/presentation/theme/components/progress-bar";
+import OrderDetailActivityBottomSheet from "@/presentation/orders/components/order-detail-activity-bottom-sheet";
 
 export default function EditOrderDetailScreen() {
   const { t } = useTranslation(["common", "orders", "menu"]);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const activitySheetRef = useRef<BottomSheetModal>(null);
   const orderDetail = useOrdersStore((state) => state.activeOrderDetail);
   const order = useOrdersStore((state) => state.activeOrder);
 
@@ -150,6 +153,10 @@ export default function EditOrderDetailScreen() {
     );
   };
 
+  const openActivityBottomSheet = () => {
+    activitySheetRef.current?.present();
+  };
+
   return (
     <>
       <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
@@ -162,6 +169,14 @@ export default function EditOrderDetailScreen() {
                 <ThemedText type="body1" style={tw`text-gray-600`}>
                   {orderDetail.product.description}
                 </ThemedText>
+              )}
+            </ThemedView>
+            <ThemedView>
+              {orderDetail.quantity > 1 && (
+                <ProgressBar
+                  progress={orderDetail.qtyDelivered / orderDetail.quantity}
+                  height={1}
+                />
               )}
             </ThemedView>
 
@@ -234,6 +249,17 @@ export default function EditOrderDetailScreen() {
             autoFocus={false}
             containerStyle={tw`border-0 p-0 mb-0 -ml-1`}
           />
+
+          <ThemedView style={tw`mt-6 flex-row items-center justify-between`}>
+            <ThemedText type="body2" style={tw`text-gray-500`}>
+              {t("orders:details.activity")}
+            </ThemedText>
+            <IconButton
+              icon="time-outline"
+              onPress={openActivityBottomSheet}
+              color="secondary"
+            />
+          </ThemedView>
 
           {orderDetail.product.description && (
             <ThemedText type="body2">
@@ -329,9 +355,7 @@ export default function EditOrderDetailScreen() {
         >
           <BottomSheetView style={tw`px-4 pb-6`}>
             <ThemedView style={tw`mb-4`}>
-              <ThemedText type="h3">
-                {t("common:status.delivered")}
-              </ThemedText>
+              <ThemedText type="h3">{t("common:status.delivered")}</ThemedText>
               <ThemedText type="body2" style={tw`text-gray-500 mt-1`}>
                 {orderDetail.product.name}
               </ThemedText>
@@ -376,6 +400,7 @@ export default function EditOrderDetailScreen() {
                   {
                     onSuccess: () => {
                       closeDeliveredBottomSheet();
+                      router.back();
                     },
                   },
                 );
@@ -383,6 +408,11 @@ export default function EditOrderDetailScreen() {
             />
           </BottomSheetView>
         </BottomSheetModal>
+
+        <OrderDetailActivityBottomSheet
+          detail={orderDetail}
+          bottomSheetRef={activitySheetRef}
+        />
       </KeyboardAvoidingView>
     </>
   );

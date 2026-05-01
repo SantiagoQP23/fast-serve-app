@@ -229,6 +229,11 @@ export default function OrderScreen() {
       .second(0)
       .millisecond(0);
 
+    if (deliveryTime && merged.isSame(deliveryTime, "minute")) {
+      if (Platform.OS === "ios") closeTimePicker();
+      return;
+    }
+
     updateOrder(
       {
         id: order.id,
@@ -374,7 +379,7 @@ export default function OrderScreen() {
 
             {/* Table/Location & People */}
             <ThemedView style={tw`gap-2`}>
-              <ThemedText type="body2" style={tw`text-gray-500`}>
+              <ThemedText type="caption" style={tw`text-gray-500 text-sm`}>
                 {t("orders:details.orderNumber", { num: order.num })}
               </ThemedText>
               <ThemedView style={tw`flex-row items-center gap-2`}>
