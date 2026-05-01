@@ -28,14 +28,9 @@ export default function TableOrdersScreen() {
   const router = useRouter();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-  const {
-    pendingOrders,
-    inProgressOrders,
-    deliveredOrders,
-    totalAmount,
-    activeOrdersCount,
-    hasOrders,
-  } = useTableOrders(tableId!);
+  const { totalAmount, activeOrdersCount, hasOrders, orders } = useTableOrders(
+    tableId!,
+  );
 
   const { setTable, setOrderType } = useNewOrderStore();
 
@@ -103,13 +98,7 @@ export default function TableOrdersScreen() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={tw`pb-20 gap-4`}
           >
-            <OrderListByStatus
-              orders={[
-                ...pendingOrders,
-                ...inProgressOrders,
-                ...deliveredOrders,
-              ]}
-            />
+            <OrderListByStatus orders={orders} />
           </ScrollView>
         )}
 

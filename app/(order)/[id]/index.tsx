@@ -397,66 +397,53 @@ export default function OrderScreen() {
                 size={24}
                 color={tw.color("primary-600")}
               />
-              <ThemedText type="h1" style={tw` font-bold`}>
+              <ThemedText type="h2" style={tw` font-bold`}>
                 {order.type === OrderType.IN_PLACE
                   ? `${t("common:labels.table")} ${order.table?.name}`
                   : t("common:labels.takeAway")}
               </ThemedText>
-              <ThemedView style={tw`flex-row items-center gap-1 ml-2`}>
-                <Ionicons
-                  name="people-outline"
-                  size={18}
-                  color={tw.color("gray-600")}
-                />
-                <ThemedText type="body2" style={tw`text-gray-600`}>
-                  {order.people}
-                </ThemedText>
-              </ThemedView>
             </ThemedView>
 
             {/* Status & Payment Labels */}
-            <ThemedView style={tw`flex-row items-center gap-2`}>
+            <ThemedView
+              style={tw`flex-row items-center gap-2 flex-wrap p-2 bg-gray-100 rounded-xl`}
+            >
+              <Label
+                text={String(order.people)}
+                leftIcon="people-outline"
+                size="small"
+                color="outline"
+              />
               <Label
                 text={statusText}
                 color={labelColor}
                 leftIcon={statusIcon}
+                size="small"
               />
 
-              <Label text={paymentStatus.text} color={paymentStatus.color} />
+              <Label
+                text={paymentStatus.text}
+                color={paymentStatus.color}
+                size="small"
+              />
               {isClosed && (
-                <ThemedView
-                  style={tw`flex-row items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-full`}
-                >
-                  <Ionicons
-                    name="archive-outline"
-                    size={16}
-                    color={tw.color("gray-600")}
-                  />
-                  <ThemedText
-                    type="small"
-                    style={tw`text-gray-700 font-semibold`}
-                  >
-                    {t("orders:details.closedOrder")}
-                  </ThemedText>
-                </ThemedView>
-              )}
-            </ThemedView>
-
-            {/* Waiter Info */}
-            <ThemedView
-              style={tw`flex-row items-center justify-between pt-2 border-t border-gray-200`}
-            >
-              <ThemedView style={tw`flex-row items-center gap-2 `}>
-                <Ionicons
-                  name="person-outline"
-                  size={16}
-                  color={tw.color("gray-500")}
+                <Label
+                  text={
+                    isClosed
+                      ? t("orders:details.closedOrder")
+                      : t("orders:details.open")
+                  }
+                  color={isClosed ? "default" : "success"}
+                  size="small"
                 />
-                <ThemedText type="body2" style={tw`text-gray-600`}>
-                  {order.user.person.firstName}{" "}
-                  {order.user.person.lastName}{" "}
-                </ThemedText>
-              </ThemedView>
+              )}
+
+              <Label
+                leftIcon="person-outline"
+                text={`${order.user.person.firstName} ${order.user.person.lastName}`}
+                size="small"
+                color="outline"
+              />
             </ThemedView>
           </ThemedView>
 
@@ -488,7 +475,7 @@ export default function OrderScreen() {
               <ThemedView
                 style={tw`flex-row justify-between items-center mb-4`}
               >
-                <ThemedText type="h4">
+                <ThemedText type="body2" style={tw`text-gray-500`}>
                   {t("orders:details.pendingItems")}
                 </ThemedText>
                 <ThemedView style={tw`bg-primary-50 px-2.5 py-1 rounded-full`}>
@@ -518,15 +505,10 @@ export default function OrderScreen() {
             <ThemedView style={tw`mb-6`}>
               <Pressable onPress={toggleDeliveredSection}>
                 <ThemedView
-                  style={tw`flex-row justify-between items-center py-3 px-1`}
+                  style={tw`flex-row justify-between items-center py-3`}
                 >
                   <ThemedView style={tw`flex-row items-center gap-2`}>
-                    <Ionicons
-                      name="checkmark-circle-outline"
-                      size={20}
-                      color={tw.color("gray-400")}
-                    />
-                    <ThemedText type="h4" style={tw`text-gray-600`}>
+                    <ThemedText type="body2" style={tw`text-gray-500`}>
                       {t("orders:details.deliveredItems")}
                     </ThemedText>
                     <ThemedView
@@ -678,7 +660,7 @@ export default function OrderScreen() {
                 <ThemedText type="body2" style={tw`text-gray-600`}>
                   {t("orders:details.createdAt")}
                 </ThemedText>
-                <ThemedText type="body2" style={tw`text-gray-500`}>
+                <ThemedText type="small" style={tw`text-gray-500`}>
                   {createdAtLabel}
                 </ThemedText>
               </ThemedView>
@@ -691,7 +673,7 @@ export default function OrderScreen() {
                 <ThemedText type="body2" style={tw`text-gray-600`}>
                   {t("orders:details.updatedAt")}
                 </ThemedText>
-                <ThemedText type="body2" style={tw`text-gray-500`}>
+                <ThemedText type="small" style={tw`text-gray-500`}>
                   {updatedAtLabel}
                 </ThemedText>
               </ThemedView>

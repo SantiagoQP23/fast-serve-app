@@ -22,8 +22,7 @@ export const useTableOrders = (tableId: string) => {
   );
 
   const deliveredOrders = useMemo(
-    () =>
-      tableOrders.filter((order) => order.status === OrderStatus.DELIVERED),
+    () => tableOrders.filter((order) => order.status === OrderStatus.DELIVERED),
     [tableOrders],
   );
 
@@ -50,5 +49,6 @@ export const useTableOrders = (tableId: string) => {
     totalAmount,
     activeOrdersCount,
     hasOrders: tableOrders.length > 0,
+    orders: tableOrders,
   };
 };
