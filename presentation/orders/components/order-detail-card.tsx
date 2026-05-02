@@ -327,27 +327,7 @@ export default function OrderDetailCard({
                     )}
                   </ThemedView>
                 </ThemedView>
-                {(showCreatedBy || showUpdatedBy) && (
-                  <ThemedView
-                    style={tw`flex-row justify-between bg-transparent`}
-                  >
-                    {showCreatedBy && (
-                      <ThemedText type="small">
-                        {t("orders:detailInfo.createdBy", {
-                          name: detail.createdBy?.person.firstName,
-                        })}
-                      </ThemedText>
-                    )}
-                    {showUpdatedBy && (
-                      <ThemedText type="small">
-                        {t("orders:detailInfo.updatedBy", {
-                          name: detail.updatedBy?.person.firstName,
-                        })}
-                      </ThemedText>
-                    )}
-                  </ThemedView>
-                )}
-                <ThemedView style={tw`flex-row `}>
+                <ThemedView style={tw`flex-row gap-4`}>
                   <Label
                     text={statusText}
                     color={labelColor}
@@ -355,12 +335,30 @@ export default function OrderDetailCard({
                     size="small"
                     onPress={handleOpenDeliveredSheet}
                   />
-                  <ThemedView style={tw`flex-row items-center gap-1 ml-4`}>
-                    <Ionicons name="notifications-outline" />
-                    <ThemedText type="small" style={tw`text-gray-500`}>
-                      {detail.readyQuantity}
-                    </ThemedText>
-                  </ThemedView>
+
+                  <Label
+                    leftIcon="notifications-outline"
+                    text={String(detail.readyQuantity)}
+                    color="default"
+                    size="small"
+                  />
+
+                  {showCreatedBy && (
+                    <Label
+                      text={detail.createdBy?.person.firstName || ""}
+                      leftIcon="person-outline"
+                      size="small"
+                      color="default"
+                    />
+                  )}
+                  {showUpdatedBy && (
+                    <Label
+                      text={detail.updatedBy?.person.firstName || ""}
+                      color="default"
+                      leftIcon="person-outline"
+                      size="small"
+                    />
+                  )}
                 </ThemedView>
               </ThemedView>
             </ThemedView>
