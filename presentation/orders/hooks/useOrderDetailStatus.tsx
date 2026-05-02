@@ -7,6 +7,7 @@ const detailStatusToOrderStatus: Record<OrderDetailStatus, OrderStatus> = {
   [OrderDetailStatus.IN_PROGRESS]: OrderStatus.IN_PROGRESS,
   [OrderDetailStatus.READY]: OrderStatus.READY,
   [OrderDetailStatus.DELIVERED]: OrderStatus.DELIVERED,
+  [OrderDetailStatus.CANCELLED]: OrderStatus.CANCELLED,
 };
 
 export function useOrderDetailStatus(status: OrderDetailStatus) {

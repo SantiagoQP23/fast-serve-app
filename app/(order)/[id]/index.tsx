@@ -20,7 +20,10 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";
-import { OrderDetail } from "@/core/orders/models/order-detail.model";
+import {
+  OrderDetail,
+  OrderDetailStatus,
+} from "@/core/orders/models/order-detail.model";
 import OrderDetailCard from "@/presentation/orders/components/order-detail-card";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import Label from "@/presentation/theme/components/label";
@@ -84,6 +87,7 @@ export default function OrderScreen() {
   const [isDeliveredExpanded, setIsDeliveredExpanded] = useState(
     order?.status === OrderStatus.DELIVERED,
   );
+  const [isCancelledExpanded, setIsCancelledExpanded] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
   // Call all hooks before any conditional returns
@@ -250,11 +254,21 @@ export default function OrderScreen() {
   // Filter order details into pending and delivered
   // Add defensive check for undefined details
   const hasDetails = order.details && Array.isArray(order.details);
+
   const pendingDetails = hasDetails
-    ? order.details.filter((detail) => detail.qtyDelivered < detail.quantity)
+    ? order.details.filter(
+        (detail) =>
+          detail.status === OrderDetailStatus.PENDING ||
+          detail.status === OrderDetailStatus.IN_PROGRESS,
+      )
     : [];
+
   const deliveredDetails = hasDetails
     ? order.details.filter((detail) => detail.qtyDelivered === detail.quantity)
+    : [];
+
+  const cancelledDetails = hasDetails
+    ? order.details.filter((detail) => detail.status === OrderDetailStatus.CANCELLED)
     : [];
 
   // For closed orders, show all items together
@@ -263,6 +277,10 @@ export default function OrderScreen() {
 
   const toggleDeliveredSection = () => {
     setIsDeliveredExpanded(!isDeliveredExpanded);
+  };
+
+  const toggleCancelledSection = () => {
+    setIsCancelledExpanded(!isCancelledExpanded);
   };
 
   return (
@@ -474,6 +492,7 @@ export default function OrderScreen() {
             </ThemedView>
           )}
 
+
           {/* Pending Items Section */}
           {!isClosed && pendingDetails.length > 0 && (
             <ThemedView style={tw`mb-6`}>
@@ -543,6 +562,52 @@ export default function OrderScreen() {
                       key={detail.id}
                       detail={detail}
                       onPress={() => openProduct(detail)}
+                      orderUserId={order.user.id}
+                    />
+                  ))}
+                </ThemedView>
+              )}
+            </ThemedView>
+          )}
+
+          {/* Cancelled Items Section */}
+          {cancelledDetails.length > 0 && (
+            <ThemedView style={tw`mb-6`}>
+              <Pressable onPress={toggleCancelledSection}>
+                <ThemedView
+                  style={tw`flex-row justify-between items-center py-3`}
+                >
+                  <ThemedView style={tw`flex-row items-center gap-2`}>
+                    <ThemedText type="body2" style={tw`text-gray-500`}>
+                      {t("orders:details.cancelledItems")}
+                    </ThemedText>
+                    <ThemedView
+                      style={tw`bg-gray-100 px-2 py-0.5 rounded-full`}
+                    >
+                      <ThemedText type="caption" style={tw`text-gray-600`}>
+                        {cancelledDetails.length}
+                      </ThemedText>
+                    </ThemedView>
+                  </ThemedView>
+                  <Ionicons
+                    name={
+                      isCancelledExpanded
+                        ? "chevron-up-outline"
+                        : "chevron-down-outline"
+                    }
+                    size={20}
+                    color={tw.color("gray-400")}
+                  />
+                </ThemedView>
+              </Pressable>
+
+              {isCancelledExpanded && (
+                <ThemedView style={tw`gap-6 mt-2 opacity-70`}>
+                  {cancelledDetails.map((detail) => (
+                    <OrderDetailCard
+                      key={detail.id}
+                      detail={detail}
+                      onPress={() => {}}
                       orderUserId={order.user.id}
                     />
                   ))}

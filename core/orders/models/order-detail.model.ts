@@ -8,6 +8,7 @@ export enum OrderDetailStatus {
   IN_PROGRESS = "IN_PROGRESS",
   READY = "READY",
   DELIVERED = "DELIVERED",
+  CANCELLED = "CANCELLED",
 }
 
 export interface OrderDetail {

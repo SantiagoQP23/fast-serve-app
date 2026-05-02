@@ -44,6 +44,7 @@
     "unpaid": "Sin Pagar",
     "pendingItems": "Pendiente",
     "deliveredItems": "Entregado",
+    "cancelledItems": "Cancelados",
     "closedOrder": "Cerrado",
     "allItems": "Todos los Productos",
     "orderClosed": "Este pedido ha sido cerrado",

@@ -3,7 +3,10 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { View, Pressable, PressableProps, Modal } from "react-native";
-import { OrderDetail } from "@/core/orders/models/order-detail.model";
+import {
+  OrderDetail,
+  OrderDetailStatus,
+} from "@/core/orders/models/order-detail.model";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
 import { useOrders } from "../hooks/useOrders";
 import { useOrdersStore } from "../store/useOrdersStore";
@@ -54,6 +57,7 @@ export default function OrderDetailCard({
   const { statusText, statusIcon, labelColor } = useOrderDetailStatus(
     detail.status,
   );
+  const isCancelled = detail.status === OrderDetailStatus.CANCELLED;
 
   // Derive checkbox state directly from props (no local state needed)
   const isChecked = detail.quantity === detail.qtyDelivered;
@@ -70,6 +74,7 @@ export default function OrderDetailCard({
   );
 
   const handleOpenBottomSheet = () => {
+    if (isCancelled) return;
     bottomSheetModalRef.current?.present();
   };
 
@@ -78,6 +83,7 @@ export default function OrderDetailCard({
   };
 
   const handleOpenDeliveredSheet = () => {
+    if (isCancelled) return;
     setDeliveredDraft(detail.qtyDelivered);
     deliveredSheetRef.current?.present();
   };
@@ -95,10 +101,11 @@ export default function OrderDetailCard({
     const currentOrderId = orderId || order?.id;
     if (!currentOrderId) return;
 
-    removeOrderDetail(
+    updateOrderDetail(
       {
-        detailId: detail.id,
+        id: detail.id,
         orderId: currentOrderId,
+        status: OrderDetailStatus.CANCELLED,
       },
       {
         onSuccess: () => {
@@ -255,19 +262,28 @@ export default function OrderDetailCard({
 
       <ThemedView style={tw``}>
         <Swipeable
-          renderRightActions={() => (
-            <ThemedView style={tw`justify-center  pl-2 `}>
-              <IconButton
-                icon="trash-outline"
-                color="red"
-                onPress={onRemoveDetail}
-              />
-            </ThemedView>
-          )}
+          renderRightActions={
+            isCancelled
+              ? undefined
+              : () => (
+                  <ThemedView style={tw`justify-center  pl-2 `}>
+                    <IconButton
+                      icon="trash-outline"
+                      color="red"
+                      onPress={onRemoveDetail}
+                    />
+                  </ThemedView>
+                )
+          }
         >
-          <Pressable onPress={onPress} onLongPress={handleOpenBottomSheet}>
+          <Pressable
+            onPress={isCancelled ? undefined : onPress}
+            onLongPress={isCancelled ? undefined : handleOpenBottomSheet}
+          >
             <ThemedView style={tw`flex-row items-start gap-4`}>
-              <Checkbox value={isChecked} onValueChange={onCheckedChange} />
+              {!isCancelled && (
+                <Checkbox value={isChecked} onValueChange={onCheckedChange} />
+              )}
               <ThemedView style={tw` bg-transparent gap-2  flex-1`}>
                 <ThemedView
                   style={tw`flex-row bg-transparent items-center gap-4`}
@@ -319,7 +335,7 @@ export default function OrderDetailCard({
                         </ThemedView>
                       )}
                     </ThemedView>
-                    {detail.quantity > 1 && (
+                    {!isCancelled && detail.quantity > 1 && (
                       <ProgressBar
                         progress={detail.qtyDelivered / detail.quantity}
                         height={1}
@@ -333,7 +349,7 @@ export default function OrderDetailCard({
                     color={labelColor}
                     leftIcon={statusIcon}
                     size="small"
-                    onPress={handleOpenDeliveredSheet}
+                    onPress={isCancelled ? undefined : handleOpenDeliveredSheet}
                   />
 
                   <Label
