@@ -13,7 +13,10 @@ import BillCard from "@/presentation/orders/components/bill-card";
 import NewBillDetailCard from "@/presentation/orders/components/new-bill-detail-card";
 import Switch from "@/presentation/theme/components/switch";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
-import { OrderDetail } from "@/core/orders/models/order-detail.model";
+import {
+  OrderDetail,
+  OrderDetailStatus,
+} from "@/core/orders/models/order-detail.model";
 import {
   CreateBillDetailDto,
   CreateBillDto,
@@ -65,7 +68,9 @@ export default function NewBillScreen() {
   }
 
   const detailsToPay = order.details.filter(
-    (detail) => detail.quantity !== detail.qtyPaid,
+    (detail) =>
+      detail.quantity !== detail.qtyPaid &&
+      detail.status !== OrderDetailStatus.CANCELLED,
   );
 
   const totalToPay = detailsToPay.reduce((acc, detail) => {
