@@ -38,6 +38,11 @@ import { useBillStatus } from "@/presentation/orders/hooks/useBillStatus";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles } from "@/core/auth/models/user.model";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { Ionicons } from "@expo/vector-icons";
+
+dayjs.extend(relativeTime);
 
 export default function BillScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
@@ -123,6 +128,14 @@ export default function BillScreen() {
   const closeModal = () => setVisible(false);
 
   const date = getFormattedDate(bill.createdAt);
+  const createdAt = dayjs(bill.createdAt);
+  const updatedAt = dayjs(bill.updatedAt);
+  const createdAtLabel = `${createdAt.fromNow()} · ${createdAt.format(
+    "MMM D, HH:mm",
+  )}`;
+  const updatedAtLabel = `${updatedAt.fromNow()} · ${updatedAt.format(
+    "MMM D, HH:mm",
+  )}`;
 
   const validateDiscount = () => {
     const maxDiscount = bill.subtotal * 0.1;
@@ -240,11 +253,8 @@ export default function BillScreen() {
             >
               {/* Header Section */}
               <ThemedView style={tw`mb-6 justify-center items-center`}>
-                <ThemedText type="h2" style={tw`font-bold mb-1`}>
+                <ThemedText type="h2" style={tw`font-bold mb-2`}>
                   {t(`bills:list.${bill.source}`, { number: bill.num })}
-                </ThemedText>
-                <ThemedText type="body2" style={tw`text-gray-500 mb-3`}>
-                  {date}
                 </ThemedText>
 
                 <Label
@@ -256,7 +266,7 @@ export default function BillScreen() {
               </ThemedView>
 
               {/* Total Amount */}
-              <ThemedView style={tw`mb-2 pb-6  items-center`}>
+              <ThemedView style={tw`mb-2 pb-4  items-center`}>
                 <ThemedText type="caption" style={tw`text-gray-500 mb-2`}>
                   {t("bills:details.totalAmount")}
                 </ThemedText>
@@ -271,37 +281,17 @@ export default function BillScreen() {
                 {/* )} */}
               </ThemedView>
               <ThemedView style={tw`mb-6 items-center`}>
-                <ThemedText type="body1">
-                  {bill.owner.person.firstName} {bill.owner.person.lastName}
-                </ThemedText>
-
-                {showCreatedBy && (
-                  <ThemedView style={tw` pt-2`}>
-                    <ThemedText type="small" style={tw`text-gray-500`}>
-                      {t("orders:detailInfo.createdBy", {
-                        name: `${bill.createdBy.person.firstName} ${bill.createdBy.person.lastName}`,
-                      })}
-                    </ThemedText>
-                  </ThemedView>
-                )}
+                <Label
+                  text={
+                    bill.owner.person.firstName +
+                    " " +
+                    bill.owner.person.lastName
+                  }
+                  color="default"
+                  leftIcon="person-outline"
+                  size="small"
+                />
               </ThemedView>
-              {bill.order && (
-                <ThemedView style={tw`mb-6 items-center`}>
-                  <ThemedView
-                    style={tw`flex-row items-center bg-transparent justify-between`}
-                  >
-                    <ThemedText type="h3" style={tw``}>
-                      {bill.order.type === OrderType.IN_PLACE
-                        ? `${t("common:labels.table")} ${bill.order.table?.name}`
-                        : t("common:labels.takeAway")}{" "}
-                    </ThemedText>
-                  </ThemedView>
-
-                  <ThemedText type="small" style={tw`text-gray-500`}>
-                    {t("orders:details.orderNumber", { num: bill.order.num })}
-                  </ThemedText>
-                </ThemedView>
-              )}
 
               {/* Items List */}
               <ThemedView style={tw`mb-6`}>
@@ -433,13 +423,84 @@ export default function BillScreen() {
                 )
               )}
 
-              <ThemedView>
-                {bill.transactions.map((transaction) => (
-                  <TransactionCard
-                    key={transaction.id}
-                    transaction={transaction}
-                  />
-                ))}
+              {bill.order && (
+                <ThemedView>
+                  <ThemedText type="body2" style={tw`text-gray-500`}>
+                    Order information
+                  </ThemedText>
+
+                  <ThemedView style={tw`mb-6 mt-2`}>
+                    <ThemedView
+                      style={tw`flex-row items-center bg-transparent justify-between`}
+                    >
+                      <ThemedText type="h3" style={tw``}>
+                        {bill.order.type === OrderType.IN_PLACE
+                          ? `${t("common:labels.table")} ${bill.order.table?.name}`
+                          : t("common:labels.takeAway")}{" "}
+                      </ThemedText>
+                    </ThemedView>
+
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {t("orders:details.orderNumber", { num: bill.order.num })}
+                    </ThemedText>
+                  </ThemedView>
+                </ThemedView>
+              )}
+
+              {bill.transactions.length > 0 && (
+                <ThemedView>
+                  <ThemedText type="body2" style={tw`text-gray-500`}>
+                    Payments
+                  </ThemedText>
+                  <ThemedView>
+                    {bill.transactions.map((transaction) => (
+                      <TransactionCard
+                        key={transaction.id}
+                        transaction={transaction}
+                      />
+                    ))}
+                  </ThemedView>
+                </ThemedView>
+              )}
+
+              <ThemedView style={tw`my-10`}>
+                <ThemedText type="body2" style={tw`text-gray-500`}>
+                  {t("orders:details.activity")}
+                </ThemedText>
+                <ThemedView style={tw`mt-3 gap-2`}>
+                  <ThemedView>
+                    <ThemedView style={tw`flex-row items-center gap-2`}>
+                      <Ionicons
+                        name="ellipse-outline"
+                        size={12}
+                        color={tw.color("gray-500")}
+                      />
+                      <ThemedText type="body2" style={tw`text-gray-600`}>
+                        {t("orders:detailInfo.createdBy", {
+                          name: `${bill.createdBy.person.firstName} ${bill.createdBy.person.lastName}`,
+                        })}
+                      </ThemedText>
+                    </ThemedView>
+                    <ThemedText type="small" style={tw`text-gray-500 ml-5`}>
+                      {createdAtLabel}
+                    </ThemedText>
+                  </ThemedView>
+                  <ThemedView>
+                    <ThemedView style={tw`flex-row items-center gap-2`}>
+                      <Ionicons
+                        name="ellipse-outline"
+                        size={12}
+                        color={tw.color("gray-500")}
+                      />
+                      <ThemedText type="body2" style={tw`text-gray-600`}>
+                        {t("orders:details.updatedAt")}
+                      </ThemedText>
+                    </ThemedView>
+                    <ThemedText type="small" style={tw`text-gray-500 ml-5`}>
+                      {updatedAtLabel}
+                    </ThemedText>
+                  </ThemedView>
+                </ThemedView>
               </ThemedView>
             </ScrollView>
 

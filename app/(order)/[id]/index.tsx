@@ -656,29 +656,33 @@ export default function OrderScreen() {
               {t("orders:details.activity")}
             </ThemedText>
             <ThemedView style={tw`mt-3 gap-2`}>
-              <ThemedView style={tw`flex-row items-center gap-2`}>
-                <Ionicons
-                  name="ellipse-outline"
-                  size={12}
-                  color={tw.color("gray-500")}
-                />
-                <ThemedText type="body2" style={tw`text-gray-600`}>
-                  {t("orders:details.createdAt")}
-                </ThemedText>
-                <ThemedText type="small" style={tw`text-gray-500`}>
+              <ThemedView>
+                <ThemedView style={tw`flex-row items-center gap-2`}>
+                  <Ionicons
+                    name="ellipse-outline"
+                    size={12}
+                    color={tw.color("gray-500")}
+                  />
+                  <ThemedText type="body2" style={tw`text-gray-600`}>
+                    {t("orders:details.createdAt")}
+                  </ThemedText>
+                </ThemedView>
+                <ThemedText type="small" style={tw`text-gray-500 ml-5`}>
                   {createdAtLabel}
                 </ThemedText>
               </ThemedView>
-              <ThemedView style={tw`flex-row items-center gap-2`}>
-                <Ionicons
-                  name="ellipse-outline"
-                  size={12}
-                  color={tw.color("gray-500")}
-                />
-                <ThemedText type="body2" style={tw`text-gray-600`}>
-                  {t("orders:details.updatedAt")}
-                </ThemedText>
-                <ThemedText type="small" style={tw`text-gray-500`}>
+              <ThemedView>
+                <ThemedView style={tw`flex-row items-center gap-2`}>
+                  <Ionicons
+                    name="ellipse-outline"
+                    size={12}
+                    color={tw.color("gray-500")}
+                  />
+                  <ThemedText type="body2" style={tw`text-gray-600`}>
+                    {t("orders:details.updatedAt")}
+                  </ThemedText>
+                </ThemedView>
+                <ThemedText type="small" style={tw`text-gray-500 ml-5`}>
                   {updatedAtLabel}
                 </ThemedText>
               </ThemedView>
