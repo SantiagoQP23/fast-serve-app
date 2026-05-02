@@ -124,6 +124,8 @@
   "deleteAlerts": {
     "cannotDelete": "No se Puede Eliminar",
     "cannotDeleteMessage": "Este pedido no se puede eliminar. Solo se pueden eliminar pedidos pendientes sin productos entregados.",
+    "cannotDeleteDetailTitle": "No se Puede Eliminar el Producto",
+    "cannotDeleteDetailMessage": "Este producto no se puede eliminar porque tiene productos entregados.",
     "confirmDelete": "Eliminar Pedido",
     "confirmDeleteMessage": "¿Está seguro que desea eliminar este pedido? Esta acción no se puede deshacer."
   },

@@ -98,7 +98,7 @@ export default function TableOrdersScreen() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={tw`pb-20 gap-4`}
           >
-            <OrderListByStatus orders={orders} />
+            <OrderListByStatus orders={orders} showProducts />
           </ScrollView>
         )}
 

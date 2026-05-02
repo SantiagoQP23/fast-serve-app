@@ -124,6 +124,8 @@
   "deleteAlerts": {
     "cannotDelete": "Cannot Delete",
     "cannotDeleteMessage": "This order cannot be deleted. Only pending orders with no delivered items can be deleted.",
+    "cannotDeleteDetailTitle": "Cannot Delete Item",
+    "cannotDeleteDetailMessage": "This item cannot be deleted because it has delivered products.",
     "confirmDelete": "Delete Order",
     "confirmDeleteMessage": "Are you sure you want to delete this order? This action cannot be undone."
   },

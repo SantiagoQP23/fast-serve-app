@@ -177,7 +177,7 @@ export default function AllOrdersScreen() {
           {/*   orders={deliveredOrders} */}
           {/* /> */}
 
-          <OrderListByStatus orders={filteredOrdersByWaiters} />
+          <OrderListByStatus orders={filteredOrdersByWaiters} showProducts />
         </ScrollView>
       )}
 

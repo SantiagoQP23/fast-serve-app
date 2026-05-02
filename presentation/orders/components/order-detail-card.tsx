@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback } from "react";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { View, Pressable, PressableProps, Modal } from "react-native";
+import { View, Pressable, PressableProps, Modal, Alert } from "react-native";
 import {
   OrderDetail,
   OrderDetailStatus,
@@ -93,6 +93,13 @@ export default function OrderDetailCard({
   };
 
   const onRemoveDetail = () => {
+    if (detail.qtyDelivered > 0) {
+      Alert.alert(
+        t("orders:deleteAlerts.cannotDeleteDetailTitle"),
+        t("orders:deleteAlerts.cannotDeleteDetailMessage"),
+      );
+      return;
+    }
     handleCloseBottomSheet();
     setVisible(true);
   };
