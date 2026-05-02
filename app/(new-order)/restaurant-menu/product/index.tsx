@@ -23,6 +23,7 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
+import { KeyboardAvoidingView } from "react-native";
 
 export default function ProductScreen() {
   const { t } = useTranslation(["menu", "orders"]);
@@ -104,7 +105,7 @@ export default function ProductScreen() {
   const parsedCustomPrice = parseFloat(price);
   const effectivePrice = Number.isFinite(parsedCustomPrice)
     ? parsedCustomPrice
-    : undefined;
+    : (selectedOption?.price ?? activeProduct.price);
 
   const addProductToOrder = () => {
     if (activeProduct && order)
@@ -112,7 +113,7 @@ export default function ProductScreen() {
         {
           productId: activeProduct!.id,
           quantity: counter,
-          price: effectivePrice ?? activeProduct!.price,
+          price: effectivePrice,
           description: notes,
           orderId: order!.id,
           tagIds: selectedTagIds,
@@ -153,10 +154,6 @@ export default function ProductScreen() {
     goToMenu();
   };
 
-  if (!activeProduct) {
-    return null;
-  }
-
   const onChangeSelectedOption = (option: ProductOption) => {
     setSelectedOption(option);
     setPrice(String(option.price));
@@ -164,114 +161,111 @@ export default function ProductScreen() {
 
   return (
     <>
-      <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
-        {/* <ThemedText>{JSON.stringify(activeProduct.options)}</ThemedText> */}
-        <ThemedView style={tw`flex-1 `} />
-        <ThemedView style={tw` items-center text-center mb-4 gap-2`}>
-          <ThemedText type="h2">{activeProduct.name}</ThemedText>
-          <ThemedText type="body1" style={tw`text-gray-600`}>
-            {formatCurrency(+price)}
-          </ThemedText>
-          {isUnavailable && (
-            <Label
-              text={t(`menu:product.status.${activeProduct.status}`)}
-              color={statusLabelColor}
-            />
-          )}
-          {activeProduct.tags?.filter((tag) => tag.isActive && !tag.isArchived)
-            .length > 0 && (
-            <ThemedView style={tw`flex-row flex-wrap gap-2 justify-center`}>
-              {activeProduct.tags
-                .filter((tag) => tag.isActive && !tag.isArchived)
-                .map((tag) => (
-                  <Label
-                    key={tag.id}
-                    text={tag.name}
-                    color={
-                      selectedTagIds.includes(tag.id) ? "default" : "outline"
-                    }
-                    onPress={() => toggleTag(tag.id)}
-                  />
-                ))}
+      <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
+        <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
+          <ThemedView style={tw`flex-1`} />
+          <ThemedView style={tw`mb-4 gap-6`}>
+            <ThemedView style={tw`gap-2`}>
+              <ThemedText type="h2">{activeProduct.name}</ThemedText>
+              {activeProduct.description && (
+                <ThemedText type="body1" style={tw`text-gray-600`}>
+                  {activeProduct.description}
+                </ThemedText>
+              )}
             </ThemedView>
-          )}
-          {/* <ThemedView style={tw`flex-row items-center gap-4`}> */}
-          {/*   <IconButton */}
-          {/*     icon="remove-outline" */}
-          {/*     onPress={decrement} */}
-          {/*     variant="outlined" */}
-          {/*   /> */}
-          {/*   <ThemedText>{counter}</ThemedText> */}
-          {/*   <IconButton icon="add" onPress={increment} variant="outlined" /> */}
-          {/* </ThemedView> */}
-        </ThemedView>
-        {activeProduct.description && (
-          <ThemedText type="body2">{activeProduct.description}</ThemedText>
-        )}
-
-        <ThemedView style={tw`flex-row flex-wrap gap-2 justify-center`}>
-          {activeProduct.options.map((option) => (
-            <Chip
-              key={option.id}
-              label={`${option.name}`}
-              selected={selectedOption?.id === option.id}
-              onPress={() => onChangeSelectedOption(option)}
-            />
-          ))}
-        </ThemedView>
-
-        {/* <ThemedView> */}
-        {/*   <TextInput */}
-        {/*     numberOfLines={5} */}
-        {/*     multiline */}
-        {/*     value={notes} */}
-        {/*     onChangeText={setNotes} */}
-        {/*     placeholder={t("orders:newOrder.addNote")} */}
-        {/*     containerStyle={tw`border-0 p-0`} */}
-        {/*     autoFocus={false} */}
-        {/*   /> */}
-        {/* </ThemedView> */}
-        <ThemedView style={tw`gap-8`}>
-          <ThemedView style={tw`flex-row justify-center items-center`}>
-            {/* <ThemedText type="h4"> */}
-            {/*   {formatCurrency( */}
-            {/*     (effectivePrice ?? activeProduct.price) * counter, */}
-            {/*   )} */}
-            {/* </ThemedText> */}
-            <ThemedView style={tw`flex-row items-center gap-4`}>
-              <IconButton
-                icon="remove-outline"
-                onPress={decrement}
-                variant="outlined"
+            {isUnavailable && (
+              <Label
+                text={t(`menu:product.status.${activeProduct.status}`)}
+                color={statusLabelColor}
               />
-              <ThemedText>{counter}</ThemedText>
-              <IconButton icon="add" onPress={increment} variant="outlined" />
+            )}
+            {activeProduct.options.length > 0 && (
+              <ThemedView style={tw`flex-row flex-wrap gap-2`}>
+                {activeProduct.options.map((option) => (
+                  <ThemedView
+                    key={option.id}
+                    style={tw`justify-center items-center gap-1`}
+                  >
+                    <Chip
+                      label={`${option.name}`}
+                      selected={selectedOption?.id === option.id}
+                      onPress={() => onChangeSelectedOption(option)}
+                    />
+                    <ThemedText type="body2" style={tw`text-gray-500`}>
+                      {formatCurrency(option.price)}
+                    </ThemedText>
+                  </ThemedView>
+                ))}
+              </ThemedView>
+            )}
+            {activeProduct.tags?.filter(
+              (tag) => tag.isActive && !tag.isArchived,
+            ).length > 0 && (
+              <ThemedView style={tw`flex-row flex-wrap gap-2`}>
+                {activeProduct.tags
+                  .filter((tag) => tag.isActive && !tag.isArchived)
+                  .map((tag) => (
+                    <Label
+                      key={tag.id}
+                      text={tag.name}
+                      color={
+                        selectedTagIds.includes(tag.id) ? "default" : "outline"
+                      }
+                      onPress={() => toggleTag(tag.id)}
+                    />
+                  ))}
+              </ThemedView>
+            )}
+          </ThemedView>
+
+          <TextInput
+            numberOfLines={4}
+            multiline
+            value={notes}
+            onChangeText={setNotes}
+            placeholder={t("orders:newOrder.addNote")}
+            autoFocus={false}
+            containerStyle={tw`border-0 p-0 mb-0 -ml-1`}
+          />
+
+          <ThemedView style={tw`gap-8`}>
+            <ThemedView style={tw`flex-row justify-between items-center`}>
+              <ThemedView>
+                <ThemedText>
+                  {formatCurrency(counter * effectivePrice)}
+                </ThemedText>
+              </ThemedView>
+              <ThemedView style={tw`flex-row items-center gap-4`}>
+                <IconButton
+                  icon="remove-outline"
+                  onPress={decrement}
+                  variant="outlined"
+                />
+                <ThemedText>{counter}</ThemedText>
+                <IconButton icon="add" onPress={increment} variant="outlined" />
+              </ThemedView>
+            </ThemedView>
+
+            <ThemedView style={tw`flex-row gap-5 justify-center mb-4`}>
+              <Button
+                label={t("menu:product.customize")}
+                variant="text"
+                onPress={openCustomBottomSheet}
+              />
+              <Button
+                label={t("menu:product.addToOrderOrCart", {
+                  type: order
+                    ? t("menu:product.order")
+                    : t("menu:product.cart"),
+                })}
+                onPress={onAddProduct}
+                leftIcon="cart-outline"
+                disabled={isUnavailable}
+              />
             </ThemedView>
           </ThemedView>
-          {notes && (
-            <ThemedView style={tw` justify-center items-center `}>
-              <ThemedText type="h4" style={tw`text-gray-600`}>
-                {notes}
-              </ThemedText>
-            </ThemedView>
-          )}
-          <ThemedView style={tw`flex-row gap-5 justify-center mb-4`}>
-            <Button
-              label={t("menu:product.customize")}
-              variant="outline"
-              onPress={openCustomBottomSheet}
-            />
-            <Button
-              label={t("menu:product.addToOrderOrCart", {
-                type: order ? t("menu:product.order") : t("menu:product.cart"),
-              })}
-              onPress={onAddProduct}
-              leftIcon="cart-outline"
-              disabled={isUnavailable}
-            />
-          </ThemedView>
-        </ThemedView>
-      </ScreenLayout>
+        </ScreenLayout>
+      </KeyboardAvoidingView>
 
       <BottomSheetModal
         ref={bottomSheetModalRef}
@@ -280,17 +274,6 @@ export default function ProductScreen() {
         enablePanDownToClose
       >
         <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
-          <TextInput
-            numberOfLines={4}
-            multiline
-            value={notes}
-            onChangeText={setNotes}
-            placeholder={t("orders:newOrder.addNote")}
-            label={t("orders:newOrder.addNote")}
-            autoFocus={false}
-            bottomSheet
-          />
-
           <TextInput
             label={t("orders:newOrder.customPrice")}
             value={price}

@@ -260,11 +260,11 @@ export default function EditOrderDetailScreen() {
             containerStyle={tw`border-0 p-0 mb-0 -ml-1`}
           />
 
-          {orderDetail.product.description && (
-            <ThemedText type="body2">
-              {orderDetail.product.description}
-            </ThemedText>
-          )}
+          {/* {orderDetail.product.description && ( */}
+          {/*   <ThemedText type="body2"> */}
+          {/*     {orderDetail.product.description} */}
+          {/*   </ThemedText> */}
+          {/* )} */}
 
           <ThemedView style={tw`gap-8`}>
             {/* <ThemedView style={tw`flex-row justify-between items-center`}> */}
