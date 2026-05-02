@@ -21,6 +21,7 @@ import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useBills } from "@/presentation/orders/hooks/useBills";
 import { mapStoreToCreateSaleDto } from "@/presentation/orders/mappers/createBill.mapper";
+import Label from "@/presentation/theme/components/label";
 
 export default function CartScreen() {
   const { t } = useTranslation(["common", "menu"]);
@@ -90,24 +91,27 @@ export default function CartScreen() {
               {t("menu:cart.products")} {details.length}
             </ThemedText>
           </ThemedView>
-          {cartType === "order" && (
-            <ThemedView style={tw`gap-2`}>
-              <ThemedView>
-                <ThemedText type="h4">
-                  {orderType === OrderType.IN_PLACE
-                    ? `${t("common:labels.table")} ${table?.name}`
-                    : t("common:labels.takeAway")}
-                </ThemedText>
-              </ThemedView>
-              <ThemedView
-                style={tw` flex-row justify-end bg-transparent items-center gap-2`}
-              >
-                <Ionicons name="people-outline" size={18} />
-                <ThemedText type="body2">{people}</ThemedText>
-              </ThemedView>
-            </ThemedView>
-          )}
         </ThemedView>
+
+        {cartType === "order" && (
+          <ThemedView style={tw`gap-2 flex-row`}>
+            <Label
+              text={
+                orderType === OrderType.IN_PLACE
+                  ? `${t("common:labels.table")} ${table?.name}`
+                  : t("common:labels.takeAway")
+              }
+              color="default"
+              size="small"
+            />
+            <Label
+              text={String(people)}
+              leftIcon="people-outline"
+              size="small"
+              color="outline"
+            />
+          </ThemedView>
+        )}
         {notes && (
           <ThemedView style={tw`gap-2`}>
             <ThemedText type="caption">{t("common:labels.notes")}</ThemedText>
