@@ -259,7 +259,8 @@ export default function OrderScreen() {
     ? order.details.filter(
         (detail) =>
           detail.status === OrderDetailStatus.PENDING ||
-          detail.status === OrderDetailStatus.IN_PROGRESS,
+          detail.status === OrderDetailStatus.IN_PROGRESS ||
+          detail.status === OrderDetailStatus.READY,
       )
     : [];
 
@@ -268,7 +269,9 @@ export default function OrderScreen() {
     : [];
 
   const cancelledDetails = hasDetails
-    ? order.details.filter((detail) => detail.status === OrderDetailStatus.CANCELLED)
+    ? order.details.filter(
+        (detail) => detail.status === OrderDetailStatus.CANCELLED,
+      )
     : [];
 
   // For closed orders, show all items together
@@ -491,7 +494,6 @@ export default function OrderScreen() {
               </ThemedText>
             </ThemedView>
           )}
-
 
           {/* Pending Items Section */}
           {!isClosed && pendingDetails.length > 0 && (
