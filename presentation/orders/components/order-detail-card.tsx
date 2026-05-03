@@ -54,9 +54,8 @@ export default function OrderDetailCard({
   const { mutate: updateOrderDetail } = useOrders().updateOrderDetail;
 
   const { mutate: removeOrderDetail } = useOrders().removeOrderDetail;
-  const { statusText, statusIcon, labelColor } = useOrderDetailStatus(
-    detail.status,
-  );
+  const { statusText, statusIcon, labelColor, statusIconColor } =
+    useOrderDetailStatus(detail.status);
   const isCancelled = detail.status === OrderDetailStatus.CANCELLED;
 
   // Derive checkbox state directly from props (no local state needed)
@@ -303,6 +302,12 @@ export default function OrderDetailCard({
                         <ThemedView
                           style={tw`flex-row justify-between bg-transparent gap-2 items-center whitespace-normal`}
                         >
+                          {/* <Ionicons */}
+                          {/*   name={statusIcon} */}
+                          {/*   size={16} */}
+                          {/*   color={tw.color(statusIconColor)} */}
+                          {/*   weight="bold" */}
+                          {/* /> */}
                           <ThemedText type="body1" style={tw`whitespace-wrap`}>
                             {detail.quantity} - {detail.product.name}{" "}
                             {showProductOptionName &&
@@ -350,7 +355,7 @@ export default function OrderDetailCard({
                     )}
                   </ThemedView>
                 </ThemedView>
-                <ThemedView style={tw`flex-row gap-4`}>
+                <ThemedView style={tw`flex-row gap-4 flex-wrap`}>
                   <Label
                     text={statusText}
                     color={labelColor}

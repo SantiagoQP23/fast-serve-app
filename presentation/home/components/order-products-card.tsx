@@ -20,6 +20,7 @@ import { Pressable } from "react-native";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
+import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 
 interface OrderProductsCardProps {
   order: Order;
@@ -86,13 +87,13 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
               onPress={() => openOrder()}
             />
           </ThemedView>
-          <ThemedView style={tw`flex-row items-center gap-2 mt-1`}>
-            <ThemedText type="small" style={tw`text-gray-500 `}>
-              {relativeTime}
-            </ThemedText>
-            <ThemedText type="small" style={tw`text-gray-500`}>
-              •
-            </ThemedText>
+          <ThemedView style={tw`flex-row items-center gap-2 mt-1 flex-wrap`}>
+            <Label
+              text={relativeTime}
+              leftIcon="time-outline"
+              color="default"
+              size="small"
+            />
 
             <Label
               text={statusText}
@@ -103,9 +104,6 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
 
             {order.paymentStatus !== OrderPaymentStatus.UNPAID && (
               <>
-                <ThemedText type="small" style={tw`text-gray-500`}>
-                  •
-                </ThemedText>
                 <Label
                   text={paymentStatus.text}
                   color={paymentStatus.color}
@@ -118,7 +116,11 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
       </Pressable>
       <ThemedView style={tw`gap-4`}>
         {order.details
-          .filter((detail) => detail.quantity !== detail.qtyDelivered)
+          .filter(
+            (detail) =>
+              detail.quantity !== detail.qtyDelivered &&
+              detail.status !== OrderDetailStatus.CANCELLED,
+          )
           .map((detail) => (
             <OrderDetailCard
               key={detail.id}
@@ -130,19 +132,27 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
           ))}
       </ThemedView>
 
-      <ThemedView style={tw`flex-row items-center gap-2 mt-4`}>
-        <ThemedText type="small" style={tw`text-gray-500 `}>
-          {t("orders:details.orderNumber", {
-            num: order.num,
-          })}
-        </ThemedText>
+      <ThemedView style={tw`mt-4 flex-row items-center justify-between`}>
+        <Label
+          text={`${order.user.person.firstName} ${order.user.person.lastName}`}
+          leftIcon="person-outline"
+          size="small"
+          color="outline"
+        />
+        <ThemedView style={tw`flex-row items-center gap-2 `}>
+          <ThemedText type="small" style={tw`text-gray-500 `}>
+            {t("orders:details.orderNumber", {
+              num: order.num,
+            })}
+          </ThemedText>
 
-        <ThemedText type="small" style={tw`text-gray-500`}>
-          •
-        </ThemedText>
-        <ThemedText type="small" style={tw`text-gray-500 `}>
-          {dayjs(order.createdAt).format("HH:mm")}
-        </ThemedText>
+          <ThemedText type="small" style={tw`text-gray-500`}>
+            •
+          </ThemedText>
+          <ThemedText type="small" style={tw`text-gray-500 `}>
+            {dayjs(order.createdAt).format("HH:mm")}
+          </ThemedText>
+        </ThemedView>
       </ThemedView>
     </ThemedView>
   );
