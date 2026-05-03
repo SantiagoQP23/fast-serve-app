@@ -106,9 +106,12 @@ const OrderOptionsBottomSheet = ({
   };
 
   const handleChangeStatus = (status: OrderDetailStatus) => {
+    const validDetails = order.details.filter(
+      (detail) => detail.status !== OrderDetailStatus.CANCELLED,
+    );
     updateMultipleOrderDetailsStatus(
       {
-        orderDetails: order.details.map((detail) => detail.id),
+        orderDetails: validDetails.map((detail) => detail.id),
         status,
       },
       {
