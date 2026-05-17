@@ -178,8 +178,8 @@ export default function TablesScreen() {
 
   return (
     <ScreenLayout style={tw`px-4 pt-8 flex-1`}>
-      <ThemedText type="h1">{t("list.title")}</ThemedText>
-      <ThemedView style={tw`mt-8`} />
+      <ThemedText type="h2">{t("list.title")}</ThemedText>
+      <ThemedView style={tw`mt-4`} />
       <ThemedView style={tw`flex-row mb-4 gap-2`}>
         {tabs.map((tab) => {
           const isActive = tab.value === selectedStatus;

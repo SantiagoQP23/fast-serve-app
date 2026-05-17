@@ -119,7 +119,9 @@ export default function RestaurantMenuScreen() {
   useEffect(() => {
     if (search) {
       setFilteredProducts(
-        products.filter((p) => p.name.toLowerCase().includes(search.toLowerCase())),
+        products.filter((p) =>
+          p.name.toLowerCase().includes(search.toLowerCase()),
+        ),
       );
       return;
     }

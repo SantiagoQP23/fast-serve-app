@@ -4,6 +4,7 @@ import {
   ScrollView,
   Text,
   Pressable,
+  PressableProps,
 } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -23,6 +24,28 @@ import {
 } from "@/core/i18n/i18n.config";
 import Select from "@/presentation/theme/components/select";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import Card from "@/presentation/theme/components/card";
+import { typography } from "@/constants/theme";
+
+interface CardButtonProps extends PressableProps {
+  icon?: keyof typeof Ionicons.glyphMap;
+  label: string;
+}
+
+export const CardButton = ({ icon, label, onPress }: CardButtonProps) => {
+  return (
+    <Card onPress={onPress}>
+      <ThemedView style={tw`  gap-4`}>
+        <ThemedView>
+          <Ionicons name={icon} size={22} />
+        </ThemedView>
+        <ThemedText style={[{ fontFamily: typography.medium }]}>
+          {label}
+        </ThemedText>
+      </ThemedView>
+    </Card>
+  );
+};
 
 export default function OrdersScreen() {
   const { t } = useTranslation("auth");
@@ -39,114 +62,62 @@ export default function OrdersScreen() {
   return (
     <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <ThemedView style={styles.titleContainer}>
+        <ThemedView style={tw` items-center gap-2 flex-row justify-between`}>
           <ThemedText type="h2">{t("profile.title")}</ThemedText>
+          <Ionicons name="settings-outline" size={22} />
         </ThemedView>
         <ThemedView style={tw`my-4`} />
         <ThemedView style={tw`items-center gap-2`}>
-          <ThemedText type="h2">
+          <ThemedText type="h3">
             {user?.person.firstName} {user?.person.lastName}
           </ThemedText>
-          <ThemedText type="h3">{currentRestaurant?.name}</ThemedText>
+          <ThemedText type="h4">{currentRestaurant?.name}</ThemedText>
           <ThemedText type="body2">{user?.role?.description}</ThemedText>
         </ThemedView>
-        <ThemedView style={tw`mt-8`}>
+        <ThemedView style={tw`my-8`}>
           <ThemedView style={tw`rounded-lg  p-4 gap-8`}>
             <ThemedView style={tw`gap-4`}>
               <ThemedText type="small" style={tw`text-gray-500`}>
                 Orders
               </ThemedText>
-              <Pressable
-                style={({ pressed }) =>
-                  tw.style(
-                    `flex-row items-center gap-4`,
-                    pressed && "opacity-70",
-                  )
-                }
-                onPress={() => {
-                  router.push("/(profile)/all-orders");
-                }}
-              >
-                <Ionicons name="people-outline" size={20} />
-                <ThemedText type="h4">{t("profile.allOrders")}</ThemedText>
-              </Pressable>
-
-              <Pressable
-                style={({ pressed }) =>
-                  tw.style(
-                    `flex-row items-center gap-4`,
-                    pressed && "opacity-70",
-                  )
-                }
-                onPress={() => {
-                  router.push("/(profile)/history");
-                }}
-              >
-                <Ionicons name="time-outline" size={20} />
-                <ThemedText type="h4">{t("profile.history")}</ThemedText>
-              </Pressable>
+              <ThemedView style={tw`gap-2`}>
+                <CardButton
+                  icon="albums-outline"
+                  label={t("profile.allOrders")}
+                  onPress={() => {
+                    router.push("/(profile)/all-orders");
+                  }}
+                />
+                <CardButton
+                  icon="time-outline"
+                  label={t("profile.history")}
+                  onPress={() => {
+                    router.push("/(profile)/history");
+                  }}
+                />
+              </ThemedView>
             </ThemedView>
 
             <ThemedView style={tw`gap-4`}>
               <ThemedText type="small" style={tw`text-gray-500`}>
                 Restaurant
               </ThemedText>
-              <Pressable
-                style={({ pressed }) =>
-                  tw.style(
-                    `flex-row items-center gap-4`,
-                    pressed && "opacity-70",
-                  )
-                }
+              <CardButton
+                icon="storefront-outline"
+                label={t("profile.myRestaurants")}
                 onPress={() => {
                   router.push("/(profile)/restaurants");
                 }}
-              >
-                <Ionicons name="storefront-outline" size={20} />
-                <ThemedText type="h4">{t("profile.myRestaurants")}</ThemedText>
-              </Pressable>
-
-              <Pressable
-                style={({ pressed }) =>
-                  tw.style(
-                    `flex-row items-center gap-4`,
-                    pressed && "opacity-70",
-                  )
-                }
+              />
+              <CardButton
+                icon="cloud-offline-outline"
+                label={t("profile.offlineData")}
                 onPress={() => {
                   router.push("/(profile)/restaurant");
                 }}
-              >
-                <Ionicons name="cloud-offline-outline" size={24} />
-                <ThemedText type="h4">{t("profile.offlineData")}</ThemedText>
-              </Pressable>
-              {/* <Pressable */}
-              {/*   style={({ pressed }) => */}
-              {/*     tw.style(`flex-row items-center gap-4`, pressed && "opacity-70") */}
-              {/*   } */}
-              {/*   onPress={() => {}} */}
-              {/* > */}
-              {/*   <Ionicons name="person-outline" size={20} /> */}
-              {/*   <ThemedText type="h4">{t("profile.myProfile")}</ThemedText> */}
-              {/* </Pressable> */}
+              />
             </ThemedView>
             <ThemedView style={tw`gap-4`}>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                Settings
-              </ThemedText>
-
-              <Pressable
-                style={({ pressed }) =>
-                  tw.style(
-                    `flex-row items-center gap-4`,
-                    pressed && "opacity-70",
-                  )
-                }
-                onPress={() => {}}
-              >
-                <Ionicons name="settings-outline" size={24} />
-                <ThemedText type="h4">{t("profile.settings")}</ThemedText>
-              </Pressable>
               <ThemedView style={tw`gap-2`}>
                 <Select
                   label={t("profile.language")}
@@ -170,7 +141,7 @@ export default function OrdersScreen() {
               }}
             >
               <Ionicons name="log-out-outline" size={24} color="red" />
-              <ThemedText type="h4">{t("profile.logout")}</ThemedText>
+              <ThemedText>{t("profile.logout")}</ThemedText>
             </Pressable>
           </ThemedView>
           <DialogModal

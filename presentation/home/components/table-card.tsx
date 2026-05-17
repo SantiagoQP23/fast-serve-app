@@ -7,6 +7,7 @@ import { View, PressableProps } from "react-native";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useTableOrders } from "@/presentation/orders/hooks/useTableOrders";
 import { Table } from "@/core/tables/models/table.model";
+import { typography } from "@/constants/theme";
 
 interface TableCardProps extends PressableProps {
   table: Table;
@@ -34,7 +35,7 @@ export default function TableCard({ table, onPress }: TableCardProps) {
           />
         </ThemedView>
         <ThemedView style={tw`flex-row items-center bg-transparent`}>
-          <ThemedText type="h3">
+          <ThemedText type="h3" style={[tw`font-inter`]}>
             {t("tables:card.table", { name: table.name })}{" "}
           </ThemedText>
         </ThemedView>

@@ -2,6 +2,7 @@ import React from "react";
 import { View, Pressable, Text } from "react-native";
 import tw from "../lib/tailwind";
 import { ThemedText } from "./themed-text";
+import { typography } from "@/constants/theme";
 
 export interface ButtonGroupOption {
   label: string;
@@ -25,7 +26,7 @@ export default function ButtonGroup({
 
   return (
     <View
-      style={tw`${isHorizontal ? "flex-row" : "flex-wrap"} bg-gray-100 dark:bg-darksurface p-1 rounded-2xl`}
+      style={tw`${isHorizontal ? "flex-row" : "flex-wrap"} bg-gray-100 dark:bg-darksurface p-1 rounded-3xl`}
     >
       {options.map((option, index) => {
         const isActive = selected === option.value;
@@ -36,7 +37,7 @@ export default function ButtonGroup({
             onPress={() => onChange(option.value)}
             style={({ pressed }) =>
               tw.style(
-                "flex-1 py-2 rounded-2xl",
+                "flex-1 py-2 rounded-3xl",
                 isActive ? "bg-white" : "bg-transparent",
                 pressed && "opacity-80",
               )
@@ -44,10 +45,10 @@ export default function ButtonGroup({
           >
             <ThemedText
               type="body2"
-              style={tw.style(
-                "text-center font-semibold",
-                // isActive ? "text-white" : "text-gray-700 dark:text-darktext",
-              )}
+              style={[
+                tw.style("text-center"),
+                { fontFamily: typography.medium },
+              ]}
             >
               {option.label}
             </ThemedText>

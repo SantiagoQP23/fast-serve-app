@@ -257,7 +257,7 @@ export default function EditOrderDetailScreen() {
             onChangeText={setNotes}
             placeholder={t("orders:newOrder.addNote")}
             autoFocus={false}
-            containerStyle={tw`border-0 p-0 mb-0 -ml-1`}
+            containerStyle={tw`border-0 p-0 mb-0 -ml-1 bg-transparent`}
           />
 
           {/* {orderDetail.product.description && ( */}
@@ -300,14 +300,6 @@ export default function EditOrderDetailScreen() {
                 <IconButton icon="add" onPress={increment} variant="outlined" />
               </ThemedView>
             </ThemedView>
-
-            {notes && (
-              <ThemedView style={tw`justify-center items-center`}>
-                <ThemedText type="h4" style={tw`text-gray-600`}>
-                  {notes}
-                </ThemedText>
-              </ThemedView>
-            )}
 
             <ThemedView style={tw`flex-row gap-5 justify-center mb-4`}>
               <Button

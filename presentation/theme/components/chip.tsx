@@ -4,6 +4,7 @@ import { Pressable, Text, View } from "react-native";
 import tw from "../lib/tailwind";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "./themed-text";
+import { typography } from "@/constants/theme";
 
 type ChipProps = {
   label: string;
@@ -46,7 +47,10 @@ export default function Chip({
       )}
       <ThemedText
         type="body2"
-        style={[selected ? tw`text-white font-semibold` : tw``]}
+        style={[
+          selected ? tw`text-white ` : tw``,
+          { fontFamily: typography.medium },
+        ]}
       >
         {label}
       </ThemedText>

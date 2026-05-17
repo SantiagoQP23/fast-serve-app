@@ -23,7 +23,7 @@ interface IconButtonProps {
 
 export default function IconButton({
   icon,
-  size = 22,
+  size = 18,
   color = "primary", // gray-800
   onPress,
   disabled = false,
@@ -50,7 +50,7 @@ export default function IconButton({
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
-        tw`rounded-md p-1 ${pressed ? "opacity-80" : "opacity-100"} ${disabled ? "opacity-50" : ""} bg-transparent ${variantStyles[variant]}`,
+        tw`rounded-md p-2 ${pressed ? "opacity-80" : "opacity-100"} ${disabled ? "opacity-50" : ""} bg-transparent ${variantStyles[variant]}`,
         {
           // backgroundColor: !pressed
           //   ? backgroundColor

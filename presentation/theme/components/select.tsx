@@ -10,6 +10,9 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import tw from "../lib/tailwind";
 import TextInput from "./text-input";
+import { ThemedText } from "./themed-text";
+import { typography } from "@/constants/theme";
+import { ThemedView } from "./themed-view";
 
 type Option = {
   label: string;
@@ -83,29 +86,37 @@ export default function Select({
   return (
     <>
       {/* Trigger Button */}
-      <View style={tw`w-full`}>
+      <ThemedView style={tw`w-full gap-2`}>
         {label && (
-          <Text style={tw`text-gray-700 dark:text-gray-300 mb-2 font-semibold`}>
+          <ThemedText
+            style={[
+              tw` dark:text-gray-300  `,
+              { fontFamily: typography.medium },
+            ]}
+          >
             {label}
-          </Text>
+          </ThemedText>
         )}
 
         <Pressable
           onPress={handleOpen}
-          style={tw`border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-2xl px-4 py-3 flex-row justify-between items-center`}
+          style={tw` dark:border-gray-700 bg-white dark:bg-gray-800 rounded-3xl px-4 py-3 flex-row justify-between items-center bg-gray-100`}
         >
-          <Text
-            style={tw.style(
-              selectedOption
-                ? "text-gray-900 dark:text-white"
-                : "text-gray-400",
-            )}
+          <ThemedText
+            style={[
+              tw.style(
+                selectedOption
+                  ? "text-gray-900 dark:text-white"
+                  : "text-gray-400",
+              ),
+              { fontFamily: typography.regular },
+            ]}
           >
             {selectedOption ? selectedOption.label : placeholder}
-          </Text>
+          </ThemedText>
           <Ionicons name="chevron-down" size={20} color="#9ca3af" />
         </Pressable>
-      </View>
+      </ThemedView>
 
       {/* Bottom Sheet Modal */}
       <BottomSheetModal

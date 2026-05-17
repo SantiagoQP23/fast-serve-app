@@ -9,6 +9,8 @@ import {
   Inter_600SemiBold,
   Inter_800ExtraBold,
 } from "@expo-google-fonts/inter";
+import { typography } from "@/constants/theme";
+import tw from "../lib/tailwind";
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
@@ -62,33 +64,29 @@ export function ThemedText({
 const styles = StyleSheet.create({
   h1: {
     fontSize: 32,
-    fontWeight: 900,
     lineHeight: 32,
     height: 32,
-    fontFamily: "Inter_500Medium",
+    fontFamily: typography.medium,
   },
   h2: {
     fontSize: 24,
-    fontWeight: 900,
     lineHeight: 30,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: typography.medium,
   },
   h3: {
     fontSize: 18,
-    fontWeight: "bold",
     lineHeight: 28,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: typography.medium,
   },
   h4: {
     fontSize: 16,
-    fontWeight: "bold",
     lineHeight: 24,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: typography.medium,
   },
   body1: {
     fontSize: 16,
     lineHeight: 24,
-    fontFamily: "Inter_400Regular",
+    fontFamily: typography.regular,
   },
   body2: {
     fontSize: 14,
@@ -98,8 +96,8 @@ const styles = StyleSheet.create({
   small: {
     fontSize: 12,
     lineHeight: 16,
-    fontWeight: "800",
-    fontFamily: "Inter_500Medium",
+    fontFamily: typography.regular,
+    color: tw.color("gray-500"),
   },
   caption: {
     fontSize: 10,

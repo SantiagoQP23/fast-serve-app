@@ -17,6 +17,7 @@ import { useOrdersStore } from "./store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { i18nAlert } from "@/core/i18n/utils";
 import { useOrderTypes } from "./hooks/useOrderTypes";
+import { typography } from "@/constants/theme";
 
 interface NewOrderBottomSheetProps {
   onCreateOrder?: () => void;
@@ -69,7 +70,7 @@ const NewOrderBottomSheet = ({
   return (
     <BottomSheetView style={tw`p-4 items-center justify-center`}>
       <ThemedView style={tw`w-full gap-6`}>
-        <ThemedText type="h2" style={tw`text-center`}>
+        <ThemedText type="h2" style={tw`text-center inter-semibold`}>
           {t("newOrder.title")}
         </ThemedText>
         <ButtonGroup
@@ -93,9 +94,14 @@ const NewOrderBottomSheet = ({
           />
         )}
         <ThemedView style={tw`gap-2`}>
-          <Text style={tw`text-gray-700 dark:text-gray-300  font-semibold`}>
+          <ThemedText
+            style={[
+              tw` dark:text-gray-300  `,
+              { fontFamily: typography.medium },
+            ]}
+          >
             {t("newOrder.people")}
-          </Text>
+          </ThemedText>
           <ThemedView style={tw`flex-row gap-2 items-center`}>
             <ThemedView style={tw`flex-1`}>
               <ButtonGroup
@@ -132,6 +138,7 @@ const NewOrderBottomSheet = ({
               numberOfLines={5}
               multiline
               bottomSheet
+              placeholder="Add any special instructions or notes"
               onChangeText={(value) => setNotes(value)}
               value={notes}
             />

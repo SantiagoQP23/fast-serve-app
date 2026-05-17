@@ -66,9 +66,9 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
   );
 
   return (
-    <ThemedView key={order.id} style={tw`mb-8 bg-light-surface rounded-lg p-4`}>
+    <Card style={tw`mb-8  rounded-3xl p-4`}>
       <Pressable onPress={() => openOrder()}>
-        <ThemedView style={tw`mb-4 bg-transparent`}>
+        <ThemedView style={tw`mb-6 bg-transparent`}>
           <ThemedView
             style={tw`flex-row items-center justify-between bg-transparent`}
           >
@@ -87,7 +87,7 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
               onPress={() => openOrder()}
             />
           </ThemedView>
-          <ThemedView style={tw`flex-row items-center gap-2 mt-1 flex-wrap`}>
+          <ThemedView style={tw`flex-row items-center gap-2 mt-3 flex-wrap`}>
             <Label
               text={relativeTime}
               leftIcon="time-outline"
@@ -114,7 +114,7 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
           </ThemedView>
         </ThemedView>
       </Pressable>
-      <ThemedView style={tw`gap-4`}>
+      <ThemedView style={tw`gap-6`}>
         {order.details
           .filter(
             (detail) =>
@@ -132,7 +132,7 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
           ))}
       </ThemedView>
 
-      <ThemedView style={tw`mt-4 flex-row items-center justify-between`}>
+      <ThemedView style={tw`mt-6 flex-row items-center justify-between`}>
         <Label
           text={`${order.user.person.firstName} ${order.user.person.lastName}`}
           leftIcon="person-outline"
@@ -154,6 +154,6 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
           </ThemedText>
         </ThemedView>
       </ThemedView>
-    </ThemedView>
+    </Card>
   );
 }

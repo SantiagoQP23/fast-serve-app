@@ -1,5 +1,5 @@
 // components/Switch.tsx
-import { Colors } from "@/constants/theme";
+import { Colors, typography } from "@/constants/theme";
 import React from "react";
 import { Switch as RNSwitch } from "react-native";
 import tw from "twrnc";
@@ -22,7 +22,7 @@ export default function Switch({
   return (
     <ThemedView style={tw`flex-row items-center justify-between w-full `}>
       {label && (
-        <ThemedText style={tw`font-semibold`} type="body2">
+        <ThemedText style={{ fontFamily: typography.medium }} type="body1">
           {label}
         </ThemedText>
       )}

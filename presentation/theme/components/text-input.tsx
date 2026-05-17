@@ -36,15 +36,13 @@ export default function TextInput({
   return (
     <ThemedView>
       {label && (
-        <ThemedText type="body2" style={tw`font-semibold mb-2`}>
-          {label}
-        </ThemedText>
+        <ThemedText style={tw`font-inter-medium mb-2 `}>{label}</ThemedText>
       )}
       <View
         style={[
           tw.style(
             "flex-row items-center",
-            "border border-light-border rounded-xl px-3 py-1 text-gray-900 bg-white",
+            " rounded-3xl px-3 py-1 text-gray-900 bg-gray-100",
             error ? "border-red-500" : "border-gray-300",
           ),
           containerStyle,
@@ -53,12 +51,12 @@ export default function TextInput({
         {icon && (
           <Ionicons
             name={icon}
-            size={20}
+            size={18}
             style={[tw`text-gray-500`, { marginRight: 10 }]}
           />
         )}
         <InputComponent
-          style={[tw`flex-1`, style as StyleProp<TextStyle>]}
+          style={[tw`flex-1`, { fontSize: 16 }, style as StyleProp<TextStyle>]}
           placeholderTextColor="#9CA3AF"
           {...inputProps}
         />

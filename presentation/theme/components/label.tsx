@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import tw from "../lib/tailwind";
 import { Ionicons } from "@expo/vector-icons";
-import { Colors } from "@/constants/theme";
+import { Colors, typography } from "@/constants/theme";
 import { ThemedView } from "./themed-view";
 import { ThemedText } from "./themed-text";
 
@@ -87,7 +87,7 @@ export default function Label({
       )}
       <ThemedText
         type={isSmall ? "small" : "body2"}
-        style={tw`${textColors[color]} font-semibold`}
+        style={[tw`${textColors[color]} `, { fontFamily: typography.medium }]}
       >
         {text}
       </ThemedText>

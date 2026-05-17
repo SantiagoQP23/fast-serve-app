@@ -225,7 +225,7 @@ export default function ProductScreen() {
             onChangeText={setNotes}
             placeholder={t("orders:newOrder.addNote")}
             autoFocus={false}
-            containerStyle={tw`border-0 p-0 mb-0 -ml-1`}
+            containerStyle={tw`border-0 p-0 mb-0 -ml-1 bg-transparent`}
           />
 
           <ThemedView style={tw`gap-8`}>

@@ -38,7 +38,7 @@ export default function Button({
 
   const baseStyle = isVertical
     ? "rounded-full justify-center items-center"
-    : "rounded-xl flex-row justify-center items-center";
+    : "rounded-3xl flex-row justify-center items-center";
 
   const variants = {
     primary: "bg-light-primary",

@@ -112,9 +112,13 @@ const LoginScreen = () => {
   return (
     <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
       <ScreenLayout style={tw`flex-1 px-4 gap-8 `}>
-        <ThemedView style={[{ paddingTop: height * 0.2 }]}>
-          <ThemedText type="h1">{t("login.title")}</ThemedText>
-          <ThemedText>{t("login.enterCredentials")}</ThemedText>
+        <ThemedView style={[{ paddingTop: height * 0.2, gap: 2 }]}>
+          <ThemedText type="h1" style={tw``}>
+            {t("login.title")}
+          </ThemedText>
+          <ThemedText style={tw`text-gray-600`} type="body2">
+            {t("login.enterCredentials")}
+          </ThemedText>
         </ThemedView>
         <Controller
           control={control}
@@ -160,7 +164,9 @@ const LoginScreen = () => {
             )}
           />
           <Pressable onPress={handleForgotPassword}>
-            <ThemedText type="body2">{t("login.forgotPassword")}</ThemedText>
+            <ThemedText type="body2" style={tw`text-gray-600`}>
+              {t("login.forgotPassword")}
+            </ThemedText>
           </Pressable>
         </ThemedView>
         <ThemedView style={tw`w-full `}>
