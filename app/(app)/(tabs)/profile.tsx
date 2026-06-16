@@ -116,6 +116,13 @@ export default function OrdersScreen() {
                   router.push("/(profile)/restaurant");
                 }}
               />
+              <CardButton
+                icon="print-outline"
+                label={t("profile.printers")}
+                onPress={() => {
+                  router.push("/(profile)/printers");
+                }}
+              />
             </ThemedView>
             <ThemedView style={tw`gap-4`}>
               <ThemedView style={tw`gap-2`}>

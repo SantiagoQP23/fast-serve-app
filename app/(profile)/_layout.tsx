@@ -55,6 +55,15 @@ export default function OrdersLayout() {
           }}
         />
 
+        <Stack.Screen
+          name="printers"
+          options={{
+            headerShown: true,
+            title: "Printers",
+            headerShadowVisible: false,
+          }}
+        />
+
         {/* <Stack.Screen */}
         {/*   name="[id]/edit-order-detail/index" */}
         {/*   options={{ */}
