@@ -111,6 +111,12 @@
   },
   "options": {
     "title": "Order Options",
+    "printOrder": "Print Order",
+    "shareOrder": "Share Order",
+    "selectPrinter": "Select Printer",
+    "noPrinters": "No Printers",
+    "noPrintersMessage": "No printers are configured. Please add a printer in settings.",
+    "printError": "Could not print the order. Please check the printer connection.",
     "addProduct": "Add Product",
     "reassignOrder": "Reassign Order",
     "goToPayments": "Go to Payments",

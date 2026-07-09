@@ -19,6 +19,7 @@
     "create": "Create",
     "update": "Update",
     "close": "Close",
+    "error": "Error",
     "ok": "OK",
     "yes": "Yes",
     "no": "No",

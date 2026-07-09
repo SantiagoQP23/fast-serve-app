@@ -111,6 +111,12 @@
   },
   "options": {
     "title": "Opciones de Pedido",
+    "printOrder": "Imprimir Pedido",
+    "shareOrder": "Compartir Pedido",
+    "selectPrinter": "Seleccionar Impresora",
+    "noPrinters": "Sin Impresoras",
+    "noPrintersMessage": "No hay impresoras configuradas. Por favor agregue una impresora en la configuración.",
+    "printError": "No se pudo imprimir el pedido. Por favor verifique la conexión de la impresora.",
     "addProduct": "Agregar Producto",
     "reassignOrder": "Reasignar Pedido",
     "goToPayments": "Ir a Pagos",

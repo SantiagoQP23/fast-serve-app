@@ -34,11 +34,9 @@ import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOrder } from "@/presentation/orders/hooks/useOrder";
-import IconButton from "@/presentation/theme/components/icon-button";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
-import Chip from "@/presentation/theme/components/chip";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 dayjs.extend(relativeTime);
@@ -685,10 +683,10 @@ export default function OrderScreen() {
             <ThemedView style={tw`flex-row gap-4 mt-3`}>
               <ThemedView style={tw`gap-2 items-center`}>
                 <Pressable
-                  style={tw`flex items-center gap-2 p-4 bg-gray-100 rounded-lg min-w-15 w-20`}
+                  style={tw`flex items-center gap-2 px-4 py-2 min-w-15 w-20`}
                   onPress={() => router.push(`/(order)/${order.id}/bills`)}
                 >
-                  <Ionicons name={"cash-outline"} size={30} style={tw``} />
+                  <Ionicons name={"cash-outline"} size={26} style={tw``} />
                 </Pressable>
 
                 <ThemedText type="body2">
