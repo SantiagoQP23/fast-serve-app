@@ -103,7 +103,7 @@ export default function TransactionCard({
                 >
                   {transaction.name}
                 </ThemedText>
-                <ThemedText type="body2" style={tw`text-gray-800`}>
+                <ThemedText type="body2" style={tw`text-gray-500 `}>
                   {transaction.account.name}
                 </ThemedText>
                 <ThemedView style={tw`flex-row items-center gap-1.5`}>
@@ -116,6 +116,9 @@ export default function TransactionCard({
                     {transaction.createdBy.person.lastName}
                   </ThemedText>
                 </ThemedView>
+                <ThemedText type="small" style={tw`text-gray-500`}>
+                  {relativeTime}
+                </ThemedText>
               </ThemedView>
             </ThemedView>
 
@@ -125,11 +128,8 @@ export default function TransactionCard({
                 type="body1"
                 style={tw`font-semibold ${isIncome ? "text-green-700" : "text-red-600"}`}
               >
-                {isIncome ? "+" : "-"}
+                {isIncome ? "" : "-"}
                 {formatCurrency(transaction.amount)}
-              </ThemedText>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {relativeTime}
               </ThemedText>
             </ThemedView>
           </ThemedView>

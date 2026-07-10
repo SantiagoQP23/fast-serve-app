@@ -30,7 +30,8 @@ export default function OrderConfirmationScreen() {
   if (!order) {
     return null;
   }
-  const { handlePrintOrder, handleShareOrder } = useOrderPrint(order);
+  const { handlePrintOrder, handleShareOrder, handlePrintComanda } =
+    useOrderPrint(order);
 
   return (
     <>
@@ -133,6 +134,11 @@ export default function OrderConfirmationScreen() {
             icon="share-outline"
             label={t("orders:options.shareOrder")}
             onPress={handleShareOrder}
+          />
+          <QuickActionButton
+            icon="restaurant-outline"
+            label={t("orders:options.printComanda")}
+            onPress={handlePrintComanda}
           />
         </ThemedView>
 

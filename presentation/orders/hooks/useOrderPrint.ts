@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { Alert } from "react-native";
 import { Order } from "@/core/orders/models/order.model";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -6,10 +7,14 @@ import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import { useOrderPaymentStatus } from "./useOrderPaymentStatus";
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
+import { ThermalPrinterService } from "@/core/printers/services/thermal-printer.service";
+import { ProductionArea } from "@/core/menu/models/producion-area.model";
+import { useProductionAreas } from "@/presentation/production-areas/hooks/useProductionAreas";
 
 export const useOrderPrint = (order: Order) => {
   const { t, language } = useTranslation(["common", "orders", "bills"]);
   const { paymentStatus } = useOrderPaymentStatus(order.paymentStatus);
+  const { productionAreas } = useProductionAreas();
 
   const toCamelCase = (str: string) =>
     str.toLowerCase().replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
@@ -163,6 +168,7 @@ export const useOrderPrint = (order: Order) => {
           <div class="footer">
             ${new Date().toLocaleString(language)}
           </div>
+<div style="min-height: 100px"></div>
         </body>
       </html>
     `;
@@ -201,8 +207,68 @@ export const useOrderPrint = (order: Order) => {
     }
   }, [generateOrderHtml, order.details.length, order.num, t]);
 
+  const handlePrintComanda = useCallback(async () => {
+    try {
+      const detailsByArea = order.details.reduce(
+        (acc, detail) => {
+          const productArea = detail.product.productionArea;
+          if (!productArea) return acc;
+
+          const fullArea = productionAreas.find(
+            (pa) => pa.id === productArea.id,
+          );
+          if (!fullArea || !fullArea.isActive) return acc;
+
+          const areaId = fullArea.id;
+          if (!acc[areaId]) {
+            acc[areaId] = { area: fullArea, details: [] };
+          }
+          acc[areaId].details.push(detail);
+          return acc;
+        },
+        {} as Record<
+          number,
+          { area: ProductionArea; details: Order["details"] }
+        >,
+      );
+
+      const areaGroups = Object.values(detailsByArea);
+
+      if (areaGroups.length === 0) {
+        Alert.alert(
+          t("orders:options.noProductionAreas"),
+          t("orders:options.noProductionAreasMessage"),
+        );
+        return;
+      }
+
+      for (const group of areaGroups) {
+        const activePrinter = group.area.printers?.find((p) => p.isActive);
+        if (!activePrinter) {
+          console.warn(
+            `No active printer found for production area: ${group.area.name}`,
+          );
+          continue;
+        }
+        await ThermalPrinterService.printComanda(
+          activePrinter,
+          order,
+          group.area.name,
+          group.details,
+        );
+      }
+    } catch (error) {
+      console.error("Error printing comanda:", error);
+      Alert.alert(
+        t("common:actions.error"),
+        t("orders:options.printComandaError"),
+      );
+    }
+  }, [order, t, productionAreas]);
+
   return {
     handlePrintOrder,
     handleShareOrder,
+    handlePrintComanda,
   };
 };

@@ -68,7 +68,8 @@ export default function OrderScreen() {
     order?.paymentStatus || OrderPaymentStatus.UNPAID,
   );
 
-  const { handlePrintOrder, handleShareOrder } = useOrderPrint(order);
+  const { handlePrintOrder, handleShareOrder, handlePrintComanda } =
+    useOrderPrint(order);
 
   // Update header title dynamically with order number
   useEffect(() => {
@@ -712,6 +713,11 @@ export default function OrderScreen() {
                 icon="share-outline"
                 label={t("orders:options.shareOrder")}
                 onPress={handleShareOrder}
+              />
+              <QuickActionButton
+                icon="restaurant-outline"
+                label={t("orders:options.printComanda")}
+                onPress={handlePrintComanda}
               />
             </ScrollView>
           </ThemedView>

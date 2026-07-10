@@ -1,3 +1,4 @@
+import { ProductionArea } from "./producion-area.model";
 import { ProductOption } from "./product-optionl.model";
 import { Tag } from "./tag.model";
 
@@ -22,4 +23,5 @@ export interface Product {
   iva: number;
   category: { id: string; name: string };
   options: ProductOption[];
+  productionArea: ProductionArea;
 }
