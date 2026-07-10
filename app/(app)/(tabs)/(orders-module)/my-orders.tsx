@@ -40,6 +40,7 @@ import OrderCard from "@/presentation/home/components/order-card";
 import OrderListByStatus from "@/presentation/orders/molecules/order-list-by-status";
 import OrderProductsCard from "@/presentation/home/components/order-products-card";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
+import OrderCardSkeleton from "@/presentation/home/components/order-card-skeleton";
 
 export default function MyOrdersScreen() {
   const { t } = useTranslation(["common", "orders", "errors"]);
@@ -65,7 +66,7 @@ export default function MyOrdersScreen() {
   );
   const primaryColor = useThemeColor({}, "primary");
   const { registerOpenViewPopover } = useOrdersModuleContext();
-  useActiveOrders();
+  const { isLoading: isLoadingOrders } = useActiveOrders({ skipGlobalLoader: true });
 
   useEffect(() => {
     registerOpenViewPopover((anchor) => {
@@ -252,7 +253,13 @@ export default function MyOrdersScreen() {
           </ThemedView>
         </ThemedView>
 
-        {orders.length === 0 ? (
+        {isLoadingOrders ? (
+          <ThemedView style={tw`px-4 gap-3`}>
+            <OrderCardSkeleton />
+            <OrderCardSkeleton />
+            <OrderCardSkeleton />
+          </ThemedView>
+        ) : orders.length === 0 ? (
           <ThemedView
             style={tw` items-center justify-center flex-1 gap-4 mt-20`}
           >
@@ -268,45 +275,6 @@ export default function MyOrdersScreen() {
           </ThemedView>
         ) : (
           <ThemedView style={tw`gap-6`}>
-            {/* Pending Products View */}
-            {/* {selectedView === "pending-products" && ( */}
-            {/*   <> */}
-            {/*     {orders.some((order) => */}
-            {/*       order.details.some( */}
-            {/*         (detail) => detail.quantity !== detail.qtyDelivered, */}
-            {/*       ), */}
-            {/*     ) ? ( */}
-            {/*       <ThemedView style={tw`px-4`}> */}
-            {/*         {orders.map((order) => { */}
-            {/*           const relativeTime = getRelativeTime(order.deliveryTime); */}
-            {/**/}
-            {/*           return order.status === OrderStatus.DELIVERED ? ( */}
-            {/*             <OrderCard order={order} key={order.id} /> */}
-            {/*           ) : ( */}
-            {/*             <OrderProductsCard order={order} key={order.id} /> */}
-            {/*           ); */}
-            {/*         })} */}
-            {/*       </ThemedView> */}
-            {/*     ) : ( */}
-            {/*       <ThemedView */}
-            {/*         style={tw`items-center justify-center flex-1 gap-4 mt-20`} */}
-            {/*       > */}
-            {/*         <Ionicons */}
-            {/*           name="checkmark-circle-outline" */}
-            {/*           size={80} */}
-            {/*           color={tw.color("green-500")} */}
-            {/*         /> */}
-            {/*         <ThemedText type="h3"> */}
-            {/*           {t("orders:list.noPendingProducts")} */}
-            {/*         </ThemedText> */}
-            {/*         <ThemedText type="body2" style={tw`text-center max-w-xs`}> */}
-            {/*           {t("orders:list.noPendingProductsDescription")} */}
-            {/*         </ThemedText> */}
-            {/*       </ThemedView> */}
-            {/*     )} */}
-            {/*   </> */}
-            {/* )} */}
-
             <OrderListByStatus orders={orders} showProducts />
           </ThemedView>
         )}

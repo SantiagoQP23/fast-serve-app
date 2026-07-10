@@ -2,17 +2,23 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { OrdersService } from "@/core/orders/services/orders.service";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
 import { useOrdersStore } from "../store/useOrdersStore";
 
-export const useActiveOrders = () => {
-  console.log('[useActiveOrders] Hook called');
+export const useActiveOrders = (
+  opts?: { skipGlobalLoader?: boolean },
+) => {
+  console.log("[useActiveOrders] Hook called");
   const setOrders = useOrdersStore((state) => state.setOrders);
   const { currentRestaurant } = useAuthStore((state) => state);
+  const setIsLoading = useGlobalStore((state) => state.setIsLoading);
 
   const activeOrdersQuery = useQuery({
     queryKey: ["activeOrders", currentRestaurant?.id],
     queryFn: async () => {
-      console.log(`[useActiveOrders] Fetching orders for restaurant: ${currentRestaurant?.id}`);
+      console.log(
+        `[useActiveOrders] Fetching orders for restaurant: ${currentRestaurant?.id}`,
+      );
       const result = await OrdersService.getActiveOrders();
       console.log(`[useActiveOrders] Fetched ${result.length} orders`);
       return result;
@@ -25,15 +31,23 @@ export const useActiveOrders = () => {
     // Always sync the query data with the store, even if it's empty
     if (activeOrdersQuery.data !== undefined) {
       console.log(
-        `[useActiveOrders] Setting active orders for restaurant ${currentRestaurant?.id}:`,
+        `[useActiveOrders] Setting active orders for restaurant ${currentRestaurant?.id}:`
+,
         activeOrdersQuery.data.length,
       );
       setOrders(activeOrdersQuery.data);
     }
   }, [activeOrdersQuery.data, setOrders, currentRestaurant?.id]);
 
+  useEffect(() => {
+    if (!opts?.skipGlobalLoader) {
+      setIsLoading(activeOrdersQuery.isLoading);
+    }
+  }, [activeOrdersQuery.isLoading, setIsLoading, opts?.skipGlobalLoader]);
+
   return {
     activeOrdersQuery,
+    isLoading: activeOrdersQuery.isLoading,
     refetchOrders: activeOrdersQuery.refetch,
     isRefetching: activeOrdersQuery.isRefetching,
   };
