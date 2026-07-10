@@ -37,6 +37,8 @@ import { useOrder } from "@/presentation/orders/hooks/useOrder";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
+import { useOrderPrint } from "@/presentation/orders/hooks/useOrderPrint";
+import QuickActionButton from "@/presentation/orders/components/quick-action-button";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 dayjs.extend(relativeTime);
@@ -65,6 +67,8 @@ export default function OrderScreen() {
   const { paymentStatus } = useOrderPaymentStatus(
     order?.paymentStatus || OrderPaymentStatus.UNPAID,
   );
+
+  const { handlePrintOrder, handleShareOrder } = useOrderPrint(order);
 
   // Update header title dynamically with order number
   useEffect(() => {
@@ -681,38 +685,30 @@ export default function OrderScreen() {
               {t("orders:details.actions")}
             </ThemedText>
             <ThemedView style={tw`flex-row gap-4 mt-3`}>
-              <ThemedView style={tw`gap-2 items-center`}>
-                <Pressable
-                  style={tw`flex items-center gap-2 px-4 py-2 min-w-15 w-20`}
-                  onPress={() => router.push(`/(order)/${order.id}/bills`)}
-                >
-                  <Ionicons name={"cash-outline"} size={26} style={tw``} />
-                </Pressable>
-
-                <ThemedText type="body2">
-                  {t("orders:details.payments")}
-                </ThemedText>
-              </ThemedView>
+              <QuickActionButton
+                icon="cash-outline"
+                label={t("orders:details.payments")}
+                onPress={() => router.push(`/(order)/${order.id}/bills`)}
+              />
               {order.status === OrderStatus.DELIVERED &&
                 order.isClosed === false &&
                 order.isPaid === true && (
-                  <ThemedView style={tw`gap-2 items-center`}>
-                    <Pressable
-                      style={tw`flex items-center gap-2 p-4 bg-gray-100 rounded-lg min-w-15 w-20`}
-                      onPress={handleCloseOrder}
-                    >
-                      <Ionicons
-                        name={"lock-closed-outline"}
-                        size={30}
-                        style={tw``}
-                      />
-                    </Pressable>
-
-                    <ThemedText type="body2">
-                      {t("orders:options.closeOrder")}
-                    </ThemedText>
-                  </ThemedView>
+                  <QuickActionButton
+                    icon="lock-closed-outline"
+                    label={t("orders:options.closeOrder")}
+                    onPress={handleCloseOrder}
+                  />
                 )}
+              <QuickActionButton
+                icon="print-outline"
+                label={t("orders:options.printOrder")}
+                onPress={handlePrintOrder}
+              />
+              <QuickActionButton
+                icon="share-outline"
+                label={t("orders:options.shareOrder")}
+                onPress={handleShareOrder}
+              />
             </ThemedView>
           </ThemedView>
 

@@ -11,6 +11,8 @@ import { formatCurrency } from "@/core/i18n/utils";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { ROUTES } from "@/constants/routes";
+import { useOrderPrint } from "@/presentation/orders/hooks/useOrderPrint";
+import QuickActionButton from "@/presentation/orders/components/quick-action-button";
 
 export default function OrderConfirmationScreen() {
   const { t } = useTranslation(["common", "orders"]);
@@ -28,6 +30,7 @@ export default function OrderConfirmationScreen() {
   if (!order) {
     return null;
   }
+  const { handlePrintOrder, handleShareOrder } = useOrderPrint(order);
 
   return (
     <>
@@ -120,6 +123,19 @@ export default function OrderConfirmationScreen() {
             </ThemedView>
           </ThemedView>
         </ThemedView>
+        <ThemedView style={tw`w-full flex-row gap-6 justify-center`}>
+          <QuickActionButton
+            icon="print-outline"
+            label={t("orders:options.printOrder")}
+            onPress={handlePrintOrder}
+          />
+          <QuickActionButton
+            icon="share-outline"
+            label={t("orders:options.shareOrder")}
+            onPress={handleShareOrder}
+          />
+        </ThemedView>
+
         <ThemedView style={tw`w-full flex-row gap-4 justify-center`}>
           <Button
             leftIcon="home-outline"

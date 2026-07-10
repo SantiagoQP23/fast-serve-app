@@ -111,8 +111,8 @@
   },
   "options": {
     "title": "Opciones de Pedido",
-    "printOrder": "Imprimir Pedido",
-    "shareOrder": "Compartir Pedido",
+    "printOrder": "Imprimir",
+    "shareOrder": "Compartir",
     "selectPrinter": "Seleccionar Impresora",
     "noPrinters": "Sin Impresoras",
     "noPrintersMessage": "No hay impresoras configuradas. Por favor agregue una impresora en la configuración.",
