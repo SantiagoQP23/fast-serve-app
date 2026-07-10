@@ -1,8 +1,6 @@
 import {
-  Platform,
   StyleSheet,
   ScrollView,
-  Text,
   Pressable,
   PressableProps,
 } from "react-native";
@@ -10,21 +8,11 @@ import {
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import OrderCard from "@/presentation/home/components/order-card";
 import { Ionicons } from "@expo/vector-icons";
-import DialogModal from "@/presentation/theme/components/dialog-modal";
-import { useState } from "react";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { router } from "expo-router";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
-import {
-  AVAILABLE_LANGUAGES,
-  type LanguageCode,
-} from "@/core/i18n/i18n.config";
-import Select from "@/presentation/theme/components/select";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
-import Card from "@/presentation/theme/components/card";
 import { typography } from "@/constants/theme";
 
 interface CardButtonProps extends PressableProps {
@@ -53,22 +41,19 @@ export const CardButton = ({ icon, label, onPress }: CardButtonProps) => {
 
 export default function OrdersScreen() {
   const { t } = useTranslation("auth");
-  const [visible, setVisible] = useState(false);
   const { user, currentRestaurant } = useAuthStore();
-  const { logout } = useAuthStore();
-  const language = useGlobalStore((state) => state.language);
-  const setLanguage = useGlobalStore((state) => state.setLanguage);
-
-  const handleLanguageChange = async (value: string | number) => {
-    await setLanguage(value as LanguageCode);
-  };
 
   return (
     <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <ThemedView style={tw` items-center gap-2 flex-row justify-between`}>
           <ThemedText type="h2">{t("profile.title")}</ThemedText>
-          <Ionicons name="settings-outline" size={22} />
+          <Pressable
+            onPress={() => router.push("/(profile)/settings")}
+            style={({ pressed }) => tw.style(pressed && "opacity-70")}
+          >
+            <Ionicons name="settings-outline" size={22} />
+          </Pressable>
         </ThemedView>
         <ThemedView style={tw`my-4`} />
         <ThemedView style={tw`items-center gap-2`}>
@@ -84,7 +69,7 @@ export default function OrdersScreen() {
               <ThemedText type="small" style={tw`text-gray-500`}>
                 Orders
               </ThemedText>
-              <ThemedView style={tw`gap-4`}>
+              <ThemedView style={tw`gap-6`}>
                 <CardButton
                   icon="albums-outline"
                   label={t("profile.allOrders")}
@@ -102,7 +87,7 @@ export default function OrdersScreen() {
               </ThemedView>
             </ThemedView>
 
-            <ThemedView style={tw`gap-4`}>
+            <ThemedView style={tw`gap-6`}>
               <ThemedText type="small" style={tw`text-gray-500`}>
                 Restaurant
               </ThemedText>
@@ -128,43 +113,7 @@ export default function OrdersScreen() {
                 }}
               />
             </ThemedView>
-            <ThemedView style={tw`gap-4`}>
-              <ThemedView style={tw`gap-2`}>
-                <Select
-                  label={t("profile.language")}
-                  options={Object.entries(AVAILABLE_LANGUAGES).map(
-                    ([code, name]) => ({
-                      value: code,
-                      label: name,
-                    }),
-                  )}
-                  value={language}
-                  onChange={handleLanguageChange}
-                />
-              </ThemedView>
-            </ThemedView>
-            <Pressable
-              style={({ pressed }) =>
-                tw.style(`flex-row items-center gap-4`, pressed && "opacity-70")
-              }
-              onPress={() => {
-                setVisible(true);
-              }}
-            >
-              <Ionicons name="log-out-outline" size={24} color="red" />
-              <ThemedText>{t("profile.logout")}</ThemedText>
-            </Pressable>
           </ThemedView>
-          <DialogModal
-            visible={visible}
-            title={t("dialogs.logoutTitle")}
-            message={t("dialogs.logoutMessage")}
-            onCancel={() => setVisible(false)}
-            onConfirm={() => {
-              setVisible(false);
-              logout();
-            }}
-          />
         </ThemedView>
       </ScrollView>
     </ScreenLayout>

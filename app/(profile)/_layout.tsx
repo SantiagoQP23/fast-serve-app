@@ -6,7 +6,7 @@ import { router, Stack } from "expo-router";
 import { useCallback, useRef } from "react";
 
 export default function OrdersLayout() {
-  const { t } = useTranslation("orders");
+  const { t } = useTranslation(["auth", "orders"]);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const closeBottomSheet = () => {
@@ -41,7 +41,7 @@ export default function OrdersLayout() {
           name="all-orders"
           options={{
             headerShown: true,
-            title: t("drawer.allOrders"),
+            title: t("orders:drawer.allOrders"),
             headerShadowVisible: false,
           }}
         />
@@ -50,7 +50,7 @@ export default function OrdersLayout() {
           name="history"
           options={{
             headerShown: true,
-            title: t("drawer.history"),
+            title: t("orders:drawer.history"),
             headerShadowVisible: false,
           }}
         />
@@ -60,6 +60,15 @@ export default function OrdersLayout() {
           options={{
             headerShown: true,
             title: "Printers",
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="settings"
+          options={{
+            headerShown: true,
+            title: t("profile.settings"),
             headerShadowVisible: false,
           }}
         />
