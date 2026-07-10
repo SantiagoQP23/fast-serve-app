@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pressable } from "react-native";
+import { Pressable, ScrollView } from "react-native";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { Ionicons } from "@expo/vector-icons";
@@ -174,7 +174,12 @@ export default function PaymentMethodSummaryCard({
                       </ThemedView>
                     </ThemedView>
 
-                    <ThemedView style={tw`ml-5 mt-1 p-1`}>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={tw`gap-2`}
+                      style={tw`mt-2`}
+                    >
                       {pm.incomeByAccount.map((account) => {
                         const totalIncome = showTotalIncome
                           ? formatCurrency(account.totalIncome)
@@ -183,16 +188,22 @@ export default function PaymentMethodSummaryCard({
                         return (
                           <ThemedView
                             key={account.accountId}
-                            style={tw`flex-row items-center justify-between gap-1`}
+                            style={tw`w-36 bg-gray-50 rounded-xl p-3 border border-gray-100`}
                           >
-                            <ThemedText type="small">
+                            <ThemedText
+                              type="small"
+                              style={tw`text-gray-500 mb-1`}
+                              numberOfLines={1}
+                            >
                               {account.accountName}
                             </ThemedText>
-                            <ThemedText type="small">{totalIncome}</ThemedText>
+                            <ThemedText type="body2" style={tw`font-semibold`}>
+                              {totalIncome}
+                            </ThemedText>
                           </ThemedView>
                         );
                       })}
-                    </ThemedView>
+                    </ScrollView>
                   </ThemedView>
                 );
               })}
