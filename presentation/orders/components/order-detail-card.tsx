@@ -347,12 +347,14 @@ export default function OrderDetailCard({
                         </ThemedView>
                       )}
                     </ThemedView>
-                    {!isCancelled && detail.quantity > 1 && (
-                      <ProgressBar
-                        progress={detail.qtyDelivered / detail.quantity}
-                        height={1}
-                      />
-                    )}
+                    {!isCancelled &&
+                      detail.quantity > 1 &&
+                      detail.status !== OrderDetailStatus.DELIVERED && (
+                        <ProgressBar
+                          progress={detail.qtyDelivered / detail.quantity}
+                          height={1}
+                        />
+                      )}
                   </ThemedView>
                 </ThemedView>
                 <ThemedView style={tw`flex-row gap-4 flex-wrap`}>

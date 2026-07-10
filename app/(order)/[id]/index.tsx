@@ -560,7 +560,7 @@ export default function OrderScreen() {
               </Pressable>
 
               {isDeliveredExpanded && (
-                <ThemedView style={tw`gap-3 mt-2 opacity-60`}>
+                <ThemedView style={tw`gap-3 mt-2 `}>
                   {deliveredDetails.map((detail) => (
                     <OrderDetailCard
                       key={detail.id}
@@ -684,7 +684,11 @@ export default function OrderScreen() {
             <ThemedText type="body2" style={tw`text-gray-500`}>
               {t("orders:details.actions")}
             </ThemedText>
-            <ThemedView style={tw`flex-row gap-4 mt-3`}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={tw`gap-4 mt-3`}
+            >
               <QuickActionButton
                 icon="cash-outline"
                 label={t("orders:details.payments")}
@@ -709,7 +713,7 @@ export default function OrderScreen() {
                 label={t("orders:options.shareOrder")}
                 onPress={handleShareOrder}
               />
-            </ThemedView>
+            </ScrollView>
           </ThemedView>
 
           <ThemedView style={tw`my-10`}>
