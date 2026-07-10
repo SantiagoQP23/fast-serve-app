@@ -41,6 +41,8 @@ import { OrderType } from "@/core/orders/enums/order-type.enum";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Ionicons } from "@expo/vector-icons";
+import { useBillPrint } from "@/presentation/orders/hooks/useBillPrint";
+import QuickActionButton from "@/presentation/orders/components/quick-action-button";
 
 dayjs.extend(relativeTime);
 
@@ -92,6 +94,8 @@ export default function BillScreen() {
     setBillDiscount(discount);
   }, [discount, setBillDiscount]);
 
+  const { handlePrintBill, handleShareBill } = useBillPrint(bill);
+
   const onRefresh = useCallback(async () => {
     try {
       setRefreshing(true);
@@ -126,8 +130,6 @@ export default function BillScreen() {
   }
 
   const closeModal = () => setVisible(false);
-
-  const date = getFormattedDate(bill.createdAt);
   const createdAt = dayjs(bill.createdAt);
   const updatedAt = dayjs(bill.updatedAt);
   const createdAtLabel = `${createdAt.fromNow()} · ${createdAt.format(
@@ -504,25 +506,42 @@ export default function BillScreen() {
               </ThemedView>
             </ScrollView>
 
-            {bill.status !== BillStatus.PAID && (
-              <ThemedView
-                style={tw`flex-row items-center mb-4 gap-3 border-t border-gray-200 pt-4`}
+            <ThemedView style={tw` pt-4 mb-4`}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={tw`gap-4 `}
               >
-                <IconButton
-                  icon="trash-outline"
-                  color={tw.color("red-500")}
-                  onPress={() => setVisible(true)}
-                />
-                {canChargeBill && (
-                  <ThemedView style={tw`flex-1`}>
-                    <Button
-                      label={t("bills:details.payBill")}
-                      onPress={handlePayBillPress}
+                {bill.status !== BillStatus.PAID && (
+                  <>
+                    <IconButton
+                      icon="trash-outline"
+                      onPress={() => setVisible(true)}
+                      size={26}
+                      color="danger"
                     />
-                  </ThemedView>
+                  </>
                 )}
-              </ThemedView>
-            )}
+                <IconButton
+                  icon="print-outline"
+                  onPress={handlePrintBill}
+                  size={26}
+                />
+                <IconButton
+                  icon="share-outline"
+                  onPress={handleShareBill}
+                  size={26}
+                />
+                {bill.status !== BillStatus.PAID && canChargeBill && (
+                  <Button
+                    leftIcon="card-outline"
+                    label={t("bills:details.payBill")}
+                    onPress={handlePayBillPress}
+                    size="small"
+                  />
+                )}
+              </ScrollView>
+            </ThemedView>
           </ThemedView>
         </KeyboardAvoidingView>
       </ScreenLayout>

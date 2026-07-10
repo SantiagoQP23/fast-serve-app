@@ -34,16 +34,20 @@ interface CardButtonProps extends PressableProps {
 
 export const CardButton = ({ icon, label, onPress }: CardButtonProps) => {
   return (
-    <Card onPress={onPress}>
-      <ThemedView style={tw`  gap-4`}>
-        <ThemedView>
-          <Ionicons name={icon} size={22} />
+    <>
+      {/* <Card onPress={onPress}> */}
+      <Pressable onPress={onPress}>
+        <ThemedView style={tw`flex-row gap-4`}>
+          <ThemedView>
+            <Ionicons name={icon} size={22} />
+          </ThemedView>
+          <ThemedText style={[{ fontFamily: typography.medium }]}>
+            {label}
+          </ThemedText>
         </ThemedView>
-        <ThemedText style={[{ fontFamily: typography.medium }]}>
-          {label}
-        </ThemedText>
-      </ThemedView>
-    </Card>
+      </Pressable>
+      {/* </Card> */}
+    </>
   );
 };
 
@@ -80,7 +84,7 @@ export default function OrdersScreen() {
               <ThemedText type="small" style={tw`text-gray-500`}>
                 Orders
               </ThemedText>
-              <ThemedView style={tw`gap-2`}>
+              <ThemedView style={tw`gap-4`}>
                 <CardButton
                   icon="albums-outline"
                   label={t("profile.allOrders")}
