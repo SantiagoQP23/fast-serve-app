@@ -7,6 +7,7 @@ import {
   OrderDetail,
   OrderDetailStatus,
 } from "@/core/orders/models/order-detail.model";
+import { OrderType } from "@/core/orders/enums/order-type.enum";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
 import { useOrders } from "../hooks/useOrders";
 import { useOrdersStore } from "../store/useOrdersStore";
@@ -18,6 +19,7 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
+import BottomSheetPicker, { BottomSheetPickerRef } from "@/presentation/theme/components/bottom-sheet-picker";
 import OrderDetailActionsBottomSheet from "./order-detail-actions-bottom-sheet";
 import { formatCurrency } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
@@ -43,6 +45,7 @@ export default function OrderDetailCard({
   const [visible, setVisible] = useState(false);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const deliveredSheetRef = useRef<BottomSheetModal>(null);
+  const typePickerRef = useRef<BottomSheetPickerRef>(null);
   const [deliveredDraft, setDeliveredDraft] = useState(detail.qtyDelivered);
 
   const createdBy = detail.createdBy;
@@ -365,13 +368,30 @@ export default function OrderDetailCard({
                     size="small"
                     onPress={isCancelled ? undefined : handleOpenDeliveredSheet}
                   />
+                  {detail.typeOrderDetail !== order?.type && (
+                    <Label
+                      text={
+                        detail.typeOrderDetail === OrderType.IN_PLACE
+                          ? t("common:orderType.inPlace")
+                          : t("common:orderType.takeAway")
+                      }
+                      leftIcon={
+                        detail.typeOrderDetail === OrderType.IN_PLACE
+                          ? "restaurant-outline"
+                          : "bag-outline"
+                      }
+                      color="outline"
+                      size="small"
+                      onPress={() => typePickerRef.current?.present()}
+                    />
+                  )}
 
-                  <Label
-                    leftIcon="notifications-outline"
-                    text={String(detail.readyQuantity)}
-                    color="default"
-                    size="small"
-                  />
+                  {/* <Label */}
+                  {/*   leftIcon="notifications-outline" */}
+                  {/*   text={String(detail.readyQuantity)} */}
+                  {/*   color="default" */}
+                  {/*   size="small" */}
+                  {/* /> */}
 
                   {showCreatedBy && (
                     <Label
@@ -395,6 +415,30 @@ export default function OrderDetailCard({
           </Pressable>
         </Swipeable>
       </ThemedView>
+
+      <BottomSheetPicker
+        ref={typePickerRef}
+        title={t("orders:newOrder.orderType")}
+        options={[
+          { label: t("common:orderType.inPlace"), value: OrderType.IN_PLACE },
+          { label: t("common:orderType.takeAway"), value: OrderType.TAKE_AWAY },
+        ]}
+        value={detail.typeOrderDetail}
+        onChange={(value) => {
+          const currentOrderId = orderId || order?.id;
+          if (!currentOrderId) return;
+          updateOrderDetail(
+            {
+              id: detail.id,
+              orderId: currentOrderId,
+              typeOrderDetail: value as OrderType,
+            },
+            {
+              onSuccess: () => {},
+            },
+          );
+        }}
+      />
     </>
   );
 }

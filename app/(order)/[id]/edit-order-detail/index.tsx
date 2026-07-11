@@ -20,8 +20,10 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
+import BottomSheetPicker, { BottomSheetPickerRef } from "@/presentation/theme/components/bottom-sheet-picker";
 import { useOrderDetailStatus } from "@/presentation/orders/hooks/useOrderDetailStatus";
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
+import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { Ionicons } from "@expo/vector-icons";
 import { KeyboardAvoidingView } from "react-native";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
@@ -32,6 +34,7 @@ export default function EditOrderDetailScreen() {
   const { t } = useTranslation(["common", "orders", "menu"]);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const activitySheetRef = useRef<BottomSheetModal>(null);
+  const typePickerRef = useRef<BottomSheetPickerRef>(null);
   const orderDetail = useOrdersStore((state) => state.activeOrderDetail);
   const order = useOrdersStore((state) => state.activeOrder);
 
@@ -190,6 +193,21 @@ export default function EditOrderDetailScreen() {
                 leftIcon={statusIcon}
                 size="small"
                 onPress={openDeliveredBottomSheet}
+              />
+              <Label
+                text={
+                  orderDetail.typeOrderDetail === OrderType.IN_PLACE
+                    ? t("common:orderType.inPlace")
+                    : t("common:orderType.takeAway")
+                }
+                leftIcon={
+                  orderDetail.typeOrderDetail === OrderType.IN_PLACE
+                    ? "restaurant-outline"
+                    : "bag-outline"
+                }
+                color="outline"
+                size="small"
+                onPress={() => typePickerRef.current?.present()}
               />
               <Label
                 leftIcon="notifications-outline"
@@ -403,6 +421,28 @@ export default function EditOrderDetailScreen() {
         <OrderDetailActivityBottomSheet
           detail={orderDetail}
           bottomSheetRef={activitySheetRef}
+        />
+
+        <BottomSheetPicker
+          ref={typePickerRef}
+          title={t("orders:newOrder.orderType")}
+          options={[
+            { label: t("common:orderType.inPlace"), value: OrderType.IN_PLACE },
+            { label: t("common:orderType.takeAway"), value: OrderType.TAKE_AWAY },
+          ]}
+          value={orderDetail.typeOrderDetail}
+          onChange={(value) => {
+            updateOrderDetail(
+              {
+                id: orderDetail.id,
+                orderId: order!.id,
+                typeOrderDetail: value as OrderType,
+              },
+              {
+                onSuccess: () => {},
+              },
+            );
+          }}
         />
       </KeyboardAvoidingView>
     </>

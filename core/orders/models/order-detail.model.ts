@@ -2,6 +2,7 @@ import { User } from "@/core/auth/models/user.model";
 import { ProductOption } from "@/core/menu/models/product-optionl.model";
 import { Product } from "@/core/menu/models/product.model";
 import { Tag } from "@/core/menu/models/tag.model";
+import { OrderType } from "../enums/order-type.enum";
 
 export enum OrderDetailStatus {
   PENDING = "PENDING",
@@ -38,6 +39,7 @@ export interface OrderDetail {
   tags: Tag[];
   createdBy?: User;
   updatedBy?: User;
+  typeOrderDetail: OrderType;
 
   // typeOrderDetail: TypeOrder;
   productOption?: ProductOption;

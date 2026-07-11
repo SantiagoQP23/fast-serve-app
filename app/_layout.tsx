@@ -1,9 +1,5 @@
 import { useColorScheme } from "@/presentation/theme/hooks/use-color-scheme";
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
+import { Toaster } from "sonner-native";
 import { router, Stack, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
@@ -158,6 +154,7 @@ export default function RootLayout() {
         >
           {renderContent()}
         </SafeAreaView>
+        <Toaster />
       </GestureHandlerRootView>
     </QueryClientProvider>
   );

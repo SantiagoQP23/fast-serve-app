@@ -1,5 +1,4 @@
 import { BottomSheetTextInput, BottomSheetView } from "@gorhom/bottom-sheet";
-import { View, Text, Alert } from "react-native";
 import { ThemedView } from "../theme/components/themed-view";
 import ButtonGroup from "../theme/components/button-group";
 import Select from "../theme/components/select";
@@ -7,7 +6,6 @@ import tw from "../theme/lib/tailwind";
 import { useState } from "react";
 import { useNewOrderStore } from "./store/newOrderStore";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
-import { Table } from "@/core/tables/models/table.model";
 import Button, { ButtonProps } from "../theme/components/button";
 import { ThemedText } from "../theme/components/themed-text";
 import Switch from "../theme/components/switch";
@@ -18,6 +16,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { i18nAlert } from "@/core/i18n/utils";
 import { useOrderTypes } from "./hooks/useOrderTypes";
 import { typography } from "@/constants/theme";
+import { toast } from "sonner-native";
 
 interface NewOrderBottomSheetProps {
   onCreateOrder?: () => void;
@@ -47,11 +46,13 @@ const NewOrderBottomSheet = ({
 
   const validateNewOrder = () => {
     if (orderType === OrderType.IN_PLACE && !table) {
-      i18nAlert(t("alerts.selectTable"));
+      toast.error(t("alerts.selectTable"));
+      // i18nAlert(t("alerts.selectTable"));
       return false;
     }
     if (people <= 0) {
-      i18nAlert(t("alerts.inputPeople"));
+      toast.error(t("alerts.inputPeople"));
+      // i18nAlert(t("alerts.inputPeople"));
       return false;
     }
     setActiveOrder(null); // Reset active order
