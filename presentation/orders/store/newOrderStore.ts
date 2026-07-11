@@ -64,7 +64,13 @@ export const useNewOrderStore = create<NewOrderState & NewOrderActions>()(
       addDetail: (detail: NewOrderDetail) => {
         const details = get().details;
         const id = Math.random().toString(36).slice(2);
-        set({ details: [...details, { ...detail, id }] });
+        const orderType = get().orderType;
+        set({
+          details: [
+            ...details,
+            { ...detail, id, typeOrderDetail: detail.typeOrderDetail ?? orderType },
+          ],
+        });
       },
 
       removeDetail: (detail: NewOrderDetail) => {
@@ -91,6 +97,8 @@ export const useNewOrderStore = create<NewOrderState & NewOrderActions>()(
                   description: detail.description,
                   price: detail.price,
                   tagIds: detail.tagIds,
+                  productOption: detail.productOption,
+                  typeOrderDetail: detail.typeOrderDetail,
                 }
               : d,
           ),

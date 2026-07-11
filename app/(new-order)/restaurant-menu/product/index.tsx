@@ -23,12 +23,16 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
+import BottomSheetPicker, { BottomSheetPickerRef } from "@/presentation/theme/components/bottom-sheet-picker";
+import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { KeyboardAvoidingView } from "react-native";
 
 export default function ProductScreen() {
   const { t } = useTranslation(["menu", "orders"]);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const typePickerRef = useRef<BottomSheetPickerRef>(null);
   const activeOrderDetail = useNewOrderStore((state) => state.activeDetail);
+  const orderType = useNewOrderStore((state) => state.orderType);
   const { counter, increment, decrement } = useCounter(
     activeOrderDetail?.quantity,
     1,
@@ -49,6 +53,10 @@ export default function ProductScreen() {
 
   const [price, setPrice] = useState(
     String(activeOrderDetail ? activeOrderDetail.price : selectedOption?.price),
+  );
+
+  const [typeOrderDetail, setTypeOrderDetail] = useState<OrderType>(
+    activeOrderDetail?.typeOrderDetail ?? orderType,
   );
 
   const toggleTag = (id: string) => {
@@ -132,6 +140,7 @@ export default function ProductScreen() {
         price: effectivePrice,
         tagIds: selectedTagIds,
         productOption: selectedOption!,
+        typeOrderDetail,
       });
     } else {
       updateDetail({
@@ -141,6 +150,7 @@ export default function ProductScreen() {
         price: effectivePrice,
         tagIds: selectedTagIds,
         productOption: selectedOption!,
+        typeOrderDetail,
       });
     }
   };
@@ -218,6 +228,24 @@ export default function ProductScreen() {
             )}
           </ThemedView>
 
+            <ThemedView style={tw`flex-row gap-2`}>
+              <Label
+                text={
+                  typeOrderDetail === OrderType.IN_PLACE
+                    ? t("common:orderType.inPlace")
+                    : t("common:orderType.takeAway")
+                }
+                leftIcon={
+                  typeOrderDetail === OrderType.IN_PLACE
+                    ? "restaurant-outline"
+                    : "bag-outline"
+                }
+                color="outline"
+                size="small"
+                onPress={() => typePickerRef.current?.present()}
+              />
+            </ThemedView>
+
           <TextInput
             numberOfLines={4}
             multiline
@@ -266,6 +294,17 @@ export default function ProductScreen() {
           </ThemedView>
         </ScreenLayout>
       </KeyboardAvoidingView>
+
+      <BottomSheetPicker
+        ref={typePickerRef}
+        title={t("orders:newOrder.orderType")}
+        options={[
+          { label: t("common:orderType.inPlace"), value: OrderType.IN_PLACE },
+          { label: t("common:orderType.takeAway"), value: OrderType.TAKE_AWAY },
+        ]}
+        value={typeOrderDetail}
+        onChange={(value) => setTypeOrderDetail(value as OrderType)}
+      />
 
       <BottomSheetModal
         ref={bottomSheetModalRef}

@@ -16,4 +16,5 @@ export interface CreateOrderDetailDto {
   description?: string;
   price?: number;
   productOptionId: number;
+  typeOrderDetail: OrderType;
 }

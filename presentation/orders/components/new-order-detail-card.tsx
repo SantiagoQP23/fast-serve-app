@@ -9,6 +9,8 @@ import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { router } from "expo-router";
 import { NewOrderDetail } from "@/core/orders/dto/new-order-detail.dto";
 import { useNewOrderStore } from "../store/newOrderStore";
+import { OrderType } from "@/core/orders/enums/order-type.enum";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import IconButton from "@/presentation/theme/components/icon-button";
@@ -21,7 +23,9 @@ export default function NewOrderDetailCard({
   detail,
   onPress,
 }: NewOrderDetailCardProps) {
+  const { t } = useTranslation(["common"]);
   const { removeDetail, updateDetail } = useNewOrderStore();
+  const orderType = useNewOrderStore((state) => state.orderType);
   const { counter, increment, decrement } = useCounter(
     detail.quantity,
     1,
@@ -89,6 +93,24 @@ export default function NewOrderDetailCard({
                 .map((tag) => (
                   <Label key={tag.id} text={tag.name} color="default" />
                 ))}
+            </ThemedView>
+          )}
+          {detail.typeOrderDetail && detail.typeOrderDetail !== orderType && (
+            <ThemedView style={tw`flex-row gap-2 bg-transparent`}>
+              <Label
+                text={
+                  detail.typeOrderDetail === OrderType.IN_PLACE
+                    ? t("common:orderType.inPlace")
+                    : t("common:orderType.takeAway")
+                }
+                leftIcon={
+                  detail.typeOrderDetail === OrderType.IN_PLACE
+                    ? "restaurant-outline"
+                    : "bag-outline"
+                }
+                color="outline"
+                size="small"
+              />
             </ThemedView>
           )}
           <ThemedView
