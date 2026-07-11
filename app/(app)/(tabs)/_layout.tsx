@@ -22,6 +22,7 @@ import useOrdersModuleContext from "./(orders-module)/orders-module.context";
 import NotificationBadge from "@/presentation/theme/components/notification-badge";
 import { getRoutes } from "expo-router/build/getRoutesCore";
 import { ROUTES } from "@/constants/routes";
+import { ThemedText } from "@/presentation/theme/components/themed-text";
 
 function MyOrdersHeaderRight() {
   const router = useRouter();
@@ -99,27 +100,45 @@ export default function TabLayout() {
           tabBarActiveTintColor: Colors[colorScheme ?? "light"].primary,
           headerShown: false,
           // tabBarActiveTintColor: Colors["light"].tint,
-          // tabBarStyle: {
-          //   backgroundColor: Colors["light"].background,
-          // },
+          tabBarStyle: {
+            backgroundColor: Colors["light"].background,
+            height: 64,
+            paddingTop: 6,
+            paddingBottom: 0,
+            alignItems: "center",
+            alignContent: "center",
+          },
+          tabBarItemStyle: {
+            height: 64,
+            justifyContent: "center",
+            alignItems: "center",
+            paddingVertical: 0,
+          },
         }}
       >
         <Tabs.Screen
           name="(orders-module)"
           options={{
-            title: t("navigation.home"),
+            tabBarLabel: ({ focused }) =>
+              focused ? (
+                <ThemedText type="small">{t("navigation.home")}</ThemedText>
+              ) : null,
             tabBarIcon: ({ color }) => (
               <Ionicons color={color} name="home-outline" size={24} />
             ),
             headerShown: true,
             headerShadowVisible: false,
+            title: t("navigation.home"),
             headerRight: () => <MyOrdersHeaderRight />,
           }}
         />
         <Tabs.Screen
           name="sales"
           options={{
-            title: t("navigation.sales"),
+            tabBarLabel: ({ focused }) =>
+              focused ? (
+                <ThemedText type="small">{t("navigation.sales")}</ThemedText>
+              ) : null,
             tabBarIcon: ({ color }) => (
               <Ionicons color={color} name="pricetag-outline" size={24} />
             ),
@@ -128,7 +147,10 @@ export default function TabLayout() {
         <Tabs.Screen
           name="tables"
           options={{
-            title: t("navigation.tables"),
+            tabBarLabel: ({ focused }) =>
+              focused ? (
+                <ThemedText type="small">{t("navigation.tables")}</ThemedText>
+              ) : null,
             tabBarIcon: ({ color }) => (
               <Ionicons color={color} name="grid-outline" size={24} />
             ),
@@ -137,7 +159,10 @@ export default function TabLayout() {
         <Tabs.Screen
           name="incomes"
           options={{
-            title: t("navigation.incomes"),
+            tabBarLabel: ({ focused }) =>
+              focused ? (
+                <ThemedText type="small">{t("navigation.incomes")}</ThemedText>
+              ) : null,
             tabBarIcon: ({ color }) => (
               <Ionicons color={color} name="stats-chart-outline" size={24} />
             ),
@@ -147,7 +172,10 @@ export default function TabLayout() {
         <Tabs.Screen
           name="profile"
           options={{
-            title: t("navigation.profile"),
+            tabBarLabel: ({ focused }) =>
+              focused ? (
+                <ThemedText type="small">{t("navigation.profile")}</ThemedText>
+              ) : null,
             // headerShown: true,
             tabBarIcon: ({ color }) => (
               <Ionicons color={color} name="person-outline" size={24} />
