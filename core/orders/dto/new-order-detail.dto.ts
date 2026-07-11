@@ -10,5 +10,5 @@ export interface NewOrderDetail {
   price?: number;
   tagIds?: string[];
   productOption: ProductOption;
-  typeOrderDetail?: OrderType;
+  typeOrderDetail: OrderType;
 }

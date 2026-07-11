@@ -37,6 +37,7 @@ export interface AddOrderDetailToOrderDto {
   description?: string;
   productOptionId?: number;
   tagIds?: string[];
+  typeOrderDetail?: OrderType;
 }
 
 export interface DeleteOrderDetailDto {
