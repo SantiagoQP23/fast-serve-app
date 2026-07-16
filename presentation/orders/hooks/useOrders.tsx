@@ -2,11 +2,9 @@ import { CreateOrderDto } from "@/core/orders/dto/create-order.dto";
 import { OrderSocketEvent } from "@/core/orders/enums/socket-events.enum";
 import { Order } from "@/core/orders/models/order.model";
 import { useWebsocketEventEmitter } from "@/presentation/shared/hooks/useWebsocketEventEmitter";
-import { router } from "expo-router";
 import { Alert } from "react-native";
-import { mapStoreToCreateOrderDto } from "../mappers/createOrder.mapper";
-import { useNewOrderStore } from "../store/newOrderStore";
 import { useOrdersStore } from "../store/useOrdersStore";
+import { usePrintComanda } from "./usePrintComanda";
 import {
   AddOrderDetailToOrderDto,
   DeleteOrderDetailDto,
@@ -20,12 +18,16 @@ import { useWebsocketEventListener } from "@/presentation/shared/hooks/useWebsoc
 export const useOrders = () => {
   console.log("[useOrders] Hook called");
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
+  const { printComanda } = usePrintComanda();
+
   const createOrderEmitter = useWebsocketEventEmitter<Order, CreateOrderDto>(
     OrderSocketEvent.createOrder,
     {
       onSuccess: (resp) => {
-        // Alert.alert("Success", "Order created successfully");
-        // router.replace("/(new-order)/order-confirmation", { withAnchor: true, params: { orderId: resp.id } });
+        if (resp.data) {
+          setActiveOrder(resp.data);
+          printComanda(resp.data);
+        }
       },
       onError: (resp) => {
         Alert.alert("Error", resp.msg);

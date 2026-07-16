@@ -84,7 +84,7 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
               onPress={() => openOrder()}
             />
           </ThemedView>
-          <ThemedView style={tw`flex-row items-center gap-2 mt-3 flex-wrap`}>
+          <ThemedView style={tw`flex-row items-center gap-2 mt-2 flex-wrap`}>
             <Label
               text={relativeTime}
               leftIcon="time-outline"

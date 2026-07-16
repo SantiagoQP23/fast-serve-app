@@ -7,14 +7,12 @@ import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import { useOrderPaymentStatus } from "./useOrderPaymentStatus";
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
-import { ThermalPrinterService } from "@/core/printers/services/thermal-printer.service";
-import { ProductionArea } from "@/core/menu/models/producion-area.model";
-import { useProductionAreas } from "@/presentation/production-areas/hooks/useProductionAreas";
+import { usePrintComanda } from "./usePrintComanda";
 
 export const useOrderPrint = (order: Order) => {
   const { t, language } = useTranslation(["common", "orders", "bills"]);
   const { paymentStatus } = useOrderPaymentStatus(order.paymentStatus);
-  const { productionAreas } = useProductionAreas();
+  const { printComanda: handlePrintComanda } = usePrintComanda();
 
   const toCamelCase = (str: string) =>
     str.toLowerCase().replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
@@ -209,61 +207,6 @@ export const useOrderPrint = (order: Order) => {
       console.error("Error sharing order:", error);
     }
   }, [generateOrderHtml, order.details.length, order.num, t]);
-
-  const handlePrintComanda = useCallback(async () => {
-    const toastId = toast.loading(t("orders:options.printingComanda"));
-    try {
-      const detailsByArea = order.details.reduce(
-        (acc, detail) => {
-          const productArea = detail.product.productionArea;
-          if (!productArea) return acc;
-
-          const fullArea = productionAreas.find(
-            (pa) => pa.id === productArea.id,
-          );
-          if (!fullArea || !fullArea.isActive) return acc;
-
-          const areaId = fullArea.id;
-          if (!acc[areaId]) {
-            acc[areaId] = { area: fullArea, details: [] };
-          }
-          acc[areaId].details.push(detail);
-          return acc;
-        },
-        {} as Record<
-          number,
-          { area: ProductionArea; details: Order["details"] }
-        >,
-      );
-
-      const areaGroups = Object.values(detailsByArea);
-
-      if (areaGroups.length === 0) {
-        toast.error(t("orders:options.noProductionAreas"), { id: toastId });
-        return;
-      }
-
-      for (const group of areaGroups) {
-        const activePrinter = group.area.printers?.find((p) => p.isActive);
-        if (!activePrinter) {
-          console.warn(
-            `No active printer found for production area: ${group.area.name}`,
-          );
-          continue;
-        }
-        await ThermalPrinterService.printComanda(
-          activePrinter,
-          order,
-          group.area.name,
-          group.details,
-        );
-      }
-      toast.success(t("orders:options.printComandaSuccess"), { id: toastId });
-    } catch (error) {
-      console.error("Error printing comanda:", error);
-      toast.error(t("orders:options.printComandaError"), { id: toastId });
-    }
-  }, [order, t, productionAreas]);
 
   return {
     handlePrintOrder,

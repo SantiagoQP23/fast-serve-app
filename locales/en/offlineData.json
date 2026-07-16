@@ -37,5 +37,22 @@
       "confirm": "Clear",
       "cancel": "Cancel"
     }
+  },
+  "productionAreas": {
+    "title": "Production Areas",
+    "totalAreas": "Total areas",
+    "refetch": "Refetch production areas",
+    "refetching": "Refetching...",
+    "loading": "Loading...",
+    "noCache": "No production areas data",
+    "noCacheDescription": "Production areas will be loaded automatically when needed.",
+    "loadButton": "Load Production Areas",
+    "clearCache": {
+      "button": "Clear production areas data",
+      "title": "Clear Production Areas",
+      "message": "Are you sure you want to clear the production areas data?",
+      "confirm": "Clear",
+      "cancel": "Cancel"
+    }
   }
 }

@@ -11,6 +11,8 @@ import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
 import { useTables } from "@/presentation/tables/hooks/useTables";
 import { usePaymentMethods } from "@/presentation/restaurant/hooks/usePaymentMethods";
 import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
+import { useProductionAreas } from "@/presentation/production-areas/hooks/useProductionAreas";
+import { useProductionAreasStore } from "@/presentation/production-areas/store/useProductionAreasStore";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
@@ -47,6 +49,16 @@ export default function RestaurantOfflineDataScreen() {
   } = usePaymentMethodsStore();
   const { paymentMethodsQuery } = usePaymentMethods();
   const [isRefetchingPaymentMethods, setIsRefetchingPaymentMethods] =
+    useState(false);
+
+  // Production areas state
+  const {
+    productionAreas,
+    lastUpdated: productionAreasLastUpdated,
+    clearProductionAreas,
+  } = useProductionAreasStore();
+  const { getAllQuery: productionAreasQuery } = useProductionAreas();
+  const [isRefetchingProductionAreas, setIsRefetchingProductionAreas] =
     useState(false);
 
   const formatDate = (timestamp: number | null) => {
@@ -140,10 +152,39 @@ export default function RestaurantOfflineDataScreen() {
     );
   };
 
+  // Production areas handlers
+  const handleRefetchProductionAreas = async () => {
+    setIsRefetchingProductionAreas(true);
+    try {
+      await productionAreasQuery.refetch();
+    } finally {
+      setIsRefetchingProductionAreas(false);
+    }
+  };
+
+  const handleClearProductionAreas = () => {
+    Alert.alert(
+      t("offlineData:productionAreas.clearCache.title"),
+      t("offlineData:productionAreas.clearCache.message"),
+      [
+        {
+          text: t("offlineData:productionAreas.clearCache.cancel"),
+          style: "cancel",
+        },
+        {
+          text: t("offlineData:productionAreas.clearCache.confirm"),
+          style: "destructive",
+          onPress: () => clearProductionAreas(),
+        },
+      ],
+    );
+  };
+
   const hasMenu =
     sections.length > 0 || categories.length > 0 || products.length > 0;
   const hasTables = tables.length > 0;
   const hasPaymentMethods = paymentMethods.length > 0;
+  const hasProductionAreas = productionAreas.length > 0;
 
   return (
     <ScreenLayout style={tw`flex-1 px-4 pt-2`}>
@@ -451,6 +492,97 @@ export default function RestaurantOfflineDataScreen() {
                   onPress={handleRefetchPaymentMethods}
                   disabled={isRefetchingPaymentMethods}
                   loading={isRefetchingPaymentMethods}
+                />
+              </ThemedView>
+            )}
+          </ThemedView>
+
+          {/* Divider */}
+          <ThemedView style={tw`h-px bg-gray-200 dark:bg-gray-700`} />
+
+          {/* Production Areas Section */}
+          <ThemedView style={tw`gap-4`}>
+            <ThemedView style={tw`flex-row items-center gap-2`}>
+              <Ionicons name="construct-outline" size={24} />
+              <ThemedText type="h2">{t("offlineData:productionAreas.title")}</ThemedText>
+            </ThemedView>
+
+            {hasProductionAreas ? (
+              <ThemedView style={tw`gap-4`}>
+                {/* Production Areas Info */}
+                <ThemedView style={tw`gap-2`}>
+                  <ThemedView style={tw`flex-row items-center gap-2`}>
+                    <Ionicons name="time-outline" size={18} />
+                    <ThemedText type="body2" style={tw`text-gray-500`}>
+                      {t("offlineData:lastUpdated")}:{" "}
+                      {formatDate(productionAreasLastUpdated)}
+                    </ThemedText>
+                  </ThemedView>
+                </ThemedView>
+
+                {/* Production Areas Summary */}
+                <ThemedView
+                  style={tw` dark:bg-gray-800 rounded-lg p-4 gap-3 border border-light-border`}
+                >
+                  <ThemedView style={tw`flex-row items-center gap-3`}>
+                    <Ionicons name="construct-outline" size={20} />
+                    <ThemedView style={tw`flex-1`}>
+                      <ThemedText type="body2" style={tw`text-gray-500`}>
+                        {t("offlineData:productionAreas.totalAreas")}
+                      </ThemedText>
+                      <ThemedText type="h4">{productionAreas.length}</ThemedText>
+                    </ThemedView>
+                  </ThemedView>
+                </ThemedView>
+
+                {/* Production Areas Actions */}
+                <ThemedView style={tw`gap-2`}>
+                  <Button
+                    label={
+                      isRefetchingProductionAreas
+                        ? t("offlineData:productionAreas.refetching")
+                        : t("offlineData:productionAreas.refetch")
+                    }
+                    leftIcon="refresh-outline"
+                    onPress={handleRefetchProductionAreas}
+                    disabled={isRefetchingProductionAreas}
+                    loading={isRefetchingProductionAreas}
+                    variant="primary"
+                  />
+                  <Button
+                    label={t("offlineData:productionAreas.clearCache.button")}
+                    leftIcon="trash-outline"
+                    variant="outline"
+                    onPress={handleClearProductionAreas}
+                  />
+                </ThemedView>
+              </ThemedView>
+            ) : (
+              <ThemedView
+                style={tw`items-center gap-3 py-6 bg-gray-50 dark:bg-gray-900 rounded-lg`}
+              >
+                <Ionicons name="construct-outline" size={48} color="#999" />
+                <ThemedView style={tw`gap-1 items-center`}>
+                  <ThemedText type="body1" style={tw`font-semibold`}>
+                    {t("offlineData:productionAreas.noCache")}
+                  </ThemedText>
+                  <ThemedText
+                    type="body2"
+                    style={tw`text-center text-gray-500 px-4`}
+                  >
+                    {t("offlineData:productionAreas.noCacheDescription")}
+                  </ThemedText>
+                </ThemedView>
+                <Button
+                  label={
+                    isRefetchingProductionAreas
+                      ? t("offlineData:productionAreas.loading")
+                      : t("offlineData:productionAreas.loadButton")
+                  }
+                  leftIcon="cloud-download-outline"
+                  onPress={handleRefetchProductionAreas}
+                  disabled={isRefetchingProductionAreas}
+                  loading={isRefetchingProductionAreas}
                 />
               </ThemedView>
             )}

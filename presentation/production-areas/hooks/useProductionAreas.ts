@@ -1,57 +1,49 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { ProductionAreasService } from "../services/production-areas.service";
-import type { CreateProductionAreaDto } from "../interfaces/dto/create-production-area.dto";
-import type { UpdateProductionAreaDto } from "../interfaces/dto/update-production-area.dto";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { useProductionAreasStore } from "../store/useProductionAreasStore";
 
 export const useProductionAreas = () => {
+  const { currentRestaurant } = useAuthStore();
+  const {
+    productionAreas: cachedProductionAreas,
+    restaurantId: cachedRestaurantId,
+    setProductionAreas,
+    clearProductionAreas,
+  } = useProductionAreasStore();
+
   const getAllQuery = useQuery({
-    queryKey: ["production-areas"],
+    queryKey: ["production-areas", currentRestaurant?.id],
     queryFn: () => ProductionAreasService.getAll(),
   });
 
-  const productionAreas = getAllQuery.data ?? [];
+  // Clear areas if restaurant changed
+  useEffect(() => {
+    if (
+      currentRestaurant?.id &&
+      cachedRestaurantId &&
+      currentRestaurant.id !== cachedRestaurantId
+    ) {
+      clearProductionAreas();
+    }
+  }, [currentRestaurant?.id, cachedRestaurantId, clearProductionAreas]);
 
-  // const createProductionArea = useMutation<ProductionArea, ApiErrorRespDto, CreateProductionAreaDto>({
-  //   mutationFn: (data: CreateProductionAreaDto) => ProductionAreasService.create(data),
-  //   onSuccess: () => {
-  //     toast.success("Área de producción creada correctamente");
-  //     queryClient.invalidateQueries({ queryKey: ["production-areas"] });
-  //   },
-  //   onError: (error) => {
-  //     console.log("Error creating production area", error);
-  //     toast.error(error.data.message);
-  //   },
-  // });
-  //
-  // const updateProductionArea = useMutation<ProductionArea, ApiErrorRespDto, UpdateProductionAreaDto>({
-  //   mutationFn: (data: UpdateProductionAreaDto) => ProductionAreasService.update(data),
-  //   onSuccess: () => {
-  //     toast.success("Área de producción actualizada correctamente");
-  //     queryClient.invalidateQueries({ queryKey: ["production-areas"] });
-  //   },
-  //   onError: (error) => {
-  //     console.log("Error updating production area", error);
-  //     toast.error(error.data.message);
-  //   },
-  // });
-  //
-  // const deleteProductionArea = useMutation<void, ApiErrorRespDto, number>({
-  //   mutationFn: (id: number) => ProductionAreasService.delete(id),
-  //   onSuccess: () => {
-  //     toast.success("Área de producción eliminada correctamente");
-  //     queryClient.invalidateQueries({ queryKey: ["production-areas"] });
-  //   },
-  //   onError: (error) => {
-  //     console.log("Error deleting production area", error);
-  //     toast.error(error.data.message);
-  //   },
-  // });
+  // Save to store when query succeeds
+  useEffect(() => {
+    if (getAllQuery.data && currentRestaurant?.id) {
+      setProductionAreas(getAllQuery.data, currentRestaurant.id);
+    }
+  }, [getAllQuery.data, currentRestaurant?.id, setProductionAreas]);
+
+  // Return cached data as primary source (instant load)
+  const productionAreas =
+    cachedProductionAreas.length > 0
+      ? cachedProductionAreas
+      : getAllQuery.data ?? [];
 
   return {
     getAllQuery,
     productionAreas,
-    // createProductionArea,
-    // updateProductionArea,
-    // deleteProductionArea,
   };
 };

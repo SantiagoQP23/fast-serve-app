@@ -37,5 +37,22 @@
       "confirm": "Borrar",
       "cancel": "Cancelar"
     }
+  },
+  "productionAreas": {
+    "title": "Áreas de Producción",
+    "totalAreas": "Total de áreas",
+    "refetch": "Recargar áreas de producción",
+    "refetching": "Recargando...",
+    "loading": "Cargando...",
+    "noCache": "Sin datos de áreas de producción",
+    "noCacheDescription": "Las áreas de producción se cargarán automáticamente cuando se necesiten.",
+    "loadButton": "Cargar Áreas de Producción",
+    "clearCache": {
+      "button": "Borrar datos de áreas de producción",
+      "title": "Borrar Áreas de Producción",
+      "message": "¿Estás seguro de que quieres borrar los datos de áreas de producción?",
+      "confirm": "Borrar",
+      "cancel": "Cancelar"
+    }
   }
 }
