@@ -23,9 +23,9 @@ export default function Checkbox({
   size = "medium",
 }: CheckboxProps) {
   const sizeStyles = {
-    small: { box: 20, icon: 14 },
-    medium: { box: 24, icon: 18 },
-    large: { box: 28, icon: 22 },
+    small: { box: 18, icon: 14 },
+    medium: { box: 22, icon: 18 },
+    large: { box: 26, icon: 22 },
   };
 
   const checkboxSize = sizeStyles[size];
@@ -36,7 +36,7 @@ export default function Checkbox({
       onPress={() => onValueChange(!value)}
       style={({ pressed }) => [
         tw.style(
-          "justify-center items-center border-2 rounded-lg",
+          "justify-center items-center border rounded-lg",
           value
             ? "bg-light-primary border-light-primary"
             : "bg-white border-gray-300",
