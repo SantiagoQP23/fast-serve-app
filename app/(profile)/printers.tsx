@@ -1,4 +1,5 @@
-import { ScrollView, RefreshControl, Alert } from "react-native";
+import { ScrollView, RefreshControl } from "react-native";
+import { toast } from "sonner-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -24,18 +25,15 @@ export default function PrintersScreen() {
     if (!printer) return;
 
     setTestingPrinterId(printerId);
+    const toastId = toast.loading(t("printers:testPrintLoading"));
     try {
       console.log("Testing printer:", printer);
       await ThermalPrinterService.printTest(printer, currentRestaurant?.name);
-      Alert.alert(
-        t("printers:testPrintSuccessTitle"),
-        t("printers:testPrintSuccessMessage"),
-      );
+      toast.success(t("printers:testPrintSuccessMessage"), { id: toastId });
     } catch (error: any) {
-      Alert.alert(
-        t("printers:testPrintErrorTitle"),
-        error?.message || t("printers:testPrintErrorMessage"),
-      );
+      toast.error(error?.message || t("printers:testPrintErrorMessage"), {
+        id: toastId,
+      });
     } finally {
       setTestingPrinterId(null);
     }

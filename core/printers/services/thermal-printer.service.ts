@@ -1,6 +1,7 @@
 import ThermalPrinterModule from "react-native-thermal-printer";
 import { Printer } from "@/core/common/models/printer.model";
 import { Order } from "@/core/orders/models/order.model";
+import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 
 export class ThermalPrinterService {
   static printTest = async (
@@ -99,6 +100,11 @@ export class ThermalPrinterService {
     areaDetails: Order["details"],
   ): Promise<void> => {
     const detailsText = areaDetails
+      .filter(
+        (d) =>
+          d.status !== OrderDetailStatus.CANCELLED &&
+          d.status !== OrderDetailStatus.DELIVERED,
+      )
       .map((detail) => {
         let extra = "";
 
@@ -115,7 +121,7 @@ export class ThermalPrinterService {
           extra += `[L]  *** ${detail.description} ***\n`;
         }
 
-        return `[L]<b>${detail.quantity}x ${detail.product.name}</b>\n${extra}`;
+        return `[L]<b>${detail.quantity - detail.qtyDelivered}x ${detail.product.name}</b>\n${extra}`;
       })
       .join("");
 

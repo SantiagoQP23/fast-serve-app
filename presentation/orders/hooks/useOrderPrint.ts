@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { Alert } from "react-native";
+import { toast } from "sonner-native";
 import { Order } from "@/core/orders/models/order.model";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -175,6 +175,7 @@ export const useOrderPrint = (order: Order) => {
   }, [order, t, language]);
 
   const handlePrintOrder = useCallback(async () => {
+    const toastId = toast.loading(t("orders:options.printingOrder"));
     try {
       const html = generateOrderHtml();
       const height = Math.max(600, 400 + order.details.length * 130);
@@ -184,10 +185,12 @@ export const useOrderPrint = (order: Order) => {
         height,
       });
       await Print.printAsync({ uri });
+      toast.success(t("orders:options.printOrderSuccess"), { id: toastId });
     } catch (error) {
       console.error("Error printing order:", error);
+      toast.error(t("orders:options.printError"), { id: toastId });
     }
-  }, [generateOrderHtml, order.details.length]);
+  }, [generateOrderHtml, order.details.length, t]);
 
   const handleShareOrder = useCallback(async () => {
     try {
@@ -208,6 +211,7 @@ export const useOrderPrint = (order: Order) => {
   }, [generateOrderHtml, order.details.length, order.num, t]);
 
   const handlePrintComanda = useCallback(async () => {
+    const toastId = toast.loading(t("orders:options.printingComanda"));
     try {
       const detailsByArea = order.details.reduce(
         (acc, detail) => {
@@ -235,10 +239,7 @@ export const useOrderPrint = (order: Order) => {
       const areaGroups = Object.values(detailsByArea);
 
       if (areaGroups.length === 0) {
-        Alert.alert(
-          t("orders:options.noProductionAreas"),
-          t("orders:options.noProductionAreasMessage"),
-        );
+        toast.error(t("orders:options.noProductionAreas"), { id: toastId });
         return;
       }
 
@@ -257,12 +258,10 @@ export const useOrderPrint = (order: Order) => {
           group.details,
         );
       }
+      toast.success(t("orders:options.printComandaSuccess"), { id: toastId });
     } catch (error) {
       console.error("Error printing comanda:", error);
-      Alert.alert(
-        t("common:actions.error"),
-        t("orders:options.printComandaError"),
-      );
+      toast.error(t("orders:options.printComandaError"), { id: toastId });
     }
   }, [order, t, productionAreas]);
 

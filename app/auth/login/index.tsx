@@ -22,6 +22,7 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { i18nAlert } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import { toast } from "sonner-native";
 
 const loginSchema = z.object({
   username: z.string({ message: "Username is required" }),
@@ -61,7 +62,7 @@ const LoginScreen = () => {
       return;
     }
 
-    i18nAlert("Error", t("validations.invalidCredentials"));
+    toast.error(t("validations.invalidCredentials"));
   };
 
   // Function to handle sign up redirect
