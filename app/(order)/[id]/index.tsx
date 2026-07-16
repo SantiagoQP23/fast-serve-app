@@ -523,6 +523,7 @@ export default function OrderScreen() {
                     detail={detail}
                     onPress={() => openProduct(detail)}
                     orderUserId={order.user.id}
+                    orderType={order.type}
                   />
                 ))}
               </ThemedView>
@@ -563,12 +564,13 @@ export default function OrderScreen() {
               {isDeliveredExpanded && (
                 <ThemedView style={tw`gap-3 mt-2 `}>
                   {deliveredDetails.map((detail) => (
-                    <OrderDetailCard
-                      key={detail.id}
-                      detail={detail}
-                      onPress={() => openProduct(detail)}
-                      orderUserId={order.user.id}
-                    />
+                  <OrderDetailCard
+                    key={detail.id}
+                    detail={detail}
+                    onPress={() => openProduct(detail)}
+                    orderUserId={order.user.id}
+                    orderType={order.type}
+                  />
                   ))}
                 </ThemedView>
               )}
@@ -614,6 +616,7 @@ export default function OrderScreen() {
                       detail={detail}
                       onPress={() => {}}
                       orderUserId={order.user.id}
+                      orderType={order.type}
                     />
                   ))}
                 </ThemedView>
@@ -646,6 +649,7 @@ export default function OrderScreen() {
                     detail={detail}
                     onPress={() => {}} // No action for closed orders
                     orderUserId={order.user.id}
+                    orderType={order.type}
                   />
                 ))}
               </ThemedView>

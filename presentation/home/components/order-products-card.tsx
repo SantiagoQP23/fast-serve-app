@@ -9,11 +9,8 @@ import React, { useCallback } from "react";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";
 import { useTranslation } from "react-i18next";
-import ProgressBar from "@/presentation/theme/components/progress-bar";
 import { getRelativeTime } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
-import { OrderStatus } from "@/core/orders/enums/order-status.enum";
-import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import OrderDetailCard from "@/presentation/orders/components/order-detail-card";
 import { Pressable } from "react-native";
@@ -127,6 +124,7 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
               detail={detail}
               orderId={order.id}
               orderUserId={order.user.id}
+              orderType={order.type}
               onPress={() => handleEditOrderDetail(order.num, order.id, detail)}
             />
           ))}

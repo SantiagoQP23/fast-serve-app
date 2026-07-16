@@ -19,19 +19,21 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
-import BottomSheetPicker, { BottomSheetPickerRef } from "@/presentation/theme/components/bottom-sheet-picker";
+import BottomSheetPicker, {
+  BottomSheetPickerRef,
+} from "@/presentation/theme/components/bottom-sheet-picker";
 import OrderDetailActionsBottomSheet from "./order-detail-actions-bottom-sheet";
 import { formatCurrency } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useOrderDetailStatus } from "../hooks/useOrderDetailStatus";
-import { Ionicons } from "@expo/vector-icons";
 
 interface OrderDetailCardProps extends PressableProps {
   detail: OrderDetail;
   orderId?: string;
   orderUserId: string;
+  orderType?: OrderType;
 }
 
 export default function OrderDetailCard({
@@ -39,6 +41,7 @@ export default function OrderDetailCard({
   onPress,
   orderId,
   orderUserId,
+  orderType,
 }: OrderDetailCardProps) {
   const { t } = useTranslation(["common", "orders"]);
   const order = useOrdersStore((state) => state.activeOrder);
@@ -368,7 +371,7 @@ export default function OrderDetailCard({
                     size="small"
                     onPress={isCancelled ? undefined : handleOpenDeliveredSheet}
                   />
-                  {detail.typeOrderDetail !== order?.type && (
+                  {detail.typeOrderDetail !== (orderType ?? order?.type) && (
                     <Label
                       text={
                         detail.typeOrderDetail === OrderType.IN_PLACE
