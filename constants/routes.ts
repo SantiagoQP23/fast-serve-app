@@ -5,6 +5,7 @@ export const ROUTES = {
   APP: {
     MY_ORDERS: "/(app)/(tabs)/(orders-module)/my-orders",
   },
+  NO_RESTAURANT: "/no-restaurant",
   HOME: "/(",
   ORDERS: "/orders",
   BILLS: "/bills",

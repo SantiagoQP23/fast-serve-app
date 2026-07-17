@@ -25,7 +25,7 @@ export interface User {
   username: string;
   person: Person;
   online: boolean;
-  role: IRole;
+  role?: IRole;
   restaurantRoles: RestaurantRole[];
   isActive: boolean;
 }

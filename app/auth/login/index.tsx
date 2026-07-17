@@ -34,7 +34,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 const LoginScreen = () => {
   const { t } = useTranslation("auth");
   const { height } = useWindowDimensions();
-  const { login, changeStatus } = useAuthStore();
+  const { login, user } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -57,9 +57,16 @@ const LoginScreen = () => {
       data.password.trim(),
     );
 
-    if (wasSuccessful) {
-      router.replace("/(app)/(tabs)/(orders-module)/my-orders");
-      return;
+    const currentUser = useAuthStore.getState().user;
+
+    if (wasSuccessful && currentUser) {
+      if (currentUser.role) {
+        router.replace("/(app)/(tabs)/(orders-module)/my-orders");
+        return;
+      } else {
+        router.replace("/no-restaurant");
+        return;
+      }
     }
 
     toast.error(t("validations.invalidCredentials"));

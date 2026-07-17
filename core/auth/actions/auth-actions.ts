@@ -18,7 +18,7 @@ const returnUserToken = (
   const { token, user, currentRestaurant } = data;
   const currentRole = data.user.restaurantRoles.find(
     (resRole) => resRole.restaurant.id === data.currentRestaurant?.id,
-  )!.role;
+  )?.role;
 
   return {
     user: { ...user, role: currentRole },
@@ -45,11 +45,10 @@ export const authLogin = async (username: string, password: string) => {
 export const authCheckStatus = async () => {
   try {
     const { data } = await restaurantApi.get<AuthResponse>("/auth/auth-renew");
+    console.log("Auth check status data", data);
 
     return returnUserToken(data);
   } catch (error) {
     return null;
   }
 };
-
-// TODO: Tarea: Hacer el register
