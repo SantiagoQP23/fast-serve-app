@@ -62,7 +62,6 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
   checkStatus: async () => {
     const resp = await authCheckStatus();
-    if (!resp) return;
     get().changeStatus(resp?.token, resp?.user, resp?.currentRestaurant);
   },
 

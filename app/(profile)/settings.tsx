@@ -15,6 +15,7 @@ import {
 } from "@/core/i18n/i18n.config";
 import Select from "@/presentation/theme/components/select";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import { router } from "expo-router";
 
 export default function SettingsScreen() {
   const { t } = useTranslation("auth");
@@ -25,6 +26,11 @@ export default function SettingsScreen() {
 
   const handleLanguageChange = async (value: string | number) => {
     await setLanguage(value as LanguageCode);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace("/auth/login");
   };
 
   return (
@@ -39,7 +45,7 @@ export default function SettingsScreen() {
                   ([code, name]) => ({
                     value: code,
                     label: name,
-                  })
+                  }),
                 )}
                 value={language}
                 onChange={handleLanguageChange}
@@ -67,7 +73,7 @@ export default function SettingsScreen() {
           onCancel={() => setVisible(false)}
           onConfirm={() => {
             setVisible(false);
-            logout();
+            handleLogout();
           }}
         />
       </ScrollView>
