@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pressable, ScrollView } from "react-native";
+import { Pressable } from "react-native";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { Ionicons } from "@expo/vector-icons";
@@ -174,36 +174,7 @@ export default function PaymentMethodSummaryCard({
                       </ThemedView>
                     </ThemedView>
 
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      contentContainerStyle={tw`gap-2`}
-                      style={tw`mt-2`}
-                    >
-                      {pm.incomeByAccount.map((account) => {
-                        const totalIncome = showTotalIncome
-                          ? formatCurrency(account.totalIncome)
-                          : formattedPaymentMethodIncome.replace(/\d/g, "*");
 
-                        return (
-                          <ThemedView
-                            key={account.accountId}
-                            style={tw`w-36 bg-gray-50 rounded-xl p-3 border border-gray-100`}
-                          >
-                            <ThemedText
-                              type="small"
-                              style={tw`text-gray-500 mb-1`}
-                              numberOfLines={1}
-                            >
-                              {account.accountName}
-                            </ThemedText>
-                            <ThemedText type="body2" style={tw`font-semibold`}>
-                              {totalIncome}
-                            </ThemedText>
-                          </ThemedView>
-                        );
-                      })}
-                    </ScrollView>
                   </ThemedView>
                 );
               })}

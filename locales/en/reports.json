@@ -62,6 +62,9 @@
     "today": "Today",
     "selectDate": "Select Date"
   },
+  "accounts": {
+    "title": "Accounts"
+  },
   "empty": {
     "noReport": "No report data available",
     "noReportDescription": "There is no data for the selected date"

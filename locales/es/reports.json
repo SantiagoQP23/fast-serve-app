@@ -62,6 +62,9 @@
     "today": "Hoy",
     "selectDate": "Seleccionar Fecha"
   },
+  "accounts": {
+    "title": "Cuentas"
+  },
   "empty": {
     "noReport": "No hay datos de reporte disponibles",
     "noReportDescription": "No hay datos para la fecha seleccionada"

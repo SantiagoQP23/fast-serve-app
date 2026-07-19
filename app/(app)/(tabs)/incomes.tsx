@@ -40,16 +40,18 @@ import Chip from "@/presentation/theme/components/chip";
 import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
 import { FilterTransactionsDto } from "@/core/transactions/dto/filter-transactions.dto";
 import IconButton from "@/presentation/theme/components/icon-button";
+import { useTransactionPaymentMethodReport } from "@/presentation/transactions/hooks/useTransactionPaymentMethodReport";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 const STORAGE_KEY = "incomes_selected_date";
 const FILTERS_STORAGE_KEY = "incomes_filters";
 
 export default function IncomesScreen() {
-  const { t } = useTranslation(["common", "errors"]);
+  const { t } = useTranslation(["common", "errors", "reports"]);
   const { currentRestaurant } = useAuthStore();
   const [refreshing, setRefreshing] = useState(false);
   const [showNetIncome, setShowNetIncome] = useState(false);
+  const [showAccounts, setShowAccounts] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [filters, setFilters] = useState<FilterTransactionsDto>({});
   const primaryColor = useThemeColor({}, "primary");
@@ -164,6 +166,36 @@ export default function IncomesScreen() {
 
   // Convert date to ISO string format for API
   const dateFilter = dayjs(selectedDate).format("YYYY-MM-DD");
+
+  const { paymentMethodReport } = useTransactionPaymentMethodReport({
+    startDate: dateFilter,
+    endDate: dateFilter,
+  });
+
+  // Aggregate all accounts across payment methods
+  const accountsSummary = useMemo(() => {
+    if (!paymentMethodReport?.report) return [];
+
+    const accountMap = new Map<
+      number,
+      { accountId: number; accountName: string; totalIncome: number }
+    >();
+
+    paymentMethodReport.report.forEach((pm) => {
+      pm.incomeByAccount.forEach((account) => {
+        if (accountMap.has(account.accountId)) {
+          const existing = accountMap.get(account.accountId)!;
+          existing.totalIncome += account.totalIncome;
+        } else {
+          accountMap.set(account.accountId, { ...account });
+        }
+      });
+    });
+
+    return Array.from(accountMap.values()).sort(
+      (a, b) => b.totalIncome - a.totalIncome,
+    );
+  }, [paymentMethodReport]);
 
   // Fetch transactions for the selected date
   const {
@@ -337,6 +369,61 @@ export default function IncomesScreen() {
               startDate={dateFilter}
               endDate={dateFilter}
             />
+
+            {/* Accounts Summary Section */}
+            {accountsSummary.length > 0 && (
+              <ThemedView style={tw`mb-4`}>
+                <ThemedView
+                  style={tw`flex-row items-center justify-between mb-3`}
+                >
+                  <ThemedText type="h4" style={tw`font-bold`}>
+                    {t("reports:accounts.title")}
+                  </ThemedText>
+                  <Pressable
+                    onPress={() => setShowAccounts((prev) => !prev)}
+                    hitSlop={8}
+                  >
+                    <Ionicons
+                      name={showAccounts ? "eye-off-outline" : "eye-outline"}
+                      size={18}
+                      color={tw.color("gray-500")}
+                    />
+                  </Pressable>
+                </ThemedView>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={tw`gap-2`}
+                >
+                  {accountsSummary.map((account) => {
+                    const formattedAccountIncome = formatCurrency(
+                      account.totalIncome,
+                    );
+                    const displayedAccountIncome = showAccounts
+                      ? formattedAccountIncome
+                      : formattedAccountIncome.replace(/\d/g, "*");
+
+                    return (
+                      <ThemedView
+                        key={account.accountId}
+                        style={tw`w-36 bg-gray-50 rounded-xl p-3 border border-gray-100`}
+                      >
+                        <ThemedText
+                          type="small"
+                          style={tw`text-gray-500 mb-1`}
+                          numberOfLines={1}
+                        >
+                          {account.accountName}
+                        </ThemedText>
+                        <ThemedText type="body2" style={tw`font-semibold`}>
+                          {displayedAccountIncome}
+                        </ThemedText>
+                      </ThemedView>
+                    );
+                  })}
+                </ScrollView>
+              </ThemedView>
+            )}
 
             {/* Transactions Section */}
             <ThemedView style={tw`mb-4`}>
