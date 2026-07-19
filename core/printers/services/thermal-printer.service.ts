@@ -18,8 +18,10 @@ export class ThermalPrinterService {
       `[L]Port: ${printer.port}\n` +
       `[L]Date: ${new Date().toLocaleString()}\n` +
       `[C]================================\n` +
-      `[C]Printer OK\n`;
-
+      `[C]Printer OK\n` +
+      `[C]\n` +
+      `[C]\n` +
+      `[C]\n`;
     if (printer.connectionType === "TCP") {
       if (!printer.ipAddress) {
         throw new Error("TCP printer is missing IP address");
@@ -28,7 +30,7 @@ export class ThermalPrinterService {
         ip: printer.ipAddress,
         port: printer.port,
         payload,
-        autoCut: false,
+        autoCut: true,
       });
     } else {
       throw new Error("Only TCP printers are supported");

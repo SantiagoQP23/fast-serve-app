@@ -138,7 +138,7 @@ export default function OrderConfirmationScreen() {
           <QuickActionButton
             icon="restaurant-outline"
             label={t("orders:options.printComanda")}
-            onPress={handlePrintComanda}
+            onPress={() => handlePrintComanda(order)}
           />
         </ThemedView>
 

@@ -68,9 +68,6 @@ export default function OrderScreen() {
     order?.paymentStatus || OrderPaymentStatus.UNPAID,
   );
 
-  const { handlePrintOrder, handleShareOrder, handlePrintComanda } =
-    useOrderPrint(order);
-
   // Update header title dynamically with order number
   useEffect(() => {
     if (order) {
@@ -133,6 +130,9 @@ export default function OrderScreen() {
       </ThemedView>
     );
   }
+
+  const { handlePrintOrder, handleShareOrder, handlePrintComanda } =
+    useOrderPrint(order);
 
   // Show loading state while fetching order details (especially for closed orders)
   if (isLoadingOrder && !order.details) {
@@ -564,13 +564,13 @@ export default function OrderScreen() {
               {isDeliveredExpanded && (
                 <ThemedView style={tw`gap-3 mt-2 `}>
                   {deliveredDetails.map((detail) => (
-                  <OrderDetailCard
-                    key={detail.id}
-                    detail={detail}
-                    onPress={() => openProduct(detail)}
-                    orderUserId={order.user.id}
-                    orderType={order.type}
-                  />
+                    <OrderDetailCard
+                      key={detail.id}
+                      detail={detail}
+                      onPress={() => openProduct(detail)}
+                      orderUserId={order.user.id}
+                      orderType={order.type}
+                    />
                   ))}
                 </ThemedView>
               )}
@@ -718,11 +718,13 @@ export default function OrderScreen() {
                 label={t("orders:options.shareOrder")}
                 onPress={handleShareOrder}
               />
-              <QuickActionButton
-                icon="restaurant-outline"
-                label={t("orders:options.printComanda")}
-                onPress={handlePrintComanda}
-              />
+              {order.status !== OrderStatus.DELIVERED && (
+                <QuickActionButton
+                  icon="restaurant-outline"
+                  label={t("orders:options.printComanda")}
+                  onPress={() => handlePrintComanda(order)}
+                />
+              )}
             </ScrollView>
           </ThemedView>
 
