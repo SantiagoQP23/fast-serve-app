@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { Bill } from "@/core/orders/models/bill.model";
+import { Bill, BillSource } from "@/core/orders/models/bill.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import * as Print from "expo-print";
@@ -13,7 +13,7 @@ export const useBillPrint = (bill: Bill | null | undefined) => {
     const itemsHtml = bill.details
       .map((detail) => {
         const productName =
-          bill.source === "ORDER" && detail.orderDetail
+          bill.source === BillSource.ORDER && detail.orderDetail
             ? detail.orderDetail.product.name
             : detail.product?.name || "";
         const optionName =
@@ -34,7 +34,10 @@ export const useBillPrint = (bill: Bill | null | undefined) => {
       .map((tx) => {
         let extra = "";
         if (tx.metadata?.type === "CASH") {
-          const cashMeta = tx.metadata as { cashReceived?: number; changeGiven?: number };
+          const cashMeta = tx.metadata as {
+            cashReceived?: number;
+            changeGiven?: number;
+          };
           if (cashMeta.cashReceived) {
             extra += `<div style="padding-left:12px;font-size:11px;color:#555;">Recibido: ${formatCurrency(cashMeta.cashReceived)}</div>`;
           }
@@ -63,7 +66,7 @@ export const useBillPrint = (bill: Bill | null | undefined) => {
             <span>${bill.order.table ? `${t("common:labels.table")}: ${bill.order.table.name}` : t("common:labels.takeAway")}</span>
           </div>
           <div class="row-start">
-            <span>${t("common:labels.waiter")}: ${bill.order.user.person.firstName} ${bill.order.user.person.lastName}</span>
+            <span>${t("common:labels.waiter")}: ${bill.owner.person.firstName} ${bill.owner.person.lastName}</span>
           </div>
       `
       : "";
@@ -130,24 +133,32 @@ export const useBillPrint = (bill: Bill | null | undefined) => {
             <span>${t("bills:details.subtotal")}</span>
             <span>${formatCurrency(bill.subtotal)}</span>
           </div>
-          ${bill.discount > 0 ? `
+          ${
+            bill.discount > 0
+              ? `
           <div class="row-start" style="justify-content:space-between;">
             <span>${t("bills:details.discount")}</span>
             <span style="color:green;">-${formatCurrency(bill.discount)}</span>
           </div>
-          ` : ""}
+          `
+              : ""
+          }
           <div class="row-start" style="justify-content:space-between;font-size:15px;">
             <span><b>${t("bills:details.total")}</b></span>
             <span><b>${formatCurrency(bill.total)}</b></span>
           </div>
 
-          ${bill.transactions.length > 0 ? `
+          ${
+            bill.transactions.length > 0
+              ? `
           <div class="divider"></div>
           <div class="center" style="margin-bottom:4px;">
             ${t("bills:details.payments")}
           </div>
           ${transactionsHtml}
-          ` : ""}
+          `
+              : ""
+          }
 
           <div class="divider"></div>
 
@@ -163,7 +174,10 @@ export const useBillPrint = (bill: Bill | null | undefined) => {
     if (!bill) return;
     try {
       const html = generateBillHtml();
-      const height = Math.max(600, 400 + bill.details.length * 80 + bill.transactions.length * 60);
+      const height = Math.max(
+        600,
+        400 + bill.details.length * 80 + bill.transactions.length * 60,
+      );
       const { uri } = await Print.printToFileAsync({
         html,
         width: 204,
@@ -179,7 +193,10 @@ export const useBillPrint = (bill: Bill | null | undefined) => {
     if (!bill) return;
     try {
       const html = generateBillHtml();
-      const height = Math.max(600, 400 + bill.details.length * 80 + bill.transactions.length * 60);
+      const height = Math.max(
+        600,
+        400 + bill.details.length * 80 + bill.transactions.length * 60,
+      );
       const { uri } = await Print.printToFileAsync({
         html,
         width: 204,

@@ -16,7 +16,6 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
-import { getFormattedDate } from "@/core/common/utils/date.util";
 import { useBills } from "@/presentation/orders/hooks/useBills";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -33,7 +32,6 @@ import {
   BottomSheetView,
   useBottomSheetSpringConfigs,
 } from "@gorhom/bottom-sheet";
-import Chip from "@/presentation/theme/components/chip";
 import { useBillStatus } from "@/presentation/orders/hooks/useBillStatus";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles } from "@/core/auth/models/user.model";
@@ -42,7 +40,6 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Ionicons } from "@expo/vector-icons";
 import { useBillPrint } from "@/presentation/orders/hooks/useBillPrint";
-import QuickActionButton from "@/presentation/orders/components/quick-action-button";
 
 dayjs.extend(relativeTime);
 
