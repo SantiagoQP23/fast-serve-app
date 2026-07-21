@@ -119,7 +119,7 @@ const LoginScreen = () => {
 
   return (
     <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
-      <ScreenLayout style={tw`flex-1 px-4 gap-8 `}>
+      <ScreenLayout style={tw` px-4 gap-8 md:px-40`}>
         <ThemedView style={[{ paddingTop: height * 0.2, gap: 2 }]}>
           <ThemedText type="h1" style={tw``}>
             {t("login.title")}

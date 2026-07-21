@@ -32,6 +32,11 @@ module.exports = {
         "inter-bold": ["Inter_700Bold"],
         "inter-extrabold": ["Inter_800ExtraBold"],
       },
+      screens: {
+        sm: "480px", // teléfonos grandes
+        md: "768px", // tablet
+        lg: "1024px", // tablet grande
+      },
     },
   },
   plugins: [],
