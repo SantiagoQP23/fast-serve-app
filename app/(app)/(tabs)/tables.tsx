@@ -1,230 +1,60 @@
-import { FlatList, RefreshControl, Alert } from "react-native";
-
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 
-import TableCard from "@/presentation/home/components/table-card";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import tw from "@/presentation/theme/lib/tailwind";
-import * as Haptics from "expo-haptics";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import { router } from "expo-router";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { Table } from "@/core/tables/models/table.model";
-import { useTables } from "@/presentation/tables/hooks/useTables";
-import Chip from "@/presentation/theme/components/chip";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
-import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { useQueryClient } from "@tanstack/react-query";
-import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
-import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { Ionicons } from "@expo/vector-icons";
-import Button from "@/presentation/theme/components/button";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
-import { useTableByStatus } from "@/presentation/orders/hooks/useTableByStatus";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import TablesView from "@/presentation/tables/components/tables-view";
 
 export default function TablesScreen() {
-  const { t } = useTranslation(["tables", "errors"]);
-  const [selectedStatus, setSelectedStatus] = useState<boolean | "all">("all");
+  const { t } = useTranslation("tables");
   const { setTable, setOrderType } = useNewOrderStore();
-  const { tables, isLoading, tablesQuery } = useTables();
-  const { availableTables, occupiedTables } = useTableByStatus(tables);
   const orders = useOrdersStore((state) => state.orders);
-  const [activeTable, setActiveTable] = useState<Table | null>(null);
-  const queryClient = useQueryClient();
-  const { currentRestaurant } = useAuthStore();
-  const primaryColor = useThemeColor({}, "primary");
-  const [isLoadingTables, setIsLoadingTables] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const tabs: { label: string; value: boolean | "all"; count: number }[] = [
-    { label: t("list.filter.all"), value: "all", count: tables.length },
-    {
-      label: t("list.filter.available"),
-      value: true,
-      count: availableTables.length,
-    },
-    {
-      label: t("list.filter.occupied"),
-      value: false,
-      count: occupiedTables.length,
-    },
-  ];
-
-  const [filteredTables, setFilteredTables] = useState<Table[]>(tables);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-  const handleLoadTables = async () => {
-    setIsLoadingTables(true);
-    try {
-      await tablesQuery.refetch();
-    } catch (error) {
-      // Error is handled by React Query
-    } finally {
-      setIsLoadingTables(false);
-    }
-  };
-
   const handleNavigate = () => {
-    bottomSheetModalRef.current?.close(); // Close sheet before navigating
-    router.push("/(new-order)/restaurant-menu"); // Navigate to New Order screen
+    bottomSheetModalRef.current?.close();
+    router.push("/(new-order)/restaurant-menu");
   };
 
-  // callbacks
   const handlePresentModalPress = useCallback(() => {
     bottomSheetModalRef.current?.present();
   }, []);
 
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log("handleSheetChanges", index);
+  }, []);
+
   const onTablePress = (table: Table) => {
-    // Check if table has any orders
-    const tableHasOrders = orders.some((order) => order.table?.id === table.id);
+    const tableHasOrders = orders.some(
+      (order) => order.table?.id === table.id,
+    );
 
     if (tableHasOrders) {
-      // Navigate to table orders screen
       router.push({
         pathname: "/(tables)/[tableId]",
         params: { tableId: table.id, tableName: table.name },
       });
     } else {
-      // Show new order bottom sheet
-      setActiveTable(table);
       setTable(table);
       setOrderType(OrderType.IN_PLACE);
       handlePresentModalPress();
     }
   };
 
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log("handleSheetChanges", index);
-  }, []);
-
-  const onChangeStatus = (status: boolean | "all") => {
-    setSelectedStatus(status);
-
-    if (status === "all") {
-      setFilteredTables(tables);
-    } else {
-      if (status) {
-        setFilteredTables(availableTables);
-      } else {
-        setFilteredTables(occupiedTables);
-      }
-    }
-  };
-
-  useEffect(() => {
-    setFilteredTables(tables);
-  }, [tables]);
-
-  const onRefresh = useCallback(async () => {
-    try {
-      setRefreshing(true);
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      await Promise.all([
-        queryClient.refetchQueries({
-          queryKey: ["activeOrders", currentRestaurant?.id],
-        }),
-        // tablesQuery.refetch(),
-      ]);
-    } catch (error) {
-      Alert.alert(
-        t("errors:order.fetchError"),
-        t("errors:order.ordersFetchFailed"),
-      );
-    } finally {
-      setRefreshing(false);
-    }
-  }, [queryClient, currentRestaurant?.id, t, tablesQuery]);
-
-  // Check if tables are loaded
-  const hasTables = tables.length > 0;
-
-  // Show empty state if no tables loaded
-  if (!hasTables) {
-    return (
-      <ThemedView
-        style={tw`flex-1 px-4 pt-8 items-center justify-center gap-4`}
-      >
-        <Ionicons name="grid-outline" size={64} color="#999" />
-        <ThemedView style={tw`gap-2 items-center`}>
-          <ThemedText type="h2">{t("tables:noTables.title")}</ThemedText>
-          <ThemedText type="body2" style={tw`text-center text-gray-500 px-8`}>
-            {t("tables:noTables.description")}
-          </ThemedText>
-        </ThemedView>
-        <Button
-          label={
-            tablesQuery.isError
-              ? t("tables:noTables.retry")
-              : isLoadingTables
-                ? t("tables:noTables.loading")
-                : t("tables:noTables.loadButton")
-          }
-          leftIcon="cloud-download-outline"
-          onPress={handleLoadTables}
-          disabled={isLoadingTables}
-          loading={isLoadingTables}
-        />
-        {tablesQuery.isError && (
-          <ThemedText type="body2" style={tw`text-red-500 text-center px-8`}>
-            {t("tables:noTables.error")}
-          </ThemedText>
-        )}
-      </ThemedView>
-    );
-  }
-
   return (
     <ScreenLayout style={tw`px-4 pt-8 flex-1`}>
       <ThemedText type="h2">{t("list.title")}</ThemedText>
       <ThemedView style={tw`mt-4`} />
-      <ThemedView style={tw`flex-row mb-4 gap-2`}>
-        {tabs.map((tab) => {
-          const isActive = tab.value === selectedStatus;
-          return (
-            <Chip
-              key={tab.value.toString()}
-              onPress={() => onChangeStatus(tab.value)}
-              selected={isActive}
-              label={tab.label}
-              rightContent={
-                <ThemedText
-                  type="small"
-                  style={tw`${isActive ? "text-white" : ""}`}
-                >
-                  {tab.count}
-                </ThemedText>
-              }
-            />
-          );
-        })}
-      </ThemedView>
-      <ThemedView style={tw`mt-4`} />
-      <FlatList
-        data={filteredTables}
-        keyExtractor={(item) => item.name.toString()}
-        renderItem={(item) => (
-          <TableCard
-            table={item.item}
-            onPress={() => onTablePress(item.item)}
-          />
-        )}
-        numColumns={2} // 2 columns grid
-        columnWrapperStyle={tw`justify-between mb-4`}
-        contentContainerStyle={tw`pb-20`}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={primaryColor}
-            colors={[primaryColor]}
-          />
-        }
-      />
-
+      <TablesView onTablePress={onTablePress} />
       <BottomSheetModal
         ref={bottomSheetModalRef}
         onChange={handleSheetChanges}

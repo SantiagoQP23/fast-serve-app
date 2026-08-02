@@ -59,7 +59,6 @@ export default function TabLayout() {
   const { t } = useTranslation("common");
   const colorScheme = useColorScheme();
   const { status, checkStatus, user } = useAuthStore();
-  const order = useOrdersStore((state) => state.activeOrder);
   useOrders();
   useOrderCreatedListener();
   useOrderUpdatedListener();
@@ -145,14 +144,14 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="tables"
+          name="analytics"
           options={{
             tabBarLabel: ({ focused }) =>
               focused ? (
-                <ThemedText type="small">{t("navigation.tables")}</ThemedText>
+                <ThemedText type="small">{t("navigation.analytics")}</ThemedText>
               ) : null,
             tabBarIcon: ({ color }) => (
-              <Ionicons color={color} name="grid-outline" size={24} />
+              <Ionicons color={color} name="trending-up-outline" size={24} />
             ),
           }}
         />
