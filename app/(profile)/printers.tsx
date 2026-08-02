@@ -56,7 +56,7 @@ export default function PrintersScreen() {
         {/* Header */}
         <ThemedView style={tw`flex-row items-center gap-2 justify-center py-4`}>
           <Ionicons name="print-outline" size={24} />
-          <ThemedText type="h2">{t("profile.printers")}</ThemedText>
+          <ThemedText type="h2">{t("manage.printers")}</ThemedText>
         </ThemedView>
 
         {isLoading && (

@@ -68,7 +68,7 @@ export default function OrdersLayout() {
           name="settings"
           options={{
             headerShown: true,
-            title: t("profile.settings"),
+            title: t("manage.settings"),
             headerShadowVisible: false,
           }}
         />

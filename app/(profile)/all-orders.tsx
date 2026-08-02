@@ -17,16 +17,11 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import WaiterSummaryCard from "@/presentation/orders/components/waiter-summary-card";
 import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
-import DailyReportSummaryCard from "@/presentation/home/components/daily-report-summary-card";
-import { useQueryClient } from "@tanstack/react-query";
 import OrderCard from "@/presentation/home/components/order-card";
 import Chip from "@/presentation/theme/components/chip";
 import { Order } from "@/core/orders/models/order.model";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import OrderListByStatus from "@/presentation/orders/molecules/order-list-by-status";
-import { useDailyReport } from "@/presentation/orders/hooks/useDailyReport";
-import { formatCurrency } from "@/core/i18n/utils";
-import ProgressBar from "@/presentation/theme/components/progress-bar";
 import OrderCardSkeleton from "@/presentation/home/components/order-card-skeleton";
 
 export default function AllOrdersScreen() {
@@ -38,7 +33,6 @@ export default function AllOrdersScreen() {
     "all",
   );
   const { refetchOrders, isRefetching, isLoading } = useActiveOrders({ skipGlobalLoader: true });
-  const queryClient = useQueryClient();
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
@@ -64,7 +58,6 @@ export default function AllOrdersScreen() {
 
   const handleRefresh = useCallback(async () => {
     await refetchOrders();
-    queryClient.invalidateQueries({ queryKey: ["dailyReport"] });
   }, [refetchOrders]);
 
   const waiterStats = useMemo(() => {
@@ -98,8 +91,6 @@ export default function AllOrdersScreen() {
 
   const { user } = useAuthStore();
   const isAdmin = user?.role?.name === "admin";
-  const { dailyReport } = useDailyReport();
-  const reportWaiters = dailyReport?.waiterStats || [];
 
   return (
     <ScreenLayout style={tw`flex-1`}>
@@ -108,11 +99,6 @@ export default function AllOrdersScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`pb-20 gap-4`}
         >
-          {isAdmin && (
-            <ThemedView style={tw`px-4 pt-4`}>
-              <DailyReportSummaryCard enableAmountVisibilityToggle />
-            </ThemedView>
-          )}
           <ThemedView style={tw`px-4 gap-3`}>
             <OrderCardSkeleton />
             <OrderCardSkeleton />
@@ -120,24 +106,17 @@ export default function AllOrdersScreen() {
           </ThemedView>
         </ScrollView>
       ) : orders.length === 0 ? (
-        <>
-          {isAdmin && (
-            <ThemedView style={tw`px-4 pt-4`}>
-              <DailyReportSummaryCard enableAmountVisibilityToggle />
-            </ThemedView>
-          )}
-          <ThemedView style={tw`items-center justify-center flex-1 gap-4`}>
-            <Ionicons
-              name="document-text-outline"
-              size={80}
-              color={tw.color("gray-500")}
-            />
-            <ThemedText type="h3">{t("orders:list.noOrders")}</ThemedText>
-            <ThemedText type="body2" style={tw`text-center max-w-xs`}>
-              {t("orders:list.noOrdersDescription")}
-            </ThemedText>
-          </ThemedView>
-        </>
+        <ThemedView style={tw`items-center justify-center flex-1 gap-4`}>
+          <Ionicons
+            name="document-text-outline"
+            size={80}
+            color={tw.color("gray-500")}
+          />
+          <ThemedText type="h3">{t("orders:list.noOrders")}</ThemedText>
+          <ThemedText type="body2" style={tw`text-center max-w-xs`}>
+            {t("orders:list.noOrdersDescription")}
+          </ThemedText>
+        </ThemedView>
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -151,42 +130,6 @@ export default function AllOrdersScreen() {
             />
           }
         >
-          {isAdmin && (
-            <ThemedView style={tw`px-4 pt-4`}>
-              <DailyReportSummaryCard enableAmountVisibilityToggle />
-            </ThemedView>
-          )}
-          {isAdmin && reportWaiters.length > 0 && (
-            <ThemedView style={tw`px-4`}>
-              <ThemedView style={tw`rounded-2xl border border-light-border p-4`}>
-                <ThemedText type="h3" style={tw`mb-3`}>
-                  {t("reports:waiterStats.title")}
-                </ThemedText>
-                <ThemedView style={tw`gap-4`}>
-                  {reportWaiters.map((waiter) => (
-                    <ThemedView key={waiter.userId} style={tw`gap-2`}>
-                      <ThemedView style={tw`gap-1`}>
-                        <ThemedText type="body2">{waiter.fullName}</ThemedText>
-                        <ThemedText type="small" style={tw`text-gray-500`}>
-                          {t("reports:waiterStats.orders")}: {waiter.totalOrders}
-                        </ThemedText>
-                      </ThemedView>
-                      <ThemedView style={tw`flex-row gap-4 items-center justify-between`}>
-                        <ThemedText type="small">{formatCurrency(waiter.totalIncome)}</ThemedText>
-                        <ThemedText type="small">{formatCurrency(waiter.totalAmount)}</ThemedText>
-                      </ThemedView>
-                      <ProgressBar
-                        height={2}
-                        progress={
-                          (waiter?.totalIncome || 0) / (waiter?.totalAmount || 1)
-                        }
-                      />
-                    </ThemedView>
-                  ))}
-                </ThemedView>
-              </ThemedView>
-            </ThemedView>
-          )}
           {waiterStats.length > 0 && (
             <ThemedView>
               <ThemedText type="h3" style={tw`mb-3 px-4 `}>

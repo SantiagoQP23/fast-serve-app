@@ -2,9 +2,10 @@ import { Product } from "@/core/menu/models/product.model";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { View, Pressable, PressableProps } from "react-native";
+import { PressableProps } from "react-native";
+import Card from "../theme/components/card";
+import { typography } from "@/constants/theme";
 
 interface ProductCardProps extends PressableProps {
   product: Product;
@@ -12,15 +13,18 @@ interface ProductCardProps extends PressableProps {
 
 export default function ProductCard({ product, onPress }: ProductCardProps) {
   return (
-    <Pressable
+    <Card
       style={({ pressed }) => [
-        tw` p-4 rounded-2xl bg-light-surface dark:bg-gray-800`,
+        tw` p-4 rounded-2xl dark:bg-gray-800`,
         pressed && tw`opacity-80`,
       ]}
       onPress={onPress}
     >
       <ThemedView style={tw` bg-transparent gap-2 `}>
-        <ThemedText type="body1" style={tw``}>
+        <ThemedText
+          type="body1"
+          style={[tw``, { fontFamily: typography.medium }]}
+        >
           {product.name}
         </ThemedText>
         <ThemedText type="body1" style={tw`text-gray-600`}>
@@ -31,6 +35,6 @@ export default function ProductCard({ product, onPress }: ProductCardProps) {
               : "No options available"}
         </ThemedText>
       </ThemedView>
-    </Pressable>
+    </Card>
   );
 }

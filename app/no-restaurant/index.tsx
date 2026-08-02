@@ -92,7 +92,7 @@ export default function NoRestaurantScreen() {
       <ThemedView style={tw`mb-8 w-full`}>
         <Button
           variant="text"
-          label={t("profile.logout")}
+          label={t("manage.logout")}
           onPress={handleLogout}
         />
       </ThemedView>

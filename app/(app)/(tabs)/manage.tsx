@@ -39,7 +39,7 @@ export const CardButton = ({ icon, label, onPress }: CardButtonProps) => {
   );
 };
 
-export default function OrdersScreen() {
+export default function ManageScreen() {
   const { t } = useTranslation("auth");
   const { user, currentRestaurant } = useAuthStore();
 
@@ -47,7 +47,7 @@ export default function OrdersScreen() {
     <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <ThemedView style={tw` items-center gap-2 flex-row justify-between`}>
-          <ThemedText type="h2">{t("profile.title")}</ThemedText>
+          <ThemedText type="h2">{t("manage.title")}</ThemedText>
           <Pressable
             onPress={() => router.push("/(profile)/settings")}
             style={({ pressed }) => tw.style(pressed && "opacity-70")}
@@ -72,14 +72,14 @@ export default function OrdersScreen() {
               <ThemedView style={tw`gap-6`}>
                 <CardButton
                   icon="albums-outline"
-                  label={t("profile.allOrders")}
+                  label={t("manage.allOrders")}
                   onPress={() => {
                     router.push("/(profile)/all-orders");
                   }}
                 />
                 <CardButton
                   icon="time-outline"
-                  label={t("profile.history")}
+                  label={t("manage.history")}
                   onPress={() => {
                     router.push("/(profile)/history");
                   }}
@@ -93,21 +93,21 @@ export default function OrdersScreen() {
               </ThemedText>
               <CardButton
                 icon="storefront-outline"
-                label={t("profile.myRestaurants")}
+                label={t("manage.myRestaurants")}
                 onPress={() => {
                   router.push("/(profile)/restaurants");
                 }}
               />
               <CardButton
                 icon="cloud-offline-outline"
-                label={t("profile.offlineData")}
+                label={t("manage.offlineData")}
                 onPress={() => {
                   router.push("/(profile)/restaurant");
                 }}
               />
               <CardButton
                 icon="print-outline"
-                label={t("profile.printers")}
+                label={t("manage.printers")}
                 onPress={() => {
                   router.push("/(profile)/printers");
                 }}

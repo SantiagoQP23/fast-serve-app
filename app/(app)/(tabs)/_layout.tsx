@@ -20,7 +20,6 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import useOrdersModuleContext from "./(orders-module)/orders-module.context";
 import NotificationBadge from "@/presentation/theme/components/notification-badge";
-import { getRoutes } from "expo-router/build/getRoutesCore";
 import { ROUTES } from "@/constants/routes";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 
@@ -119,7 +118,9 @@ export default function TabLayout() {
           name="(orders-module)"
           options={{
             tabBarLabel: ({ color }) => (
-              <ThemedText type="small" style={{ color }}>{t("navigation.home")}</ThemedText>
+              <ThemedText type="small" style={{ color }}>
+                {t("navigation.home")}
+              </ThemedText>
             ),
             tabBarIcon: ({ color }) => (
               <Ionicons color={color} name="home-outline" size={24} />
@@ -134,7 +135,9 @@ export default function TabLayout() {
           name="sales"
           options={{
             tabBarLabel: ({ color }) => (
-              <ThemedText type="small" style={{ color }}>{t("navigation.sales")}</ThemedText>
+              <ThemedText type="small" style={{ color }}>
+                {t("navigation.sales")}
+              </ThemedText>
             ),
             tabBarIcon: ({ color }) => (
               <Ionicons color={color} name="pricetag-outline" size={24} />
@@ -145,7 +148,9 @@ export default function TabLayout() {
           name="analytics"
           options={{
             tabBarLabel: ({ color }) => (
-              <ThemedText type="small" style={{ color }}>{t("navigation.analytics")}</ThemedText>
+              <ThemedText type="small" style={{ color }}>
+                {t("navigation.analytics")}
+              </ThemedText>
             ),
             tabBarIcon: ({ color }) => (
               <Ionicons color={color} name="trending-up-outline" size={24} />
@@ -156,7 +161,9 @@ export default function TabLayout() {
           name="incomes"
           options={{
             tabBarLabel: ({ color }) => (
-              <ThemedText type="small" style={{ color }}>{t("navigation.incomes")}</ThemedText>
+              <ThemedText type="small" style={{ color }}>
+                {t("navigation.incomes")}
+              </ThemedText>
             ),
             tabBarIcon: ({ color }) => (
               <Ionicons color={color} name="stats-chart-outline" size={24} />
@@ -165,13 +172,15 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="profile"
+          name="manage"
           options={{
             tabBarLabel: ({ color }) => (
-              <ThemedText type="small" style={{ color }}>{t("navigation.profile")}</ThemedText>
+              <ThemedText type="small" style={{ color }}>
+                {t("navigation.manage")}
+              </ThemedText>
             ),
             tabBarIcon: ({ color }) => (
-              <Ionicons color={color} name="person-outline" size={24} />
+              <Ionicons color={color} name="apps-outline" size={24} />
             ),
           }}
         />

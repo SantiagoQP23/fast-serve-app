@@ -40,7 +40,7 @@ export default function SettingsScreen() {
           <ThemedView style={tw`gap-4`}>
             <ThemedView style={tw`gap-2`}>
               <Select
-                label={t("profile.language")}
+                label={t("manage.language")}
                 options={Object.entries(AVAILABLE_LANGUAGES).map(
                   ([code, name]) => ({
                     value: code,
@@ -62,7 +62,7 @@ export default function SettingsScreen() {
             }}
           >
             <Ionicons name="log-out-outline" size={24} color="red" />
-            <ThemedText>{t("profile.logout")}</ThemedText>
+            <ThemedText>{t("manage.logout")}</ThemedText>
           </Pressable>
         </ThemedView>
 

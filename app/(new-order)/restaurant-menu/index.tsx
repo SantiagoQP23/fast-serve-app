@@ -185,6 +185,7 @@ export default function RestaurantMenuScreen() {
         <ThemedText type="h1">{t("menu:title")}</ThemedText>
         <TextInput
           value={search}
+          placeholder={t("menu:searchPlaceholder")}
           onChangeText={(value) => onSearchChange(value)}
           icon="search-outline"
           leftIcon={
