@@ -6,7 +6,8 @@
     "sales": "Ventas",
     "tables": "Mesas",
     "orders": "Pedidos",
-    "profile": "Perfil"
+    "profile": "Perfil",
+    "analytics": "Análisis"
   },
   "actions": {
     "add": "Agregar",
@@ -93,7 +94,9 @@
     "totalAmount": "Monto Total",
     "collectionRate": "Ingresos",
     "totalIncome": "Total Cobrado",
-    "ordersPendingPayment": "Por cobrar"
+    "ordersPendingPayment": "Por cobrar",
+    "myStats": "Mis Estadísticas",
+    "analytics": "Análisis"
   },
   "connection": {
     "offline": "Conexión Perdida",

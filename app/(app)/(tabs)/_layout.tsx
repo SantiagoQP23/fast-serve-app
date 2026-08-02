@@ -118,10 +118,9 @@ export default function TabLayout() {
         <Tabs.Screen
           name="(orders-module)"
           options={{
-            tabBarLabel: ({ focused }) =>
-              focused ? (
-                <ThemedText type="small">{t("navigation.home")}</ThemedText>
-              ) : null,
+            tabBarLabel: ({ color }) => (
+              <ThemedText type="small" style={{ color }}>{t("navigation.home")}</ThemedText>
+            ),
             tabBarIcon: ({ color }) => (
               <Ionicons color={color} name="home-outline" size={24} />
             ),
@@ -134,10 +133,9 @@ export default function TabLayout() {
         <Tabs.Screen
           name="sales"
           options={{
-            tabBarLabel: ({ focused }) =>
-              focused ? (
-                <ThemedText type="small">{t("navigation.sales")}</ThemedText>
-              ) : null,
+            tabBarLabel: ({ color }) => (
+              <ThemedText type="small" style={{ color }}>{t("navigation.sales")}</ThemedText>
+            ),
             tabBarIcon: ({ color }) => (
               <Ionicons color={color} name="pricetag-outline" size={24} />
             ),
@@ -146,10 +144,9 @@ export default function TabLayout() {
         <Tabs.Screen
           name="analytics"
           options={{
-            tabBarLabel: ({ focused }) =>
-              focused ? (
-                <ThemedText type="small">{t("navigation.analytics")}</ThemedText>
-              ) : null,
+            tabBarLabel: ({ color }) => (
+              <ThemedText type="small" style={{ color }}>{t("navigation.analytics")}</ThemedText>
+            ),
             tabBarIcon: ({ color }) => (
               <Ionicons color={color} name="trending-up-outline" size={24} />
             ),
@@ -158,10 +155,9 @@ export default function TabLayout() {
         <Tabs.Screen
           name="incomes"
           options={{
-            tabBarLabel: ({ focused }) =>
-              focused ? (
-                <ThemedText type="small">{t("navigation.incomes")}</ThemedText>
-              ) : null,
+            tabBarLabel: ({ color }) => (
+              <ThemedText type="small" style={{ color }}>{t("navigation.incomes")}</ThemedText>
+            ),
             tabBarIcon: ({ color }) => (
               <Ionicons color={color} name="stats-chart-outline" size={24} />
             ),
@@ -171,11 +167,9 @@ export default function TabLayout() {
         <Tabs.Screen
           name="profile"
           options={{
-            tabBarLabel: ({ focused }) =>
-              focused ? (
-                <ThemedText type="small">{t("navigation.profile")}</ThemedText>
-              ) : null,
-            // headerShown: true,
+            tabBarLabel: ({ color }) => (
+              <ThemedText type="small" style={{ color }}>{t("navigation.profile")}</ThemedText>
+            ),
             tabBarIcon: ({ color }) => (
               <Ionicons color={color} name="person-outline" size={24} />
             ),

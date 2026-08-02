@@ -6,7 +6,8 @@
     "sales": "Sales",
     "tables": "Tables",
     "orders": "Orders",
-    "profile": "Profile"
+    "profile": "Profile",
+    "analytics": "Analytics"
   },
   "actions": {
     "add": "Add",
@@ -93,7 +94,9 @@
     "totalAmount": "Total Amount",
     "collectionRate": "Collection Rate",
     "totalIncome": "Total Income",
-    "ordersPendingPayment": "Orders Pending Payment"
+    "ordersPendingPayment": "Orders Pending Payment",
+    "myStats": "My Stats",
+    "analytics": "Analytics"
   },
   "connection": {
     "offline": "Connection Lost",

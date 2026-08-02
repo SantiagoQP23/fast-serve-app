@@ -20,7 +20,9 @@ export default function TabBar<T extends string>({
   onChange,
 }: TabBarProps<T>) {
   return (
-    <View style={tw`flex-row bg-slate-100 dark:bg-slate-800 rounded-xl p-1`}>
+    <View
+      style={tw`flex-row bg-light-surface dark:bg-slate-800 rounded-3xl p-1`}
+    >
       {tabs.map((tab) => {
         const isActive = activeTab === tab.value;
         return (
@@ -28,7 +30,7 @@ export default function TabBar<T extends string>({
             key={tab.value}
             onPress={() => onChange(tab.value)}
             style={tw.style(
-              "flex-1 items-center justify-center py-2 px-1 rounded-lg",
+              "flex-1 items-center justify-center py-2 px-1 rounded-3xl",
               isActive && "bg-white dark:bg-slate-700 shadow-sm",
             )}
           >

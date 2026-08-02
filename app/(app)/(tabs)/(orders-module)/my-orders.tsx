@@ -154,7 +154,7 @@ export default function MyOrdersScreen() {
       <ThemedView style={tw`flex-1`}>
         {activeTab === "my-orders" && (
           <ScrollView
-            contentContainerStyle={tw`pb-20 gap-4`}
+            contentContainerStyle={tw`pb-20 gap-4 pt-4`}
             showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl
@@ -195,7 +195,7 @@ export default function MyOrdersScreen() {
 
         {activeTab === "all-orders" && (
           <ScrollView
-            contentContainerStyle={tw`pb-20 gap-4`}
+            contentContainerStyle={tw`pb-20 gap-4 pt-4`}
             showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl
