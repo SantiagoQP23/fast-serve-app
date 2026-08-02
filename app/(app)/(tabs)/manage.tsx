@@ -13,7 +13,9 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { router } from "expo-router";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import Button from "@/presentation/theme/components/button";
 import { typography } from "@/constants/theme";
+import Label from "@/presentation/theme/components/label";
 
 interface CardButtonProps extends PressableProps {
   icon?: keyof typeof Ionicons.glyphMap;
@@ -57,12 +59,24 @@ export default function ManageScreen() {
         </ThemedView>
         <ThemedView style={tw`my-4`} />
         <ThemedView style={tw`items-center gap-2`}>
-          <ThemedText type="h3">
-            {user?.person.firstName} {user?.person.lastName}
-          </ThemedText>
-          <ThemedText type="h4">{currentRestaurant?.name}</ThemedText>
-          <ThemedText type="body2">{user?.role?.description}</ThemedText>
+          {/* <ThemedText type="h3"> */}
+          {/*   {user?.person.firstName} {user?.person.lastName} */}
+          {/* </ThemedText> */}
+          <ThemedText type="h3">{currentRestaurant?.name}</ThemedText>
+          <Label
+            text={user?.role?.description || ""}
+            color="default"
+            size="small"
+          />
         </ThemedView>
+        <Button
+          label={t("manage.manageOtherRestaurant")}
+          onPress={() => router.push("/(profile)/restaurants")}
+          variant="text"
+          leftIcon="storefront-outline"
+          style={tw`mt-4`}
+          size="small"
+        />
         <ThemedView style={tw`my-8`}>
           <ThemedView style={tw`rounded-lg  p-4 gap-8`}>
             <ThemedView style={tw`gap-4`}>
@@ -70,13 +84,13 @@ export default function ManageScreen() {
                 Orders
               </ThemedText>
               <ThemedView style={tw`gap-6`}>
-                <CardButton
-                  icon="albums-outline"
-                  label={t("manage.allOrders")}
-                  onPress={() => {
-                    router.push("/(profile)/all-orders");
-                  }}
-                />
+                {/* <CardButton */}
+                {/*   icon="albums-outline" */}
+                {/*   label={t("manage.allOrders")} */}
+                {/*   onPress={() => { */}
+                {/*     router.push("/(profile)/all-orders"); */}
+                {/*   }} */}
+                {/* /> */}
                 <CardButton
                   icon="time-outline"
                   label={t("manage.history")}
@@ -91,13 +105,13 @@ export default function ManageScreen() {
               <ThemedText type="small" style={tw`text-gray-500`}>
                 Restaurant
               </ThemedText>
-              <CardButton
-                icon="storefront-outline"
-                label={t("manage.myRestaurants")}
-                onPress={() => {
-                  router.push("/(profile)/restaurants");
-                }}
-              />
+              {/* <CardButton */}
+              {/*   icon="storefront-outline" */}
+              {/*   label={t("manage.myRestaurants")} */}
+              {/*   onPress={() => { */}
+              {/*     router.push("/(profile)/restaurants"); */}
+              {/*   }} */}
+              {/* /> */}
               <CardButton
                 icon="cloud-offline-outline"
                 label={t("manage.offlineData")}
