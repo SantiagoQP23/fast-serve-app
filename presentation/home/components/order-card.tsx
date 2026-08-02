@@ -70,7 +70,7 @@ export default function OrderCard({ order }: OrderCardProps) {
             </ThemedView>
             <ThemedView style={tw`flex-row items-center  gap-1`}>
               <Ionicons
-                name="hourglass-outline"
+                name="time-outline"
                 size={14}
                 color={tw.color("gray-500")}
               />
@@ -94,12 +94,12 @@ export default function OrderCard({ order }: OrderCardProps) {
             <ThemedView
               style={tw`flex-row items-center bg-transparent gap-1 font-bold`}
             >
-              <ThemedText type="small" style={tw`text-gray-500 font-bold`}>
-                {dayjs(order.createdAt).format("HH:mm")}
-              </ThemedText>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                •{" "}
-              </ThemedText>
+              {/* <ThemedText type="small" style={tw`text-gray-500 font-bold`}> */}
+              {/*   {dayjs(order.createdAt).format("HH:mm")} */}
+              {/* </ThemedText> */}
+              {/* <ThemedText type="small" style={tw`text-gray-500`}> */}
+              {/*   •{" "} */}
+              {/* </ThemedText> */}
               <ThemedText type="small" style={tw`text-gray-500 `}>
                 {order.user.person.firstName} {order.user.person.lastName}
               </ThemedText>
@@ -149,12 +149,12 @@ export default function OrderCard({ order }: OrderCardProps) {
               {/*     </ThemedText> */}
               {/*   </> */}
               {/* )} */}
-              <ThemedText type="body2" style={tw`text-gray-600`}>
-                {t("orders:details.orderNumber", { num: order.num })}
-              </ThemedText>
-              <ThemedText type="body2" style={tw`text-gray-600`}>
-                •
-              </ThemedText>
+              {/* <ThemedText type="body2" style={tw`text-gray-600`}> */}
+              {/*   {t("orders:details.orderNumber", { num: order.num })} */}
+              {/* </ThemedText> */}
+              {/* <ThemedText type="body2" style={tw`text-gray-600`}> */}
+              {/*   • */}
+              {/* </ThemedText> */}
 
               <ThemedText type="body2" style={tw`text-gray-600`}>
                 <Ionicons

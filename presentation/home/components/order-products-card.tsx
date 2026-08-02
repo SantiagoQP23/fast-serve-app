@@ -13,11 +13,11 @@ import { getRelativeTime } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
 import dayjs from "dayjs";
 import OrderDetailCard from "@/presentation/orders/components/order-detail-card";
-import { Pressable } from "react-native";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
+import { Ionicons } from "@expo/vector-icons";
 
 interface OrderProductsCardProps {
   order: Order;
@@ -63,54 +63,58 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
   );
 
   return (
-    <Card style={tw`mb-8  rounded-3xl p-4`}>
-      <Pressable onPress={() => openOrder()}>
-        <ThemedView style={tw`mb-6 bg-transparent`}>
-          <ThemedView
-            style={tw`flex-row items-center justify-between bg-transparent`}
-          >
-            <ThemedView style={tw`flex-row items-center gap-2`}>
-              <ThemedText type="h3">
-                {order.type === OrderType.IN_PLACE
-                  ? `${t("common:labels.table")} ${order.table?.name}`
-                  : t("common:labels.takeAway")}{" "}
-              </ThemedText>
-            </ThemedView>
-            <IconButton
-              variant="text"
-              icon="chevron-forward"
-              color={tw.color("gray-500")}
-              size={20}
-              onPress={() => openOrder()}
-            />
-          </ThemedView>
-          <ThemedView style={tw`flex-row items-center gap-2 mt-2 flex-wrap`}>
-            <Label
-              text={relativeTime}
-              leftIcon="time-outline"
-              color="default"
-              size="small"
-            />
-
+    <Card style={tw`mb-8  rounded-3xl p-4`} onPress={() => openOrder()}>
+      <ThemedView style={tw`mb-6 bg-transparent`}>
+        <ThemedView style={tw`flex-row justify-between items-center`}>
+          <ThemedView style={tw`flex-row items-center bg-transparent gap-2`}>
             <Label
               text={statusText}
               color={labelColor}
               leftIcon={statusIcon}
               size="small"
             />
-
             {order.paymentStatus !== OrderPaymentStatus.UNPAID && (
-              <>
-                <Label
-                  text={paymentStatus.text}
-                  color={paymentStatus.color}
-                  size="small"
-                />
-              </>
+              <Label
+                text={paymentStatus.text}
+                color={paymentStatus.color}
+                size="small"
+              />
             )}
           </ThemedView>
+          <ThemedView style={tw`flex-row items-center  gap-1`}>
+            <Ionicons
+              name="time-outline"
+              size={14}
+              color={tw.color("gray-500")}
+            />
+            <ThemedText type="small">
+              {dayjs(order.deliveryTime).format("HH:mm")}
+            </ThemedText>
+          </ThemedView>
         </ThemedView>
-      </Pressable>
+        <ThemedView
+          style={tw`flex-row items-center justify-between bg-transparent mt-4`}
+        >
+          <ThemedView style={tw` gap-2`}>
+            <ThemedText type="h3">
+              {order.type === OrderType.IN_PLACE
+                ? `${t("common:labels.table")} ${order.table?.name}`
+                : t("common:labels.takeAway")}{" "}
+            </ThemedText>
+
+            <ThemedText type="small" style={tw`text-gray-500 `}>
+              {order.user.person.firstName} {order.user.person.lastName}
+            </ThemedText>
+          </ThemedView>
+          <IconButton
+            variant="text"
+            icon="chevron-forward"
+            color={tw.color("gray-500")}
+            size={20}
+            onPress={() => openOrder()}
+          />
+        </ThemedView>
+      </ThemedView>
       <ThemedView style={tw`gap-6`}>
         {order.details
           .filter(
@@ -131,25 +135,16 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
       </ThemedView>
 
       <ThemedView style={tw`mt-6 flex-row items-center justify-between`}>
-        <Label
-          text={`${order.user.person.firstName} ${order.user.person.lastName}`}
-          leftIcon="person-outline"
-          size="small"
-          color="outline"
-        />
+        <ThemedText type="body2" style={tw`text-gray-600`}>
+          <Ionicons
+            name="people-outline"
+            size={18}
+            color={tw.color("gray-600")}
+          />{" "}
+          {order.people}
+        </ThemedText>
         <ThemedView style={tw`flex-row items-center gap-2 `}>
-          <ThemedText type="small" style={tw`text-gray-500 `}>
-            {t("orders:details.orderNumber", {
-              num: order.num,
-            })}
-          </ThemedText>
-
-          <ThemedText type="small" style={tw`text-gray-500`}>
-            •
-          </ThemedText>
-          <ThemedText type="small" style={tw`text-gray-500 `}>
-            {dayjs(order.createdAt).format("HH:mm")}
-          </ThemedText>
+          <ThemedText type="h3">${order.total}</ThemedText>
         </ThemedView>
       </ThemedView>
     </Card>
