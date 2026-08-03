@@ -18,6 +18,7 @@ import { useState, useEffect } from "react";
 import { ActivityIndicator } from "react-native";
 import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
 import { WebSocketIndicator } from "@/presentation/shared/components/websocket-indicator";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 // Initialize i18n
 import "@/core/i18n/i18n.config";
@@ -48,6 +49,11 @@ export default function RootLayout() {
   useEffect(() => {
     initializeDayjs();
     setLanguage(language);
+
+    GoogleSignin.configure({
+      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+      iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+    });
   }, []);
 
   // Conditionally wrap content with SocketProvider

@@ -23,6 +23,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { i18nAlert } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { toast } from "sonner-native";
+import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
 
 const loginSchema = z.object({
   username: z.string({ message: "Username is required" }),
@@ -34,8 +35,9 @@ type LoginFormData = z.infer<typeof loginSchema>;
 const LoginScreen = () => {
   const { t } = useTranslation("auth");
   const { height } = useWindowDimensions();
-  const { login, user } = useAuthStore();
+  const { login, user, loginWithGoogle } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const {
     control,
@@ -69,6 +71,26 @@ const LoginScreen = () => {
       }
     }
 
+    toast.error(t("validations.invalidCredentials"));
+  };
+
+  // Function to handle Google sign in
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    const wasSuccessful = await loginWithGoogle();
+    const currentUser = useAuthStore.getState().user;
+
+    if (wasSuccessful && currentUser) {
+      if (currentUser.role) {
+        router.replace("/(app)/(tabs)/(orders-module)/my-orders");
+        return;
+      } else {
+        router.replace("/no-restaurant");
+        return;
+      }
+    }
+
+    setIsGoogleLoading(false);
     toast.error(t("validations.invalidCredentials"));
   };
 
@@ -181,6 +203,17 @@ const LoginScreen = () => {
           <Button
             label={t("login.loginButton")}
             onPress={handleSubmit(onSubmit)}
+          />
+        </ThemedView>
+        <ThemedView style={tw`w-full gap-2 items-center`}>
+          {/* <ThemedText type="body2" style={tw`text-gray-500`}> */}
+          {/*   o */}
+          {/* </ThemedText> */}
+          <GoogleSigninButton
+            size={GoogleSigninButton.Size.Icon}
+            color={GoogleSigninButton.Color.Dark}
+            onPress={handleGoogleSignIn}
+            disabled={isGoogleLoading}
           />
         </ThemedView>
         <ThemedView style={tw`flex-1`}></ThemedView>

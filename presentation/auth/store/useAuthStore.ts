@@ -1,8 +1,13 @@
 import { create } from "zustand";
-import { authCheckStatus, authLogin } from "@/core/auth/actions/auth-actions";
+import {
+  authCheckStatus,
+  authLogin,
+  authGoogleSignIn,
+} from "@/core/auth/actions/auth-actions";
 import { SecureStorageAdapter } from "@/helpers/adapters/secure-storage.adapter";
 import { User } from "@/core/auth/models/user.model";
 import { Restaurant } from "@/core/common/models/restaurant.model";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 export type AuthStatus = "authenticated" | "unauthenticated" | "checking";
 
@@ -13,6 +18,7 @@ export interface AuthState {
   currentRestaurant?: Restaurant;
 
   login: (email: string, password: string) => Promise<boolean>;
+  loginWithGoogle: () => Promise<boolean>;
   checkStatus: () => Promise<void>;
   logout: () => Promise<void>;
 
@@ -60,12 +66,46 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     return get().changeStatus(resp?.token, resp?.user, resp?.currentRestaurant);
   },
 
+  loginWithGoogle: async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const response = await GoogleSignin.signIn();
+
+      if (response.type === "cancelled") {
+        return false;
+      }
+
+      const idToken = response.data?.idToken;
+
+      if (!idToken) {
+        console.log("Google signin failed: no idToken");
+        return false;
+      }
+
+      const resp = await authGoogleSignIn(idToken);
+      return get().changeStatus(
+        resp?.token,
+        resp?.user,
+        resp?.currentRestaurant,
+      );
+    } catch (error: any) {
+      console.log("Google signin error", error);
+      return false;
+    }
+  },
+
   checkStatus: async () => {
     const resp = await authCheckStatus();
     get().changeStatus(resp?.token, resp?.user, resp?.currentRestaurant);
   },
 
   logout: async () => {
+    try {
+      await GoogleSignin.signOut();
+    } catch {
+      // Ignore errors if user wasn't signed in with Google
+    }
+
     SecureStorageAdapter.removeItem("token");
 
     set({ status: "unauthenticated", token: undefined, user: undefined });
