@@ -175,13 +175,15 @@ export default function ManageScreen() {
                 {t("manage.orders")}
               </ThemedText>
               <ThemedView style={tw`gap-6`}>
-                <CardButton
-                  icon="time-outline"
-                  label={t("manage.history")}
-                  onPress={() => {
-                    router.push("/(profile)/history");
-                  }}
-                />
+                {isAdmin && (
+                  <CardButton
+                    icon="time-outline"
+                    label={t("manage.history")}
+                    onPress={() => {
+                      router.push("/(profile)/history");
+                    }}
+                  />
+                )}
               </ThemedView>
             </ThemedView>
 
@@ -231,7 +233,7 @@ export default function ManageScreen() {
                   icon="people-outline"
                   label={t("manage.staff")}
                   onPress={() => {
-                    router.push("/scan-qr-invite");
+                    router.push("/staff");
                   }}
                 />
               )}

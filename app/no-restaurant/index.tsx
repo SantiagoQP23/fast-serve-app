@@ -15,6 +15,8 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { RestaurantService } from "@/core/restaurant/services/restaurant.service";
+import { useWebsocketEventListener } from "@/presentation/shared/hooks/useWebsocketEventListener";
+import { OrderSocketEvent } from "@/core/orders/enums/socket-events.enum";
 
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
@@ -44,8 +46,14 @@ type CreateRestaurantFormData = z.infer<typeof createRestaurantSchema>;
 
 export default function NoRestaurantScreen() {
   const { t } = useTranslation("auth");
-  const { logout, changeStatus } = useAuthStore();
+  const { logout, changeStatus, checkStatus } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useWebsocketEventListener(OrderSocketEvent.restaurantAssigned, async () => {
+    toast.success("¡Fuiste agregado al restaurante exitosamente!");
+    await checkStatus();
+    router.replace("/(app)/(tabs)/(orders-module)/my-orders");
+  });
 
   const {
     control,

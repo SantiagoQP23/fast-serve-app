@@ -106,6 +106,12 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen
+              name="staff/index"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
               name="(order)"
               options={{
                 headerShown: false,

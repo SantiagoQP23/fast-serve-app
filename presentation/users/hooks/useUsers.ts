@@ -10,5 +10,6 @@ export const useUsers = () => {
   return {
     users: usersQuery.data ?? [],
     isLoading: usersQuery.isLoading,
+    refetch: usersQuery.refetch,
   };
 };

@@ -22,4 +22,5 @@ export enum OrderSocketEvent {
   updateBill = "updateBill",
   payBillTransaction = "payBillTransaction",
   removeTransaction = "removeTransaction",
+  restaurantAssigned = "restaurant:assigned",
 }

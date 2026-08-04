@@ -8,6 +8,8 @@ import QRCode from "react-native-qrcode-svg";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { RestaurantService } from "@/core/restaurant/services/restaurant.service";
+import { useWebsocketEventListener } from "@/presentation/shared/hooks/useWebsocketEventListener";
+import { OrderSocketEvent } from "@/core/orders/enums/socket-events.enum";
 
 import Button from "@/presentation/theme/components/button";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -17,10 +19,16 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 const EXPIRY_SECONDS = 5 * 60; // 5 minutes
 
 export default function JoinRestaurantScreen() {
-  const { user } = useAuthStore();
+  const { user, checkStatus } = useAuthStore();
   const [token, setToken] = useState<string>("");
   const [secondsLeft, setSecondsLeft] = useState(EXPIRY_SECONDS);
   const [isLoading, setIsLoading] = useState(false);
+
+  useWebsocketEventListener(OrderSocketEvent.restaurantAssigned, async () => {
+    toast.success("¡Fuiste agregado al restaurante exitosamente!");
+    await checkStatus();
+    router.replace("/(app)/(tabs)/(orders-module)/my-orders");
+  });
 
   const generateToken = useCallback(async () => {
     setIsLoading(true);
