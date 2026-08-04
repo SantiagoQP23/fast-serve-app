@@ -3,6 +3,7 @@ import {
   authCheckStatus,
   authLogin,
   authGoogleSignIn,
+  authUpdateProfile,
 } from "@/core/auth/actions/auth-actions";
 import { SecureStorageAdapter } from "@/helpers/adapters/secure-storage.adapter";
 import { User } from "@/core/auth/models/user.model";
@@ -19,6 +20,7 @@ export interface AuthState {
 
   login: (email: string, password: string) => Promise<boolean>;
   loginWithGoogle: () => Promise<boolean>;
+  updateProfile: (firstName?: string, lastName?: string) => Promise<boolean>;
   checkStatus: () => Promise<void>;
   logout: () => Promise<void>;
 
@@ -92,6 +94,18 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       console.log("Google signin error", error);
       return false;
     }
+  },
+
+  updateProfile: async (firstName?: string, lastName?: string) => {
+    const resp = await authUpdateProfile(firstName, lastName);
+
+    if (!resp) return false;
+
+    set({
+      user: resp.user,
+    });
+
+    return true;
   },
 
   checkStatus: async () => {

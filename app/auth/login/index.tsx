@@ -205,10 +205,10 @@ const LoginScreen = () => {
             onPress={handleSubmit(onSubmit)}
           />
         </ThemedView>
-        <ThemedView style={tw`w-full gap-2 items-center`}>
-          {/* <ThemedText type="body2" style={tw`text-gray-500`}> */}
-          {/*   o */}
-          {/* </ThemedText> */}
+        <ThemedView style={tw`w-full gap-8 items-center`}>
+          <ThemedText type="body2" style={tw`text-gray-500`}>
+            o continuar con
+          </ThemedText>
           <GoogleSigninButton
             size={GoogleSigninButton.Size.Icon}
             color={GoogleSigninButton.Color.Dark}

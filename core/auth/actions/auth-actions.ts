@@ -65,3 +65,17 @@ export const authGoogleSignIn = async (idToken: string) => {
     return null;
   }
 };
+
+export const authUpdateProfile = async (firstName?: string, lastName?: string) => {
+  try {
+    const { data } = await restaurantApi.patch<AuthResponse>("/auth/me", {
+      firstName,
+      lastName,
+    });
+
+    return returnUserToken(data);
+  } catch (error) {
+    console.log("Update profile error", error);
+    return null;
+  }
+};

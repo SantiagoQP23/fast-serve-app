@@ -73,6 +73,13 @@ export default function OrdersLayout() {
           }}
         />
 
+        <Stack.Screen
+          name="edit-profile/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
         {/* <Stack.Screen */}
         {/*   name="[id]/edit-order-detail/index" */}
         {/*   options={{ */}

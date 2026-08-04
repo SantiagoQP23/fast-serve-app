@@ -1,8 +1,8 @@
 import {
-  StyleSheet,
   ScrollView,
   Pressable,
   PressableProps,
+  Linking,
 } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -16,6 +16,8 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import { typography } from "@/constants/theme";
 import Label from "@/presentation/theme/components/label";
+import { Roles } from "@/core/auth/models/user.model";
+import { toast } from "sonner-native";
 
 interface CardButtonProps extends PressableProps {
   icon?: keyof typeof Ionicons.glyphMap;
@@ -24,20 +26,16 @@ interface CardButtonProps extends PressableProps {
 
 export const CardButton = ({ icon, label, onPress }: CardButtonProps) => {
   return (
-    <>
-      {/* <Card onPress={onPress}> */}
-      <Pressable onPress={onPress}>
-        <ThemedView style={tw`flex-row gap-4`}>
-          <ThemedView>
-            <Ionicons name={icon} size={22} />
-          </ThemedView>
-          <ThemedText style={[{ fontFamily: typography.medium }]}>
-            {label}
-          </ThemedText>
+    <Pressable onPress={onPress}>
+      <ThemedView style={tw`flex-row gap-4`}>
+        <ThemedView>
+          <Ionicons name={icon} size={22} />
         </ThemedView>
-      </Pressable>
-      {/* </Card> */}
-    </>
+        <ThemedText style={[{ fontFamily: typography.medium }]}>
+          {label}
+        </ThemedText>
+      </ThemedView>
+    </Pressable>
   );
 };
 
@@ -45,10 +43,33 @@ export default function ManageScreen() {
   const { t } = useTranslation("auth");
   const { user, currentRestaurant } = useAuthStore();
 
+  const handleOpenWeb = async () => {
+    const appUrl = process.env.EXPO_PUBLIC_APP_URL;
+
+    if (!appUrl) {
+      toast.error("Web URL is not configured");
+      return;
+    }
+
+    try {
+      const canOpen = await Linking.canOpenURL(appUrl);
+      if (canOpen) {
+        await Linking.openURL(appUrl);
+      } else {
+        toast.error("Cannot open web version");
+      }
+    } catch (error) {
+      toast.error("Failed to open web version");
+    }
+  };
+
+  const isAdmin = user?.role?.name === Roles.ADMIN;
+  const subscription = currentRestaurant?.subscription;
+
   return (
     <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <ThemedView style={tw` items-center gap-2 flex-row justify-between`}>
+        <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
           <ThemedText type="h2">{t("manage.title")}</ThemedText>
           <Pressable
             onPress={() => router.push("/(profile)/settings")}
@@ -57,40 +78,103 @@ export default function ManageScreen() {
             <Ionicons name="settings-outline" size={22} />
           </Pressable>
         </ThemedView>
+
         <ThemedView style={tw`my-4`} />
-        <ThemedView style={tw`items-center gap-2`}>
-          {/* <ThemedText type="h3"> */}
-          {/*   {user?.person.firstName} {user?.person.lastName} */}
-          {/* </ThemedText> */}
-          <ThemedText type="h3">{currentRestaurant?.name}</ThemedText>
+
+        {/* Subscription Banner */}
+        {subscription && (
+          <ThemedView
+            style={tw`rounded-3xl border border-light-border p-4 gap-2 mb-4`}
+          >
+            <ThemedView style={tw`flex-row items-center gap-2`}>
+              <Ionicons
+                name={
+                  subscription.status === "ACTIVE"
+                    ? "shield-checkmark-outline"
+                    : subscription.status === "TRIAL"
+                      ? "time-outline"
+                      : "alert-circle-outline"
+                }
+                size={20}
+                color={
+                  subscription.status === "ACTIVE"
+                    ? tw.color("green-500")
+                    : subscription.status === "TRIAL"
+                      ? tw.color("orange-500")
+                      : tw.color("red-500")
+                }
+              />
+              <ThemedText style={[{ fontFamily: typography.medium }]}>
+                {t(`manage.subscription.${subscription.status.toLowerCase()}`)}
+              </ThemedText>
+              {subscription.plan && (
+                <Label
+                  text={subscription.plan.name}
+                  color="default"
+                  size="small"
+                />
+              )}
+            </ThemedView>
+            {subscription.status === "TRIAL" && subscription.trialEndsAt && (
+              <ThemedText type="small" style={tw`text-gray-500`}>
+                {t("manage.subscription.trialEnds", {
+                  date: new Date(subscription.trialEndsAt).toLocaleDateString(),
+                })}
+              </ThemedText>
+            )}
+          </ThemedView>
+        )}
+
+        {/* User Info Card */}
+        <Pressable
+          onPress={() => router.push("/(profile)/edit-profile")}
+          style={({ pressed }) =>
+            tw.style(
+              "rounded-3xl border border-light-border p-4 gap-3 mb-4",
+              pressed && "opacity-70",
+            )
+          }
+        >
+          <ThemedView style={tw`flex-row items-center gap-3`}>
+            <Ionicons
+              name="person-circle-outline"
+              size={40}
+              color={tw.color("gray-400")}
+            />
+            <ThemedView style={tw`flex-1`}>
+              <ThemedText type="h3">
+                {user?.person?.firstName} {user?.person?.lastName}
+              </ThemedText>
+              <ThemedText type="small" style={tw`text-gray-500`}>
+                {user?.person?.email}
+              </ThemedText>
+            </ThemedView>
+            <Ionicons name="chevron-forward-outline" size={20} color={tw.color("gray-400")} />
+          </ThemedView>
           <Label
             text={user?.role?.description || ""}
             color="default"
             size="small"
           />
-        </ThemedView>
+        </Pressable>
+
         <Button
           label={t("manage.manageOtherRestaurant")}
           onPress={() => router.push("/(profile)/restaurants")}
           variant="text"
           leftIcon="storefront-outline"
-          style={tw`mt-4`}
+          style={tw`mt-2`}
           size="small"
         />
-        <ThemedView style={tw`my-8`}>
-          <ThemedView style={tw`rounded-lg  p-4 gap-8`}>
+
+        <ThemedView style={tw`my-6`}>
+          <ThemedView style={tw`rounded-lg p-4 gap-8`}>
+            {/* Orders */}
             <ThemedView style={tw`gap-4`}>
               <ThemedText type="small" style={tw`text-gray-500`}>
-                Orders
+                {t("manage.orders")}
               </ThemedText>
               <ThemedView style={tw`gap-6`}>
-                {/* <CardButton */}
-                {/*   icon="albums-outline" */}
-                {/*   label={t("manage.allOrders")} */}
-                {/*   onPress={() => { */}
-                {/*     router.push("/(profile)/all-orders"); */}
-                {/*   }} */}
-                {/* /> */}
                 <CardButton
                   icon="time-outline"
                   label={t("manage.history")}
@@ -101,23 +185,39 @@ export default function ManageScreen() {
               </ThemedView>
             </ThemedView>
 
+            {/* Menu */}
+            <ThemedView style={tw`gap-4`}>
+              <ThemedText type="small" style={tw`text-gray-500`}>
+                {t("manage.menu.title")}
+              </ThemedText>
+              <ThemedView style={tw`gap-6`}>
+                <CardButton
+                  icon="list-outline"
+                  label={t("manage.menu.sections")}
+                />
+                <CardButton
+                  icon="pricetag-outline"
+                  label={t("manage.menu.categories")}
+                />
+                <CardButton
+                  icon="fast-food-outline"
+                  label={t("manage.menu.products")}
+                />
+              </ThemedView>
+            </ThemedView>
+
+            {/* Restaurant */}
             <ThemedView style={tw`gap-6`}>
               <ThemedText type="small" style={tw`text-gray-500`}>
-                Restaurant
+                {t("manage.restaurant")}
               </ThemedText>
-              {/* <CardButton */}
-              {/*   icon="storefront-outline" */}
-              {/*   label={t("manage.myRestaurants")} */}
-              {/*   onPress={() => { */}
-              {/*     router.push("/(profile)/restaurants"); */}
-              {/*   }} */}
-              {/* /> */}
               <CardButton
-                icon="cloud-offline-outline"
-                label={t("manage.offlineData")}
-                onPress={() => {
-                  router.push("/(profile)/restaurant");
-                }}
+                icon="grid-outline"
+                label={t("manage.tables")}
+              />
+              <CardButton
+                icon="card-outline"
+                label={t("manage.paymentMethods")}
               />
               <CardButton
                 icon="print-outline"
@@ -129,26 +229,24 @@ export default function ManageScreen() {
             </ThemedView>
           </ThemedView>
         </ThemedView>
+
+        {/* Web management button (admin only) */}
+        {isAdmin && (
+          <ThemedView style={tw`mb-8 gap-2`}>
+            <Button
+              label={t("manage.userInfo.manageOnWeb")}
+              onPress={handleOpenWeb}
+              variant="outline"
+              leftIcon="globe-outline"
+            />
+            <ThemedText type="small" style={tw`text-center text-gray-500`}>
+              {t("manage.userInfo.webHint")}
+            </ThemedText>
+          </ThemedView>
+        )}
       </ScrollView>
     </ScreenLayout>
   );
 }
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
-  },
-});
+

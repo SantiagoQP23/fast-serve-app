@@ -20,6 +20,8 @@ export interface RestaurantRole {
   role: IRole;
 }
 
+export type AuthProvider = "local" | "google";
+
 export interface User {
   id: string;
   username: string;
@@ -28,4 +30,7 @@ export interface User {
   role?: IRole;
   restaurantRoles: RestaurantRole[];
   isActive: boolean;
+  authProvider?: AuthProvider[];
+  googleEmail?: string;
+  googleId?: string;
 }
