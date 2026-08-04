@@ -94,6 +94,18 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen
+              name="join-restaurant/index"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="scan-qr-invite/index"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
               name="(order)"
               options={{
                 headerShown: false,

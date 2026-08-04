@@ -226,6 +226,15 @@ export default function ManageScreen() {
                   router.push("/(profile)/printers");
                 }}
               />
+              {isAdmin && (
+                <CardButton
+                  icon="people-outline"
+                  label={t("manage.staff")}
+                  onPress={() => {
+                    router.push("/scan-qr-invite");
+                  }}
+                />
+              )}
             </ThemedView>
           </ThemedView>
         </ThemedView>

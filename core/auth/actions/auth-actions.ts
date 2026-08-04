@@ -66,6 +66,19 @@ export const authGoogleSignIn = async (idToken: string) => {
   }
 };
 
+export const authLinkGoogleAccount = async (idToken: string) => {
+  try {
+    const { data } = await restaurantApi.post<AuthResponse>("/auth/link-google", {
+      idToken,
+    });
+
+    return returnUserToken(data);
+  } catch (error) {
+    console.log("Link Google account error", error);
+    return null;
+  }
+};
+
 export const authUpdateProfile = async (firstName?: string, lastName?: string) => {
   try {
     const { data } = await restaurantApi.patch<AuthResponse>("/auth/me", {

@@ -3,6 +3,7 @@ import {
   authCheckStatus,
   authLogin,
   authGoogleSignIn,
+  authLinkGoogleAccount,
   authUpdateProfile,
 } from "@/core/auth/actions/auth-actions";
 import { SecureStorageAdapter } from "@/helpers/adapters/secure-storage.adapter";
@@ -20,6 +21,7 @@ export interface AuthState {
 
   login: (email: string, password: string) => Promise<boolean>;
   loginWithGoogle: () => Promise<boolean>;
+  linkGoogleAccount: () => Promise<boolean>;
   updateProfile: (firstName?: string, lastName?: string) => Promise<boolean>;
   checkStatus: () => Promise<void>;
   logout: () => Promise<void>;
@@ -106,6 +108,40 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     });
 
     return true;
+  },
+
+  linkGoogleAccount: async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const response = await GoogleSignin.signIn();
+
+      if (response.type === "cancelled") {
+        return false;
+      }
+
+      const idToken = response.data?.idToken;
+
+      if (!idToken) {
+        console.log("Google signin failed: no idToken");
+        return false;
+      }
+
+      const resp = await authLinkGoogleAccount(idToken);
+
+      if (!resp) return false;
+
+      set({
+        user: resp.user,
+        token: resp.token,
+      });
+
+      await SecureStorageAdapter.setItem("token", resp.token);
+
+      return true;
+    } catch (error: any) {
+      console.log("Link Google account error", error);
+      return false;
+    }
   },
 
   checkStatus: async () => {

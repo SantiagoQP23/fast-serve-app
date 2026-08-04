@@ -25,7 +25,7 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 
 export default function EditProfileScreen() {
   const { t } = useTranslation("auth");
-  const { user, updateProfile, loginWithGoogle } = useAuthStore();
+  const { user, updateProfile, linkGoogleAccount } = useAuthStore();
 
   const {
     control,
@@ -56,7 +56,7 @@ export default function EditProfileScreen() {
   const hasGoogleLinked = user?.authProvider?.includes("google");
 
   const handleLinkGoogle = async () => {
-    const wasSuccessful = await loginWithGoogle();
+    const wasSuccessful = await linkGoogleAccount();
 
     if (wasSuccessful) {
       toast.success("Cuenta de Google vinculada correctamente");
