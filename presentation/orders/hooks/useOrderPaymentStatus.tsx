@@ -1,7 +1,10 @@
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 import { useTranslation } from "react-i18next";
 
-export function useOrderPaymentStatus(status: OrderPaymentStatus) {
+export function useOrderPaymentStatus(
+  status: OrderPaymentStatus | null | undefined,
+) {
+  const safeStatus = status ?? OrderPaymentStatus.UNPAID;
   const { t } = useTranslation(["common", "bills"]);
   const statusLabel = {
     [OrderPaymentStatus.PAID]: {
@@ -22,7 +25,7 @@ export function useOrderPaymentStatus(status: OrderPaymentStatus) {
   };
 
   const paymentStatus =
-    statusLabel[status] ?? statusLabel[OrderPaymentStatus.UNPAID];
+    statusLabel[safeStatus] ?? statusLabel[OrderPaymentStatus.UNPAID];
 
   return { paymentStatus };
 }

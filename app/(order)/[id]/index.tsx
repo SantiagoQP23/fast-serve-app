@@ -99,6 +99,8 @@ export default function OrderScreen() {
     statusIconColor,
     bgColor,
   } = useOrderStatus(order?.status || OrderStatus.PENDING);
+  const { handlePrintOrder, handleShareOrder, handlePrintComanda } =
+    useOrderPrint(order);
 
   const onRefresh = useCallback(async () => {
     if (!order?.id) return;
@@ -130,9 +132,6 @@ export default function OrderScreen() {
       </ThemedView>
     );
   }
-
-  const { handlePrintOrder, handleShareOrder, handlePrintComanda } =
-    useOrderPrint(order);
 
   // Show loading state while fetching order details (especially for closed orders)
   if (isLoadingOrder && !order.details) {

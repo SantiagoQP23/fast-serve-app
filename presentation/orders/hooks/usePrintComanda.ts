@@ -46,6 +46,20 @@ export const usePrintComanda = () => {
           return;
         }
 
+        const translations = {
+          comandaTitle: t("orders:comanda.title"),
+          area: (name: string) => t("orders:comanda.area", { area: name }),
+          order: t("orders:comanda.order", { num: order.num }),
+          table: (name: string) => t("orders:comanda.table", { name }),
+          takeAway: t("orders:comanda.takeAway"),
+          waiter: t("orders:comanda.waiter"),
+          date: t("orders:comanda.date"),
+          people: t("orders:comanda.people"),
+          notes: t("orders:comanda.notes"),
+          inPlace: t("orders:comanda.inPlace"),
+          detailTakeAway: t("orders:comanda.detailTakeAway"),
+        };
+
         for (const group of areaGroups) {
           const activePrinter = group.area.printers?.find((p) => p.isActive);
           if (!activePrinter) {
@@ -54,12 +68,15 @@ export const usePrintComanda = () => {
             );
             continue;
           }
-          await ThermalPrinterService.printComanda(
-            activePrinter,
-            order,
-            group.area.name,
-            group.details,
-          );
+          if (group.details.length > 0) {
+            await ThermalPrinterService.printComanda(
+              activePrinter,
+              order,
+              group.area.name,
+              group.details,
+              translations,
+            );
+          }
         }
 
         toast.success(t("orders:options.printComandaSuccess"), { id: toastId });

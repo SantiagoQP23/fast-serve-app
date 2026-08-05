@@ -2,6 +2,7 @@ import ThermalPrinterModule from "react-native-thermal-printer";
 import { Printer } from "@/core/common/models/printer.model";
 import { Order } from "@/core/orders/models/order.model";
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
+import { OrderType } from "@/core/orders/enums/order-type.enum";
 
 export class ThermalPrinterService {
   static printTest = async (
@@ -100,6 +101,19 @@ export class ThermalPrinterService {
     order: Order,
     areaName: string,
     areaDetails: Order["details"],
+    translations: {
+      comandaTitle: string;
+      area: (name: string) => string;
+      order: string;
+      table: (name: string) => string;
+      takeAway: string;
+      waiter: string;
+      date: string;
+      people: string;
+      notes: string;
+      inPlace: string;
+      detailTakeAway: string;
+    },
   ): Promise<void> => {
     const detailsText = areaDetails
       .filter(
@@ -122,22 +136,29 @@ export class ThermalPrinterService {
         if (detail.description) {
           extra += `[L]  *** ${detail.description} ***\n`;
         }
+        if (detail.typeOrderDetail !== order.type) {
+          const typeLabel =
+            detail.typeOrderDetail === OrderType.TAKE_AWAY
+              ? translations.detailTakeAway
+              : translations.inPlace;
+          extra += `[L]  [${typeLabel}]\n`;
+        }
 
         return `[L]<b>${detail.quantity - detail.qtyDelivered}x ${detail.product.name}</b>\n${extra}`;
       })
       .join("");
 
     const payload =
-      `[C]<b>COMANDA</b>\n` +
-      `[C]<b>${areaName.toUpperCase()}</b>\n` +
+      `[C]<b>${translations.comandaTitle}</b>\n` +
+      `[C]<b>${translations.area(areaName).toUpperCase()}</b>\n` +
       `[C]================================\n` +
-      `[C]<b>ORDEN #${order.num}</b>\n` +
-      `[C]${order.table ? `MESA: ${order.table.name}` : "PARA LLEVAR"}\n` +
+      `[C]<b>${translations.order}</b>\n` +
+      `[C]${order.table ? translations.table(order.table.name) : translations.takeAway}\n` +
       `[C]================================\n` +
-      `[L]MESERO: ${order.user.person.firstName} ${order.user.person.lastName}\n` +
-      `[L]FECHA: ${new Date(order.createdAt).toLocaleString()}\n` +
-      `[L]PERSONAS: ${order.people}\n` +
-      `${order.notes ? `[C]--------------------------------\n[L]NOTAS: ${order.notes}\n` : ""}` +
+      `[L]${translations.waiter}: ${order.user.person.firstName} ${order.user.person.lastName}\n` +
+      `[L]${translations.date}: ${new Date(order.createdAt).toLocaleString()}\n` +
+      `[L]${translations.people}: ${order.people}\n` +
+      `${order.notes ? `[C]--------------------------------\n[L]${translations.notes}: ${order.notes}\n` : ""}` +
       `[C]================================\n` +
       `${detailsText}` +
       `[C]================================\n` +

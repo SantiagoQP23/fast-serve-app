@@ -9,15 +9,18 @@ import { useOrderPaymentStatus } from "./useOrderPaymentStatus";
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 import { usePrintComanda } from "./usePrintComanda";
 
-export const useOrderPrint = (order: Order) => {
+export const useOrderPrint = (order: Order | null) => {
   const { t, language } = useTranslation(["common", "orders", "bills"]);
-  const { paymentStatus } = useOrderPaymentStatus(order.paymentStatus);
+  const { paymentStatus } = useOrderPaymentStatus(
+    order?.paymentStatus ?? OrderPaymentStatus.UNPAID,
+  );
   const { printComanda: handlePrintComanda } = usePrintComanda();
 
   const toCamelCase = (str: string) =>
     str.toLowerCase().replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
 
   const generateOrderHtml = useCallback(() => {
+    if (!order) return "";
     const orderStatusKey = toCamelCase(order.status);
     const orderStatusLabel = t(`common:status.${orderStatusKey}`);
 
@@ -173,6 +176,7 @@ export const useOrderPrint = (order: Order) => {
   }, [order, t, language]);
 
   const handlePrintOrder = useCallback(async () => {
+    if (!order) return;
     const toastId = toast.loading(t("orders:options.printingOrder"));
     try {
       const html = generateOrderHtml();
@@ -188,9 +192,10 @@ export const useOrderPrint = (order: Order) => {
       console.error("Error printing order:", error);
       toast.error(t("orders:options.printError"), { id: toastId });
     }
-  }, [generateOrderHtml, order.details.length, t]);
+  }, [generateOrderHtml, order, t]);
 
   const handleShareOrder = useCallback(async () => {
+    if (!order) return;
     try {
       const html = generateOrderHtml();
       const height = Math.max(600, 400 + order.details.length * 130);
@@ -206,11 +211,19 @@ export const useOrderPrint = (order: Order) => {
     } catch (error) {
       console.error("Error sharing order:", error);
     }
-  }, [generateOrderHtml, order.details.length, order.num, t]);
+  }, [generateOrderHtml, order, t]);
+
+  const safeHandlePrintComanda = useCallback(
+    (targetOrder?: Order) => {
+      if (!targetOrder && !order) return;
+      handlePrintComanda(targetOrder ?? order!);
+    },
+    [handlePrintComanda, order],
+  );
 
   return {
     handlePrintOrder,
     handleShareOrder,
-    handlePrintComanda,
+    handlePrintComanda: safeHandlePrintComanda,
   };
 };

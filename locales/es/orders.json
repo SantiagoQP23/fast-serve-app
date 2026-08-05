@@ -166,5 +166,18 @@
   "detailInfo": {
     "updatedBy": "Actualizado por {{name}}",
     "createdBy": "Creado por {{name}}"
+  },
+  "comanda": {
+    "title": "COMANDA",
+    "area": "{{area}}",
+    "order": "ORDEN #{{num}}",
+    "table": "MESA: {{name}}",
+    "takeAway": "PARA LLEVAR",
+    "waiter": "MESERO",
+    "date": "FECHA",
+    "people": "PERSONAS",
+    "notes": "NOTAS",
+    "inPlace": "EN EL LUGAR",
+    "detailTakeAway": "PARA LLEVAR"
   }
 }

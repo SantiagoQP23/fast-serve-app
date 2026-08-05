@@ -26,12 +26,12 @@ export default function OrderConfirmationScreen() {
   };
 
   const { statusText } = useOrderStatus(order?.status || OrderStatus.PENDING);
+  const { handlePrintOrder, handleShareOrder, handlePrintComanda } =
+    useOrderPrint(order);
 
   if (!order) {
     return null;
   }
-  const { handlePrintOrder, handleShareOrder, handlePrintComanda } =
-    useOrderPrint(order);
 
   return (
     <>

@@ -166,5 +166,18 @@
   "detailInfo": {
     "updatedBy": "Updated by {{name}}",
     "createdBy": "Created by {{name}}"
+  },
+  "comanda": {
+    "title": "COMANDA",
+    "area": "{{area}}",
+    "order": "ORDER #{{num}}",
+    "table": "TABLE: {{name}}",
+    "takeAway": "TAKE AWAY",
+    "waiter": "WAITER",
+    "date": "DATE",
+    "people": "PEOPLE",
+    "notes": "NOTES",
+    "inPlace": "IN PLACE",
+    "detailTakeAway": "TAKE AWAY"
   }
 }
