@@ -30,6 +30,7 @@ export default function TextInput({
   bottomSheet,
   containerStyle,
   style,
+  editable = true,
   ...inputProps
 }: Props) {
   const InputComponent = bottomSheet ? BottomSheetTextInput : RNTextInput;
@@ -44,6 +45,7 @@ export default function TextInput({
             "flex-row items-center",
             " rounded-3xl px-3 py-1 text-gray-900 bg-gray-100",
             error ? "border-red-500" : "border-gray-300",
+            !editable && "opacity-50",
           ),
           containerStyle,
         ]}

@@ -141,10 +141,16 @@ export default function EditProfileScreen() {
                   onBlur={onBlur}
                   value={value}
                   onChangeText={onChange}
+                  editable={!hasGoogleLinked}
                   error={errors.email ? errors.email.message : undefined}
                 />
               )}
             />
+            {hasGoogleLinked && (
+              <ThemedText type="small" style={tw`text-gray-500 -mt-2`}>
+                Email gestionado por Google
+              </ThemedText>
+            )}
 
             <Controller
               control={control}
