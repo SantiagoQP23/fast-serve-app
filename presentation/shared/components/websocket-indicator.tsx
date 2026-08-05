@@ -5,6 +5,7 @@ import { SocketContext } from "../context/SocketContext";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import tw from "@/presentation/theme/lib/tailwind";
+import { toast } from "sonner-native";
 
 export function WebSocketIndicator() {
   const { online } = useContext(SocketContext);
@@ -12,9 +13,11 @@ export function WebSocketIndicator() {
 
   // Animated value for pulse effect
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const wasOffline = useRef(false);
 
   useEffect(() => {
     if (!online) {
+      wasOffline.current = true;
       // Start pulsing animation when offline
       const pulse = Animated.loop(
         Animated.sequence([
@@ -36,8 +39,11 @@ export function WebSocketIndicator() {
         pulse.stop();
         pulseAnim.setValue(1);
       };
+    } else if (wasOffline.current) {
+      wasOffline.current = false;
+      toast.success(t("common:connection.reconnected"));
     }
-  }, [online, pulseAnim]);
+  }, [online, pulseAnim, t]);
 
   // Only show when connection is down
   if (online) {
@@ -48,13 +54,16 @@ export function WebSocketIndicator() {
     <View style={styles.container}>
       <Animated.View
         style={[
-          tw`bg-red-500 px-3 py-2 rounded-full flex-row items-center shadow-lg`,
+          tw`bg-gray-500 px-3 py-2 rounded-full flex-row items-center shadow-lg`,
           {
             transform: [{ scale: pulseAnim }],
           },
         ]}
       >
         <Ionicons name="wifi-outline" size={20} color="white" />
+        <ThemedText type="small" style={tw`text-white ml-2`}>
+          {t("common:connection.offline")}
+        </ThemedText>
       </Animated.View>
     </View>
   );

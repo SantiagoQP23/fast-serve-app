@@ -99,8 +99,9 @@
     "analytics": "Análisis"
   },
   "connection": {
-    "offline": "Conexión Perdida",
-    "reconnecting": "Reconectando..."
+    "offline": "Sin Conexión",
+    "reconnecting": "Reconectando...",
+    "reconnected": "Conexión Restablecida"
   },
   "transactions": {
     "deleteConfirmTitle": "Eliminar Transacción",

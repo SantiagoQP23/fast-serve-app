@@ -100,7 +100,8 @@
   },
   "connection": {
     "offline": "Connection Lost",
-    "reconnecting": "Reconnecting..."
+    "reconnecting": "Reconnecting...",
+    "reconnected": "Connected to internet"
   },
   "transactions": {
     "deleteConfirmTitle": "Delete Transaction",
