@@ -22,5 +22,8 @@
   "table": {
     "fetchError": "Failed to refresh tables",
     "tablesFetchFailed": "Could not refresh tables. Please try again."
+  },
+  "auth": {
+    "emailAlreadyRegistered": "Email is already registered"
   }
 }

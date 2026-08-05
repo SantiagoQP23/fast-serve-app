@@ -22,7 +22,12 @@ export interface AuthState {
   login: (email: string, password: string) => Promise<boolean>;
   loginWithGoogle: () => Promise<boolean>;
   linkGoogleAccount: () => Promise<boolean>;
-  updateProfile: (firstName?: string, lastName?: string) => Promise<boolean>;
+  updateProfile: (
+    firstName?: string,
+    lastName?: string,
+    email?: string,
+    numPhone?: string,
+  ) => Promise<{ success: boolean; errorCode?: string }>;
   checkStatus: () => Promise<void>;
   logout: () => Promise<void>;
 
@@ -104,15 +109,21 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     email?: string,
     numPhone?: string,
   ) => {
-    const resp = await authUpdateProfile(firstName, lastName, email, numPhone);
+    const { user: updatedUser, errorCode } = await authUpdateProfile(
+      firstName,
+      lastName,
+      email,
+      numPhone,
+    );
 
-    if (!resp) return false;
+    if (errorCode) return { success: false, errorCode };
+    if (!updatedUser) return { success: false };
 
     set({
-      user: resp.user,
+      user: updatedUser,
     });
 
-    return true;
+    return { success: true };
   },
 
   linkGoogleAccount: async () => {

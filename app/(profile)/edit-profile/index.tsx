@@ -33,7 +33,7 @@ const profileSchema = z.object({
 type ProfileFormData = z.infer<typeof profileSchema>;
 
 export default function EditProfileScreen() {
-  const { t } = useTranslation("auth");
+  const { t } = useTranslation(["auth", "errors"]);
   const { user, updateProfile, linkGoogleAccount } = useAuthStore();
 
   const {
@@ -51,18 +51,22 @@ export default function EditProfileScreen() {
   });
 
   const onSubmit = async (data: ProfileFormData) => {
-    const wasSuccessful = await updateProfile(
+    const result = await updateProfile(
       data.firstName.trim(),
       data.lastName.trim(),
       data.email.trim(),
       data.phone.trim(),
     );
 
-    if (wasSuccessful) {
+    if (result.success) {
       toast.success("Perfil actualizado correctamente");
-      router.back();
+      // router.back();
     } else {
-      toast.error("Error al actualizar el perfil");
+      if (result.errorCode === "EMAIL_ALREADY_REGISTERED") {
+        toast.error(t("errors:auth.emailAlreadyRegistered"));
+      } else {
+        toast.error("Error al actualizar el perfil");
+      }
     }
   };
 

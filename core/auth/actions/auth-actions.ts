@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import { restaurantApi } from "@/core/api/restaurantApi";
 import { User } from "../models/user.model";
 import { Restaurant } from "@/core/common/models/restaurant.model";
@@ -84,18 +85,22 @@ export const authUpdateProfile = async (
   lastName?: string,
   email?: string,
   numPhone?: string,
-) => {
+): Promise<{ user: User | null; errorCode?: string }> => {
   try {
-    const { data } = await restaurantApi.patch<AuthResponse>("/auth/me", {
+    const { data } = await restaurantApi.patch<User>("/auth/me", {
       firstName,
       lastName,
       email,
       numPhone,
     });
 
-    return returnUserToken(data);
+    return { user: data };
   } catch (error) {
-    console.log("Update profile error", error);
-    return null;
+    const axiosError = error as AxiosError<{
+      error?: { code?: string; message?: string };
+    }>;
+    const errorCode = axiosError.response?.data?.error?.code;
+    console.log("Update profile error", errorCode, axiosError.response?.data);
+    return { user: null, errorCode };
   }
 };

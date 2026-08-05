@@ -15,9 +15,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SocketProvider } from "@/presentation/shared/context/SocketContext";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { useState, useEffect } from "react";
-import { ActivityIndicator } from "react-native";
 import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
 import { WebSocketIndicator } from "@/presentation/shared/components/websocket-indicator";
+import { GlobalLoader } from "@/presentation/shared/components/global-loader";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 // Initialize i18n
@@ -32,7 +32,6 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const isLoading = useGlobalStore((state) => state.isLoading);
   const language = useGlobalStore((state) => state.language);
   const setLanguage = useGlobalStore((state) => state.setLanguage);
 
@@ -147,23 +146,7 @@ export default function RootLayout() {
           {/* WebSocket Connection Indicator - only show on non-auth pages */}
           {!isAuthPage && <WebSocketIndicator />}
 
-          {isLoading && (
-            <ThemedView
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                zIndex: 9999,
-                backgroundColor: "rgba(0,0,0,0.4)",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <ActivityIndicator size="large" color="#fff" />
-            </ThemedView>
-          )}
+          <GlobalLoader />
         </ThemedView>
       </BottomSheetModalProvider>
     );

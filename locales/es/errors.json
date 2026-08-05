@@ -22,5 +22,8 @@
   "table": {
     "fetchError": "Error al actualizar mesas",
     "tablesFetchFailed": "No se pudieron actualizar las mesas. Por favor intente nuevamente."
+  },
+  "auth": {
+    "emailAlreadyRegistered": "El correo ya está registrado"
   }
 }
