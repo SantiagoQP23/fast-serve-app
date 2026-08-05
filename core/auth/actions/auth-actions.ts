@@ -80,6 +80,42 @@ export const authLinkGoogleAccount = async (idToken: string) => {
   }
 };
 
+export interface RegisterUserDto {
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
+  password: string;
+  numPhone?: string;
+}
+
+export const authRegister = async (
+  data: RegisterUserDto,
+): Promise<{ user: User | null; token: string | null; currentRestaurant: Restaurant | null; errorCode?: string }> => {
+  try {
+    const payload = { ...data };
+    if (!payload.numPhone || payload.numPhone === "") {
+      delete payload.numPhone;
+    }
+
+    const { data: respData } = await restaurantApi.post<AuthResponse>(
+      "/auth/register",
+      payload,
+    );
+
+    const result = returnUserToken(respData);
+    return { user: result.user, token: result.token, currentRestaurant: result.currentRestaurant };
+  } catch (error) {
+    const axiosError = error as AxiosError<{
+      error?: { code?: string; message?: string };
+    }>;
+    const errorCode = axiosError.response?.data?.error?.code;
+    const message = axiosError.response?.data?.error?.message;
+    console.log("Register error", errorCode, message, axiosError.response?.data);
+    return { user: null, token: null, currentRestaurant: null, errorCode };
+  }
+};
+
 export const authUpdateProfile = async (
   firstName?: string,
   lastName?: string,

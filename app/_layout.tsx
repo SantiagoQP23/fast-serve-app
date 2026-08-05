@@ -87,6 +87,12 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen
+              name="auth/register/index"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
               name="no-restaurant/index"
               options={{
                 headerShown: false,

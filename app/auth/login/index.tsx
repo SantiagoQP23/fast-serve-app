@@ -8,7 +8,6 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   useWindowDimensions,
-  Linking,
   Pressable,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -95,26 +94,8 @@ const LoginScreen = () => {
   };
 
   // Function to handle sign up redirect
-  const handleSignUp = async () => {
-    const appUrl = process.env.EXPO_PUBLIC_APP_URL;
-    const signupUrl = `${appUrl}/auth/register`;
-
-    if (!signupUrl) {
-      i18nAlert("Error", "Sign up URL is not configured");
-      return;
-    }
-
-    try {
-      const canOpen = await Linking.canOpenURL(signupUrl);
-      if (canOpen) {
-        await Linking.openURL(signupUrl);
-      } else {
-        i18nAlert("Error", "Cannot open sign up page");
-      }
-    } catch (error) {
-      console.error("Error opening sign up URL:", error);
-      i18nAlert("Error", "Failed to open sign up page");
-    }
+  const handleSignUp = () => {
+    router.push("/auth/register");
   };
 
   const handleForgotPassword = async () => {

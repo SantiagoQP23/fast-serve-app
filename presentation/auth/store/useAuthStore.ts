@@ -5,6 +5,7 @@ import {
   authGoogleSignIn,
   authLinkGoogleAccount,
   authUpdateProfile,
+  authRegister,
 } from "@/core/auth/actions/auth-actions";
 import { SecureStorageAdapter } from "@/helpers/adapters/secure-storage.adapter";
 import { User } from "@/core/auth/models/user.model";
@@ -22,6 +23,14 @@ export interface AuthState {
   login: (email: string, password: string) => Promise<boolean>;
   loginWithGoogle: () => Promise<boolean>;
   linkGoogleAccount: () => Promise<boolean>;
+  register: (
+    firstName: string,
+    lastName: string,
+    username: string,
+    email: string,
+    password: string,
+    numPhone?: string,
+  ) => Promise<{ success: boolean; errorCode?: string }>;
   updateProfile: (
     firstName?: string,
     lastName?: string,
@@ -73,6 +82,35 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     const resp = await authLogin(email, password);
 
     return get().changeStatus(resp?.token, resp?.user, resp?.currentRestaurant);
+  },
+
+  register: async (
+    firstName: string,
+    lastName: string,
+    username: string,
+    email: string,
+    password: string,
+    numPhone?: string,
+  ) => {
+    const { token, user, currentRestaurant, errorCode } = await authRegister({
+      firstName,
+      lastName,
+      username,
+      email,
+      password,
+      numPhone,
+    });
+
+    if (errorCode) return { success: false, errorCode };
+    if (!token || !user) return { success: false };
+
+    const statusChanged = await get().changeStatus(
+      token,
+      user,
+      currentRestaurant,
+    );
+
+    return { success: statusChanged };
   },
 
   loginWithGoogle: async () => {
