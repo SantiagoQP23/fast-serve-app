@@ -48,7 +48,7 @@ export default function OrderCard({ order }: OrderCardProps) {
   };
 
   return (
-    <ThemedView style={tw`mb-3  rounded-2xl  `}>
+    <ThemedView style={tw`mb-8  rounded-2xl  `}>
       <Card onPress={openOrder}>
         <ThemedView style={tw`gap-4 bg-white `}>
           {/* Header Section - Table Name */}
