@@ -42,7 +42,8 @@
     "commission": "Comisión",
     "totalToPay": "Total a pagar",
     "transferNote": "Nota de transferencia",
-    "transferNotePlaceholder": "Agrega referencia o información de confirmación"
+    "transferNotePlaceholder": "Agrega referencia o información de confirmación",
+    "transferProofNote": "Deberás subir un comprobante de pago después de confirmar."
   },
   "paymentMethods": {
     "cash": "Efectivo",
@@ -105,6 +106,27 @@
     "noAccountsAvailable": "No hay cuentas disponibles para este método de pago.",
     "accountTypeBank": "Banco",
     "accountTypeCash": "Efectivo",
-    "payButton": "Pagar {{amount}}"
+    "payButton": "Pagar {{amount}}",
+    "confirmTransfer": "Confirmar Transferencia"
+  },
+  "proofUpload": {
+    "uploadSuccess": "Comprobante subido exitosamente",
+    "awaitingValidation": "En espera de validación",
+    "approved": "Aprobado",
+    "rejected": "Rechazado",
+    "proofHistory": "Historial de comprobantes",
+    "uploadTitle": "Subir comprobante de pago",
+    "fromGallery": "Galería",
+    "fromCamera": "Cámara",
+    "skipForNow": "Omitir por ahora",
+    "approveTitle": "Aprobar Comprobante",
+    "approveMessage": "¿Estás seguro de que deseas aprobar este comprobante?",
+    "rejectTitle": "Rechazar Comprobante",
+    "rejectMessage": "¿Estás seguro de que deseas rechazar este comprobante?",
+    "rejectionReason": "Motivo del rechazo",
+    "approvalNotes": "Notas",
+    "uploadedBy": "Subido por",
+    "rejectReasonPlaceholder": "Ingresa el motivo del rechazo",
+    "uploading": "Subiendo comprobante..."
   }
 }

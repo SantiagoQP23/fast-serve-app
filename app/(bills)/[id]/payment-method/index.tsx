@@ -1,9 +1,9 @@
-import { ScrollView, Alert } from "react-native";
+import { ScrollView, Alert, Image, Pressable } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useState, useMemo, useRef, useEffect, useCallback } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
 import { ActivityIndicator } from "react-native";
 import IconButton from "@/presentation/theme/components/icon-button";
@@ -31,6 +31,7 @@ import { useBills } from "@/presentation/orders/hooks/useBills";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Chip from "@/presentation/theme/components/chip";
 import { roundTo } from "@/core/common/utils/format.util";
+import * as ImagePicker from "expo-image-picker";
 
 const iconForType = (
   type: PaymentMethodCategory,
@@ -70,6 +71,9 @@ export default function PaymentMethodScreen() {
     (state) => state.setBillTransferNote,
   );
   const setBillAmount = useOrdersStore((state) => state.setBillAmount);
+  const setPendingProofImage = useOrdersStore(
+    (state) => state.setPendingProofImage,
+  );
   const paidAmount =
     bill?.transactions.reduce((sum, t) => sum + t.amount, 0) ?? 0;
 
@@ -94,6 +98,8 @@ export default function PaymentMethodScreen() {
   );
   const [receivedAmount, setReceivedAmount] = useState("");
   const [transferNote, setTransferNote] = useState("");
+  const [selectedProofImage, setSelectedProofImage] =
+    useState<ImagePicker.ImagePickerAsset | null>(null);
 
   const baseAmount = bill ? bill.total : 0;
   const [payAmount, setPayAmount] = useState("");
@@ -122,7 +128,7 @@ export default function PaymentMethodScreen() {
   const transferBottomSheetRef = useRef<BottomSheetModal>(null);
   const cashSnapPoints = useMemo(() => ["70%"], []);
   const cardSnapPoints = useMemo(() => ["40%"], []);
-  const transferSnapPoints = useMemo(() => ["35%"], []);
+  const transferSnapPoints = useMemo(() => ["45%", "65%"], []);
 
   const commissionRate = selectedMethod
     ? selectedMethod.commissionPercentage / 100
@@ -190,9 +196,54 @@ export default function PaymentMethodScreen() {
     navigateToAccount(selectedMethod);
   };
 
+  const pickProofImage = async (source: "camera" | "gallery") => {
+    const permissionResult =
+      source === "camera"
+        ? await ImagePicker.requestCameraPermissionsAsync()
+        : await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      Alert.alert(
+        t("errors:general.permissionDenied"),
+        t("errors:general.cameraPermissionRequired"),
+      );
+      return;
+    }
+
+    const result =
+      source === "camera"
+        ? await ImagePicker.launchCameraAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.8,
+          })
+        : await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.8,
+          });
+
+    if (!result.canceled && result.assets.length > 0) {
+      setSelectedProofImage(result.assets[0]);
+    }
+  };
+
+  const removeSelectedImage = () => {
+    setSelectedProofImage(null);
+  };
+
   const handleContinueTransfer = () => {
     if (!selectedMethod) return;
     setBillTransferNote(transferNote);
+    if (selectedProofImage) {
+      setPendingProofImage({
+        uri: selectedProofImage.uri,
+        fileName: selectedProofImage.fileName || "proof.jpg",
+        mimeType: selectedProofImage.mimeType || "image/jpeg",
+      });
+    }
     transferBottomSheetRef.current?.dismiss();
     navigateToAccount(selectedMethod);
   };
@@ -265,6 +316,81 @@ export default function PaymentMethodScreen() {
             placeholder={t("bills:details.transferNotePlaceholder")}
             bottomSheet
           />
+
+          {/* Proof image upload section */}
+          <ThemedView style={tw`gap-3`}>
+            <ThemedText type="body2" style={tw`text-gray-500`}>
+              {t("bills:proofUpload.uploadTitle")}
+            </ThemedText>
+
+            {selectedProofImage ? (
+              <ThemedView style={tw`gap-3`}>
+                <ThemedView
+                  style={tw`rounded-xl border border-gray-200 overflow-hidden`}
+                >
+                  <Image
+                    source={{ uri: selectedProofImage.uri }}
+                    style={tw`w-full h-32`}
+                    resizeMode="cover"
+                  />
+                </ThemedView>
+                <Button
+                  label={t("common:actions.change")}
+                  variant="outline"
+                  size="small"
+                  onPress={removeSelectedImage}
+                />
+              </ThemedView>
+            ) : (
+              <ThemedView style={tw`flex-row gap-3`}>
+                <Pressable
+                  onPress={() => pickProofImage("gallery")}
+                  style={({ pressed }) => [
+                    tw`flex-1 items-center justify-center p-4 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 gap-2`,
+                    pressed && tw`opacity-70 bg-gray-100`,
+                  ]}
+                >
+                  <Ionicons
+                    name="images-outline"
+                    size={24}
+                    color={tw.color("gray-400")}
+                  />
+                  <ThemedText type="small" style={tw`text-gray-500 text-center`}>
+                    {t("bills:proofUpload.fromGallery")}
+                  </ThemedText>
+                </Pressable>
+                <Pressable
+                  onPress={() => pickProofImage("camera")}
+                  style={({ pressed }) => [
+                    tw`flex-1 items-center justify-center p-4 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 gap-2`,
+                    pressed && tw`opacity-70 bg-gray-100`,
+                  ]}
+                >
+                  <Ionicons
+                    name="camera-outline"
+                    size={24}
+                    color={tw.color("gray-400")}
+                  />
+                  <ThemedText type="small" style={tw`text-gray-500 text-center`}>
+                    {t("bills:proofUpload.fromCamera")}
+                  </ThemedText>
+                </Pressable>
+              </ThemedView>
+            )}
+          </ThemedView>
+
+          <ThemedView
+            style={tw`flex-row items-center gap-2 p-3 rounded-xl bg-blue-50`}
+          >
+            <Ionicons
+              name="information-circle-outline"
+              size={18}
+              color={tw.color("blue-500")}
+            />
+            <ThemedText type="small" style={tw`text-blue-600 flex-1`}>
+              {t("bills:details.transferProofNote")}
+            </ThemedText>
+          </ThemedView>
           <Button
             label={t("common:actions.continue")}
             onPress={handleContinueTransfer}

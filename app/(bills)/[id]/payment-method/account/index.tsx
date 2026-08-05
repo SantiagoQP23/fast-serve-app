@@ -1,4 +1,4 @@
-import { ScrollView, Alert } from "react-native";
+import { ScrollView, Alert, ActivityIndicator } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -16,6 +16,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { useBills } from "@/presentation/orders/hooks/useBills";
 import { Pressable } from "react-native";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
+import { Transaction } from "@/core/transactions/models/transaction.model";
+import { PaymentProofsService } from "@/core/transactions/services/payment-proofs.service";
 
 export default function AccountScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
@@ -38,9 +41,22 @@ export default function AccountScreen() {
   const setSelectedAccount = useOrdersStore(
     (state) => state.setSelectedAccount,
   );
+  const setActivePendingTransaction = useOrdersStore(
+    (state) => state.setActivePendingTransaction,
+  );
+  const pendingProofImage = useOrdersStore(
+    (state) => state.pendingProofImage,
+  );
+  const setPendingProofImage = useOrdersStore(
+    (state) => state.setPendingProofImage,
+  );
 
   const { payBillTransaction } = useBills();
   const { mutate, isLoading } = payBillTransaction;
+  const [isUploadingProof, setIsUploadingProof] = useState(false);
+
+  const isTransfer =
+    selectedPaymentMethod?.type === PaymentMethodCategory.TRANSFER;
 
   const baseAmount = bill ? bill.total - +discount : 0;
   const totalAfterDiscount = billAmount ? +billAmount : baseAmount;
@@ -96,12 +112,59 @@ export default function AccountScreen() {
         paymentMethodId: selectedPaymentMethod.id,
         accountId: selectedAccountId,
         billId: bill.id,
-        ...(selectedPaymentMethod.type === PaymentMethodCategory.TRANSFER && {
+        ...(isTransfer && {
           description: billTransferNote || undefined,
         }),
       },
       {
-        onSuccess: () => {
+        onSuccess: async (resp) => {
+          const transaction = resp.data?.transaction;
+
+          if (transaction?.status === TransactionStatus.PENDING_PROOF) {
+            setActivePendingTransaction(transaction as Transaction);
+
+            // Auto-upload pre-selected proof image
+            if (pendingProofImage) {
+              setIsUploadingProof(true);
+              try {
+                await PaymentProofsService.uploadProof(
+                  transaction.id,
+                  pendingProofImage.uri,
+                  pendingProofImage.fileName,
+                  pendingProofImage.mimeType,
+                );
+                setPendingProofImage(null);
+                Alert.alert(
+                  t("common:status.success"),
+                  t("bills:proofUpload.uploadSuccess"),
+                );
+                if (bill.source === "direct") {
+                  router.replace("/(app)/(tabs)/sales");
+                } else {
+                  router.back();
+                  router.back();
+                  router.back();
+                }
+              } catch (error: any) {
+                Alert.alert(
+                  t("errors:general.error"),
+                  error?.response?.data?.message ||
+                    error?.message ||
+                    t("errors:general.unknownError"),
+                );
+                // Navigate to proof-upload screen so user can retry
+                router.push(`/(bills)/${bill.id}/payment-method/proof-upload`);
+              } finally {
+                setIsUploadingProof(false);
+              }
+              return;
+            }
+
+            // No image pre-selected — navigate to proof-upload screen
+            router.push(`/(bills)/${bill.id}/payment-method/proof-upload`);
+            return;
+          }
+
           if (bill.source === "direct") {
             router.replace("/(app)/(tabs)/sales");
           } else {
@@ -243,14 +306,37 @@ export default function AccountScreen() {
       {/* Pay button */}
       <ThemedView style={tw`px-4 pb-6 pt-4 border-t border-gray-200`}>
         <Button
-          label={t("bills:account.payButton", {
-            amount: formatCurrency(totalAfterDiscount),
-          })}
+          label={
+            isTransfer
+              ? t("bills:account.confirmTransfer")
+              : t("bills:account.payButton", {
+                  amount: formatCurrency(totalAfterDiscount),
+                })
+          }
           onPress={handlePay}
-          disabled={!selectedAccountId || isLoading || accounts.length === 0}
-          loading={isLoading}
+          disabled={
+            !selectedAccountId ||
+            isLoading ||
+            isUploadingProof ||
+            accounts.length === 0
+          }
+          loading={isLoading || isUploadingProof}
         />
       </ThemedView>
+
+      {/* Full-screen upload overlay */}
+      {isUploadingProof && (
+        <ThemedView
+          style={tw`absolute inset-0 bg-black/50 justify-center items-center z-50`}
+        >
+          <ThemedView style={tw`bg-white rounded-2xl p-6 items-center gap-3`}>
+            <ActivityIndicator size="large" color={tw.color("primary")} />
+            <ThemedText type="body1" style={tw`font-semibold`}>
+              {t("bills:proofUpload.uploading")}
+            </ThemedText>
+          </ThemedView>
+        </ThemedView>
+      )}
     </ScreenLayout>
   );
 }

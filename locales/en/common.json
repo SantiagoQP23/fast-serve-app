@@ -32,7 +32,13 @@
     "select": "Select",
     "loadMore": "Load More",
     "continue": "Continue",
-    "clearAll": "Clear All"
+    "clearAll": "Clear All",
+    "approve": "Approve",
+    "reject": "Reject",
+    "change": "Change",
+    "upload": "Upload",
+    "done": "Done",
+    "tapToPreview": "Tap to preview"
   },
   "status": {
     "pending": "Pending",
@@ -45,7 +51,10 @@
     "available": "Available",
     "occupied": "Occupied",
     "active": "active",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "success": "Success",
+    "approved": "Approved",
+    "rejected": "Rejected"
   },
   "orderType": {
     "inPlace": "In Place",
@@ -105,6 +114,18 @@
   },
   "transactions": {
     "deleteConfirmTitle": "Delete Transaction",
-    "deleteConfirmMessage": "Are you sure you want to delete this transaction? This action cannot be undone."
+    "deleteConfirmMessage": "Are you sure you want to delete this transaction? This action cannot be undone.",
+    "paymentMethod": "Payment Method",
+    "account": "Account",
+    "category": "Category",
+    "createdBy": "Created by",
+    "description": "Description",
+    "status": {
+      "pendingProof": "Pending Proof",
+      "pendingApproval": "Pending Approval",
+      "completed": "Completed",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled"
+    }
   }
 }

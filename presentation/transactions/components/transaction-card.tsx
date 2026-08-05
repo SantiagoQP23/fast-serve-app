@@ -13,6 +13,7 @@ import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { useTransactions } from "@/presentation/transactions/hooks/useTransactions";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
 
 interface TransactionCardProps extends PressableProps {
   transaction: Transaction;
@@ -33,7 +34,6 @@ export default function TransactionCard({
     transaction.category.transactionType === TransactionType.INCOME;
   const relativeTime = getRelativeTime(transaction.createdAt);
 
-  // Use the category color for the icon circle background, with low opacity
   const categoryColor = transaction.category.color ?? "#6b7280";
 
   const onRemoveTransaction = () => {
@@ -51,11 +51,26 @@ export default function TransactionCard({
     setShowDeleteModal(false);
   };
 
-  //User can remove transaction if the creattion time is less than 15 minutes ago or if the user is an admin
   const canRemoveTransaction =
     isAdmin &&
     new Date().getTime() - new Date(transaction.createdAt).getTime() <
       60 * 60 * 1000;
+
+  const getStatusDot = () => {
+    const color =
+      transaction.status === TransactionStatus.PENDING_PROOF
+        ? "bg-orange-500"
+        : transaction.status === TransactionStatus.PENDING_APPROVAL
+          ? "bg-yellow-500"
+          : transaction.status === TransactionStatus.REJECTED
+            ? "bg-red-500"
+            : null;
+    if (!color) return null;
+    return <ThemedView style={tw`w-2 h-2 rounded-full ${color}`} />;
+  };
+
+  const hasProofs =
+    transaction.proofs && transaction.proofs.length > 0;
 
   return (
     <>
@@ -116,9 +131,12 @@ export default function TransactionCard({
                     {transaction.createdBy.person.lastName}
                   </ThemedText>
                 </ThemedView>
-                <ThemedText type="small" style={tw`text-gray-500`}>
-                  {relativeTime}
-                </ThemedText>
+                <ThemedView style={tw`flex-row items-center gap-2 mt-0.5`}>
+                  <ThemedText type="small" style={tw`text-gray-500`}>
+                    {relativeTime}
+                  </ThemedText>
+                  {getStatusDot()}
+                </ThemedView>
               </ThemedView>
             </ThemedView>
 
@@ -131,6 +149,14 @@ export default function TransactionCard({
                 {isIncome ? "" : "-"}
                 {formatCurrency(transaction.amount)}
               </ThemedText>
+              {hasProofs && (
+                <Ionicons
+                  name="image-outline"
+                  size={14}
+                  color={tw.color("gray-400")}
+                  style={tw`mt-1`}
+                />
+              )}
             </ThemedView>
           </ThemedView>
         </Pressable>

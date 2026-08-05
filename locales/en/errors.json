@@ -3,7 +3,10 @@
     "error": "Error",
     "tryAgain": "Please try again",
     "somethingWrong": "Something went wrong",
-    "requestTimedOut": "Request timed out"
+    "requestTimedOut": "Request timed out",
+    "permissionDenied": "Permission denied",
+    "cameraPermissionRequired": "Camera permission is required",
+    "unknownError": "Unknown error"
   },
   "restaurant": {
     "noRestaurantSelected": "No restaurant selected",

@@ -3,7 +3,14 @@ import { OrderDetail } from "@/core/orders/models/order-detail.model";
 import { Order } from "@/core/orders/models/order.model";
 import { Account } from "@/core/restaurant/models/account.model";
 import { PaymentMethod } from "@/core/restaurant/models/payment-method.model";
+import { Transaction } from "@/core/transactions/models/transaction.model";
 import { create } from "zustand";
+
+export interface PendingProofImage {
+  uri: string;
+  fileName: string;
+  mimeType: string;
+}
 
 interface OrdersState {
   orders: Order[];
@@ -16,6 +23,8 @@ interface OrdersState {
   billTransferNote: string;
   selectedPaymentMethod: PaymentMethod | null;
   selectedAccount: Account | null;
+  activePendingTransaction: Transaction | null;
+  pendingProofImage: PendingProofImage | null;
   setOrders: (orders: Order[]) => void;
   setActiveOrder: (order: Order | null) => void;
   setActiveBill: (bill: Bill | null) => void;
@@ -26,6 +35,8 @@ interface OrdersState {
   setBillTransferNote: (note: string) => void;
   setSelectedPaymentMethod: (method: PaymentMethod | null) => void;
   setSelectedAccount: (account: Account | null) => void;
+  setActivePendingTransaction: (transaction: Transaction | null) => void;
+  setPendingProofImage: (image: PendingProofImage | null) => void;
   addOrder: (order: Order) => void;
   updateOrder: (order: Order) => void;
   deleteOrder: (orderId: string) => void;
@@ -43,6 +54,8 @@ const initialState = {
   billTransferNote: "",
   selectedPaymentMethod: null,
   selectedAccount: null,
+  activePendingTransaction: null,
+  pendingProofImage: null,
 };
 
 export const useOrdersStore = create<OrdersState>((set) => ({
@@ -71,6 +84,10 @@ export const useOrdersStore = create<OrdersState>((set) => ({
     set({ selectedPaymentMethod: method }),
   setSelectedAccount: (account: Account | null) =>
     set({ selectedAccount: account }),
+  setActivePendingTransaction: (transaction: Transaction | null) =>
+    set({ activePendingTransaction: transaction }),
+  setPendingProofImage: (image: PendingProofImage | null) =>
+    set({ pendingProofImage: image }),
   deleteOrder: (orderId: string) =>
     set((state) => ({
       orders: state.orders.filter((o) => o.id !== orderId),

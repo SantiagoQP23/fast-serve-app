@@ -16,6 +16,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { useRouter } from "expo-router";
 import PaymentMethodSummaryCard from "@/presentation/home/components/payment-method-summary-card";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
@@ -41,13 +42,16 @@ import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePayme
 import { FilterTransactionsDto } from "@/core/transactions/dto/filter-transactions.dto";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useTransactionPaymentMethodReport } from "@/presentation/transactions/hooks/useTransactionPaymentMethodReport";
+import { usePaymentProofsRealtime } from "@/presentation/transactions/hooks/usePaymentProofsRealtime";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import { Transaction } from "@/core/transactions/models/transaction.model";
 
 const STORAGE_KEY = "incomes_selected_date";
 const FILTERS_STORAGE_KEY = "incomes_filters";
 
 export default function IncomesScreen() {
   const { t } = useTranslation(["common", "errors", "reports"]);
+  const router = useRouter();
   const { currentRestaurant } = useAuthStore();
   const [refreshing, setRefreshing] = useState(false);
   const [showNetIncome, setShowNetIncome] = useState(false);
@@ -219,6 +223,10 @@ export default function IncomesScreen() {
     bottomSheetModalRef.current?.present();
   };
 
+  const openTransactionDetail = (transaction: Transaction) => {
+    router.push(`/(app)/transaction/${transaction.id}`);
+  };
+
   // Reset pagination when date or filters change
   useEffect(() => {
     resetTransactionsPagination();
@@ -255,6 +263,8 @@ export default function IncomesScreen() {
       setRefreshing(false);
     }
   }, [queryClient, currentRestaurant?.id, dateFilter, refetchTransactions, t]);
+
+  usePaymentProofsRealtime();
 
   const thereAreFiltersApplied =
     !!filters.paymentMethodId || !!filters.accountId || !!filters.createdById;
@@ -452,7 +462,10 @@ export default function IncomesScreen() {
                       data={transactions}
                       keyExtractor={(item) => item.id.toString()}
                       renderItem={({ item }) => (
-                        <TransactionCard transaction={item} />
+                        <TransactionCard
+                        transaction={item}
+                        onPress={() => openTransactionDetail(item)}
+                      />
                       )}
                       scrollEnabled={false}
                       contentContainerStyle={tw`py-2 px-4`}
@@ -527,6 +540,7 @@ export default function IncomesScreen() {
           isAdmin={isAdmin}
         />
       </BottomSheetModal>
+
     </ScreenLayout>
   );
 }

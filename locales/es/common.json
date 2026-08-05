@@ -32,7 +32,13 @@
     "select": "Seleccionar",
     "loadMore": "Cargar Más",
     "continue": "Continuar",
-    "clearAll": "Limpiar Todo"
+    "clearAll": "Limpiar Todo",
+    "approve": "Aprobar",
+    "reject": "Rechazar",
+    "change": "Cambiar",
+    "upload": "Subir",
+    "done": "Listo",
+    "tapToPreview": "Toca para previsualizar"
   },
   "status": {
     "pending": "Pendiente",
@@ -45,7 +51,10 @@
     "available": "Disponible",
     "occupied": "Ocupada",
     "active": "activo",
-    "loading": "Cargando..."
+    "loading": "Cargando...",
+    "success": "Éxito",
+    "approved": "Aprobado",
+    "rejected": "Rechazado"
   },
   "orderType": {
     "inPlace": "En el Lugar",
@@ -105,6 +114,18 @@
   },
   "transactions": {
     "deleteConfirmTitle": "Eliminar Transacción",
-    "deleteConfirmMessage": "¿Estás seguro de que deseas eliminar esta transacción? Esta acción no se puede deshacer."
+    "deleteConfirmMessage": "¿Estás seguro de que deseas eliminar esta transacción? Esta acción no se puede deshacer.",
+    "paymentMethod": "Método de Pago",
+    "account": "Cuenta",
+    "category": "Categoría",
+    "createdBy": "Creado por",
+    "description": "Descripción",
+    "status": {
+      "pendingProof": "Comprobante Pendiente",
+      "pendingApproval": "En Espera de Aprobación",
+      "completed": "Completado",
+      "rejected": "Rechazado",
+      "cancelled": "Cancelado"
+    }
   }
 }

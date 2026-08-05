@@ -42,7 +42,8 @@
     "commission": "Commission",
     "totalToPay": "Total to pay",
     "transferNote": "Transfer note",
-    "transferNotePlaceholder": "Add reference or confirmation info"
+    "transferNotePlaceholder": "Add reference or confirmation info",
+    "transferProofNote": "You will need to upload a payment proof after confirming."
   },
   "paymentMethods": {
     "cash": "Cash",
@@ -105,6 +106,27 @@
     "noAccountsAvailable": "No accounts available for this payment method.",
     "accountTypeBank": "Bank",
     "accountTypeCash": "Cash",
-    "payButton": "Pay {{amount}}"
+    "payButton": "Pay {{amount}}",
+    "confirmTransfer": "Confirm Transfer"
+  },
+  "proofUpload": {
+    "uploadSuccess": "Proof uploaded successfully",
+    "awaitingValidation": "Awaiting validation",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "proofHistory": "Proof history",
+    "uploadTitle": "Upload payment proof",
+    "fromGallery": "Gallery",
+    "fromCamera": "Camera",
+    "skipForNow": "Skip for now",
+    "approveTitle": "Approve Proof",
+    "approveMessage": "Are you sure you want to approve this payment proof?",
+    "rejectTitle": "Reject Proof",
+    "rejectMessage": "Are you sure you want to reject this payment proof?",
+    "rejectionReason": "Rejection reason",
+    "approvalNotes": "Notes",
+    "uploadedBy": "Uploaded by",
+    "rejectReasonPlaceholder": "Enter rejection reason",
+    "uploading": "Uploading proof..."
   }
 }

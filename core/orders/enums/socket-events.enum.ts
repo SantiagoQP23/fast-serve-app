@@ -23,4 +23,8 @@ export enum OrderSocketEvent {
   payBillTransaction = "payBillTransaction",
   removeTransaction = "removeTransaction",
   restaurantAssigned = "restaurant:assigned",
+  paymentProofUploaded = "payment-proof-uploaded",
+  paymentProofApproved = "payment-proof-approved",
+  paymentProofRejected = "payment-proof-rejected",
+  transactionStatusUpdated = "transaction-status-updated",
 }

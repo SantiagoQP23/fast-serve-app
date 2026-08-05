@@ -3,6 +3,8 @@ import { Bill } from "@/core/orders/models/bill.model";
 import { Account } from "@/core/restaurant/models/account.model";
 import { PaymentMethod } from "@/core/restaurant/models/payment-method.model";
 import { TransactionCategory } from "./transaction-category.model";
+import { TransactionStatus } from "./transaction-status.enum";
+import { PaymentProof } from "./payment-proof.model";
 
 export type TransactionMetadata =
   | CardMetadata
@@ -39,7 +41,9 @@ export interface Transaction {
   createdAt: Date;
   updatedAt: Date;
   isActive: boolean;
+  status: TransactionStatus;
   bill?: Bill;
   isEditable: boolean;
   metadata: TransactionMetadata | null;
+  proofs?: PaymentProof[];
 }
