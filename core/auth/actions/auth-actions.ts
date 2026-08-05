@@ -79,11 +79,18 @@ export const authLinkGoogleAccount = async (idToken: string) => {
   }
 };
 
-export const authUpdateProfile = async (firstName?: string, lastName?: string) => {
+export const authUpdateProfile = async (
+  firstName?: string,
+  lastName?: string,
+  email?: string,
+  numPhone?: string,
+) => {
   try {
     const { data } = await restaurantApi.patch<AuthResponse>("/auth/me", {
       firstName,
       lastName,
+      email,
+      numPhone,
     });
 
     return returnUserToken(data);

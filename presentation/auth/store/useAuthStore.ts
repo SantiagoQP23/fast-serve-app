@@ -98,8 +98,13 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     }
   },
 
-  updateProfile: async (firstName?: string, lastName?: string) => {
-    const resp = await authUpdateProfile(firstName, lastName);
+  updateProfile: async (
+    firstName?: string,
+    lastName?: string,
+    email?: string,
+    numPhone?: string,
+  ) => {
+    const resp = await authUpdateProfile(firstName, lastName, email, numPhone);
 
     if (!resp) return false;
 

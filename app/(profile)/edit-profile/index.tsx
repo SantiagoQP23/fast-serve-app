@@ -19,6 +19,15 @@ import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
 const profileSchema = z.object({
   firstName: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
   lastName: z.string().min(2, "El apellido debe tener al menos 2 caracteres"),
+  email: z
+    .string()
+    .optional()
+    .or(z.literal(""))
+    .refine(
+      (val) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
+      "Ingresa un email valido.",
+    ),
+  phone: z.string().optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -36,6 +45,8 @@ export default function EditProfileScreen() {
     defaultValues: {
       firstName: user?.person?.firstName || "",
       lastName: user?.person?.lastName || "",
+      email: user?.person?.email || "",
+      phone: user?.person?.numPhone || "",
     },
   });
 
@@ -43,6 +54,8 @@ export default function EditProfileScreen() {
     const wasSuccessful = await updateProfile(
       data.firstName.trim(),
       data.lastName.trim(),
+      data.email.trim(),
+      data.phone.trim(),
     );
 
     if (wasSuccessful) {
@@ -112,6 +125,39 @@ export default function EditProfileScreen() {
                   value={value}
                   onChangeText={onChange}
                   error={errors.lastName ? errors.lastName.message : undefined}
+                />
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  label="Email"
+                  icon="mail-outline"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  onBlur={onBlur}
+                  value={value}
+                  onChangeText={onChange}
+                  error={errors.email ? errors.email.message : undefined}
+                />
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="phone"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  label="Telefono"
+                  icon="call-outline"
+                  keyboardType="phone-pad"
+                  onBlur={onBlur}
+                  value={value}
+                  onChangeText={onChange}
+                  error={errors.phone ? errors.phone.message : undefined}
                 />
               )}
             />

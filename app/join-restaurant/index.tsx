@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from "react";
-import { View, Pressable } from "react-native";
 import { router } from "expo-router";
 import { toast } from "sonner-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -19,7 +18,7 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 const EXPIRY_SECONDS = 5 * 60; // 5 minutes
 
 export default function JoinRestaurantScreen() {
-  const { user, checkStatus } = useAuthStore();
+  const { checkStatus } = useAuthStore();
   const [token, setToken] = useState<string>("");
   const [secondsLeft, setSecondsLeft] = useState(EXPIRY_SECONDS);
   const [isLoading, setIsLoading] = useState(false);
@@ -95,8 +94,14 @@ export default function JoinRestaurantScreen() {
           {qrPayload ? (
             <QRCode value={qrPayload} size={220} />
           ) : (
-            <ThemedView style={tw`w-[220px] h-[220px] items-center justify-center`}>
-              <Ionicons name="refresh-outline" size={48} color={tw.color("gray-400")} />
+            <ThemedView
+              style={tw`w-[220px] h-[220px] items-center justify-center`}
+            >
+              <Ionicons
+                name="refresh-outline"
+                size={48}
+                color={tw.color("gray-400")}
+              />
             </ThemedView>
           )}
 
@@ -104,7 +109,9 @@ export default function JoinRestaurantScreen() {
             <Ionicons
               name="time-outline"
               size={16}
-              color={secondsLeft < 30 ? tw.color("red-500") : tw.color("gray-500")}
+              color={
+                secondsLeft < 30 ? tw.color("red-500") : tw.color("gray-500")
+              }
             />
             <ThemedText
               type="body2"
@@ -125,11 +132,7 @@ export default function JoinRestaurantScreen() {
             disabled={isLoading}
             variant="secondary"
           />
-          <Button
-            label="Volver"
-            onPress={() => router.back()}
-            variant="text"
-          />
+          <Button label="Volver" onPress={() => router.back()} variant="text" />
         </ThemedView>
       </ThemedView>
     </ScreenLayout>
