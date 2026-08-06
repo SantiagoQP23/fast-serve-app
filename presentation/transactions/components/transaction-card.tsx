@@ -69,8 +69,7 @@ export default function TransactionCard({
     return <ThemedView style={tw`w-2 h-2 rounded-full ${color}`} />;
   };
 
-  const hasProofs =
-    transaction.proofs && transaction.proofs.length > 0;
+  const hasProofs = transaction.proofs && transaction.proofs.length > 0;
 
   return (
     <>
@@ -116,26 +115,21 @@ export default function TransactionCard({
                   style={tw`font-semibold`}
                   numberOfLines={1}
                 >
-                  {transaction.name}
+                  {transaction.name} {""}
+                  {getStatusDot()}
                 </ThemedText>
                 <ThemedText type="body2" style={tw`text-gray-500 `}>
                   {transaction.account.name}
+                  {" | "}
+                  {transaction.createdBy.person.firstName}{" "}
                 </ThemedText>
-                <ThemedView style={tw`flex-row items-center gap-1.5`}>
-                  <ThemedText
-                    type="small"
-                    style={tw`text-gray-400`}
-                    numberOfLines={1}
-                  >
-                    {transaction.createdBy.person.firstName}{" "}
-                    {transaction.createdBy.person.lastName}
-                  </ThemedText>
-                </ThemedView>
+                <ThemedView
+                  style={tw`flex-row items-center gap-1.5`}
+                ></ThemedView>
                 <ThemedView style={tw`flex-row items-center gap-2 mt-0.5`}>
-                  <ThemedText type="small" style={tw`text-gray-500`}>
-                    {relativeTime}
-                  </ThemedText>
-                  {getStatusDot()}
+                  {/* <ThemedText type="small" style={tw`text-gray-500`}> */}
+                  {/*   {relativeTime} */}
+                  {/* </ThemedText> */}
                 </ThemedView>
               </ThemedView>
             </ThemedView>
@@ -146,7 +140,7 @@ export default function TransactionCard({
                 type="body1"
                 style={tw`font-semibold ${isIncome ? "text-green-700" : "text-red-600"}`}
               >
-                {isIncome ? "" : "-"}
+                {isIncome ? "+" : "-"}
                 {formatCurrency(transaction.amount)}
               </ThemedText>
               {hasProofs && (

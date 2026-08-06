@@ -224,7 +224,7 @@ export default function IncomesScreen() {
   };
 
   const openTransactionDetail = (transaction: Transaction) => {
-    router.push(`/(app)/transaction/${transaction.id}`);
+    router.push(`/transaction/${transaction.id}`);
   };
 
   // Reset pagination when date or filters change
@@ -463,9 +463,9 @@ export default function IncomesScreen() {
                       keyExtractor={(item) => item.id.toString()}
                       renderItem={({ item }) => (
                         <TransactionCard
-                        transaction={item}
-                        onPress={() => openTransactionDetail(item)}
-                      />
+                          transaction={item}
+                          onPress={() => openTransactionDetail(item)}
+                        />
                       )}
                       scrollEnabled={false}
                       contentContainerStyle={tw`py-2 px-4`}
@@ -540,7 +540,6 @@ export default function IncomesScreen() {
           isAdmin={isAdmin}
         />
       </BottomSheetModal>
-
     </ScreenLayout>
   );
 }

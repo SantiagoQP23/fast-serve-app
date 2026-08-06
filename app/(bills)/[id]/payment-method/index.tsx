@@ -214,14 +214,14 @@ export default function PaymentMethodScreen() {
       source === "camera"
         ? await ImagePicker.launchCameraAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [4, 3],
+            allowsEditing: false,
+            aspect: [9, 16],
             quality: 0.8,
           })
         : await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [4, 3],
+            allowsEditing: false,
+            aspect: [9, 16],
             quality: 0.8,
           });
 
@@ -307,15 +307,15 @@ export default function PaymentMethodScreen() {
           <ThemedView style={tw`gap-1`}>
             <ThemedText type="h4">{t("bills:details.transferNote")}</ThemedText>
             <ThemedText type="body2" style={tw`text-gray-500`}>
-              {t("bills:details.totalAmount")}: {bill.total}
+              {formatCurrency(bill.total)}
             </ThemedText>
           </ThemedView>
-          <TextInput
-            value={transferNote}
-            onChangeText={setTransferNote}
-            placeholder={t("bills:details.transferNotePlaceholder")}
-            bottomSheet
-          />
+          {/* <TextInput */}
+          {/*   value={transferNote} */}
+          {/*   onChangeText={setTransferNote} */}
+          {/*   placeholder={t("bills:details.transferNotePlaceholder")} */}
+          {/*   bottomSheet */}
+          {/* /> */}
 
           {/* Proof image upload section */}
           <ThemedView style={tw`gap-3`}>
@@ -355,7 +355,10 @@ export default function PaymentMethodScreen() {
                     size={24}
                     color={tw.color("gray-400")}
                   />
-                  <ThemedText type="small" style={tw`text-gray-500 text-center`}>
+                  <ThemedText
+                    type="small"
+                    style={tw`text-gray-500 text-center`}
+                  >
                     {t("bills:proofUpload.fromGallery")}
                   </ThemedText>
                 </Pressable>
@@ -371,7 +374,10 @@ export default function PaymentMethodScreen() {
                     size={24}
                     color={tw.color("gray-400")}
                   />
-                  <ThemedText type="small" style={tw`text-gray-500 text-center`}>
+                  <ThemedText
+                    type="small"
+                    style={tw`text-gray-500 text-center`}
+                  >
                     {t("bills:proofUpload.fromCamera")}
                   </ThemedText>
                 </Pressable>
@@ -379,18 +385,18 @@ export default function PaymentMethodScreen() {
             )}
           </ThemedView>
 
-          <ThemedView
-            style={tw`flex-row items-center gap-2 p-3 rounded-xl bg-blue-50`}
-          >
-            <Ionicons
-              name="information-circle-outline"
-              size={18}
-              color={tw.color("blue-500")}
-            />
-            <ThemedText type="small" style={tw`text-blue-600 flex-1`}>
-              {t("bills:details.transferProofNote")}
-            </ThemedText>
-          </ThemedView>
+          {/* <ThemedView */}
+          {/*   style={tw`flex-row items-center gap-2 p-3 rounded-xl bg-blue-50`} */}
+          {/* > */}
+          {/*   <Ionicons */}
+          {/*     name="information-circle-outline" */}
+          {/*     size={18} */}
+          {/*     color={tw.color("blue-500")} */}
+          {/*   /> */}
+          {/*   <ThemedText type="small" style={tw`text-blue-600 flex-1`}> */}
+          {/*     {t("bills:details.transferProofNote")} */}
+          {/*   </ThemedText> */}
+          {/* </ThemedView> */}
           <Button
             label={t("common:actions.continue")}
             onPress={handleContinueTransfer}
