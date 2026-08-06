@@ -92,6 +92,13 @@ export const useBills = () => {
         queryClient.invalidateQueries({
           queryKey: ["bills", resp.data.orderId],
         });
+
+      queryClient.invalidateQueries({
+        queryKey: ["bill", resp.data?.billId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["transactionsList"],
+      });
       queryClient.invalidateQueries({
         queryKey: ["billsList"],
       });
