@@ -128,7 +128,9 @@ export class ThermalPrinterService {
           detail.product.options.length > 1 && detail.productOption;
 
         if (showProductOptionName) {
-          extra += `[L]  + ${detail.productOption!.name}\n`;
+          extra += `[L] ${detail.productOption!.name}\n`;
+        } else {
+          extra += `\n`;
         }
         if (detail.tags.length) {
           extra += `[L]  + ${detail.tags.map((t) => t.name).join(", ")}\n`;
@@ -144,27 +146,29 @@ export class ThermalPrinterService {
           extra += `[L]  [${typeLabel}]\n`;
         }
 
-        return `[L]<b>${detail.quantity - detail.qtyDelivered}x ${detail.product.name}</b>\n${extra}`;
+        return `[L]${detail.quantity - detail.qtyDelivered} - ${detail.product.name}${extra}`;
       })
       .join("");
 
     const payload =
-      `[C]<b>${translations.comandaTitle}</b>\n` +
-      `[C]<b>${translations.area(areaName).toUpperCase()}</b>\n` +
-      `[C]================================\n` +
-      `[C]<b>${translations.order}</b>\n` +
-      `[C]${order.table ? translations.table(order.table.name) : translations.takeAway}\n` +
-      `[C]================================\n` +
+      `[C]${translations.comandaTitle}\n` +
+      `[C]${translations.area(areaName).toUpperCase()}\n` +
+      `[C]\n` +
+      `[C]${translations.order}\n` +
+      `[C]<font size='big'>${order.table ? translations.table(order.table.name) : translations.takeAway}</font>\n` +
+      `[C]\n` +
       `[L]${translations.waiter}: ${order.user.person.firstName} ${order.user.person.lastName}\n` +
       `[L]${translations.date}: ${new Date(order.createdAt).toLocaleString()}\n` +
       `[L]${translations.people}: ${order.people}\n` +
-      `${order.notes ? `[C]--------------------------------\n[L]${translations.notes}: ${order.notes}\n` : ""}` +
-      `[C]================================\n` +
+      `${order.notes ? `[C]-------------------------------------\n[L]${translations.notes}: ${order.notes}\n` : ""}` +
+      `[C]\n` +
+      `[C]----------------------------------------------\n` +
       `${detailsText}` +
-      `[C]================================\n` +
+      `[C]-----------------------------------------------\n` +
       `[C]${new Date().toLocaleString()}\n` +
       `[C]\n` +
       `[C]\n` +
+      `\x1B\x42\x03\x03 \n` +
       `[C]\n`;
 
     if (printer.connectionType === "TCP") {
@@ -176,6 +180,8 @@ export class ThermalPrinterService {
         port: printer.port,
         payload,
         autoCut: true,
+        printerWidthMM: 80,
+        mmFeedPaper: 10,
       });
     } else {
       throw new Error("Only TCP printers are supported");

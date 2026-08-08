@@ -5,6 +5,7 @@ import { ThermalPrinterService } from "@/core/printers/services/thermal-printer.
 import { ProductionArea } from "@/core/menu/models/producion-area.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useProductionAreasStore } from "@/presentation/production-areas/store/useProductionAreasStore";
+import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 
 export const usePrintComanda = () => {
   const { t } = useTranslation(["common", "orders"]);
@@ -16,28 +17,34 @@ export const usePrintComanda = () => {
       try {
         const { productionAreas } = useProductionAreasStore.getState();
 
-        const detailsByArea = order.details.reduce(
-          (acc, detail) => {
-            const productArea = detail.product.productionArea;
-            if (!productArea) return acc;
+        const detailsByArea = order.details
+          .filter(
+            (d) =>
+              d.status !== OrderDetailStatus.CANCELLED &&
+              d.status !== OrderDetailStatus.DELIVERED,
+          )
+          .reduce(
+            (acc, detail) => {
+              const productArea = detail.product.productionArea;
+              if (!productArea) return acc;
 
-            const fullArea = productionAreas.find(
-              (pa) => pa.id === productArea.id,
-            );
-            if (!fullArea || !fullArea.isActive) return acc;
+              const fullArea = productionAreas.find(
+                (pa) => pa.id === productArea.id,
+              );
+              if (!fullArea || !fullArea.isActive) return acc;
 
-            const areaId = fullArea.id;
-            if (!acc[areaId]) {
-              acc[areaId] = { area: fullArea, details: [] };
-            }
-            acc[areaId].details.push(detail);
-            return acc;
-          },
-          {} as Record<
-            number,
-            { area: ProductionArea; details: Order["details"] }
-          >,
-        );
+              const areaId = fullArea.id;
+              if (!acc[areaId]) {
+                acc[areaId] = { area: fullArea, details: [] };
+              }
+              acc[areaId].details.push(detail);
+              return acc;
+            },
+            {} as Record<
+              number,
+              { area: ProductionArea; details: Order["details"] }
+            >,
+          );
 
         const areaGroups = Object.values(detailsByArea);
 
