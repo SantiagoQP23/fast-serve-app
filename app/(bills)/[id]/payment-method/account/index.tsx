@@ -1,4 +1,5 @@
 import { ScrollView, Alert, ActivityIndicator } from "react-native";
+import { toast } from "sonner-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -44,9 +45,7 @@ export default function AccountScreen() {
   const setActivePendingTransaction = useOrdersStore(
     (state) => state.setActivePendingTransaction,
   );
-  const pendingProofImage = useOrdersStore(
-    (state) => state.pendingProofImage,
-  );
+  const pendingProofImage = useOrdersStore((state) => state.pendingProofImage);
   const setPendingProofImage = useOrdersStore(
     (state) => state.setPendingProofImage,
   );
@@ -94,10 +93,7 @@ export default function AccountScreen() {
 
   const handlePay = () => {
     if (!selectedAccountId) {
-      Alert.alert(
-        t("bills:account.selectAccountTitle"),
-        t("bills:account.selectAccountMessage"),
-      );
+      toast.error(t("bills:account.selectAccountMessage"));
       return;
     }
 
@@ -123,7 +119,6 @@ export default function AccountScreen() {
           if (transaction?.status === TransactionStatus.PENDING_PROOF) {
             setActivePendingTransaction(transaction as Transaction);
 
-            // Auto-upload pre-selected proof image
             if (pendingProofImage) {
               setIsUploadingProof(true);
               try {
@@ -134,34 +129,26 @@ export default function AccountScreen() {
                   pendingProofImage.mimeType,
                 );
                 setPendingProofImage(null);
-                Alert.alert(
-                  t("common:status.success"),
-                  t("bills:proofUpload.uploadSuccess"),
-                );
-                if (bill.source === "direct") {
-                  router.replace("/(app)/(tabs)/sales");
-                } else {
-                  router.back();
-                  router.back();
-                  router.back();
-                }
+                toast.success(t("bills:proofUpload.uploadSuccess"));
               } catch (error: any) {
-                Alert.alert(
-                  t("errors:general.error"),
+                toast.error(
                   error?.response?.data?.message ||
                     error?.message ||
                     t("errors:general.unknownError"),
                 );
-                // Navigate to proof-upload screen so user can retry
-                router.push(`/(bills)/${bill.id}/payment-method/proof-upload`);
               } finally {
                 setIsUploadingProof(false);
               }
-              return;
             }
 
-            // No image pre-selected — navigate to proof-upload screen
-            router.push(`/(bills)/${bill.id}/payment-method/proof-upload`);
+            // Navigate back to bill (whether upload succeeded or not)
+            if (bill.source === "direct") {
+              router.replace("/(app)/(tabs)/sales");
+            } else {
+              router.back();
+              router.back();
+              router.back();
+            }
             return;
           }
 
@@ -174,7 +161,7 @@ export default function AccountScreen() {
           }
         },
         onError: (resp) => {
-          Alert.alert(t("errors:general.error"), resp.msg);
+          toast.error(resp.msg || t("errors:general.error"));
         },
       },
     );

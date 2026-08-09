@@ -28,5 +28,9 @@
   },
   "auth": {
     "emailAlreadyRegistered": "El correo ya está registrado"
+  },
+  "validation": {
+    "amountMustBeGreaterThanZero": "El monto a pagar debe ser mayor a 0.",
+    "amountExceeds": "El monto no puede exceder {{amount}}"
   }
 }

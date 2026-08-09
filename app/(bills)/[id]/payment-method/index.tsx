@@ -1,4 +1,5 @@
 import { ScrollView, Alert, Image, Pressable } from "react-native";
+import { toast } from "sonner-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -182,7 +183,7 @@ export default function PaymentMethodScreen() {
   const handleContinueCash = () => {
     if (!selectedMethod) return;
     if (+receivedAmount < +payAmount) {
-      Alert.alert(t("bills:alerts.insufficientAmount"));
+      toast.error(t("bills:alerts.insufficientAmount"));
       return;
     }
     setBillReceivedAmount(receivedAmount);
@@ -203,10 +204,7 @@ export default function PaymentMethodScreen() {
         : await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permissionResult.granted) {
-      Alert.alert(
-        t("errors:general.permissionDenied"),
-        t("errors:general.cameraPermissionRequired"),
-      );
+      toast.error(t("errors:general.cameraPermissionRequired"));
       return;
     }
 
@@ -257,8 +255,13 @@ export default function PaymentMethodScreen() {
     setReceivedAmount("");
     setTransferNote("");
 
+    if (+payAmount <= 0) {
+      toast.error(t("errors:validation.amountMustBeGreaterThanZero"));
+      return;
+    }
+
     if (validateAmount()) {
-      Alert.alert(
+      toast.error(
         t("errors:validation.amountExceeds", {
           amount: formatCurrency(totalToPay),
         }),

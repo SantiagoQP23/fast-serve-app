@@ -1,5 +1,12 @@
 import React, { useState, useRef, useCallback } from "react";
-import { ScrollView, Image, Alert, Pressable } from "react-native";
+import {
+  ScrollView,
+  Image,
+  Alert,
+  Pressable,
+  View,
+  RefreshControl,
+} from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -32,6 +39,7 @@ import * as ImagePicker from "expo-image-picker";
 import { PaymentProofsService } from "@/core/transactions/services/payment-proofs.service";
 import ImageViewer from "react-native-image-zoom-viewer";
 import { Modal } from "react-native";
+import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 
 export default function TransactionDetailScreen() {
   const { t } = useTranslation(["common", "bills"]);
@@ -66,6 +74,7 @@ export default function TransactionDetailScreen() {
 
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewIndex, setPreviewIndex] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
 
   const accountBottomSheetRef = useRef<BottomSheetModal>(null);
   const animationConfigs = useBottomSheetSpringConfigs({
@@ -220,6 +229,13 @@ export default function TransactionDetailScreen() {
     );
   }, [rejectTransaction, transactionId, rejectReason, refetch, t]);
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    await refetchProofs();
+    setRefreshing(false);
+  }, [refetch, refetchProofs]);
+
   const handleChangeAccount = (accountId: number) => {
     updateTransaction(
       { id: transactionId, data: { accountId } },
@@ -259,36 +275,41 @@ export default function TransactionDetailScreen() {
 
   return (
     <ScreenLayout style={tw`flex-1`}>
-      {/* Header */}
       <ScrollView
         style={tw`flex-1`}
-        contentContainerStyle={tw`px-4 pt-2 pb-8 gap-6`}
+        contentContainerStyle={tw`px-4 pt-4 pb-24 gap-6`}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
-        {/* Title & Amount */}
-        <ThemedView style={tw`items-center gap-2`}>
+        {/* Amount Card */}
+        <ThemedView style={tw` gap-3 items-center`}>
           <ThemedText
             type="body1"
-            style={tw`font-semibold text-gray-600 text-center`}
+            style={tw`font-semibold text-gray-500 text-center`}
           >
             {transaction.name}
           </ThemedText>
-          <ThemedText style={tw`text-4xl font-bold`}>
+          <ThemedText style={tw`text-4xl font-bold text-light-text`}>
             {formatCurrency(transaction.amount)}
           </ThemedText>
           <StatusBadge status={transaction.status} />
         </ThemedView>
 
-        {/* Details */}
-        <ThemedView style={tw`gap-4`}>
+        {/* Details Card */}
+        <ThemedView
+          style={tw`bg-white rounded-2xl border border-gray-100 overflow-hidden p-6 gap-4`}
+        >
           <DetailRow
             icon="wallet-outline"
             label={t("common:transactions.paymentMethod")}
             value={transaction.paymentMethod.name}
           />
+          <View style={tw`h-px bg-gray-100 mx-4`} />
 
           {/* Account - editable for admin/cashier */}
-          <ThemedView style={tw`flex-row items-center gap-3`}>
+          <ThemedView style={tw`flex-row items-center gap-3 px-4 py-3`}>
             <Ionicons
               name="business-outline"
               size={18}
@@ -314,24 +335,30 @@ export default function TransactionDetailScreen() {
               </Pressable>
             )}
           </ThemedView>
+          <View style={tw`h-px bg-gray-100 mx-4`} />
 
           <DetailRow
             icon="pricetag-outline"
             label={t("common:transactions.category")}
             value={transaction.category.name}
           />
+          <View style={tw`h-px bg-gray-100 mx-4`} />
           <DetailRow
             icon="person-outline"
             label={t("common:transactions.createdBy")}
             value={`${transaction.createdBy.person.firstName} ${transaction.createdBy.person.lastName}`}
           />
           {transaction.description && (
-            <DetailRow
-              icon="document-text-outline"
-              label={t("common:transactions.description")}
-              value={transaction.description}
-            />
+            <>
+              <View style={tw`h-px bg-gray-100 mx-4`} />
+              <DetailRow
+                icon="document-text-outline"
+                label={t("common:transactions.description")}
+                value={transaction.description}
+              />
+            </>
           )}
+          <View style={tw`h-px bg-gray-100 mx-4`} />
           <DetailRow
             icon="calendar-outline"
             label={t("common:labels.date")}
@@ -367,36 +394,33 @@ export default function TransactionDetailScreen() {
             {proofs.map((proof, index) => (
               <ThemedView
                 key={proof.id}
-                style={tw`rounded-xl border border-gray-200 overflow-hidden`}
+                style={tw`rounded-xl border border-gray-200 overflow-hidden bg-white`}
               >
-                <Pressable onPress={() => openPreview(index)}>
+                <Pressable
+                  onPress={() => openPreview(index)}
+                  style={tw`relative`}
+                >
                   <Image
                     source={{ uri: proof.fileUrl }}
-                    style={tw`w-full h-56`}
+                    style={tw`w-full h-40`}
                     resizeMode="cover"
                   />
+                  <ThemedView style={tw`absolute top-3 right-3`}>
+                    <ProofStatusBadge status={proof.status} />
+                  </ThemedView>
                 </Pressable>
                 <ThemedView style={tw`p-4 gap-2`}>
-                  <ThemedText
-                    type="small"
-                    style={tw`text-gray-400 text-center`}
-                  >
-                    {t("common:actions.tapToPreview")}
-                  </ThemedText>
-                  <ThemedView style={tw`flex-row items-center gap-2`}>
-                    <ProofStatusBadge status={proof.status} />
-                    <ThemedText type="small" style={tw`text-gray-500`}>
+                  <ThemedView style={tw`flex-row items-center justify-between`}>
+                    <ThemedText type="small" style={tw`text-gray-400`}>
                       {new Date(proof.createdAt).toLocaleDateString()}
                     </ThemedText>
+                    {proof.uploadedBy && (
+                      <ThemedText type="small" style={tw`text-gray-500`}>
+                        {proof.uploadedBy.person.firstName}{" "}
+                        {proof.uploadedBy.person.lastName}
+                      </ThemedText>
+                    )}
                   </ThemedView>
-
-                  {proof.uploadedBy && (
-                    <ThemedText type="small" style={tw`text-gray-500`}>
-                      {t("bills:proofUpload.uploadedBy")}:{" "}
-                      {proof.uploadedBy.person.firstName}{" "}
-                      {proof.uploadedBy.person.lastName}
-                    </ThemedText>
-                  )}
 
                   {proof.rejectionReason && (
                     <ThemedView
@@ -425,58 +449,45 @@ export default function TransactionDetailScreen() {
             {/* Upload new proof */}
             {canUploadProof && (
               <ThemedView style={tw`gap-3`}>
-                <ThemedText type="body2" style={tw`text-gray-500`}>
-                  {t("bills:proofUpload.uploadTitle")}
-                </ThemedText>
-
                 {selectedImage ? (
                   <ThemedView style={tw`gap-3`}>
                     <Pressable onPress={() => openPreview(proofs.length)}>
                       <ThemedView
-                        style={tw`rounded-xl border border-gray-200 overflow-hidden`}
+                        style={tw`rounded-xl border border-gray-200 overflow-hidden relative`}
                       >
                         <Image
                           source={{ uri: selectedImage.uri }}
                           style={tw`w-full h-32`}
                           resizeMode="cover"
                         />
+                        <Pressable
+                          onPress={() => setSelectedImage(null)}
+                          style={tw`absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 items-center justify-center`}
+                        >
+                          <Ionicons name="close" size={18} color="white" />
+                        </Pressable>
                       </ThemedView>
-                      <ThemedText
-                        type="small"
-                        style={tw`text-gray-400 text-center mt-1`}
-                      >
-                        {t("common:actions.tapToPreview")}
-                      </ThemedText>
                     </Pressable>
-                    <ThemedView style={tw`flex-row gap-3`}>
-                      <Button
-                        label={t("common:actions.change")}
-                        variant="outline"
-                        onPress={() => setSelectedImage(null)}
-                        style={tw`flex-1`}
-                      />
-                      <Button
-                        label={t("common:actions.upload")}
-                        onPress={handleUploadProof}
-                        loading={isUploading}
-                        disabled={isUploading}
-                        style={tw`flex-1`}
-                      />
-                    </ThemedView>
+                    <Button
+                      label={t("common:actions.upload")}
+                      onPress={handleUploadProof}
+                      loading={isUploading}
+                      disabled={isUploading}
+                    />
                   </ThemedView>
                 ) : (
                   <ThemedView style={tw`flex-row gap-3`}>
                     <Pressable
                       onPress={() => pickImage("gallery")}
                       style={({ pressed }) => [
-                        tw`flex-1 items-center justify-center p-4 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 gap-2`,
-                        pressed && tw`opacity-70 bg-gray-100`,
+                        tw`flex-1 items-center justify-center p-3 rounded-xl border border-gray-200 bg-white gap-2`,
+                        pressed && tw`opacity-70 bg-gray-50`,
                       ]}
                     >
                       <Ionicons
                         name="images-outline"
-                        size={24}
-                        color={tw.color("gray-400")}
+                        size={20}
+                        color={tw.color("gray-500")}
                       />
                       <ThemedText
                         type="small"
@@ -488,14 +499,14 @@ export default function TransactionDetailScreen() {
                     <Pressable
                       onPress={() => pickImage("camera")}
                       style={({ pressed }) => [
-                        tw`flex-1 items-center justify-center p-4 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 gap-2`,
-                        pressed && tw`opacity-70 bg-gray-100`,
+                        tw`flex-1 items-center justify-center p-3 rounded-xl border border-gray-200 bg-white gap-2`,
+                        pressed && tw`opacity-70 bg-gray-50`,
                       ]}
                     >
                       <Ionicons
                         name="camera-outline"
-                        size={24}
-                        color={tw.color("gray-400")}
+                        size={20}
+                        color={tw.color("gray-500")}
                       />
                       <ThemedText
                         type="small"
@@ -512,53 +523,33 @@ export default function TransactionDetailScreen() {
         )}
       </ScrollView>
 
-      {/* Bottom Actions */}
-      {isTransfer && (
-        <ThemedView style={tw`px-4 pb-6 pt-4 border-t border-gray-200 gap-3`}>
-          {/* Transaction-level admin actions */}
-          {canManage && (
-            <>
-              {canApproveTransaction && (
-                <Button
-                  label={t("common:actions.approve")}
-                  onPress={handleApproveTransaction}
-                  loading={isApproving}
-                  disabled={isApproving || isRejecting}
-                />
-              )}
-              {canRejectTransaction && (
-                <>
-                  {showRejectInput && (
-                    <>
-                      <ThemedText type="small" style={tw`text-gray-500`}>
-                        {t("bills:proofUpload.rejectReasonPlaceholder")}
-                      </ThemedText>
-                      <ThemedView
-                        style={tw`border border-gray-300 rounded-xl p-3 bg-white`}
-                      >
-                        <ThemedText
-                          type="body2"
-                          style={tw`text-gray-800`}
-                          selectable
-                        >
-                          {rejectReason || " "}
-                        </ThemedText>
-                      </ThemedView>
-                    </>
-                  )}
-                  <Button
-                    label={t("common:actions.reject")}
-                    variant="outline"
-                    onPress={handleRejectTransaction}
-                    loading={isRejecting}
-                    disabled={isApproving || isRejecting}
-                  />
-                </>
-              )}
-            </>
-          )}
-        </ThemedView>
-      )}
+      {/* Floating Actions */}
+      {isTransfer &&
+        canManage &&
+        (canApproveTransaction || canRejectTransaction) && (
+          <View style={tw`absolute bottom-6 left-0 right-0 items-center`}>
+            <FloatingToolbar
+              items={[
+                ...(canRejectTransaction
+                  ? [
+                      {
+                        icon: "close-outline" as const,
+                        onPress: handleRejectTransaction,
+                      },
+                    ]
+                  : []),
+                ...(canApproveTransaction
+                  ? [
+                      {
+                        icon: "checkmark-outline" as const,
+                        onPress: handleApproveTransaction,
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+          </View>
+        )}
 
       {/* Image Preview Modal */}
       <Modal

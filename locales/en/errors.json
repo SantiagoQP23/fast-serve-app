@@ -28,5 +28,9 @@
   },
   "auth": {
     "emailAlreadyRegistered": "Email is already registered"
+  },
+  "validation": {
+    "amountMustBeGreaterThanZero": "The amount to pay must be greater than 0.",
+    "amountExceeds": "The amount cannot exceed {{amount}}"
   }
 }

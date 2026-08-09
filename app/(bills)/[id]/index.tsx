@@ -6,6 +6,7 @@ import {
   RefreshControl,
   Alert,
   Platform,
+  Pressable,
 } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -40,6 +41,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Ionicons } from "@expo/vector-icons";
 import { useBillPrint } from "@/presentation/orders/hooks/useBillPrint";
+import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 
 dayjs.extend(relativeTime);
 
@@ -503,45 +505,40 @@ export default function BillScreen() {
               </ThemedView>
             </ScrollView>
 
-            <ThemedView style={tw` pt-4 mb-4`}>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={tw`gap-4 `}
-              >
-                {bill.status !== BillStatus.PAID && (
-                  <>
-                    <IconButton
-                      icon="trash-outline"
-                      onPress={() => setVisible(true)}
-                      size={26}
-                      color="danger"
-                    />
-                  </>
-                )}
-                <IconButton
-                  icon="print-outline"
-                  onPress={handlePrintBill}
-                  size={26}
-                />
-                <IconButton
-                  icon="share-outline"
-                  onPress={handleShareBill}
-                  size={26}
-                />
-                {bill.status !== BillStatus.PAID && canChargeBill && (
-                  <Button
-                    leftIcon="card-outline"
-                    label={t("bills:details.payBill")}
-                    onPress={handlePayBillPress}
-                    size="small"
-                  />
-                )}
-              </ScrollView>
-            </ThemedView>
           </ThemedView>
         </KeyboardAvoidingView>
       </ScreenLayout>
+
+      {/* Floating Toolbar + FAB */}
+      <View style={tw`absolute bottom-6 left-0 right-0 items-center`}>
+        <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
+          <FloatingToolbar
+            items={[
+              ...(bill.status !== BillStatus.PAID
+                ? [
+                    {
+                      icon: "trash-outline" as const,
+                      onPress: () => setVisible(true),
+                    },
+                  ]
+                : []),
+              { icon: "print-outline", onPress: handlePrintBill },
+              { icon: "share-outline", onPress: handleShareBill },
+            ]}
+          />
+          {bill.status !== BillStatus.PAID && canChargeBill && (
+            <Pressable
+              onPress={handlePayBillPress}
+              style={({ pressed }) => [
+                tw`w-14 h-14 rounded-full bg-light-primary items-center justify-center shadow-lg`,
+                { transform: [{ scale: pressed ? 0.95 : 1 }] },
+              ]}
+            >
+              <Ionicons name="card-outline" size={24} color="white" />
+            </Pressable>
+          )}
+        </ThemedView>
+      </View>
 
       {/* Discount Bottom Sheet */}
       <BottomSheetModal
