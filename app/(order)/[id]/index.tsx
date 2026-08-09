@@ -10,7 +10,7 @@ import {
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useNavigation } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
@@ -39,6 +39,9 @@ import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPayme
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 import { useOrderPrint } from "@/presentation/orders/hooks/useOrderPrint";
 import QuickActionButton from "@/presentation/orders/components/quick-action-button";
+import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
+import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bottom-sheet";
+import { BottomSheetModal, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 dayjs.extend(relativeTime);
@@ -101,6 +104,16 @@ export default function OrderScreen() {
   } = useOrderStatus(order?.status || OrderStatus.PENDING);
   const { handlePrintOrder, handleShareOrder, handlePrintComanda } =
     useOrderPrint(order);
+
+  const editBottomSheetRef = useRef<BottomSheetModal>(null);
+
+  const closeEditBottomSheet = () => {
+    editBottomSheetRef.current?.close();
+  };
+
+  const handlePresentEditModal = useCallback(() => {
+    editBottomSheetRef.current?.present();
+  }, []);
 
   const onRefresh = useCallback(async () => {
     if (!order?.id) return;
@@ -352,217 +365,174 @@ export default function OrderScreen() {
           </View>
         </View>
       </Modal>
-      <ScreenLayout style={tw`px-4 pt-6 flex-1`}>
-        <ScrollView
-          style={tw`flex-1`}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={tw`pb-4`}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={primaryColor}
-              colors={[primaryColor]}
-            />
-          }
-        >
-          {/* Header Section */}
-          <ThemedView style={tw`mb-6 gap-4`}>
-            {showDeliveryTime && showTimePicker && deliveryTime && (
-              <ThemedView style={tw`mt-3`}>
-                {Platform.OS === "ios" && (
-                  <ThemedView
-                    style={tw`border border-gray-300 rounded-2xl overflow-hidden`}
-                  >
+      <View style={tw`flex-1 relative`}>
+        <ScreenLayout style={tw`px-4 pt-6 flex-1`}>
+          <ScrollView
+            style={tw`flex-1`}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={tw`pb-4`}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={primaryColor}
+                colors={[primaryColor]}
+              />
+            }
+          >
+            {/* Header Section */}
+            <ThemedView style={tw`mb-6 gap-4`}>
+              {showDeliveryTime && showTimePicker && deliveryTime && (
+                <ThemedView style={tw`mt-3`}>
+                  {Platform.OS === "ios" && (
+                    <ThemedView
+                      style={tw`border border-gray-300 rounded-2xl overflow-hidden`}
+                    >
+                      <DateTimePicker
+                        value={deliveryTime.toDate()}
+                        mode="time"
+                        display="spinner"
+                        onChange={handleTimeChange}
+                      />
+                      <Button
+                        label={t("common:actions.confirm")}
+                        onPress={closeTimePicker}
+                        variant="primary"
+                        size="small"
+                      />
+                    </ThemedView>
+                  )}
+                  {Platform.OS === "android" && (
                     <DateTimePicker
                       value={deliveryTime.toDate()}
                       mode="time"
-                      display="spinner"
+                      is24Hour={true}
+                      display="default"
                       onChange={handleTimeChange}
                     />
-                    <Button
-                      label={t("common:actions.confirm")}
-                      onPress={closeTimePicker}
-                      variant="primary"
-                      size="small"
-                    />
-                  </ThemedView>
-                )}
-                {Platform.OS === "android" && (
-                  <DateTimePicker
-                    value={deliveryTime.toDate()}
-                    mode="time"
-                    is24Hour={true}
-                    display="default"
-                    onChange={handleTimeChange}
+                  )}
+                </ThemedView>
+              )}
+
+              {/* Table/Location & People */}
+              <ThemedView style={tw`gap-2`}>
+                <ThemedText type="caption" style={tw`text-gray-500 text-sm`}>
+                  {t("orders:details.orderNumber", { num: order.num })}
+                </ThemedText>
+                <ThemedView style={tw`flex-row items-center gap-2`}>
+                  <Ionicons
+                    name={
+                      order.type === OrderType.IN_PLACE
+                        ? "restaurant-outline"
+                        : "bag-outline"
+                    }
+                    size={24}
+                    color={tw.color("primary-600")}
                   />
-                )}
-              </ThemedView>
-            )}
-
-            {/* Table/Location & People */}
-            <ThemedView style={tw`gap-2`}>
-              <ThemedText type="caption" style={tw`text-gray-500 text-sm`}>
-                {t("orders:details.orderNumber", { num: order.num })}
-              </ThemedText>
-              <ThemedView style={tw`flex-row items-center gap-2`}>
-                <Ionicons
-                  name={
-                    order.type === OrderType.IN_PLACE
-                      ? "restaurant-outline"
-                      : "bag-outline"
-                  }
-                  size={24}
-                  color={tw.color("primary-600")}
-                />
-                <ThemedText type="h2" style={tw` font-bold`}>
-                  {order.type === OrderType.IN_PLACE
-                    ? `${t("common:labels.table")} ${order.table?.name}`
-                    : t("common:labels.takeAway")}
-                </ThemedText>
-              </ThemedView>
-            </ThemedView>
-
-            {/* Status & Payment Labels */}
-            <ThemedView
-              style={tw`flex-row items-center gap-2 flex-wrap p-2 bg-gray-100 rounded-xl`}
-            >
-              {showDeliveryTime && deliveryTime && (
-                <Label
-                  leftIcon="hourglass-outline"
-                  text={deliveryTime.format("HH:mm")}
-                  size="small"
-                  color="outline"
-                  onPress={openTimePicker}
-                />
-              )}
-              <Label
-                text={String(order.people)}
-                leftIcon="people-outline"
-                size="small"
-                color="outline"
-              />
-              <Label
-                text={statusText}
-                color={labelColor}
-                leftIcon={statusIcon}
-                size="small"
-              />
-
-              <Label
-                text={paymentStatus.text}
-                color={paymentStatus.color}
-                size="small"
-              />
-              {isClosed && (
-                <Label
-                  text={
-                    isClosed
-                      ? t("orders:details.closedOrder")
-                      : t("orders:details.open")
-                  }
-                  color={isClosed ? "default" : "success"}
-                  size="small"
-                />
-              )}
-
-              <Label
-                leftIcon="person-outline"
-                text={`${order.user.person.firstName} ${order.user.person.lastName}`}
-                size="small"
-                color="outline"
-              />
-            </ThemedView>
-          </ThemedView>
-
-          {/* Notes Section */}
-          {order.notes && (
-            <ThemedView style={tw`mb-6 p-4 bg-gray-50 rounded-xl`}>
-              <ThemedView style={tw`flex-row items-center gap-2 mb-2`}>
-                <Ionicons
-                  name="document-text-outline"
-                  size={16}
-                  color={tw.color("gray-500")}
-                />
-                <ThemedText
-                  type="caption"
-                  style={tw`text-gray-500 font-semibold`}
-                >
-                  {t("common:labels.notes")}
-                </ThemedText>
-              </ThemedView>
-              <ThemedText type="body2" style={tw`text-gray-700`}>
-                {order.notes}
-              </ThemedText>
-            </ThemedView>
-          )}
-
-          {/* Pending Items Section */}
-          {!isClosed && pendingDetails.length > 0 && (
-            <ThemedView style={tw`mb-6`}>
-              <ThemedView
-                style={tw`flex-row justify-between items-center mb-4`}
-              >
-                <ThemedText type="body2" style={tw`text-gray-500`}>
-                  {t("orders:details.pendingItems")}
-                </ThemedText>
-                <ThemedView style={tw`bg-primary-50 px-2.5 py-1 rounded-full`}>
-                  <ThemedText
-                    type="small"
-                    style={tw`text-primary-700 font-semibold`}
-                  >
-                    {pendingDetails.length}
+                  <ThemedText type="h2" style={tw` font-bold`}>
+                    {order.type === OrderType.IN_PLACE
+                      ? `${t("common:labels.table")} ${order.table?.name}`
+                      : t("common:labels.takeAway")}
                   </ThemedText>
                 </ThemedView>
               </ThemedView>
-              <ThemedView style={tw`gap-6`}>
-                {pendingDetails.map((detail) => (
-                  <OrderDetailCard
-                    key={detail.id}
-                    detail={detail}
-                    onPress={() => openProduct(detail)}
-                    orderUserId={order.user.id}
-                    orderType={order.type}
+
+              {/* Status & Payment Labels */}
+              <ThemedView
+                style={tw`flex-row items-center gap-2 flex-wrap p-2 bg-gray-100 rounded-xl`}
+              >
+                {showDeliveryTime && deliveryTime && (
+                  <Label
+                    leftIcon="hourglass-outline"
+                    text={deliveryTime.format("HH:mm")}
+                    size="small"
+                    color="outline"
+                    onPress={openTimePicker}
                   />
-                ))}
+                )}
+                <Label
+                  text={String(order.people)}
+                  leftIcon="people-outline"
+                  size="small"
+                  color="outline"
+                />
+                <Label
+                  text={statusText}
+                  color={labelColor}
+                  leftIcon={statusIcon}
+                  size="small"
+                />
+
+                <Label
+                  text={paymentStatus.text}
+                  color={paymentStatus.color}
+                  size="small"
+                />
+                {isClosed && (
+                  <Label
+                    text={
+                      isClosed
+                        ? t("orders:details.closedOrder")
+                        : t("orders:details.open")
+                    }
+                    color={isClosed ? "default" : "success"}
+                    size="small"
+                  />
+                )}
+
+                <Label
+                  leftIcon="person-outline"
+                  text={`${order.user.person.firstName} ${order.user.person.lastName}`}
+                  size="small"
+                  color="outline"
+                />
               </ThemedView>
             </ThemedView>
-          )}
 
-          {/* Delivered Items Section - Expandable (for active orders) */}
-          {!isClosed && deliveredDetails.length > 0 && (
-            <ThemedView style={tw`mb-6`}>
-              <Pressable onPress={toggleDeliveredSection}>
-                <ThemedView
-                  style={tw`flex-row justify-between items-center py-3`}
-                >
-                  <ThemedView style={tw`flex-row items-center gap-2`}>
-                    <ThemedText type="body2" style={tw`text-gray-500`}>
-                      {t("orders:details.deliveredItems")}
-                    </ThemedText>
-                    <ThemedView
-                      style={tw`bg-gray-100 px-2 py-0.5 rounded-full`}
-                    >
-                      <ThemedText type="caption" style={tw`text-gray-600`}>
-                        {deliveredDetails.length}
-                      </ThemedText>
-                    </ThemedView>
-                  </ThemedView>
+            {/* Notes Section */}
+            {order.notes && (
+              <ThemedView style={tw`mb-6 p-4 bg-gray-50 rounded-xl`}>
+                <ThemedView style={tw`flex-row items-center gap-2 mb-2`}>
                   <Ionicons
-                    name={
-                      isDeliveredExpanded
-                        ? "chevron-up-outline"
-                        : "chevron-down-outline"
-                    }
-                    size={20}
-                    color={tw.color("gray-400")}
+                    name="document-text-outline"
+                    size={16}
+                    color={tw.color("gray-500")}
                   />
+                  <ThemedText
+                    type="caption"
+                    style={tw`text-gray-500 font-semibold`}
+                  >
+                    {t("common:labels.notes")}
+                  </ThemedText>
                 </ThemedView>
-              </Pressable>
+                <ThemedText type="body2" style={tw`text-gray-700`}>
+                  {order.notes}
+                </ThemedText>
+              </ThemedView>
+            )}
 
-              {isDeliveredExpanded && (
-                <ThemedView style={tw`gap-3 mt-2 `}>
-                  {deliveredDetails.map((detail) => (
+            {/* Pending Items Section */}
+            {!isClosed && pendingDetails.length > 0 && (
+              <ThemedView style={tw`mb-6`}>
+                <ThemedView
+                  style={tw`flex-row justify-between items-center mb-4`}
+                >
+                  <ThemedText type="body2" style={tw`text-gray-500`}>
+                    {t("orders:details.pendingItems")}
+                  </ThemedText>
+                  <ThemedView
+                    style={tw`bg-primary-50 px-2.5 py-1 rounded-full`}
+                  >
+                    <ThemedText
+                      type="small"
+                      style={tw`text-primary-700 font-semibold`}
+                    >
+                      {pendingDetails.length}
+                    </ThemedText>
+                  </ThemedView>
+                </ThemedView>
+                <ThemedView style={tw`gap-6`}>
+                  {pendingDetails.map((detail) => (
                     <OrderDetailCard
                       key={detail.id}
                       detail={detail}
@@ -572,213 +542,287 @@ export default function OrderScreen() {
                     />
                   ))}
                 </ThemedView>
-              )}
-            </ThemedView>
-          )}
+              </ThemedView>
+            )}
 
-          {/* Cancelled Items Section */}
-          {cancelledDetails.length > 0 && (
-            <ThemedView style={tw`mb-6`}>
-              <Pressable onPress={toggleCancelledSection}>
-                <ThemedView
-                  style={tw`flex-row justify-between items-center py-3`}
-                >
-                  <ThemedView style={tw`flex-row items-center gap-2`}>
-                    <ThemedText type="body2" style={tw`text-gray-500`}>
-                      {t("orders:details.cancelledItems")}
-                    </ThemedText>
-                    <ThemedView
-                      style={tw`bg-gray-100 px-2 py-0.5 rounded-full`}
-                    >
-                      <ThemedText type="caption" style={tw`text-gray-600`}>
-                        {cancelledDetails.length}
+            {/* Delivered Items Section - Expandable (for active orders) */}
+            {!isClosed && deliveredDetails.length > 0 && (
+              <ThemedView style={tw`mb-6`}>
+                <Pressable onPress={toggleDeliveredSection}>
+                  <ThemedView
+                    style={tw`flex-row justify-between items-center py-3`}
+                  >
+                    <ThemedView style={tw`flex-row items-center gap-2`}>
+                      <ThemedText type="body2" style={tw`text-gray-500`}>
+                        {t("orders:details.deliveredItems")}
                       </ThemedText>
+                      <ThemedView
+                        style={tw`bg-gray-100 px-2 py-0.5 rounded-full`}
+                      >
+                        <ThemedText type="caption" style={tw`text-gray-600`}>
+                          {deliveredDetails.length}
+                        </ThemedText>
+                      </ThemedView>
                     </ThemedView>
+                    <Ionicons
+                      name={
+                        isDeliveredExpanded
+                          ? "chevron-up-outline"
+                          : "chevron-down-outline"
+                      }
+                      size={20}
+                      color={tw.color("gray-400")}
+                    />
                   </ThemedView>
-                  <Ionicons
-                    name={
-                      isCancelledExpanded
-                        ? "chevron-up-outline"
-                        : "chevron-down-outline"
-                    }
-                    size={20}
-                    color={tw.color("gray-400")}
-                  />
-                </ThemedView>
-              </Pressable>
+                </Pressable>
 
-              {isCancelledExpanded && (
-                <ThemedView style={tw`gap-6 mt-2 opacity-70`}>
-                  {cancelledDetails.map((detail) => (
+                {isDeliveredExpanded && (
+                  <ThemedView style={tw`gap-3 mt-2 `}>
+                    {deliveredDetails.map((detail) => (
+                      <OrderDetailCard
+                        key={detail.id}
+                        detail={detail}
+                        onPress={() => openProduct(detail)}
+                        orderUserId={order.user.id}
+                        orderType={order.type}
+                      />
+                    ))}
+                  </ThemedView>
+                )}
+              </ThemedView>
+            )}
+
+            {/* Cancelled Items Section */}
+            {cancelledDetails.length > 0 && (
+              <ThemedView style={tw`mb-6`}>
+                <Pressable onPress={toggleCancelledSection}>
+                  <ThemedView
+                    style={tw`flex-row justify-between items-center py-3`}
+                  >
+                    <ThemedView style={tw`flex-row items-center gap-2`}>
+                      <ThemedText type="body2" style={tw`text-gray-500`}>
+                        {t("orders:details.cancelledItems")}
+                      </ThemedText>
+                      <ThemedView
+                        style={tw`bg-gray-100 px-2 py-0.5 rounded-full`}
+                      >
+                        <ThemedText type="caption" style={tw`text-gray-600`}>
+                          {cancelledDetails.length}
+                        </ThemedText>
+                      </ThemedView>
+                    </ThemedView>
+                    <Ionicons
+                      name={
+                        isCancelledExpanded
+                          ? "chevron-up-outline"
+                          : "chevron-down-outline"
+                      }
+                      size={20}
+                      color={tw.color("gray-400")}
+                    />
+                  </ThemedView>
+                </Pressable>
+
+                {isCancelledExpanded && (
+                  <ThemedView style={tw`gap-6 mt-2 opacity-70`}>
+                    {cancelledDetails.map((detail) => (
+                      <OrderDetailCard
+                        key={detail.id}
+                        detail={detail}
+                        onPress={() => {}}
+                        orderUserId={order.user.id}
+                        orderType={order.type}
+                      />
+                    ))}
+                  </ThemedView>
+                )}
+              </ThemedView>
+            )}
+
+            {/* All Items Section - For closed orders */}
+            {isClosed && hasItems && (
+              <ThemedView style={tw`mb-6`}>
+                <ThemedView
+                  style={tw`flex-row justify-between items-center mb-4`}
+                >
+                  <ThemedText type="h4">
+                    {t("orders:details.allItems")}
+                  </ThemedText>
+                  <ThemedView style={tw`bg-gray-100 px-2.5 py-1 rounded-full`}>
+                    <ThemedText
+                      type="small"
+                      style={tw`text-gray-700 font-semibold`}
+                    >
+                      {allDetails.length}
+                    </ThemedText>
+                  </ThemedView>
+                </ThemedView>
+                <ThemedView style={tw`gap-6`}>
+                  {allDetails.map((detail) => (
                     <OrderDetailCard
                       key={detail.id}
                       detail={detail}
-                      onPress={() => {}}
+                      onPress={() => {}} // No action for closed orders
                       orderUserId={order.user.id}
                       orderType={order.type}
                     />
                   ))}
                 </ThemedView>
-              )}
-            </ThemedView>
-          )}
+              </ThemedView>
+            )}
 
-          {/* All Items Section - For closed orders */}
-          {isClosed && hasItems && (
-            <ThemedView style={tw`mb-6`}>
-              <ThemedView
-                style={tw`flex-row justify-between items-center mb-4`}
-              >
-                <ThemedText type="h4">
-                  {t("orders:details.allItems")}
+            {/* Empty state for closed orders with no items */}
+            {isClosed && !hasItems && (
+              <ThemedView style={tw`mb-6 p-8 items-center justify-center`}>
+                <Ionicons
+                  name="document-outline"
+                  size={48}
+                  color={tw.color("gray-300")}
+                />
+                <ThemedText
+                  type="body1"
+                  style={tw`text-gray-500 mt-4 text-center`}
+                >
+                  {t("orders:details.noItemsInOrder")}
                 </ThemedText>
-                <ThemedView style={tw`bg-gray-100 px-2.5 py-1 rounded-full`}>
-                  <ThemedText
-                    type="small"
-                    style={tw`text-gray-700 font-semibold`}
-                  >
-                    {allDetails.length}
-                  </ThemedText>
-                </ThemedView>
               </ThemedView>
-              <ThemedView style={tw`gap-6`}>
-                {allDetails.map((detail) => (
-                  <OrderDetailCard
-                    key={detail.id}
-                    detail={detail}
-                    onPress={() => {}} // No action for closed orders
-                    orderUserId={order.user.id}
-                    orderType={order.type}
-                  />
-                ))}
-              </ThemedView>
-            </ThemedView>
-          )}
+            )}
 
-          {/* Empty state for closed orders with no items */}
-          {isClosed && !hasItems && (
-            <ThemedView style={tw`mb-6 p-8 items-center justify-center`}>
-              <Ionicons
-                name="document-outline"
-                size={48}
-                color={tw.color("gray-300")}
+            {/* Add Product Button - Only for active orders */}
+            {!isClosed && (
+              <Button
+                leftIcon="add-outline"
+                label={t("orders:details.addProduct")}
+                variant="outline"
+                onPress={() => router.push("/(new-order)/restaurant-menu")}
               />
-              <ThemedText
-                type="body1"
-                style={tw`text-gray-500 mt-4 text-center`}
-              >
-                {t("orders:details.noItemsInOrder")}
+            )}
+
+            <ThemedView style={tw`mt-4 mb-6`} />
+
+            <ThemedView>
+              <ThemedText type="body2" style={tw`text-gray-500`}>
+                {t("orders:details.actions")}
               </ThemedText>
-            </ThemedView>
-          )}
-
-          {/* Add Product Button - Only for active orders */}
-          {!isClosed && (
-            <Button
-              leftIcon="add-outline"
-              label={t("orders:details.addProduct")}
-              variant="outline"
-              onPress={() => router.push("/(new-order)/restaurant-menu")}
-            />
-          )}
-
-          <ThemedView style={tw`mt-4 mb-6`} />
-
-          <ThemedView>
-            <ThemedText type="body2" style={tw`text-gray-500`}>
-              {t("orders:details.actions")}
-            </ThemedText>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={tw`gap-4 mt-3`}
-            >
-              <QuickActionButton
-                icon="cash-outline"
-                label={t("orders:details.payments")}
-                onPress={() => router.push(`/(order)/${order.id}/bills`)}
-              />
-              {order.status === OrderStatus.DELIVERED &&
-                order.isClosed === false &&
-                order.isPaid === true && (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={tw`gap-4 mt-3`}
+              >
+                <QuickActionButton
+                  icon="cash-outline"
+                  label={t("orders:details.payments")}
+                  onPress={() => router.push(`/(order)/${order.id}/bills`)}
+                />
+                {order.status !== OrderStatus.DELIVERED && (
                   <QuickActionButton
-                    icon="lock-closed-outline"
-                    label={t("orders:options.closeOrder")}
-                    onPress={handleCloseOrder}
+                    icon="restaurant-outline"
+                    label={t("orders:options.printComanda")}
+                    onPress={() => handlePrintComanda(order)}
                   />
                 )}
-              <QuickActionButton
-                icon="print-outline"
-                label={t("orders:options.printOrder")}
-                onPress={handlePrintOrder}
-              />
-              <QuickActionButton
-                icon="share-outline"
-                label={t("orders:options.shareOrder")}
-                onPress={handleShareOrder}
-              />
-              {order.status !== OrderStatus.DELIVERED && (
-                <QuickActionButton
-                  icon="restaurant-outline"
-                  label={t("orders:options.printComanda")}
-                  onPress={() => handlePrintComanda(order)}
-                />
-              )}
-            </ScrollView>
-          </ThemedView>
+              </ScrollView>
+            </ThemedView>
 
-          <ThemedView style={tw`my-10`}>
-            <ThemedText type="body2" style={tw`text-gray-500`}>
-              {t("orders:details.activity")}
-            </ThemedText>
-            <ThemedView style={tw`mt-3 gap-2`}>
-              <ThemedView>
-                <ThemedView style={tw`flex-row items-center gap-2`}>
-                  <Ionicons
-                    name="ellipse-outline"
-                    size={12}
-                    color={tw.color("gray-500")}
-                  />
-                  <ThemedText type="body2" style={tw`text-gray-600`}>
-                    {t("orders:details.createdAt")}
+            <ThemedView style={tw`mt-10 mb-20`}>
+              <ThemedText type="body2" style={tw`text-gray-500`}>
+                {t("orders:details.activity")}
+              </ThemedText>
+              <ThemedView style={tw`mt-3 gap-2`}>
+                <ThemedView>
+                  <ThemedView style={tw`flex-row items-center gap-2`}>
+                    <Ionicons
+                      name="ellipse-outline"
+                      size={12}
+                      color={tw.color("gray-500")}
+                    />
+                    <ThemedText type="body2" style={tw`text-gray-600`}>
+                      {t("orders:details.createdAt")}
+                    </ThemedText>
+                  </ThemedView>
+                  <ThemedText type="small" style={tw`text-gray-500 ml-5`}>
+                    {createdAtLabel}
                   </ThemedText>
                 </ThemedView>
-                <ThemedText type="small" style={tw`text-gray-500 ml-5`}>
-                  {createdAtLabel}
-                </ThemedText>
-              </ThemedView>
-              <ThemedView>
-                <ThemedView style={tw`flex-row items-center gap-2`}>
-                  <Ionicons
-                    name="ellipse-outline"
-                    size={12}
-                    color={tw.color("gray-500")}
-                  />
-                  <ThemedText type="body2" style={tw`text-gray-600`}>
-                    {t("orders:details.updatedAt")}
+                <ThemedView>
+                  <ThemedView style={tw`flex-row items-center gap-2`}>
+                    <Ionicons
+                      name="ellipse-outline"
+                      size={12}
+                      color={tw.color("gray-500")}
+                    />
+                    <ThemedText type="body2" style={tw`text-gray-600`}>
+                      {t("orders:details.updatedAt")}
+                    </ThemedText>
+                  </ThemedView>
+                  <ThemedText type="small" style={tw`text-gray-500 ml-5`}>
+                    {updatedAtLabel}
                   </ThemedText>
                 </ThemedView>
-                <ThemedText type="small" style={tw`text-gray-500 ml-5`}>
-                  {updatedAtLabel}
-                </ThemedText>
               </ThemedView>
             </ThemedView>
-          </ThemedView>
-        </ScrollView>
-        {/* divider */}
-      </ScreenLayout>
+          </ScrollView>
+          {/* divider */}
+        </ScreenLayout>
 
-      {/* Footer - Total */}
-      <ThemedView style={tw`px-4 py-4 border-t border-gray-200 bg-white`}>
-        <ThemedView style={tw`flex-row justify-between items-center`}>
-          <ThemedText type="h4" style={tw`text-gray-600`}>
-            {t("common:labels.total")}
-          </ThemedText>
-          <ThemedText type="h2" style={tw`font-bold`}>
-            {formatCurrency(order.total)}
-          </ThemedText>
+        {/* Footer - Total */}
+        <ThemedView style={tw`px-4 py-4 border-t border-gray-200 bg-white`}>
+          <ThemedView style={tw`flex-row justify-between items-center`}>
+            <ThemedText type="h4" style={tw`text-gray-600`}>
+              {t("common:labels.total")}
+            </ThemedText>
+            <ThemedText type="h2" style={tw`font-bold`}>
+              {formatCurrency(order.total)}
+            </ThemedText>
+          </ThemedView>
         </ThemedView>
-      </ThemedView>
+
+        {/* Floating Toolbar */}
+        <View style={tw`absolute bottom-20 left-0 right-0 items-center`}>
+          <FloatingToolbar
+            items={[
+              ...(!isClosed
+                ? [
+                    {
+                      icon: "create-outline" as const,
+                      onPress: handlePresentEditModal,
+                    },
+                  ]
+                : []),
+              { icon: "print-outline", onPress: handlePrintOrder },
+              { icon: "share-outline", onPress: handleShareOrder },
+              ...(order.status === OrderStatus.DELIVERED &&
+              order.isClosed === false &&
+              order.isPaid === true
+                ? [
+                    {
+                      icon: "lock-closed-outline" as const,
+                      onPress: handleCloseOrder,
+                    },
+                  ]
+                : []),
+            ]}
+          />
+        </View>
+      </View>
+
+      <BottomSheetModal
+        ref={editBottomSheetRef}
+        backdropComponent={(props) => (
+          <BottomSheetBackdrop
+            {...props}
+            disappearsOnIndex={-1}
+            appearsOnIndex={0}
+          />
+        )}
+      >
+        {order && (
+          <EditOrderBottomSheet
+            order={order}
+            onOrderUpdated={closeEditBottomSheet}
+          />
+        )}
+      </BottomSheetModal>
     </>
   );
 }

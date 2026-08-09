@@ -122,8 +122,8 @@ export default function TabLayout() {
                 {t("navigation.home")}
               </ThemedText>
             ),
-            tabBarIcon: ({ color }) => (
-              <Ionicons color={color} name="home-outline" size={24} />
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons color={color} name={focused ? "home" : "home-outline"} size={24} />
             ),
             headerShown: true,
             headerShadowVisible: false,
@@ -139,8 +139,8 @@ export default function TabLayout() {
                 {t("navigation.sales")}
               </ThemedText>
             ),
-            tabBarIcon: ({ color }) => (
-              <Ionicons color={color} name="pricetag-outline" size={24} />
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons color={color} name={focused ? "pricetag" : "pricetag-outline"} size={24} />
             ),
           }}
         />
@@ -152,8 +152,8 @@ export default function TabLayout() {
                 {t("navigation.analytics")}
               </ThemedText>
             ),
-            tabBarIcon: ({ color }) => (
-              <Ionicons color={color} name="trending-up-outline" size={24} />
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons color={color} name={focused ? "trending-up" : "trending-up-outline"} size={24} />
             ),
           }}
         />
@@ -165,8 +165,8 @@ export default function TabLayout() {
                 {t("navigation.incomes")}
               </ThemedText>
             ),
-            tabBarIcon: ({ color }) => (
-              <Ionicons color={color} name="stats-chart-outline" size={24} />
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons color={color} name={focused ? "stats-chart" : "stats-chart-outline"} size={24} />
             ),
             href: isAdmin ? "/(app)/(tabs)/incomes" : null,
           }}
@@ -179,8 +179,8 @@ export default function TabLayout() {
                 {t("navigation.manage")}
               </ThemedText>
             ),
-            tabBarIcon: ({ color }) => (
-              <Ionicons color={color} name="apps-outline" size={24} />
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons color={color} name={focused ? "apps" : "apps-outline"} size={24} />
             ),
           }}
         />

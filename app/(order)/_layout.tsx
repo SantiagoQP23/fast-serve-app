@@ -1,4 +1,3 @@
-import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bottom-sheet";
 import OrderOptionsBottomSheet from "@/presentation/orders/components/order-options-bottom-sheet";
 import ReassignOrderBottomSheet from "@/presentation/orders/components/reassign-order-bottom-sheet";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
@@ -10,7 +9,6 @@ import { Stack } from "expo-router";
 import { useCallback, useEffect, useRef } from "react";
 
 export default function OrdersLayout() {
-  const editBottomSheetRef = useRef<BottomSheetModal>(null);
   const optionsBottomSheetRef = useRef<BottomSheetModal>(null);
   const reassignBottomSheetRef = useRef<BottomSheetModal>(null);
   const order = useOrdersStore((state) => state.activeOrder);
@@ -18,10 +16,6 @@ export default function OrdersLayout() {
 
   // Check if the order is closed
   const isClosed = order?.isClosed === true;
-
-  const closeEditBottomSheet = () => {
-    editBottomSheetRef.current?.close();
-  };
 
   const closeOptionsBottomSheet = () => {
     optionsBottomSheetRef.current?.close();
@@ -32,10 +26,6 @@ export default function OrdersLayout() {
   };
 
   // callbacks
-  const handlePresentEditModal = useCallback(() => {
-    editBottomSheetRef.current?.present();
-  }, []);
-
   const handlePresentOptionsModal = useCallback(() => {
     optionsBottomSheetRef.current?.present();
   }, []);
@@ -62,10 +52,6 @@ export default function OrdersLayout() {
             headerRight: () =>
               !isClosed ? (
                 <ThemedView style={tw`flex-row items-center gap-2`}>
-                  <IconButton
-                    icon="create-outline"
-                    onPress={handlePresentEditModal}
-                  ></IconButton>
                   <IconButton
                     icon="ellipsis-horizontal"
                     onPress={handlePresentOptionsModal}
@@ -137,23 +123,6 @@ export default function OrdersLayout() {
         )}
       </BottomSheetModal>
 
-      <BottomSheetModal
-        ref={editBottomSheetRef}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            disappearsOnIndex={-1}
-            appearsOnIndex={0}
-          />
-        )}
-      >
-        {order && (
-          <EditOrderBottomSheet
-            order={order}
-            onOrderUpdated={closeEditBottomSheet}
-          />
-        )}
-      </BottomSheetModal>
     </>
   );
 }

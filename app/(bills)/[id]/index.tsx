@@ -320,7 +320,7 @@ export default function BillScreen() {
                             </ThemedText>
                             <ThemedText
                               type="body1"
-                              style={tw`flex-1 text-gray-600`}
+                              style={tw`flex-1 text-gray-600 font-bold`}
                             >
                               {bill.source === BillSource.ORDER
                                 ? detail.orderDetail?.product.name
@@ -448,7 +448,7 @@ export default function BillScreen() {
 
               {bill.transactions.length > 0 && (
                 <ThemedView>
-                  <ThemedText type="body2" style={tw`text-gray-500`}>
+                  <ThemedText type="caption" style={tw``}>
                     Payments
                   </ThemedText>
                   <ThemedView>
@@ -463,7 +463,7 @@ export default function BillScreen() {
               )}
 
               <ThemedView style={tw`my-10`}>
-                <ThemedText type="body2" style={tw`text-gray-500`}>
+                <ThemedText type="caption" style={tw``}>
                   {t("orders:details.activity")}
                 </ThemedText>
                 <ThemedView style={tw`mt-3 gap-2`}>

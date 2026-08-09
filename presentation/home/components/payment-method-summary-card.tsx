@@ -13,7 +13,7 @@ import {
 import { useTransactionPaymentMethodReport } from "@/presentation/transactions/hooks/useTransactionPaymentMethodReport";
 import { useRouter } from "expo-router";
 import { PieChart } from "react-native-gifted-charts";
-import { Colors } from "@/constants/theme";
+import { Colors, typography } from "@/constants/theme";
 import { useColorScheme } from "@/presentation/theme/hooks/use-color-scheme";
 
 export default function PaymentMethodSummaryCard({
@@ -62,8 +62,10 @@ export default function PaymentMethodSummaryCard({
 
   return (
     <Pressable>
-      <ThemedView style={tw`rounded-2xl border border-light-border p-4  mb-4`}>
-        <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
+      <ThemedView
+        style={tw`rounded-2xl border border-light-border py-8 px-6  mb-4`}
+      >
+        <ThemedView style={tw`flex-row items-center justify-between mb-8`}>
           <ThemedText type="h4" style={tw`font-bold`}>
             {t("reports:paymentMethodReport.title")}
           </ThemedText>
@@ -98,12 +100,21 @@ export default function PaymentMethodSummaryCard({
                 innerCircleColor="#fff"
                 centerLabelComponent={() => (
                   <ThemedView style={tw`items-center bg-transparent`}>
-                    <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
+                    <ThemedText
+                      type="caption"
+                      style={tw`text-gray-500 text-xs mb-1`}
+                    >
                       {t("reports:summary.totalIncome")}
                     </ThemedText>
                     <ThemedText
                       type="h3"
-                      style={[tw`font-bold`, { color: themePrimaryColor }]}
+                      style={[
+                        tw``,
+                        {
+                          color: themePrimaryColor,
+                          fontFamily: typography.bold,
+                        },
+                      ]}
                     >
                       {displayedTotalIncome}
                     </ThemedText>
@@ -119,7 +130,7 @@ export default function PaymentMethodSummaryCard({
             </ThemedView>
 
             {/* Legend */}
-            <ThemedView style={tw`gap-2`}>
+            <ThemedView style={tw`gap-4 mt-4`}>
               {paymentMethods.map((pm) => {
                 const info = getPaymentMethodInfo(pm.paymentMethodType);
                 const percentage = paymentMethodReport?.summary?.totalIncome
@@ -139,7 +150,7 @@ export default function PaymentMethodSummaryCard({
                       style={tw`flex-row items-center justify-between`}
                     >
                       <ThemedView
-                        style={tw`flex-row items-center gap-2 flex-1`}
+                        style={tw`flex-row items-center gap-4 flex-1`}
                       >
                         <ThemedView
                           style={[
@@ -148,7 +159,13 @@ export default function PaymentMethodSummaryCard({
                           ]}
                         />
                         <ThemedView style={tw`gap-1`}>
-                          <ThemedText type="body2" style={tw`flex-1`}>
+                          <ThemedText
+                            type="body2"
+                            style={[
+                              tw`flex-1`,
+                              { fontFamily: typography.bold },
+                            ]}
+                          >
                             {pm.paymentMethodName}
                           </ThemedText>
                           <ThemedView style={tw`flex-row items-center gap-1.5`}>
@@ -168,13 +185,17 @@ export default function PaymentMethodSummaryCard({
                         </ThemedView>
                       </ThemedView>
                       <ThemedView style={tw`items-end gap-0.5`}>
-                        <ThemedText type="body2" style={tw`font-semibold`}>
+                        <ThemedText
+                          type="body2"
+                          style={[
+                            tw`font-semibold`,
+                            { fontFamily: typography.bold },
+                          ]}
+                        >
                           {displayedPaymentMethodIncome}
                         </ThemedText>
                       </ThemedView>
                     </ThemedView>
-
-
                   </ThemedView>
                 );
               })}

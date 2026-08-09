@@ -275,7 +275,7 @@ export default function IncomesScreen() {
 
   return (
     <ScreenLayout style={tw`flex-1 pt-8`}>
-      <ThemedView style={tw`px-4 mb-4`}>
+      <ThemedView style={tw`px-4 mb-6`}>
         <ThemedText type="h2">{t("common:navigation.incomes")}</ThemedText>
       </ThemedView>
 
@@ -386,7 +386,7 @@ export default function IncomesScreen() {
                 <ThemedView
                   style={tw`flex-row items-center justify-between mb-3`}
                 >
-                  <ThemedText type="h4" style={tw`font-bold`}>
+                  <ThemedText type="h4">
                     {t("reports:accounts.title")}
                   </ThemedText>
                   <Pressable
@@ -403,7 +403,7 @@ export default function IncomesScreen() {
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={tw`gap-2`}
+                  contentContainerStyle={tw`gap-4`}
                 >
                   {accountsSummary.map((account) => {
                     const formattedAccountIncome = formatCurrency(
@@ -416,16 +416,16 @@ export default function IncomesScreen() {
                     return (
                       <ThemedView
                         key={account.accountId}
-                        style={tw`w-36 bg-gray-50 rounded-xl p-3 border border-gray-100`}
+                        style={tw`w-36 rounded-xl p-4 border border-gray-100`}
                       >
                         <ThemedText
                           type="small"
-                          style={tw`text-gray-500 mb-1`}
+                          style={tw`text-gray-500 mb-3`}
                           numberOfLines={1}
                         >
                           {account.accountName}
                         </ThemedText>
-                        <ThemedText type="body2" style={tw`font-semibold`}>
+                        <ThemedText type="h3" style={tw`font-semibold`}>
                           {displayedAccountIncome}
                         </ThemedText>
                       </ThemedView>
@@ -436,7 +436,7 @@ export default function IncomesScreen() {
             )}
 
             {/* Transactions Section */}
-            <ThemedView style={tw`mb-4`}>
+            <ThemedView style={tw`mb-4 mt-4`}>
               {/* Section Header */}
               <ThemedView
                 style={tw`flex-row items-center justify-between mb-3`}
@@ -468,7 +468,7 @@ export default function IncomesScreen() {
                         />
                       )}
                       scrollEnabled={false}
-                      contentContainerStyle={tw`py-2 px-4`}
+                      contentContainerStyle={tw`py-2 `}
                     />
                   </ThemedView>
 

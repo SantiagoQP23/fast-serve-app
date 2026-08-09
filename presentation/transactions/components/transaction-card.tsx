@@ -14,6 +14,7 @@ import { useTransactions } from "@/presentation/transactions/hooks/useTransactio
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
+import { typography } from "@/constants/theme";
 
 interface TransactionCardProps extends PressableProps {
   transaction: Transaction;
@@ -89,22 +90,17 @@ export default function TransactionCard({
         }
       >
         <Pressable onPress={onPress} {...rest}>
-          <ThemedView
-            style={tw`flex-row items-center justify-between py-3 border-b border-gray-100`}
-          >
+          <ThemedView style={tw`flex-row justify-between py-3   rounded-3xl`}>
             {/* Left: Colored icon circle + transaction info */}
-            <ThemedView style={tw`flex-row items-center gap-3 flex-1`}>
+            <ThemedView style={tw`flex-row  gap-3 flex-1`}>
               {/* Category color circle */}
               <ThemedView
-                style={[
-                  tw`w-10 h-10 rounded-full items-center justify-center`,
-                  { backgroundColor: `${categoryColor}1A` },
-                ]}
+                style={[tw`w-10 h-10 rounded-full pt-2 items-center`, ,]}
               >
                 <Ionicons
-                  name="receipt-outline"
-                  size={20}
-                  color={categoryColor}
+                  name="cash-outline"
+                  size={26}
+                  color={tw.color(`gray-600`)}
                 />
               </ThemedView>
 
@@ -112,7 +108,7 @@ export default function TransactionCard({
               <ThemedView style={tw`flex-1 gap-0.5`}>
                 <ThemedText
                   type="body1"
-                  style={tw`font-semibold`}
+                  style={[tw``, { fontFamily: typography.bold }]}
                   numberOfLines={1}
                 >
                   {transaction.name} {""}
@@ -120,8 +116,10 @@ export default function TransactionCard({
                 </ThemedText>
                 <ThemedText type="body2" style={tw`text-gray-500 `}>
                   {transaction.account.name}
-                  {" | "}
+                </ThemedText>
+                <ThemedText type="body2" style={tw`text-gray-500 `}>
                   {transaction.createdBy.person.firstName}{" "}
+                  {transaction.createdBy.person.lastName}
                 </ThemedText>
                 <ThemedView
                   style={tw`flex-row items-center gap-1.5`}
@@ -138,7 +136,7 @@ export default function TransactionCard({
             <ThemedView style={tw`items-end pl-2`}>
               <ThemedText
                 type="body1"
-                style={tw`font-semibold ${isIncome ? "text-green-700" : "text-red-600"}`}
+                style={[tw``, { fontFamily: typography.bold }]}
               >
                 {isIncome ? "+" : "-"}
                 {formatCurrency(transaction.amount)}

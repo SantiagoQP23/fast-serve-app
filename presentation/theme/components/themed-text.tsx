@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     color: tw.color("gray-500"),
   },
   caption: {
-    fontSize: 10,
+    fontSize: 14,
     lineHeight: 14,
     textTransform: "uppercase",
     fontFamily: "Inter600SemiBold",

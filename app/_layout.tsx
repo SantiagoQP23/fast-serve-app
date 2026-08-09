@@ -123,6 +123,12 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen
+              name="transaction"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
               name="(bills)"
               options={{
                 headerShown: false,

@@ -260,19 +260,6 @@ export default function TransactionDetailScreen() {
   return (
     <ScreenLayout style={tw`flex-1`}>
       {/* Header */}
-      <ThemedView style={tw`px-4 pt-4 pb-2 flex-row items-center gap-3`}>
-        <Pressable onPress={() => router.back()} hitSlop={8}>
-          <Ionicons
-            name="arrow-back-outline"
-            size={24}
-            color={tw.color("gray-700")}
-          />
-        </Pressable>
-        <ThemedText type="h3" style={tw`font-bold flex-1`}>
-          {t("common:navigation.incomes")}
-        </ThemedText>
-      </ThemedView>
-
       <ScrollView
         style={tw`flex-1`}
         contentContainerStyle={tw`px-4 pt-2 pb-8 gap-6`}
