@@ -464,7 +464,7 @@ export default function BillScreen() {
                 </ThemedView>
               )}
 
-              <ThemedView style={tw`my-10`}>
+              <ThemedView style={tw`mt-10 mb-30`}>
                 <ThemedText type="caption" style={tw``}>
                   {t("orders:details.activity")}
                 </ThemedText>
@@ -504,7 +504,6 @@ export default function BillScreen() {
                 </ThemedView>
               </ThemedView>
             </ScrollView>
-
           </ThemedView>
         </KeyboardAvoidingView>
       </ScreenLayout>

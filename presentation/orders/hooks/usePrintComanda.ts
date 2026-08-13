@@ -1,52 +1,47 @@
 import { useCallback } from "react";
 import { toast } from "sonner-native";
-import { Order } from "@/core/orders/models/order.model";
+import { Ticket } from "@/core/tickets/models/ticket.model";
 import { ThermalPrinterService } from "@/core/printers/services/thermal-printer.service";
 import { ProductionArea } from "@/core/menu/models/producion-area.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useProductionAreasStore } from "@/presentation/production-areas/store/useProductionAreasStore";
-import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
+import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { TicketsService } from "@/core/tickets/services/tickets.service";
 
 export const usePrintComanda = () => {
   const { t } = useTranslation(["common", "orders"]);
 
   const printComanda = useCallback(
-    async (order: Order) => {
+    async (ticket: Ticket) => {
       const toastId = toast.loading(t("orders:options.printingComanda"));
 
       try {
         const { productionAreas } = useProductionAreasStore.getState();
+        const order = useOrdersStore.getState().activeOrder;
 
-        const detailsByArea = order.details
-          .filter(
-            (d) =>
-              d.status !== OrderDetailStatus.CANCELLED &&
-              d.status !== OrderDetailStatus.DELIVERED,
-          )
-          .reduce(
-            (acc, detail) => {
-              const productArea = detail.product.productionArea;
-              if (!productArea) return acc;
+        if (!order || order.id !== ticket.orderId) {
+          // Ticket is for a different order; skip auto-print
+          return;
+        }
 
-              const fullArea = productionAreas.find(
-                (pa) => pa.id === productArea.id,
-              );
-              if (!fullArea || !fullArea.isActive) return acc;
+        const itemsByArea = ticket.items.reduce(
+          (acc, item) => {
+            const areaId = item.productionAreaId ?? 0;
+            if (!areaId) return acc;
 
-              const areaId = fullArea.id;
-              if (!acc[areaId]) {
-                acc[areaId] = { area: fullArea, details: [] };
-              }
-              acc[areaId].details.push(detail);
-              return acc;
-            },
-            {} as Record<
-              number,
-              { area: ProductionArea; details: Order["details"] }
-            >,
-          );
+            const fullArea = productionAreas.find((pa) => pa.id === areaId);
+            if (!fullArea || !fullArea.isActive) return acc;
 
-        const areaGroups = Object.values(detailsByArea);
+            if (!acc[areaId]) {
+              acc[areaId] = { area: fullArea, items: [] };
+            }
+            acc[areaId].items.push(item);
+            return acc;
+          },
+          {} as Record<number, { area: ProductionArea; items: Ticket["items"] }>,
+        );
+
+        const areaGroups = Object.values(itemsByArea);
 
         if (areaGroups.length === 0) {
           toast.error(t("orders:options.noProductionAreas"), { id: toastId });
@@ -75,15 +70,22 @@ export const usePrintComanda = () => {
             );
             continue;
           }
-          if (group.details.length > 0) {
-            await ThermalPrinterService.printComanda(
+          if (group.items.length > 0) {
+            await ThermalPrinterService.printTicket(
               activePrinter,
               order,
               group.area.name,
-              group.details,
+              group.items,
               translations,
             );
           }
+        }
+
+        // Mark ticket as printed via REST
+        try {
+          await TicketsService.markTicketPrinted(ticket.id);
+        } catch (e) {
+          console.warn("Failed to mark ticket as printed:", e);
         }
 
         toast.success(t("orders:options.printComandaSuccess"), { id: toastId });

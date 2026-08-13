@@ -3,6 +3,7 @@ import { Printer } from "@/core/common/models/printer.model";
 import { Order } from "@/core/orders/models/order.model";
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
+import { TicketItem } from "@/core/tickets/models/ticket-item.model";
 
 export class ThermalPrinterService {
   static printTest = async (
@@ -147,6 +148,90 @@ export class ThermalPrinterService {
         }
 
         return `[L]${detail.quantity - detail.qtyDelivered} - ${detail.product.name}${extra}`;
+      })
+      .join("");
+
+    const payload =
+      `[C]${translations.comandaTitle}\n` +
+      `[C]${translations.area(areaName).toUpperCase()}\n` +
+      `[C]\n` +
+      `[C]${translations.order}\n` +
+      `[C]<font size='big'>${order.table ? translations.table(order.table.name) : translations.takeAway}</font>\n` +
+      `[C]\n` +
+      `[L]${translations.waiter}: ${order.user.person.firstName} ${order.user.person.lastName}\n` +
+      `[L]${translations.date}: ${new Date(order.createdAt).toLocaleString()}\n` +
+      `[L]${translations.people}: ${order.people}\n` +
+      `${order.notes ? `[C]-------------------------------------\n[L]${translations.notes}: ${order.notes}\n` : ""}` +
+      `[C]\n` +
+      `[C]----------------------------------------------\n` +
+      `${detailsText}` +
+      `[C]-----------------------------------------------\n` +
+      `[C]${new Date().toLocaleString()}\n` +
+      `[C]\n` +
+      `[C]\n` +
+      `\x1B\x42\x03\x03 \n` +
+      `[C]\n`;
+
+    if (printer.connectionType === "TCP") {
+      if (!printer.ipAddress) {
+        throw new Error("TCP printer is missing IP address");
+      }
+      await ThermalPrinterModule.printTcp({
+        ip: printer.ipAddress,
+        port: printer.port,
+        payload,
+        autoCut: true,
+        printerWidthMM: 80,
+        mmFeedPaper: 10,
+      });
+    } else {
+      throw new Error("Only TCP printers are supported");
+    }
+  };
+
+  static printTicket = async (
+    printer: Printer,
+    order: Order,
+    areaName: string,
+    areaItems: TicketItem[],
+    translations: {
+      comandaTitle: string;
+      area: (name: string) => string;
+      order: string;
+      table: (name: string) => string;
+      takeAway: string;
+      waiter: string;
+      date: string;
+      people: string;
+      notes: string;
+      inPlace: string;
+      detailTakeAway: string;
+    },
+  ): Promise<void> => {
+    const detailsText = areaItems
+      .map((item) => {
+        let extra = "";
+
+        if (item.productOptionName) {
+          extra += `[L] ${item.productOptionName}\n`;
+        } else {
+          extra += `\n`;
+        }
+        if (item.tagsSnapshot) {
+          extra += `[L]  + ${item.tagsSnapshot}\n`;
+        }
+        if (item.description) {
+          extra += `[L]  *** ${item.description} ***\n`;
+        }
+        if (item.orderDetail && item.orderDetail.typeOrderDetail !== order.type) {
+          const typeLabel =
+            item.orderDetail.typeOrderDetail === OrderType.TAKE_AWAY
+              ? translations.detailTakeAway
+              : translations.inPlace;
+          extra += `[L]  [${typeLabel}]\n`;
+        }
+
+        return `[L]${item.quantity} - ${item.productName}${extra}`;
       })
       .join("");
 

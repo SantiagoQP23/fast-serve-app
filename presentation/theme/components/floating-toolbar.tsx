@@ -30,11 +30,11 @@ export default function FloatingToolbar({
   return (
     <ThemedView
       style={[
-        tw`bg-light-surface rounded-full`,
+        tw`bg-light-surface rounded-full shadow-sm`,
         isHorizontal
           ? tw`flex-row items-center px-2 py-2 gap-4`
           : tw`flex-col items-center px-2 py-3`,
-        styles.shadow,
+        // styles.shadow,
         style,
       ]}
     >
@@ -56,13 +56,3 @@ export default function FloatingToolbar({
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  shadow: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 6,
-  },
-});

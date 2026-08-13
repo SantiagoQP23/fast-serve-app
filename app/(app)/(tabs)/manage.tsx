@@ -228,6 +228,13 @@ export default function ManageScreen() {
                   router.push("/(profile)/printers");
                 }}
               />
+              <CardButton
+                icon="cube-outline"
+                label={t("manage.productionAreas")}
+                onPress={() => {
+                  router.push("/(profile)/production-areas");
+                }}
+              />
               {isAdmin && (
                 <CardButton
                   icon="people-outline"

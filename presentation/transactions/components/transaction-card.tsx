@@ -108,7 +108,7 @@ export default function TransactionCard({
               <ThemedView style={tw`flex-1 gap-0.5`}>
                 <ThemedText
                   type="body1"
-                  style={[tw``, { fontFamily: typography.bold }]}
+                  style={[tw``, { fontFamily: typography.medium }]}
                   numberOfLines={1}
                 >
                   {transaction.name} {""}
@@ -136,7 +136,7 @@ export default function TransactionCard({
             <ThemedView style={tw`items-end pl-2`}>
               <ThemedText
                 type="body1"
-                style={[tw``, { fontFamily: typography.bold }]}
+                style={[tw``, { fontFamily: typography.medium }]}
               >
                 {isIncome ? "+" : "-"}
                 {formatCurrency(transaction.amount)}

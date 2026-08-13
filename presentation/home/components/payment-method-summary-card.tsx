@@ -66,7 +66,10 @@ export default function PaymentMethodSummaryCard({
         style={tw`rounded-2xl border border-light-border py-8 px-6  mb-4`}
       >
         <ThemedView style={tw`flex-row items-center justify-between mb-8`}>
-          <ThemedText type="h4" style={tw`font-bold`}>
+          <ThemedText
+            type="h4"
+            style={[tw``, { fontFamily: typography.medium }]}
+          >
             {t("reports:paymentMethodReport.title")}
           </ThemedText>
           <Pressable
@@ -112,7 +115,7 @@ export default function PaymentMethodSummaryCard({
                         tw``,
                         {
                           color: themePrimaryColor,
-                          fontFamily: typography.bold,
+                          fontFamily: typography.medium,
                         },
                       ]}
                     >
@@ -163,7 +166,7 @@ export default function PaymentMethodSummaryCard({
                             type="body2"
                             style={[
                               tw`flex-1`,
-                              { fontFamily: typography.bold },
+                              { fontFamily: typography.medium },
                             ]}
                           >
                             {pm.paymentMethodName}
@@ -187,10 +190,7 @@ export default function PaymentMethodSummaryCard({
                       <ThemedView style={tw`items-end gap-0.5`}>
                         <ThemedText
                           type="body2"
-                          style={[
-                            tw`font-semibold`,
-                            { fontFamily: typography.bold },
-                          ]}
+                          style={[tw``, { fontFamily: typography.medium }]}
                         >
                           {displayedPaymentMethodIncome}
                         </ThemedText>

@@ -4,9 +4,9 @@ import { Order } from "@/core/orders/models/order.model";
 import { useWebsocketEventEmitter } from "@/presentation/shared/hooks/useWebsocketEventEmitter";
 import { Alert } from "react-native";
 import { useOrdersStore } from "../store/useOrdersStore";
-import { usePrintComanda } from "./usePrintComanda";
 import {
   AddOrderDetailToOrderDto,
+  AddOrderDetailsDto,
   DeleteOrderDetailDto,
   UpdateMultipleOrderDetailsStatusDto,
   UpdateOrderDetailDto,
@@ -18,7 +18,6 @@ import { useWebsocketEventListener } from "@/presentation/shared/hooks/useWebsoc
 export const useOrders = () => {
   console.log("[useOrders] Hook called");
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
-  const { printComanda } = usePrintComanda();
 
   const createOrderEmitter = useWebsocketEventEmitter<Order, CreateOrderDto>(
     OrderSocketEvent.createOrder,
@@ -26,7 +25,6 @@ export const useOrders = () => {
       onSuccess: (resp) => {
         if (resp.data) {
           setActiveOrder(resp.data);
-          printComanda(resp.data);
         }
       },
       onError: (resp) => {
@@ -82,6 +80,18 @@ export const useOrders = () => {
     },
   });
 
+  const addOrderDetailsEmitter = useWebsocketEventEmitter<
+    Order,
+    AddOrderDetailsDto
+  >(OrderSocketEvent.addOrderDetails, {
+    onSuccess: (resp) => {
+      if (resp.data) setActiveOrder(resp.data!);
+    },
+    onError: (resp) => {
+      Alert.alert("Error", resp.msg);
+    },
+  });
+
   const deleteOrderEmitter = useWebsocketEventEmitter<Order, string>(
     OrderSocketEvent.deleteOrder,
     {
@@ -106,6 +116,7 @@ export const useOrders = () => {
     createOrder: createOrderEmitter,
     updateOrderDetail: updateOrderDetailEmitter,
     addOrderDetailToOrder: useOrderDetailToOrderEmitter,
+    addOrderDetails: addOrderDetailsEmitter,
     updateOrder: updateOrderEmitter,
     updateMultipleOrderDetailsStatus: updateMultipleOrderDetailsStatusEmitter,
     removeOrderDetail: removeOrderDetailEmitter,

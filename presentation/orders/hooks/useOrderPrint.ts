@@ -7,14 +7,12 @@ import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import { useOrderPaymentStatus } from "./useOrderPaymentStatus";
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
-import { usePrintComanda } from "./usePrintComanda";
 
 export const useOrderPrint = (order: Order | null) => {
   const { t, language } = useTranslation(["common", "orders", "bills"]);
   const { paymentStatus } = useOrderPaymentStatus(
     order?.paymentStatus ?? OrderPaymentStatus.UNPAID,
   );
-  const { printComanda: handlePrintComanda } = usePrintComanda();
 
   const toCamelCase = (str: string) =>
     str.toLowerCase().replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
@@ -213,17 +211,8 @@ export const useOrderPrint = (order: Order | null) => {
     }
   }, [generateOrderHtml, order, t]);
 
-  const safeHandlePrintComanda = useCallback(
-    (targetOrder?: Order) => {
-      if (!targetOrder && !order) return;
-      handlePrintComanda(targetOrder ?? order!);
-    },
-    [handlePrintComanda, order],
-  );
-
   return {
     handlePrintOrder,
     handleShareOrder,
-    handlePrintComanda: safeHandlePrintComanda,
   };
 };

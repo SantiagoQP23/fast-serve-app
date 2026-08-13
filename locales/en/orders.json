@@ -51,6 +51,7 @@
     "noItemsInOrder": "No items in this order",
     "actions": "Actions",
     "payments": "Payments",
+    "orderTickets": "Order tickets",
     "activity": "Activity",
     "createdAt": "Created",
     "updatedAt": "Updated"
@@ -166,6 +167,20 @@
   "detailInfo": {
     "updatedBy": "Updated by {{name}}",
     "createdBy": "Created by {{name}}"
+  },
+  "tickets": {
+    "typeNew": "NEW",
+    "typeAdd": "ADD",
+    "reprint": "Reprint",
+    "ticketSingular": "ticket",
+    "ticketPlural": "tickets",
+    "noTickets": "No tickets yet"
+  },
+  "editCart": {
+    "reviewChanges": "Review Changes",
+    "newItems": "New items:",
+    "noItems": "No items to add. Go back to the menu to select products.",
+    "addProducts": "Add products"
   },
   "comanda": {
     "title": "COMANDA",

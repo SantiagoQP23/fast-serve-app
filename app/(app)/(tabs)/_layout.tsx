@@ -13,6 +13,8 @@ import {
   useOrders,
   useOrderUpdatedListener,
 } from "@/presentation/orders/hooks/useOrders";
+import { useNewTicketListener } from "@/presentation/orders/hooks/useNewTicketListener";
+import { usePrintComanda } from "@/presentation/orders/hooks/usePrintComanda";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import IconButton from "@/presentation/theme/components/icon-button";
@@ -62,6 +64,9 @@ export default function TabLayout() {
   useOrderCreatedListener();
   useOrderUpdatedListener();
   useOrderDeletedListener();
+
+  const { printComanda } = usePrintComanda();
+  useNewTicketListener(printComanda);
 
   // Check if user is admin
   const isAdmin = user?.role?.name === "admin";

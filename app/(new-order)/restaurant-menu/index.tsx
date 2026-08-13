@@ -16,6 +16,7 @@ import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore"
 import Button from "@/presentation/theme/components/button";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { Ionicons } from "@expo/vector-icons";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
@@ -34,8 +35,19 @@ export default function RestaurantMenuScreen() {
   const { setActiveProduct } = useMenuStore();
   const details = useNewOrderStore((state) => state.details);
   const order = useOrdersStore((state) => state.activeOrder);
+  const editOrderId = useEditOrderCartStore((state) => state.orderId);
+  const newItemCount = useEditOrderCartStore((state) => state.getNewItemCount());
+  const initEditCart = useEditOrderCartStore((state) => state.init);
   const [isLoadingMenu, setIsLoadingMenu] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  const isEditMode = !!order && editOrderId === order.id;
+
+  useEffect(() => {
+    if (order && !editOrderId) {
+      initEditCart(order);
+    }
+  }, [order, editOrderId, initEditCart]);
 
   const handleLoadMenu = async () => {
     setIsLoadingMenu(true);
@@ -250,6 +262,27 @@ export default function RestaurantMenuScreen() {
           >
             <Button
               label={t("menu:goToCart")}
+              leftIcon="cart-outline"
+              onPress={() => router.push("/(new-order)/cart")}
+            />
+          </ThemedView>
+        </ThemedView>
+      )}
+
+      {isEditMode && newItemCount > 0 && (
+        <ThemedView style={tw`absolute bottom-4 left-4 right-4 bg-transparent`}>
+          <ThemedView
+            style={tw`flex-row justify-end items-center bg-transparent gap-2`}
+          >
+            <ThemedView
+              style={tw`bg-primary-600 rounded-full w-8 h-8 items-center justify-center`}
+            >
+              <ThemedText style={tw`text-white font-bold text-sm`}>
+                {newItemCount}
+              </ThemedText>
+            </ThemedView>
+            <Button
+              label={t("menu:reviewChanges")}
               leftIcon="cart-outline"
               onPress={() => router.push("/(new-order)/cart")}
             />

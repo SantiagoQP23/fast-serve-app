@@ -26,8 +26,7 @@ export default function OrderConfirmationScreen() {
   };
 
   const { statusText } = useOrderStatus(order?.status || OrderStatus.PENDING);
-  const { handlePrintOrder, handleShareOrder, handlePrintComanda } =
-    useOrderPrint(order);
+  const { handlePrintOrder, handleShareOrder } = useOrderPrint(order);
 
   if (!order) {
     return null;
@@ -136,9 +135,9 @@ export default function OrderConfirmationScreen() {
             onPress={handleShareOrder}
           />
           <QuickActionButton
-            icon="restaurant-outline"
-            label={t("orders:options.printComanda")}
-            onPress={() => handlePrintComanda(order)}
+            icon="receipt-outline"
+            label={t("orders:details.orderTickets")}
+            onPress={() => router.push(`/(order)/${order.id}/tickets`)}
           />
         </ThemedView>
 

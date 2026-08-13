@@ -4,6 +4,8 @@ import { User } from "@/core/auth/models/user.model";
 import { OrderStatus } from "../enums/order-status.enum";
 import { OrderType } from "../enums/order-type.enum";
 import { OrderPaymentStatus } from "../enums/order-payment-status.enum";
+import { Bill } from "./bill.model";
+import { Ticket } from "@/core/tickets/models/ticket.model";
 
 export interface Order {
   notes: string;
@@ -22,5 +24,6 @@ export interface Order {
   user: User;
   isClosed: boolean;
   paymentStatus: OrderPaymentStatus;
-  // bills: Bill[];
+  bills: Bill[];
+  tickets?: Ticket[];
 }

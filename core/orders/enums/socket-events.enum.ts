@@ -7,6 +7,7 @@ export enum OrderSocketEvent {
   updateOrderDetail = "update-order-detail",
   updateOrderDetailsStatus = "update-order-details-status",
   addOrderDetail = "add-order-detail",
+  addOrderDetails = "add-order-details",
   deleteOrderDetail = "delete-order-detail",
   updateqtyDeliveredDetail = "update-qty-delivered-detail",
   deleteOrder = "delete-order",
@@ -27,4 +28,5 @@ export enum OrderSocketEvent {
   paymentProofApproved = "payment-proof-approved",
   paymentProofRejected = "payment-proof-rejected",
   transactionStatusUpdated = "transaction-status-updated",
+  newTicket = "new-ticket",
 }

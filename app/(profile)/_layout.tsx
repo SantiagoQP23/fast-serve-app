@@ -65,6 +65,15 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="production-areas"
+          options={{
+            headerShown: true,
+            title: t("manage.productionAreas"),
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
           name="settings"
           options={{
             headerShown: true,

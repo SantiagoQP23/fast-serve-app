@@ -1,4 +1,4 @@
-import { FlatList, ScrollView } from "react-native";
+import { FlatList } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -11,11 +11,11 @@ import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
 import NewOrderDetailCard from "@/presentation/orders/components/new-order-detail-card";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
-import { Product } from "@/core/menu/models/product.model";
 import { NewOrderDetail } from "@/core/orders/dto/new-order-detail.dto";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { mapStoreToCreateOrderDto } from "@/presentation/orders/mappers/createOrder.mapper";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
@@ -36,13 +36,20 @@ export default function CartScreen() {
   const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
   const newOrder = useNewOrderStore();
   const { isOnline, isLoading, mutate: createOrder } = useOrders().createOrder;
-  const { isLoading: createSaleIsLoading, mutate: createSale } =
-    useBills().createSale;
+  const { mutate: createSale } = useBills().createSale;
 
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
   const [total, setTotal] = useState(0);
   const router = useRouter();
+
+  const editOrderId = useEditOrderCartStore((state) => state.orderId);
+  const newItems = useEditOrderCartStore((state) => state.newItems);
+  const resetEditCart = useEditOrderCartStore((state) => state.reset);
+  const activeOrder = useOrdersStore((state) => state.activeOrder);
+  const isEditMode = !!editOrderId && editOrderId === activeOrder?.id;
+  const { isLoading: isAddingDetails, mutate: addOrderDetails } =
+    useOrders().addOrderDetails;
 
   const openProduct = (orderDetail: NewOrderDetail) => {
     setActiveDetail(orderDetail);
@@ -74,12 +81,128 @@ export default function CartScreen() {
     }
   };
 
+  const onAddProductsToOrder = () => {
+    if (!activeOrder) return;
+
+    const newDetailsPayload = newItems.map((item) => ({
+      productId: item.product.id,
+      quantity: item.quantity,
+      price: item.price ?? item.product.price,
+      description: item.description,
+      productOptionId: item.productOption?.id,
+      typeOrderDetail: item.typeOrderDetail,
+      tagIds: item.tagIds,
+    }));
+
+    addOrderDetails(
+      {
+        orderId: activeOrder.id,
+        newDetails: newDetailsPayload,
+      },
+      {
+        onSuccess: (resp) => {
+          resetEditCart();
+          if (resp.data) setActiveOrder(resp.data);
+          router.replace(`/(order)/${activeOrder.id}`);
+        },
+      },
+    );
+  };
+
+  const onCancelEdit = () => {
+    resetEditCart();
+    router.back();
+  };
+
   useEffect(() => {
     const total = details.reduce((acc, detail) => {
       return acc + (detail.price ?? detail.product.price) * detail.quantity;
     }, 0);
     setTotal(total);
   }, [details]);
+
+  if (isEditMode) {
+    return (
+      <>
+        <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
+          <ThemedView style={tw`flex-row justify-between items-center`}>
+            <ThemedView style={tw`gap-2`}>
+              <ThemedText type="h1">{t("orders:editCart.reviewChanges")}</ThemedText>
+              <ThemedText type="small">
+                {t("orders:editCart.newItems")} {newItems.length}
+              </ThemedText>
+            </ThemedView>
+          </ThemedView>
+
+          <ThemedView style={tw`gap-2 flex-row`}>
+            <Label
+              text={
+                activeOrder?.table
+                  ? `${t("common:labels.table")} ${activeOrder.table.name}`
+                  : t("common:labels.takeAway")
+              }
+              color="default"
+              size="small"
+            />
+            <Label
+              text={String(activeOrder?.people || 0)}
+              leftIcon="people-outline"
+              size="small"
+              color="outline"
+            />
+          </ThemedView>
+
+          <FlatList
+            style={tw`flex-1`}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={tw`gap-4 pb-4`}
+            data={newItems}
+            keyExtractor={(itm) => itm.id || `${itm.product.id}-${Math.random()}`}
+            renderItem={({ item }) => (
+              <NewOrderDetailCard
+                detail={item}
+                onPress={() => {
+                  setActiveDetail(item);
+                  setActiveProduct(item.product);
+                  router.push("/(new-order)/restaurant-menu/product");
+                }}
+              />
+            )}
+            ListFooterComponent={
+              <Button
+                leftIcon="add-outline"
+                label={t("menu:cart.addProduct")}
+                variant="outline"
+                onPress={() => router.push("/(new-order)/restaurant-menu")}
+              />
+            }
+            ListEmptyComponent={
+              <ThemedView style={tw`items-center py-12`}>
+                <Ionicons name="cart-outline" size={48} color={tw.color("gray-400")} />
+                <ThemedText type="body1" style={tw`text-gray-500 mt-4 text-center`}>
+                  {t("orders:editCart.noItems")}
+                </ThemedText>
+              </ThemedView>
+            }
+          />
+
+          <ThemedView style={tw`gap-4 pb-2`}>
+            <Button
+              label={t("orders:editCart.addProducts")}
+              onPress={onAddProductsToOrder}
+              disabled={!isOnline || isAddingDetails || newItems.length === 0}
+              loading={isAddingDetails}
+            />
+            <Button
+              label={t("common:actions.cancel")}
+              variant="outline"
+              onPress={onCancelEdit}
+            />
+          </ThemedView>
+        </ScreenLayout>
+      </>
+    );
+  }
 
   return (
     <>
@@ -124,7 +247,7 @@ export default function CartScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`gap-4 pb-4`}
           data={details}
-          keyExtractor={(item, index) => `${index}`}
+          keyExtractor={(_, index) => `${index}`}
           renderItem={({ item }) => (
             <NewOrderDetailCard
               detail={item}

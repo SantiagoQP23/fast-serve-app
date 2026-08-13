@@ -45,6 +45,23 @@ export interface DeleteOrderDetailDto {
   orderId: string;
 }
 
+export interface OrderDetailBatchItemDto {
+  productId: string;
+  quantity: number;
+  price: number;
+  description?: string;
+  productOptionId?: number;
+  tagIds?: string[];
+  typeOrderDetail?: OrderType;
+}
+
+export interface AddOrderDetailsDto {
+  orderId: string;
+  newDetails: OrderDetailBatchItemDto[];
+  modifiedDetails?: UpdateOrderDetailDto[];
+  removedDetails?: DeleteOrderDetailDto[];
+}
+
 export interface UpdateMultipleOrderDetailsStatusDto {
   orderDetails: string[];
   status: OrderDetailStatus;

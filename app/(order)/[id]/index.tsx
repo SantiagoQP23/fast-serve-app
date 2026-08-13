@@ -43,6 +43,8 @@ import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bottom-sheet";
 import { BottomSheetModal, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { typography } from "@/constants/theme";
+import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 
 dayjs.extend(relativeTime);
 
@@ -54,6 +56,8 @@ export default function OrderScreen() {
   const setActiveOrderDetail = useOrdersStore(
     (state) => state.setActiveOrderDetail,
   );
+
+  const init = useEditOrderCartStore((state) => state.init);
   const { mutate: updateOrder, isOnline, isLoading } = useOrders().updateOrder;
   const { mutate: deleteOrder } = useOrders().deleteOrder;
   const router = useRouter();
@@ -102,8 +106,7 @@ export default function OrderScreen() {
     statusIconColor,
     bgColor,
   } = useOrderStatus(order?.status || OrderStatus.PENDING);
-  const { handlePrintOrder, handleShareOrder, handlePrintComanda } =
-    useOrderPrint(order);
+  const { handlePrintOrder, handleShareOrder } = useOrderPrint(order);
 
   const editBottomSheetRef = useRef<BottomSheetModal>(null);
 
@@ -694,38 +697,45 @@ export default function OrderScreen() {
                 leftIcon="add-outline"
                 label={t("orders:details.addProduct")}
                 variant="outline"
-                onPress={() => router.push("/(new-order)/restaurant-menu")}
+                onPress={() => {
+                  init(order); // Initialize the edit order cart store with the current order
+
+                  router.push("/(new-order)/restaurant-menu");
+                }}
               />
             )}
 
             <ThemedView style={tw`mt-4 mb-6`} />
-
-            <ThemedView>
-              <ThemedText type="body2" style={tw`text-gray-500`}>
-                {t("orders:details.actions")}
-              </ThemedText>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={tw`gap-4 mt-3`}
+            <ThemedView style={tw`flex-row gap-4`}>
+              <Pressable
+                style={tw`flex-row items-center gap-4 mb-3 bg-light-surface px-5 py-3 rounded-xl flex-1`}
+                onPress={() => router.push(`/(order)/${order.id}/bills`)}
               >
-                <QuickActionButton
-                  icon="cash-outline"
-                  label={t("orders:details.payments")}
-                  onPress={() => router.push(`/(order)/${order.id}/bills`)}
-                />
-                {order.status !== OrderStatus.DELIVERED && (
-                  <QuickActionButton
-                    icon="restaurant-outline"
-                    label={t("orders:options.printComanda")}
-                    onPress={() => handlePrintComanda(order)}
-                  />
-                )}
-              </ScrollView>
+                <Ionicons name="cash-outline" size={26} />
+                <ThemedView style={tw``}>
+                  <ThemedText style={[tw``, { fontFamily: typography.medium }]}>
+                    {t("orders:details.payments")}
+                  </ThemedText>
+                  <ThemedText type="body1" style={[tw`text-gray-600`, {}]}>
+                    {order.bills.length}
+                  </ThemedText>
+                </ThemedView>
+              </Pressable>
+              <Pressable
+                style={tw`flex-row items-center gap-5 mb-3 bg-light-surface px-5 py-3 rounded-xl flex-1`}
+                onPress={() => router.push(`/(order)/${order.id}/tickets`)}
+              >
+                <Ionicons name="receipt-outline" size={26} />
+                <ThemedView style={tw` gap-1`}>
+                  <ThemedText style={[tw``, { fontFamily: typography.medium }]}>
+                    {t("orders:details.orderTickets")}
+                  </ThemedText>
+                </ThemedView>
+              </Pressable>
             </ThemedView>
 
             <ThemedView style={tw`mt-10 mb-20`}>
-              <ThemedText type="body2" style={tw`text-gray-500`}>
+              <ThemedText type="caption" style={tw`text-gray-500`}>
                 {t("orders:details.activity")}
               </ThemedText>
               <ThemedView style={tw`mt-3 gap-2`}>

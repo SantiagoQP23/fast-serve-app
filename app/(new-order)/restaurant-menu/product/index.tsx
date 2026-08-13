@@ -11,6 +11,7 @@ import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
@@ -77,6 +78,9 @@ export default function ProductScreen() {
   const updateDetail = useNewOrderStore((state) => state.updateDetail);
   const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
   const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
+  const editOrderId = useEditOrderCartStore((state) => state.orderId);
+  const addEditItem = useEditOrderCartStore((state) => state.addNewItem);
+  const isEditMode = !!order && editOrderId === order.id;
   const {
     isLoading,
     isOnline,
@@ -164,7 +168,17 @@ export default function ProductScreen() {
   };
 
   const onAddProduct = () => {
-    if (order) {
+    if (isEditMode) {
+      addEditItem({
+        quantity: counter,
+        product: activeProduct!,
+        description: notes,
+        price: effectivePrice,
+        tagIds: selectedTagIds,
+        productOption: selectedOption!,
+        typeOrderDetail: typeOrderDetail || order!.type,
+      });
+    } else if (order) {
       addProductToOrder();
     } else {
       addProductToCart();

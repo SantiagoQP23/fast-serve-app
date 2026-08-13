@@ -37,6 +37,7 @@
     "empty": "Your cart is empty",
     "emptyDescription": "Add some products to get started"
   },
+  "reviewChanges": "Review Changes",
   "noMenu": {
     "title": "No Menu Loaded",
     "description": "The menu hasn't been loaded yet. Tap the button below to load it.",

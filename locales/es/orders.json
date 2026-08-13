@@ -50,7 +50,8 @@
     "orderClosed": "Este pedido ha sido cerrado",
     "noItemsInOrder": "No hay productos en este pedido",
     "actions": "Acciones",
-    "payments": "Pagos",
+    "payments": "Cuentas",
+    "orderTickets": "Tickets",
     "activity": "Actividad",
     "createdAt": "Creado",
     "updatedAt": "Actualizado"
@@ -166,6 +167,20 @@
   "detailInfo": {
     "updatedBy": "Actualizado por {{name}}",
     "createdBy": "Creado por {{name}}"
+  },
+  "tickets": {
+    "typeNew": "NUEVO",
+    "typeAdd": "AGREGAR",
+    "reprint": "Reimprimir",
+    "ticketSingular": "ticket",
+    "ticketPlural": "tickets",
+    "noTickets": "Aún no hay tickets"
+  },
+  "editCart": {
+    "reviewChanges": "Revisar Cambios",
+    "newItems": "Nuevos items:",
+    "noItems": "No hay items para agregar. Vuelve al menú para seleccionar productos.",
+    "addProducts": "Agregar productos"
   },
   "comanda": {
     "title": "COMANDA",

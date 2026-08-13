@@ -357,7 +357,7 @@ export default function IncomesScreen() {
             {/* <DailyReportSummaryCard startDate={dateFilter} endDate={dateFilter} /> */}
             <ThemedView style={tw` p-4 mb-4 items-center`}>
               <ThemedView style={tw`flex-row items-center gap-2 mb-1`}>
-                <ThemedText type="h1" style={tw`font-bold`}>
+                <ThemedText type="h1" style={tw``}>
                   {displayedNetIncome}
                 </ThemedText>
                 <Pressable

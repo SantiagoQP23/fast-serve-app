@@ -84,6 +84,14 @@ export default function OrdersLayout() {
             headerShadowVisible: false,
           }}
         />
+        <Stack.Screen
+          name="[id]/tickets/index"
+          options={{
+            headerShown: true,
+            title: "Order tickets",
+            headerShadowVisible: false,
+          }}
+        />
       </Stack>
 
       <BottomSheetModal
