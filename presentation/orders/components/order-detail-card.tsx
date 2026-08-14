@@ -329,9 +329,9 @@ export default function OrderDetailCard({
                               />
                             )}
                         </ThemedView>
-                        <ThemedText type="body2">
-                          {formatCurrency(detail.amount)}
-                        </ThemedText>
+                        {/* <ThemedText type="body2"> */}
+                        {/*   {formatCurrency(detail.amount)} */}
+                        {/* </ThemedText> */}
                       </ThemedView>
                       {detail.description && (
                         <ThemedText type="body2">

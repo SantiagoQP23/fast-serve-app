@@ -45,6 +45,7 @@ import { BottomSheetModal, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { typography } from "@/constants/theme";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
+import Card from "@/presentation/theme/components/card";
 
 dayjs.extend(relativeTime);
 
@@ -707,31 +708,42 @@ export default function OrderScreen() {
 
             <ThemedView style={tw`mt-4 mb-6`} />
             <ThemedView style={tw`flex-row gap-4`}>
-              <Pressable
-                style={tw`flex-row items-center gap-4 mb-3 bg-light-surface px-5 py-3 rounded-xl flex-1`}
-                onPress={() => router.push(`/(order)/${order.id}/bills`)}
-              >
-                <Ionicons name="cash-outline" size={26} />
-                <ThemedView style={tw``}>
-                  <ThemedText style={[tw``, { fontFamily: typography.medium }]}>
-                    {t("orders:details.payments")}
-                  </ThemedText>
-                  <ThemedText type="body1" style={[tw`text-gray-600`, {}]}>
-                    {order.bills.length}
-                  </ThemedText>
-                </ThemedView>
-              </Pressable>
-              <Pressable
-                style={tw`flex-row items-center gap-5 mb-3 bg-light-surface px-5 py-3 rounded-xl flex-1`}
-                onPress={() => router.push(`/(order)/${order.id}/tickets`)}
-              >
-                <Ionicons name="receipt-outline" size={26} />
-                <ThemedView style={tw` gap-1`}>
-                  <ThemedText style={[tw``, { fontFamily: typography.medium }]}>
-                    {t("orders:details.orderTickets")}
-                  </ThemedText>
-                </ThemedView>
-              </Pressable>
+              <ThemedView style={tw`flex-1`}>
+                <Card
+                  style={tw`gap-2 flex-1 pt-10`}
+                  onPress={() => router.push(`/(order)/${order.id}/bills`)}
+                >
+                  <Ionicons name="cash-outline" size={22} />
+                  <ThemedView style={tw``}>
+                    <ThemedText
+                      type="body2"
+                      style={[tw``, { fontFamily: typography.medium }]}
+                    >
+                      {t("orders:details.payments")}
+                    </ThemedText>
+                    {/* <ThemedText type="body1" style={[tw`text-gray-600`, {}]}> */}
+                    {/*   {order.bills.length} */}
+                    {/* </ThemedText> */}
+                  </ThemedView>
+                </Card>
+              </ThemedView>
+
+              <ThemedView style={tw`flex-1`}>
+                <Card
+                  style={tw`gap-2 flex-1 pt-10`}
+                  onPress={() => router.push(`/(order)/${order.id}/tickets`)}
+                >
+                  <Ionicons name="receipt-outline" size={22} />
+                  <ThemedView style={tw` gap-1`}>
+                    <ThemedText
+                      type="body2"
+                      style={[tw``, { fontFamily: typography.medium }]}
+                    >
+                      {t("orders:details.orderTickets")}
+                    </ThemedText>
+                  </ThemedView>
+                </Card>
+              </ThemedView>
             </ThemedView>
 
             <ThemedView style={tw`mt-10 mb-20`}>

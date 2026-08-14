@@ -63,90 +63,94 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
   );
 
   return (
-    <Card style={tw`mb-8  rounded-3xl p-4`} onPress={() => openOrder()}>
-      <ThemedView style={tw`mb-6 bg-transparent`}>
-        <ThemedView style={tw`flex-row justify-between items-center`}>
-          <ThemedView style={tw`flex-row items-center bg-transparent gap-2`}>
-            <Label
-              text={statusText}
-              color={labelColor}
-              leftIcon={statusIcon}
-              size="small"
-            />
-            {order.paymentStatus !== OrderPaymentStatus.UNPAID && (
+    <ThemedView style={tw`mb-8  `}>
+      <Card style={tw``} onPress={() => openOrder()}>
+        <ThemedView style={tw`mb-6 `}>
+          <ThemedView style={tw`flex-row justify-between items-center`}>
+            <ThemedView style={tw`flex-row items-center bg-transparent gap-2`}>
               <Label
-                text={paymentStatus.text}
-                color={paymentStatus.color}
+                text={statusText}
+                color={labelColor}
+                leftIcon={statusIcon}
                 size="small"
               />
-            )}
+              {order.paymentStatus !== OrderPaymentStatus.UNPAID && (
+                <Label
+                  text={paymentStatus.text}
+                  color={paymentStatus.color}
+                  size="small"
+                />
+              )}
+            </ThemedView>
+            <ThemedView style={tw`flex-row items-center  gap-1`}>
+              <Ionicons
+                name="time-outline"
+                size={14}
+                color={tw.color("gray-500")}
+              />
+              <ThemedText type="small">
+                {dayjs(order.deliveryTime).format("HH:mm")}
+              </ThemedText>
+            </ThemedView>
           </ThemedView>
-          <ThemedView style={tw`flex-row items-center  gap-1`}>
-            <Ionicons
-              name="time-outline"
-              size={14}
+          <ThemedView
+            style={tw`flex-row items-center justify-between bg-transparent mt-4`}
+          >
+            <ThemedView style={tw` gap-2`}>
+              <ThemedText type="h3">
+                {order.type === OrderType.IN_PLACE
+                  ? `${t("common:labels.table")} ${order.table?.name}`
+                  : t("common:labels.takeAway")}{" "}
+              </ThemedText>
+
+              <ThemedText type="small" style={tw`text-gray-500 `}>
+                {order.user.person.firstName} {order.user.person.lastName}
+              </ThemedText>
+            </ThemedView>
+            <IconButton
+              variant="text"
+              icon="chevron-forward"
               color={tw.color("gray-500")}
+              size={20}
+              onPress={() => openOrder()}
             />
-            <ThemedText type="small">
-              {dayjs(order.deliveryTime).format("HH:mm")}
-            </ThemedText>
           </ThemedView>
         </ThemedView>
-        <ThemedView
-          style={tw`flex-row items-center justify-between bg-transparent mt-4`}
-        >
-          <ThemedView style={tw` gap-2`}>
-            <ThemedText type="h3">
-              {order.type === OrderType.IN_PLACE
-                ? `${t("common:labels.table")} ${order.table?.name}`
-                : t("common:labels.takeAway")}{" "}
-            </ThemedText>
+        <ThemedView style={tw`gap-6`}>
+          {order.details
+            .filter(
+              (detail) =>
+                detail.quantity !== detail.qtyDelivered &&
+                detail.status !== OrderDetailStatus.CANCELLED,
+            )
+            .map((detail) => (
+              <OrderDetailCard
+                key={detail.id}
+                detail={detail}
+                orderId={order.id}
+                orderUserId={order.user.id}
+                orderType={order.type}
+                onPress={() =>
+                  handleEditOrderDetail(order.num, order.id, detail)
+                }
+              />
+            ))}
+        </ThemedView>
 
-            <ThemedText type="small" style={tw`text-gray-500 `}>
-              {order.user.person.firstName} {order.user.person.lastName}
-            </ThemedText>
+        <ThemedView style={tw`mt-6 flex-row items-center justify-between`}>
+          <ThemedText type="body2" style={tw`text-gray-600`}>
+            <Ionicons
+              name="people-outline"
+              size={18}
+              color={tw.color("gray-600")}
+            />{" "}
+            {order.people}
+          </ThemedText>
+          <ThemedView style={tw`flex-row items-center gap-2 `}>
+            <ThemedText type="h3">${order.total}</ThemedText>
           </ThemedView>
-          <IconButton
-            variant="text"
-            icon="chevron-forward"
-            color={tw.color("gray-500")}
-            size={20}
-            onPress={() => openOrder()}
-          />
         </ThemedView>
-      </ThemedView>
-      <ThemedView style={tw`gap-6`}>
-        {order.details
-          .filter(
-            (detail) =>
-              detail.quantity !== detail.qtyDelivered &&
-              detail.status !== OrderDetailStatus.CANCELLED,
-          )
-          .map((detail) => (
-            <OrderDetailCard
-              key={detail.id}
-              detail={detail}
-              orderId={order.id}
-              orderUserId={order.user.id}
-              orderType={order.type}
-              onPress={() => handleEditOrderDetail(order.num, order.id, detail)}
-            />
-          ))}
-      </ThemedView>
-
-      <ThemedView style={tw`mt-6 flex-row items-center justify-between`}>
-        <ThemedText type="body2" style={tw`text-gray-600`}>
-          <Ionicons
-            name="people-outline"
-            size={18}
-            color={tw.color("gray-600")}
-          />{" "}
-          {order.people}
-        </ThemedText>
-        <ThemedView style={tw`flex-row items-center gap-2 `}>
-          <ThemedText type="h3">${order.total}</ThemedText>
-        </ThemedView>
-      </ThemedView>
-    </Card>
+      </Card>
+    </ThemedView>
   );
 }

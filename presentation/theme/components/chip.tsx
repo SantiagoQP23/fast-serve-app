@@ -29,7 +29,7 @@ export default function Chip({
     <Pressable
       onPress={() => !disabled && onPress && onPress()}
       style={({ pressed }) => [
-        tw`flex-row items-center px-3 py-1.5 rounded-full border gap-2`,
+        tw`flex-row items-center px-3 py-1.5 rounded-full  gap-2 border`,
         selected
           ? tw`bg-light-primary border-light-primary`
           : tw`bg-white border-gray-200`,

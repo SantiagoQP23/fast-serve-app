@@ -16,7 +16,9 @@ export const Colors = {
     secondary: "#0E5A8A",
 
     surface: "#f4f6f8", // cards, lists, inputs
+    // surface: "#FFFFFF", // cards, lists, inputs
     background: "#FFFFFF", // app canvas
+    // background: "#F7F7F7", // app canvas
 
     text: "#0f172a", // primary text
     icon: "#64748b",

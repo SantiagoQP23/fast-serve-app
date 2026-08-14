@@ -48,12 +48,12 @@ export default function OrderCard({ order }: OrderCardProps) {
   };
 
   return (
-    <ThemedView style={tw`mb-8  rounded-2xl  `}>
-      <Card onPress={openOrder}>
-        <ThemedView style={tw`gap-4 bg-white `}>
+    <ThemedView style={tw`mb-8    `}>
+      <Card onPress={openOrder} style={tw` `}>
+        <ThemedView style={tw`gap-4 `}>
           {/* Header Section - Table Name */}
           <ThemedView style={tw`flex-row justify-between items-center`}>
-            <ThemedView style={tw`flex-row items-center bg-transparent gap-2`}>
+            <ThemedView style={tw`flex-row items-center  gap-2`}>
               <Label
                 text={statusText}
                 color={labelColor}

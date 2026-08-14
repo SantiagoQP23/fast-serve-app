@@ -47,7 +47,7 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
   const showCreatedBy = bill.createdBy.id !== bill.owner.id;
 
   return (
-    <Card onPress={onPress}>
+    <Card onPress={onPress} style={tw`px-4 py-5 `}>
       <ThemedView style={tw`bg-transparent gap-3`}>
         {/* Header: Bill number and status */}
 

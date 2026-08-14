@@ -14,6 +14,9 @@ import { Ticket } from "@/core/tickets/models/ticket.model";
 import { TicketType } from "@/core/tickets/enums/ticket-type.enum";
 import { TicketItem } from "@/core/tickets/models/ticket-item.model";
 import dayjs from "dayjs";
+import IconButton from "@/presentation/theme/components/icon-button";
+import Card from "@/presentation/theme/components/card";
+import Button from "@/presentation/theme/components/button";
 
 function TicketCard({
   ticket,
@@ -60,13 +63,17 @@ function TicketCard({
   const areaGroups = Object.values(itemsByArea);
 
   return (
-    <ThemedView style={tw`bg-white rounded-2xl border border-gray-200 overflow-hidden`}>
+    <Card
+      style={tw`bg-white rounded-2xl border border-gray-200 overflow-hidden`}
+    >
       {/* Ticket Header */}
       <ThemedView
-        style={tw`bg-light-surface p-4 flex-row justify-between items-center border-b border-gray-100`}
+        style={tw`flex-row justify-between items-center border-b border-gray-100 pb-4`}
       >
         <ThemedView style={tw`flex-row items-center gap-2`}>
-          <ThemedView style={tw`px-2 py-1 rounded-full ${typeColor.split(" ")[0]}`}>
+          <ThemedView
+            style={tw`px-2 py-1 rounded-full ${typeColor.split(" ")[0]}`}
+          >
             <ThemedText
               type="small"
               style={tw`font-bold ${typeColor.split(" ")[1]}`}
@@ -80,23 +87,13 @@ function TicketCard({
         </ThemedView>
 
         <ThemedView style={tw`flex-row items-center gap-2`}>
-          {ticket.printed ? (
-            <Ionicons name="checkmark-circle" size={18} color={tw.color("green-500")} />
-          ) : (
-            <Ionicons name="time-outline" size={18} color={tw.color("orange-400")} />
+          {ticket.printed && (
+            <Ionicons
+              name="checkmark-circle"
+              size={18}
+              color={tw.color("green-500")}
+            />
           )}
-          <Pressable
-            onPress={() => onReprint(ticket)}
-            style={tw`flex-row items-center gap-1 bg-primary-50 px-3 py-1.5 rounded-full`}
-          >
-            <Ionicons name="print-outline" size={14} color={tw.color("primary-600")} />
-            <ThemedText
-              type="small"
-              style={tw`text-primary-600 font-semibold`}
-            >
-              {t("orders:tickets.reprint")}
-            </ThemedText>
-          </Pressable>
         </ThemedView>
       </ThemedView>
 
@@ -154,7 +151,14 @@ function TicketCard({
           </ThemedView>
         ))}
       </ThemedView>
-    </ThemedView>
+
+      <Button
+        variant="text"
+        leftIcon="print-outline"
+        label={t("orders:tickets.reprint")}
+        onPress={() => onReprint(ticket)}
+      />
+    </Card>
   );
 }
 
@@ -182,7 +186,7 @@ export default function OrderTicketsScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* Order Summary Header */}
-          <ThemedView style={tw`gap-1 mb-2`}>
+          <ThemedView style={tw`gap-1 mb-2 items-center `}>
             <ThemedText type="caption" style={tw`text-gray-500`}>
               {t("orders:details.orderNumber", { num: order.num })}
             </ThemedText>
@@ -198,14 +202,6 @@ export default function OrderTicketsScreen() {
                 : t("orders:tickets.ticketPlural")}
             </ThemedText>
           </ThemedView>
-
-          {isLoading && tickets.length === 0 && (
-            <ThemedView style={tw`items-center py-12`}>
-              <ThemedText type="body1" style={tw`text-gray-500`}>
-                {t("common:status.loading")}
-              </ThemedText>
-            </ThemedView>
-          )}
 
           {tickets.length === 0 && !isLoading && (
             <ThemedView style={tw`items-center py-12`}>

@@ -102,6 +102,9 @@ export default function TabLayout() {
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? "light"].primary,
           headerShown: false,
+          headerStyle: {
+            backgroundColor: Colors[colorScheme ?? "light"].background,
+          },
           // tabBarActiveTintColor: Colors["light"].tint,
           tabBarStyle: {
             backgroundColor: Colors["light"].background,
@@ -128,7 +131,11 @@ export default function TabLayout() {
               </ThemedText>
             ),
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons color={color} name={focused ? "home" : "home-outline"} size={24} />
+              <Ionicons
+                color={color}
+                name={focused ? "home" : "home-outline"}
+                size={24}
+              />
             ),
             headerShown: true,
             headerShadowVisible: false,
@@ -145,7 +152,11 @@ export default function TabLayout() {
               </ThemedText>
             ),
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons color={color} name={focused ? "pricetag" : "pricetag-outline"} size={24} />
+              <Ionicons
+                color={color}
+                name={focused ? "pricetag" : "pricetag-outline"}
+                size={24}
+              />
             ),
           }}
         />
@@ -158,7 +169,11 @@ export default function TabLayout() {
               </ThemedText>
             ),
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons color={color} name={focused ? "trending-up" : "trending-up-outline"} size={24} />
+              <Ionicons
+                color={color}
+                name={focused ? "trending-up" : "trending-up-outline"}
+                size={24}
+              />
             ),
           }}
         />
@@ -171,7 +186,11 @@ export default function TabLayout() {
               </ThemedText>
             ),
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons color={color} name={focused ? "stats-chart" : "stats-chart-outline"} size={24} />
+              <Ionicons
+                color={color}
+                name={focused ? "stats-chart" : "stats-chart-outline"}
+                size={24}
+              />
             ),
             href: isAdmin ? "/(app)/(tabs)/incomes" : null,
           }}
@@ -185,7 +204,11 @@ export default function TabLayout() {
               </ThemedText>
             ),
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons color={color} name={focused ? "apps" : "apps-outline"} size={24} />
+              <Ionicons
+                color={color}
+                name={focused ? "apps" : "apps-outline"}
+                size={24}
+              />
             ),
           }}
         />
