@@ -36,7 +36,9 @@ export default function RestaurantMenuScreen() {
   const details = useNewOrderStore((state) => state.details);
   const order = useOrdersStore((state) => state.activeOrder);
   const editOrderId = useEditOrderCartStore((state) => state.orderId);
-  const newItemCount = useEditOrderCartStore((state) => state.getNewItemCount());
+  const newItemCount = useEditOrderCartStore((state) =>
+    state.getNewItemCount(),
+  );
   const initEditCart = useEditOrderCartStore((state) => state.init);
   const [isLoadingMenu, setIsLoadingMenu] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -282,7 +284,7 @@ export default function RestaurantMenuScreen() {
               </ThemedText>
             </ThemedView>
             <Button
-              label={t("menu:reviewChanges")}
+              label={t("menu:goToCart")}
               leftIcon="cart-outline"
               onPress={() => router.push("/(new-order)/cart")}
             />

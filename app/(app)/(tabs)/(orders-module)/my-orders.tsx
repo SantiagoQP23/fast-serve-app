@@ -29,6 +29,7 @@ import TablesView from "@/presentation/tables/components/tables-view";
 import { Table } from "@/core/tables/models/table.model";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
+import { MyOrdersHeaderRight } from "../_layout";
 
 export default function MyOrdersScreen() {
   const { t } = useTranslation(["common", "orders", "errors", "tables"]);
@@ -140,11 +141,16 @@ export default function MyOrdersScreen() {
   return (
     <ThemedView style={tw`flex-1 bg-light-background`}>
       {/* Fixed header with greeting and tabs */}
-      <ThemedView style={tw`px-4 pt-4`}>
-        <ThemedText type="body1">{t("common:greetings.hello")},</ThemedText>
-        <ThemedText type="h2" style={tw`mt-1`}>
-          {user?.person.firstName}!
-        </ThemedText>
+      <ThemedView style={tw`px-4  `}>
+        <ThemedView style={tw`flex-row items-center justify-between pt-8 `}>
+          <ThemedView>
+            <ThemedText type="body1">{t("common:greetings.hello")},</ThemedText>
+            <ThemedText type="h2" style={tw`mt-1`}>
+              {user?.person.firstName}!
+            </ThemedText>
+          </ThemedView>
+          <MyOrdersHeaderRight />
+        </ThemedView>
         <ThemedView style={tw`mt-4 mb-2`}>
           <TabBar tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
         </ThemedView>

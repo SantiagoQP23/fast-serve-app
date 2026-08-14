@@ -1,9 +1,4 @@
-import {
-  ScrollView,
-  Pressable,
-  PressableProps,
-  Linking,
-} from "react-native";
+import { ScrollView, Pressable, PressableProps, Linking } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -18,6 +13,7 @@ import { typography } from "@/constants/theme";
 import Label from "@/presentation/theme/components/label";
 import { Roles } from "@/core/auth/models/user.model";
 import { toast } from "sonner-native";
+import Card from "@/presentation/theme/components/card";
 
 interface CardButtonProps extends PressableProps {
   icon?: keyof typeof Ionicons.glyphMap;
@@ -83,37 +79,40 @@ export default function ManageScreen() {
 
         {/* Subscription Banner */}
         {subscription && (
-          <ThemedView
-            style={tw`rounded-3xl border border-light-border p-4 gap-2 mb-4`}
-          >
-            <ThemedView style={tw`flex-row items-center gap-2`}>
-              <Ionicons
-                name={
-                  subscription.status === "ACTIVE"
-                    ? "shield-checkmark-outline"
-                    : subscription.status === "TRIAL"
-                      ? "time-outline"
-                      : "alert-circle-outline"
-                }
-                size={20}
-                color={
-                  subscription.status === "ACTIVE"
-                    ? tw.color("green-500")
-                    : subscription.status === "TRIAL"
-                      ? tw.color("orange-500")
-                      : tw.color("red-500")
-                }
-              />
-              <ThemedText style={[{ fontFamily: typography.medium }]}>
-                {t(`manage.subscription.${subscription.status.toLowerCase()}`)}
-              </ThemedText>
-              {subscription.plan && (
-                <Label
-                  text={subscription.plan.name}
-                  color="default"
-                  size="small"
-                />
-              )}
+          <Card style={tw`gap-4 `}>
+            <ThemedView style={tw`flex  gap-4`}>
+              {/* <Ionicons */}
+              {/*   name={ */}
+              {/*     subscription.status === "ACTIVE" */}
+              {/*       ? "shield-checkmark-outline" */}
+              {/*       : subscription.status === "TRIAL" */}
+              {/*         ? "time-outline" */}
+              {/*         : "alert-circle-outline" */}
+              {/*   } */}
+              {/*   size={20} */}
+              {/*   color={ */}
+              {/*     subscription.status === "ACTIVE" */}
+              {/*       ? tw.color("green-500") */}
+              {/*       : subscription.status === "TRIAL" */}
+              {/*         ? tw.color("orange-500") */}
+              {/*         : tw.color("red-500") */}
+              {/*   } */}
+              {/* /> */}
+              <ThemedText type="h3">{currentRestaurant?.name}</ThemedText>
+              <ThemedView style={tw`flex-row items-center gap-2`}>
+                <ThemedText style={[{ fontFamily: typography.medium }]}>
+                  Plan: {subscription.plan?.name}
+                </ThemedText>
+                {subscription.plan && (
+                  <Label
+                    text={t(
+                      `manage.subscription.${subscription.status.toLowerCase()}`,
+                    )}
+                    color="default"
+                    size="small"
+                  />
+                )}
+              </ThemedView>
             </ThemedView>
             {subscription.status === "TRIAL" && subscription.trialEndsAt && (
               <ThemedText type="small" style={tw`text-gray-500`}>
@@ -122,18 +121,14 @@ export default function ManageScreen() {
                 })}
               </ThemedText>
             )}
-          </ThemedView>
+          </Card>
         )}
+        <ThemedView style={tw`h-4`} />
 
         {/* User Info Card */}
-        <Pressable
+        <Card
           onPress={() => router.push("/(profile)/edit-profile")}
-          style={({ pressed }) =>
-            tw.style(
-              "rounded-3xl border border-light-border p-4 gap-3 mb-4",
-              pressed && "opacity-70",
-            )
-          }
+          style={({ pressed }) => tw.style("  gap-4 ")}
         >
           <ThemedView style={tw`flex-row items-center gap-3`}>
             <Ionicons
@@ -149,21 +144,28 @@ export default function ManageScreen() {
                 {user?.person?.email}
               </ThemedText>
             </ThemedView>
-            <Ionicons name="chevron-forward-outline" size={20} color={tw.color("gray-400")} />
+            <Ionicons
+              name="chevron-forward-outline"
+              size={20}
+              color={tw.color("gray-400")}
+            />
           </ThemedView>
-          <Label
-            text={user?.role?.description || ""}
-            color="default"
-            size="small"
-          />
-        </Pressable>
+          <ThemedView style={tw`flex-row items-center gap-2`}>
+            <Label
+              text={user?.role?.description || ""}
+              color="default"
+              size="small"
+            />
+          </ThemedView>
+        </Card>
 
+        <ThemedView style={tw`h-4`} />
         <Button
           label={t("manage.manageOtherRestaurant")}
           onPress={() => router.push("/(profile)/restaurants")}
           variant="text"
           leftIcon="storefront-outline"
-          style={tw`mt-2`}
+          style={tw`mt-4`}
           size="small"
         />
 
@@ -213,10 +215,7 @@ export default function ManageScreen() {
               <ThemedText type="small" style={tw`text-gray-500`}>
                 {t("manage.restaurant")}
               </ThemedText>
-              <CardButton
-                icon="grid-outline"
-                label={t("manage.tables")}
-              />
+              <CardButton icon="grid-outline" label={t("manage.tables")} />
               <CardButton
                 icon="card-outline"
                 label={t("manage.paymentMethods")}
@@ -266,5 +265,3 @@ export default function ManageScreen() {
     </ScreenLayout>
   );
 }
-
-

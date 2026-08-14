@@ -127,7 +127,7 @@ export default function CartScreen() {
         <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
           <ThemedView style={tw`flex-row justify-between items-center`}>
             <ThemedView style={tw`gap-2`}>
-              <ThemedText type="h1">{t("orders:editCart.reviewChanges")}</ThemedText>
+              <ThemedText type="h1">{t("menu:cart.title")}</ThemedText>
               <ThemedText type="small">
                 {t("orders:editCart.newItems")} {newItems.length}
               </ThemedText>
@@ -157,10 +157,14 @@ export default function CartScreen() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={tw`gap-4 pb-4`}
             data={newItems}
-            keyExtractor={(itm) => itm.id || `${itm.product.id}-${Math.random()}`}
+            keyExtractor={(itm) =>
+              itm.id || `${itm.product.id}-${Math.random()}`
+            }
             renderItem={({ item }) => (
               <NewOrderDetailCard
                 detail={item}
+                orderType={activeOrder?.type || OrderType.IN_PLACE}
+                isEditMode
                 onPress={() => {
                   setActiveDetail(item);
                   setActiveProduct(item.product);
@@ -178,8 +182,15 @@ export default function CartScreen() {
             }
             ListEmptyComponent={
               <ThemedView style={tw`items-center py-12`}>
-                <Ionicons name="cart-outline" size={48} color={tw.color("gray-400")} />
-                <ThemedText type="body1" style={tw`text-gray-500 mt-4 text-center`}>
+                <Ionicons
+                  name="cart-outline"
+                  size={48}
+                  color={tw.color("gray-400")}
+                />
+                <ThemedText
+                  type="body1"
+                  style={tw`text-gray-500 mt-4 text-center`}
+                >
                   {t("orders:editCart.noItems")}
                 </ThemedText>
               </ThemedView>
@@ -250,6 +261,7 @@ export default function CartScreen() {
           keyExtractor={(_, index) => `${index}`}
           renderItem={({ item }) => (
             <NewOrderDetailCard
+              orderType={orderType}
               detail={item}
               onPress={() => openProduct(item)}
             />

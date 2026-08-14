@@ -21,6 +21,7 @@ import * as Haptics from "expo-haptics";
 import DailyReportSummaryCard from "@/presentation/home/components/daily-report-summary-card";
 import { useDailyReport } from "@/presentation/orders/hooks/useDailyReport";
 import { formatCurrency } from "@/core/i18n/utils";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
 export default function AnalyticsScreen() {
   const { t } = useTranslation(["common", "errors", "reports"]);
@@ -81,7 +82,7 @@ export default function AnalyticsScreen() {
     : formattedTotalAmount.replace(/\d/g, "*");
 
   return (
-    <ThemedView style={tw`flex-1 bg-light-background`}>
+    <ScreenLayout style={tw`flex-1 bg-light-background pt-4`}>
       <ThemedView style={tw`px-4 py-4`}>
         <ThemedText type="h2">
           {isAdmin ? t("common:stats.analytics") : t("common:stats.myStats")}
@@ -221,6 +222,6 @@ export default function AnalyticsScreen() {
           </ThemedView>
         )}
       </ScrollView>
-    </ThemedView>
+    </ScreenLayout>
   );
 }

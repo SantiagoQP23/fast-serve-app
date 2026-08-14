@@ -25,7 +25,7 @@ import NotificationBadge from "@/presentation/theme/components/notification-badg
 import { ROUTES } from "@/constants/routes";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 
-function MyOrdersHeaderRight() {
+export function MyOrdersHeaderRight() {
   const router = useRouter();
   const details = useNewOrderStore((state) => state.details);
   const haveAnOpenOrder = details.length > 0;
@@ -137,9 +137,9 @@ export default function TabLayout() {
                 size={24}
               />
             ),
-            headerShown: true,
+            headerShown: false,
             headerShadowVisible: false,
-            title: t("navigation.home"),
+            title: `${t("common:greetings.hello")} ${user?.person.firstName}!`,
             headerRight: () => <MyOrdersHeaderRight />,
           }}
         />

@@ -9,6 +9,7 @@ import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { router } from "expo-router";
 import { NewOrderDetail } from "@/core/orders/dto/new-order-detail.dto";
 import { useNewOrderStore } from "../store/newOrderStore";
+import { useEditOrderCartStore } from "../store/editOrderCartStore";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
@@ -17,27 +18,39 @@ import IconButton from "@/presentation/theme/components/icon-button";
 
 interface NewOrderDetailCardProps extends PressableProps {
   detail: NewOrderDetail;
+  orderType: OrderType;
+  isEditMode?: boolean;
 }
 
 export default function NewOrderDetailCard({
   detail,
+  orderType,
+  isEditMode = false,
   onPress,
 }: NewOrderDetailCardProps) {
   const { t } = useTranslation(["common"]);
   const { removeDetail, updateDetail } = useNewOrderStore();
-  const orderType = useNewOrderStore((state) => state.orderType);
+  const { removeNewItem, updateNewItem } = useEditOrderCartStore();
   const { counter, increment, decrement } = useCounter(
     detail.quantity,
     1,
     20,
     1,
     (value) => {
+      if (isEditMode && detail.id) {
+        updateNewItem(detail.id, { quantity: value });
+        return;
+      }
       const updatedDetail = { ...detail, quantity: value };
       updateDetail(updatedDetail);
     },
   );
 
   const onRemoveDetail = () => {
+    if (isEditMode && detail.id) {
+      removeNewItem(detail.id);
+      return;
+    }
     removeDetail(detail);
   };
 
