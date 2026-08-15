@@ -304,7 +304,7 @@ export default function EditOrderDetailScreen() {
             {/*   </ThemedView> */}
             {/* </ThemedView> */}
 
-            <ThemedView style={tw` justify-between items-center gap-8`}>
+            <ThemedView style={tw` justify-between items-center gap-2`}>
               <ThemedView>
                 <ThemedText>
                   {formatCurrency(counter * effectivePrice)}

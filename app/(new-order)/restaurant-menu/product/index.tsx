@@ -279,20 +279,26 @@ export default function ProductScreen() {
           />
 
           <ThemedView style={tw`gap-8`}>
-            <ThemedView style={tw`flex-row justify-between items-center`}>
+            <ThemedView style={tw` justify-between items-center gap-2`}>
               <ThemedView>
                 <ThemedText>
                   {formatCurrency(counter * effectivePrice)}
                 </ThemedText>
               </ThemedView>
-              <ThemedView style={tw`flex-row items-center gap-4`}>
+              <ThemedView style={tw`flex-row items-center gap-10`}>
                 <IconButton
                   icon="remove-outline"
                   onPress={decrement}
                   variant="outlined"
+                  size={40}
                 />
-                <ThemedText>{counter}</ThemedText>
-                <IconButton icon="add" onPress={increment} variant="outlined" />
+                <ThemedText type="h1">{counter}</ThemedText>
+                <IconButton
+                  icon="add"
+                  onPress={increment}
+                  variant="outlined"
+                  size={40}
+                />
               </ThemedView>
             </ThemedView>
 

@@ -42,6 +42,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { Ionicons } from "@expo/vector-icons";
 import { useBillPrint } from "@/presentation/orders/hooks/useBillPrint";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
+import { Transaction } from "@/core/transactions/models/transaction.model";
 
 dayjs.extend(relativeTime);
 
@@ -80,6 +81,7 @@ export default function BillScreen() {
   const isAdmin = user?.role?.name === Roles.ADMIN;
   const isCashier = user?.role?.name === Roles.CASHIER;
   const canChargeBill = isAdmin || isCashier;
+  const canManage = isAdmin || isCashier;
 
   const animationConfigs = useBottomSheetSpringConfigs({
     damping: 50,
@@ -201,6 +203,13 @@ export default function BillScreen() {
         refetch();
       },
     });
+  };
+
+  const openTransactionDetail = (transactionId: number) => {
+    if (!canManage) {
+      return;
+    }
+    router.push(`/transaction/${transactionId}`);
   };
 
   return (
@@ -458,6 +467,7 @@ export default function BillScreen() {
                       <TransactionCard
                         key={transaction.id}
                         transaction={transaction}
+                        onPress={() => openTransactionDetail(transaction.id)}
                       />
                     ))}
                   </ThemedView>

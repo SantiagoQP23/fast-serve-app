@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
 import { typography } from "@/constants/theme";
+import { router } from "expo-router";
 
 interface TransactionCardProps extends PressableProps {
   transaction: Transaction;

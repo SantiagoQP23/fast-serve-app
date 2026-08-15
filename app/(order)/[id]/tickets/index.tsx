@@ -14,7 +14,6 @@ import { Ticket } from "@/core/tickets/models/ticket.model";
 import { TicketType } from "@/core/tickets/enums/ticket-type.enum";
 import { TicketItem } from "@/core/tickets/models/ticket-item.model";
 import dayjs from "dayjs";
-import IconButton from "@/presentation/theme/components/icon-button";
 import Card from "@/presentation/theme/components/card";
 import Button from "@/presentation/theme/components/button";
 
@@ -63,9 +62,7 @@ function TicketCard({
   const areaGroups = Object.values(itemsByArea);
 
   return (
-    <Card
-      style={tw`bg-white rounded-2xl border border-gray-200 overflow-hidden`}
-    >
+    <Card style={tw``}>
       {/* Ticket Header */}
       <ThemedView
         style={tw`flex-row justify-between items-center border-b border-gray-100 pb-4`}
@@ -98,7 +95,7 @@ function TicketCard({
       </ThemedView>
 
       {/* Items by area */}
-      <ThemedView style={tw`p-4 gap-4`}>
+      <ThemedView style={tw`py-4 gap-4`}>
         {areaGroups.map((group) => (
           <ThemedView key={group.areaName} style={tw`gap-2`}>
             <ThemedText
