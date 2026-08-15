@@ -14,17 +14,24 @@ import {
 } from "@/core/orders/dto/update-order.dto";
 import { SocketEvent } from "@/core/common/dto/socket.dto";
 import { useWebsocketEventListener } from "@/presentation/shared/hooks/useWebsocketEventListener";
+import { usePrintComanda } from "./usePrintComanda";
 
 export const useOrders = () => {
-  console.log("[useOrders] Hook called");
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
+  const { printComanda } = usePrintComanda();
 
   const createOrderEmitter = useWebsocketEventEmitter<Order, CreateOrderDto>(
     OrderSocketEvent.createOrder,
     {
       onSuccess: (resp) => {
-        if (resp.data) {
-          setActiveOrder(resp.data);
+        const order = resp.data;
+        if (order) {
+          setActiveOrder(order);
+          if (order.tickets) {
+            for (const ticket of order?.tickets) {
+              printComanda(order, ticket);
+            }
+          }
         }
       },
       onError: (resp) => {

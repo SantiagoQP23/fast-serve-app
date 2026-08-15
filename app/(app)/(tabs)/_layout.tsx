@@ -65,8 +65,8 @@ export default function TabLayout() {
   useOrderUpdatedListener();
   useOrderDeletedListener();
 
-  const { printComanda } = usePrintComanda();
-  useNewTicketListener(printComanda);
+  // const { printComanda } = usePrintComanda();
+  // useNewTicketListener(printComanda);
 
   // Check if user is admin
   const isAdmin = user?.role?.name === "admin";

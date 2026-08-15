@@ -23,6 +23,7 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 // Initialize i18n
 import "@/core/i18n/i18n.config";
 import { initializeDayjs } from "@/core/i18n/utils";
+import { usePushNotifications } from "@/presentation/shared/hooks/usePushNotifications";
 
 export const queryClient = new QueryClient();
 
@@ -31,9 +32,9 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const language = useGlobalStore((state) => state.language);
   const setLanguage = useGlobalStore((state) => state.setLanguage);
+  usePushNotifications();
 
   // Detect if user is on auth pages
   const segments = useSegments();

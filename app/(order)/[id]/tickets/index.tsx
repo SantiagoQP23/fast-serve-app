@@ -223,7 +223,7 @@ export default function OrderTicketsScreen() {
             <TicketCard
               key={ticket.id}
               ticket={ticket}
-              onReprint={printComanda}
+              onReprint={() => printComanda(order, ticket)}
             />
           ))}
         </ScrollView>

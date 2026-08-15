@@ -46,7 +46,6 @@ export const authLogin = async (username: string, password: string) => {
 export const authCheckStatus = async () => {
   try {
     const { data } = await restaurantApi.get<AuthResponse>("/auth/auth-renew");
-    console.log("Auth check status data", data);
 
     return returnUserToken(data);
   } catch (error) {
@@ -56,9 +55,12 @@ export const authCheckStatus = async () => {
 
 export const authGoogleSignIn = async (idToken: string) => {
   try {
-    const { data } = await restaurantApi.post<AuthResponse>("/auth/google-signin", {
-      idToken,
-    });
+    const { data } = await restaurantApi.post<AuthResponse>(
+      "/auth/google-signin",
+      {
+        idToken,
+      },
+    );
 
     return returnUserToken(data);
   } catch (error) {
@@ -69,9 +71,12 @@ export const authGoogleSignIn = async (idToken: string) => {
 
 export const authLinkGoogleAccount = async (idToken: string) => {
   try {
-    const { data } = await restaurantApi.post<AuthResponse>("/auth/link-google", {
-      idToken,
-    });
+    const { data } = await restaurantApi.post<AuthResponse>(
+      "/auth/link-google",
+      {
+        idToken,
+      },
+    );
 
     return returnUserToken(data);
   } catch (error) {
@@ -91,7 +96,12 @@ export interface RegisterUserDto {
 
 export const authRegister = async (
   data: RegisterUserDto,
-): Promise<{ user: User | null; token: string | null; currentRestaurant: Restaurant | null; errorCode?: string }> => {
+): Promise<{
+  user: User | null;
+  token: string | null;
+  currentRestaurant: Restaurant | null;
+  errorCode?: string;
+}> => {
   try {
     const payload = { ...data };
     if (!payload.numPhone || payload.numPhone === "") {
@@ -104,14 +114,23 @@ export const authRegister = async (
     );
 
     const result = returnUserToken(respData);
-    return { user: result.user, token: result.token, currentRestaurant: result.currentRestaurant };
+    return {
+      user: result.user,
+      token: result.token,
+      currentRestaurant: result.currentRestaurant,
+    };
   } catch (error) {
     const axiosError = error as AxiosError<{
       error?: { code?: string; message?: string };
     }>;
     const errorCode = axiosError.response?.data?.error?.code;
     const message = axiosError.response?.data?.error?.message;
-    console.log("Register error", errorCode, message, axiosError.response?.data);
+    console.log(
+      "Register error",
+      errorCode,
+      message,
+      axiosError.response?.data,
+    );
     return { user: null, token: null, currentRestaurant: null, errorCode };
   }
 };

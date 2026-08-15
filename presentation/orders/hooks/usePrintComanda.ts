@@ -5,24 +5,18 @@ import { ThermalPrinterService } from "@/core/printers/services/thermal-printer.
 import { ProductionArea } from "@/core/menu/models/producion-area.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useProductionAreasStore } from "@/presentation/production-areas/store/useProductionAreasStore";
-import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { TicketsService } from "@/core/tickets/services/tickets.service";
+import { Order } from "@/core/orders/models/order.model";
 
 export const usePrintComanda = () => {
   const { t } = useTranslation(["common", "orders"]);
 
   const printComanda = useCallback(
-    async (ticket: Ticket) => {
+    async (order: Order, ticket: Ticket) => {
       const toastId = toast.loading(t("orders:options.printingComanda"));
 
       try {
         const { productionAreas } = useProductionAreasStore.getState();
-        const order = useOrdersStore.getState().activeOrder;
-
-        if (!order || order.id !== ticket.orderId) {
-          // Ticket is for a different order; skip auto-print
-          return;
-        }
 
         const itemsByArea = ticket.items.reduce(
           (acc, item) => {
@@ -38,7 +32,10 @@ export const usePrintComanda = () => {
             acc[areaId].items.push(item);
             return acc;
           },
-          {} as Record<number, { area: ProductionArea; items: Ticket["items"] }>,
+          {} as Record<
+            number,
+            { area: ProductionArea; items: Ticket["items"] }
+          >,
         );
 
         const areaGroups = Object.values(itemsByArea);

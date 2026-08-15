@@ -42,7 +42,7 @@ export default function IconButton({
 
   const variantStyles = {
     filled: "bg-light-surface",
-    outlined: "border border-light-border",
+    outlined: "border border-light-border rounded-3xl",
     text: "",
   };
 

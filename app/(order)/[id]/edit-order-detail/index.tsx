@@ -20,7 +20,9 @@ import {
   BottomSheetModal,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
-import BottomSheetPicker, { BottomSheetPickerRef } from "@/presentation/theme/components/bottom-sheet-picker";
+import BottomSheetPicker, {
+  BottomSheetPickerRef,
+} from "@/presentation/theme/components/bottom-sheet-picker";
 import { useOrderDetailStatus } from "@/presentation/orders/hooks/useOrderDetailStatus";
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
@@ -302,20 +304,26 @@ export default function EditOrderDetailScreen() {
             {/*   </ThemedView> */}
             {/* </ThemedView> */}
 
-            <ThemedView style={tw`flex-row justify-between items-center`}>
+            <ThemedView style={tw` justify-between items-center gap-8`}>
               <ThemedView>
                 <ThemedText>
                   {formatCurrency(counter * effectivePrice)}
                 </ThemedText>
               </ThemedView>
-              <ThemedView style={tw`flex-row items-center gap-4`}>
+              <ThemedView style={tw`flex-row items-center gap-10`}>
                 <IconButton
                   icon="remove-outline"
                   onPress={decrement}
                   variant="outlined"
+                  size={40}
                 />
-                <ThemedText>{counter}</ThemedText>
-                <IconButton icon="add" onPress={increment} variant="outlined" />
+                <ThemedText type="h1">{counter}</ThemedText>
+                <IconButton
+                  icon="add"
+                  onPress={increment}
+                  variant="outlined"
+                  size={40}
+                />
               </ThemedView>
             </ThemedView>
 
@@ -428,7 +436,10 @@ export default function EditOrderDetailScreen() {
           title={t("orders:newOrder.orderType")}
           options={[
             { label: t("common:orderType.inPlace"), value: OrderType.IN_PLACE },
-            { label: t("common:orderType.takeAway"), value: OrderType.TAKE_AWAY },
+            {
+              label: t("common:orderType.takeAway"),
+              value: OrderType.TAKE_AWAY,
+            },
           ]}
           value={orderDetail.typeOrderDetail}
           onChange={(value) => {

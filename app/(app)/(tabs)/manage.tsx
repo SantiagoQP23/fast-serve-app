@@ -14,6 +14,7 @@ import Label from "@/presentation/theme/components/label";
 import { Roles } from "@/core/auth/models/user.model";
 import { toast } from "sonner-native";
 import Card from "@/presentation/theme/components/card";
+import { usePushNotifications } from "@/presentation/shared/hooks/usePushNotifications";
 
 interface CardButtonProps extends PressableProps {
   icon?: keyof typeof Ionicons.glyphMap;

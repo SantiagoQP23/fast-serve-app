@@ -123,23 +123,23 @@ export default function OrderConfirmationScreen() {
             </ThemedView>
           </ThemedView>
         </ThemedView>
-        <ThemedView style={tw`w-full flex-row gap-6 justify-center`}>
-          <QuickActionButton
-            icon="print-outline"
-            label={t("orders:options.printOrder")}
-            onPress={handlePrintOrder}
-          />
-          <QuickActionButton
-            icon="share-outline"
-            label={t("orders:options.shareOrder")}
-            onPress={handleShareOrder}
-          />
-          <QuickActionButton
-            icon="receipt-outline"
-            label={t("orders:details.orderTickets")}
-            onPress={() => router.push(`/(order)/${order.id}/tickets`)}
-          />
-        </ThemedView>
+        {/* <ThemedView style={tw`w-full flex-row gap-6 justify-center`}> */}
+        {/*   <QuickActionButton */}
+        {/*     icon="print-outline" */}
+        {/*     label={t("orders:options.printOrder")} */}
+        {/*     onPress={handlePrintOrder} */}
+        {/*   /> */}
+        {/*   <QuickActionButton */}
+        {/*     icon="share-outline" */}
+        {/*     label={t("orders:options.shareOrder")} */}
+        {/*     onPress={handleShareOrder} */}
+        {/*   /> */}
+        {/*   <QuickActionButton */}
+        {/*     icon="receipt-outline" */}
+        {/*     label={t("orders:details.orderTickets")} */}
+        {/*     onPress={() => router.push(`/(order)/${order.id}/tickets`)} */}
+        {/*   /> */}
+        {/* </ThemedView> */}
 
         <ThemedView style={tw`w-full flex-row gap-4 justify-center`}>
           <Button
