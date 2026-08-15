@@ -8,6 +8,8 @@ import { Platform } from "react-native";
 import { PushNotificationsService } from "@/core/push-notifications/services/push-notifications.service";
 import { SecureStorageAdapter } from "@/helpers/adapters/secure-storage.adapter";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { PushNotificationType } from "@/core/push-notifications/enums/push-notification-type.enum";
+import { PushNotification } from "@/core/push-notifications/model/push-notification.model";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -102,6 +104,7 @@ async function registerForPushNotificationsAsync() {
 
 export const usePushNotifications = () => {
   const [pendingChatId, setPendingChatId] = useState<string | null>("");
+  const [pendingPaymentId, setPendingPaymentId] = useState<string | null>("");
   const rootNavigationState = useRootNavigationState();
 
   const authStatus = useAuthStore((state) => state.status);
@@ -152,20 +155,45 @@ export const usePushNotifications = () => {
 
     const responseListener =
       Notifications.addNotificationResponseReceivedListener((response) => {
-        console.log("addNotificationResponseReceivedListener:");
-        console.log(response.notification.request.content.data);
-        const chatId = response.notification.request.content.data?.chatId;
-        if (typeof chatId === "string" && chatId.length > 0) {
-          setPendingChatId(chatId);
+        // const chatId = response.notification.request.content.data?.chatId;
+        // if (typeof chatId === "string" && chatId.length > 0) {
+        //   setPendingChatId(chatId);
+        // }
+
+        const notification = response?.notification?.request?.content
+          ?.data as any as PushNotification;
+
+        if (notification) {
+          switch (notification.type) {
+            case PushNotificationType.NEW_PAYMENT:
+              // router.push(`/payments/${notification.payload.paymentId}`);
+              setPendingPaymentId(notification.payload.paymentId as string);
+              break;
+          }
         }
       });
 
     const handleInitialNotificationResponse = () => {
       const response = Notifications.getLastNotificationResponse();
 
-      const chatId = response?.notification?.request?.content?.data?.chatId;
-      if (typeof chatId === "string" && chatId.length > 0) {
-        setPendingChatId(chatId);
+      const notification = response?.notification?.request?.content
+        ?.data as any as PushNotification;
+      // if (typeof chatId === "string" && chatId.length > 0) {
+      //   setPendingChatId(chatId);
+      //
+      // }
+      //
+      if (notification) {
+        switch (notification.type) {
+          case PushNotificationType.NEW_PAYMENT:
+            // router.push(`/payments/${notification.payload.paymentId}`);
+            setPendingPaymentId(notification.payload.paymentId as string);
+            break;
+
+          // case PushNotificationType.NEW_ORDER:
+          //   router.push(`/orders/${notification.payload.orderId}`);
+          //   break;
+        }
       }
     };
 
@@ -184,6 +212,14 @@ export const usePushNotifications = () => {
     router.push(`/transaction/${pendingChatId}`);
     setPendingChatId(null);
   }, [pendingChatId, rootNavigationState?.key]);
+
+  useEffect(() => {
+    if (!rootNavigationState.key) return;
+    if (!pendingPaymentId) return;
+
+    router.push(`/transaction/${pendingPaymentId}`);
+    setPendingPaymentId(null);
+  }, [pendingPaymentId, rootNavigationState?.key]);
 
   return {
     // Props

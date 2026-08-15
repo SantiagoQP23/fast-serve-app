@@ -575,7 +575,7 @@ export default function PaymentMethodScreen() {
         <ThemedText type="body2" style={tw`text-gray-500 mb-3`}>
           {t("bills:details.paymentMethod")}
         </ThemedText>
-        <ThemedView style={tw`gap-3`}>
+        <ThemedView style={tw`gap-4`}>
           {activePaymentMethods.map((method) => (
             <PaymentMethodCard
               key={method.id}

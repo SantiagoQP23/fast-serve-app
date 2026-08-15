@@ -28,7 +28,7 @@ export default function PaymentMethodCard({
       <Pressable
         onPress={onPress}
         style={({ pressed }) => [
-          tw`flex-row items-center px-4 py-4 rounded-2xl border border-gray-200`,
+          tw`flex-row items-center p-6 rounded-2xl border border-gray-200`,
           pressed && tw`opacity-80`,
           active && tw`border-light-primary bg-gray-100`,
         ]}

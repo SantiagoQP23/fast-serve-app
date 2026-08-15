@@ -207,7 +207,7 @@ export default function NewBillScreen() {
             </ThemedText>
           </ThemedView>
         ) : (
-          <ThemedView style={tw`gap-2 mb-6`}>
+          <ThemedView style={tw`gap-4 mb-6`}>
             {detailsToPay.map((detail) => (
               <NewBillDetailCard
                 key={detail.id}

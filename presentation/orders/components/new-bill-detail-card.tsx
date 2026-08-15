@@ -47,7 +47,7 @@ export default function NewBillDetailCard({
   return (
     <Pressable
       style={({ pressed }) => [
-        tw`p-4 rounded-xl border gap-3`,
+        tw`p-6 rounded-3xl border gap-4`,
         isSelected ? tw`border-light-primary` : tw`border-light-border`,
         pressed && tw`opacity-60`,
       ]}
@@ -58,7 +58,7 @@ export default function NewBillDetailCard({
         style={tw`flex-row justify-between items-center bg-transparent`}
       >
         <ThemedView style={tw`bg-transparent flex-1`}>
-          <ThemedText type="body1" style={tw`font-semibold mb-0.5`}>
+          <ThemedText type="body1" style={tw`font-semibold mb-1`}>
             {detail.product.name}{" "}
             {showProductOptionName && `${detail.productOption?.name}`}
           </ThemedText>
