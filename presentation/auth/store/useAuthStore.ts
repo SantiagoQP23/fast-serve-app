@@ -6,6 +6,7 @@ import {
   authLinkGoogleAccount,
   authUpdateProfile,
   authRegister,
+  authLogout,
 } from "@/core/auth/actions/auth-actions";
 import { SecureStorageAdapter } from "@/helpers/adapters/secure-storage.adapter";
 import { User } from "@/core/auth/models/user.model";
@@ -204,13 +205,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   },
 
   logout: async () => {
-    try {
-      await GoogleSignin.signOut();
-    } catch {
-      // Ignore errors if user wasn't signed in with Google
-    }
-
-    SecureStorageAdapter.removeItem("token");
+    await authLogout();
 
     set({ status: "unauthenticated", token: undefined, user: undefined });
   },

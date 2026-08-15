@@ -2,8 +2,12 @@ import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { router, useRootNavigationState } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Platform } from "react-native";
+
+import { PushNotificationsService } from "@/core/push-notifications/services/push-notifications.service";
+import { SecureStorageAdapter } from "@/helpers/adapters/secure-storage.adapter";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -100,6 +104,10 @@ export const usePushNotifications = () => {
   const [pendingChatId, setPendingChatId] = useState<string | null>("");
   const rootNavigationState = useRootNavigationState();
 
+  const authStatus = useAuthStore((state) => state.status);
+  const authToken = useAuthStore((state) => state.token);
+  const lastRegisteredRef = useRef<string | null>(null);
+
   const [expoPushToken, setExpoPushToken] = useState("");
   const [notifications, setNotifications] = useState<
     Notifications.Notification[]
@@ -107,9 +115,30 @@ export const usePushNotifications = () => {
 
   useEffect(() => {
     registerForPushNotificationsAsync()
-      .then((token) => setExpoPushToken(token ?? ""))
+      .then(async (token) => {
+        setExpoPushToken(token ?? "");
+        if (token) {
+          await SecureStorageAdapter.setItem("expoPushToken", token);
+        }
+      })
       .catch((error: any) => setExpoPushToken(`${error}`));
   }, []);
+
+  useEffect(() => {
+    if (authStatus !== "authenticated" || !authToken) return;
+    if (!expoPushToken || expoPushToken.startsWith("Error")) return;
+
+    const registrationKey = `${authToken}:${expoPushToken}`;
+    if (lastRegisteredRef.current === registrationKey) return;
+
+    PushNotificationsService.registerToken({ token: expoPushToken })
+      .then(() => {
+        lastRegisteredRef.current = registrationKey;
+      })
+      .catch((error: any) => {
+        console.log("Failed to register push token", error);
+      });
+  }, [expoPushToken, authStatus, authToken]);
 
   useEffect(() => {
     const notificationListener = Notifications.addNotificationReceivedListener(

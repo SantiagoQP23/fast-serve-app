@@ -36,7 +36,7 @@ export default function Checkbox({
       onPress={() => onValueChange(!value)}
       style={({ pressed }) => [
         tw.style(
-          "justify-center items-center border rounded-lg",
+          "justify-center items-center border rounded-3xl",
           value
             ? "bg-light-primary border-light-primary"
             : "bg-white border-gray-300",

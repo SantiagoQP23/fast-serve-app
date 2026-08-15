@@ -1,7 +1,10 @@
 import { AxiosError } from "axios";
 import { restaurantApi } from "@/core/api/restaurantApi";
+import { PushNotificationsService } from "@/core/push-notifications/services/push-notifications.service";
+import { SecureStorageAdapter } from "@/helpers/adapters/secure-storage.adapter";
 import { User } from "../models/user.model";
 import { Restaurant } from "@/core/common/models/restaurant.model";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 export interface AuthResponse {
   token: string;
@@ -158,4 +161,24 @@ export const authUpdateProfile = async (
     console.log("Update profile error", errorCode, axiosError.response?.data);
     return { user: null, errorCode };
   }
+};
+
+export const authLogout = async () => {
+  try {
+    const pushToken = await SecureStorageAdapter.getItem("expoPushToken");
+    if (pushToken) {
+      await PushNotificationsService.unregisterToken({ token: pushToken });
+      await SecureStorageAdapter.removeItem("expoPushToken");
+    }
+  } catch (error) {
+    console.log("Unregister push token error", error);
+  }
+
+  try {
+    await GoogleSignin.signOut();
+  } catch {
+    // Ignore errors if user wasn't signed in with Google
+  }
+
+  await SecureStorageAdapter.removeItem("token");
 };

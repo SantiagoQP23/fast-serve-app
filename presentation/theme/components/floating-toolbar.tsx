@@ -32,7 +32,7 @@ export default function FloatingToolbar({
       style={[
         tw`bg-light-surface rounded-full shadow-sm`,
         isHorizontal
-          ? tw`flex-row items-center px-2 py-2 gap-4`
+          ? tw`flex-row items-center py-3 px-4 gap-4`
           : tw`flex-col items-center px-2 py-3`,
         // styles.shadow,
         style,
