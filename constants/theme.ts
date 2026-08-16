@@ -68,9 +68,23 @@ export const Fonts = Platform.select({
   },
 });
 
+// export const typography = {
+//   regular: "RobotoMono_400Regular",
+//   medium: "RobotoMono_500Medium",
+//   semibold: "RobotoMono_600SemiBold",
+//   bold: "RobotoMono_700Bold",
+// };
+
+// export const typography = {
+//   regular: "Roboto_400Regular",
+//   medium: "Roboto_500Medium",
+//   semibold: "Roboto_600SemiBold",
+//   bold: "Roboto_700Bold",
+// };
+
 export const typography = {
-  regular: "Inter_400Regular",
-  medium: "Inter_500Medium",
-  semibold: "Inter_600SemiBold",
-  bold: "Inter_700Bold",
+  regular: "Sen_400Regular",
+  medium: "Sen_500Medium",
+  semibold: "Sen_600SemiBold",
+  bold: "Sen_700Bold",
 };

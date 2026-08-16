@@ -433,7 +433,7 @@ export default function OrderScreen() {
                     size={24}
                     color={tw.color("primary-600")}
                   />
-                  <ThemedText type="h2" style={tw` font-bold`}>
+                  <ThemedText type="h2" style={tw``}>
                     {order.type === OrderType.IN_PLACE
                       ? `${t("common:labels.table")} ${order.table?.name}`
                       : t("common:labels.takeAway")}

@@ -1,14 +1,14 @@
 import { StyleSheet, Text, type TextProps } from "react-native";
 import { useThemeColor } from "../hooks/use-theme-color";
+
 import {
   useFonts,
-  Inter_900Black,
-  Inter_400Regular,
-  Inter_500Medium,
-  Inter_700Bold,
-  Inter_600SemiBold,
-  Inter_800ExtraBold,
-} from "@expo-google-fonts/inter";
+  Sen_400Regular,
+  Sen_500Medium,
+  Sen_600SemiBold,
+  Sen_700Bold,
+} from "@expo-google-fonts/sen";
+
 import { typography } from "@/constants/theme";
 import tw from "../lib/tailwind";
 
@@ -28,12 +28,10 @@ export function ThemedText({
 }: ThemedTextProps) {
   const color = useThemeColor({ light: lightColor, dark: darkColor }, "text");
   let [fontsLoaded] = useFonts({
-    Inter_900Black,
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_700Bold,
-    Inter_600SemiBold,
-    Inter_800ExtraBold,
+    Sen_400Regular,
+    Sen_500Medium,
+    Sen_600SemiBold,
+    Sen_700Bold,
   });
 
   if (!fontsLoaded) {
@@ -91,7 +89,7 @@ const styles = StyleSheet.create({
   body2: {
     fontSize: 14,
     lineHeight: 20,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "RobotoMono_400Regular",
   },
   small: {
     fontSize: 12,
