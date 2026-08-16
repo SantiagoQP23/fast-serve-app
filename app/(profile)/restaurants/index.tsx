@@ -6,6 +6,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { switchRestaurantMutation } from "@/presentation/profile/hooks/useSwitchRestaurant";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import Card from "@/presentation/theme/components/card";
 
 export default function RestaurantsScreen() {
   const switchRestaurant = switchRestaurantMutation();
@@ -18,11 +19,10 @@ export default function RestaurantsScreen() {
       <ThemedView style={tw`mt-4`}>
         <ThemedView style={tw`rounded-lg  p-4 gap-4`}>
           {user?.restaurantRoles.map((restaurantRole) => (
-            <Pressable
+            <Card
               style={({ pressed }) =>
                 tw.style(
-                  ` gap-2 p-4 border border-gray-300 rounded-lg`,
-                  pressed && "opacity-70",
+                  ` gap-2 p-4  `,
                   restaurantRole.restaurant.id === currentRestaurant?.id &&
                     "bg-gray-100 border-black",
                 )
@@ -35,10 +35,12 @@ export default function RestaurantsScreen() {
               <ThemedText type="h4">
                 {restaurantRole.restaurant.name}
               </ThemedText>
-              <ThemedText type="body2">
-                {restaurantRole.restaurant.address}
-              </ThemedText>
-            </Pressable>
+              {restaurantRole.restaurant.address && (
+                <ThemedText type="body2">
+                  {restaurantRole.restaurant.address}
+                </ThemedText>
+              )}
+            </Card>
           ))}
         </ThemedView>
       </ThemedView>

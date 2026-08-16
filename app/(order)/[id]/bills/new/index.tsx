@@ -149,7 +149,7 @@ export default function NewBillScreen() {
       >
         {/* Header Section */}
         <ThemedView style={tw`mb-6`}>
-          <ThemedText type="h2" style={tw`font-bold mb-1`}>
+          <ThemedText type="h2" style={tw` mb-1`}>
             {t("bills:newBill.title")}
           </ThemedText>
           <ThemedText type="body2" style={tw`text-gray-500`}>

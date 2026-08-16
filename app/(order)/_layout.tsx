@@ -1,3 +1,4 @@
+import { typography } from "@/constants/theme";
 import OrderOptionsBottomSheet from "@/presentation/orders/components/order-options-bottom-sheet";
 import ReassignOrderBottomSheet from "@/presentation/orders/components/reassign-order-bottom-sheet";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
@@ -42,7 +43,12 @@ export default function OrdersLayout() {
 
   return (
     <>
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          headerTitleStyle: { fontFamily: typography.medium },
+        }}
+      >
         <Stack.Screen
           name="[id]/index"
           options={{
@@ -130,7 +136,6 @@ export default function OrdersLayout() {
           />
         )}
       </BottomSheetModal>
-
     </>
   );
 }

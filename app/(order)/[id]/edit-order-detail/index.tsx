@@ -171,22 +171,29 @@ export default function EditOrderDetailScreen() {
         <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
           <ThemedView style={tw`flex-1`} />
           <ThemedView style={tw` text-center mb-4 gap-6`}>
-            <ThemedView style={tw` gap-2 `}>
-              <ThemedText type="h2">{orderDetail.product.name}</ThemedText>
+            <ThemedView style={tw`gap-2`}>
+              <ThemedView
+                style={tw`flex-row items-center justify-between gap-2`}
+              >
+                <ThemedText type="h2">{orderDetail.product.name}</ThemedText>
+                <ThemedText>
+                  {formatCurrency(counter * effectivePrice)}
+                </ThemedText>
+              </ThemedView>
               {orderDetail.product.description && (
                 <ThemedText type="body1" style={tw`text-gray-600`}>
                   {orderDetail.product.description}
                 </ThemedText>
               )}
             </ThemedView>
-            <ThemedView>
-              {orderDetail.quantity > 1 && (
+            {orderDetail.quantity > 1 && (
+              <ThemedView>
                 <ProgressBar
                   progress={orderDetail.qtyDelivered / orderDetail.quantity}
                   height={1}
                 />
-              )}
-            </ThemedView>
+              </ThemedView>
+            )}
 
             <ThemedView style={tw`flex-row gap-2`}>
               <Label
@@ -305,11 +312,7 @@ export default function EditOrderDetailScreen() {
             {/* </ThemedView> */}
 
             <ThemedView style={tw` justify-between items-center gap-2`}>
-              <ThemedView>
-                <ThemedText>
-                  {formatCurrency(counter * effectivePrice)}
-                </ThemedText>
-              </ThemedView>
+              <ThemedView></ThemedView>
               <ThemedView style={tw`flex-row items-center gap-10`}>
                 <IconButton
                   icon="remove-outline"

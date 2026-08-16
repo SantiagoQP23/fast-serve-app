@@ -28,12 +28,6 @@ export default function ProductionAreasScreen() {
           />
         }
       >
-        {/* Header */}
-        <ThemedView style={tw`flex-row items-center gap-2 justify-center py-4`}>
-          <Ionicons name="cube-outline" size={24} />
-          <ThemedText type="h2">{t("manage.productionAreas")}</ThemedText>
-        </ThemedView>
-
         {isLoading && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
             <Ionicons name="cube-outline" size={48} color="#999" />
@@ -89,9 +83,7 @@ export default function ProductionAreasScreen() {
                         <ThemedText
                           type="small"
                           style={tw`${
-                            area.isActive
-                              ? "text-green-500"
-                              : "text-gray-400"
+                            area.isActive ? "text-green-500" : "text-gray-400"
                           }`}
                         >
                           {area.isActive ? "Active" : "Inactive"}
@@ -119,11 +111,7 @@ export default function ProductionAreasScreen() {
                     )}
 
                     <ThemedView style={tw`flex-row items-center gap-2`}>
-                      <Ionicons
-                        name="print-outline"
-                        size={16}
-                        color="#999"
-                      />
+                      <Ionicons name="print-outline" size={16} color="#999" />
                       <ThemedText type="body2" style={tw`text-gray-500`}>
                         {area.printers?.length || 0} printer
                         {(area.printers?.length || 0) !== 1 ? "s" : ""}

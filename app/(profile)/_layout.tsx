@@ -1,3 +1,4 @@
+import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import IconButton from "@/presentation/theme/components/icon-button";
@@ -20,7 +21,13 @@ export default function OrdersLayout() {
 
   return (
     <>
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+
+          headerTitleStyle: { fontFamily: typography.medium },
+        }}
+      >
         <Stack.Screen
           name="restaurants/index"
           options={{

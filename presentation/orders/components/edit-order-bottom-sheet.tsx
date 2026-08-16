@@ -20,6 +20,7 @@ import { UpdateOrderDto } from "@/core/orders/dto/update-order.dto";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatTime, i18nAlert } from "@/core/i18n/utils";
 import { useOrderTypes } from "../hooks/useOrderTypes";
+import Card from "@/presentation/theme/components/card";
 
 interface EditOrderBottomSheetProps {
   order: Order;
@@ -200,14 +201,15 @@ const EditOrderBottomSheet = ({
         </ThemedView>
 
         <ThemedView style={tw`gap-2`}>
-          <Text style={tw`text-gray-700 dark:text-gray-300 font-semibold`}>
-            {t("orders:form.deliveryTime")}
-          </Text>
-          <Button
-            label={formatTime(form.deliveryTime)}
-            variant="outline"
-            onPress={openTimePicker}
-          />
+          <Card onPress={openTimePicker}>
+            <ThemedText
+              type="body2"
+              style={tw`text-gray-700 dark:text-gray-300 `}
+            >
+              {t("orders:form.deliveryTime")}
+            </ThemedText>
+            <ThemedText type="h2">{formatTime(form.deliveryTime)}</ThemedText>
+          </Card>
           {Platform.OS === "ios" && showTimePicker && (
             <ThemedView
               style={tw`border border-gray-300 dark:border-gray-700 rounded-2xl overflow-hidden`}

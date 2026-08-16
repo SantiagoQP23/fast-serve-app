@@ -24,6 +24,7 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import "@/core/i18n/i18n.config";
 import { initializeDayjs } from "@/core/i18n/utils";
 import { usePushNotifications } from "@/presentation/shared/hooks/usePushNotifications";
+import { typography } from "@/constants/theme";
 
 export const queryClient = new QueryClient();
 
@@ -61,7 +62,12 @@ export default function RootLayout() {
     const content = (
       <BottomSheetModalProvider>
         <ThemedView style={tw`flex-1 `}>
-          <Stack screenOptions={{ headerShown: false }}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              headerTitleStyle: { fontFamily: typography.medium },
+            }}
+          >
             <Stack.Screen
               name="(app)"
               options={{
