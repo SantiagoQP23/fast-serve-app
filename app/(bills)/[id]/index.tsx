@@ -263,7 +263,7 @@ export default function BillScreen() {
             >
               {/* Header Section */}
               <ThemedView style={tw`mb-6 justify-center items-center`}>
-                <ThemedText type="h2" style={tw`font-bold mb-2`}>
+                <ThemedText type="h2" style={tw` mb-2`}>
                   {t(`bills:list.${bill.source}`, { number: bill.num })}
                 </ThemedText>
 
@@ -280,7 +280,7 @@ export default function BillScreen() {
                 <ThemedText type="caption" style={tw`text-gray-500 mb-2`}>
                   {t("bills:details.totalAmount")}
                 </ThemedText>
-                <ThemedText style={tw`text-5xl font-bold `}>
+                <ThemedText style={tw`text-5xl  `}>
                   {formatCurrency(bill.total)}
                 </ThemedText>
                 {/* {bill.discount > 0 && ( */}
@@ -331,7 +331,7 @@ export default function BillScreen() {
                             </ThemedText>
                             <ThemedText
                               type="body1"
-                              style={tw`flex-1 text-gray-600 font-bold`}
+                              style={tw`flex-1 text-gray-600 `}
                             >
                               {bill.source === BillSource.ORDER
                                 ? detail.orderDetail?.product.name

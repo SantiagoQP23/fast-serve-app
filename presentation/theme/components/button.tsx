@@ -9,6 +9,7 @@ import tw from "../lib/tailwind";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/theme";
 import { ThemedView } from "./themed-view";
+import { ThemedText } from "./themed-text";
 
 export interface ButtonProps extends PressableProps {
   label?: string;
@@ -122,7 +123,7 @@ export default function Button({
           )}
           {label && (
             <Text
-              style={tw`${textColors[variant]} font-semibold ${verticalTextSizes[size]} text-center`}
+              style={tw`${textColors[variant]}  ${verticalTextSizes[size]} text-center`}
             >
               {label}
             </Text>
@@ -139,9 +140,7 @@ export default function Button({
             />
           )}
           {label && (
-            <Text style={tw`${textColors[variant]} font-semibold text-base `}>
-              {label}
-            </Text>
+            <ThemedText style={tw`${textColors[variant]} `}>{label}</ThemedText>
           )}
 
           {rightIcon && (

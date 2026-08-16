@@ -184,14 +184,14 @@ export default function Select({
                   )
                 }
               >
-                <Text
+                <ThemedText
                   style={tw.style(
                     "text-base text-gray-900 dark:text-white",
-                    value === item.value && "font-semibold",
+                    value === item.value && "",
                   )}
                 >
                   {item.label}
-                </Text>
+                </ThemedText>
                 {value === item.value && (
                   <Ionicons
                     name="checkmark"

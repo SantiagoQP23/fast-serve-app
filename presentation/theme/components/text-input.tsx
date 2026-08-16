@@ -12,6 +12,7 @@ import tw from "../lib/tailwind";
 import { ThemedView } from "./themed-view";
 import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { ThemedText } from "./themed-text";
+import { typography } from "@/constants/theme";
 
 interface Props extends TextInputProps {
   label?: string;
@@ -36,9 +37,7 @@ export default function TextInput({
   const InputComponent = bottomSheet ? BottomSheetTextInput : RNTextInput;
   return (
     <ThemedView>
-      {label && (
-        <ThemedText style={tw`font-inter-medium mb-2 `}>{label}</ThemedText>
-      )}
+      {label && <ThemedText style={tw` mb-2 `}>{label}</ThemedText>}
       <View
         style={[
           tw.style(
@@ -58,7 +57,11 @@ export default function TextInput({
           />
         )}
         <InputComponent
-          style={[tw`flex-1`, { fontSize: 16 }, style as StyleProp<TextStyle>]}
+          style={[
+            tw`flex-1`,
+            { fontSize: 16, fontFamily: typography.regular },
+            style as StyleProp<TextStyle>,
+          ]}
           placeholderTextColor="#9CA3AF"
           {...inputProps}
         />

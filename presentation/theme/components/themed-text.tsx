@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
   body2: {
     fontSize: 14,
     lineHeight: 20,
-    fontFamily: "RobotoMono_400Regular",
+    fontFamily: typography.regular,
   },
   small: {
     fontSize: 12,
@@ -101,6 +101,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 14,
     textTransform: "uppercase",
-    fontFamily: "Inter600SemiBold",
+    fontFamily: typography.regular,
   },
 });

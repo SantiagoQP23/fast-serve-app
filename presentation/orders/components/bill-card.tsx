@@ -74,7 +74,7 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
               />
             </ThemedView>
             <ThemedView style={tw`bg-transparent gap-1`}>
-              <ThemedText type="body1" style={tw`font-bold`}>
+              <ThemedText type="body1" style={tw``}>
                 {t(`bills:list.${bill.source}`, { number: bill.num })}
               </ThemedText>
               <ThemedText type="body2" style={tw`text-gray-500`}>

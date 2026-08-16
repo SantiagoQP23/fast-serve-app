@@ -793,7 +793,7 @@ export default function OrderScreen() {
             <ThemedText type="h4" style={tw`text-gray-600`}>
               {t("common:labels.total")}
             </ThemedText>
-            <ThemedText type="h2" style={tw`font-bold`}>
+            <ThemedText type="h2" style={tw``}>
               {formatCurrency(order.total)}
             </ThemedText>
           </ThemedView>
