@@ -132,6 +132,10 @@
     "startOrder": "Start Order",
     "pauseOrder": "Pause Order",
     "markDelivered": "Mark as Delivered",
+    "itemMarkedDelivered": "{{count}} item marked as delivered",
+    "itemsMarkedDelivered": "{{count}} items marked as delivered",
+    "markDeliveredError": "Could not mark items as delivered",
+    "undoDeliveredError": "Could not undo delivery status",
     "deleteOrder": "Delete Order",
     "closeOrder": "Close Order",
     "forceCloseOrder": "Close Order (Unpaid)"

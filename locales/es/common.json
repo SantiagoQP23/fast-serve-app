@@ -38,7 +38,8 @@
     "change": "Cambiar",
     "upload": "Subir",
     "done": "Listo",
-    "tapToPreview": "Toca para previsualizar"
+    "tapToPreview": "Toca para previsualizar",
+    "undo": "Deshacer"
   },
   "status": {
     "pending": "Pendiente",

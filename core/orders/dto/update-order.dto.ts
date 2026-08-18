@@ -1,5 +1,7 @@
+import { Ticket } from "@/core/tickets/models/ticket.model";
 import { OrderType } from "../enums/order-type.enum";
 import { OrderDetailStatus } from "../models/order-detail.model";
+import { Order } from "../models/order.model";
 
 export interface UpdateOrderDto {
   id: string;
@@ -45,6 +47,11 @@ export interface DeleteOrderDetailDto {
   orderId: string;
 }
 
+export interface UpdateOrderResp {
+  order?: Order;
+  ticket?: Ticket;
+}
+
 export interface OrderDetailBatchItemDto {
   productId: string;
   quantity: number;
@@ -65,4 +72,15 @@ export interface AddOrderDetailsDto {
 export interface UpdateMultipleOrderDetailsStatusDto {
   orderDetails: string[];
   status: OrderDetailStatus;
+}
+
+export interface UpdateOrderDetailsDto {
+  orderId: string;
+  details: {
+    id: string;
+    status?: OrderDetailStatus;
+    qtyDelivered?: number;
+    quantity?: number;
+    description?: string;
+  }[];
 }

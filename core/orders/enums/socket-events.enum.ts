@@ -6,6 +6,7 @@ export enum OrderSocketEvent {
   changeClient = "change-client",
   updateOrderDetail = "update-order-detail",
   updateOrderDetailsStatus = "update-order-details-status",
+  updateOrderDetails = "update-order-details",
   addOrderDetail = "add-order-detail",
   addOrderDetails = "add-order-details",
   deleteOrderDetail = "delete-order-detail",

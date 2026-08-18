@@ -38,7 +38,8 @@
     "change": "Change",
     "upload": "Upload",
     "done": "Done",
-    "tapToPreview": "Tap to preview"
+    "tapToPreview": "Tap to preview",
+    "undo": "Undo"
   },
   "status": {
     "pending": "Pending",

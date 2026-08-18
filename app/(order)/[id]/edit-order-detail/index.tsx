@@ -195,7 +195,9 @@ export default function EditOrderDetailScreen() {
               </ThemedView>
             )}
 
-            <ThemedView style={tw`flex-row gap-2`}>
+            <ThemedView
+              style={tw`flex-row items-center gap-2 flex-wrap p-2 bg-gray-100 rounded-xl`}
+            >
               <Label
                 text={statusText}
                 color={labelColor}
@@ -234,6 +236,7 @@ export default function EditOrderDetailScreen() {
             </ThemedView>
 
             <ThemedView>
+              <ThemedText style={tw`text-gray-500  mb-2`}>Variants</ThemedText>
               {orderDetail.product.options.length > 0 && (
                 <ThemedView style={tw`flex-row flex-wrap gap-2 `}>
                   {orderDetail.product.options.map((option) => (

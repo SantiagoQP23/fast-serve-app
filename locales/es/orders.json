@@ -132,6 +132,10 @@
     "startOrder": "Iniciar Pedido",
     "pauseOrder": "Pausar Pedido",
     "markDelivered": "Marcar como Entregado",
+    "itemMarkedDelivered": "{{count}} producto marcado como entregado",
+    "itemsMarkedDelivered": "{{count}} productos marcados como entregados",
+    "markDeliveredError": "No se pudo marcar los productos como entregados",
+    "undoDeliveredError": "No se pudo deshacer el estado de entregado",
     "deleteOrder": "Eliminar Pedido",
     "closeOrder": "Cerrar Pedido",
     "forceCloseOrder": "Cerrar Pedido (Sin Pagar)"

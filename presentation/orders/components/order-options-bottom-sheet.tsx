@@ -1,5 +1,7 @@
 import { BottomSheetView } from "@gorhom/bottom-sheet";
 import { Alert, Pressable } from "react-native";
+import { useRef } from "react";
+import { toast } from "sonner-native";
 import { Order } from "@/core/orders/models/order.model";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -13,7 +15,6 @@ import { useOrdersStore } from "../store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { i18nAlert } from "@/core/i18n/utils";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { useOrderPrint } from "../hooks/useOrderPrint";
 
 interface OrderOptionsBottomSheetProps {
   order: Order;
@@ -38,15 +39,50 @@ const OrderOptionsBottomSheet = ({
 }: OrderOptionsBottomSheetProps) => {
   const { t } = useTranslation(["common", "orders", "bills"]);
   const { mutate: updateOrder } = useOrders().updateOrder;
-  const { mutate: updateMultipleOrderDetailsStatus } =
-    useOrders().updateMultipleOrderDetailsStatus;
+  const { mutate: updateOrderDetails } = useOrders().updateOrderDetails;
   const { mutate: deleteOrder } = useOrders().deleteOrder;
   const router = useRouter();
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
+  const updateOrderInStore = useOrdersStore((state) => state.updateOrder);
+  const activeOrder = useOrdersStore((state) => state.activeOrder);
   const { user } = useAuthStore();
   const isAdmin = user?.role?.name === "admin";
 
-  const { handlePrintOrder, handleShareOrder } = useOrderPrint(order);
+  const actionIdRef = useRef(0);
+  const pendingUndoRef = useRef<{
+    toastId: string | number;
+    actionId: number;
+    timeoutId: ReturnType<typeof setTimeout>;
+    previousStates: Map<
+      string,
+      { status: OrderDetailStatus; qtyDelivered: number }
+    >;
+    undone: boolean;
+  } | null>(null);
+
+  const buildOrderWithDetailStates = (
+    sourceOrder: Order,
+    statesByDetailId: Map<
+      string,
+      { status: OrderDetailStatus; qtyDelivered: number }
+    >,
+  ): Order => ({
+    ...sourceOrder,
+    details: sourceOrder.details.map((detail) => {
+      const state = statesByDetailId.get(detail.id);
+      return state
+        ? { ...detail, status: state.status, qtyDelivered: state.qtyDelivered }
+        : detail;
+    }),
+  });
+
+  const dismissPendingUndo = () => {
+    if (pendingUndoRef.current) {
+      toast.dismiss(pendingUndoRef.current.toastId);
+      clearTimeout(pendingUndoRef.current.timeoutId);
+      pendingUndoRef.current = null;
+    }
+  };
 
   const handleCloseOrder = () => {
     Alert.alert(
@@ -108,18 +144,147 @@ const OrderOptionsBottomSheet = ({
     );
   };
 
-  const handleChangeStatus = (status: OrderDetailStatus) => {
-    const validDetails = order.details.filter(
-      (detail) => detail.status !== OrderDetailStatus.CANCELLED,
+  const handleMarkDeliveredError = (
+    actionId: number,
+    previousStates: Map<
+      string,
+      { status: OrderDetailStatus; qtyDelivered: number }
+    >,
+    errorMsg?: string,
+  ) => {
+    if (pendingUndoRef.current?.actionId !== actionId) return;
+
+    const revertedOrder = buildOrderWithDetailStates(order, previousStates);
+    updateOrderInStore(revertedOrder);
+    if (activeOrder?.id === order.id) setActiveOrder(revertedOrder);
+
+    dismissPendingUndo();
+    Alert.alert(
+      t("common:actions.error"),
+      errorMsg || t("orders:options.markDeliveredError"),
     );
-    updateMultipleOrderDetailsStatus(
+  };
+
+  const sendRevertToBackend = (
+    previousStates: Map<
+      string,
+      { status: OrderDetailStatus; qtyDelivered: number }
+    >,
+  ) => {
+    const details: { id: string; status: OrderDetailStatus; qtyDelivered: number }[] =
+      [];
+    previousStates.forEach((state, id) => {
+      details.push({ id, status: state.status, qtyDelivered: state.qtyDelivered });
+    });
+
+    if (details.length === 0) return;
+
+    updateOrderDetails(
+      { orderId: order.id, details },
       {
-        orderDetails: validDetails.map((detail) => detail.id),
-        status,
+        onSuccess: () => {},
+        onError: (resp) => {
+          toast.error(resp.msg || t("orders:options.undoDeliveredError"));
+        },
+      },
+    );
+  };
+
+  const handleUndo = (
+    toastId: string | number,
+    previousStates: Map<
+      string,
+      { status: OrderDetailStatus; qtyDelivered: number }
+    >,
+  ) => {
+    if (pendingUndoRef.current?.toastId !== toastId) return;
+
+    pendingUndoRef.current.undone = true;
+
+    const revertedOrder = buildOrderWithDetailStates(order, previousStates);
+    updateOrderInStore(revertedOrder);
+    if (activeOrder?.id === order.id) setActiveOrder(revertedOrder);
+
+    dismissPendingUndo();
+    sendRevertToBackend(previousStates);
+  };
+
+  const handleMarkDelivered = () => {
+    const deliverableDetails = order.details.filter(
+      (detail) =>
+        detail.status !== OrderDetailStatus.DELIVERED &&
+        detail.status !== OrderDetailStatus.CANCELLED,
+    );
+
+    if (deliverableDetails.length === 0) return;
+
+    onClose?.();
+
+    const previousStates = new Map(
+      deliverableDetails.map((detail) => [
+        detail.id,
+        { status: detail.status, qtyDelivered: detail.qtyDelivered },
+      ]),
+    );
+    const deliveredStates = new Map(
+      deliverableDetails.map((detail) => [
+        detail.id,
+        { status: OrderDetailStatus.DELIVERED, qtyDelivered: detail.quantity },
+      ]),
+    );
+
+    const optimisticOrder = buildOrderWithDetailStates(order, deliveredStates);
+    updateOrderInStore(optimisticOrder);
+    if (activeOrder?.id === order.id) setActiveOrder(optimisticOrder);
+
+    dismissPendingUndo();
+
+    const actionId = ++actionIdRef.current;
+    const count = deliverableDetails.length;
+    const message =
+      count === 1
+        ? t("orders:options.itemMarkedDelivered", { count })
+        : t("orders:options.itemsMarkedDelivered", { count });
+
+    const toastId = toast(message, {
+      duration: 5000,
+      action: {
+        label: t("common:actions.undo"),
+        onClick: () => handleUndo(toastId, previousStates),
+      },
+    });
+
+    const timeoutId = setTimeout(() => {
+      if (pendingUndoRef.current?.toastId === toastId) {
+        pendingUndoRef.current = null;
+      }
+    }, 5000);
+
+    pendingUndoRef.current = {
+      toastId,
+      actionId,
+      timeoutId,
+      previousStates,
+      undone: false,
+    };
+
+    updateOrderDetails(
+      {
+        orderId: order.id,
+        details: deliverableDetails.map((detail) => ({
+          id: detail.id,
+          status: OrderDetailStatus.DELIVERED,
+          qtyDelivered: detail.quantity,
+        })),
       },
       {
         onSuccess: () => {
-          onClose?.();
+          if (pendingUndoRef.current?.actionId !== actionId) return;
+          if (pendingUndoRef.current.undone) return;
+          // Keep the optimistic changes; the snackbar remains active until it expires.
+        },
+        onError: (resp) => {
+          handleMarkDeliveredError(actionId, previousStates, resp.msg);
         },
       },
     );
@@ -156,7 +321,7 @@ const OrderOptionsBottomSheet = ({
     {
       icon: "checkmark-done-outline",
       label: t("orders:options.markDelivered"),
-      onPress: () => handleChangeStatus(OrderDetailStatus.DELIVERED),
+      onPress: handleMarkDelivered,
       disabled: order.details.every(
         (detail) => detail.status === OrderDetailStatus.DELIVERED,
       ),

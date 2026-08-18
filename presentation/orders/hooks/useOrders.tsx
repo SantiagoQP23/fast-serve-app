@@ -8,7 +8,8 @@ import {
   AddOrderDetailToOrderDto,
   AddOrderDetailsDto,
   DeleteOrderDetailDto,
-  UpdateMultipleOrderDetailsStatusDto,
+  UpdateOrderResp,
+  UpdateOrderDetailsDto,
   UpdateOrderDetailDto,
   UpdateOrderDto,
 } from "@/core/orders/dto/update-order.dto";
@@ -18,6 +19,7 @@ import { usePrintComanda } from "./usePrintComanda";
 
 export const useOrders = () => {
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
+  const updateOrder = useOrdersStore((state) => state.updateOrder);
   const { printComanda } = usePrintComanda();
 
   const createOrderEmitter = useWebsocketEventEmitter<Order, CreateOrderDto>(
@@ -55,7 +57,10 @@ export const useOrders = () => {
     UpdateOrderDetailDto
   >(OrderSocketEvent.updateOrderDetail, {
     onSuccess: (resp) => {
-      if (resp.data) setActiveOrder(resp.data!);
+      if (resp.data) {
+        setActiveOrder(resp.data!);
+        updateOrder(resp.data!);
+      }
       // Alert.alert("Success", "Order detail updated successfully");
     },
     onError: (resp) => {
@@ -63,16 +68,13 @@ export const useOrders = () => {
     },
   });
 
-  const updateMultipleOrderDetailsStatusEmitter = useWebsocketEventEmitter<
+  const updateOrderDetailsEmitter = useWebsocketEventEmitter<
     Order,
-    UpdateMultipleOrderDetailsStatusDto
-  >(OrderSocketEvent.updateOrderDetailsStatus, {
-    onSuccess: (resp) => {
-      if (resp.data) setActiveOrder(resp.data!);
-    },
-    onError: (resp) => {
-      Alert.alert("Error", resp.msg);
-    },
+    UpdateOrderDetailsDto
+  >(OrderSocketEvent.updateOrderDetails, {
+    // The caller is responsible for optimistic UI, undo handling and error feedback.
+    onSuccess: () => {},
+    onError: () => {},
   });
 
   const useOrderDetailToOrderEmitter = useWebsocketEventEmitter<
@@ -88,11 +90,16 @@ export const useOrders = () => {
   });
 
   const addOrderDetailsEmitter = useWebsocketEventEmitter<
-    Order,
+    UpdateOrderResp,
     AddOrderDetailsDto
   >(OrderSocketEvent.addOrderDetails, {
     onSuccess: (resp) => {
-      if (resp.data) setActiveOrder(resp.data!);
+      const data = resp.data;
+
+      if (data?.order && data?.ticket) {
+        updateOrder(data.order);
+        printComanda(data.order, data.ticket);
+      }
     },
     onError: (resp) => {
       Alert.alert("Error", resp.msg);
@@ -110,10 +117,18 @@ export const useOrders = () => {
   );
 
   const removeOrderDetailEmitter = useWebsocketEventEmitter<
-    Order,
+    UpdateOrderResp,
     DeleteOrderDetailDto
   >(OrderSocketEvent.deleteOrderDetail, {
-    onSuccess: (resp) => {},
+    onSuccess: (resp) => {
+      const data = resp.data;
+      // if (data?.order) {
+      //   setActiveOrder(data.order);
+      // }
+      if (data?.order && data?.ticket) {
+        printComanda(data.order, data.ticket);
+      }
+    },
     onError: (resp) => {
       Alert.alert("Error", resp.msg);
     },
@@ -125,7 +140,7 @@ export const useOrders = () => {
     addOrderDetailToOrder: useOrderDetailToOrderEmitter,
     addOrderDetails: addOrderDetailsEmitter,
     updateOrder: updateOrderEmitter,
-    updateMultipleOrderDetailsStatus: updateMultipleOrderDetailsStatusEmitter,
+    updateOrderDetails: updateOrderDetailsEmitter,
     removeOrderDetail: removeOrderDetailEmitter,
     deleteOrder: deleteOrderEmitter,
   };

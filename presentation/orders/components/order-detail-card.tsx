@@ -113,11 +113,10 @@ export default function OrderDetailCard({
     const currentOrderId = orderId || order?.id;
     if (!currentOrderId) return;
 
-    updateOrderDetail(
+    removeOrderDetail(
       {
-        id: detail.id,
+        detailId: detail.id,
         orderId: currentOrderId,
-        status: OrderDetailStatus.CANCELLED,
       },
       {
         onSuccess: () => {
