@@ -20,6 +20,8 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
 import { Transaction } from "@/core/transactions/models/transaction.model";
 import { PaymentProofsService } from "@/core/transactions/services/payment-proofs.service";
+import { usePaymentStore } from "@/presentation/payment/store/usePaymentStore";
+import { generateIdempotencyKey } from "@/helpers/idempotency";
 
 export default function AccountScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
@@ -53,6 +55,10 @@ export default function AccountScreen() {
   const { payBillTransaction } = useBills();
   const { mutate, isLoading } = payBillTransaction;
   const [isUploadingProof, setIsUploadingProof] = useState(false);
+  const billPaymentIdempotencyKey = usePaymentStore(
+    (state) => state.billPaymentIdempotencyKey,
+  );
+  const resetPaymentStore = usePaymentStore((state) => state.reset);
 
   const isTransfer =
     selectedPaymentMethod?.type === PaymentMethodCategory.TRANSFER;
@@ -103,6 +109,7 @@ export default function AccountScreen() {
 
     mutate(
       {
+        idempotencyKey: billPaymentIdempotencyKey || generateIdempotencyKey(),
         name: `Ingreso por Venta #${String(bill.num)}`,
         amount: totalAfterDiscount,
         paymentMethodId: selectedPaymentMethod.id,
@@ -114,6 +121,7 @@ export default function AccountScreen() {
       },
       {
         onSuccess: async (resp) => {
+          resetPaymentStore();
           const transaction = resp.data?.transaction;
 
           if (transaction?.status === TransactionStatus.PENDING_PROOF) {

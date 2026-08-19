@@ -4,6 +4,7 @@ export interface CreateBillDetailDto {
 }
 
 export interface CreateBillDto {
+  idempotencyKey: string;
   orderId: string;
   clientId?: string;
   details: CreateBillDetailDto[];

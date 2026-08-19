@@ -31,6 +31,7 @@ import {
 import { useBills } from "@/presentation/orders/hooks/useBills";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Chip from "@/presentation/theme/components/chip";
+import { usePaymentStore } from "@/presentation/payment/store/usePaymentStore";
 import { roundTo } from "@/core/common/utils/format.util";
 import * as ImagePicker from "expo-image-picker";
 
@@ -82,6 +83,7 @@ export default function PaymentMethodScreen() {
   const { paymentMethodsQuery } = usePaymentMethods();
   const { refetch, isRefetching } = paymentMethodsQuery;
   const activePaymentMethods = paymentMethods.filter((m) => m.isActive);
+  const { generateBillPaymentIdempotencyKey } = usePaymentStore();
 
   useEffect(() => {
     navigation.setOptions({
@@ -93,6 +95,10 @@ export default function PaymentMethodScreen() {
         ),
     });
   }, [isRefetching, refetch, navigation]);
+
+  useEffect(() => {
+    generateBillPaymentIdempotencyKey();
+  }, [generateBillPaymentIdempotencyKey]);
 
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(
     null,

@@ -26,6 +26,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency, i18nAlert } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import { generateIdempotencyKey } from "@/helpers/idempotency";
 
 interface SelectedDetails {
   [id: string]: {
@@ -40,6 +41,7 @@ export default function NewBillScreen() {
   const order = useOrdersStore((state) => state.activeOrder);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedDetails, setSelectedDetails] = useState<SelectedDetails>({});
+  const [idempotencyKey] = useState(() => generateIdempotencyKey());
   const { mutate: createBill } = useBills().createBill;
 
   const getTotalSelectedDetails = () => {
@@ -128,7 +130,11 @@ export default function NewBillScreen() {
       return;
     }
 
-    const createBillDto: CreateBillDto = { orderId: order.id, details };
+    const createBillDto: CreateBillDto = {
+      idempotencyKey,
+      orderId: order.id,
+      details,
+    };
 
     createBill(createBillDto, {
       onSuccess: () => {
@@ -276,7 +282,7 @@ export default function NewBillScreen() {
             <ThemedText type="caption" style={tw`text-gray-600`}>
               {selectedCount} item{selectedCount !== 1 ? "s" : ""}
             </ThemedText>
-            <ThemedText type="h3" style={tw`font-bold`}>
+            <ThemedText type="h3" style={tw``}>
               {formatCurrency(selectedTotal)}
             </ThemedText>
           </ThemedView>

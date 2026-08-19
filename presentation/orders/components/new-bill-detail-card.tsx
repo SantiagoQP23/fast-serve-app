@@ -75,7 +75,7 @@ export default function NewBillDetailCard({
             variant="outlined"
             onPress={decrement}
           />
-          <ThemedText type="h4" style={tw`font-bold min-w-8 text-center`}>
+          <ThemedText type="h4" style={tw` min-w-8 text-center`}>
             {counter}
           </ThemedText>
           <IconButton
@@ -106,7 +106,7 @@ export default function NewBillDetailCard({
             <ThemedText type="caption" style={tw`text-gray-500`}>
               {t("bills:newBill.subtotal")}
             </ThemedText>
-            <ThemedText type="body1" style={tw`font-semibold`}>
+            <ThemedText type="body1" style={tw``}>
               {formatCurrency(detail.price * counter)}
             </ThemedText>
           </ThemedView>

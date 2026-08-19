@@ -1,4 +1,5 @@
 export interface PayBillTransactionDto {
+  idempotencyKey: string;
   name: string;
   description?: string;
   amount: number;

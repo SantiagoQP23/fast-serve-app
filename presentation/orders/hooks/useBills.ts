@@ -12,6 +12,7 @@ import { BillsService } from "@/core/orders/services/bills.service";
 import { useWebsocketEventEmitter } from "@/presentation/shared/hooks/useWebsocketEventEmitter";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert } from "react-native";
+import { toast } from "sonner-native";
 
 // Get QueryClient from the context
 
@@ -26,7 +27,7 @@ export const useBills = () => {
           });
       },
       onError: (resp) => {
-        Alert.alert("Error", resp.msg);
+        toast.error(resp.msg);
       },
     },
   );

@@ -1,6 +1,7 @@
 import { OrderType } from "../enums/order-type.enum";
 
 export interface CreateOrderDto {
+  idempotencyKey?: string;
   clientId?: string;
   tableId?: string;
   details: CreateOrderDetailDto[];

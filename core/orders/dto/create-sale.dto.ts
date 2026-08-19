@@ -6,5 +6,6 @@ export interface CreateSaleDetailDto {
 }
 
 export interface CreateSaleDto {
+  idempotencyKey?: string;
   details: CreateSaleDetailDto[];
 }

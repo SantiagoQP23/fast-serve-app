@@ -4,6 +4,7 @@ import { Table } from "@/core/tables/models/table.model";
 import { create } from "zustand";
 import { createJSONStorage, persist, PersistStorage } from "zustand/middleware";
 import { AsyncStorageAdapter } from "@/helpers/adapters/async-storage.adapter";
+import { generateIdempotencyKey } from "@/helpers/idempotency";
 
 export type CartType = "order" | "sale";
 
@@ -18,6 +19,7 @@ export interface NewOrderState {
   notes: string;
   deliveryTime: Date | null;
   activeDetail: NewOrderDetail | null;
+  idempotencyKey: string;
 }
 
 interface NewOrderActions {
@@ -49,6 +51,7 @@ const initialState: NewOrderState = {
   notes: "",
   deliveryTime: new Date(),
   activeDetail: null,
+  idempotencyKey: generateIdempotencyKey(),
 };
 
 export const useNewOrderStore = create<NewOrderState & NewOrderActions>()(
@@ -114,7 +117,11 @@ export const useNewOrderStore = create<NewOrderState & NewOrderActions>()(
       setActiveDetail: (activeDetail: NewOrderDetail | null) =>
         set({ activeDetail }),
 
-      reset: () => set(initialState),
+      reset: () =>
+        set({
+          ...initialState,
+          idempotencyKey: generateIdempotencyKey(),
+        }),
     }),
     {
       name: "newOrderStore",

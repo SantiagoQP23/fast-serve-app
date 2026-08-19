@@ -8,6 +8,7 @@ export const mapStoreToCreateSaleDto = (
   state: NewOrderState,
 ): CreateSaleDto => {
   const sale: CreateSaleDto = {
+    idempotencyKey: state.idempotencyKey,
     details: state.details.map((detail) => {
       const orderDetail: CreateSaleDetailDto = {
         productId: detail.product.id,

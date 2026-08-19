@@ -366,12 +366,10 @@ export default function BillScreen() {
                 </ThemedView>
               ) : (
                 bill.discount > 0 && (
-                  <ThemedView
-                    style={tw`border border-gray-200 rounded-xl overflow-hidden mb-6`}
-                  >
+                  <ThemedView style={tw` overflow-hidden mb-6`}>
                     {/* Subtotal */}
                     <ThemedView
-                      style={tw`flex-row justify-between items-center px-4 py-3`}
+                      style={tw`flex-row justify-between items-center px-4 `}
                     >
                       <ThemedText type="body2" style={tw`text-gray-500`}>
                         {t("bills:details.subtotal")}
@@ -386,7 +384,6 @@ export default function BillScreen() {
                       discount ||
                       bill.status !== BillStatus.PAID) && (
                       <>
-                        <ThemedView style={tw`h-px bg-gray-200`} />
                         <ThemedView
                           style={tw`flex-row justify-between items-center px-4 py-3`}
                         >
@@ -417,10 +414,8 @@ export default function BillScreen() {
                       </>
                     )}
 
-                    {/* Total */}
-                    <ThemedView style={tw`h-px bg-gray-200`} />
                     <ThemedView
-                      style={tw`flex-row justify-between items-center px-4 py-3`}
+                      style={tw`flex-row justify-between items-center px-4 `}
                     >
                       <ThemedText type="body1" style={tw`font-semibold`}>
                         {t("bills:details.total")}
