@@ -14,6 +14,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 interface NewBillDetailCardProps extends PressableProps {
   detail: OrderDetail;
   quantity?: number;
+  maxQuantity?: number;
   onChange?: (quantity: number) => void;
 }
 
@@ -21,13 +22,16 @@ export default function NewBillDetailCard({
   onPress,
   onChange,
   quantity = 0,
+  maxQuantity,
   detail,
 }: NewBillDetailCardProps) {
   const { t } = useTranslation(["bills"]);
+  const availableQty = maxQuantity ?? (detail.quantity - detail.qtyPaid);
+
   const { counter, increment, decrement, setCounter } = useCounter(
     quantity,
     1,
-    detail.quantity - detail.qtyPaid,
+    availableQty,
     0,
     (value) => {
       onChange && onChange(value);
@@ -37,8 +41,6 @@ export default function NewBillDetailCard({
   useEffect(() => {
     setCounter(quantity);
   }, [quantity, setCounter]);
-
-  const availableQty = detail.quantity - detail.qtyPaid;
   const isSelected = counter > 0;
 
   const showProductOptionName =
@@ -91,10 +93,7 @@ export default function NewBillDetailCard({
         </ThemedView>
       </ThemedView>
       {isSelected && (
-        <ProgressBar
-          progress={counter / (detail.quantity - detail.qtyPaid)}
-          height={1}
-        />
+        <ProgressBar progress={counter / availableQty} height={1} />
       )}
 
       {/* Subtotal - only show when selected */}

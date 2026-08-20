@@ -18,6 +18,14 @@ export default function BillsLayout() {
         }}
       />
       <Stack.Screen
+        name="[id]/edit/index"
+        options={{
+          headerShown: true,
+          title: "",
+          headerShadowVisible: false,
+        }}
+      />
+      <Stack.Screen
         name="[id]/payment-method/index"
         options={{
           headerShown: true,

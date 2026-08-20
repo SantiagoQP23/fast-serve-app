@@ -43,6 +43,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useBillPrint } from "@/presentation/orders/hooks/useBillPrint";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import { Transaction } from "@/core/transactions/models/transaction.model";
+import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 
 dayjs.extend(relativeTime);
 
@@ -82,6 +83,9 @@ export default function BillScreen() {
   const isCashier = user?.role?.name === Roles.CASHIER;
   const canChargeBill = isAdmin || isCashier;
   const canManage = isAdmin || isCashier;
+
+  const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
+  const initEditCart = useEditOrderCartStore((state) => state.init);
 
   const animationConfigs = useBottomSheetSpringConfigs({
     damping: 50,
@@ -171,6 +175,13 @@ export default function BillScreen() {
   const handlePayBillPress = () => {
     if (!validateDiscount()) return;
     router.push(`/(bills)/${bill.id}/payment-method`);
+  };
+
+  const handleEditBillPress = () => {
+    if (!bill.order) return;
+    // setActiveOrder(bill.order);
+    // initEditCart(bill.order);
+    router.push(`/(bills)/${bill.id}/edit`);
   };
 
   const discount5 = bill ? Math.round(bill.subtotal * 0.05 * 100) / 100 : 0;
@@ -523,6 +534,15 @@ export default function BillScreen() {
                     {
                       icon: "trash-outline" as const,
                       onPress: () => setVisible(true),
+                    },
+                  ]
+                : []),
+              ...(bill.status !== BillStatus.PAID &&
+              bill.source === BillSource.ORDER
+                ? [
+                    {
+                      icon: "pencil-outline" as const,
+                      onPress: handleEditBillPress,
                     },
                   ]
                 : []),

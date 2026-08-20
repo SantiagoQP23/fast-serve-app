@@ -1,6 +1,7 @@
 import { queryClient } from "@/app/_layout";
 import { CreateBillDto } from "@/core/orders/dto/create-bill.dto";
 import { CreateSaleDto } from "@/core/orders/dto/create-sale.dto";
+import { EditBillDto } from "@/core/orders/dto/edit-bill.dto";
 import { PayBillTransactionRespDto } from "@/core/orders/dto/pay-bill-transaction-resp.dto";
 import { PayBillTransactionDto } from "@/core/orders/dto/pay-bill-transaction.dto";
 import { RemoveBillDto } from "@/core/orders/dto/remove-bill.dto";
@@ -65,6 +66,27 @@ export const useBills = () => {
     },
   );
 
+  const editBillEmitter = useWebsocketEventEmitter<
+    { order: Order; bill: Bill },
+    EditBillDto
+  >(OrderSocketEvent.editBill, {
+    onSuccess: (resp) => {
+      console.log("bill updated", resp.data);
+      queryClient.invalidateQueries({
+        queryKey: ["billsList"],
+      });
+
+      if (resp.data) {
+        queryClient.invalidateQueries({
+          queryKey: ["bill", resp.data.bill.id],
+        });
+      }
+    },
+    onError: (resp) => {
+      Alert.alert("Error", resp.msg);
+    },
+  });
+
   const removeBillEmitter = useWebsocketEventEmitter<
     Order | null,
     RemoveBillDto
@@ -128,6 +150,7 @@ export const useBills = () => {
     createBill: createBillEmitter,
     createSale: createSaleEmitter,
     updateBill: updateBillEmitter,
+    editBill: editBillEmitter,
     removeBill: removeBillEmitter,
     payBillTransaction: payBillTransactionEmitter,
   };

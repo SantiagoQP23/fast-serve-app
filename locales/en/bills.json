@@ -67,6 +67,10 @@
     "noBilledItems": "No billed items yet.",
     "createBill": "Create bill - ${{amount}}"
   },
+  "editBill": {
+    "title": "Edit Bill",
+    "saveBill": "Save changes - ${{amount}}"
+  },
   "dialogs": {
     "removeTitle": "Remove Bill",
     "removeMessage": "Are you sure you want to remove this bill? This action cannot be undone."

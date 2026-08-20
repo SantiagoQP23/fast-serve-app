@@ -67,6 +67,10 @@
     "noBilledItems": "No hay productos facturados aún.",
     "createBill": "Crear cuenta - ${{amount}}"
   },
+  "editBill": {
+    "title": "Editar Cuenta",
+    "saveBill": "Guardar cambios - ${{amount}}"
+  },
   "dialogs": {
     "removeTitle": "Eliminar Cuenta",
     "removeMessage": "¿Está seguro que desea eliminar esta cuenta? Esta acción no se puede deshacer."

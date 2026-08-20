@@ -22,6 +22,7 @@ export enum OrderSocketEvent {
   createSale = "createDirectBill",
   deleteBill = "removeBill",
   updateBill = "updateBill",
+  editBill = "order-bill:edit",
   payBillTransaction = "payBillTransaction",
   removeTransaction = "removeTransaction",
   restaurantAssigned = "restaurant:assigned",
