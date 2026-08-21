@@ -170,8 +170,6 @@ export const useOrderUpdatedListener = () => {
   useWebsocketEventListener<Order>(
     OrderSocketEvent.updateOrder,
     ({ data: order }: SocketEvent<Order>) => {
-      console.log("Received order update for order:", order?.id);
-
       if (order!.isClosed) deleteOrder(order!.id);
       else
         // Update the order in the list
@@ -179,10 +177,8 @@ export const useOrderUpdatedListener = () => {
 
       // Get current active order state at the time of the event
       const currentActiveOrder = useOrdersStore.getState().activeOrder;
-      console.log("activeOrder:", currentActiveOrder?.id);
 
       if (currentActiveOrder?.id === order?.id) {
-        console.log("Updating active order:", order.id);
         setActiveOrder(order!);
       }
     },

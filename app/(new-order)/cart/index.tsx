@@ -102,7 +102,6 @@ export default function CartScreen() {
       {
         onSuccess: (resp) => {
           resetEditCart();
-          if (resp.data) setActiveOrder(resp.data);
           router.replace(`/(order)/${activeOrder.id}`);
         },
       },

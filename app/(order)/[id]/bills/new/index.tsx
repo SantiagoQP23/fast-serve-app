@@ -225,12 +225,12 @@ export default function NewBillScreen() {
           </ThemedView>
         )}
 
-        <Button
-          leftIcon="add-outline"
-          label={t("orders:details.addProduct")}
-          variant="outline"
-          onPress={() => router.push("/(new-order)/restaurant-menu")}
-        />
+        {/* <Button */}
+        {/*   leftIcon="add-outline" */}
+        {/*   label={t("orders:details.addProduct")} */}
+        {/*   variant="outline" */}
+        {/*   onPress={() => router.push("/(new-order)/restaurant-menu")} */}
+        {/* /> */}
 
         {/* Already Billed Items Section */}
         {paidDetails.length > 0 && (

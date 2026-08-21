@@ -197,6 +197,12 @@
     "people": "PEOPLE",
     "notes": "NOTES",
     "inPlace": "IN PLACE",
-    "detailTakeAway": "TAKE AWAY"
+    "detailTakeAway": "TAKE AWAY",
+    "ticketType": {
+      "NEW": "NEW",
+      "ADD": "ADD",
+      "UPDATE": "UPDATE",
+      "CANCEL": "CANCEL"
+    }
   }
 }

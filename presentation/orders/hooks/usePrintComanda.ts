@@ -45,38 +45,42 @@ export const usePrintComanda = () => {
           return;
         }
 
-        const translations = {
-          comandaTitle: t("orders:comanda.title"),
-          area: (name: string) => t("orders:comanda.area", { area: name }),
-          order: t("orders:comanda.order", { num: order.num }),
-          table: (name: string) => t("orders:comanda.table", { name }),
-          takeAway: t("orders:comanda.takeAway"),
-          waiter: t("orders:comanda.waiter"),
-          date: t("orders:comanda.date"),
-          people: t("orders:comanda.people"),
-          notes: t("orders:comanda.notes"),
-          inPlace: t("orders:comanda.inPlace"),
-          detailTakeAway: t("orders:comanda.detailTakeAway"),
-        };
+      const ticketTypeLabel = t(`orders:comanda.ticketType.${ticket.type}`);
 
-        for (const group of areaGroups) {
-          const activePrinter = group.area.printers?.find((p) => p.isActive);
-          if (!activePrinter) {
-            console.warn(
-              `No active printer found for production area: ${group.area.name}`,
-            );
-            continue;
-          }
-          if (group.items.length > 0) {
-            await ThermalPrinterService.printTicket(
-              activePrinter,
-              order,
-              group.area.name,
-              group.items,
-              translations,
-            );
-          }
+      const translations = {
+        comandaTitle: t("orders:comanda.title"),
+        area: (name: string) => t("orders:comanda.area", { area: name }),
+        order: t("orders:comanda.order", { num: order.num }),
+        table: (name: string) => t("orders:comanda.table", { name }),
+        takeAway: t("orders:comanda.takeAway"),
+        waiter: t("orders:comanda.waiter"),
+        date: t("orders:comanda.date"),
+        people: t("orders:comanda.people"),
+        notes: t("orders:comanda.notes"),
+        inPlace: t("orders:comanda.inPlace"),
+        detailTakeAway: t("orders:comanda.detailTakeAway"),
+      };
+
+      for (const group of areaGroups) {
+        const activePrinter = group.area.printers?.find((p) => p.isActive);
+        if (!activePrinter) {
+          console.warn(
+            `No active printer found for production area: ${group.area.name}`,
+          );
+          continue;
         }
+        if (group.items.length > 0) {
+          await ThermalPrinterService.printTicket(
+            activePrinter,
+            order,
+            group.area.name,
+            group.items,
+            ticket.type,
+            ticketTypeLabel,
+            translations,
+          );
+        }
+      }
 
         // Mark ticket as printed via REST
         try {

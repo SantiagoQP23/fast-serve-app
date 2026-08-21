@@ -197,6 +197,12 @@
     "people": "PERSONAS",
     "notes": "NOTAS",
     "inPlace": "EN EL LUGAR",
-    "detailTakeAway": "PARA LLEVAR"
+    "detailTakeAway": "PARA LLEVAR",
+    "ticketType": {
+      "NEW": "NUEVO",
+      "ADD": "AGREGAR",
+      "UPDATE": "ACTUALIZAR",
+      "CANCEL": "CANCELAR"
+    }
   }
 }

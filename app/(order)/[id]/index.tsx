@@ -76,15 +76,6 @@ export default function OrderScreen() {
     order?.paymentStatus || OrderPaymentStatus.UNPAID,
   );
 
-  // Update header title dynamically with order number
-  useEffect(() => {
-    if (order) {
-      // navigation.setOptions({
-      //   title: t("orders:details.orderNumber", { num: order.num }),
-      // });
-    }
-  }, [navigation, order?.num, t]);
-
   const {
     isOpen: closeModalIsOpen,
     handleOpen: openCloseModal,

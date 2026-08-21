@@ -4,6 +4,7 @@ import { Order } from "@/core/orders/models/order.model";
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { TicketItem } from "@/core/tickets/models/ticket-item.model";
+import { TicketType } from "@/core/tickets/enums/ticket-type.enum";
 
 export class ThermalPrinterService {
   static printTest = async (
@@ -194,6 +195,8 @@ export class ThermalPrinterService {
     order: Order,
     areaName: string,
     areaItems: TicketItem[],
+    ticketType: TicketType,
+    ticketTypeLabel: string,
     translations: {
       comandaTitle: string;
       area: (name: string) => string;
@@ -208,6 +211,9 @@ export class ThermalPrinterService {
       detailTakeAway: string;
     },
   ): Promise<void> => {
+    const isCancel = ticketType === TicketType.CANCEL;
+    const qtyPrefix = isCancel ? "-" : "";
+
     const detailsText = areaItems
       .map((item) => {
         let extra = "";
@@ -231,13 +237,14 @@ export class ThermalPrinterService {
           extra += `[L]  [${typeLabel}]\n`;
         }
 
-        return `[L]${item.quantity} - ${item.productName}${extra}`;
+        return `[L]${qtyPrefix}${item.quantity} - ${item.productName}${extra}`;
       })
       .join("");
 
     const payload =
       `[C]${translations.comandaTitle}\n` +
       `[C]${translations.area(areaName).toUpperCase()}\n` +
+      `[C]<b>${ticketTypeLabel}</b>\n` +
       `[C]\n` +
       `[C]${translations.order}\n` +
       `[C]<font size='big'>${order.table ? translations.table(order.table.name) : translations.takeAway}</font>\n` +
