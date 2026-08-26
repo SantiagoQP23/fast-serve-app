@@ -13,6 +13,7 @@ import enValidations from '../../locales/en/validations.json';
 import enErrors from '../../locales/en/errors.json';
 import enReports from '../../locales/en/reports.json';
 import enOfflineData from '../../locales/en/offlineData.json';
+import enPrinters from '../../locales/en/printers.json';
 
 import esCommon from '../../locales/es/common.json';
 import esAuth from '../../locales/es/auth.json';
@@ -24,6 +25,7 @@ import esValidations from '../../locales/es/validations.json';
 import esErrors from '../../locales/es/errors.json';
 import esReports from '../../locales/es/reports.json';
 import esOfflineData from '../../locales/es/offlineData.json';
+import esPrinters from '../../locales/es/printers.json';
 
 // Define available languages
 export const AVAILABLE_LANGUAGES = {
@@ -54,7 +56,7 @@ i18n
     debug: __DEV__,
     
     // Namespaces
-    ns: ['common', 'auth', 'orders', 'tables', 'menu', 'bills', 'validations', 'errors', 'reports', 'offlineData'],
+    ns: ['common', 'auth', 'orders', 'tables', 'menu', 'bills', 'validations', 'errors', 'reports', 'offlineData', 'printers'],
     defaultNS: 'common',
     
     interpolation: {
@@ -73,6 +75,7 @@ i18n
         errors: enErrors,
         reports: enReports,
         offlineData: enOfflineData,
+        printers: enPrinters,
       },
       es: {
         common: esCommon,
@@ -85,6 +88,7 @@ i18n
         errors: esErrors,
         reports: esReports,
         offlineData: esOfflineData,
+        printers: esPrinters,
       },
     },
     

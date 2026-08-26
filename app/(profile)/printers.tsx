@@ -1,5 +1,8 @@
+import { useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
+import { router } from "expo-router";
 import { toast } from "sonner-native";
+import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -8,35 +11,63 @@ import { usePrinters } from "@/core/printers/hooks/usePrinters";
 import { ThermalPrinterService } from "@/core/printers/services/thermal-printer.service";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
-import { Ionicons } from "@expo/vector-icons";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
-import { useState } from "react";
+import Fab from "@/presentation/theme/components/fab";
+import IconButton from "@/presentation/theme/components/icon-button";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
+import type { Printer } from "@/core/common/models/printer.model";
 
 export default function PrintersScreen() {
-  const { t } = useTranslation("auth");
-  const { getAll } = usePrinters();
+  const { t } = useTranslation("printers");
+  const { getAll, deletePrinter } = usePrinters();
   const { data: printers, isLoading, isError, refetch, isRefetching } = getAll;
   const { currentRestaurant } = useAuthStore();
+
   const [testingPrinterId, setTestingPrinterId] = useState<string | null>(null);
+  const [printerToDelete, setPrinterToDelete] = useState<Printer | null>(null);
 
   const handleTestPrinter = async (printerId: string) => {
     const printer = printers?.find((p) => p.id === printerId);
     if (!printer) return;
 
     setTestingPrinterId(printerId);
-    const toastId = toast.loading(t("printers:testPrintLoading"));
+    const toastId = toast.loading(t("testPrintLoading"));
     try {
       console.log("Testing printer:", printer);
       await ThermalPrinterService.printTest(printer, currentRestaurant?.name);
-      toast.success(t("printers:testPrintSuccessMessage"), { id: toastId });
+      toast.success(t("testPrintSuccessMessage"), { id: toastId });
     } catch (error: any) {
-      toast.error(error?.message || t("printers:testPrintErrorMessage"), {
+      toast.error(error?.message || t("testPrintErrorMessage"), {
         id: toastId,
       });
     } finally {
       setTestingPrinterId(null);
     }
+  };
+
+  const handleCreatePrinter = () => {
+    router.push("/(profile)/printer-form");
+  };
+
+  const handleEditPrinter = (printer: Printer) => {
+    router.push({
+      pathname: "/(profile)/printer-form",
+      params: {
+        printerId: printer.id,
+        name: printer.name,
+        connectionType: printer.connectionType,
+        ipAddress: printer.ipAddress || "",
+        port: String(printer.port),
+        isActive: String(printer.isActive),
+      },
+    });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!printerToDelete) return;
+    await deletePrinter.mutateAsync(printerToDelete.id);
+    setPrinterToDelete(null);
   };
 
   return (
@@ -53,17 +84,11 @@ export default function PrintersScreen() {
           />
         }
       >
-        {/* Header */}
-        <ThemedView style={tw`flex-row items-center gap-2 justify-center py-4`}>
-          <Ionicons name="print-outline" size={24} />
-          <ThemedText type="h2">{t("manage.printers")}</ThemedText>
-        </ThemedView>
-
         {isLoading && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
             <Ionicons name="print-outline" size={48} color="#999" />
             <ThemedText type="body1" style={tw`text-gray-500`}>
-              Loading printers...
+              {t("loading")}
             </ThemedText>
           </ThemedView>
         )}
@@ -72,9 +97,13 @@ export default function PrintersScreen() {
           <ThemedView style={tw`items-center py-8 gap-3`}>
             <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
             <ThemedText type="body1" style={tw`text-red-500`}>
-              Failed to load printers
+              {t("loadError")}
             </ThemedText>
-            <Button label="Retry" onPress={() => refetch()} variant="outline" />
+            <Button
+              label={t("retry")}
+              onPress={() => refetch()}
+              variant="outline"
+            />
           </ThemedView>
         )}
 
@@ -82,10 +111,10 @@ export default function PrintersScreen() {
           <ThemedView style={tw`items-center py-8 gap-3`}>
             <Ionicons name="print-outline" size={48} color="#999" />
             <ThemedText type="body1" style={tw`font-semibold`}>
-              No printers found
+              {t("noPrinters")}
             </ThemedText>
             <ThemedText type="body2" style={tw`text-center text-gray-500 px-4`}>
-              There are no printers configured for this restaurant.
+              {t("noPrintersDescription")}
             </ThemedText>
           </ThemedView>
         )}
@@ -119,9 +148,24 @@ export default function PrintersScreen() {
                               : "text-gray-400"
                           }`}
                         >
-                          {printer.isActive ? "Active" : "Inactive"}
+                          {printer.isActive ? t("active") : t("inactive")}
                         </ThemedText>
                       </ThemedView>
+                    </ThemedView>
+
+                    <ThemedView style={tw`flex-row items-center`}>
+                      <IconButton
+                        icon="create-outline"
+                        size={20}
+                        color="primary"
+                        onPress={() => handleEditPrinter(printer)}
+                      />
+                      <IconButton
+                        icon="trash-outline"
+                        size={20}
+                        color="danger"
+                        onPress={() => setPrinterToDelete(printer)}
+                      />
                     </ThemedView>
                   </ThemedView>
 
@@ -133,7 +177,7 @@ export default function PrintersScreen() {
                     <ThemedView style={tw`flex-row items-center gap-2`}>
                       <Ionicons name="wifi-outline" size={16} color="#999" />
                       <ThemedText type="body2" style={tw`text-gray-500`}>
-                        Connection: {printer.connectionType}
+                        {t("fields.connectionType")}: {printer.connectionType}
                       </ThemedText>
                     </ThemedView>
 
@@ -141,7 +185,7 @@ export default function PrintersScreen() {
                       <ThemedView style={tw`flex-row items-center gap-2`}>
                         <Ionicons name="globe-outline" size={16} color="#999" />
                         <ThemedText type="body2" style={tw`text-gray-500`}>
-                          IP: {printer.ipAddress}
+                          {t("fields.ipAddress")}: {printer.ipAddress}
                         </ThemedText>
                       </ThemedView>
                     )}
@@ -153,7 +197,7 @@ export default function PrintersScreen() {
                         color="#999"
                       />
                       <ThemedText type="body2" style={tw`text-gray-500`}>
-                        Port: {printer.port}
+                        {t("fields.port")}: {printer.port}
                       </ThemedText>
                     </ThemedView>
                   </ThemedView>
@@ -161,7 +205,7 @@ export default function PrintersScreen() {
                   {/* Test Button */}
                   <Button
                     label={
-                      testingPrinterId === printer.id ? "Testing..." : "Test"
+                      testingPrinterId === printer.id ? t("testing") : t("test")
                     }
                     leftIcon="send-outline"
                     variant="outline"
@@ -176,6 +220,18 @@ export default function PrintersScreen() {
           </ThemedView>
         )}
       </ScrollView>
+
+      <Fab icon="add" onPress={handleCreatePrinter} />
+
+      <DialogModal
+        visible={!!printerToDelete}
+        title={t("deleteTitle")}
+        message={t("deleteMessage")}
+        confirmText={t("confirm")}
+        cancelText={t("cancel")}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setPrinterToDelete(null)}
+      />
     </ScreenLayout>
   );
 }

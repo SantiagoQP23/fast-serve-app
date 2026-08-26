@@ -1,0 +1,54 @@
+{
+  "title": "Impresoras",
+  "subtitle": "Gestiona las impresoras conectadas a tu restaurante",
+  "newPrinter": "Nueva impresora",
+  "editPrinter": "Editar impresora",
+  "createPrinter": "Crear impresora",
+  "savePrinter": "Guardar impresora",
+  "noPrinters": "No se encontraron impresoras",
+  "noPrintersDescription": "No hay impresoras configuradas para este restaurante.",
+  "loading": "Cargando impresoras...",
+  "loadError": "No se pudieron cargar las impresoras",
+  "retry": "Reintentar",
+  "test": "Probar",
+  "testing": "Probando...",
+  "fields": {
+    "name": "Nombre",
+    "connectionType": "Tipo de conexión",
+    "ipAddress": "Dirección IP",
+    "port": "Puerto",
+    "isActive": "Activa"
+  },
+  "connectionTypes": {
+    "TCP": "TCP"
+  },
+  "placeholders": {
+    "name": "p. ej. Impresora de cocina",
+    "ipAddress": "192.168.1.100",
+    "port": "9100"
+  },
+  "validations": {
+    "nameRequired": "El nombre es obligatorio",
+    "ipAddressRequired": "La dirección IP es obligatoria",
+    "invalidIpAddress": "Ingresa una dirección IPv4 válida",
+    "portRequired": "El puerto es obligatorio",
+    "invalidPort": "El puerto debe estar entre 1 y 65535"
+  },
+  "testPrintLoading": "Enviando impresión de prueba...",
+  "testPrintSuccessTitle": "Impresión de Prueba Enviada",
+  "testPrintSuccessMessage": "La impresión de prueba se envió a la impresora correctamente.",
+  "testPrintErrorTitle": "Impresión de Prueba Fallida",
+  "testPrintErrorMessage": "No se pudo conectar a la impresora. Por favor revise la configuración e intente de nuevo.",
+  "createSuccess": "Impresora creada correctamente",
+  "createError": "No se pudo crear la impresora",
+  "updateSuccess": "Impresora actualizada correctamente",
+  "updateError": "No se pudo actualizar la impresora",
+  "deleteSuccess": "Impresora eliminada correctamente",
+  "deleteError": "No se pudo eliminar la impresora",
+  "deleteTitle": "Eliminar impresora",
+  "deleteMessage": "¿Estás seguro de que deseas eliminar esta impresora?",
+  "cancel": "Cancelar",
+  "confirm": "Confirmar",
+  "active": "Activa",
+  "inactive": "Inactiva"
+}

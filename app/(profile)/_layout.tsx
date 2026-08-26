@@ -66,8 +66,15 @@ export default function OrdersLayout() {
           name="printers"
           options={{
             headerShown: true,
-            title: "Printers",
+            title: t("printers:title"),
             headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="printer-form/index"
+          options={{
+            headerShown: false,
           }}
         />
 

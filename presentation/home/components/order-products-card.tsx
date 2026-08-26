@@ -107,13 +107,6 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
                 {order.user.person.firstName} {order.user.person.lastName}
               </ThemedText>
             </ThemedView>
-            <IconButton
-              variant="text"
-              icon="chevron-forward"
-              color={tw.color("gray-500")}
-              size={20}
-              onPress={() => openOrder()}
-            />
           </ThemedView>
         </ThemedView>
         <ThemedView style={tw`gap-6`}>

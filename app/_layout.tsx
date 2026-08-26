@@ -50,7 +50,10 @@ export default function RootLayout() {
   useEffect(() => {
     initializeDayjs();
     setLanguage(language);
-
+    console.log(
+      "GOOGLE WEB CLIENT ID:",
+      process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    );
     GoogleSignin.configure({
       webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
       iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,

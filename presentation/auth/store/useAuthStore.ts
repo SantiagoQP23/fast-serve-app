@@ -12,6 +12,7 @@ import { SecureStorageAdapter } from "@/helpers/adapters/secure-storage.adapter"
 import { User } from "@/core/auth/models/user.model";
 import { Restaurant } from "@/core/common/models/restaurant.model";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { Alert } from "react-native";
 
 export type AuthStatus = "authenticated" | "unauthenticated" | "checking";
 
@@ -138,6 +139,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       );
     } catch (error: any) {
       console.log("Google signin error", error);
+      Alert.alert("Google Sign-In Error", JSON.stringify(error, null, 2));
       return false;
     }
   },
@@ -195,6 +197,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       return true;
     } catch (error: any) {
       console.log("Link Google account error", error);
+      Alert.alert("Google Sign-In Error", JSON.stringify(error, null, 2));
       return false;
     }
   },

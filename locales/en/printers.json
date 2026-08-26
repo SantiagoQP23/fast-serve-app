@@ -1,0 +1,54 @@
+{
+  "title": "Printers",
+  "subtitle": "Manage the printers connected to your restaurant",
+  "newPrinter": "New printer",
+  "editPrinter": "Edit printer",
+  "createPrinter": "Create printer",
+  "savePrinter": "Save printer",
+  "noPrinters": "No printers found",
+  "noPrintersDescription": "There are no printers configured for this restaurant.",
+  "loading": "Loading printers...",
+  "loadError": "Failed to load printers",
+  "retry": "Retry",
+  "test": "Test",
+  "testing": "Testing...",
+  "fields": {
+    "name": "Name",
+    "connectionType": "Connection type",
+    "ipAddress": "IP address",
+    "port": "Port",
+    "isActive": "Active"
+  },
+  "connectionTypes": {
+    "TCP": "TCP"
+  },
+  "placeholders": {
+    "name": "e.g. Kitchen printer",
+    "ipAddress": "192.168.1.100",
+    "port": "9100"
+  },
+  "validations": {
+    "nameRequired": "Name is required",
+    "ipAddressRequired": "IP address is required",
+    "invalidIpAddress": "Enter a valid IPv4 address",
+    "portRequired": "Port is required",
+    "invalidPort": "Port must be between 1 and 65535"
+  },
+  "testPrintLoading": "Sending test print...",
+  "testPrintSuccessTitle": "Test Print Sent",
+  "testPrintSuccessMessage": "The test print was sent to the printer successfully.",
+  "testPrintErrorTitle": "Test Print Failed",
+  "testPrintErrorMessage": "Could not connect to the printer. Please check the printer settings and try again.",
+  "createSuccess": "Printer created successfully",
+  "createError": "Could not create the printer",
+  "updateSuccess": "Printer updated successfully",
+  "updateError": "Could not update the printer",
+  "deleteSuccess": "Printer deleted successfully",
+  "deleteError": "Could not delete the printer",
+  "deleteTitle": "Delete printer",
+  "deleteMessage": "Are you sure you want to delete this printer?",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "active": "Active",
+  "inactive": "Inactive"
+}
