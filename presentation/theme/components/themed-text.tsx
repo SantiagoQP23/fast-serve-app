@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   body1: {
     fontSize: 16,
     lineHeight: 24,
-    fontFamily: typography.regular,
+    fontFamily: typography.medium,
   },
   body2: {
     fontSize: 14,
@@ -105,13 +105,13 @@ const styles = StyleSheet.create({
   small: {
     fontSize: 12,
     lineHeight: 16,
-    fontFamily: typography.regular,
+    fontFamily: typography.medium,
     color: tw.color("gray-500"),
   },
   caption: {
     fontSize: 14,
     lineHeight: 14,
     textTransform: "uppercase",
-    fontFamily: typography.regular,
+    fontFamily: typography.medium,
   },
 });

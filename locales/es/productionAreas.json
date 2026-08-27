@@ -1,0 +1,44 @@
+{
+  "title": "Áreas de Producción",
+  "subtitle": "Gestiona las áreas de producción de tu restaurante",
+  "newArea": "Nueva área",
+  "editArea": "Editar área de producción",
+  "createArea": "Crear área de producción",
+  "saveArea": "Guardar área de producción",
+  "noAreas": "No se encontraron áreas de producción",
+  "noAreasDescription": "No hay áreas de producción configuradas para este restaurante.",
+  "loading": "Cargando áreas de producción...",
+  "loadError": "No se pudieron cargar las áreas de producción",
+  "retry": "Reintentar",
+  "fields": {
+    "name": "Nombre",
+    "description": "Descripción",
+    "printers": "Impresoras",
+    "isActive": "Activa"
+  },
+  "placeholders": {
+    "name": "p. ej. Cocina",
+    "description": "Qué prepara esta área"
+  },
+  "validations": {
+    "nameRequired": "El nombre es obligatorio",
+    "nameMinLength": "El nombre debe tener al menos 3 caracteres",
+    "nameMaxLength": "El nombre debe tener como máximo 60 caracteres"
+  },
+  "createSuccess": "Área de producción creada correctamente",
+  "createError": "No se pudo crear el área de producción",
+  "updateSuccess": "Área de producción actualizada correctamente",
+  "updateError": "No se pudo actualizar el área de producción",
+  "deleteSuccess": "Área de producción eliminada correctamente",
+  "deleteError": "No se pudo eliminar el área de producción",
+  "deleteTitle": "Eliminar área de producción",
+  "deleteMessage": "¿Estás seguro de que deseas eliminar esta área de producción?",
+  "cancel": "Cancelar",
+  "confirm": "Confirmar",
+  "active": "Activa",
+  "inactive": "Inactiva",
+  "printerCount": "{{count}} impresora",
+  "printerCount_plural": "{{count}} impresoras",
+  "noPrintersAvailable": "No hay impresoras disponibles",
+  "noPrintersDescription": "Agrega una impresora primero para asignarla a esta área."
+}

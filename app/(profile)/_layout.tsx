@@ -88,6 +88,13 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="production-area-form/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
           name="settings"
           options={{
             headerShown: true,
