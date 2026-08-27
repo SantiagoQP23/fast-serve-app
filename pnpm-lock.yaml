@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  react-native-thermal-printer@2.3.6:
+    hash: cc9ea2c768fd6af69ec6ac6f9e28f5adf48a9e200f0bf6b354abe888db9fa08a
+    path: patches/react-native-thermal-printer@2.3.6.patch
+
 importers:
 
   .:
@@ -166,7 +171,7 @@ importers:
         version: 15.15.4(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.18)(react@19.2.3))(react@19.2.3)
       react-native-thermal-printer:
         specifier: ^2.3.6
-        version: 2.3.6(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.18)(react@19.2.3))(react@19.2.3)
+        version: 2.3.6(patch_hash=cc9ea2c768fd6af69ec6ac6f9e28f5adf48a9e200f0bf6b354abe888db9fa08a)(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.18)(react@19.2.3))(react@19.2.3)
       react-native-thermal-receipt-printer:
         specifier: 1.2.0-rc.2
         version: 1.2.0-rc.2
@@ -8907,7 +8912,7 @@ snapshots:
       react-native: 0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.18)(react@19.2.3)
       warn-once: 0.1.1
 
-  react-native-thermal-printer@2.3.6(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.18)(react@19.2.3))(react@19.2.3):
+  react-native-thermal-printer@2.3.6(patch_hash=cc9ea2c768fd6af69ec6ac6f9e28f5adf48a9e200f0bf6b354abe888db9fa08a)(react-native@0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.18)(react@19.2.3))(react@19.2.3):
     dependencies:
       react: 19.2.3
       react-native: 0.85.3(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.2.18)(react@19.2.3)

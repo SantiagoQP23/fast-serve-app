@@ -1,0 +1,2 @@
+patchedDependencies:
+  react-native-thermal-printer@2.3.6: patches/react-native-thermal-printer@2.3.6.patch
