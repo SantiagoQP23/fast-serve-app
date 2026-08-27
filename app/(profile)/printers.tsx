@@ -126,94 +126,82 @@ export default function PrintersScreen() {
                 <ThemedView style={tw`gap-4`}>
                   {/* Printer Name & Status */}
                   <ThemedView style={tw`flex-row items-center justify-between`}>
-                    <ThemedView style={tw`flex-row items-center gap-3 flex-1`}>
-                      <Ionicons
-                        name="print-outline"
-                        size={24}
-                        color={
-                          printer.isActive
-                            ? tw.color("green-500")
-                            : tw.color("gray-400")
-                        }
-                      />
+                    <ThemedView style={tw`flex  gap-8 flex-1`}>
+                      <Ionicons name="print-outline" size={30} />
                       <ThemedView style={tw`flex-1`}>
                         <ThemedText type="h4" style={tw`font-semibold`}>
                           {printer.name}
                         </ThemedText>
-                        <ThemedText
-                          type="small"
-                          style={tw`${
-                            printer.isActive
-                              ? "text-green-500"
-                              : "text-gray-400"
-                          }`}
-                        >
+                        <ThemedText type="small">
                           {printer.isActive ? t("active") : t("inactive")}
                         </ThemedText>
                       </ThemedView>
                     </ThemedView>
-
-                    <ThemedView style={tw`flex-row items-center`}>
-                      <IconButton
-                        icon="create-outline"
-                        size={20}
-                        color="primary"
-                        onPress={() => handleEditPrinter(printer)}
-                      />
-                      <IconButton
-                        icon="trash-outline"
-                        size={20}
-                        color="danger"
-                        onPress={() => setPrinterToDelete(printer)}
-                      />
-                    </ThemedView>
                   </ThemedView>
 
                   {/* Divider */}
-                  <ThemedView style={tw`h-px bg-gray-200 dark:bg-gray-700`} />
+                  {/* <ThemedView style={tw`h-px bg-gray-200 dark:bg-gray-700`} /> */}
 
                   {/* Printer Details */}
-                  <ThemedView style={tw`gap-2`}>
-                    <ThemedView style={tw`flex-row items-center gap-2`}>
-                      <Ionicons name="wifi-outline" size={16} color="#999" />
-                      <ThemedText type="body2" style={tw`text-gray-500`}>
-                        {t("fields.connectionType")}: {printer.connectionType}
-                      </ThemedText>
-                    </ThemedView>
-
-                    {printer.ipAddress && (
-                      <ThemedView style={tw`flex-row items-center gap-2`}>
-                        <Ionicons name="globe-outline" size={16} color="#999" />
-                        <ThemedText type="body2" style={tw`text-gray-500`}>
-                          {t("fields.ipAddress")}: {printer.ipAddress}
-                        </ThemedText>
-                      </ThemedView>
-                    )}
-
-                    <ThemedView style={tw`flex-row items-center gap-2`}>
-                      <Ionicons
-                        name="hardware-chip-outline"
-                        size={16}
-                        color="#999"
-                      />
-                      <ThemedText type="body2" style={tw`text-gray-500`}>
-                        {t("fields.port")}: {printer.port}
-                      </ThemedText>
-                    </ThemedView>
-                  </ThemedView>
+                  {/* <ThemedView style={tw`gap-2`}> */}
+                  {/*   <ThemedView style={tw`flex-row items-center gap-2`}> */}
+                  {/*     <Ionicons name="wifi-outline" size={16} color="#999" /> */}
+                  {/*     <ThemedText type="body2" style={tw`text-gray-500`}> */}
+                  {/*       {t("fields.connectionType")}: {printer.connectionType} */}
+                  {/*     </ThemedText> */}
+                  {/*   </ThemedView> */}
+                  {/**/}
+                  {/*   {printer.ipAddress && ( */}
+                  {/*     <ThemedView style={tw`flex-row items-center gap-2`}> */}
+                  {/*       <Ionicons name="globe-outline" size={16} color="#999" /> */}
+                  {/*       <ThemedText type="body2" style={tw`text-gray-500`}> */}
+                  {/*         {t("fields.ipAddress")}: {printer.ipAddress} */}
+                  {/*       </ThemedText> */}
+                  {/*     </ThemedView> */}
+                  {/*   )} */}
+                  {/**/}
+                  {/*   <ThemedView style={tw`flex-row items-center gap-2`}> */}
+                  {/*     <Ionicons */}
+                  {/*       name="hardware-chip-outline" */}
+                  {/*       size={16} */}
+                  {/*       color="#999" */}
+                  {/*     /> */}
+                  {/*     <ThemedText type="body2" style={tw`text-gray-500`}> */}
+                  {/*       {t("fields.port")}: {printer.port} */}
+                  {/*     </ThemedText> */}
+                  {/*   </ThemedView> */}
+                  {/* </ThemedView> */}
 
                   {/* Test Button */}
-                  <Button
-                    label={
-                      testingPrinterId === printer.id ? t("testing") : t("test")
-                    }
-                    leftIcon="send-outline"
-                    variant="outline"
-                    size="small"
-                    onPress={() => handleTestPrinter(printer.id)}
-                    disabled={testingPrinterId !== null}
-                    loading={testingPrinterId === printer.id}
-                  />
+
+                  <ThemedView style={tw`flex-row items-center gap-4`}>
+                    <IconButton
+                      icon="trash-outline"
+                      size={20}
+                      color="danger"
+                      onPress={() => setPrinterToDelete(printer)}
+                    />
+                    <IconButton
+                      icon="create-outline"
+                      size={20}
+                      color="primary"
+                      onPress={() => handleEditPrinter(printer)}
+                    />
+                    <ThemedView style={tw`flex-1`} />
+                    <Button
+                      label={
+                        testingPrinterId === printer.id
+                          ? t("testing")
+                          : t("test")
+                      }
+                      leftIcon="send-outline"
+                      variant="outline"
+                      size="small"
+                      onPress={() => handleTestPrinter(printer.id)}
+                      disabled={testingPrinterId !== null}
+                      loading={testingPrinterId === printer.id}
+                    />
+                  </ThemedView>
                 </ThemedView>
               </Card>
             ))}

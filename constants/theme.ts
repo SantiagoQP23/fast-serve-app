@@ -82,9 +82,16 @@ export const Fonts = Platform.select({
 //   bold: "Roboto_700Bold",
 // };
 
+// export const typography = {
+//   regular: "Sen_400Regular",
+//   medium: "Sen_500Medium",
+//   semibold: "Sen_600SemiBold",
+//   bold: "Sen_700Bold",
+// };
+
 export const typography = {
-  regular: "Sen_400Regular",
-  medium: "Sen_500Medium",
-  semibold: "Sen_600SemiBold",
-  bold: "Sen_700Bold",
+  regular: "PlusJakartaSans_400Regular",
+  medium: "PlusJakartaSans_500Medium",
+  semibold: "PlusJakartaSans_600SemiBold",
+  bold: "PlusJakartaSans_700Bold",
 };

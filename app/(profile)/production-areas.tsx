@@ -66,37 +66,21 @@ export default function ProductionAreasScreen() {
                 <ThemedView style={tw`gap-4`}>
                   {/* Area Name & Status */}
                   <ThemedView style={tw`flex-row items-center justify-between`}>
-                    <ThemedView style={tw`flex-row items-center gap-3 flex-1`}>
-                      <Ionicons
-                        name="cube-outline"
-                        size={24}
-                        color={
-                          area.isActive
-                            ? tw.color("green-500")
-                            : tw.color("gray-400")
-                        }
-                      />
+                    <ThemedView style={tw` gap-4 flex-1`}>
+                      <Ionicons name="cube-outline" size={30} />
                       <ThemedView style={tw`flex-1`}>
                         <ThemedText type="h4" style={tw`font-semibold`}>
                           {area.name}
                         </ThemedText>
-                        <ThemedText
-                          type="small"
-                          style={tw`${
-                            area.isActive ? "text-green-500" : "text-gray-400"
-                          }`}
-                        >
+                        <ThemedText type="small">
                           {area.isActive ? "Active" : "Inactive"}
                         </ThemedText>
                       </ThemedView>
                     </ThemedView>
                   </ThemedView>
 
-                  {/* Divider */}
-                  <ThemedView style={tw`h-px bg-gray-200 dark:bg-gray-700`} />
-
                   {/* Area Details */}
-                  <ThemedView style={tw`gap-2`}>
+                  <ThemedView style={tw`gap-2 mt-2`}>
                     {area.description && (
                       <ThemedView style={tw`flex-row items-center gap-2`}>
                         <Ionicons

@@ -235,8 +235,13 @@ export default function PrinterFormScreen() {
           <Button
             label={isEditing ? t("savePrinter") : t("createPrinter")}
             onPress={handleSubmit(onSubmit)}
-            loading={isSubmitting || createPrinter.isPending || updatePrinter.isPending}
-            disabled={isSubmitting || createPrinter.isPending || updatePrinter.isPending}
+            loading={
+              isSubmitting || createPrinter.isPending || updatePrinter.isPending
+            }
+            disabled={
+              isSubmitting || createPrinter.isPending || updatePrinter.isPending
+            }
+            leftIcon={isEditing ? "save-outline" : "add-outline"}
           />
         </ScrollView>
       </ScreenLayout>

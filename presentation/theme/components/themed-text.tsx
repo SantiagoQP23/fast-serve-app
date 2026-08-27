@@ -9,6 +9,13 @@ import {
   Sen_700Bold,
 } from "@expo-google-fonts/sen";
 
+import {
+  PlusJakartaSans_400Regular,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+  PlusJakartaSans_500Medium,
+} from "@expo-google-fonts/plus-jakarta-sans";
+
 import { typography } from "@/constants/theme";
 import tw from "../lib/tailwind";
 
@@ -32,6 +39,10 @@ export function ThemedText({
     Sen_500Medium,
     Sen_600SemiBold,
     Sen_700Bold,
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
   });
 
   if (!fontsLoaded) {
