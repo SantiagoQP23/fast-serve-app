@@ -18,12 +18,10 @@ import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Ionicons } from "@expo/vector-icons";
 import {
-  BottomSheetBackdrop,
-  BottomSheetModal,
-  useBottomSheetSpringConfigs,
-} from "@gorhom/bottom-sheet";
+  BottomSheetModal
+} from "@expo/ui/community/bottom-sheet";
 import BillsFilterBottomSheet from "@/presentation/orders/components/bills-filter-bottom-sheet";
-import { BillListFiltersDto } from "@/core/orders/dto/bill-list-filters.dto";
+import { BillListFiltersDto , BillStatusFilter } from "@/core/orders/dto/bill-list-filters.dto";
 import {
   formatCurrency,
   translatePaymentMethod,
@@ -36,7 +34,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import dayjs from "dayjs";
 import BillCard from "@/presentation/orders/components/bill-card";
 import Chip from "@/presentation/theme/components/chip";
-import { BillStatusFilter } from "@/core/orders/dto/bill-list-filters.dto";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Fab from "@/presentation/theme/components/fab";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
@@ -84,13 +81,6 @@ export default function SalesScreen() {
 
   // Convert date to string format for API
   const dateFilter = dayjs(selectedDate).format("YYYY-MM-DD");
-
-  const animationConfigs = useBottomSheetSpringConfigs({
-    damping: 50,
-    stiffness: 300,
-    mass: 1,
-    overshootClamping: true,
-  });
 
   const {
     bills,
@@ -473,14 +463,6 @@ export default function SalesScreen() {
       <BottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={["60%"]}
-        animationConfigs={animationConfigs}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            disappearsOnIndex={-1}
-            appearsOnIndex={0}
-          />
-        )}
         enablePanDownToClose
       >
         <BillsFilterBottomSheet

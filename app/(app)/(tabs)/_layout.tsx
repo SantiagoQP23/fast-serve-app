@@ -59,7 +59,7 @@ export function MyOrdersHeaderRight() {
 export default function TabLayout() {
   const { t } = useTranslation("common");
   const colorScheme = useColorScheme();
-  const { status, checkStatus, user } = useAuthStore();
+  const { status, checkStatus, user, bootstrapStatus } = useAuthStore();
   useOrders();
   useOrderCreatedListener();
   useOrderUpdatedListener();
@@ -75,7 +75,7 @@ export default function TabLayout() {
     checkStatus();
   }, [checkStatus]);
 
-  if (status === "checking") {
+  if (status === "checking" || bootstrapStatus === "loading") {
     return (
       <ThemedView
         style={{

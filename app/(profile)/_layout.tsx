@@ -2,7 +2,7 @@ import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import IconButton from "@/presentation/theme/components/icon-button";
-import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
+import { BottomSheetModal } from "@expo/ui/community/bottom-sheet";
 import { router, Stack } from "expo-router";
 import { useCallback, useRef } from "react";
 
@@ -146,13 +146,7 @@ export default function OrdersLayout() {
 
       <BottomSheetModal
         ref={bottomSheetModalRef}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            disappearsOnIndex={-1}
-            appearsOnIndex={0}
-          />
-        )}
+       
       >
         <NewOrderBottomSheet
           onCreateOrder={closeBottomSheet}

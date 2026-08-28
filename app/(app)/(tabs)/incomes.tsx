@@ -32,10 +32,8 @@ import TransactionCard from "@/presentation/transactions/components/transaction-
 import { formatCurrency } from "@/core/i18n/utils";
 import Button from "@/presentation/theme/components/button";
 import {
-  BottomSheetBackdrop,
-  BottomSheetModal,
-  useBottomSheetSpringConfigs,
-} from "@gorhom/bottom-sheet";
+  BottomSheetModal
+} from "@expo/ui/community/bottom-sheet";
 import TransactionsFilterBottomSheet from "@/presentation/transactions/components/transactions-filter-bottom-sheet";
 import Chip from "@/presentation/theme/components/chip";
 import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
@@ -78,14 +76,6 @@ export default function IncomesScreen() {
       }))
       .sort((a, b) => a.fullName.localeCompare(b.fullName));
   }, [users, user, isAdmin]);
-
-  // Animation config for bottom sheet
-  const animationConfigs = useBottomSheetSpringConfigs({
-    damping: 50,
-    stiffness: 300,
-    mass: 1,
-    overshootClamping: true,
-  });
 
   // Load persisted date and filters on mount
   useEffect(() => {
@@ -520,14 +510,6 @@ export default function IncomesScreen() {
         ref={bottomSheetModalRef}
         snapPoints={["75%"]}
         enablePanDownToClose
-        animationConfigs={animationConfigs}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            appearsOnIndex={0}
-            disappearsOnIndex={-1}
-          />
-        )}
       >
         <TransactionsFilterBottomSheet
           initialFilters={filters}

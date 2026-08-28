@@ -1,4 +1,4 @@
-import { BottomSheetView } from "@gorhom/bottom-sheet";
+import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
 import { Alert, Pressable } from "react-native";
 import { OrderDetail } from "@/core/orders/models/order-detail.model";
 import tw from "@/presentation/theme/lib/tailwind";

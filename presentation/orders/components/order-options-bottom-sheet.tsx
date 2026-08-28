@@ -1,4 +1,4 @@
-import { BottomSheetView } from "@gorhom/bottom-sheet";
+import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
 import { Alert, Pressable } from "react-native";
 import { useRef } from "react";
 import { toast } from "sonner-native";
@@ -171,10 +171,17 @@ const OrderOptionsBottomSheet = ({
       { status: OrderDetailStatus; qtyDelivered: number }
     >,
   ) => {
-    const details: { id: string; status: OrderDetailStatus; qtyDelivered: number }[] =
-      [];
+    const details: {
+      id: string;
+      status: OrderDetailStatus;
+      qtyDelivered: number;
+    }[] = [];
     previousStates.forEach((state, id) => {
-      details.push({ id, status: state.status, qtyDelivered: state.qtyDelivered });
+      details.push({
+        id,
+        status: state.status,
+        qtyDelivered: state.qtyDelivered,
+      });
     });
 
     if (details.length === 0) return;
@@ -347,7 +354,7 @@ const OrderOptionsBottomSheet = ({
   const visibleOptions = options.filter((opt) => opt.visible !== false);
 
   return (
-    <BottomSheetView style={tw`px-4 pb-6`}>
+    <BottomSheetView style={tw`px-4 pb-6 bg-light-brackground`}>
       <ThemedView style={tw`mb-4`}>
         <ThemedText type="h3">{t("orders:options.title")}</ThemedText>
         <ThemedText type="body2" style={tw`text-gray-500 mt-1`}>

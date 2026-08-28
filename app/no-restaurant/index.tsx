@@ -81,6 +81,12 @@ export default function NoRestaurantScreen() {
           response.user,
           response.currentRestaurant ?? undefined,
         );
+
+        if (useAuthStore.getState().bootstrapStatus === "error") {
+          toast.error("No se pudo cargar la información del restaurante.");
+          return;
+        }
+
         toast.success("Restaurante creado exitosamente");
         router.replace("/(app)/(tabs)/(orders-module)/my-orders");
       } else {

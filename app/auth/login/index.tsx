@@ -4,11 +4,10 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { useState } from "react";
 import {
-  Alert,
   KeyboardAvoidingView,
-  ScrollView,
   useWindowDimensions,
   Pressable,
+  Linking,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -34,9 +33,10 @@ type LoginFormData = z.infer<typeof loginSchema>;
 const LoginScreen = () => {
   const { t } = useTranslation("auth");
   const { height } = useWindowDimensions();
-  const { login, user, loginWithGoogle } = useAuthStore();
+  const { login, loginWithGoogle } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     control,
@@ -52,6 +52,7 @@ const LoginScreen = () => {
 
   // Function to handle form submission
   const onSubmit = async (data: LoginFormData) => {
+    setIsSubmitting(true);
     console.log(data);
     const wasSuccessful = await login(
       data.username.trim(),
@@ -60,7 +61,14 @@ const LoginScreen = () => {
 
     const currentUser = useAuthStore.getState().user;
 
+    setIsSubmitting(false);
+
     if (wasSuccessful && currentUser) {
+      if (useAuthStore.getState().bootstrapStatus === "error") {
+        toast.error(t("validations.bootstrapError"));
+        return;
+      }
+
       if (currentUser.role) {
         router.replace("/(app)/(tabs)/(orders-module)/my-orders");
         return;
@@ -79,7 +87,14 @@ const LoginScreen = () => {
     const wasSuccessful = await loginWithGoogle();
     const currentUser = useAuthStore.getState().user;
 
+    setIsGoogleLoading(false);
+
     if (wasSuccessful && currentUser) {
+      if (useAuthStore.getState().bootstrapStatus === "error") {
+        toast.error(t("validations.bootstrapError"));
+        return;
+      }
+
       if (currentUser.role) {
         router.replace("/(app)/(tabs)/(orders-module)/my-orders");
         return;
@@ -89,7 +104,6 @@ const LoginScreen = () => {
       }
     }
 
-    setIsGoogleLoading(false);
     toast.error(t("validations.invalidCredentials"));
   };
 
@@ -184,6 +198,8 @@ const LoginScreen = () => {
           <Button
             label={t("login.loginButton")}
             onPress={handleSubmit(onSubmit)}
+            loading={isSubmitting}
+            disabled={isSubmitting}
           />
         </ThemedView>
         <ThemedView style={tw`w-full gap-8 items-center`}>

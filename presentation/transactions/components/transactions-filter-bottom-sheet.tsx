@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { BottomSheetView } from "@gorhom/bottom-sheet";
+import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";

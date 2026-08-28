@@ -41,7 +41,7 @@ import { useOrderPrint } from "@/presentation/orders/hooks/useOrderPrint";
 import QuickActionButton from "@/presentation/orders/components/quick-action-button";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bottom-sheet";
-import { BottomSheetModal, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
+import { BottomSheetModal } from "@expo/ui/community/bottom-sheet";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { typography } from "@/constants/theme";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
@@ -821,13 +821,6 @@ export default function OrderScreen() {
 
       <BottomSheetModal
         ref={editBottomSheetRef}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            disappearsOnIndex={-1}
-            appearsOnIndex={0}
-          />
-        )}
       >
         {order && (
           <EditOrderBottomSheet

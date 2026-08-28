@@ -13,14 +13,11 @@ import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { Ionicons } from "@expo/vector-icons";
 import {
-  BottomSheetBackdrop,
-  BottomSheetModal,
-  useBottomSheetSpringConfigs,
-} from "@gorhom/bottom-sheet";
+  BottomSheetModal
+} from "@expo/ui/community/bottom-sheet";
 import BillsFilterBottomSheet from "@/presentation/orders/components/bills-filter-bottom-sheet";
 import { BillListFiltersDto, BillStatusFilter } from "@/core/orders/dto/bill-list-filters.dto";
-import { formatCurrency } from "@/core/i18n/utils";
-import {
+import { formatCurrency ,
   translatePaymentMethod,
   getPaymentMethodIcon,
 } from "@/core/i18n/utils";
@@ -35,14 +32,6 @@ export default function BillsListScreen() {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [filters, setFilters] = useState<BillListFiltersDto>({});
   const { user } = useAuthStore();
-
-  // Animation config for smooth, iOS-like bottom sheet animations
-  const animationConfigs = useBottomSheetSpringConfigs({
-    damping: 50,
-    stiffness: 300,
-    mass: 1,
-    overshootClamping: true,
-  });
 
   const { bills, count, isLoading, refetch } = useBillsList(filters);
 
@@ -92,10 +81,10 @@ export default function BillsListScreen() {
   const { users } = useUsers();
   const isAdmin = user?.role?.name === "admin";
   const availableWaiters = useMemo(() => {
-    const filteredUsers = isAdmin 
+    const filteredUsers = isAdmin
       ? users.filter(u => u.isActive)
       : users.filter(u => u.isActive && u.id === user?.id);
-    
+
     return filteredUsers
       .map(u => ({
         id: u.id,
@@ -347,14 +336,6 @@ export default function BillsListScreen() {
       <BottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={["60%"]}
-        animationConfigs={animationConfigs}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            disappearsOnIndex={-1}
-            appearsOnIndex={0}
-          />
-        )}
         enablePanDownToClose
       >
         <BillsFilterBottomSheet

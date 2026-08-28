@@ -1,6 +1,6 @@
 import { ScrollView, RefreshControl, Alert } from "react-native";
 
-import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
+import { BottomSheetModal } from "@expo/ui/community/bottom-sheet";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -248,13 +248,7 @@ export default function MyOrdersScreen() {
       <BottomSheetModal
         ref={bottomSheetModalRef}
         onChange={handleSheetChanges}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            disappearsOnIndex={-1}
-            appearsOnIndex={0}
-          />
-        )}
+        enablePanDownToClose
       >
         <NewOrderBottomSheet onCreateOrder={handleNavigate} />
       </BottomSheetModal>

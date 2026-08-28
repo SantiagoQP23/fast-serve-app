@@ -5,7 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { BottomSheetModalProvider } from "@expo/ui/community/bottom-sheet";
 
 import tw from "@/presentation/theme/lib/tailwind";
 import { useDeviceContext } from "twrnc";

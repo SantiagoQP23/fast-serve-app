@@ -1,4 +1,4 @@
-import { BottomSheetView } from "@gorhom/bottom-sheet";
+import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
 import { Text, Platform } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import dayjs from "dayjs";

@@ -20,10 +20,9 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Chip from "@/presentation/theme/components/chip";
 import { ProductOption } from "@/core/menu/models/product-optionl.model";
 import {
-  BottomSheetBackdrop,
   BottomSheetModal,
-  BottomSheetView,
-} from "@gorhom/bottom-sheet";
+  BottomSheetView
+} from "@expo/ui/community/bottom-sheet";
 import BottomSheetPicker, {
   BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
@@ -92,17 +91,6 @@ export default function ProductScreen() {
     setActiveDetail(null);
     router.back();
   };
-
-  const renderBackdrop = useCallback(
-    (props: any) => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-      />
-    ),
-    [],
-  );
 
   const openCustomBottomSheet = () => {
     bottomSheetModalRef.current?.present();
@@ -337,7 +325,6 @@ export default function ProductScreen() {
       <BottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={["55%"]}
-        backdropComponent={renderBackdrop}
         enablePanDownToClose
       >
         <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>

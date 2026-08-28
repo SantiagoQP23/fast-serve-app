@@ -2,11 +2,9 @@ import React, { useState, useRef, useMemo, useCallback } from "react";
 import { Pressable, Text, View } from "react-native";
 import {
   BottomSheetModal,
-  BottomSheetBackdrop,
   BottomSheetView,
-  BottomSheetFlatList,
-  useBottomSheetSpringConfigs,
-} from "@gorhom/bottom-sheet";
+  BottomSheetFlatList
+} from "@expo/ui/community/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "../lib/tailwind";
 import TextInput from "./text-input";
@@ -42,14 +40,6 @@ export default function Select({
 }: SelectProps) {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Animation config for smooth, iOS-like bottom sheet animations
-  const animationConfigs = useBottomSheetSpringConfigs({
-    damping: 50,
-    stiffness: 300,
-    mass: 1,
-    overshootClamping: true,
-  });
 
   // Smart default: enable search if more than 5 options, or if explicitly set
   const isSearchable =
@@ -122,14 +112,6 @@ export default function Select({
       <BottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={snapPoints}
-        animationConfigs={animationConfigs}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            disappearsOnIndex={-1}
-            appearsOnIndex={0}
-          />
-        )}
       >
         <BottomSheetView style={tw`flex-1 px-4 pb-4`}>
           {/* Header */}

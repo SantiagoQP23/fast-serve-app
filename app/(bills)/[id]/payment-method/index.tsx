@@ -1,4 +1,10 @@
-import { ScrollView, Alert, Image, Pressable } from "react-native";
+import {
+  ScrollView,
+  Alert,
+  Image,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
 import { toast } from "sonner-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -6,7 +12,6 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
-import { ActivityIndicator } from "react-native";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { usePaymentMethods } from "@/presentation/restaurant/hooks/usePaymentMethods";
 import Button from "@/presentation/theme/components/button";
@@ -24,10 +29,9 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { Ionicons } from "@expo/vector-icons";
 import {
-  BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetView,
-} from "@gorhom/bottom-sheet";
+} from "@expo/ui/community/bottom-sheet";
 import { useBills } from "@/presentation/orders/hooks/useBills";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Chip from "@/presentation/theme/components/chip";
@@ -302,17 +306,9 @@ export default function PaymentMethodScreen() {
       <BottomSheetModal
         ref={transferBottomSheetRef}
         index={0}
-        snapPoints={transferSnapPoints}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            disappearsOnIndex={-1}
-            appearsOnIndex={0}
-          />
-        )}
         enablePanDownToClose
       >
-        <BottomSheetView style={tw`p-6 gap-4`}>
+        <BottomSheetView style={tw`p-6 gap-4 bg-light-background`}>
           <ThemedView style={tw`gap-1`}>
             <ThemedText type="h4">{t("bills:details.transferNote")}</ThemedText>
             <ThemedText type="body2" style={tw`text-gray-500`}>
@@ -414,20 +410,8 @@ export default function PaymentMethodScreen() {
       </BottomSheetModal>
 
       {/* Card bottom sheet */}
-      <BottomSheetModal
-        ref={cardBottomSheetRef}
-        index={0}
-        snapPoints={cardSnapPoints}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            disappearsOnIndex={-1}
-            appearsOnIndex={0}
-          />
-        )}
-        enablePanDownToClose
-      >
-        <BottomSheetView style={tw`p-6 gap-4`}>
+      <BottomSheetModal ref={cardBottomSheetRef} index={0} enablePanDownToClose>
+        <BottomSheetView style={tw`p-6 gap-4 bg-light-background`}>
           <ThemedView style={tw`gap-1 items-center`}>
             <ThemedText type="h2">{t("bills:details.commission")}</ThemedText>
             <ThemedText type="body2" style={tw`text-gray-500`}>
@@ -456,20 +440,8 @@ export default function PaymentMethodScreen() {
       </BottomSheetModal>
 
       {/* Cash bottom sheet */}
-      <BottomSheetModal
-        ref={cashBottomSheetRef}
-        index={0}
-        snapPoints={cashSnapPoints}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            disappearsOnIndex={-1}
-            appearsOnIndex={0}
-          />
-        )}
-        enablePanDownToClose
-      >
-        <BottomSheetView style={tw`p-4 gap-4 mb-8`}>
+      <BottomSheetModal ref={cashBottomSheetRef} index={0} enablePanDownToClose>
+        <BottomSheetView style={tw`p-4 gap-4 mb-8 bg-light-background`}>
           <ThemedView style={tw`gap-1`}>
             <ThemedText type="h4">
               {t("bills:details.receivedAmount")}

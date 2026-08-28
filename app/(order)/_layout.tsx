@@ -5,7 +5,7 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
+import { BottomSheetModal } from "@expo/ui/community/bottom-sheet";
 import { Stack } from "expo-router";
 import { useCallback, useEffect, useRef } from "react";
 
@@ -100,16 +100,7 @@ export default function OrdersLayout() {
         />
       </Stack>
 
-      <BottomSheetModal
-        ref={optionsBottomSheetRef}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            disappearsOnIndex={-1}
-            appearsOnIndex={0}
-          />
-        )}
-      >
+      <BottomSheetModal ref={optionsBottomSheetRef} enablePanDownToClose>
         {order && (
           <OrderOptionsBottomSheet
             order={order}
@@ -119,16 +110,7 @@ export default function OrdersLayout() {
         )}
       </BottomSheetModal>
 
-      <BottomSheetModal
-        ref={reassignBottomSheetRef}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            disappearsOnIndex={-1}
-            appearsOnIndex={0}
-          />
-        )}
-      >
+      <BottomSheetModal ref={reassignBottomSheetRef} enablePanDownToClose>
         {order && (
           <ReassignOrderBottomSheet
             order={order}

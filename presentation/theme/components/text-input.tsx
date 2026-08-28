@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import tw from "../lib/tailwind";
 import { ThemedView } from "./themed-view";
-import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
+import { BottomSheetTextInput } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "./themed-text";
 import { typography } from "@/constants/theme";
 

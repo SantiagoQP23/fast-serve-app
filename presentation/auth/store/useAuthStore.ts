@@ -13,14 +13,22 @@ import { User } from "@/core/auth/models/user.model";
 import { Restaurant } from "@/core/common/models/restaurant.model";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { Alert } from "react-native";
+import { bootstrapRestaurantData } from "@/core/restaurant/services/bootstrap.service";
+import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
+import { useTablesStore } from "@/presentation/tables/hooks/useTablesStore";
+import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
+import { usePrintersStore } from "@/presentation/printers/store/usePrintersStore";
 
 export type AuthStatus = "authenticated" | "unauthenticated" | "checking";
+export type BootstrapStatus = "idle" | "loading" | "success" | "error";
 
 export interface AuthState {
   status: AuthStatus;
   token?: string;
   user?: User;
   currentRestaurant?: Restaurant;
+  bootstrapStatus: BootstrapStatus;
+  bootstrapError: Error | null;
 
   login: (email: string, password: string) => Promise<boolean>;
   loginWithGoogle: () => Promise<boolean>;
@@ -41,6 +49,7 @@ export interface AuthState {
   ) => Promise<{ success: boolean; errorCode?: string }>;
   checkStatus: () => Promise<void>;
   logout: () => Promise<void>;
+  resetBootstrap: () => void;
 
   changeStatus: (
     token?: string,
@@ -55,15 +64,25 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   token: undefined,
   user: undefined,
   restaurant: undefined,
+  bootstrapStatus: "idle",
+  bootstrapError: null,
 
   // Actions
+  resetBootstrap: () => set({ bootstrapStatus: "idle", bootstrapError: null }),
+
   changeStatus: async (
     token?: string,
     user?: User,
     currentRestaurant?: Restaurant,
   ) => {
     if (!token || !user) {
-      set({ status: "unauthenticated", token: undefined, user: undefined });
+      set({
+        status: "unauthenticated",
+        token: undefined,
+        user: undefined,
+        bootstrapStatus: "idle",
+        bootstrapError: null,
+      });
       await SecureStorageAdapter.removeItem("token");
       return false;
     }
@@ -73,11 +92,39 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       token: token,
       user: user,
       currentRestaurant: currentRestaurant,
+      bootstrapStatus: currentRestaurant ? "loading" : "idle",
+      bootstrapError: null,
     });
 
     await SecureStorageAdapter.setItem("token", token);
 
-    return true;
+    if (!currentRestaurant) {
+      return true;
+    }
+
+    try {
+      const data = await bootstrapRestaurantData(currentRestaurant.id);
+
+      useMenuStore.getState().setMenu(data.menu, currentRestaurant.id);
+      usePaymentMethodsStore
+        .getState()
+        .setPaymentMethods(data.paymentMethods, currentRestaurant.id);
+      usePrintersStore
+        .getState()
+        .setPrinters(data.printers, currentRestaurant.id);
+      useTablesStore.getState().setTables(data.tables, currentRestaurant.id);
+
+      set({ bootstrapStatus: "success", bootstrapError: null });
+      return true;
+    } catch (error) {
+      console.log("Bootstrap error", error);
+      set({
+        bootstrapStatus: "error",
+        bootstrapError: error instanceof Error ? error : new Error(String(error)),
+      });
+      // Auth is still valid; caller decides whether to block or retry.
+      return true;
+    }
   },
 
   login: async (email: string, password: string) => {
@@ -109,7 +156,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     const statusChanged = await get().changeStatus(
       token,
       user,
-      currentRestaurant,
+      currentRestaurant ?? undefined,
     );
 
     return { success: statusChanged };
@@ -210,6 +257,17 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   logout: async () => {
     await authLogout();
 
-    set({ status: "unauthenticated", token: undefined, user: undefined });
+    useMenuStore.getState().clearMenu();
+    usePaymentMethodsStore.getState().clearPaymentMethods();
+    usePrintersStore.getState().clearPrinters();
+    useTablesStore.getState().clearTables();
+
+    set({
+      status: "unauthenticated",
+      token: undefined,
+      user: undefined,
+      bootstrapStatus: "idle",
+      bootstrapError: null,
+    });
   },
 }));

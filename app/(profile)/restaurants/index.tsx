@@ -1,4 +1,4 @@
-import { Pressable } from "react-native";
+import { ActivityIndicator, Pressable } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -10,7 +10,9 @@ import Card from "@/presentation/theme/components/card";
 
 export default function RestaurantsScreen() {
   const switchRestaurant = switchRestaurantMutation();
-  const { user, currentRestaurant } = useAuthStore();
+  const { user, currentRestaurant, bootstrapStatus } = useAuthStore();
+  const isSwitching =
+    switchRestaurant.isPending || bootstrapStatus === "loading";
   const onSwitchRestaurant = (restaurantId: string) => {
     switchRestaurant.mutate(restaurantId);
   };
@@ -44,6 +46,14 @@ export default function RestaurantsScreen() {
           ))}
         </ThemedView>
       </ThemedView>
+
+      {isSwitching && (
+        <ThemedView
+          style={tw`absolute inset-0 bg-black/20 justify-center items-center`}
+        >
+          <ActivityIndicator />
+        </ThemedView>
+      )}
     </ScreenLayout>
   );
 }

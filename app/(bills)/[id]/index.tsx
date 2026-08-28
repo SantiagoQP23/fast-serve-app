@@ -28,11 +28,9 @@ import { BillSource, BillStatus } from "@/core/orders/models/bill.model";
 import TransactionCard from "@/presentation/transactions/components/transaction-card";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import {
-  BottomSheetBackdrop,
   BottomSheetModal,
-  BottomSheetView,
-  useBottomSheetSpringConfigs,
-} from "@gorhom/bottom-sheet";
+  BottomSheetView
+} from "@expo/ui/community/bottom-sheet";
 import { useBillStatus } from "@/presentation/orders/hooks/useBillStatus";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles } from "@/core/auth/models/user.model";
@@ -86,13 +84,6 @@ export default function BillScreen() {
 
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const initEditCart = useEditOrderCartStore((state) => state.init);
-
-  const animationConfigs = useBottomSheetSpringConfigs({
-    damping: 50,
-    stiffness: 300,
-    mass: 1,
-    overshootClamping: true,
-  });
 
   // Keep store in sync so the payment screen can read the current discount
   useEffect(() => {
@@ -568,14 +559,6 @@ export default function BillScreen() {
       <BottomSheetModal
         ref={bottomSheetRef}
         snapPoints={["45%"]}
-        animationConfigs={animationConfigs}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            disappearsOnIndex={-1}
-            appearsOnIndex={0}
-          />
-        )}
         enablePanDownToClose
       >
         <BottomSheetView style={tw`p-4 gap-4 `}>

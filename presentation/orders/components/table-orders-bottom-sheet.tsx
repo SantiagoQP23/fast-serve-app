@@ -1,4 +1,4 @@
-import { BottomSheetView, BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import { BottomSheetView, BottomSheetFlatList } from "@expo/ui/community/bottom-sheet";
 import { View, Text, Alert, ButtonProps, Dimensions } from "react-native";
 import { useCallback, useMemo, useState } from "react";
 import { OrderType, orderTypes } from "@/core/orders/enums/order-type.enum";

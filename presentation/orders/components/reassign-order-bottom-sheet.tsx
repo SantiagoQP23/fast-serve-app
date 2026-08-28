@@ -1,4 +1,7 @@
-import { BottomSheetFlatList, BottomSheetView } from "@gorhom/bottom-sheet";
+import {
+  BottomSheetFlatList,
+  BottomSheetView,
+} from "@expo/ui/community/bottom-sheet";
 import { ActivityIndicator, ListRenderItem, Pressable } from "react-native";
 import { Order } from "@/core/orders/models/order.model";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -70,7 +73,9 @@ const ReassignOrderBottomSheet = ({
   };
 
   return (
-    <BottomSheetView style={tw`px-4 pb-6`}>
+    <BottomSheetView
+      style={tw`px-4 pb-6 bg-light-background dark:bg-dark-background`}
+    >
       <ThemedView style={tw`mb-4`}>
         <ThemedText type="h3">{t("orders:options.reassignOrder")}</ThemedText>
         <ThemedText type="body2" style={tw`text-gray-500 mt-1`}>

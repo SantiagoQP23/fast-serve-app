@@ -15,10 +15,9 @@ import Button from "@/presentation/theme/components/button";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import {
-  BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetView,
-} from "@gorhom/bottom-sheet";
+} from "@expo/ui/community/bottom-sheet";
 import BottomSheetPicker, {
   BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
@@ -66,17 +65,6 @@ export default function OrderDetailCard({
 
   // Derive checkbox state directly from props (no local state needed)
   const isChecked = detail.quantity === detail.qtyDelivered;
-
-  const renderBackdrop = useCallback(
-    (props: any) => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-      />
-    ),
-    [],
-  );
 
   const handleOpenBottomSheet = () => {
     if (isCancelled) return;
@@ -217,7 +205,6 @@ export default function OrderDetailCard({
       <BottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={["30%"]}
-        backdropComponent={renderBackdrop}
         enablePanDownToClose
       >
         <OrderDetailActionsBottomSheet
@@ -228,12 +215,7 @@ export default function OrderDetailCard({
         />
       </BottomSheetModal>
 
-      <BottomSheetModal
-        ref={deliveredSheetRef}
-        snapPoints={["30%"]}
-        backdropComponent={renderBackdrop}
-        enablePanDownToClose
-      >
+      <BottomSheetModal ref={deliveredSheetRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6`}>
           <ThemedView style={tw`mb-4`}>
             <ThemedText type="h3">{t("common:status.delivered")}</ThemedText>

@@ -1,7 +1,7 @@
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "expo-router";
 import TextInput from "@/presentation/theme/components/text-input";
 import Button from "@/presentation/theme/components/button";
@@ -16,10 +16,9 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Chip from "@/presentation/theme/components/chip";
 import { ProductOption } from "@/core/menu/models/product-optionl.model";
 import {
-  BottomSheetBackdrop,
   BottomSheetModal,
-  BottomSheetView,
-} from "@gorhom/bottom-sheet";
+  BottomSheetView
+} from "@expo/ui/community/bottom-sheet";
 import BottomSheetPicker, {
   BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
@@ -90,17 +89,6 @@ export default function EditOrderDetailScreen() {
 
   const { statusText, statusIcon, labelColor } = useOrderDetailStatus(
     orderDetail?.status || OrderDetailStatus.PENDING,
-  );
-
-  const renderBackdrop = useCallback(
-    (props: any) => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-      />
-    ),
-    [],
   );
 
   const openCustomBottomSheet = () => {
@@ -351,7 +339,6 @@ export default function EditOrderDetailScreen() {
         <BottomSheetModal
           ref={bottomSheetModalRef}
           snapPoints={["55%"]}
-          backdropComponent={renderBackdrop}
           enablePanDownToClose
         >
           <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
@@ -373,7 +360,6 @@ export default function EditOrderDetailScreen() {
         <BottomSheetModal
           ref={deliveredSheetRef}
           snapPoints={["30%"]}
-          backdropComponent={renderBackdrop}
           enablePanDownToClose
         >
           <BottomSheetView style={tw`px-4 pb-6`}>

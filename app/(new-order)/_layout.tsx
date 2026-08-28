@@ -6,7 +6,7 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import NotificationBadge from "@/presentation/theme/components/notification-badge";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
+import { BottomSheetModal } from "@expo/ui/community/bottom-sheet";
 import { router, Stack } from "expo-router";
 import { useCallback, useRef } from "react";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -92,13 +92,7 @@ export default function NewOrderLayout() {
 
       <BottomSheetModal
         ref={bottomSheetModalRef}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            disappearsOnIndex={-1}
-            appearsOnIndex={0}
-          />
-        )}
+       
       >
         <NewOrderBottomSheet
           onCreateOrder={closeBottomSheet}

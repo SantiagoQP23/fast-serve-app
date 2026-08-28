@@ -10,7 +10,7 @@ import { useTableOrders } from "@/presentation/orders/hooks/useTableOrders";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { useCallback, useRef } from "react";
-import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
+import { BottomSheetModal } from "@expo/ui/community/bottom-sheet";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
@@ -104,13 +104,7 @@ export default function TableOrdersScreen() {
 
         <BottomSheetModal
           ref={bottomSheetModalRef}
-          backdropComponent={(props) => (
-            <BottomSheetBackdrop
-              {...props}
-              disappearsOnIndex={-1}
-              appearsOnIndex={0}
-            />
-          )}
+         
         >
           <NewOrderBottomSheet onCreateOrder={handleNavigate} />
         </BottomSheetModal>

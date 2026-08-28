@@ -6,7 +6,7 @@ import {
   Pressable,
   View,
   RefreshControl,
-} from "react-native";
+ Modal } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -30,15 +30,12 @@ import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.m
 import { AccountType } from "@/core/restaurant/models/account.model";
 import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
 import {
-  BottomSheetBackdrop,
   BottomSheetModal,
-  BottomSheetView,
-  useBottomSheetSpringConfigs,
-} from "@gorhom/bottom-sheet";
+  BottomSheetView
+} from "@expo/ui/community/bottom-sheet";
 import * as ImagePicker from "expo-image-picker";
 import { PaymentProofsService } from "@/core/transactions/services/payment-proofs.service";
 import ImageViewer from "react-native-image-zoom-viewer";
-import { Modal } from "react-native";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 
 export default function TransactionDetailScreen() {
@@ -77,12 +74,6 @@ export default function TransactionDetailScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const accountBottomSheetRef = useRef<BottomSheetModal>(null);
-  const animationConfigs = useBottomSheetSpringConfigs({
-    damping: 50,
-    stiffness: 300,
-    mass: 1,
-    overshootClamping: true,
-  });
 
   const isTransfer =
     transaction?.paymentMethod?.type === PaymentMethodCategory.TRANSFER;
@@ -587,14 +578,6 @@ export default function TransactionDetailScreen() {
         ref={accountBottomSheetRef}
         snapPoints={["50%"]}
         enablePanDownToClose
-        animationConfigs={animationConfigs}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            appearsOnIndex={0}
-            disappearsOnIndex={-1}
-          />
-        )}
       >
         <BottomSheetView style={tw`flex-1 px-4 pt-4 pb-8`}>
           <ThemedText type="h4" style={tw`font-bold mb-4`}>

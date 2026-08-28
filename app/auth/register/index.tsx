@@ -69,7 +69,6 @@ const SignupScreen = () => {
     control,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -100,6 +99,18 @@ const SignupScreen = () => {
 
     if (result.success) {
       toast.success(t("auth:signup.successMessage"));
+
+      if (useAuthStore.getState().bootstrapStatus === "error") {
+        toast.error(t("auth:validations.bootstrapError"));
+        return;
+      }
+
+      const currentUser = useAuthStore.getState().user;
+      if (currentUser?.role) {
+        router.replace("/(app)/(tabs)/(orders-module)/my-orders");
+        return;
+      }
+
       router.replace("/no-restaurant");
       return;
     }

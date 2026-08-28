@@ -17,11 +17,9 @@ import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Ionicons } from "@expo/vector-icons";
 import {
-  BottomSheetBackdrop,
   BottomSheetModal,
-  BottomSheetView,
-  useBottomSheetSpringConfigs,
-} from "@gorhom/bottom-sheet";
+  BottomSheetView
+} from "@expo/ui/community/bottom-sheet";
 import Button from "@/presentation/theme/components/button";
 import DatePicker from "@/presentation/theme/components/date-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -48,13 +46,6 @@ export default function HistoryScreen() {
   const [filters, setFilters] = useState<OrderHistoryFiltersDto>({});
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const { currentRestaurant, user } = useAuthStore();
-
-  const animationConfigs = useBottomSheetSpringConfigs({
-    damping: 50,
-    stiffness: 300,
-    mass: 1,
-    overshootClamping: true,
-  });
 
   // Load persisted date and filters on mount
   useEffect(() => {
@@ -341,14 +332,6 @@ export default function HistoryScreen() {
       <BottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={["40%"]}
-        animationConfigs={animationConfigs}
-        backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            disappearsOnIndex={-1}
-            appearsOnIndex={0}
-          />
-        )}
         enablePanDownToClose
       >
         <BottomSheetView style={tw`p-4`}>

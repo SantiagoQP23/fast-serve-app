@@ -1,4 +1,4 @@
-import { BottomSheetTextInput, BottomSheetView } from "@gorhom/bottom-sheet";
+import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
 import { ThemedView } from "../theme/components/themed-view";
 import ButtonGroup from "../theme/components/button-group";
 import Select from "../theme/components/select";
@@ -13,7 +13,6 @@ import TextInput from "../theme/components/text-input";
 import { useTables } from "../tables/hooks/useTables";
 import { useOrdersStore } from "./store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { i18nAlert } from "@/core/i18n/utils";
 import { useOrderTypes } from "./hooks/useOrderTypes";
 import { typography } from "@/constants/theme";
 import { toast } from "sonner-native";
@@ -69,7 +68,7 @@ const NewOrderBottomSheet = ({
   };
 
   return (
-    <BottomSheetView style={tw`p-4 items-center justify-center`}>
+    <BottomSheetView style={tw`p-4 items-center justify-center bg-white`}>
       <ThemedView style={tw`w-full gap-6`}>
         <ThemedText type="h2" style={tw`text-center inter-semibold`}>
           {t("newOrder.title")}

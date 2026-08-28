@@ -1,8 +1,8 @@
-import { BottomSheetBackdrop, BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
+import { BottomSheetModal, BottomSheetView } from "@expo/ui/community/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { useCallback } from "react";
+
 import { OrderDetail } from "@/core/orders/models/order-detail.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -13,7 +13,7 @@ dayjs.extend(relativeTime);
 
 interface OrderDetailActivityBottomSheetProps {
   detail: OrderDetail;
-  bottomSheetRef: React.RefObject<BottomSheetModal>;
+  bottomSheetRef: React.RefObject<BottomSheetModal | null>;
 }
 
 export default function OrderDetailActivityBottomSheet({
@@ -36,22 +36,10 @@ export default function OrderDetailActivityBottomSheet({
     ? `${detail.updatedBy.person.firstName} ${detail.updatedBy.person.lastName}`
     : null;
 
-  const renderBackdrop = useCallback(
-    (props: any) => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-      />
-    ),
-    [],
-  );
-
   return (
     <BottomSheetModal
       ref={bottomSheetRef}
       snapPoints={["30%"]}
-      backdropComponent={renderBackdrop}
       enablePanDownToClose
     >
       <BottomSheetView style={tw`px-4 pb-6`}>
