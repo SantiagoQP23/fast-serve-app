@@ -35,12 +35,13 @@ export default function CircularProgressGauge({
 }: CircularProgressGaugeProps) {
   const animatedValue = useRef(new Animated.Value(0)).current;
   const colorScheme = useColorScheme();
-  
+
   // Get colors with fallback to theme primary color
-  const themePrimaryColor = colorScheme === "dark" ? Colors.dark.primary : Colors.light.primary;
+  const themePrimaryColor =
+    colorScheme === "dark" ? Colors.dark.primary : Colors.light.primary;
   const primaryColor = accentColor || themePrimaryColor;
   const bgColor = backgroundColor || tw.color("gray-200") || "#E5E7EB";
-  
+
   // Calculate circle properties
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
@@ -104,9 +105,10 @@ export default function CircularProgressGauge({
             bottom: 0,
             justifyContent: "center",
             alignItems: "center",
+            gap: 4,
           }}
         >
-          <ThemedText type="h1" style={[tw`font-bold`, { color: primaryColor }]}>
+          <ThemedText type="h1" style={[tw``, { color: primaryColor }]}>
             {Math.round(clampedPercentage)}%
           </ThemedText>
           <ThemedText type="caption" style={tw`text-gray-500 mt-1`}>
@@ -121,7 +123,10 @@ export default function CircularProgressGauge({
           <ThemedText type="small" style={tw`text-gray-500 mb-1`}>
             {currentLabel}
           </ThemedText>
-          <ThemedText type="body1" style={[tw`font-semibold`, { color: primaryColor }]}>
+          <ThemedText
+            type="body1"
+            style={[tw`font-semibold`, { color: primaryColor }]}
+          >
             {formatValue(currentValue)}
           </ThemedText>
         </ThemedView>

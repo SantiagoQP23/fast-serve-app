@@ -62,7 +62,7 @@ export default function SettingsScreen() {
             }}
           >
             <Ionicons name="log-out-outline" size={24} color="red" />
-            <ThemedText>{t("manage.logout")}</ThemedText>
+            <ThemedText style={tw`text-red`}>{t("manage.logout")}</ThemedText>
           </Pressable>
         </ThemedView>
 

@@ -339,7 +339,7 @@ export default function OrderDetailCard({
                       detail.status !== OrderDetailStatus.DELIVERED && (
                         <ProgressBar
                           progress={detail.qtyDelivered / detail.quantity}
-                          height={1}
+                          height={1.5}
                         />
                       )}
                   </ThemedView>

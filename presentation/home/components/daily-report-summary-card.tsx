@@ -9,7 +9,7 @@ import { formatCurrency } from "@/core/i18n/utils";
 import { useDailyReport } from "@/presentation/orders/hooks/useDailyReport";
 import { useRouter } from "expo-router";
 import CircularProgressGauge from "@/presentation/theme/components/circular-progress-gauge";
-
+import { typography } from "@/constants/theme";
 
 export default function DailyReportSummaryCard({
   startDate,
@@ -47,7 +47,9 @@ export default function DailyReportSummaryCard({
     <Pressable>
       <ThemedView style={tw`rounded-2xl border border-light-border p-4  mb-4`}>
         <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
-          <ThemedText type="h3">{t("reports:summary.title")}</ThemedText>
+          <ThemedText type="h3" style={{ fontFamily: typography.bold }}>
+            {t("reports:summary.title")}
+          </ThemedText>
           {enableAmountVisibilityToggle && (
             <Pressable
               onPress={() => setShowAmounts((prev) => !prev)}
@@ -83,8 +85,6 @@ export default function DailyReportSummaryCard({
                 strokeWidth={12}
               />
             </ThemedView>
-
-
           </ThemedView>
         )}
       </ThemedView>

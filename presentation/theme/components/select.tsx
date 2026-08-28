@@ -3,7 +3,7 @@ import { Pressable, Text, View } from "react-native";
 import {
   BottomSheetModal,
   BottomSheetView,
-  BottomSheetFlatList
+  BottomSheetFlatList,
 } from "@expo/ui/community/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "../lib/tailwind";
@@ -78,14 +78,7 @@ export default function Select({
       {/* Trigger Button */}
       <ThemedView style={tw`w-full gap-2`}>
         {label && (
-          <ThemedText
-            style={[
-              tw` dark:text-gray-300  `,
-              { fontFamily: typography.medium },
-            ]}
-          >
-            {label}
-          </ThemedText>
+          <ThemedText style={[tw` dark:text-gray-300  `]}>{label}</ThemedText>
         )}
 
         <Pressable
@@ -109,16 +102,11 @@ export default function Select({
       </ThemedView>
 
       {/* Bottom Sheet Modal */}
-      <BottomSheetModal
-        ref={bottomSheetModalRef}
-        snapPoints={snapPoints}
-      >
-        <BottomSheetView style={tw`flex-1 px-4 pb-4`}>
+      <BottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
+        <BottomSheetView style={tw`flex-1 px-4 pb-4 bg-light-background`}>
           {/* Header */}
           <View style={tw`flex-row items-center justify-between mb-4`}>
-            <Text
-              style={tw`text-lg font-semibold text-gray-900 dark:text-white`}
-            >
+            <Text style={tw`text-lg  text-gray-900 dark:text-white`}>
               {label || "Select an option"}
             </Text>
             <Pressable onPress={handleClose} hitSlop={8}>
@@ -129,7 +117,7 @@ export default function Select({
 
         {/* Search Input */}
         {isSearchable && (
-          <View style={tw`mb-6 mt-12 px-4`}>
+          <ThemedView style={tw`mb-6 mt-12 px-4 bg-light-background`}>
             <TextInput
               bottomSheet
               icon="search"
@@ -144,13 +132,13 @@ export default function Select({
                 ) : null
               }
             />
-          </View>
+          </ThemedView>
         )}
 
         {/* Options List */}
         {filteredOptions.length > 0 ? (
           <BottomSheetFlatList
-            style={tw`pb-6`}
+            style={tw`pb-6 bg-light-background`}
             contentContainerStyle={tw`mx-4 bg-light-surface rounded-xl`}
             data={filteredOptions}
             keyExtractor={(item: Option) => item.value.toString()}
