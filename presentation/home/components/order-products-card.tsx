@@ -140,7 +140,7 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
             {order.people}
           </ThemedText>
           <ThemedView style={tw`flex-row items-center gap-2 `}>
-            <ThemedText type="h3">${order.total}</ThemedText>
+            <ThemedText type="h4">${order.total}</ThemedText>
           </ThemedView>
         </ThemedView>
       </Card>

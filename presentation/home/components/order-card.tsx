@@ -165,7 +165,7 @@ export default function OrderCard({ order }: OrderCardProps) {
                 {order.people}
               </ThemedText>
             </ThemedView>
-            <ThemedText type="h3">${order.total}</ThemedText>
+            <ThemedText type="h4">${order.total}</ThemedText>
           </ThemedView>
         </ThemedView>
       </Card>

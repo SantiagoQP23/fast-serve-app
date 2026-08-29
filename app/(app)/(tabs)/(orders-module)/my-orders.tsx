@@ -249,6 +249,9 @@ export default function MyOrdersScreen() {
         ref={bottomSheetModalRef}
         onChange={handleSheetChanges}
         enablePanDownToClose
+        backgroundStyle={tw.style(
+          `bg-light-background dark:bg-dark-background`,
+        )}
       >
         <NewOrderBottomSheet onCreateOrder={handleNavigate} />
       </BottomSheetModal>
