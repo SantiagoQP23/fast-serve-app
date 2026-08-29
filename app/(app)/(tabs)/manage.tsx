@@ -14,7 +14,6 @@ import Label from "@/presentation/theme/components/label";
 import { Roles } from "@/core/auth/models/user.model";
 import { toast } from "sonner-native";
 import Card from "@/presentation/theme/components/card";
-import { usePushNotifications } from "@/presentation/shared/hooks/usePushNotifications";
 
 interface CardButtonProps extends PressableProps {
   icon?: keyof typeof Ionicons.glyphMap;
@@ -137,8 +136,8 @@ export default function ManageScreen() {
               size={40}
               color={tw.color("gray-400")}
             />
-            <ThemedView style={tw`flex-1`}>
-              <ThemedText type="h3">
+            <ThemedView style={tw`flex-1 gap-1`}>
+              <ThemedText type="h4">
                 {user?.person?.firstName} {user?.person?.lastName}
               </ThemedText>
               <ThemedText type="small" style={tw`text-gray-500`}>

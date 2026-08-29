@@ -28,16 +28,14 @@ import {
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  BottomSheetModal,
-  BottomSheetView,
-} from "@expo/ui/community/bottom-sheet";
+import { BottomSheetView, type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { useBills } from "@/presentation/orders/hooks/useBills";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Chip from "@/presentation/theme/components/chip";
 import { usePaymentStore } from "@/presentation/payment/store/usePaymentStore";
 import { roundTo } from "@/core/common/utils/format.util";
 import * as ImagePicker from "expo-image-picker";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 
 const iconForType = (
   type: PaymentMethodCategory,
@@ -134,9 +132,9 @@ export default function PaymentMethodScreen() {
   const pct50 = Math.round(baseAmount * 0.5 * 100) / 100;
   const pct75 = Math.round(baseAmount * 0.75 * 100) / 100;
 
-  const cashBottomSheetRef = useRef<BottomSheetModal>(null);
-  const cardBottomSheetRef = useRef<BottomSheetModal>(null);
-  const transferBottomSheetRef = useRef<BottomSheetModal>(null);
+  const cashBottomSheetRef = useRef<BottomSheetMethods>(null);
+  const cardBottomSheetRef = useRef<BottomSheetMethods>(null);
+  const transferBottomSheetRef = useRef<BottomSheetMethods>(null);
   const cashSnapPoints = useMemo(() => ["70%"], []);
   const cardSnapPoints = useMemo(() => ["40%"], []);
   const transferSnapPoints = useMemo(() => ["45%", "65%"], []);
@@ -303,7 +301,7 @@ export default function PaymentMethodScreen() {
   return (
     <>
       {/* Transfer bottom sheet */}
-      <BottomSheetModal
+      <ThemedBottomSheetModal
         ref={transferBottomSheetRef}
         index={0}
         enablePanDownToClose
@@ -407,10 +405,10 @@ export default function PaymentMethodScreen() {
             onPress={handleContinueTransfer}
           />
         </BottomSheetView>
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
 
       {/* Card bottom sheet */}
-      <BottomSheetModal ref={cardBottomSheetRef} index={0} enablePanDownToClose>
+      <ThemedBottomSheetModal ref={cardBottomSheetRef} index={0} enablePanDownToClose>
         <BottomSheetView style={tw`p-6 gap-4 bg-light-background`}>
           <ThemedView style={tw`gap-1 items-center`}>
             <ThemedText type="h2">{t("bills:details.commission")}</ThemedText>
@@ -437,10 +435,10 @@ export default function PaymentMethodScreen() {
             onPress={handleContinueCard}
           />
         </BottomSheetView>
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
 
       {/* Cash bottom sheet */}
-      <BottomSheetModal ref={cashBottomSheetRef} index={0} enablePanDownToClose>
+      <ThemedBottomSheetModal ref={cashBottomSheetRef} index={0} enablePanDownToClose>
         <BottomSheetView style={tw`p-4 gap-4 mb-8 bg-light-background`}>
           <ThemedView style={tw`gap-1`}>
             <ThemedText type="h4">
@@ -504,7 +502,7 @@ export default function PaymentMethodScreen() {
             disabled={+receivedAmount < +payAmount}
           />
         </BottomSheetView>
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
 
       <ScreenLayout style={tw`flex-1 px-4 pt-6`}>
         {/* Amount to Pay */}

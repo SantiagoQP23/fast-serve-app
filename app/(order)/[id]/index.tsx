@@ -41,11 +41,13 @@ import { useOrderPrint } from "@/presentation/orders/hooks/useOrderPrint";
 import QuickActionButton from "@/presentation/orders/components/quick-action-button";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bottom-sheet";
-import { BottomSheetModal } from "@expo/ui/community/bottom-sheet";
+
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { typography } from "@/constants/theme";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import Card from "@/presentation/theme/components/card";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 
 dayjs.extend(relativeTime);
 
@@ -100,7 +102,7 @@ export default function OrderScreen() {
   } = useOrderStatus(order?.status || OrderStatus.PENDING);
   const { handlePrintOrder, handleShareOrder } = useOrderPrint(order);
 
-  const editBottomSheetRef = useRef<BottomSheetModal>(null);
+  const editBottomSheetRef = useRef<BottomSheetMethods>(null);
 
   const closeEditBottomSheet = () => {
     editBottomSheetRef.current?.close();
@@ -819,7 +821,7 @@ export default function OrderScreen() {
         </View>
       </View>
 
-      <BottomSheetModal
+      <ThemedBottomSheetModal
         ref={editBottomSheetRef}
       >
         {order && (
@@ -828,7 +830,7 @@ export default function OrderScreen() {
             onOrderUpdated={closeEditBottomSheet}
           />
         )}
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
     </>
   );
 }

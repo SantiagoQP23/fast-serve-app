@@ -29,14 +29,12 @@ import { TransactionStatus } from "@/core/transactions/models/transaction-status
 import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.model";
 import { AccountType } from "@/core/restaurant/models/account.model";
 import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
-import {
-  BottomSheetModal,
-  BottomSheetView
-} from "@expo/ui/community/bottom-sheet";
+import { BottomSheetView, type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import * as ImagePicker from "expo-image-picker";
 import { PaymentProofsService } from "@/core/transactions/services/payment-proofs.service";
 import ImageViewer from "react-native-image-zoom-viewer";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 
 export default function TransactionDetailScreen() {
   const { t } = useTranslation(["common", "bills"]);
@@ -73,7 +71,7 @@ export default function TransactionDetailScreen() {
   const [previewIndex, setPreviewIndex] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
 
-  const accountBottomSheetRef = useRef<BottomSheetModal>(null);
+  const accountBottomSheetRef = useRef<BottomSheetMethods>(null);
 
   const isTransfer =
     transaction?.paymentMethod?.type === PaymentMethodCategory.TRANSFER;
@@ -574,7 +572,7 @@ export default function TransactionDetailScreen() {
       </Modal>
 
       {/* Account Picker Bottom Sheet */}
-      <BottomSheetModal
+      <ThemedBottomSheetModal
         ref={accountBottomSheetRef}
         snapPoints={["50%"]}
         enablePanDownToClose
@@ -628,7 +626,7 @@ export default function TransactionDetailScreen() {
             })}
           </ThemedView>
         </BottomSheetView>
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
     </ScreenLayout>
   );
 }

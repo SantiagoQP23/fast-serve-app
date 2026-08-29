@@ -1,4 +1,4 @@
-import { BottomSheetModal, BottomSheetView } from "@expo/ui/community/bottom-sheet";
+import { BottomSheetView, type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -8,12 +8,13 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 
 dayjs.extend(relativeTime);
 
 interface OrderDetailActivityBottomSheetProps {
   detail: OrderDetail;
-  bottomSheetRef: React.RefObject<BottomSheetModal | null>;
+  bottomSheetRef: React.RefObject<BottomSheetMethods | null>;
 }
 
 export default function OrderDetailActivityBottomSheet({
@@ -37,7 +38,7 @@ export default function OrderDetailActivityBottomSheet({
     : null;
 
   return (
-    <BottomSheetModal
+    <ThemedBottomSheetModal
       ref={bottomSheetRef}
       snapPoints={["30%"]}
       enablePanDownToClose
@@ -96,6 +97,6 @@ export default function OrderDetailActivityBottomSheet({
           </ThemedView>
         </ThemedView>
       </BottomSheetView>
-    </BottomSheetModal>
+    </ThemedBottomSheetModal>
   );
 }

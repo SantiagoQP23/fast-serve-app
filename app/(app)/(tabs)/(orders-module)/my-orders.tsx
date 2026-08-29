@@ -1,7 +1,5 @@
 import { ScrollView, RefreshControl, Alert } from "react-native";
 
-import { BottomSheetModal } from "@expo/ui/community/bottom-sheet";
-
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 
@@ -30,6 +28,8 @@ import { Table } from "@/core/tables/models/table.model";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { MyOrdersHeaderRight } from "../_layout";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 
 export default function MyOrdersScreen() {
   const { t } = useTranslation(["common", "orders", "errors", "tables"]);
@@ -66,7 +66,7 @@ export default function MyOrdersScreen() {
   }, []);
 
   // ref
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
 
   const handleNavigate = () => {
     bottomSheetModalRef.current?.close();
@@ -245,7 +245,7 @@ export default function MyOrdersScreen() {
         )}
       </ThemedView>
 
-      <BottomSheetModal
+      <ThemedBottomSheetModal
         ref={bottomSheetModalRef}
         onChange={handleSheetChanges}
         enablePanDownToClose
@@ -254,7 +254,7 @@ export default function MyOrdersScreen() {
         )}
       >
         <NewOrderBottomSheet onCreateOrder={handleNavigate} />
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
       <Popover
         visible={popoverVisible}
         onClose={() => setPopoverVisible(false)}

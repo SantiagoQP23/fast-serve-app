@@ -16,10 +16,7 @@ import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  BottomSheetModal,
-  BottomSheetView
-} from "@expo/ui/community/bottom-sheet";
+import { BottomSheetView, type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import Button from "@/presentation/theme/components/button";
 import DatePicker from "@/presentation/theme/components/date-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -32,6 +29,7 @@ import Select from "@/presentation/theme/components/select";
 import { OrderHistoryFiltersDto } from "@/core/orders/dto/order-history-filters.dto";
 import { formatCurrency } from "@/core/i18n/utils";
 import DailyReportSummaryCard from "@/presentation/home/components/daily-report-summary-card";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 
 const STORAGE_KEY = "history_selected_date";
 const FILTERS_STORAGE_KEY = "history_filters";
@@ -44,7 +42,7 @@ export default function HistoryScreen() {
   const [showDailyReportAmounts, setShowDailyReportAmounts] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [filters, setFilters] = useState<OrderHistoryFiltersDto>({});
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
   const { currentRestaurant, user } = useAuthStore();
 
   // Load persisted date and filters on mount
@@ -329,7 +327,7 @@ export default function HistoryScreen() {
       </ScreenLayout>
 
       {/* Filter Bottom Sheet */}
-      <BottomSheetModal
+      <ThemedBottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={["40%"]}
         enablePanDownToClose
@@ -370,7 +368,7 @@ export default function HistoryScreen() {
             </ThemedView>
           </ThemedView>
         </BottomSheetView>
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
     </>
   );
 }

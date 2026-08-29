@@ -6,14 +6,16 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import NotificationBadge from "@/presentation/theme/components/notification-badge";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { BottomSheetModal } from "@expo/ui/community/bottom-sheet";
+
 import { router, Stack } from "expo-router";
 import { useCallback, useRef } from "react";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 
 export default function NewOrderLayout() {
   const { t } = useTranslation(["common"]);
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
   const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
   const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
   const cartType = useNewOrderStore((state) => state.cartType);
@@ -90,7 +92,7 @@ export default function NewOrderLayout() {
         />
       </Stack>
 
-      <BottomSheetModal
+      <ThemedBottomSheetModal
         ref={bottomSheetModalRef}
        
       >
@@ -98,7 +100,7 @@ export default function NewOrderLayout() {
           onCreateOrder={closeBottomSheet}
           buttonProps={{ label: t("common:actions.saveChanges") }}
         />
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
     </>
   );
 }

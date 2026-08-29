@@ -15,8 +15,8 @@ import Button from "@/presentation/theme/components/button";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import {
-  BottomSheetModal,
   BottomSheetView,
+  type BottomSheetMethods,
 } from "@expo/ui/community/bottom-sheet";
 import BottomSheetPicker, {
   BottomSheetPickerRef,
@@ -27,6 +27,7 @@ import Label from "@/presentation/theme/components/label";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useOrderDetailStatus } from "../hooks/useOrderDetailStatus";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 
 interface OrderDetailCardProps extends PressableProps {
   detail: OrderDetail;
@@ -45,8 +46,8 @@ export default function OrderDetailCard({
   const { t } = useTranslation(["common", "orders"]);
   const order = useOrdersStore((state) => state.activeOrder);
   const [visible, setVisible] = useState(false);
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-  const deliveredSheetRef = useRef<BottomSheetModal>(null);
+  const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
+  const deliveredSheetRef = useRef<BottomSheetMethods>(null);
   const typePickerRef = useRef<BottomSheetPickerRef>(null);
   const [deliveredDraft, setDeliveredDraft] = useState(detail.qtyDelivered);
 
@@ -202,7 +203,7 @@ export default function OrderDetailCard({
         </View>
       </Modal>
 
-      <BottomSheetModal
+      <ThemedBottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={["30%"]}
         enablePanDownToClose
@@ -213,9 +214,9 @@ export default function OrderDetailCard({
           onDelete={onRemoveDetail}
           onClose={handleCloseBottomSheet}
         />
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
 
-      <BottomSheetModal ref={deliveredSheetRef} enablePanDownToClose>
+      <ThemedBottomSheetModal ref={deliveredSheetRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6`}>
           <ThemedView style={tw`mb-4`}>
             <ThemedText type="h3">{t("common:status.delivered")}</ThemedText>
@@ -251,7 +252,7 @@ export default function OrderDetailCard({
             onPress={handleSaveDelivered}
           />
         </BottomSheetView>
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
 
       <ThemedView style={tw``}>
         <Swipeable
@@ -273,7 +274,7 @@ export default function OrderDetailCard({
             onPress={isCancelled ? undefined : onPress}
             onLongPress={isCancelled ? undefined : handleOpenBottomSheet}
           >
-            <ThemedView style={tw`flex-row items-start gap-4`}>
+            <ThemedView style={tw`flex-row items-center gap-4`}>
               {!isCancelled && (
                 <Checkbox value={isChecked} onValueChange={onCheckedChange} />
               )}
@@ -296,9 +297,10 @@ export default function OrderDetailCard({
                           {/*   weight="bold" */}
                           {/* /> */}
                           <ThemedText type="body1" style={tw`whitespace-wrap`}>
-                            {detail.quantity} - {detail.product.name}{" "}
+                            {detail.product.name}{" "}
                             {showProductOptionName &&
-                              detail.productOption?.name}
+                              detail.productOption?.name}{" "}
+                            x{detail.quantity}
                           </ThemedText>
 
                           {detail.productOption &&

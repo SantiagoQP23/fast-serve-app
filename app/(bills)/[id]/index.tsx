@@ -27,10 +27,7 @@ import Label from "@/presentation/theme/components/label";
 import { BillSource, BillStatus } from "@/core/orders/models/bill.model";
 import TransactionCard from "@/presentation/transactions/components/transaction-card";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
-import {
-  BottomSheetModal,
-  BottomSheetView
-} from "@expo/ui/community/bottom-sheet";
+import { BottomSheetView, type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { useBillStatus } from "@/presentation/orders/hooks/useBillStatus";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles } from "@/core/auth/models/user.model";
@@ -42,6 +39,7 @@ import { useBillPrint } from "@/presentation/orders/hooks/useBillPrint";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import { Transaction } from "@/core/transactions/models/transaction.model";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 
 dayjs.extend(relativeTime);
 
@@ -70,7 +68,7 @@ export default function BillScreen() {
   const [discountInput, setDiscountInput] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [visible, setVisible] = useState(false);
-  const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const bottomSheetRef = useRef<BottomSheetMethods>(null);
 
   const primaryColor = useThemeColor({}, "primary");
   const { mutate: removeBill } = useBills().removeBill;
@@ -556,7 +554,7 @@ export default function BillScreen() {
       </View>
 
       {/* Discount Bottom Sheet */}
-      <BottomSheetModal
+      <ThemedBottomSheetModal
         ref={bottomSheetRef}
         snapPoints={["45%"]}
         enablePanDownToClose
@@ -607,7 +605,7 @@ export default function BillScreen() {
             }
           />
         </BottomSheetView>
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
     </>
   );
 }

@@ -2,13 +2,15 @@ import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import IconButton from "@/presentation/theme/components/icon-button";
-import { BottomSheetModal } from "@expo/ui/community/bottom-sheet";
+
 import { router, Stack } from "expo-router";
 import { useCallback, useRef } from "react";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 
 export default function OrdersLayout() {
   const { t } = useTranslation(["auth", "orders"]);
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
 
   const closeBottomSheet = () => {
     bottomSheetModalRef.current?.close(); // Close sheet before navigating
@@ -144,7 +146,7 @@ export default function OrdersLayout() {
         {/* /> */}
       </Stack>
 
-      <BottomSheetModal
+      <ThemedBottomSheetModal
         ref={bottomSheetModalRef}
        
       >
@@ -152,7 +154,7 @@ export default function OrdersLayout() {
           onCreateOrder={closeBottomSheet}
           buttonProps={{ label: "Save changes" }}
         />
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
     </>
   );
 }

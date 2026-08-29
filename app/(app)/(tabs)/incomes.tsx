@@ -31,9 +31,7 @@ import { useTransactionsList } from "@/presentation/transactions/hooks/useTransa
 import TransactionCard from "@/presentation/transactions/components/transaction-card";
 import { formatCurrency } from "@/core/i18n/utils";
 import Button from "@/presentation/theme/components/button";
-import {
-  BottomSheetModal
-} from "@expo/ui/community/bottom-sheet";
+
 import TransactionsFilterBottomSheet from "@/presentation/transactions/components/transactions-filter-bottom-sheet";
 import Chip from "@/presentation/theme/components/chip";
 import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
@@ -43,6 +41,8 @@ import { useTransactionPaymentMethodReport } from "@/presentation/transactions/h
 import { usePaymentProofsRealtime } from "@/presentation/transactions/hooks/usePaymentProofsRealtime";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { Transaction } from "@/core/transactions/models/transaction.model";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 
 const STORAGE_KEY = "incomes_selected_date";
 const FILTERS_STORAGE_KEY = "incomes_filters";
@@ -58,7 +58,7 @@ export default function IncomesScreen() {
   const [filters, setFilters] = useState<FilterTransactionsDto>({});
   const primaryColor = useThemeColor({}, "primary");
   const queryClient = useQueryClient();
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
   const { paymentMethods } = usePaymentMethodsStore();
 
   const { user } = useAuthStore();
@@ -506,7 +506,7 @@ export default function IncomesScreen() {
       </ScrollView>
 
       {/* Filter Bottom Sheet */}
-      <BottomSheetModal
+      <ThemedBottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={["75%"]}
         enablePanDownToClose
@@ -521,7 +521,7 @@ export default function IncomesScreen() {
           availableUsers={availableWaiters}
           isAdmin={isAdmin}
         />
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
     </ScreenLayout>
   );
 }

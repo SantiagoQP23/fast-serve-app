@@ -15,10 +15,7 @@ import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Chip from "@/presentation/theme/components/chip";
 import { ProductOption } from "@/core/menu/models/product-optionl.model";
-import {
-  BottomSheetModal,
-  BottomSheetView
-} from "@expo/ui/community/bottom-sheet";
+import { BottomSheetView, type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import BottomSheetPicker, {
   BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
@@ -30,11 +27,12 @@ import { KeyboardAvoidingView } from "react-native";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
 import OrderDetailActivityBottomSheet from "@/presentation/orders/components/order-detail-activity-bottom-sheet";
 import dayjs from "dayjs";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 
 export default function EditOrderDetailScreen() {
   const { t } = useTranslation(["common", "orders", "menu"]);
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-  const activitySheetRef = useRef<BottomSheetModal>(null);
+  const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
+  const activitySheetRef = useRef<BottomSheetMethods>(null);
   const typePickerRef = useRef<BottomSheetPickerRef>(null);
   const orderDetail = useOrdersStore((state) => state.activeOrderDetail);
   const order = useOrdersStore((state) => state.activeOrder);
@@ -46,7 +44,7 @@ export default function EditOrderDetailScreen() {
     orderDetail?.qtyDelivered || 1,
   );
 
-  const deliveredSheetRef = useRef<BottomSheetModal>(null);
+  const deliveredSheetRef = useRef<BottomSheetMethods>(null);
   const [deliveredDraft, setDeliveredDraft] = useState(
     orderDetail?.qtyDelivered || 0,
   );
@@ -336,7 +334,7 @@ export default function EditOrderDetailScreen() {
           </ThemedView>
         </ScreenLayout>
 
-        <BottomSheetModal
+        <ThemedBottomSheetModal
           ref={bottomSheetModalRef}
           snapPoints={["55%"]}
           enablePanDownToClose
@@ -355,9 +353,9 @@ export default function EditOrderDetailScreen() {
               onPress={closeCustomBottomSheet}
             />
           </BottomSheetView>
-        </BottomSheetModal>
+        </ThemedBottomSheetModal>
 
-        <BottomSheetModal
+        <ThemedBottomSheetModal
           ref={deliveredSheetRef}
           snapPoints={["30%"]}
           enablePanDownToClose
@@ -416,7 +414,7 @@ export default function EditOrderDetailScreen() {
               }}
             />
           </BottomSheetView>
-        </BottomSheetModal>
+        </ThemedBottomSheetModal>
 
         <OrderDetailActivityBottomSheet
           detail={orderDetail}

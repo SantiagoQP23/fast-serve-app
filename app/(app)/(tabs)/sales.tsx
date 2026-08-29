@@ -17,9 +17,7 @@ import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  BottomSheetModal
-} from "@expo/ui/community/bottom-sheet";
+
 import BillsFilterBottomSheet from "@/presentation/orders/components/bills-filter-bottom-sheet";
 import { BillListFiltersDto , BillStatusFilter } from "@/core/orders/dto/bill-list-filters.dto";
 import {
@@ -38,6 +36,8 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Fab from "@/presentation/theme/components/fab";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 
 const STORAGE_KEY = "sales_selected_date";
 
@@ -49,7 +49,7 @@ export default function SalesScreen() {
   const [showTotalSales, setShowTotalSales] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [filters, setFilters] = useState<BillListFiltersDto>({});
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
   const { setCartType: setType } = useNewOrderStore();
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const { currentRestaurant, user } = useAuthStore();
@@ -460,7 +460,7 @@ export default function SalesScreen() {
       </ScreenLayout>
 
       {/* Filter Bottom Sheet */}
-      <BottomSheetModal
+      <ThemedBottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={["60%"]}
         enablePanDownToClose
@@ -472,7 +472,7 @@ export default function SalesScreen() {
           availableWaiters={availableWaiters}
           isAdmin={isAdmin}
         />
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
     </>
   );
 }

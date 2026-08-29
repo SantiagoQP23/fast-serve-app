@@ -7,13 +7,14 @@ import React, {
 } from "react";
 import { Pressable, Text, View } from "react-native";
 import {
-  BottomSheetModal,
   BottomSheetView,
   BottomSheetFlatList,
+  type BottomSheetMethods,
 } from "@expo/ui/community/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "../lib/tailwind";
 import TextInput from "./text-input";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 
 export type Option = {
   label: string;
@@ -51,7 +52,7 @@ const BottomSheetPicker = forwardRef<
     },
     ref,
   ) => {
-    const bottomSheetModalRef = React.useRef<BottomSheetModal>(null);
+    const bottomSheetModalRef = React.useRef<BottomSheetMethods>(null);
     const [searchQuery, setSearchQuery] = useState("");
 
     const isSearchable =
@@ -87,7 +88,7 @@ const BottomSheetPicker = forwardRef<
     }, [options, searchQuery]);
 
     return (
-      <BottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
+      <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
         <BottomSheetView style={tw`flex-1 px-4 pb-4`}>
           {/* Header */}
           <View style={tw`flex-row items-center justify-between mb-4`}>
@@ -173,7 +174,7 @@ const BottomSheetPicker = forwardRef<
           </View>
         )}
         <View style={tw`h-4`} />
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
     );
   },
 );

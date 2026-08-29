@@ -1,7 +1,5 @@
 import { ScrollView, RefreshControl } from "react-native";
 
-import { BottomSheetModal } from "@expo/ui/community/bottom-sheet";
-
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 
@@ -17,6 +15,8 @@ import OrderList from "@/presentation/orders/molecules/order-list";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import WaiterSummaryCard from "@/presentation/orders/components/waiter-summary-card";
 import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 
 export default function AllOrdersScreen() {
   const { t } = useTranslation(["common", "orders"]);
@@ -25,7 +25,7 @@ export default function AllOrdersScreen() {
   const [selectedWaiterId, setSelectedWaiterId] = useState<string | null>(null);
   const { refetchOrders, isRefetching } = useActiveOrders();
 
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
 
   const handleNavigate = () => {
     bottomSheetModalRef.current?.close();
@@ -150,13 +150,13 @@ export default function AllOrdersScreen() {
         </ScrollView>
       )}
 
-      <BottomSheetModal
+      <ThemedBottomSheetModal
         ref={bottomSheetModalRef}
         onChange={handleSheetChanges}
        
       >
         <NewOrderBottomSheet onCreateOrder={handleNavigate} />
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
 
       <Fab icon="add-outline" onPress={handlePresentModalPress} />
     </ThemedView>

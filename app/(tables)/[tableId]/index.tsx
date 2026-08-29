@@ -10,7 +10,7 @@ import { useTableOrders } from "@/presentation/orders/hooks/useTableOrders";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { useCallback, useRef } from "react";
-import { BottomSheetModal } from "@expo/ui/community/bottom-sheet";
+
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
@@ -18,6 +18,8 @@ import Label from "@/presentation/theme/components/label";
 import StatsCard from "@/presentation/home/components/stats-card";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import OrderListByStatus from "@/presentation/orders/molecules/order-list-by-status";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 
 export default function TableOrdersScreen() {
   const { t } = useTranslation(["common", "tables"]);
@@ -26,7 +28,7 @@ export default function TableOrdersScreen() {
     tableName: string;
   }>();
   const router = useRouter();
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
 
   const { totalAmount, activeOrdersCount, hasOrders, orders } = useTableOrders(
     tableId!,
@@ -102,9 +104,9 @@ export default function TableOrdersScreen() {
           </ScrollView>
         )}
 
-        <BottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
+        <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
           <NewOrderBottomSheet onCreateOrder={handleNavigate} />
-        </BottomSheetModal>
+        </ThemedBottomSheetModal>
       </ScreenLayout>
       <Fab icon="add-outline" onPress={handlePresentModalPress} />
     </>

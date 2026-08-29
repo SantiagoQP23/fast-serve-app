@@ -5,13 +5,15 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { BottomSheetModal } from "@expo/ui/community/bottom-sheet";
+
 import { Stack } from "expo-router";
 import { useCallback, useEffect, useRef } from "react";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 
 export default function OrdersLayout() {
-  const optionsBottomSheetRef = useRef<BottomSheetModal>(null);
-  const reassignBottomSheetRef = useRef<BottomSheetModal>(null);
+  const optionsBottomSheetRef = useRef<BottomSheetMethods>(null);
+  const reassignBottomSheetRef = useRef<BottomSheetMethods>(null);
   const order = useOrdersStore((state) => state.activeOrder);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
@@ -100,7 +102,7 @@ export default function OrdersLayout() {
         />
       </Stack>
 
-      <BottomSheetModal ref={optionsBottomSheetRef} enablePanDownToClose>
+      <ThemedBottomSheetModal ref={optionsBottomSheetRef} enablePanDownToClose>
         {order && (
           <OrderOptionsBottomSheet
             order={order}
@@ -108,16 +110,16 @@ export default function OrdersLayout() {
             onReassign={handlePresentReassignModal}
           />
         )}
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
 
-      <BottomSheetModal ref={reassignBottomSheetRef} enablePanDownToClose>
+      <ThemedBottomSheetModal ref={reassignBottomSheetRef} enablePanDownToClose>
         {order && (
           <ReassignOrderBottomSheet
             order={order}
             onClose={closeReassignBottomSheet}
           />
         )}
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
     </>
   );
 }

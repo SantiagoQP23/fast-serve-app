@@ -12,9 +12,7 @@ import DashboardBillCard from "@/presentation/home/components/dashboard-bill-car
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  BottomSheetModal
-} from "@expo/ui/community/bottom-sheet";
+
 import BillsFilterBottomSheet from "@/presentation/orders/components/bills-filter-bottom-sheet";
 import { BillListFiltersDto, BillStatusFilter } from "@/core/orders/dto/bill-list-filters.dto";
 import { formatCurrency ,
@@ -23,13 +21,15 @@ import { formatCurrency ,
 } from "@/core/i18n/utils";
 import { PaymentMethod } from "@/core/orders/enums/payment-method";
 import { BillStatus } from "@/core/orders/models/bill.model";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 
 export default function BillsListScreen() {
   const { t } = useTranslation(["bills", "common", "errors"]);
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
   const primaryColor = useThemeColor({}, "primary");
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
   const [filters, setFilters] = useState<BillListFiltersDto>({});
   const { user } = useAuthStore();
 
@@ -333,7 +333,7 @@ export default function BillsListScreen() {
       </ScrollView>
 
       {/* Filter Bottom Sheet */}
-      <BottomSheetModal
+      <ThemedBottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={["60%"]}
         enablePanDownToClose
@@ -345,7 +345,7 @@ export default function BillsListScreen() {
           availableWaiters={availableWaiters}
           isAdmin={isAdmin}
         />
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
     </ThemedView>
   );
 }

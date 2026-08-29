@@ -1,9 +1,9 @@
 import React, { useState, useRef, useMemo, useCallback } from "react";
 import { Pressable, Text, View } from "react-native";
 import {
-  BottomSheetModal,
   BottomSheetView,
   BottomSheetFlatList,
+  type BottomSheetMethods,
 } from "@expo/ui/community/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "../lib/tailwind";
@@ -11,6 +11,7 @@ import TextInput from "./text-input";
 import { ThemedText } from "./themed-text";
 import { typography } from "@/constants/theme";
 import { ThemedView } from "./themed-view";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 
 type Option = {
   label: string;
@@ -38,7 +39,7 @@ export default function Select({
   searchPlaceholder = "Search...",
   snapPoints = ["40%", "70%", "90%"],
 }: SelectProps) {
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Smart default: enable search if more than 5 options, or if explicitly set
@@ -102,7 +103,7 @@ export default function Select({
       </ThemedView>
 
       {/* Bottom Sheet Modal */}
-      <BottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
+      <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
         <BottomSheetView style={tw`flex-1 px-4 pb-4 bg-light-background`}>
           {/* Header */}
           <View style={tw`flex-row items-center justify-between mb-4`}>
@@ -186,7 +187,7 @@ export default function Select({
           </View>
         )}
         <View style={tw`h-4`} />
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
     </>
   );
 }

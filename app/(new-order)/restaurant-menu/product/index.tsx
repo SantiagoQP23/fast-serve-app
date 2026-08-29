@@ -19,19 +19,17 @@ import { ProductStatus } from "@/core/menu/models/product.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Chip from "@/presentation/theme/components/chip";
 import { ProductOption } from "@/core/menu/models/product-optionl.model";
-import {
-  BottomSheetModal,
-  BottomSheetView
-} from "@expo/ui/community/bottom-sheet";
+import { BottomSheetView, type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import BottomSheetPicker, {
   BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { KeyboardAvoidingView } from "react-native";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 
 export default function ProductScreen() {
   const { t } = useTranslation(["menu", "orders"]);
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
   const typePickerRef = useRef<BottomSheetPickerRef>(null);
   const activeOrderDetail = useNewOrderStore((state) => state.activeDetail);
   const orderType = useNewOrderStore((state) => state.orderType);
@@ -322,7 +320,7 @@ export default function ProductScreen() {
         onChange={(value) => setTypeOrderDetail(value as OrderType)}
       />
 
-      <BottomSheetModal
+      <ThemedBottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={["55%"]}
         enablePanDownToClose
@@ -341,7 +339,7 @@ export default function ProductScreen() {
             onPress={closeCustomBottomSheet}
           />
         </BottomSheetView>
-      </BottomSheetModal>
+      </ThemedBottomSheetModal>
     </>
   );
 }
