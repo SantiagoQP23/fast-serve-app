@@ -73,22 +73,22 @@ export function ThemedText({
 const styles = StyleSheet.create({
   h1: {
     fontSize: 32,
-    lineHeight: 32,
-    height: 32,
-    fontFamily: typography.medium,
+    lineHeight: 40,
+    height: 40,
+    fontFamily: typography.semibold,
   },
   h2: {
-    fontSize: 24,
-    lineHeight: 30,
-    fontFamily: typography.medium,
+    fontSize: 28,
+    lineHeight: 36,
+    fontFamily: typography.semibold,
   },
   h3: {
-    fontSize: 18,
+    fontSize: 22,
     lineHeight: 28,
-    fontFamily: typography.medium,
+    fontFamily: typography.semibold,
   },
   h4: {
-    fontSize: 16,
+    fontSize: 18,
     lineHeight: 24,
     fontFamily: typography.medium,
   },
@@ -110,8 +110,9 @@ const styles = StyleSheet.create({
   },
   caption: {
     fontSize: 14,
-    lineHeight: 14,
+    lineHeight: 16,
     textTransform: "uppercase",
     fontFamily: typography.medium,
+    letterSpacing: 0.5,
   },
 });

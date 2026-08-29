@@ -22,8 +22,8 @@ export default function ProductCard({ product, onPress }: ProductCardProps) {
     >
       <ThemedView style={tw` bg-transparent gap-2 `}>
         <ThemedText
-          type="body1"
-          style={[tw``, { fontFamily: typography.medium }]}
+          type="h4"
+          style={[tw``, { fontFamily: typography.semibold }]}
         >
           {product.name}
         </ThemedText>

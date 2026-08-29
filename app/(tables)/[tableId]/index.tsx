@@ -102,10 +102,7 @@ export default function TableOrdersScreen() {
           </ScrollView>
         )}
 
-        <BottomSheetModal
-          ref={bottomSheetModalRef}
-         
-        >
+        <BottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
           <NewOrderBottomSheet onCreateOrder={handleNavigate} />
         </BottomSheetModal>
       </ScreenLayout>

@@ -1,9 +1,15 @@
-import React, { useState, useMemo, useCallback, forwardRef, useImperativeHandle } from "react";
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import { Pressable, Text, View } from "react-native";
 import {
   BottomSheetModal,
   BottomSheetView,
-  BottomSheetFlatList
+  BottomSheetFlatList,
 } from "@expo/ui/community/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "../lib/tailwind";
@@ -29,7 +35,10 @@ export type BottomSheetPickerRef = {
   dismiss: () => void;
 };
 
-const BottomSheetPicker = forwardRef<BottomSheetPickerRef, BottomSheetPickerProps>(
+const BottomSheetPicker = forwardRef<
+  BottomSheetPickerRef,
+  BottomSheetPickerProps
+>(
   (
     {
       title,
@@ -78,10 +87,7 @@ const BottomSheetPicker = forwardRef<BottomSheetPickerRef, BottomSheetPickerProp
     }, [options, searchQuery]);
 
     return (
-      <BottomSheetModal
-        ref={bottomSheetModalRef}
-        snapPoints={snapPoints}
-      >
+      <BottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
         <BottomSheetView style={tw`flex-1 px-4 pb-4`}>
           {/* Header */}
           <View style={tw`flex-row items-center justify-between mb-4`}>
@@ -90,9 +96,9 @@ const BottomSheetPicker = forwardRef<BottomSheetPickerRef, BottomSheetPickerProp
             >
               {title || "Select an option"}
             </Text>
-            <Pressable onPress={handleClose} hitSlop={8}>
-              <Ionicons name="close" size={24} color={tw.color("gray-400")} />
-            </Pressable>
+            {/* <Pressable onPress={handleClose} hitSlop={8}> */}
+            {/*   <Ionicons name="close" size={24} color={tw.color("gray-400")} /> */}
+            {/* </Pressable> */}
           </View>
         </BottomSheetView>
 
