@@ -101,6 +101,7 @@ export default function TabLayout() {
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? "light"].primary,
+          tabBarActiveBackgroundColor: Colors[colorScheme ?? "light"].surface,
           headerShown: false,
           headerStyle: {
             backgroundColor: Colors[colorScheme ?? "light"].background,
@@ -115,6 +116,7 @@ export default function TabLayout() {
             alignContent: "center",
           },
           tabBarItemStyle: {
+            padding: 3,
             height: 64,
             justifyContent: "center",
             alignItems: "center",

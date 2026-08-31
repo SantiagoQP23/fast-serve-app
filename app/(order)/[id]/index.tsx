@@ -821,9 +821,7 @@ export default function OrderScreen() {
         </View>
       </View>
 
-      <ThemedBottomSheetModal
-        ref={editBottomSheetRef}
-      >
+      <ThemedBottomSheetModal ref={editBottomSheetRef} enablePanDownToClose>
         {order && (
           <EditOrderBottomSheet
             order={order}
