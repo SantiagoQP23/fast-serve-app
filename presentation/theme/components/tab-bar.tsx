@@ -31,7 +31,7 @@ export default function TabBar<T extends string>({
             onPress={() => onChange(tab.value)}
             style={tw.style(
               "flex-1 items-center justify-center py-2 px-1 rounded-3xl",
-              isActive && "bg-white dark:bg-slate-700 shadow-sm",
+              isActive && "bg-white dark:bg-slate-700 ",
             )}
           >
             <ThemedText

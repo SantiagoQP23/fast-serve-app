@@ -26,7 +26,7 @@ export default function Fab({
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
-        tw`absolute w-16 h-16 rounded-full items-center justify-center shadow-lg`,
+        tw`absolute w-16 h-16 rounded-2xl items-center justify-center shadow-lg`,
         tw`${bgColor}`,
         {
           bottom,

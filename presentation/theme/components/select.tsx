@@ -103,22 +103,26 @@ export default function Select({
       </ThemedView>
 
       {/* Bottom Sheet Modal */}
-      <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
-        <BottomSheetView style={tw`flex-1 px-4 pb-4 bg-light-background`}>
+      <ThemedBottomSheetModal
+        ref={bottomSheetModalRef}
+        enablePanDownToClose
+        enableContentPanningGesture
+      >
+        <BottomSheetView style={tw`flex-1 px-4  bg-light-background`}>
           {/* Header */}
-          <View style={tw`flex-row items-center justify-between mb-4`}>
+          <BottomSheetView style={tw`flex-row items-center justify-between `}>
             <Text style={tw`text-lg  text-gray-900 dark:text-white`}>
               {label || "Select an option"}
             </Text>
-            <Pressable onPress={handleClose} hitSlop={8}>
-              <Ionicons name="close" size={24} color={tw.color("gray-400")} />
-            </Pressable>
-          </View>
+            {/* <Pressable onPress={handleClose} hitSlop={8}> */}
+            {/*   <Ionicons name="close" size={24} color={tw.color("gray-400")} /> */}
+            {/* </Pressable> */}
+          </BottomSheetView>
         </BottomSheetView>
 
         {/* Search Input */}
         {isSearchable && (
-          <ThemedView style={tw`mb-6 mt-12 px-4 bg-light-background`}>
+          <ThemedView style={tw`mb-6 mt-4 px-4 bg-light-background`}>
             <TextInput
               bottomSheet
               icon="search"
@@ -139,7 +143,7 @@ export default function Select({
         {/* Options List */}
         {filteredOptions.length > 0 ? (
           <BottomSheetFlatList
-            style={tw`pb-6 bg-light-background`}
+            style={tw`pb-6 bg-light-background flex-1`}
             contentContainerStyle={tw`mx-4 bg-light-surface rounded-xl`}
             data={filteredOptions}
             keyExtractor={(item: Option) => item.value.toString()}

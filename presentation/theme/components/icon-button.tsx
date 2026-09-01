@@ -32,7 +32,7 @@ export default function IconButton({
   variant = "text",
 }: IconButtonProps) {
   const colors: { [key: string]: string } = {
-    primary: "#1f2937", // gray-800
+    primary: "#3368A0", // gray-800
     secondary: "#6b7280", // gray-500
     success: "#10b981", // green-500
     danger: "#ef4444", // red-500

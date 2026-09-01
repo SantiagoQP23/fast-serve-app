@@ -11,13 +11,13 @@ const tintColorDark = "#fff";
 export const Colors = {
   light: {
     // primary: "#3F72AF",
-    primary: "#1c1c1e",
-    // primary: "#0977CA",
+    // primary: "#1c1c1e",
+    primary: "#3368A0",
     secondary: "#0E5A8A",
 
-    surface: "#f4f6f8", // cards, lists, inputs
+    surface: "#FFFFFF", // cards, lists, inputs
     // surface: "#FFFFFF", // cards, lists, inputs
-    background: "#FFFFFF", // app canvas
+    background: "#F8F9FF", // app canvas
     // background: "#F7F7F7", // app canvas
 
     text: "#0f172a", // primary text
