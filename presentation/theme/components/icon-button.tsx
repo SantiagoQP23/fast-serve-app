@@ -3,6 +3,8 @@ import { Pressable, ViewStyle } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
 
+import { Colors } from "@/constants/theme";
+
 interface IconButtonProps {
   icon: keyof typeof Ionicons.glyphMap;
   size?: number;
@@ -18,7 +20,7 @@ interface IconButtonProps {
   style?: ViewStyle;
   backgroundColor?: string;
   disabled?: boolean;
-  variant?: "filled" | "outlined" | "text";
+  variant?: "filled" | "secondary" | "outlined" | "text";
 }
 
 export default function IconButton({
@@ -31,42 +33,30 @@ export default function IconButton({
   backgroundColor = "transparent", // gray-100
   variant = "text",
 }: IconButtonProps) {
-  const colors: { [key: string]: string } = {
-    primary: "#3368A0", // gray-800
-    secondary: "#6b7280", // gray-500
-    success: "#10b981", // green-500
-    danger: "#ef4444", // red-500
-    warning: "#f59e0b", // yellow-500
-    info: "#3b82f6", // blue-500
+  const variants = {
+    filled: "bg-light-primary",
+    secondary: "bg-light-secondary",
+    outlined: "border border-light-border bg-transparent",
+    text: "bg-transparent",
   };
 
   const variantStyles = {
-    filled: "bg-light-surface",
-    outlined: " rounded-3xl bg-light-secondary",
-    text: "bg-light-secondary",
+    filled: "#ffffff",
+    secondary: Colors.light.onSecondary,
+    outlined: Colors.light.onSurfaceVariant,
+    text: Colors.light.primary,
   };
 
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
-        tw`rounded-md p-2 ${pressed ? "opacity-80" : "opacity-100"} ${disabled ? "opacity-50" : ""} bg-transparent ${variantStyles[variant]}`,
-        {
-          // backgroundColor: !pressed
-          //   ? backgroundColor
-          //   : !disabled
-          //     ? "#e5e7eb"
-          //     : backgroundColor,
-        },
+        tw`rounded-3xl p-2 ${pressed ? "opacity-80" : "opacity-100"} ${disabled ? "opacity-50" : ""} bg-transparent ${variantStyles[variant]} ${variants[variant]} `,
         style,
       ]}
       disabled={disabled}
     >
-      <Ionicons
-        name={icon}
-        size={size}
-        color={tw.color("light-on-secondary")}
-      />
+      <Ionicons name={icon} size={size} color={variantStyles[variant]} />
     </Pressable>
   );
 }

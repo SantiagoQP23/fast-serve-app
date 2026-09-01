@@ -82,14 +82,14 @@ export default function Button({
     primary: "text-white",
     secondary: "text-light-on-secondary",
     outline: "text-light-on-surface-variant",
-    text: "text-gray-800",
+    text: "text-light-primary",
   };
 
   const iconColors = {
     primary: "#fff",
     secondary: Colors.light.onSecondary,
-    outline: Colors.light.text,
-    text: Colors.light.onSurfaceVariant,
+    outline: Colors.light.onSurfaceVariant,
+    text: Colors.light.primary,
   };
 
   const currentIconSize = isVertical

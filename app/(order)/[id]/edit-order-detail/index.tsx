@@ -15,7 +15,10 @@ import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Chip from "@/presentation/theme/components/chip";
 import { ProductOption } from "@/core/menu/models/product-optionl.model";
-import { BottomSheetView, type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import {
+  BottomSheetView,
+  type BottomSheetMethods,
+} from "@expo/ui/community/bottom-sheet";
 import BottomSheetPicker, {
   BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
@@ -182,7 +185,7 @@ export default function EditOrderDetailScreen() {
             )}
 
             <ThemedView
-              style={tw`flex-row items-center gap-2 flex-wrap p-2 bg-gray-100 rounded-xl`}
+              style={tw`flex-row items-center gap-2 flex-wrap p-2 bg-light-surface rounded-xl`}
             >
               <Label
                 text={statusText}
@@ -306,14 +309,14 @@ export default function EditOrderDetailScreen() {
                 <IconButton
                   icon="remove-outline"
                   onPress={decrement}
-                  variant="outlined"
+                  variant="secondary"
                   size={40}
                 />
                 <ThemedText type="h1">{counter}</ThemedText>
                 <IconButton
                   icon="add"
                   onPress={increment}
-                  variant="outlined"
+                  variant="secondary"
                   size={40}
                 />
               </ThemedView>

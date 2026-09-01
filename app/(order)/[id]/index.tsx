@@ -690,7 +690,7 @@ export default function OrderScreen() {
               <Button
                 leftIcon="add-outline"
                 label={t("orders:details.addProduct")}
-                variant="outline"
+                variant="secondary"
                 onPress={() => {
                   init(order); // Initialize the edit order cart store with the current order
 
