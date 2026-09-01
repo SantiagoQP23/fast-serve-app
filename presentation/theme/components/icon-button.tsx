@@ -42,8 +42,8 @@ export default function IconButton({
 
   const variantStyles = {
     filled: "bg-light-surface",
-    outlined: "border border-light-border rounded-3xl",
-    text: "",
+    outlined: " rounded-3xl bg-light-secondary",
+    text: "bg-light-secondary",
   };
 
   return (
@@ -62,7 +62,11 @@ export default function IconButton({
       ]}
       disabled={disabled}
     >
-      <Ionicons name={icon} size={size} color={colors[color] || color} />
+      <Ionicons
+        name={icon}
+        size={size}
+        color={tw.color("light-on-secondary")}
+      />
     </Pressable>
   );
 }

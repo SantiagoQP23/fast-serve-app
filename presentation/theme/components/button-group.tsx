@@ -26,7 +26,7 @@ export default function ButtonGroup({
 
   return (
     <View
-      style={tw`${isHorizontal ? "flex-row" : "flex-wrap"} bg-gray-100 dark:bg-darksurface p-1 rounded-3xl`}
+      style={tw`${isHorizontal ? "flex-row" : "flex-wrap"} bg-light-surface-high dark:bg-darksurface p-1 rounded-3xl`}
     >
       {options.map((option, index) => {
         const isActive = selected === option.value;

@@ -436,7 +436,7 @@ export default function OrderScreen() {
 
               {/* Status & Payment Labels */}
               <ThemedView
-                style={tw`flex-row items-center gap-2 flex-wrap p-2 bg-gray-100 rounded-xl`}
+                style={tw`flex-row items-center gap-2 flex-wrap p-2 bg-light-surface rounded-xl`}
               >
                 {showDeliveryTime && deliveryTime && (
                   <Label

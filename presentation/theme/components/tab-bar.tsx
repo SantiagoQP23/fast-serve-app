@@ -20,9 +20,7 @@ export default function TabBar<T extends string>({
   onChange,
 }: TabBarProps<T>) {
   return (
-    <View
-      style={tw`flex-row bg-light-surface dark:bg-slate-800 rounded-3xl p-1`}
-    >
+    <View style={tw`flex-row  dark:bg-slate-800 rounded-3xl p-1`}>
       {tabs.map((tab) => {
         const isActive = activeTab === tab.value;
         return (
@@ -30,8 +28,9 @@ export default function TabBar<T extends string>({
             key={tab.value}
             onPress={() => onChange(tab.value)}
             style={tw.style(
-              "flex-1 items-center justify-center py-2 px-1 rounded-3xl",
-              isActive && "bg-white dark:bg-slate-700 ",
+              "flex-1 items-center justify-center py-2 px-1 ",
+              isActive &&
+                "dark:bg-slate-700  border-b-2 border-light-primary dark:border-light-primary",
             )}
           >
             <ThemedText
@@ -39,7 +38,7 @@ export default function TabBar<T extends string>({
               style={[
                 tw.style(
                   isActive
-                    ? "font-semibold text-gray-900 dark:text-white"
+                    ? "font-semibold text-light-primary dark:text-white"
                     : "text-gray-500 dark:text-gray-400",
                 ),
                 { fontFamily: typography.medium },
@@ -53,7 +52,7 @@ export default function TabBar<T extends string>({
                     tw.style(
                       "ml-1",
                       isActive
-                        ? "text-gray-500 dark:text-gray-300"
+                        ? "text-light-primary dark:text-gray-300"
                         : "text-gray-400 dark:text-gray-500",
                     ),
                   ]}

@@ -43,8 +43,8 @@ export default function Button({
 
   const variants = {
     primary: "bg-light-primary",
-    secondary: "bg-gray-100",
-    outline: "border border-gray-200 bg-transparent",
+    secondary: "bg-light-secondary",
+    outline: "border border-light-border bg-transparent",
     text: "bg-transparent",
   };
 
@@ -80,16 +80,16 @@ export default function Button({
 
   const textColors = {
     primary: "text-white",
-    secondary: "text-light-primary",
-    outline: "text-light-text",
+    secondary: "text-light-on-secondary",
+    outline: "text-light-on-surface-variant",
     text: "text-gray-800",
   };
 
   const iconColors = {
     primary: "#fff",
-    secondary: Colors.light.primary,
+    secondary: Colors.light.onSecondary,
     outline: Colors.light.text,
-    text: tw.color("gray-800"),
+    text: Colors.light.onSurfaceVariant,
   };
 
   const currentIconSize = isVertical

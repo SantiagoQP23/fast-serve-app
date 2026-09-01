@@ -84,7 +84,7 @@ export default function Select({
 
         <Pressable
           onPress={handleOpen}
-          style={tw` dark:border-gray-700 bg-white dark:bg-gray-800 rounded-3xl px-4 py-3 flex-row justify-between items-center bg-gray-100`}
+          style={tw` dark:border-gray-700 bg-light-surface-high dark:bg-gray-800 rounded-3xl px-4 py-3 flex-row justify-between items-center `}
         >
           <ThemedText
             style={[

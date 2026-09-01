@@ -42,7 +42,7 @@ export default function TextInput({
         style={[
           tw.style(
             "flex-row items-center",
-            " rounded-3xl px-3 py-1 text-gray-900 bg-[#DCEAF1] opacity-80",
+            " rounded-3xl px-3 py-1 text-gray-900 bg-light-surface-high opacity-80",
             error ? "border-red-500" : "border-gray-300",
             !editable && "opacity-50",
           ),

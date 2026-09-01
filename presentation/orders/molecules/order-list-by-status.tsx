@@ -63,7 +63,7 @@ export default function OrderListByStatus({
               rightContent={
                 <ThemedText
                   type="small"
-                  style={tw`${isActive ? "text-white" : ""}`}
+                  style={tw`${isActive ? "text-light-on-secondary" : ""}`}
                 >
                   {activeOrdersCount}
                 </ThemedText>

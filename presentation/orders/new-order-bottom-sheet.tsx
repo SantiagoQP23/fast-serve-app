@@ -68,7 +68,7 @@ const NewOrderBottomSheet = ({
   };
 
   return (
-    <BottomSheetView style={tw`p-4 items-center justify-center bg-white`}>
+    <BottomSheetView style={tw`p-4 items-center justify-center `}>
       <ThemedView style={tw`w-full gap-6`}>
         <ThemedText type="h2" style={tw`text-center inter-semibold`}>
           {t("newOrder.title")}

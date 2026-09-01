@@ -13,9 +13,12 @@ export const Colors = {
     // primary: "#3F72AF",
     // primary: "#1c1c1e",
     primary: "#3368A0",
-    secondary: "#0E5A8A",
+    secondary: "#D7E3F8",
+    onSecondary: "#3C4858",
 
-    surface: "#FFFFFF", // cards, lists, inputs
+    surface: "#ECEEF4", // cards, lists, inputs
+    onSurfaceVariant: "#43474E",
+    surfaceHigh: "#E7E8EE",
     // surface: "#FFFFFF", // cards, lists, inputs
     background: "#F8F9FF", // app canvas
     // background: "#F7F7F7", // app canvas
@@ -26,7 +29,7 @@ export const Colors = {
     tint: "#0977CA",
     tabIconDefault: "#64748b",
     tabIconSelected: "#0977CA",
-    border: "#e2e8f0", // default borders
+    border: "#C3C6CF", // default borders
     divider: "#f1f5f9",
   },
   dark: {
