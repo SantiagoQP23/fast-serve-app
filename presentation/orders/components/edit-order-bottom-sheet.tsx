@@ -200,44 +200,44 @@ const EditOrderBottomSheet = ({
           )}
         </ThemedView>
 
-        <ThemedView style={tw`gap-2`}>
-          <Card onPress={openTimePicker}>
-            <ThemedText
-              type="body2"
-              style={tw`text-gray-700 dark:text-gray-300 `}
-            >
-              {t("orders:form.deliveryTime")}
-            </ThemedText>
-            <ThemedText type="h2">{formatTime(form.deliveryTime)}</ThemedText>
-          </Card>
-          {Platform.OS === "ios" && showTimePicker && (
-            <ThemedView
-              style={tw`border border-gray-300 dark:border-gray-700 rounded-2xl overflow-hidden`}
-            >
-              <DateTimePicker
-                value={form.deliveryTime}
-                mode="time"
-                display="spinner"
-                onChange={handleTimeChange}
-              />
-              <Button
-                label={t("common:actions.confirm")}
-                onPress={closeTimePicker}
-                variant="primary"
-                size="small"
-              />
-            </ThemedView>
-          )}
-          {Platform.OS === "android" && showTimePicker && (
-            <DateTimePicker
-              value={form.deliveryTime}
-              mode="time"
-              is24Hour={true}
-              display="default"
-              onChange={handleTimeChange}
-            />
-          )}
-        </ThemedView>
+        {/* <ThemedView style={tw`gap-2`}> */}
+        {/* <Card onPress={openTimePicker}> */}
+        {/*   <ThemedText */}
+        {/*     type="body2" */}
+        {/*     style={tw`text-gray-700 dark:text-gray-300 `} */}
+        {/*   > */}
+        {/*     {t("orders:form.deliveryTime")} */}
+        {/*   </ThemedText> */}
+        {/*   <ThemedText type="h2">{formatTime(form.deliveryTime)}</ThemedText> */}
+        {/* </Card> */}
+        {/* {Platform.OS === "ios" && showTimePicker && ( */}
+        {/*   <ThemedView */}
+        {/*     style={tw`border border-gray-300 dark:border-gray-700 rounded-2xl overflow-hidden`} */}
+        {/*   > */}
+        {/*     <DateTimePicker */}
+        {/*       value={form.deliveryTime} */}
+        {/*       mode="time" */}
+        {/*       display="spinner" */}
+        {/*       onChange={handleTimeChange} */}
+        {/*     /> */}
+        {/*     <Button */}
+        {/*       label={t("common:actions.confirm")} */}
+        {/*       onPress={closeTimePicker} */}
+        {/*       variant="primary" */}
+        {/*       size="small" */}
+        {/*     /> */}
+        {/*   </ThemedView> */}
+        {/* )} */}
+        {/* {Platform.OS === "android" && showTimePicker && ( */}
+        {/*   <DateTimePicker */}
+        {/*     value={form.deliveryTime} */}
+        {/*     mode="time" */}
+        {/*     is24Hour={true} */}
+        {/*     display="default" */}
+        {/*     onChange={handleTimeChange} */}
+        {/*   /> */}
+        {/* )} */}
+        {/* </ThemedView> */}
 
         <ThemedView style={tw`w-full `}>
           <Button

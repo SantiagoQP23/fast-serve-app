@@ -147,7 +147,6 @@ export default function CartScreen() {
               text={String(activeOrder?.people || 0)}
               leftIcon="people-outline"
               size="small"
-              color="outline"
             />
           </ThemedView>
 
@@ -241,7 +240,6 @@ export default function CartScreen() {
               text={String(people)}
               leftIcon="people-outline"
               size="small"
-              color="outline"
             />
           </ThemedView>
         )}

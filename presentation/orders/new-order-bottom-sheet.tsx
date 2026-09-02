@@ -96,7 +96,7 @@ const NewOrderBottomSheet = ({
         <ThemedView style={tw`gap-2`}>
           <ThemedText
             style={[
-              tw` dark:text-gray-300  `,
+              tw` dark:text-gray-300 ml-2 `,
               { fontFamily: typography.medium },
             ]}
           >

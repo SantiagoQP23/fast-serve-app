@@ -64,7 +64,7 @@ export default function DatePicker({
 
       <Pressable
         onPress={handleOpen}
-        style={tw`dark:border-gray-700 bg-light-surface-high dark:bg-gray-800 rounded-2xl px-4 py-3 flex-row justify-between items-center`}
+        style={tw`dark:border-gray-700  dark:bg-gray-800 border border-light-border rounded-2xl px-4 py-3 flex-row justify-between items-center`}
       >
         <View style={tw`flex-row items-center gap-2`}>
           <Ionicons

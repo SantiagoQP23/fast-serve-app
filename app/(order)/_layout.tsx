@@ -48,6 +48,7 @@ export default function OrdersLayout() {
       <Stack
         screenOptions={{
           headerShown: false,
+          headerStyle: { backgroundColor: Colors.light.background },
           headerTitleStyle: { fontFamily: typography.medium },
         }}
       >
@@ -55,7 +56,6 @@ export default function OrdersLayout() {
           name="[id]/index"
           options={{
             headerShown: true,
-            headerStyle: { backgroundColor: Colors.light.background },
             title: "",
             headerShadowVisible: false,
             headerRight: () =>

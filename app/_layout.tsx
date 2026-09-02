@@ -190,6 +190,7 @@ export default function RootLayout() {
           {renderContent()}
         </SafeAreaView>
         <Toaster
+          style={{ zIndex: 50000 }}
           toastOptions={{
             titleStyle: { fontFamily: typography.medium },
             descriptionStyle: { fontFamily: typography.regular },

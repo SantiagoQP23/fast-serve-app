@@ -25,7 +25,6 @@ import BottomSheetPicker, {
 import { useOrderDetailStatus } from "@/presentation/orders/hooks/useOrderDetailStatus";
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
-import { Ionicons } from "@expo/vector-icons";
 import { KeyboardAvoidingView } from "react-native";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
 import OrderDetailActivityBottomSheet from "@/presentation/orders/components/order-detail-activity-bottom-sheet";
@@ -159,7 +158,7 @@ export default function EditOrderDetailScreen() {
       <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
         <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
           <ThemedView style={tw`flex-1`} />
-          <ThemedView style={tw` text-center mb-4 gap-6`}>
+          <ThemedView style={tw` text-center mb-4 gap-4`}>
             <ThemedView style={tw`gap-2`}>
               <ThemedView
                 style={tw`flex-row items-center justify-between gap-2`}
@@ -184,9 +183,7 @@ export default function EditOrderDetailScreen() {
               </ThemedView>
             )}
 
-            <ThemedView
-              style={tw`flex-row items-center gap-2 flex-wrap p-2 bg-light-surface rounded-xl`}
-            >
+            <ThemedView style={tw`flex-row items-center gap-2 flex-wrap my-2 `}>
               <Label
                 text={statusText}
                 color={labelColor}
@@ -205,20 +202,17 @@ export default function EditOrderDetailScreen() {
                     ? "restaurant-outline"
                     : "bag-outline"
                 }
-                color="outline"
                 size="small"
                 onPress={() => typePickerRef.current?.present()}
               />
               <Label
                 leftIcon="notifications-outline"
                 text={String(orderDetail.readyQuantity)}
-                color="outline"
                 size="small"
               />
               <Label
                 leftIcon="time-outline"
                 text={createdAtLabel}
-                color="outline"
                 size="small"
                 onPress={openActivityBottomSheet}
               />
@@ -337,11 +331,7 @@ export default function EditOrderDetailScreen() {
           </ThemedView>
         </ScreenLayout>
 
-        <ThemedBottomSheetModal
-          ref={bottomSheetModalRef}
-          snapPoints={["55%"]}
-          enablePanDownToClose
-        >
+        <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
           <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
             <TextInput
               label={t("orders:newOrder.customPrice")}
@@ -358,11 +348,7 @@ export default function EditOrderDetailScreen() {
           </BottomSheetView>
         </ThemedBottomSheetModal>
 
-        <ThemedBottomSheetModal
-          ref={deliveredSheetRef}
-          snapPoints={["30%"]}
-          enablePanDownToClose
-        >
+        <ThemedBottomSheetModal ref={deliveredSheetRef} enablePanDownToClose>
           <BottomSheetView style={tw`px-4 pb-6`}>
             <ThemedView style={tw`mb-4`}>
               <ThemedText type="h3">{t("common:status.delivered")}</ThemedText>

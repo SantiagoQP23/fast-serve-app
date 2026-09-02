@@ -1,4 +1,4 @@
-import { typography } from "@/constants/theme";
+import { Colors, typography } from "@/constants/theme";
 import { Stack } from "expo-router";
 
 export default function BillsLayout() {
@@ -6,6 +6,7 @@ export default function BillsLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
+        headerStyle: { backgroundColor: Colors.light.background },
         headerTitleStyle: { fontFamily: typography.medium },
       }}
     >

@@ -12,6 +12,7 @@ import { useCallback, useRef } from "react";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import { Colors } from "@/constants/theme";
 
 export default function NewOrderLayout() {
   const { t } = useTranslation(["common"]);
@@ -33,7 +34,12 @@ export default function NewOrderLayout() {
 
   return (
     <>
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          headerStyle: { backgroundColor: Colors.light.background },
+        }}
+      >
         <Stack.Screen
           name="restaurant-menu/index"
           options={{
@@ -92,10 +98,7 @@ export default function NewOrderLayout() {
         />
       </Stack>
 
-      <ThemedBottomSheetModal
-        ref={bottomSheetModalRef}
-       
-      >
+      <ThemedBottomSheetModal ref={bottomSheetModalRef}>
         <NewOrderBottomSheet
           onCreateOrder={closeBottomSheet}
           buttonProps={{ label: t("common:actions.saveChanges") }}

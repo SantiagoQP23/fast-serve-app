@@ -38,7 +38,7 @@ export default function ButtonGroup({
             style={({ pressed }) =>
               tw.style(
                 "flex-1 py-2 rounded-3xl",
-                isActive ? "bg-white" : "bg-transparent",
+                isActive ? "bg-light-secondary" : "bg-transparent",
                 pressed && "opacity-80",
               )
             }

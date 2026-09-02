@@ -79,7 +79,9 @@ export default function Select({
       {/* Trigger Button */}
       <ThemedView style={tw`w-full gap-2`}>
         {label && (
-          <ThemedText style={[tw` dark:text-gray-300  `]}>{label}</ThemedText>
+          <ThemedText style={[tw` dark:text-gray-300 ml-2 `]}>
+            {label}
+          </ThemedText>
         )}
 
         <Pressable

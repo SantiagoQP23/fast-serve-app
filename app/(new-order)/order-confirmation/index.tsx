@@ -12,7 +12,6 @@ import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { ROUTES } from "@/constants/routes";
 import { useOrderPrint } from "@/presentation/orders/hooks/useOrderPrint";
-import QuickActionButton from "@/presentation/orders/components/quick-action-button";
 
 export default function OrderConfirmationScreen() {
   const { t } = useTranslation(["common", "orders"]);
@@ -26,7 +25,6 @@ export default function OrderConfirmationScreen() {
   };
 
   const { statusText } = useOrderStatus(order?.status || OrderStatus.PENDING);
-  const { handlePrintOrder, handleShareOrder } = useOrderPrint(order);
 
   if (!order) {
     return null;
@@ -44,7 +42,7 @@ export default function OrderConfirmationScreen() {
           </ThemedText>
         </ThemedView>
         <ThemedView style={tw` w-full   rounded-lg gap-4`}>
-          <ThemedView style={tw` w-full bg-gray-100 p-4 rounded-lg`}>
+          <ThemedView style={tw` w-full bg-light-surface p-4 rounded-lg`}>
             <ThemedView
               style={tw`flex-row  items-center bg-transparent gap-2 `}
             >
@@ -83,7 +81,7 @@ export default function OrderConfirmationScreen() {
           </ThemedView>
 
           {order.notes && (
-            <ThemedView style={tw` w-full bg-gray-100 p-4 rounded-lg`}>
+            <ThemedView style={tw` w-full bg-light-surface p-4 rounded-lg`}>
               <ThemedView style={tw`  bg-transparent gap-2 `}>
                 <ThemedText type="body2">{t("common:labels.notes")}</ThemedText>
                 <ThemedText type="body1">
