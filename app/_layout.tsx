@@ -189,7 +189,14 @@ export default function RootLayout() {
         >
           {renderContent()}
         </SafeAreaView>
-        <Toaster />
+        <Toaster
+          toastOptions={{
+            titleStyle: { fontFamily: typography.medium },
+            descriptionStyle: { fontFamily: typography.regular },
+            actionButtonTextStyle: { fontFamily: typography.medium },
+            cancelButtonTextStyle: { fontFamily: typography.medium },
+          }}
+        />
       </GestureHandlerRootView>
     </QueryClientProvider>
   );

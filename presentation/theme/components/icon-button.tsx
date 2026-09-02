@@ -26,11 +26,9 @@ interface IconButtonProps {
 export default function IconButton({
   icon,
   size = 18,
-  color = "primary", // gray-800
   onPress,
   disabled = false,
   style,
-  backgroundColor = "transparent", // gray-100
   variant = "text",
 }: IconButtonProps) {
   const variants = {

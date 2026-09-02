@@ -37,7 +37,7 @@ export default function TextInput({
   const InputComponent = bottomSheet ? BottomSheetTextInput : RNTextInput;
   return (
     <ThemedView>
-      {label && <ThemedText style={tw` mb-2 `}>{label}</ThemedText>}
+      {label && <ThemedText style={tw`ml-3 mb-2 `}>{label}</ThemedText>}
       <View
         style={[
           tw.style(

@@ -55,14 +55,23 @@ export default function SettingsScreen() {
 
           <Pressable
             style={({ pressed }) =>
-              tw.style(`flex-row items-center gap-4`, pressed && "opacity-70")
+              tw.style(
+                `flex-row items-center gap-4 bg-red-100 p-4 rounded-3xl`,
+                pressed && "opacity-70",
+              )
             }
             onPress={() => {
               setVisible(true);
             }}
           >
-            <Ionicons name="log-out-outline" size={24} color="red" />
-            <ThemedText style={tw`text-red`}>{t("manage.logout")}</ThemedText>
+            <Ionicons
+              name="log-out-outline"
+              size={24}
+              color={tw.color(`red-400`)}
+            />
+            <ThemedText style={tw`text-red-500`}>
+              {t("manage.logout")}
+            </ThemedText>
           </Pressable>
         </ThemedView>
 

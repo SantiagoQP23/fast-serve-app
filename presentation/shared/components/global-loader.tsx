@@ -5,6 +5,8 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import tw from "@/presentation/theme/lib/tailwind";
+import { Colors } from "@/constants/theme";
 
 interface GlobalLoaderProps {
   message?: string;
@@ -49,11 +51,11 @@ export function GlobalLoader({ message }: GlobalLoaderProps) {
           justifyContent: "center",
         }}
       >
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator size="large" color={tw.color("light-primary")} />
         <ThemedText
           type="body1"
           style={{
-            color: "#000",
+            color: Colors.light.primary,
             marginTop: 16,
           }}
         >

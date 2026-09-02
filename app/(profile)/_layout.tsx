@@ -1,4 +1,4 @@
-import { typography } from "@/constants/theme";
+import { Colors, typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import IconButton from "@/presentation/theme/components/icon-button";
@@ -26,6 +26,7 @@ export default function OrdersLayout() {
       <Stack
         screenOptions={{
           headerShown: false,
+          headerStyle: { backgroundColor: Colors.light.background },
 
           headerTitleStyle: { fontFamily: typography.medium },
         }}
@@ -146,10 +147,7 @@ export default function OrdersLayout() {
         {/* /> */}
       </Stack>
 
-      <ThemedBottomSheetModal
-        ref={bottomSheetModalRef}
-       
-      >
+      <ThemedBottomSheetModal ref={bottomSheetModalRef}>
         <NewOrderBottomSheet
           onCreateOrder={closeBottomSheet}
           buttonProps={{ label: "Save changes" }}

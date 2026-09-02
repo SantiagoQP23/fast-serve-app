@@ -100,7 +100,7 @@ export default function TabLayout() {
     <ThemedView style={tw`flex-1 bg-light-background `}>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors[colorScheme ?? "light"].primary,
+          tabBarActiveTintColor: Colors.light.primary,
           tabBarActiveBackgroundColor: Colors[colorScheme ?? "light"].surface,
           headerShown: false,
           headerStyle: {

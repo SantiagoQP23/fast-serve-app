@@ -64,6 +64,7 @@ export default function OrdersLayout() {
                   <IconButton
                     icon="ellipsis-horizontal"
                     onPress={handlePresentOptionsModal}
+                    variant="secondary"
                   ></IconButton>
                 </ThemedView>
               ) : null,

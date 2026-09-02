@@ -217,7 +217,9 @@ const LoginScreen = () => {
         <ThemedView style={tw`mb-4 flex-row justify-center items-center`}>
           <ThemedText>{t("login.noAccount")} </ThemedText>
           <Pressable onPress={handleSignUp}>
-            <ThemedText type="body2">{t("login.signUp")}</ThemedText>
+            <ThemedText type="body2" style={tw`text-light-primary`}>
+              {t("login.signUp")}
+            </ThemedText>
           </Pressable>
         </ThemedView>
       </ScreenLayout>
