@@ -381,10 +381,10 @@ const OrderOptionsBottomSheet = ({
                 size={22}
                 color={
                   option.disabled
-                    ? tw.color("light-primary")
+                    ? tw.color("light-on-surface-variant")
                     : option.color
                       ? tw.color(option.color.replace("text-", ""))
-                      : tw.color("light-primary")
+                      : tw.color("light-on-surface-variant")
                 }
               />
               <ThemedText

@@ -15,6 +15,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import IconButton from "@/presentation/theme/components/icon-button";
+import Card from "@/presentation/theme/components/card";
 
 interface NewOrderDetailCardProps extends PressableProps {
   detail: NewOrderDetail;
@@ -69,14 +70,8 @@ export default function NewOrderDetailCard({
         </ThemedView>
       )}
     >
-      <Pressable
-        style={({ pressed }) => [
-          tw` rounded-2xl  dark:bg-gray-800 border border-light-border`,
-          pressed && tw`opacity-80`,
-        ]}
-        onPress={onPress}
-      >
-        <ThemedView style={tw`flex-col bg-transparent p-4 gap-4`}>
+      <Card onPress={onPress}>
+        <ThemedView style={tw`flex-col  gap-4`}>
           {/* <ThemedView */}
           {/*   style={tw`absolute  rounded-full items-center justify-center  z-10 right-0 top-0`} */}
           {/* ></ThemedView> */}
@@ -127,7 +122,7 @@ export default function NewOrderDetailCard({
             </ThemedView>
           )}
           <ThemedView
-            style={tw`flex-row bg-transparent justify-between gap-2 items-center`}
+            style={tw`flex-row bg-transparent justify-between gap-4 items-center`}
           >
             <ThemedText
               type="body1"
@@ -135,18 +130,18 @@ export default function NewOrderDetailCard({
             >
               ${(detail.price ?? detail.product.price) * counter}
             </ThemedText>
-            <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
+            <ThemedView style={tw`flex-row items-center gap-4 bg-transparent`}>
               <IconButton
                 icon="remove-outline"
                 onPress={decrement}
-                variant="outlined"
+                variant="secondary"
               />
               <ThemedText>{counter}</ThemedText>
-              <IconButton icon="add" onPress={increment} variant="outlined" />
+              <IconButton icon="add" onPress={increment} variant="secondary" />
             </ThemedView>
           </ThemedView>
         </ThemedView>
-      </Pressable>
+      </Card>
     </Swipeable>
   );
 }

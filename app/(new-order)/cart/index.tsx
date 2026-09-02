@@ -269,7 +269,7 @@ export default function CartScreen() {
             <Button
               leftIcon="add-outline"
               label={t("menu:cart.addProduct")}
-              variant="outline"
+              variant="secondary"
               onPress={() => router.push("/(new-order)/restaurant-menu")}
             />
           }

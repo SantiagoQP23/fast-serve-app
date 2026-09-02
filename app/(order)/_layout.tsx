@@ -1,4 +1,4 @@
-import { typography } from "@/constants/theme";
+import { Colors, typography } from "@/constants/theme";
 import OrderOptionsBottomSheet from "@/presentation/orders/components/order-options-bottom-sheet";
 import ReassignOrderBottomSheet from "@/presentation/orders/components/reassign-order-bottom-sheet";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
@@ -55,6 +55,7 @@ export default function OrdersLayout() {
           name="[id]/index"
           options={{
             headerShown: true,
+            headerStyle: { backgroundColor: Colors.light.background },
             title: "",
             headerShadowVisible: false,
             headerRight: () =>

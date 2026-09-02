@@ -19,7 +19,10 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Ionicons } from "@expo/vector-icons";
 
 import BillsFilterBottomSheet from "@/presentation/orders/components/bills-filter-bottom-sheet";
-import { BillListFiltersDto , BillStatusFilter } from "@/core/orders/dto/bill-list-filters.dto";
+import {
+  BillListFiltersDto,
+  BillStatusFilter,
+} from "@/core/orders/dto/bill-list-filters.dto";
 import {
   formatCurrency,
   translatePaymentMethod,
@@ -419,7 +422,7 @@ export default function SalesScreen() {
             </ThemedView>
           ) : count > 0 ? (
             <ThemedView style={tw`px-4 gap-4`}>
-              <ThemedView style={tw`bg-white rounded-2xl py-2 gap-4 `}>
+              <ThemedView style={tw` rounded-2xl py-2 gap-4 `}>
                 {bills.map((bill) => (
                   <BillCard
                     key={bill.id}

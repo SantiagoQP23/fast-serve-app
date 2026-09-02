@@ -32,7 +32,7 @@ export default function DatePicker({
     if (Platform.OS === "android") {
       setShow(false);
     }
-    
+
     if (selectedDate) {
       onChange(selectedDate);
     }
@@ -64,7 +64,7 @@ export default function DatePicker({
 
       <Pressable
         onPress={handleOpen}
-        style={tw`border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-2xl px-4 py-3 flex-row justify-between items-center`}
+        style={tw`dark:border-gray-700 bg-light-surface-high dark:bg-gray-800 rounded-2xl px-4 py-3 flex-row justify-between items-center`}
       >
         <View style={tw`flex-row items-center gap-2`}>
           <Ionicons
@@ -86,7 +86,9 @@ export default function DatePicker({
 
       {/* iOS renders inline picker */}
       {show && Platform.OS === "ios" && (
-        <ThemedView style={tw`mt-2 rounded-2xl border border-gray-300 dark:border-gray-700 overflow-hidden`}>
+        <ThemedView
+          style={tw`mt-2 rounded-2xl border border-gray-300 dark:border-gray-700 overflow-hidden`}
+        >
           <DateTimePicker
             value={value}
             mode="date"
@@ -96,9 +98,11 @@ export default function DatePicker({
             minimumDate={minDate}
             themeVariant="light"
           />
-          
+
           {/* Action buttons for iOS */}
-          <View style={tw`flex-row gap-2 p-3 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700`}>
+          <View
+            style={tw`flex-row gap-2 p-3 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700`}
+          >
             {showTodayButton && !isToday && (
               <View style={tw`flex-1`}>
                 <Button

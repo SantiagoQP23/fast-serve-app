@@ -39,7 +39,7 @@ export default function Checkbox({
           "justify-center items-center border rounded-3xl",
           value
             ? "bg-light-primary border-light-primary"
-            : "bg-white border-gray-300",
+            : " border-light-border border-2",
           pressed && !disabled && "opacity-80",
           disabled && "opacity-50",
           error && !value && "border-red-500",

@@ -23,13 +23,10 @@ export interface LabelProps extends PressableProps {
 }
 
 export default function Label({
-  label,
   onPress,
-  loading = false,
   disabled = false,
   leftIcon: icon,
-  rightIcon,
-  color = "info",
+  color = "default",
   size = "medium",
   text,
   style,
@@ -57,7 +54,7 @@ export default function Label({
     error: "text-red-600",
     info: "text-blue-600",
     default: "text-gray-600",
-    outline: "text-gray-600",
+    outline: "text-light-on-surface-variant",
   };
 
   const iconColors = {
@@ -76,7 +73,7 @@ export default function Label({
     <Pressable
       onPress={onPress}
       disabled={disabled}
-      style={tw`gap-1 flex-row items-center ${isOutline ? "border border-gray-400" : `${bgColors[color]}/10`} ${isSmall ? "px-3 py-1" : "px-4 py-3"} rounded-full`}
+      style={tw`gap-1 flex-row items-center ${isOutline ? "border border-light-border" : `${bgColors[color]}/10`} ${isSmall ? "px-3 py-1" : "px-4 py-3"} rounded-full`}
     >
       {icon && (
         <Ionicons

@@ -19,7 +19,10 @@ import { ProductStatus } from "@/core/menu/models/product.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Chip from "@/presentation/theme/components/chip";
 import { ProductOption } from "@/core/menu/models/product-optionl.model";
-import { BottomSheetView, type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import {
+  BottomSheetView,
+  type BottomSheetMethods,
+} from "@expo/ui/community/bottom-sheet";
 import BottomSheetPicker, {
   BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
@@ -275,14 +278,14 @@ export default function ProductScreen() {
                 <IconButton
                   icon="remove-outline"
                   onPress={decrement}
-                  variant="outlined"
+                  variant="secondary"
                   size={40}
                 />
                 <ThemedText type="h1">{counter}</ThemedText>
                 <IconButton
                   icon="add"
                   onPress={increment}
-                  variant="outlined"
+                  variant="secondary"
                   size={40}
                 />
               </ThemedView>

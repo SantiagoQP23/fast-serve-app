@@ -30,9 +30,9 @@ export default function FloatingToolbar({
   return (
     <ThemedView
       style={[
-        tw`bg-light-surface rounded-full `,
+        tw`bg-light-surface rounded-full shadow-md`,
         isHorizontal
-          ? tw`flex-row items-center py-3 px-4 gap-4`
+          ? tw`flex-row items-center py-2 px-4 gap-2`
           : tw`flex-col items-center px-2 py-3`,
         // styles.shadow,
         style,
@@ -44,13 +44,17 @@ export default function FloatingToolbar({
           onPress={item.onPress}
           disabled={item.disabled}
           style={({ pressed }) => [
-            tw`w-14 h-14 rounded-full items-center justify-center bg-white`,
+            tw`w-14 h-14 rounded-full items-center justify-center `,
             item.active && { backgroundColor: activeBgColor },
             pressed && !item.disabled && tw`opacity-70`,
             item.disabled && tw`opacity-40`,
           ]}
         >
-          <Ionicons name={item.icon} size={22} color={Colors.light.primary} />
+          <Ionicons
+            name={item.icon}
+            size={24}
+            color={Colors.light.onSurfaceVariant}
+          />
         </Pressable>
       ))}
     </ThemedView>

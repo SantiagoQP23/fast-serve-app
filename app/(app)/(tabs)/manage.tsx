@@ -14,6 +14,7 @@ import Label from "@/presentation/theme/components/label";
 import { Roles } from "@/core/auth/models/user.model";
 import { toast } from "sonner-native";
 import Card from "@/presentation/theme/components/card";
+import IconButton from "@/presentation/theme/components/icon-button";
 
 interface CardButtonProps extends PressableProps {
   icon?: keyof typeof Ionicons.glyphMap;
@@ -67,12 +68,11 @@ export default function ManageScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
           <ThemedText type="h2">{t("manage.title")}</ThemedText>
-          <Pressable
+          <IconButton
             onPress={() => router.push("/(profile)/settings")}
-            style={({ pressed }) => tw.style(pressed && "opacity-70")}
-          >
-            <Ionicons name="settings-outline" size={22} />
-          </Pressable>
+            icon="settings-outline"
+            variant="secondary"
+          ></IconButton>
         </ThemedView>
 
         <ThemedView style={tw`my-4`} />
@@ -253,7 +253,7 @@ export default function ManageScreen() {
             <Button
               label={t("manage.userInfo.manageOnWeb")}
               onPress={handleOpenWeb}
-              variant="outline"
+              variant="secondary"
               leftIcon="globe-outline"
             />
             <ThemedText type="small" style={tw`text-center text-gray-500`}>

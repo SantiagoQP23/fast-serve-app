@@ -436,14 +436,14 @@ export default function OrderScreen() {
 
               {/* Status & Payment Labels */}
               <ThemedView
-                style={tw`flex-row items-center gap-2 flex-wrap p-2 bg-light-surface rounded-xl`}
+                style={tw`flex-row items-center gap-2 flex-wrap my-2  rounded-xl`}
               >
                 {showDeliveryTime && deliveryTime && (
                   <Label
                     leftIcon="hourglass-outline"
                     text={deliveryTime.format("HH:mm")}
                     size="small"
-                    color="outline"
+                    color="default"
                     onPress={openTimePicker}
                   />
                 )}
@@ -451,7 +451,6 @@ export default function OrderScreen() {
                   text={String(order.people)}
                   leftIcon="people-outline"
                   size="small"
-                  color="outline"
                 />
                 <Label
                   text={statusText}
@@ -481,7 +480,6 @@ export default function OrderScreen() {
                   leftIcon="person-outline"
                   text={`${order.user.person.firstName} ${order.user.person.lastName}`}
                   size="small"
-                  color="outline"
                 />
               </ThemedView>
             </ThemedView>
@@ -781,7 +779,9 @@ export default function OrderScreen() {
         </ScreenLayout>
 
         {/* Footer - Total */}
-        <ThemedView style={tw`px-4 py-4 border-t border-gray-200 bg-white`}>
+        <ThemedView
+          style={tw`px-4 py-4 border-t border-light-border bg-light-background`}
+        >
           <ThemedView style={tw`flex-row justify-between items-center`}>
             <ThemedText type="h4" style={tw`text-gray-600`}>
               {t("common:labels.total")}

@@ -23,7 +23,7 @@ export const Colors = {
     background: "#F8F9FF", // app canvas
     // background: "#F7F7F7", // app canvas
 
-    text: "#0f172a", // primary text
+    text: "#191C20", // primary text
     icon: "#64748b",
 
     tint: "#0977CA",
