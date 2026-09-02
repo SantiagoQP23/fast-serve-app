@@ -15,7 +15,6 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
-import { useQueryClient } from "@tanstack/react-query";
 import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
 import Popover, {
   AnchorPosition,
@@ -35,10 +34,9 @@ export default function MyOrdersScreen() {
   const { t } = useTranslation(["common", "orders", "errors", "tables"]);
   const { user } = useAuthStore();
   const allOrders = useOrdersStore((state) => state.orders);
+  console.log("allOrders", allOrders);
   const orders = allOrders.filter((order) => order.user.id === user?.id);
   const router = useRouter();
-  const queryClient = useQueryClient();
-  const { currentRestaurant } = useAuthStore();
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<
     "my-orders" | "all-orders" | "tables"
@@ -52,7 +50,7 @@ export default function MyOrdersScreen() {
   );
   const primaryColor = useThemeColor({}, "primary");
   const { registerOpenViewPopover } = useOrdersModuleContext();
-  const { isLoading: isLoadingOrders } = useActiveOrders({
+  const { isLoading: isLoadingOrders, refetchOrders } = useActiveOrders({
     skipGlobalLoader: true,
   });
 
@@ -86,11 +84,7 @@ export default function MyOrdersScreen() {
     try {
       setRefreshing(true);
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      await Promise.all([
-        queryClient.refetchQueries({
-          queryKey: ["activeOrders", currentRestaurant?.id],
-        }),
-      ]);
+      await refetchOrders();
     } catch {
       Alert.alert(
         t("errors:order.fetchError"),
@@ -99,7 +93,7 @@ export default function MyOrdersScreen() {
     } finally {
       setRefreshing(false);
     }
-  }, [queryClient, currentRestaurant?.id, t]);
+  }, [refetchOrders, t]);
 
   const handleTablePress = (table: Table) => {
     const tableHasOrders = allOrders.some(

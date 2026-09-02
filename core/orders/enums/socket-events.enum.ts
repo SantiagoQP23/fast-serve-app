@@ -31,4 +31,5 @@ export enum OrderSocketEvent {
   paymentProofRejected = "payment-proof-rejected",
   transactionStatusUpdated = "transaction-status-updated",
   newTicket = "new-ticket",
+  syncEvent = "sync:event",
 }

@@ -13,9 +13,8 @@ import {
   useOrders,
   useOrderUpdatedListener,
 } from "@/presentation/orders/hooks/useOrders";
-import { useNewTicketListener } from "@/presentation/orders/hooks/useNewTicketListener";
-import { usePrintComanda } from "@/presentation/orders/hooks/usePrintComanda";
-import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { useSync } from "@/presentation/sync/hooks/useSync";
+import { useSyncEventListener } from "@/presentation/sync/hooks/useSyncEventListener";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import IconButton from "@/presentation/theme/components/icon-button";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -64,6 +63,8 @@ export default function TabLayout() {
   useOrderCreatedListener();
   useOrderUpdatedListener();
   useOrderDeletedListener();
+  useSync();
+  useSyncEventListener();
 
   // const { printComanda } = usePrintComanda();
   // useNewTicketListener(printComanda);

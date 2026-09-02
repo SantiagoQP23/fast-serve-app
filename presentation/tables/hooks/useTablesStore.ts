@@ -12,6 +12,9 @@ export interface TablesState {
 
 interface TablesActions {
   setTables: (tables: Table[], restaurantId: string) => void;
+  addTable: (table: Table) => void;
+  updateTable: (table: Table) => void;
+  deleteTable: (tableId: string) => void;
   clearTables: () => void;
   reset: () => void;
 }
@@ -33,7 +36,27 @@ export const useTablesStore = create<TablesState & TablesActions>()(
           restaurantId,
           lastUpdated: Date.now(),
         }),
-      
+
+      addTable: (table: Table) =>
+        set((state) => ({
+          tables: state.tables.some((t) => t.id === table.id)
+            ? state.tables
+            : [...state.tables, table],
+          lastUpdated: Date.now(),
+        })),
+
+      updateTable: (table: Table) =>
+        set((state) => ({
+          tables: state.tables.map((t) => (t.id === table.id ? table : t)),
+          lastUpdated: Date.now(),
+        })),
+
+      deleteTable: (tableId: string) =>
+        set((state) => ({
+          tables: state.tables.filter((t) => t.id !== tableId),
+          lastUpdated: Date.now(),
+        })),
+
       clearTables: () =>
         set({
           tables: [],
