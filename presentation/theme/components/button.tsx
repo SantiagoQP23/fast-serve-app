@@ -34,6 +34,7 @@ export default function Button({
   size = "medium",
   layout = "horizontal",
   icon: verticalIcon,
+  style,
 }: ButtonProps) {
   const isVertical = layout === "vertical";
 
@@ -103,13 +104,14 @@ export default function Button({
     <Pressable
       disabled={disabled || loading}
       onPress={onPress}
-      style={({ pressed }) =>
+      style={({ pressed }) => [
         tw.style(
-          `${baseStyle} ${variants[variant]} ${isVertical ? verticalSizeStyles[size] : sizeStyles[size]}`,
+          `${baseStyle} ${variants[variant]} ${isVertical ? verticalSizeStyles[size] : sizeStyles[size]} `,
           pressed && "opacity-80",
           disabled && "opacity-50",
-        )
-      }
+        ),
+        { ...style },
+      ]}
     >
       {loading ? (
         <ActivityIndicator color={iconColors[variant]} />

@@ -27,12 +27,14 @@ import BottomSheetPicker, {
   BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
-import { KeyboardAvoidingView } from "react-native";
+import { KeyboardAvoidingView, TextInput as RNTextInput } from "react-native";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 
 export default function ProductScreen() {
   const { t } = useTranslation(["menu", "orders"]);
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
+  const noteSheetRef = useRef<BottomSheetMethods>(null);
+  const noteInputRef = useRef<RNTextInput>(null);
   const typePickerRef = useRef<BottomSheetPickerRef>(null);
   const activeOrderDetail = useNewOrderStore((state) => state.activeDetail);
   const orderType = useNewOrderStore((state) => state.orderType);
@@ -99,6 +101,15 @@ export default function ProductScreen() {
 
   const closeCustomBottomSheet = () => {
     bottomSheetModalRef.current?.dismiss();
+  };
+
+  const openNoteBottomSheet = () => {
+    noteSheetRef.current?.present();
+    setTimeout(() => noteInputRef.current?.focus(), 300);
+  };
+
+  const closeNoteBottomSheet = () => {
+    noteSheetRef.current?.dismiss();
   };
 
   if (!activeProduct) {
@@ -257,14 +268,11 @@ export default function ProductScreen() {
             />
           </ThemedView>
 
-          <TextInput
-            numberOfLines={4}
-            multiline
-            value={notes}
-            onChangeText={setNotes}
-            placeholder={t("orders:newOrder.addNote")}
-            autoFocus={false}
-            containerStyle={tw`border-0 p-0 mb-0 -ml-1 bg-transparent`}
+          <Button
+            variant="surface"
+            label={t("orders:newOrder.addNote")}
+            leftIcon="document-text-outline"
+            onPress={openNoteBottomSheet}
           />
 
           <ThemedView style={tw`gap-8`}>
@@ -340,6 +348,26 @@ export default function ProductScreen() {
           <Button
             label={t("menu:product.saveDetails")}
             onPress={closeCustomBottomSheet}
+          />
+        </BottomSheetView>
+      </ThemedBottomSheetModal>
+
+      <ThemedBottomSheetModal ref={noteSheetRef} enablePanDownToClose>
+        <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
+          <TextInput
+            ref={noteInputRef}
+            numberOfLines={4}
+            multiline
+            bottomSheet
+            value={notes}
+            onChangeText={setNotes}
+            placeholder={t("orders:newOrder.addNote")}
+            autoFocus
+          />
+
+          <Button
+            label={t("common:actions.save")}
+            onPress={closeNoteBottomSheet}
           />
         </BottomSheetView>
       </ThemedBottomSheetModal>

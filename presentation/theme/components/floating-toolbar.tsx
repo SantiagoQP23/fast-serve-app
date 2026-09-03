@@ -30,7 +30,7 @@ export default function FloatingToolbar({
   return (
     <ThemedView
       style={[
-        tw`bg-light-surface rounded-full shadow-md`,
+        tw`bg-light-surface rounded-full shadow-sm`,
         isHorizontal
           ? tw`flex-row items-center py-2 px-4 gap-2`
           : tw`flex-col items-center px-2 py-3`,

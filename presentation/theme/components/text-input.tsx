@@ -13,6 +13,7 @@ import { ThemedView } from "./themed-view";
 import { BottomSheetTextInput } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "./themed-text";
 import { typography } from "@/constants/theme";
+import { forwardRef } from "react";
 
 interface Props extends TextInputProps {
   label?: string;
@@ -23,17 +24,20 @@ interface Props extends TextInputProps {
   containerStyle?: StyleProp<ViewStyle>;
 }
 
-export default function TextInput({
-  label,
-  error,
-  icon,
-  leftIcon,
-  bottomSheet,
-  containerStyle,
-  style,
-  editable = true,
-  ...inputProps
-}: Props) {
+function TextInput(
+  {
+    label,
+    error,
+    icon,
+    leftIcon,
+    bottomSheet,
+    containerStyle,
+    style,
+    editable = true,
+    ...inputProps
+  }: Props,
+  ref: React.ForwardedRef<RNTextInput>,
+) {
   const InputComponent = bottomSheet ? BottomSheetTextInput : RNTextInput;
   return (
     <ThemedView>
@@ -57,6 +61,7 @@ export default function TextInput({
           />
         )}
         <InputComponent
+          ref={ref as React.ForwardedRef<RNTextInput>}
           style={[
             tw`flex-1`,
             { fontSize: 16, fontFamily: typography.regular },
@@ -72,3 +77,5 @@ export default function TextInput({
     </ThemedView>
   );
 }
+
+export default forwardRef(TextInput);
