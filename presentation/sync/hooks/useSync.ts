@@ -37,7 +37,9 @@ function applySnapshot(
 
   useOrdersStore.getState().setOrders(orders);
   useTablesStore.getState().setTables(tables, restaurantId);
-  useMenuStore.getState().setMenu({ sections, categories, products }, restaurantId);
+  useMenuStore
+    .getState()
+    .setMenu({ sections, categories, products }, restaurantId);
   useProductionAreasStore
     .getState()
     .setProductionAreas(productionAreas, restaurantId);
@@ -72,7 +74,10 @@ async function applyIncremental(
       const menu = await RestaurantMenuService.getAllMenu(restaurantId);
       useMenuStore.getState().setMenu(menu, restaurantId);
     } catch (error) {
-      console.error("[useSync] Failed to refetch menu after sync events", error);
+      console.error(
+        "[useSync] Failed to refetch menu after sync events",
+        error,
+      );
     }
   }
 
@@ -159,6 +164,7 @@ async function applySyncResponse(
   response: SnapshotSyncResponseDto | IncrementalSyncResponseDto,
   restaurantId: string,
 ): Promise<number> {
+  console.log("[useSync] Applying sync response", response);
   if (response.type === "snapshot") {
     applySnapshot(response, restaurantId);
     return response.sequence;
@@ -183,13 +189,8 @@ async function applySyncResponse(
 export const useSync = (opts?: { skipGlobalLoader?: boolean }) => {
   const { currentRestaurant } = useAuthStore();
   const setIsLoading = useGlobalStore((state) => state.setIsLoading);
-  const {
-    restaurantId,
-    setRestaurantId,
-    startSync,
-    setSynced,
-    setError,
-  } = useSyncStore();
+  const { restaurantId, setRestaurantId, startSync, setSynced, setError } =
+    useSyncStore();
 
   // Detect restaurant switches and reset the sync cursor so the next sync
   // starts from a fresh snapshot.
@@ -214,6 +215,7 @@ export const useSync = (opts?: { skipGlobalLoader?: boolean }) => {
           currentRestaurant.id,
           since || undefined,
         );
+        console.log(JSON.stringify(response, null, 2));
         const finalSequence = await applySyncResponse(
           response,
           currentRestaurant.id,

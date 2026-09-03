@@ -59,10 +59,10 @@ export default function TabLayout() {
   const { t } = useTranslation("common");
   const colorScheme = useColorScheme();
   const { status, checkStatus, user, bootstrapStatus } = useAuthStore();
-  useOrders();
-  useOrderCreatedListener();
-  useOrderUpdatedListener();
-  useOrderDeletedListener();
+  // useOrders();
+  // useOrderCreatedListener();
+  // useOrderUpdatedListener();
+  // useOrderDeletedListener();
   useSync();
   useSyncEventListener();
 

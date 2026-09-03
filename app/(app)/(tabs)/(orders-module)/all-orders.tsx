@@ -41,7 +41,7 @@ export default function AllOrdersScreen() {
   }, []);
 
   const handleRefresh = useCallback(async () => {
-    await refetchOrders();
+    // await refetchOrders();
   }, [refetchOrders]);
 
   const waiterStats = useMemo(() => {
@@ -79,7 +79,6 @@ export default function AllOrdersScreen() {
 
   return (
     <ThemedView style={tw`flex-1`}>
-
       {orders.length === 0 ? (
         <ThemedView style={tw`items-center justify-center flex-1 gap-4`}>
           <Ionicons
@@ -153,7 +152,6 @@ export default function AllOrdersScreen() {
       <ThemedBottomSheetModal
         ref={bottomSheetModalRef}
         onChange={handleSheetChanges}
-       
       >
         <NewOrderBottomSheet onCreateOrder={handleNavigate} />
       </ThemedBottomSheetModal>

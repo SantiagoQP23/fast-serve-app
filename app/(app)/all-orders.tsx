@@ -42,7 +42,7 @@ export default function AllOrdersScreen() {
   }, []);
 
   const handleRefresh = useCallback(async () => {
-    await refetchOrders();
+    // await refetchOrders();
   }, [refetchOrders]);
 
   const waiterStats = useMemo(() => {
@@ -159,7 +159,6 @@ export default function AllOrdersScreen() {
       <ThemedBottomSheetModal
         ref={bottomSheetModalRef}
         onChange={handleSheetChanges}
-       
       >
         <NewOrderBottomSheet onCreateOrder={handleNavigate} />
       </ThemedBottomSheetModal>

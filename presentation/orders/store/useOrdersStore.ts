@@ -4,7 +4,9 @@ import { Order } from "@/core/orders/models/order.model";
 import { Account } from "@/core/restaurant/models/account.model";
 import { PaymentMethod } from "@/core/restaurant/models/payment-method.model";
 import { Transaction } from "@/core/transactions/models/transaction.model";
+import { AsyncStorageAdapter } from "@/helpers/adapters/async-storage.adapter";
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 export interface PendingProofImage {
   uri: string;
@@ -58,39 +60,47 @@ const initialState = {
   pendingProofImage: null,
 };
 
-export const useOrdersStore = create<OrdersState>((set) => ({
-  ...initialState,
-  setOrders: (orders: Order[]) => set({ orders }),
-  addOrder: (order: Order) =>
-    set((state) => ({
-      orders: state.orders.findLast((o) => o.id === order.id)
-        ? [...state.orders]
-        : [...state.orders, order],
-    })),
-  updateOrder: (order: Order) =>
-    set((state) => ({
-      orders: state.orders.map((o) => (o.id === order.id ? order : o)),
-    })),
-  setActiveOrder: (order: Order | null) => set({ activeOrder: order }),
-  setActiveBill: (bill: Bill | null) => set({ activeBill: bill }),
-  setActiveOrderDetail: (detail: OrderDetail | null) =>
-    set({ activeOrderDetail: detail }),
-  setBillDiscount: (discount: string) => set({ billDiscount: discount }),
-  setBillAmount: (amount: string) => set({ billAmount: amount }),
-  setBillReceivedAmount: (amount: string) =>
-    set({ billReceivedAmount: amount }),
-  setBillTransferNote: (note: string) => set({ billTransferNote: note }),
-  setSelectedPaymentMethod: (method: PaymentMethod | null) =>
-    set({ selectedPaymentMethod: method }),
-  setSelectedAccount: (account: Account | null) =>
-    set({ selectedAccount: account }),
-  setActivePendingTransaction: (transaction: Transaction | null) =>
-    set({ activePendingTransaction: transaction }),
-  setPendingProofImage: (image: PendingProofImage | null) =>
-    set({ pendingProofImage: image }),
-  deleteOrder: (orderId: string) =>
-    set((state) => ({
-      orders: state.orders.filter((o) => o.id !== orderId),
-    })),
-  reset: () => set(initialState),
-}));
+export const useOrdersStore = create<OrdersState>()(
+  persist(
+    (set) => ({
+      ...initialState,
+      setOrders: (orders: Order[]) => set({ orders }),
+      addOrder: (order: Order) =>
+        set((state) => ({
+          orders: state.orders.findLast((o) => o.id === order.id)
+            ? [...state.orders]
+            : [...state.orders, order],
+        })),
+      updateOrder: (order: Order) =>
+        set((state) => ({
+          orders: state.orders.map((o) => (o.id === order.id ? order : o)),
+        })),
+      setActiveOrder: (order: Order | null) => set({ activeOrder: order }),
+      setActiveBill: (bill: Bill | null) => set({ activeBill: bill }),
+      setActiveOrderDetail: (detail: OrderDetail | null) =>
+        set({ activeOrderDetail: detail }),
+      setBillDiscount: (discount: string) => set({ billDiscount: discount }),
+      setBillAmount: (amount: string) => set({ billAmount: amount }),
+      setBillReceivedAmount: (amount: string) =>
+        set({ billReceivedAmount: amount }),
+      setBillTransferNote: (note: string) => set({ billTransferNote: note }),
+      setSelectedPaymentMethod: (method: PaymentMethod | null) =>
+        set({ selectedPaymentMethod: method }),
+      setSelectedAccount: (account: Account | null) =>
+        set({ selectedAccount: account }),
+      setActivePendingTransaction: (transaction: Transaction | null) =>
+        set({ activePendingTransaction: transaction }),
+      setPendingProofImage: (image: PendingProofImage | null) =>
+        set({ pendingProofImage: image }),
+      deleteOrder: (orderId: string) =>
+        set((state) => ({
+          orders: state.orders.filter((o) => o.id !== orderId),
+        })),
+      reset: () => set(initialState),
+    }),
+    {
+      name: "ordersStore",
+      storage: createJSONStorage(() => AsyncStorageAdapter),
+    },
+  ),
+);

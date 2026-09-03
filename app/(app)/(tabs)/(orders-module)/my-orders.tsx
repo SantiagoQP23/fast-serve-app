@@ -84,7 +84,7 @@ export default function MyOrdersScreen() {
     try {
       setRefreshing(true);
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      await refetchOrders();
+      // await refetchOrders();
     } catch {
       Alert.alert(
         t("errors:order.fetchError"),
