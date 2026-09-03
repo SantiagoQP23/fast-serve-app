@@ -13,7 +13,7 @@ import { ThemedText } from "./themed-text";
 
 export interface ButtonProps extends PressableProps {
   label?: string;
-  variant?: "primary" | "secondary" | "outline" | "text";
+  variant?: "primary" | "secondary" | "outline" | "text" | "surface";
   size?: "small" | "medium" | "large";
   loading?: boolean;
   disabled?: boolean;
@@ -44,6 +44,7 @@ export default function Button({
   const variants = {
     primary: "bg-light-primary",
     secondary: "bg-light-secondary",
+    surface: "bg-light-surface",
     outline: "border border-light-border bg-transparent",
     text: "bg-transparent",
   };
@@ -83,6 +84,7 @@ export default function Button({
     secondary: "text-light-on-secondary",
     outline: "text-light-on-surface-variant",
     text: "text-light-primary",
+    surface: "text-light-on-surface-variant",
   };
 
   const iconColors = {
@@ -90,6 +92,7 @@ export default function Button({
     secondary: Colors.light.onSecondary,
     outline: Colors.light.onSurfaceVariant,
     text: Colors.light.primary,
+    surface: Colors.light.onSurfaceVariant,
   };
 
   const currentIconSize = isVertical

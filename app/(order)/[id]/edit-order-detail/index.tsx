@@ -297,8 +297,14 @@ export default function EditOrderDetailScreen() {
             {/*   </ThemedView> */}
             {/* </ThemedView> */}
 
-            <ThemedView style={tw` justify-between items-center gap-2`}>
-              <ThemedView></ThemedView>
+            <ThemedView style={tw`flex-row justify-center items-center gap-2`}>
+              {/* <ThemedView> */}
+              {/*   <Button */}
+              {/*     variant="surface" */}
+              {/*     label="Add note" */}
+              {/*     leftIcon="document-text-outline" */}
+              {/*   /> */}
+              {/* </ThemedView> */}
               <ThemedView style={tw`flex-row items-center gap-10`}>
                 <IconButton
                   icon="remove-outline"
