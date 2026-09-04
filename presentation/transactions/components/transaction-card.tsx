@@ -76,21 +76,23 @@ export default function TransactionCard({
   return (
     <>
       <Swipeable
+        containerStyle={tw` rounded-3xl`}
         renderRightActions={
           canRemoveTransaction
             ? () => (
                 <ThemedView style={tw`justify-center items-center px-4 `}>
                   <IconButton
                     icon="trash-outline"
-                    color="red"
+                    variant="secondary"
                     onPress={onRemoveTransaction}
+                    size={26}
                   />
                 </ThemedView>
               )
             : undefined
         }
       >
-        <Pressable onPress={onPress} {...rest}>
+        <Pressable onPress={onPress} {...rest} style={tw``}>
           <ThemedView style={tw`flex-row justify-between py-3   rounded-3xl`}>
             {/* Left: Colored icon circle + transaction info */}
             <ThemedView style={tw`flex-row  gap-3 flex-1`}>
@@ -115,10 +117,10 @@ export default function TransactionCard({
                   {transaction.name} {""}
                   {getStatusDot()}
                 </ThemedText>
-                <ThemedText type="body2" style={tw`text-gray-500 `}>
+                <ThemedText type="body2" style={tw``}>
                   {transaction.account.name}
                 </ThemedText>
-                <ThemedText type="body2" style={tw`text-gray-500 `}>
+                <ThemedText type="body2" style={tw``}>
                   {transaction.createdBy.person.firstName}{" "}
                   {transaction.createdBy.person.lastName}
                 </ThemedText>

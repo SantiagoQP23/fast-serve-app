@@ -202,14 +202,14 @@ export default function AccountScreen() {
 
         {/* Payment method info */}
         <ThemedView
-          style={tw`flex-row items-center gap-3 p-4 rounded-2xl border border-gray-200 mb-6`}
+          style={tw`flex-row items-center justify-center gap-3 py-4 rounded-2xl  mb-6`}
         >
           <Ionicons
             name="card-outline"
-            size={20}
+            size={26}
             color={tw.color("gray-500")}
           />
-          <ThemedText type="body2" style={tw`flex-1 text-gray-700`}>
+          <ThemedText type="h3" style={tw`flex-1 text-gray-700`}>
             {selectedPaymentMethod.name}
           </ThemedText>
           {selectedPaymentMethod.type === PaymentMethodCategory.CASH &&
@@ -248,7 +248,7 @@ export default function AccountScreen() {
                   style={({ pressed }) => [
                     tw`flex-row items-center px-4 py-4 rounded-2xl border border-gray-200`,
                     pressed && tw`opacity-80`,
-                    isSelected && tw`border-light-primary bg-gray-100`,
+                    isSelected && tw`border-light-primary `,
                   ]}
                 >
                   <ThemedView
@@ -287,7 +287,7 @@ export default function AccountScreen() {
                     <Ionicons
                       name="checkmark-circle"
                       size={22}
-                      color={tw.color("green-500")}
+                      color={tw.color("light-primary")}
                       style={tw`ml-2`}
                     />
                   )}

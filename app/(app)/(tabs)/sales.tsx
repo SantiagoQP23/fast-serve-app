@@ -23,12 +23,7 @@ import {
   BillListFiltersDto,
   BillStatusFilter,
 } from "@/core/orders/dto/bill-list-filters.dto";
-import {
-  formatCurrency,
-  translatePaymentMethod,
-  getPaymentMethodIcon,
-} from "@/core/i18n/utils";
-import { PaymentMethod } from "@/core/orders/enums/payment-method";
+import { formatCurrency } from "@/core/i18n/utils";
 import Button from "@/presentation/theme/components/button";
 import DatePicker from "@/presentation/theme/components/date-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";

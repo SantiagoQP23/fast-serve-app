@@ -406,7 +406,7 @@ export default function IncomesScreen() {
                     return (
                       <ThemedView
                         key={account.accountId}
-                        style={tw`w-36 rounded-xl p-4 border border-gray-100`}
+                        style={tw`w-36 rounded-xl p-6 border border-light-border`}
                       >
                         <ThemedText
                           type="small"
@@ -447,7 +447,7 @@ export default function IncomesScreen() {
                 </ThemedView>
               ) : transactions.length > 0 ? (
                 <>
-                  <ThemedView style={tw`bg-white rounded-2xl`}>
+                  <ThemedView style={tw` rounded-2xl`}>
                     <FlatList
                       data={transactions}
                       keyExtractor={(item) => item.id.toString()}

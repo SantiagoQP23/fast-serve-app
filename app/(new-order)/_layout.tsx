@@ -98,7 +98,7 @@ export default function NewOrderLayout() {
         />
       </Stack>
 
-      <ThemedBottomSheetModal ref={bottomSheetModalRef}>
+      <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
         <NewOrderBottomSheet
           onCreateOrder={closeBottomSheet}
           buttonProps={{ label: t("common:actions.saveChanges") }}

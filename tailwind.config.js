@@ -10,6 +10,8 @@ module.exports = {
           secondary: Colors.light.secondary,
           "on-primary": Colors.light.onPrimary,
           "on-secondary": Colors.light.onSecondary,
+          "primary-container": Colors.light.primaryContainer,
+          "on-primary-container": Colors.light.onPrimaryContainer,
           "surface-high": Colors.light.surfaceHigh,
           "on-surface-variant": Colors.light.onSurfaceVariant,
 

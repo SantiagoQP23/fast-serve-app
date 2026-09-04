@@ -14,6 +14,8 @@ export const Colors = {
     // primary: "#1c1c1e",
     primary: "#3368A0",
     onPrimary: "#FFFFFF",
+    primaryContainer: "#D2E4FF",
+    onPrimaryContainer: "#1C4975",
     secondary: "#D7E3F8",
     onSecondary: "#3C4858",
 

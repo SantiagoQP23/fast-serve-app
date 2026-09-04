@@ -101,20 +101,22 @@ export default function TabLayout() {
     <ThemedView style={tw`flex-1 bg-light-background `}>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors.light.primary,
-          tabBarActiveBackgroundColor: Colors[colorScheme ?? "light"].surface,
+          tabBarActiveTintColor: Colors.light.onSecondary,
+          tabBarInactiveTintColor: Colors.light.onSurfaceVariant,
+          // tabBarActiveBackgroundColor: Colors.light.surface,
           headerShown: false,
           headerStyle: {
-            backgroundColor: Colors[colorScheme ?? "light"].background,
+            backgroundColor: Colors.light.background,
           },
           // tabBarActiveTintColor: Colors["light"].tint,
           tabBarStyle: {
-            backgroundColor: Colors["light"].background,
-            height: 64,
+            backgroundColor: Colors["light"].surface,
+            height: 70,
             paddingTop: 6,
             paddingBottom: 0,
             alignItems: "center",
             alignContent: "center",
+            borderRadius: 8,
           },
           tabBarItemStyle: {
             padding: 3,
@@ -134,11 +136,15 @@ export default function TabLayout() {
               </ThemedText>
             ),
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons
-                color={color}
-                name={focused ? "home" : "home-outline"}
-                size={24}
-              />
+              <ThemedView
+                style={tw`items-center justify-center ${focused ? "bg-light-secondary" : ""} w-15 h-8 rounded-full`}
+              >
+                <Ionicons
+                  color={color}
+                  name={focused ? "home" : "home-outline"}
+                  size={24}
+                />
+              </ThemedView>
             ),
             headerShown: false,
             headerShadowVisible: false,
@@ -155,11 +161,15 @@ export default function TabLayout() {
               </ThemedText>
             ),
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons
-                color={color}
-                name={focused ? "pricetag" : "pricetag-outline"}
-                size={24}
-              />
+              <ThemedView
+                style={tw`items-center justify-center ${focused ? "bg-light-secondary" : ""} w-15 h-8 rounded-full`}
+              >
+                <Ionicons
+                  color={color}
+                  name={focused ? "pricetag" : "pricetag-outline"}
+                  size={24}
+                />
+              </ThemedView>
             ),
           }}
         />
@@ -172,11 +182,15 @@ export default function TabLayout() {
               </ThemedText>
             ),
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons
-                color={color}
-                name={focused ? "trending-up" : "trending-up-outline"}
-                size={24}
-              />
+              <ThemedView
+                style={tw`items-center justify-center ${focused ? "bg-light-secondary" : ""} w-15 h-8 rounded-full`}
+              >
+                <Ionicons
+                  color={color}
+                  name={focused ? "trending-up" : "trending-up-outline"}
+                  size={24}
+                />
+              </ThemedView>
             ),
           }}
         />
@@ -189,11 +203,15 @@ export default function TabLayout() {
               </ThemedText>
             ),
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons
-                color={color}
-                name={focused ? "stats-chart" : "stats-chart-outline"}
-                size={24}
-              />
+              <ThemedView
+                style={tw`items-center justify-center ${focused ? "bg-light-secondary" : ""} w-15 h-8 rounded-full`}
+              >
+                <Ionicons
+                  color={color}
+                  name={focused ? "stats-chart" : "stats-chart-outline"}
+                  size={24}
+                />
+              </ThemedView>
             ),
             href: isAdmin ? "/(app)/(tabs)/incomes" : null,
           }}
@@ -207,11 +225,15 @@ export default function TabLayout() {
               </ThemedText>
             ),
             tabBarIcon: ({ color, focused }) => (
-              <Ionicons
-                color={color}
-                name={focused ? "apps" : "apps-outline"}
-                size={24}
-              />
+              <ThemedView
+                style={tw`items-center justify-center ${focused ? "bg-light-secondary" : ""} w-15 h-8 rounded-full`}
+              >
+                <Ionicons
+                  color={color}
+                  name={focused ? "apps" : "apps-outline"}
+                  size={24}
+                />
+              </ThemedView>
             ),
           }}
         />

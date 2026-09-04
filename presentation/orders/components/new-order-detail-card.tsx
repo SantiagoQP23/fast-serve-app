@@ -64,8 +64,9 @@ export default function NewOrderDetailCard({
         <ThemedView style={tw`justify-center items-center px-4 `}>
           <IconButton
             icon="trash-outline"
-            color="red"
             onPress={onRemoveDetail}
+            variant="secondary"
+            size={26}
           />
         </ThemedView>
       )}
