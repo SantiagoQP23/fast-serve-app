@@ -26,7 +26,7 @@ export default function RestaurantsScreen() {
                 tw.style(
                   ` gap-2 p-4  `,
                   restaurantRole.restaurant.id === currentRestaurant?.id &&
-                    "bg-gray-100 border-black",
+                    "border border-light-border ",
                 )
               }
               onPress={() => {

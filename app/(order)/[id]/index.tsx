@@ -442,28 +442,18 @@ export default function OrderScreen() {
                   <Label
                     leftIcon="hourglass-outline"
                     text={deliveryTime.format("HH:mm")}
-                    size="small"
                     color="default"
                     onPress={openTimePicker}
                   />
                 )}
-                <Label
-                  text={String(order.people)}
-                  leftIcon="people-outline"
-                  size="small"
-                />
+                <Label text={String(order.people)} leftIcon="people-outline" />
                 <Label
                   text={statusText}
                   color={labelColor}
                   leftIcon={statusIcon}
-                  size="small"
                 />
 
-                <Label
-                  text={paymentStatus.text}
-                  color={paymentStatus.color}
-                  size="small"
-                />
+                <Label text={paymentStatus.text} color={paymentStatus.color} />
                 {isClosed && (
                   <Label
                     text={
@@ -472,14 +462,12 @@ export default function OrderScreen() {
                         : t("orders:details.open")
                     }
                     color={isClosed ? "default" : "success"}
-                    size="small"
                   />
                 )}
 
                 <Label
                   leftIcon="person-outline"
                   text={`${order.user.person.firstName} ${order.user.person.lastName}`}
-                  size="small"
                 />
               </ThemedView>
             </ThemedView>

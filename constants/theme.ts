@@ -13,6 +13,7 @@ export const Colors = {
     // primary: "#3F72AF",
     // primary: "#1c1c1e",
     primary: "#3368A0",
+    onPrimary: "#FFFFFF",
     secondary: "#D7E3F8",
     onSecondary: "#3C4858",
 

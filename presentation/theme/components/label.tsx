@@ -73,7 +73,7 @@ export default function Label({
     <Pressable
       onPress={onPress}
       disabled={disabled}
-      style={tw`gap-1 flex-row items-center ${isOutline ? "border border-light-border" : `${bgColors[color]}/10`} ${isSmall ? "px-3 py-1" : "px-4 py-3"} rounded-full`}
+      style={tw`gap-2 flex-row items-center ${isOutline ? "border border-light-border" : `${bgColors[color]}/10`} ${isSmall ? "px-3 py-1" : "px-4 py-1"} rounded-full`}
     >
       {icon && (
         <Ionicons

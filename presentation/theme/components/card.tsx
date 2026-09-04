@@ -10,9 +10,7 @@ export default function Card({
   ...rest
 }: PressableProps) {
   return (
-    <ThemedView
-      style={tw`shadow-xs  rounded-3xl bg-light-surface rounded-3xl `}
-    >
+    <ThemedView style={tw`shadow-xs bg-light-surface rounded-3xl  `}>
       <Pressable
         {...rest}
         style={(state) =>

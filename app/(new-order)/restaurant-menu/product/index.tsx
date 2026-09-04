@@ -27,14 +27,14 @@ import BottomSheetPicker, {
   BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
-import { KeyboardAvoidingView, TextInput as RNTextInput } from "react-native";
+import { KeyboardAvoidingView, Pressable } from "react-native";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
 
 export default function ProductScreen() {
   const { t } = useTranslation(["menu", "orders"]);
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
   const noteSheetRef = useRef<BottomSheetMethods>(null);
-  const noteInputRef = useRef<RNTextInput>(null);
   const typePickerRef = useRef<BottomSheetPickerRef>(null);
   const activeOrderDetail = useNewOrderStore((state) => state.activeDetail);
   const orderType = useNewOrderStore((state) => state.orderType);
@@ -105,7 +105,6 @@ export default function ProductScreen() {
 
   const openNoteBottomSheet = () => {
     noteSheetRef.current?.present();
-    setTimeout(() => noteInputRef.current?.focus(), 300);
   };
 
   const closeNoteBottomSheet = () => {
@@ -268,12 +267,26 @@ export default function ProductScreen() {
             />
           </ThemedView>
 
-          <Button
-            variant="surface"
-            label={t("orders:newOrder.addNote")}
-            leftIcon="document-text-outline"
-            onPress={openNoteBottomSheet}
-          />
+          {notes.trim() ? (
+            <Pressable onPress={openNoteBottomSheet}>
+              <TextInput
+                numberOfLines={4}
+                multiline
+                value={notes}
+                editable={false}
+                placeholder={t("orders:newOrder.addNote")}
+                containerStyle={tw`border-0 p-0 mb-0 -ml-1 bg-transparent`}
+                pointerEvents="none"
+              />
+            </Pressable>
+          ) : (
+            <Button
+              variant="surface"
+              label={t("orders:newOrder.addNote")}
+              leftIcon="document-text-outline"
+              onPress={openNoteBottomSheet}
+            />
+          )}
 
           <ThemedView style={tw`gap-8`}>
             <ThemedView style={tw` justify-between items-center gap-2`}>
@@ -352,25 +365,15 @@ export default function ProductScreen() {
         </BottomSheetView>
       </ThemedBottomSheetModal>
 
-      <ThemedBottomSheetModal ref={noteSheetRef} enablePanDownToClose>
-        <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
-          <TextInput
-            ref={noteInputRef}
-            numberOfLines={4}
-            multiline
-            bottomSheet
-            value={notes}
-            onChangeText={setNotes}
-            placeholder={t("orders:newOrder.addNote")}
-            autoFocus
-          />
-
-          <Button
-            label={t("common:actions.save")}
-            onPress={closeNoteBottomSheet}
-          />
-        </BottomSheetView>
-      </ThemedBottomSheetModal>
+      <NoteBottomSheet
+        ref={noteSheetRef}
+        initialValue={notes}
+        onSave={(note) => {
+          setNotes(note);
+          closeNoteBottomSheet();
+        }}
+        placeholder={t("orders:newOrder.addNote")}
+      />
     </>
   );
 }

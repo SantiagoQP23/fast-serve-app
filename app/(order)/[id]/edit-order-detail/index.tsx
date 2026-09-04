@@ -1,7 +1,7 @@
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useRouter } from "expo-router";
 import TextInput from "@/presentation/theme/components/text-input";
 import Button from "@/presentation/theme/components/button";
@@ -25,17 +25,17 @@ import BottomSheetPicker, {
 import { useOrderDetailStatus } from "@/presentation/orders/hooks/useOrderDetailStatus";
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
-import { KeyboardAvoidingView, TextInput as RNTextInput } from "react-native";
+import { KeyboardAvoidingView } from "react-native";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
 import OrderDetailActivityBottomSheet from "@/presentation/orders/components/order-detail-activity-bottom-sheet";
 import dayjs from "dayjs";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
 
 export default function EditOrderDetailScreen() {
   const { t } = useTranslation(["common", "orders", "menu"]);
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
   const noteSheetRef = useRef<BottomSheetMethods>(null);
-  const noteInputRef = useRef<RNTextInput>(null);
   const activitySheetRef = useRef<BottomSheetMethods>(null);
   const typePickerRef = useRef<BottomSheetPickerRef>(null);
   const orderDetail = useOrdersStore((state) => state.activeOrderDetail);
@@ -103,11 +103,15 @@ export default function EditOrderDetailScreen() {
 
   const openNoteBottomSheet = () => {
     noteSheetRef.current?.present();
-    setTimeout(() => noteInputRef.current?.focus(), 300);
   };
 
   const closeNoteBottomSheet = () => {
     noteSheetRef.current?.dismiss();
+  };
+
+  const saveNote = (note: string) => {
+    setNotes(note);
+    closeNoteBottomSheet();
   };
 
   const openDeliveredBottomSheet = () => {
@@ -199,7 +203,6 @@ export default function EditOrderDetailScreen() {
                 text={statusText}
                 color={labelColor}
                 leftIcon={statusIcon}
-                size="small"
                 onPress={openDeliveredBottomSheet}
               />
               <Label
@@ -213,18 +216,15 @@ export default function EditOrderDetailScreen() {
                     ? "restaurant-outline"
                     : "bag-outline"
                 }
-                size="small"
                 onPress={() => typePickerRef.current?.present()}
               />
               <Label
                 leftIcon="notifications-outline"
                 text={String(orderDetail.readyQuantity)}
-                size="small"
               />
               <Label
                 leftIcon="time-outline"
                 text={createdAtLabel}
-                size="small"
                 onPress={openActivityBottomSheet}
               />
             </ThemedView>
@@ -291,15 +291,30 @@ export default function EditOrderDetailScreen() {
             {/*     /> */}
             {/*   </ThemedView> */}
             {/* </ThemedView> */}
-
-            <ThemedView style={tw`flex-row  items-center gap-4 w-full`}>
-              <Button
-                variant="surface"
-                label={t("orders:newOrder.addNote")}
-                leftIcon="document-text-outline"
-                style={tw`h-full flex-1`}
-                onPress={openNoteBottomSheet}
+            {notes.trim() && (
+              <TextInput
+                numberOfLines={4}
+                multiline
+                value={notes}
+                onChangeText={setNotes}
+                editable={false}
+                placeholder={t("orders:newOrder.addNote")}
+                pointerEvents="none"
               />
+            )}
+
+            <ThemedView
+              style={tw`flex-row  items-center gap-4 w-full ${!notes.trim() ? "justify-between" : "justify-center"}`}
+            >
+              {!notes.trim() && (
+                <Button
+                  variant="surface"
+                  label={t("orders:newOrder.addNote")}
+                  leftIcon="document-text-outline"
+                  style={tw`h-full flex-1`}
+                  onPress={openNoteBottomSheet}
+                />
+              )}
               <ThemedView style={tw`flex-row items-center gap-6`}>
                 <IconButton
                   icon="remove-outline"
@@ -349,25 +364,12 @@ export default function EditOrderDetailScreen() {
           </BottomSheetView>
         </ThemedBottomSheetModal>
 
-        <ThemedBottomSheetModal ref={noteSheetRef} enablePanDownToClose>
-          <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
-            <TextInput
-              ref={noteInputRef}
-              numberOfLines={4}
-              multiline
-              bottomSheet
-              value={notes}
-              onChangeText={setNotes}
-              placeholder={t("orders:newOrder.addNote")}
-              autoFocus
-            />
-
-            <Button
-              label={t("common:actions.save")}
-              onPress={closeNoteBottomSheet}
-            />
-          </BottomSheetView>
-        </ThemedBottomSheetModal>
+        <NoteBottomSheet
+          ref={noteSheetRef}
+          initialValue={notes}
+          onSave={saveNote}
+          placeholder={t("orders:newOrder.addNote")}
+        />
 
         <ThemedBottomSheetModal ref={deliveredSheetRef} enablePanDownToClose>
           <BottomSheetView style={tw`px-4 pb-6`}>
