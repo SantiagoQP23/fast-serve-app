@@ -275,7 +275,7 @@ export default function NewBillScreen() {
 
       {/* Fixed Bottom Bar */}
       <ThemedView
-        style={tw`absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-4`}
+        style={tw`absolute bottom-0 left-0 right-0 bg-light-background border-t border-gray-200 px-4 py-4`}
       >
         {selectedTotal > 0 && (
           <ThemedView style={tw`flex-row justify-between items-center mb-3`}>

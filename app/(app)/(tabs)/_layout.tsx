@@ -6,7 +6,7 @@ import { useColorScheme } from "@/presentation/theme/hooks/use-color-scheme";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useEffect, useRef } from "react";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, Pressable, View } from "react-native";
 import {
   useOrderCreatedListener,
   useOrderDeletedListener,
@@ -111,20 +111,27 @@ export default function TabLayout() {
           // tabBarActiveTintColor: Colors["light"].tint,
           tabBarStyle: {
             backgroundColor: Colors["light"].surface,
-            height: 70,
-            paddingTop: 6,
+            height: 100,
+            paddingTop: 0,
             paddingBottom: 0,
-            alignItems: "center",
-            alignContent: "center",
-            borderRadius: 8,
+            borderRadius: 20,
+            shadowColor: "transparent",
+            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: 0,
+            shadowRadius: 0,
+            elevation: 0,
+            borderTopWidth: 0,
           },
           tabBarItemStyle: {
-            padding: 3,
-            height: 64,
+            paddingTop: 20,
+            height: 100,
             justifyContent: "center",
             alignItems: "center",
             paddingVertical: 0,
           },
+          tabBarButton: (props) => (
+            <Pressable {...props} android_ripple={{ color: "transparent" }} />
+          ),
         }}
       >
         <Tabs.Screen
@@ -213,7 +220,6 @@ export default function TabLayout() {
                 />
               </ThemedView>
             ),
-            href: isAdmin ? "/(app)/(tabs)/incomes" : null,
           }}
         />
         <Tabs.Screen
