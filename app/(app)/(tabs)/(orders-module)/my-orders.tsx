@@ -35,7 +35,7 @@ export default function MyOrdersScreen() {
   const { user } = useAuthStore();
   const allOrders = useOrdersStore((state) => state.orders);
   console.log("allOrders", allOrders);
-  const orders = allOrders.filter((order) => order.user.id === user?.id);
+  const orders = allOrders.filter((order) => order.user?.id === user?.id);
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<

@@ -24,7 +24,7 @@ interface BillCardItem {
   discount: number;
   status: BillStatus;
   createdAt: string | Date;
-  owner: {
+  owner?: {
     person: {
       firstName: string;
       lastName: string;
@@ -44,7 +44,10 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
 
   const { status } = useBillStatus(bill.status);
 
-  const showCreatedBy = bill.createdBy.id !== bill.owner.id;
+  const showCreatedBy =
+    bill.createdBy &&
+    bill.owner &&
+    bill.createdBy.id !== bill.owner.id;
 
   return (
     <Card onPress={onPress} style={tw`px-4 py-5 `}>
@@ -78,7 +81,9 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
                 {t(`bills:list.${bill.source}`, { number: bill.num })}
               </ThemedText>
               <ThemedText type="body2" style={tw`text-gray-500`}>
-                {bill.owner.person.firstName} {bill.owner.person.lastName}
+                {bill.owner
+                  ? `${bill.owner.person.firstName} ${bill.owner.person.lastName}`
+                  : t("common:labels.deletedUser")}
               </ThemedText>
             </ThemedView>
           </ThemedView>
@@ -92,7 +97,7 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
           </ThemedView>
         </ThemedView>
       </ThemedView>
-      {showCreatedBy && (
+      {showCreatedBy && bill.createdBy && (
         <ThemedView style={tw` pt-2`}>
           <ThemedText type="small" style={tw`text-gray-500`}>
             {t("orders:detailInfo.createdBy", {

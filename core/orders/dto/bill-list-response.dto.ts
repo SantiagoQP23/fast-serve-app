@@ -30,7 +30,7 @@ export interface BillListItemDto {
   status: BillStatus;
   paymentMethod: PaymentMethod;
   createdAt: string; // ISO date string
-  owner: BillOwnerDto;
+  owner?: BillOwnerDto;
   order: BillOrderDto;
 }
 

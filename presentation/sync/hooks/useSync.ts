@@ -21,6 +21,7 @@ import { Table } from "@/core/tables/models/table.model";
 import { Menu } from "@/core/menu/models/menu.model";
 import { ProductionArea } from "@/core/menu/models/producion-area.model";
 import { useSyncStore } from "../store/useSyncStore";
+import { useAppForeground } from "@/presentation/shared/hooks/useAppForeground";
 
 const INCREMENTAL_SYNC_LIMIT = 1000;
 
@@ -229,6 +230,13 @@ export const useSync = (opts?: { skipGlobalLoader?: boolean }) => {
     },
     enabled: !!currentRestaurant?.id,
     staleTime: 0,
+  });
+
+  useAppForeground(() => {
+    if (currentRestaurant?.id && !syncQuery.isFetching) {
+      console.log("[useSync] App foregrounded, refetching sync");
+      void syncQuery.refetch();
+    }
   });
 
   useEffect(() => {

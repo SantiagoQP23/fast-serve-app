@@ -77,7 +77,8 @@
     "discount": "Discount",
     "change": "Change",
     "receivedAmount": "Received amount",
-    "noNotes": "No notes"
+    "noNotes": "No notes",
+    "deletedUser": "Deleted user"
   },
   "time": {
     "today": "Today",

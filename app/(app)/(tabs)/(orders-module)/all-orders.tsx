@@ -47,8 +47,9 @@ export default function AllOrdersScreen() {
   const waiterStats = useMemo(() => {
     const stats = new Map<string, { name: string; count: number }>();
     orders.forEach((order) => {
-      const waiterId = order.user.id;
-      const waiterName = `${order.user.person.firstName} ${order.user.person.lastName}`;
+      const waiterId = order.user?.id;
+      if (!waiterId) return;
+      const waiterName = `${order.user?.person.firstName} ${order.user?.person.lastName}`;
       if (stats.has(waiterId)) {
         stats.get(waiterId)!.count += 1;
       } else {
@@ -64,7 +65,7 @@ export default function AllOrdersScreen() {
 
   const filteredOrders = useMemo(() => {
     if (!selectedWaiterId) return orders;
-    return orders.filter((order) => order.user.id === selectedWaiterId);
+    return orders.filter((order) => order.user?.id === selectedWaiterId);
   }, [orders, selectedWaiterId]);
 
   const pendingOrders = filteredOrders.filter(

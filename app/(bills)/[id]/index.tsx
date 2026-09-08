@@ -38,6 +38,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useBillPrint } from "@/presentation/orders/hooks/useBillPrint";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import { Transaction } from "@/core/transactions/models/transaction.model";
+import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 
@@ -176,8 +177,6 @@ export default function BillScreen() {
   const discount5 = bill ? Math.round(bill.subtotal * 0.05 * 100) / 100 : 0;
   const discount10 = bill ? Math.round(bill.subtotal * 0.1 * 100) / 100 : 0;
 
-  const showCreatedBy = bill.createdBy.id !== bill.owner.id;
-
   const handleOpenDiscountSheet = () => {
     setDiscountInput(discount || "");
     bottomSheetRef.current?.present();
@@ -292,11 +291,10 @@ export default function BillScreen() {
               </ThemedView>
               <ThemedView style={tw`mb-6 items-center`}>
                 <Label
-                  text={
-                    bill.owner.person.firstName +
-                    " " +
-                    bill.owner.person.lastName
-                  }
+                  text={getUserDisplayName(
+                    bill.owner,
+                    t("common:labels.deletedUser"),
+                  )}
                   color="default"
                   leftIcon="person-outline"
                   size="small"
@@ -482,9 +480,16 @@ export default function BillScreen() {
                         color={tw.color("gray-500")}
                       />
                       <ThemedText type="body2" style={tw`text-gray-600`}>
-                        {t("orders:detailInfo.createdBy", {
-                          name: `${bill.createdBy.person.firstName} ${bill.createdBy.person.lastName}`,
-                        })}
+                        {bill.createdBy
+                          ? t("orders:detailInfo.createdBy", {
+                              name: getUserDisplayName(
+                                bill.createdBy,
+                                t("common:labels.deletedUser"),
+                              ),
+                            })
+                          : t("orders:detailInfo.createdBy", {
+                              name: t("common:labels.deletedUser"),
+                            })}
                       </ThemedText>
                     </ThemedView>
                     <ThemedText type="small" style={tw`text-gray-500 ml-5`}>

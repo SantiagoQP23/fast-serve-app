@@ -32,7 +32,7 @@ export default function AnalyticsScreen() {
   // Use all orders for admin, personal orders for non-admin
   const orders = isAdmin
     ? allOrders
-    : allOrders.filter((order) => order.user.id === user?.id);
+    : allOrders.filter((order) => order.user?.id === user?.id);
 
   const primaryColor = useThemeColor({}, "primary");
   const queryClient = useQueryClient();

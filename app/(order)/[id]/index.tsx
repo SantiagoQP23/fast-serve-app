@@ -10,7 +10,7 @@ import {
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useRouter, useNavigation } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
@@ -38,7 +38,6 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 import { useOrderPrint } from "@/presentation/orders/hooks/useOrderPrint";
-import QuickActionButton from "@/presentation/orders/components/quick-action-button";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bottom-sheet";
 
@@ -467,7 +466,7 @@ export default function OrderScreen() {
 
                 <Label
                   leftIcon="person-outline"
-                  text={`${order.user.person.firstName} ${order.user.person.lastName}`}
+                  text={`${order.user?.person.firstName} ${order.user?.person.lastName}`}
                 />
               </ThemedView>
             </ThemedView>
@@ -520,7 +519,7 @@ export default function OrderScreen() {
                       key={detail.id}
                       detail={detail}
                       onPress={() => openProduct(detail)}
-                      orderUserId={order.user.id}
+                      orderUserId={order.user?.id || ""}
                       orderType={order.type}
                     />
                   ))}
@@ -566,7 +565,7 @@ export default function OrderScreen() {
                         key={detail.id}
                         detail={detail}
                         onPress={() => openProduct(detail)}
-                        orderUserId={order.user.id}
+                        orderUserId={order.user?.id || ""}
                         orderType={order.type}
                       />
                     ))}
@@ -613,7 +612,7 @@ export default function OrderScreen() {
                         key={detail.id}
                         detail={detail}
                         onPress={() => {}}
-                        orderUserId={order.user.id}
+                        orderUserId={order.user?.id || ""}
                         orderType={order.type}
                       />
                     ))}
@@ -646,7 +645,7 @@ export default function OrderScreen() {
                       key={detail.id}
                       detail={detail}
                       onPress={() => {}} // No action for closed orders
-                      orderUserId={order.user.id}
+                      orderUserId={order.user?.id || ""}
                       orderType={order.type}
                     />
                   ))}

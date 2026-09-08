@@ -17,6 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
+import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 
 interface OrderCardProps {
   order: Order;
@@ -101,7 +102,7 @@ export default function OrderCard({ order }: OrderCardProps) {
               {/*   •{" "} */}
               {/* </ThemedText> */}
               <ThemedText type="small" style={tw`text-gray-500 `}>
-                {order.user.person.firstName} {order.user.person.lastName}
+                {getUserDisplayName(order.user, t("common:labels.deletedUser"))}
               </ThemedText>
             </ThemedView>
           </ThemedView>

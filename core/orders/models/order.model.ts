@@ -21,7 +21,7 @@ export interface Order {
   total: number;
   type: OrderType;
   updatedAt: Date;
-  user: User;
+  user?: User;
   isClosed: boolean;
   paymentStatus: OrderPaymentStatus;
   bills: Bill[];

@@ -7,6 +7,7 @@ import {
   authUpdateProfile,
   authRegister,
   authLogout,
+  authDeleteAccount,
 } from "@/core/auth/actions/auth-actions";
 import { SecureStorageAdapter } from "@/helpers/adapters/secure-storage.adapter";
 import { User } from "@/core/auth/models/user.model";
@@ -47,6 +48,7 @@ export interface AuthState {
     email?: string,
     numPhone?: string,
   ) => Promise<{ success: boolean; errorCode?: string }>;
+  deleteAccount: () => Promise<{ success: boolean; errorCode?: string }>;
   checkStatus: () => Promise<void>;
   logout: () => Promise<void>;
   resetBootstrap: () => void;
@@ -269,5 +271,31 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       bootstrapStatus: "idle",
       bootstrapError: null,
     });
+  },
+
+  deleteAccount: async () => {
+    const { success, errorCode } = await authDeleteAccount();
+
+    if (!success) {
+      return { success: false, errorCode };
+    }
+
+    await authLogout();
+
+    useMenuStore.getState().clearMenu();
+    usePaymentMethodsStore.getState().clearPaymentMethods();
+    usePrintersStore.getState().clearPrinters();
+    useTablesStore.getState().clearTables();
+
+    set({
+      status: "unauthenticated",
+      token: undefined,
+      user: undefined,
+      currentRestaurant: undefined,
+      bootstrapStatus: "idle",
+      bootstrapError: null,
+    });
+
+    return { success: true };
   },
 }));

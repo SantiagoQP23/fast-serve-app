@@ -77,7 +77,8 @@
     "discount": "Descuento",
     "change": "Cambio",
     "receivedAmount": "Monto recibido",
-    "noNotes": "Sin notas"
+    "noNotes": "Sin notas",
+    "deletedUser": "Usuario eliminado"
   },
   "time": {
     "today": "Hoy",

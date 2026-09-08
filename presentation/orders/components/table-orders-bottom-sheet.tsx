@@ -13,7 +13,8 @@ import { useNewOrderStore } from "../store/newOrderStore";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Switch from "@/presentation/theme/components/switch";
-import OrderCard, { Order } from "@/presentation/home/components/order-card";
+import OrderCard from "@/presentation/home/components/order-card";
+import { Order } from "@/core/orders/models/order.model";
 
 interface TableOrdersBottomSheetProps {
   onCreateOrder?: () => void;

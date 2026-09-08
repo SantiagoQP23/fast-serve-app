@@ -163,6 +163,27 @@ export const authUpdateProfile = async (
   }
 };
 
+export const authDeleteAccount = async (): Promise<{
+  success: boolean;
+  errorCode?: string;
+}> => {
+  try {
+    await restaurantApi.delete("/users/me");
+    return { success: true };
+  } catch (error) {
+    const axiosError = error as AxiosError<{
+      error?: { code?: string; message?: string };
+    }>;
+    const errorCode = axiosError.response?.data?.error?.code;
+    console.log(
+      "Delete account error",
+      errorCode,
+      axiosError.response?.data,
+    );
+    return { success: false, errorCode };
+  }
+};
+
 export const authLogout = async () => {
   try {
     const pushToken = await SecureStorageAdapter.getItem("expoPushToken");

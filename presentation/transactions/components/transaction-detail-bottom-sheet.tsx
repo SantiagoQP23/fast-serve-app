@@ -17,6 +17,7 @@ import Button from "@/presentation/theme/components/button";
 import { usePaymentProofs } from "@/presentation/transactions/hooks/usePaymentProofs";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useTranslation } from "react-i18next";
+import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 
 interface TransactionDetailBottomSheetProps {
   transaction: Transaction | null;
@@ -127,7 +128,10 @@ export default function TransactionDetailBottomSheet({
           <DetailRow
             icon="person-outline"
             label={t("common:transactions.createdBy")}
-            value={`${transaction.createdBy.person.firstName} ${transaction.createdBy.person.lastName}`}
+            value={getUserDisplayName(
+              transaction.createdBy,
+              t("common:labels.deletedUser"),
+            )}
           />
           {transaction.description && (
             <DetailRow

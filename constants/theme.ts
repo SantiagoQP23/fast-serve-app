@@ -12,7 +12,7 @@ export const Colors = {
   light: {
     // primary: "#3F72AF",
     // primary: "#1c1c1e",
-    primary: "#3368A0",
+    primary: "#38608F",
     onPrimary: "#FFFFFF",
     primaryContainer: "#D2E4FF",
     onPrimaryContainer: "#1C4975",

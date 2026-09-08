@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { Bill, BillSource } from "@/core/orders/models/bill.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
+import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 
@@ -66,7 +67,7 @@ export const useBillPrint = (bill: Bill | null | undefined) => {
             <span>${bill.order.table ? `${t("common:labels.table")}: ${bill.order.table.name}` : t("common:labels.takeAway")}</span>
           </div>
           <div class="row-start">
-            <span>${t("common:labels.waiter")}: ${bill.owner.person.firstName} ${bill.owner.person.lastName}</span>
+            <span>${t("common:labels.waiter")}: ${getUserDisplayName(bill.owner, t("common:labels.deletedUser"))}</span>
           </div>
       `
       : "";

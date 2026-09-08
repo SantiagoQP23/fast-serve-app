@@ -11,7 +11,6 @@ import { formatCurrency } from "@/core/i18n/utils";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { ROUTES } from "@/constants/routes";
-import { useOrderPrint } from "@/presentation/orders/hooks/useOrderPrint";
 
 export default function OrderConfirmationScreen() {
   const { t } = useTranslation(["common", "orders"]);
@@ -59,7 +58,7 @@ export default function OrderConfirmationScreen() {
                 {t("orders:confirmation.waiter")}
               </ThemedText>
               <ThemedText type="body1">
-                {order.user.person.firstName} {order.user.person.lastName}
+                {order.user?.person.firstName} {order.user?.person.lastName}
               </ThemedText>
             </ThemedView>
             <ThemedView

@@ -1,5 +1,3 @@
-import { Order } from "@/core/orders/models/order.model";
-
 export interface Table {
   id: string;
   name: string;

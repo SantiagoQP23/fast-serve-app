@@ -133,28 +133,28 @@ export default function EditProfileScreen() {
               )}
             />
 
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label="Email"
-                  icon="mail-outline"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onChange}
-                  editable={!hasGoogleLinked}
-                  error={errors.email ? errors.email.message : undefined}
-                />
-              )}
-            />
-            {hasGoogleLinked && (
-              <ThemedText type="small" style={tw`text-gray-500 -mt-2`}>
-                Email gestionado por Google
-              </ThemedText>
-            )}
+            {/* <Controller */}
+            {/*   control={control} */}
+            {/*   name="email" */}
+            {/*   render={({ field: { onChange, onBlur, value } }) => ( */}
+            {/*     <TextInput */}
+            {/*       label="Email" */}
+            {/*       icon="mail-outline" */}
+            {/*       keyboardType="email-address" */}
+            {/*       autoCapitalize="none" */}
+            {/*       onBlur={onBlur} */}
+            {/*       value={value} */}
+            {/*       onChangeText={onChange} */}
+            {/*       editable={!hasGoogleLinked} */}
+            {/*       error={errors.email ? errors.email.message : undefined} */}
+            {/*     /> */}
+            {/*   )} */}
+            {/* /> */}
+            {/* {hasGoogleLinked && ( */}
+            {/*   <ThemedText type="small" style={tw`text-gray-500 -mt-2`}> */}
+            {/*     Email gestionado por Google */}
+            {/*   </ThemedText> */}
+            {/* )} */}
 
             <Controller
               control={control}

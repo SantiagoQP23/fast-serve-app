@@ -70,7 +70,9 @@ export default function DashboardBillCard({
                 </ThemedView>
               )}
             </ThemedView>
-            <ThemedText type="body2">{bill.owner.fullName}</ThemedText>
+            <ThemedText type="body2">
+              {bill.owner?.fullName ?? t("common:labels.deletedUser")}
+            </ThemedText>
             <ThemedView style={tw`flex-row items-center gap-1.5 mt-0.5`}>
               <ThemedText type="small" style={tw`text-gray-500`}>
                 {relativeTime}

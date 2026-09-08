@@ -59,6 +59,7 @@ export const usePrintComanda = () => {
         notes: t("orders:comanda.notes"),
         inPlace: t("orders:comanda.inPlace"),
         detailTakeAway: t("orders:comanda.detailTakeAway"),
+        deletedUser: t("common:labels.deletedUser"),
       };
 
       for (const group of areaGroups) {

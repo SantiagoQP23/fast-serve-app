@@ -68,7 +68,7 @@ export class ThermalPrinterService {
       `[C]<b>${translations.orderNumber}</b>\n` +
       `[C]${order.table ? `${translations.table}: ${order.table.name}` : translations.takeAway}\n` +
       `[C]================================\n` +
-      `[L]${translations.waiter}: ${order.user?.person.firstName ?? "N/A"}\n` +
+      `[L]${translations.waiter}: ${order.user?.person.firstName ?? translations.deletedUser}\n` +
       `[L]${translations.date}: ${new Date(order.createdAt).toLocaleString()}\n` +
       `[L]${translations.status}: ${translations.orderStatus}\n` +
       `[L]${translations.payment}: ${translations.paymentStatus} | ${order.isPaid ? translations.paid : translations.unpaid}\n` +
@@ -115,6 +115,7 @@ export class ThermalPrinterService {
       notes: string;
       inPlace: string;
       detailTakeAway: string;
+      deletedUser: string;
     },
   ): Promise<void> => {
     const detailsText = areaDetails
@@ -159,7 +160,7 @@ export class ThermalPrinterService {
       `[C]${translations.order}\n` +
       `[C]<font size='big'>${order.table ? translations.table(order.table.name) : translations.takeAway}</font>\n` +
       `[C]\n` +
-      `[L]${translations.waiter}: ${order.user.person.firstName} ${order.user.person.lastName}\n` +
+      `[L]${translations.waiter}: ${order.user?.person.firstName ?? translations.deletedUser} ${order.user?.person.lastName ?? ""}\n` +
       `[L]${translations.date}: ${new Date(order.createdAt).toLocaleString()}\n` +
       `[L]${translations.people}: ${order.people}\n` +
       `${order.notes ? `[C]-------------------------------------\n[L]${translations.notes}: ${order.notes}\n` : ""}` +
@@ -209,6 +210,7 @@ export class ThermalPrinterService {
       notes: string;
       inPlace: string;
       detailTakeAway: string;
+      deletedUser: string;
     },
   ): Promise<void> => {
     const isCancel = ticketType === TicketType.CANCEL;
@@ -249,7 +251,7 @@ export class ThermalPrinterService {
       `[C]${translations.order}\n` +
       `[C]<font size='big'>${order.table ? translations.table(order.table.name) : translations.takeAway}</font>\n` +
       `[C]\n` +
-      `[L]${translations.waiter}: ${order.user.person.firstName} ${order.user.person.lastName}\n` +
+      `[L]${translations.waiter}: ${order.user?.person.firstName ?? translations.deletedUser} ${order.user?.person.lastName ?? ""}\n` +
       `[L]${translations.date}: ${new Date(order.createdAt).toLocaleString()}\n` +
       `[L]${translations.people}: ${order.people}\n` +
       `${order.notes ? `[C]-------------------------------------\n[L]${translations.notes}: ${order.notes}\n` : ""}` +

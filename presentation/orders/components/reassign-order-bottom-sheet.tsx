@@ -38,7 +38,7 @@ const ReassignOrderBottomSheet = ({
   };
 
   const renderUser: ListRenderItem<User> = ({ item: user }) => {
-    const isCurrentUser = user.id === order.user.id;
+    const isCurrentUser = user.id === order.user?.id;
     return (
       <Pressable
         onPress={() => handleReassign(user)}

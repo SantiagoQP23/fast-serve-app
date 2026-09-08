@@ -7,6 +7,7 @@ import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import { useOrderPaymentStatus } from "./useOrderPaymentStatus";
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
+import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 
 export const useOrderPrint = (order: Order | null) => {
   const { t, language } = useTranslation(["common", "orders", "bills"]);
@@ -111,7 +112,7 @@ export const useOrderPrint = (order: Order | null) => {
 
           <div class="row-start">
             <span>${t("common:labels.waiter")}:</span>
-            <span>${order.user.person.firstName} ${order.user.person.lastName}</span>
+            <span>${getUserDisplayName(order.user, t("common:labels.deletedUser"))}</span>
           </div>
           <div class="row-start">
             <span>${t("common:labels.date")}:</span>

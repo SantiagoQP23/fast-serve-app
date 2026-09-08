@@ -113,6 +113,15 @@ export default function OrdersLayout() {
           }}
         />
 
+        <Stack.Screen
+          name="account/index"
+          options={{
+            headerShown: true,
+            title: t("account.title"),
+            headerShadowVisible: false,
+          }}
+        />
+
         {/* <Stack.Screen */}
         {/*   name="[id]/edit-order-detail/index" */}
         {/*   options={{ */}

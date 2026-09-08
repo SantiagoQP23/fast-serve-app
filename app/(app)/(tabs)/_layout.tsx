@@ -220,6 +220,7 @@ export default function TabLayout() {
                 />
               </ThemedView>
             ),
+            href: isAdmin ? "/incomes" : null,
           }}
         />
         <Tabs.Screen

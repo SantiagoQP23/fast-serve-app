@@ -33,9 +33,9 @@ export interface Bill {
 
   // client: IClient;
 
-  createdBy: User;
+  createdBy?: User;
 
-  owner: User;
+  owner?: User;
 
   createdAt: Date;
   updatedAt: Date;

@@ -13,6 +13,7 @@ import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { useTransactions } from "@/presentation/transactions/hooks/useTransactions";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
 import { typography } from "@/constants/theme";
 import { router } from "expo-router";
@@ -121,8 +122,10 @@ export default function TransactionCard({
                   {transaction.account.name}
                 </ThemedText>
                 <ThemedText type="body2" style={tw``}>
-                  {transaction.createdBy.person.firstName}{" "}
-                  {transaction.createdBy.person.lastName}
+                  {getUserDisplayName(
+                    transaction.createdBy,
+                    t("common:labels.deletedUser"),
+                  )}
                 </ThemedText>
                 <ThemedView
                   style={tw`flex-row items-center gap-1.5`}

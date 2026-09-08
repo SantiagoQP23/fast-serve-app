@@ -1,4 +1,3 @@
-import { useColorScheme } from "@/presentation/theme/hooks/use-color-scheme";
 import { Toaster } from "sonner-native";
 import { router, Stack, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -25,6 +24,8 @@ import "@/core/i18n/i18n.config";
 import { initializeDayjs } from "@/core/i18n/utils";
 import { usePushNotifications } from "@/presentation/shared/hooks/usePushNotifications";
 import { typography } from "@/constants/theme";
+import { useSync } from "@/presentation/sync/hooks/useSync";
+import { useSyncEventListener } from "@/presentation/sync/hooks/useSyncEventListener";
 
 export const queryClient = new QueryClient();
 
@@ -40,6 +41,9 @@ export default function RootLayout() {
   // Detect if user is on auth pages
   const segments = useSegments();
   const isAuthPage = segments[0] === "auth";
+
+  // const { refetch } = useSync();
+  // useSyncEventListener();
 
   useDeviceContext(tw, {
     observeDeviceColorSchemeChanges: false,

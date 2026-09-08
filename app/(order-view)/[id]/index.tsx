@@ -1,10 +1,4 @@
-import {
-  ScrollView,
-  View,
-  RefreshControl,
-  Alert,
-  Pressable,
-} from "react-native";
+import { ScrollView, RefreshControl, Alert, Pressable } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -265,7 +259,7 @@ export default function ViewOrderScreen() {
                 color={tw.color("gray-500")}
               />
               <ThemedText type="body2" style={tw`text-gray-600`}>
-                {order.user.person.firstName} {order.user.person.lastName}
+                {order.user?.person.firstName} {order.user?.person.lastName}
               </ThemedText>
             </ThemedView>
           </ThemedView>
@@ -316,7 +310,10 @@ export default function ViewOrderScreen() {
                     key={detail.id}
                     style={tw`flex-row items-start gap-3 py-2`}
                   >
-                    <ThemedText type="body1" style={tw`text-gray-700 font-semibold min-w-8`}>
+                    <ThemedText
+                      type="body1"
+                      style={tw`text-gray-700 font-semibold min-w-8`}
+                    >
                       {detail.quantity}x
                     </ThemedText>
                     <ThemedView style={tw`flex-1`}>
@@ -343,7 +340,10 @@ export default function ViewOrderScreen() {
                 size={48}
                 color={tw.color("gray-300")}
               />
-              <ThemedText type="body1" style={tw`text-gray-500 mt-4 text-center`}>
+              <ThemedText
+                type="body1"
+                style={tw`text-gray-500 mt-4 text-center`}
+              >
                 {t("orders:details.noItemsInOrder")}
               </ThemedText>
             </ThemedView>
@@ -377,11 +377,15 @@ export default function ViewOrderScreen() {
                       style={tw`flex-row items-center justify-between p-4 bg-gray-50 rounded-xl`}
                     >
                       {/* Left: Icon + Bill info */}
-                      <ThemedView style={tw`flex-row items-center gap-3 flex-1`}>
+                      <ThemedView
+                        style={tw`flex-row items-center gap-3 flex-1`}
+                      >
                         {/* Payment method icon */}
                         <ThemedView
                           style={tw`w-10 h-10 rounded-full ${
-                            bill.status === BillStatus.PAID ? "bg-green-50" : "bg-orange-50"
+                            bill.status === BillStatus.PAID
+                              ? "bg-green-50"
+                              : "bg-orange-50"
                           } items-center justify-center`}
                         >
                           <Ionicons
@@ -408,12 +412,18 @@ export default function ViewOrderScreen() {
                             style={tw`flex-row items-center gap-1.5 mt-0.5`}
                           >
                             {bill.status === BillStatus.PAID && (
-                              <ThemedText type="small" style={tw`text-gray-500`}>
+                              <ThemedText
+                                type="small"
+                                style={tw`text-gray-500`}
+                              >
                                 {translatePaymentMethod(bill.paymentMethod)}
                               </ThemedText>
                             )}
                             {bill.status !== BillStatus.PAID && (
-                              <ThemedText type="small" style={tw`text-orange-600`}>
+                              <ThemedText
+                                type="small"
+                                style={tw`text-orange-600`}
+                              >
                                 {t("bills:details.unpaid")}
                               </ThemedText>
                             )}
@@ -426,7 +436,9 @@ export default function ViewOrderScreen() {
                         <ThemedText
                           type="body1"
                           style={tw`font-semibold ${
-                            bill.status === BillStatus.PAID ? "text-green-700" : "text-orange-700"
+                            bill.status === BillStatus.PAID
+                              ? "text-green-700"
+                              : "text-orange-700"
                           }`}
                         >
                           {formatCurrency(bill.total)}

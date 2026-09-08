@@ -35,6 +35,7 @@ import { PaymentProofsService } from "@/core/transactions/services/payment-proof
 import ImageViewer from "react-native-image-zoom-viewer";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 
 export default function TransactionDetailScreen() {
   const { t } = useTranslation(["common", "bills"]);
@@ -335,7 +336,10 @@ export default function TransactionDetailScreen() {
           <DetailRow
             icon="person-outline"
             label={t("common:transactions.createdBy")}
-            value={`${transaction.createdBy.person.firstName} ${transaction.createdBy.person.lastName}`}
+            value={getUserDisplayName(
+              transaction.createdBy,
+              t("common:labels.deletedUser"),
+            )}
           />
           {transaction.description && (
             <>

@@ -18,6 +18,7 @@ import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPayme
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 import { Ionicons } from "@expo/vector-icons";
+import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 
 interface OrderProductsCardProps {
   order: Order;
@@ -104,7 +105,7 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
               </ThemedText>
 
               <ThemedText type="small" style={tw`text-gray-500 `}>
-                {order.user.person.firstName} {order.user.person.lastName}
+                {getUserDisplayName(order.user, t("common:labels.deletedUser"))}
               </ThemedText>
             </ThemedView>
           </ThemedView>
@@ -121,7 +122,7 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
                 key={detail.id}
                 detail={detail}
                 orderId={order.id}
-                orderUserId={order.user.id}
+                orderUserId={order.user?.id || ""}
                 orderType={order.type}
                 onPress={() =>
                   handleEditOrderDetail(order.num, order.id, detail)

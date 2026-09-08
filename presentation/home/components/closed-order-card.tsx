@@ -11,6 +11,7 @@ import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";
 import { useTranslation } from "react-i18next";
 import { getRelativeTime } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
+import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 
 interface ClosedOrderCardProps {
   order: Order;
@@ -46,8 +47,7 @@ export default function ClosedOrderCard({ order }: ClosedOrderCardProps) {
 
             {/* Meta Info Row - Time and Waiter */}
             <ThemedText type="small" style={tw`text-gray-500`}>
-              {relativeTime} • {order.user.person.firstName}{" "}
-              {order.user.person.lastName}
+              {relativeTime} • {getUserDisplayName(order.user, t("common:labels.deletedUser"))}
             </ThemedText>
           </ThemedView>
 

@@ -37,7 +37,7 @@ export interface Transaction {
   paymentMethod: PaymentMethod;
   account: Account;
   category: TransactionCategory;
-  createdBy: User;
+  createdBy?: User;
   createdAt: Date;
   updatedAt: Date;
   isActive: boolean;

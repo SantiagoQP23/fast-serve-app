@@ -153,7 +153,7 @@ export default function ManageScreen() {
           <ThemedView style={tw`flex-row items-center gap-2`}>
             <Label
               text={user?.role?.description || ""}
-              color="default"
+              color="info"
               size="small"
             />
           </ThemedView>
