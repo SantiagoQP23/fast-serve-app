@@ -17,7 +17,14 @@ export interface LabelProps extends PressableProps {
   disabled?: boolean;
   leftIcon?: keyof typeof Ionicons.glyphMap;
   rightIcon?: keyof typeof Ionicons.glyphMap;
-  color?: "success" | "warning" | "error" | "info" | "default" | "outline";
+  color?:
+    | "success"
+    | "warning"
+    | "error"
+    | "info"
+    | "default"
+    | "outline"
+    | "primary";
   size?: "medium" | "small";
   text: string;
 }
@@ -46,6 +53,7 @@ export default function Label({
     info: "bg-blue-500",
     default: "bg-gray-500",
     outline: "bg-transparent",
+    primary: "bg-white",
   };
 
   const textColors = {
@@ -55,6 +63,7 @@ export default function Label({
     info: "text-blue-600",
     default: "text-gray-600",
     outline: "text-light-on-surface-variant",
+    primary: "text-light-primary",
   };
 
   const iconColors = {
@@ -64,6 +73,7 @@ export default function Label({
     info: "blue-500",
     default: "gray-500",
     outline: "gray-500",
+    primary: "light-primary",
   };
 
   const isOutline = color === "outline";
@@ -84,7 +94,7 @@ export default function Label({
       )}
       <ThemedText
         type={isSmall ? "small" : "body2"}
-        style={[tw`${textColors[color]} `, { fontFamily: typography.medium }]}
+        style={[tw`${textColors[color]} `, { fontFamily: typography.semibold }]}
       >
         {text}
       </ThemedText>

@@ -366,7 +366,7 @@ export default function OrderDetailCard({
                           ? "restaurant-outline"
                           : "bag-outline"
                       }
-                      color="outline"
+                      color="default"
                       size="small"
                       onPress={() => typePickerRef.current?.present()}
                     />

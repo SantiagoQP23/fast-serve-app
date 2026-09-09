@@ -17,11 +17,8 @@ import type { ProductionArea } from "@/core/menu/models/producion-area.model";
 
 export default function ProductionAreasScreen() {
   const { t } = useTranslation("productionAreas");
-  const {
-    getAllQuery,
-    productionAreas,
-    deleteProductionArea,
-  } = useProductionAreas();
+  const { getAllQuery, productionAreas, deleteProductionArea } =
+    useProductionAreas();
   const { isLoading, isError, refetch, isRefetching } = getAllQuery;
 
   const [areaToDelete, setAreaToDelete] = useState<ProductionArea | null>(null);
@@ -109,54 +106,45 @@ export default function ProductionAreasScreen() {
                   {/* Area Name & Status */}
                   <ThemedView style={tw`flex-row items-center justify-between`}>
                     <ThemedView style={tw`gap-4 flex-1`}>
-                      <Ionicons name="cube-outline" size={30} />
-                      <ThemedView style={tw`flex-1`}>
-                        <ThemedText type="h4" style={tw`font-semibold`}>
+                      <Ionicons
+                        name="cube-outline"
+                        size={30}
+                        color={tw.color("text-light-on-surface-variant")}
+                      />
+                      <ThemedView style={tw`flex-1 gap-2`}>
+                        <ThemedText
+                          type="h4"
+                          style={tw`text-light-on-surface-variant`}
+                        >
                           {area.name}
                         </ThemedText>
-                        <ThemedText type="small">
-                          {area.isActive ? t("active") : t("inactive")}
-                        </ThemedText>
+                        <ThemedView style={tw`flex-row items-center gap-2`}>
+                          <Ionicons
+                            name="print-outline"
+                            size={16}
+                            color={tw.color("text-light-on-surface-variant")}
+                          />
+                          <ThemedText type="small" style={tw``}>
+                            {getPrinterCountText(area.printers?.length || 0)}
+                          </ThemedText>
+                        </ThemedView>
                       </ThemedView>
                     </ThemedView>
 
-                    <ThemedView style={tw`flex-row items-center`}>
-                      <IconButton
-                        icon="create-outline"
-                        size={20}
-                        color="primary"
-                        onPress={() => handleEditArea(area)}
-                      />
-                      <IconButton
-                        icon="trash-outline"
-                        size={20}
-                        color="danger"
-                        onPress={() => setAreaToDelete(area)}
-                      />
-                    </ThemedView>
-                  </ThemedView>
-
-                  {/* Area Details */}
-                  <ThemedView style={tw`gap-2 mt-2`}>
-                    {area.description && (
-                      <ThemedView style={tw`flex-row items-center gap-2`}>
-                        <Ionicons
-                          name="document-text-outline"
-                          size={16}
-                          color="#999"
-                        />
-                        <ThemedText type="body2" style={tw`text-gray-500`}>
-                          {area.description}
-                        </ThemedText>
-                      </ThemedView>
-                    )}
-
-                    <ThemedView style={tw`flex-row items-center gap-2`}>
-                      <Ionicons name="print-outline" size={16} color="#999" />
-                      <ThemedText type="body2" style={tw`text-gray-500`}>
-                        {getPrinterCountText(area.printers?.length || 0)}
-                      </ThemedText>
-                    </ThemedView>
+                    {/* <ThemedView style={tw`flex-row items-center`}> */}
+                    {/*   <IconButton */}
+                    {/*     icon="create-outline" */}
+                    {/*     size={20} */}
+                    {/*     color="primary" */}
+                    {/*     onPress={() => handleEditArea(area)} */}
+                    {/*   /> */}
+                    {/*   <IconButton */}
+                    {/*     icon="trash-outline" */}
+                    {/*     size={20} */}
+                    {/*     color="danger" */}
+                    {/*     onPress={() => setAreaToDelete(area)} */}
+                    {/*   /> */}
+                    {/* </ThemedView> */}
                   </ThemedView>
                 </ThemedView>
               </Card>

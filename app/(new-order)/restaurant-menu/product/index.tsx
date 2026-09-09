@@ -1,8 +1,8 @@
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useCallback, useRef, useState } from "react";
-import { router } from "expo-router";
+import { useEffect, useRef, useState } from "react";
+import { router, useNavigation } from "expo-router";
 import TextInput from "@/presentation/theme/components/text-input";
 import Button from "@/presentation/theme/components/button";
 import IconButton from "@/presentation/theme/components/icon-button";
@@ -13,11 +13,11 @@ import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { ProductStatus } from "@/core/menu/models/product.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
-import Chip from "@/presentation/theme/components/chip";
 import { ProductOption } from "@/core/menu/models/product-optionl.model";
 import {
   BottomSheetView,
@@ -27,9 +27,10 @@ import BottomSheetPicker, {
   BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
-import { KeyboardAvoidingView, Pressable } from "react-native";
+import { KeyboardAvoidingView, ScrollView } from "react-native";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
+import Card from "@/presentation/theme/components/card";
 
 export default function ProductScreen() {
   const { t } = useTranslation(["menu", "orders"]);
@@ -61,6 +62,9 @@ export default function ProductScreen() {
   );
 
   const order = useOrdersStore((state) => state.activeOrder);
+  const navigation = useNavigation();
+  const { user } = useAuthStore();
+  const isAdmin = user?.role?.name === "admin";
 
   const [typeOrderDetail, setTypeOrderDetail] = useState<OrderType>(
     activeOrderDetail
@@ -98,6 +102,19 @@ export default function ProductScreen() {
   const openCustomBottomSheet = () => {
     bottomSheetModalRef.current?.present();
   };
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () =>
+        isAdmin ? (
+          <IconButton
+            icon="create-outline"
+            onPress={openCustomBottomSheet}
+            variant="secondary"
+          />
+        ) : null,
+    });
+  }, [navigation, openCustomBottomSheet, isAdmin]);
 
   const closeCustomBottomSheet = () => {
     bottomSheetModalRef.current?.dismiss();
@@ -195,44 +212,79 @@ export default function ProductScreen() {
       <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
         <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
           <ThemedView style={tw`flex-1`} />
-          <ThemedView style={tw`mb-4 gap-6`}>
+          <ThemedView style={tw` text-center mb-4 gap-4`}>
             <ThemedView style={tw`gap-2`}>
-              <ThemedText type="h2">{activeProduct.name}</ThemedText>
+              <ThemedView
+                style={tw`flex-row items-center justify-between gap-2`}
+              >
+                <ThemedText type="h2">{activeProduct.name}</ThemedText>
+                <ThemedText>
+                  {formatCurrency(counter * effectivePrice)}
+                </ThemedText>
+              </ThemedView>
               {activeProduct.description && (
                 <ThemedText type="body1" style={tw`text-gray-600`}>
                   {activeProduct.description}
                 </ThemedText>
               )}
             </ThemedView>
-            {isUnavailable && (
+
+            <ThemedView style={tw`flex-row items-center gap-2 flex-wrap my-2 `}>
+              {isUnavailable && (
+                <Label
+                  text={t(`menu:product.status.${activeProduct.status}`)}
+                  color={statusLabelColor}
+                />
+              )}
               <Label
-                text={t(`menu:product.status.${activeProduct.status}`)}
-                color={statusLabelColor}
+                text={
+                  typeOrderDetail === OrderType.IN_PLACE
+                    ? t("common:orderType.inPlace")
+                    : t("common:orderType.takeAway")
+                }
+                leftIcon={
+                  typeOrderDetail === OrderType.IN_PLACE
+                    ? "restaurant-outline"
+                    : "bag-outline"
+                }
+                color="default"
+                onPress={() => typePickerRef.current?.present()}
               />
-            )}
+            </ThemedView>
+
             {activeProduct.options.length > 0 && (
-              <ThemedView style={tw`flex-row flex-wrap gap-2`}>
-                {activeProduct.options.map((option) => (
-                  <ThemedView
-                    key={option.id}
-                    style={tw`justify-center items-center gap-1`}
-                  >
-                    <Chip
-                      label={`${option.name}`}
-                      selected={selectedOption?.id === option.id}
-                      onPress={() => onChangeSelectedOption(option)}
-                    />
-                    <ThemedText type="body2" style={tw`text-gray-500`}>
-                      {formatCurrency(option.price)}
-                    </ThemedText>
-                  </ThemedView>
-                ))}
-              </ThemedView>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={tw`gap-3`}
+              >
+                {activeProduct.options.map((option) => {
+                  const isSelected = selectedOption?.id === option.id;
+                  return (
+                    <ThemedView
+                      key={option.id}
+                      style={tw`w-36 rounded-3xl border-2 ${isSelected ? "border-light-primary" : "border-transparent"}`}
+                    >
+                      <Card
+                        onPress={() => onChangeSelectedOption(option)}
+                        style={tw`p-4 justify-between gap-2`}
+                      >
+                        <ThemedText type="body1" style={tw``}>
+                          {option.name}
+                        </ThemedText>
+                        <ThemedText type="body2" style={tw``}>
+                          {formatCurrency(option.price)}
+                        </ThemedText>
+                      </Card>
+                    </ThemedView>
+                  );
+                })}
+              </ScrollView>
             )}
             {activeProduct.tags?.filter(
               (tag) => tag.isActive && !tag.isArchived,
             ).length > 0 && (
-              <ThemedView style={tw`flex-row flex-wrap gap-2`}>
+              <ThemedView style={tw`flex-row flex-wrap gap-2 `}>
                 {activeProduct.tags
                   .filter((tag) => tag.isActive && !tag.isArchived)
                   .map((tag) => (
@@ -249,53 +301,32 @@ export default function ProductScreen() {
             )}
           </ThemedView>
 
-          <ThemedView style={tw`flex-row gap-2`}>
-            <Label
-              text={
-                typeOrderDetail === OrderType.IN_PLACE
-                  ? t("common:orderType.inPlace")
-                  : t("common:orderType.takeAway")
-              }
-              leftIcon={
-                typeOrderDetail === OrderType.IN_PLACE
-                  ? "restaurant-outline"
-                  : "bag-outline"
-              }
-              color="outline"
-              size="small"
-              onPress={() => typePickerRef.current?.present()}
-            />
-          </ThemedView>
-
-          {notes.trim() ? (
-            <Pressable onPress={openNoteBottomSheet}>
+          <ThemedView style={tw`gap-8`}>
+            {notes.trim() && (
               <TextInput
                 numberOfLines={4}
                 multiline
                 value={notes}
+                onChangeText={setNotes}
                 editable={false}
                 placeholder={t("orders:newOrder.addNote")}
-                containerStyle={tw`border-0 p-0 mb-0 -ml-1 bg-transparent`}
                 pointerEvents="none"
               />
-            </Pressable>
-          ) : (
-            <Button
-              variant="surface"
-              label={t("orders:newOrder.addNote")}
-              leftIcon="document-text-outline"
-              onPress={openNoteBottomSheet}
-            />
-          )}
+            )}
 
-          <ThemedView style={tw`gap-8`}>
-            <ThemedView style={tw` justify-between items-center gap-2`}>
-              <ThemedView>
-                <ThemedText>
-                  {formatCurrency(counter * effectivePrice)}
-                </ThemedText>
-              </ThemedView>
-              <ThemedView style={tw`flex-row items-center gap-10`}>
+            <ThemedView
+              style={tw`flex-row  items-center gap-4 w-full ${!notes.trim() ? "justify-between" : "justify-center"}`}
+            >
+              {!notes.trim() && (
+                <Button
+                  variant="surface"
+                  label={t("orders:newOrder.addNote")}
+                  leftIcon="document-text-outline"
+                  style={tw`h-full flex-1`}
+                  onPress={openNoteBottomSheet}
+                />
+              )}
+              <ThemedView style={tw`flex-row items-center gap-6`}>
                 <IconButton
                   icon="remove-outline"
                   onPress={decrement}
@@ -312,12 +343,7 @@ export default function ProductScreen() {
               </ThemedView>
             </ThemedView>
 
-            <ThemedView style={tw`flex-row gap-5 justify-center mb-4`}>
-              <Button
-                label={t("menu:product.customize")}
-                variant="text"
-                onPress={openCustomBottomSheet}
-              />
+            <ThemedView style={tw`flex-row gap-5  mb-4`}>
               <Button
                 label={t("menu:product.addToOrderOrCart", {
                   type: order
@@ -327,6 +353,7 @@ export default function ProductScreen() {
                 onPress={onAddProduct}
                 leftIcon="cart-outline"
                 disabled={isUnavailable}
+                style={tw`flex-1`}
               />
             </ThemedView>
           </ThemedView>

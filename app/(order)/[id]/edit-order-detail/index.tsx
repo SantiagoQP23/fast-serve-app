@@ -1,8 +1,8 @@
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useCallback, useRef, useState } from "react";
-import { useRouter } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter, useNavigation } from "expo-router";
 import TextInput from "@/presentation/theme/components/text-input";
 import Button from "@/presentation/theme/components/button";
 import IconButton from "@/presentation/theme/components/icon-button";
@@ -10,6 +10,7 @@ import Label from "@/presentation/theme/components/label";
 import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
@@ -60,6 +61,9 @@ export default function EditOrderDetailScreen() {
   } = useCounter(orderDetail?.qtyDelivered, 1, orderDetail?.quantity, 0);
 
   const router = useRouter();
+  const navigation = useNavigation();
+  const { user } = useAuthStore();
+  const isAdmin = user?.role?.name === "admin";
   const {
     isOnline,
     isLoading,
@@ -96,6 +100,19 @@ export default function EditOrderDetailScreen() {
   const openCustomBottomSheet = () => {
     bottomSheetModalRef.current?.present();
   };
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () =>
+        isAdmin ? (
+          <IconButton
+            icon="create-outline"
+            onPress={openCustomBottomSheet}
+            variant="secondary"
+          />
+        ) : null,
+    });
+  }, [navigation, openCustomBottomSheet, isAdmin]);
 
   const closeCustomBottomSheet = () => {
     bottomSheetModalRef.current?.dismiss();
