@@ -45,9 +45,7 @@ export default function AnalyticsScreen() {
     refetch: refetchStats,
   } = useDashboardStats();
 
-  const { isLoading: isLoadingOrders } = useActiveOrders({
-    skipGlobalLoader: true,
-  });
+  const { isLoading: isLoadingOrders } = useActiveOrders();
 
   const { dailyReport } = useDailyReport();
   const reportWaiters = dailyReport?.waiterStats || [];

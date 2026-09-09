@@ -34,7 +34,6 @@ export default function MyOrdersScreen() {
   const { t } = useTranslation(["common", "orders", "errors", "tables"]);
   const { user } = useAuthStore();
   const allOrders = useOrdersStore((state) => state.orders);
-  console.log("allOrders", allOrders);
   const orders = allOrders.filter((order) => order.user?.id === user?.id);
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
@@ -50,9 +49,7 @@ export default function MyOrdersScreen() {
   );
   const primaryColor = useThemeColor({}, "primary");
   const { registerOpenViewPopover } = useOrdersModuleContext();
-  const { isLoading: isLoadingOrders, refetchOrders } = useActiveOrders({
-    skipGlobalLoader: true,
-  });
+  const { isLoading: isLoadingOrders, refetchOrders } = useActiveOrders();
 
   const { setTable, setOrderType } = useNewOrderStore();
 

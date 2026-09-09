@@ -12,11 +12,12 @@ export const API_URL =
       ? process.env.EXPO_PUBLIC_API_URL_IOS
       : process.env.EXPO_PUBLIC_API_URL_ANDROID;
 
-// Allow consumers to opt-out of the global loader per request
-// Example: restaurantApi.get('/endpoint', { skipGlobalLoader: true })
+// Allow consumers to opt-in to the global loader per request.
+// The loader is hidden by default; pass { showGlobalLoader: true } to show it.
+// Example: restaurantApi.get('/endpoint', { showGlobalLoader: true })
 declare module "axios" {
   export interface AxiosRequestConfig {
-    skipGlobalLoader?: boolean;
+    showGlobalLoader?: boolean;
   }
 }
 
@@ -25,7 +26,7 @@ const restaurantApi = axios.create({
 });
 
 restaurantApi.interceptors.request.use(async (config) => {
-  if (!config.skipGlobalLoader) {
+  if (config.showGlobalLoader) {
     useGlobalStore.getState().incrementHttpActiveRequests();
   }
 
@@ -39,7 +40,7 @@ restaurantApi.interceptors.request.use(async (config) => {
 
     return config;
   } catch (error) {
-    if (!config.skipGlobalLoader) {
+    if (config.showGlobalLoader) {
       useGlobalStore.getState().decrementHttpActiveRequests();
     }
     return Promise.reject(error);
@@ -48,13 +49,13 @@ restaurantApi.interceptors.request.use(async (config) => {
 
 restaurantApi.interceptors.response.use(
   (response) => {
-    if (!response.config.skipGlobalLoader) {
+    if (response.config.showGlobalLoader) {
       useGlobalStore.getState().decrementHttpActiveRequests();
     }
     return response;
   },
   (error) => {
-    if (!error.config?.skipGlobalLoader) {
+    if (error.config?.showGlobalLoader) {
       useGlobalStore.getState().decrementHttpActiveRequests();
     }
     return Promise.reject(error);

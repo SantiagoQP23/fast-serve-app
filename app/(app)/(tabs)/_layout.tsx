@@ -63,7 +63,7 @@ export default function TabLayout() {
   // useOrderCreatedListener();
   // useOrderUpdatedListener();
   // useOrderDeletedListener();
-  useSync();
+  useSync({ showGlobalLoader: true });
   useSyncEventListener();
 
   // const { printComanda } = usePrintComanda();
@@ -111,8 +111,7 @@ export default function TabLayout() {
           // tabBarActiveTintColor: Colors["light"].tint,
           tabBarStyle: {
             backgroundColor: Colors["light"].surface,
-            height: 100,
-            paddingTop: 0,
+            paddingTop: 5,
             paddingBottom: 0,
             borderRadius: 20,
             shadowColor: "transparent",
@@ -123,10 +122,9 @@ export default function TabLayout() {
             borderTopWidth: 0,
           },
           tabBarItemStyle: {
-            paddingTop: 20,
-            height: 100,
             justifyContent: "center",
             alignItems: "center",
+            gap: 4,
             paddingVertical: 0,
           },
           tabBarButton: (props) => (

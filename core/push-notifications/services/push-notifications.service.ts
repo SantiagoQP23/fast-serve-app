@@ -6,7 +6,6 @@ export class PushNotificationsService {
     const resp = await restaurantApi.post<void>(
       "/push-notifications/register",
       data,
-      { skipGlobalLoader: true },
     );
     return resp.data;
   }
@@ -15,7 +14,6 @@ export class PushNotificationsService {
     const resp = await restaurantApi.post<void>(
       "/push-notifications/logout",
       data,
-      { skipGlobalLoader: true },
     );
     return resp.data;
   }

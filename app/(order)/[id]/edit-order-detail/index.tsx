@@ -13,7 +13,6 @@ import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
-import Chip from "@/presentation/theme/components/chip";
 import { ProductOption } from "@/core/menu/models/product-optionl.model";
 import {
   BottomSheetView,
@@ -25,12 +24,13 @@ import BottomSheetPicker, {
 import { useOrderDetailStatus } from "@/presentation/orders/hooks/useOrderDetailStatus";
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
-import { KeyboardAvoidingView } from "react-native";
+import { KeyboardAvoidingView, ScrollView } from "react-native";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
 import OrderDetailActivityBottomSheet from "@/presentation/orders/components/order-detail-activity-bottom-sheet";
 import dayjs from "dayjs";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
+import Card from "@/presentation/theme/components/card";
 
 export default function EditOrderDetailScreen() {
   const { t } = useTranslation(["common", "orders", "menu"]);
@@ -230,28 +230,37 @@ export default function EditOrderDetailScreen() {
             </ThemedView>
 
             <ThemedView>
-              <ThemedText style={tw`text-gray-500  mb-2`}>Variants</ThemedText>
+              {/* <ThemedText style={tw`text-gray-500 mb-2`}> */}
+              {/*   {t("menu:variants")} */}
+              {/* </ThemedText> */}
               {orderDetail.product.options.length > 0 && (
-                <ThemedView style={tw`flex-row flex-wrap gap-2 `}>
-                  {orderDetail.product.options.map((option) => (
-                    <ThemedView
-                      key={option.id}
-                      style={tw`justify-center items-center gap-1`}
-                    >
-                      <Chip
-                        label={`${option.name}`}
-                        selected={selectedOption?.id === option.id}
-                        onPress={() => onChangeSelectedOption(option)}
-                      />
-                      <ThemedText
-                        type="body2"
-                        style={tw`text-center text-gray-500`}
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={tw`gap-3`}
+                >
+                  {orderDetail.product.options.map((option) => {
+                    const isSelected = selectedOption?.id === option.id;
+                    return (
+                      <ThemedView
+                        key={option.id}
+                        style={tw`w-36 rounded-3xl border-2 ${isSelected ? "border-light-primary bg-transparent" : "border-transparent"}`}
                       >
-                        {formatCurrency(option.price)}
-                      </ThemedText>
-                    </ThemedView>
-                  ))}
-                </ThemedView>
+                        <Card
+                          onPress={() => onChangeSelectedOption(option)}
+                          style={tw`p-4  justify-between gap-2`}
+                        >
+                          <ThemedText type="body1" style={tw``}>
+                            {option.name}
+                          </ThemedText>
+                          <ThemedText type="body2" style={tw``}>
+                            {formatCurrency(option.price)}
+                          </ThemedText>
+                        </Card>
+                      </ThemedView>
+                    );
+                  })}
+                </ScrollView>
               )}
             </ThemedView>
             {orderDetail.product.tags?.filter(
@@ -332,16 +341,17 @@ export default function EditOrderDetailScreen() {
               </ThemedView>
             </ThemedView>
 
-            <ThemedView style={tw`flex-row gap-5 justify-center mb-4`}>
-              <Button
-                label={t("menu:product.customize")}
-                variant="text"
-                onPress={openCustomBottomSheet}
-              />
+            <ThemedView style={tw`flex-row gap-5  mb-4`}>
+              {/* <Button */}
+              {/*   label={t("menu:product.customize")} */}
+              {/*   variant="text" */}
+              {/*   onPress={openCustomBottomSheet} */}
+              {/* /> */}
               <Button
                 label={t("orders:edit.saveChanges")}
                 onPress={onUpdateOrderDetail}
                 leftIcon="save-outline"
+                style={tw`flex-1`}
               />
             </ThemedView>
           </ThemedView>

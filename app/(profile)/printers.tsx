@@ -126,7 +126,7 @@ export default function PrintersScreen() {
                 <ThemedView style={tw`gap-4`}>
                   {/* Printer Name & Status */}
                   <ThemedView style={tw`flex-row items-center justify-between`}>
-                    <ThemedView style={tw`flex  gap-8 flex-1`}>
+                    <ThemedView style={tw`flex-row  items-center gap-4 flex-1`}>
                       <Ionicons
                         name="print-outline"
                         size={30}
@@ -183,34 +183,34 @@ export default function PrintersScreen() {
 
                   {/* Test Button */}
 
-                  <ThemedView style={tw`flex-row items-center gap-4`}>
-                    {/* <IconButton */}
-                    {/*   icon="trash-outline" */}
-                    {/*   size={20} */}
-                    {/*   color="danger" */}
-                    {/*   onPress={() => setPrinterToDelete(printer)} */}
-                    {/* /> */}
-                    {/* <IconButton */}
-                    {/*   icon="create-outline" */}
-                    {/*   size={20} */}
-                    {/*   color="primary" */}
-                    {/*   onPress={() => handleEditPrinter(printer)} */}
-                    {/* /> */}
-                    {/* <ThemedView style={tw`flex-1`} /> */}
-                    <Button
-                      label={
-                        testingPrinterId === printer.id
-                          ? t("testing")
-                          : t("test")
-                      }
-                      leftIcon="send-outline"
-                      variant="secondary"
-                      size="small"
-                      onPress={() => handleTestPrinter(printer.id)}
-                      disabled={testingPrinterId !== null}
-                      loading={testingPrinterId === printer.id}
-                    />
-                  </ThemedView>
+                  {/* <ThemedView style={tw`flex-row items-center gap-4`}> */}
+                  {/* <IconButton */}
+                  {/*   icon="trash-outline" */}
+                  {/*   size={20} */}
+                  {/*   color="danger" */}
+                  {/*   onPress={() => setPrinterToDelete(printer)} */}
+                  {/* /> */}
+                  {/* <IconButton */}
+                  {/*   icon="create-outline" */}
+                  {/*   size={20} */}
+                  {/*   color="primary" */}
+                  {/*   onPress={() => handleEditPrinter(printer)} */}
+                  {/* /> */}
+                  {/* <ThemedView style={tw`flex-1`} /> */}
+                  {/* <Button */}
+                  {/*   label={ */}
+                  {/*     testingPrinterId === printer.id */}
+                  {/*       ? t("testing") */}
+                  {/*       : t("test") */}
+                  {/*   } */}
+                  {/*   leftIcon="send-outline" */}
+                  {/*   variant="secondary" */}
+                  {/*   size="small" */}
+                  {/*   onPress={() => handleTestPrinter(printer.id)} */}
+                  {/*   disabled={testingPrinterId !== null} */}
+                  {/*   loading={testingPrinterId === printer.id} */}
+                  {/* /> */}
+                  {/* </ThemedView> */}
                 </ThemedView>
               </Card>
             ))}

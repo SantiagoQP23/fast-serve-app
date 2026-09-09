@@ -4,7 +4,6 @@ import {
   SocketResponse,
   SocketResponseData,
 } from "@/core/common/dto/socket.dto";
-import { useGlobalStore } from "../store/useGlobalStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 interface WebSocketOptions<TData> {
@@ -25,7 +24,6 @@ export function useWebsocketEventEmitter<TData, TVariables>(
 ) {
   const { socket, online } = useContext(SocketContext);
   const [loading, setLoading] = useState(false);
-  const setIsLoading = useGlobalStore((state) => state.setIsLoading);
   const { t } = useTranslation();
 
   const mutate = async (
@@ -33,7 +31,6 @@ export function useWebsocketEventEmitter<TData, TVariables>(
     secondaryOptions?: WebSocketOptions<SocketResponseData<TData>>,
   ) => {
     setLoading(true);
-    setIsLoading(true);
 
     const timeoutDuration =
       options?.timeout ?? secondaryOptions?.timeout ?? 20000;
@@ -44,7 +41,6 @@ export function useWebsocketEventEmitter<TData, TVariables>(
     timeoutId = setTimeout(() => {
       if (!responseReceived) {
         setLoading(false);
-        setIsLoading(false);
 
         const timeoutError: SocketResponse = {
           ok: false,
@@ -70,7 +66,6 @@ export function useWebsocketEventEmitter<TData, TVariables>(
       }
 
       setLoading(false);
-      setIsLoading(false);
 
       if (resp.ok) {
         options?.onSuccess?.(resp);

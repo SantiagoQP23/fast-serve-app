@@ -187,7 +187,7 @@ async function applySyncResponse(
   return response.toSequence;
 }
 
-export const useSync = (opts?: { skipGlobalLoader?: boolean }) => {
+export const useSync = (opts?: { showGlobalLoader?: boolean }) => {
   const { currentRestaurant } = useAuthStore();
   const setIsLoading = useGlobalStore((state) => state.setIsLoading);
   const { restaurantId, setRestaurantId, startSync, setSynced, setError } =
@@ -240,10 +240,10 @@ export const useSync = (opts?: { skipGlobalLoader?: boolean }) => {
   });
 
   useEffect(() => {
-    if (!opts?.skipGlobalLoader) {
+    if (opts?.showGlobalLoader) {
       setIsLoading(syncQuery.isFetching);
     }
-  }, [syncQuery.isFetching, setIsLoading, opts?.skipGlobalLoader]);
+  }, [syncQuery.isFetching, setIsLoading, opts?.showGlobalLoader]);
 
   return {
     syncQuery,
