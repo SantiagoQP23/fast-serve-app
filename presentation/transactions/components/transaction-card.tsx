@@ -17,6 +17,7 @@ import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
 import { typography } from "@/constants/theme";
 import { router } from "expo-router";
+import Label from "@/presentation/theme/components/label";
 
 interface TransactionCardProps extends PressableProps {
   transaction: Transaction;
@@ -96,11 +97,9 @@ export default function TransactionCard({
         <Pressable onPress={onPress} {...rest} style={tw``}>
           <ThemedView style={tw`flex-row justify-between py-3   rounded-3xl`}>
             {/* Left: Colored icon circle + transaction info */}
-            <ThemedView style={tw`flex-row  gap-3 flex-1`}>
+            <ThemedView style={tw`flex-row  gap-3 flex-1 items-center`}>
               {/* Category color circle */}
-              <ThemedView
-                style={[tw`w-10 h-10 rounded-full pt-2 items-center`, ,]}
-              >
+              <ThemedView style={[tw`w-10 h-10 rounded-full  items-center`, ,]}>
                 <Ionicons
                   name="cash-outline"
                   size={26}
@@ -109,19 +108,20 @@ export default function TransactionCard({
               </ThemedView>
 
               {/* Transaction details */}
-              <ThemedView style={tw`flex-1 gap-0.5`}>
-                <ThemedText
-                  type="body1"
-                  style={[tw``, { fontFamily: typography.medium }]}
-                  numberOfLines={1}
-                >
-                  {transaction.name} {""}
+              <ThemedView style={tw`flex-1 gap-1`}>
+                {/* <ThemedText */}
+                {/*   type="body1" */}
+                {/*   style={[tw``, { fontFamily: typography.medium }]} */}
+                {/*   numberOfLines={1} */}
+                {/* > */}
+                {/*   {transaction.name} {""} */}
+                {/*   {getStatusDot()} */}
+                {/* </ThemedText> */}
+                <ThemedText type="body1" style={tw``}>
+                  {transaction.account.name}
                   {getStatusDot()}
                 </ThemedText>
-                <ThemedText type="body2" style={tw``}>
-                  {transaction.account.name}
-                </ThemedText>
-                <ThemedText type="body2" style={tw``}>
+                <ThemedText type="small" style={tw``}>
                   {getUserDisplayName(
                     transaction.createdBy,
                     t("common:labels.deletedUser"),
@@ -136,25 +136,10 @@ export default function TransactionCard({
                   {/* </ThemedText> */}
                 </ThemedView>
               </ThemedView>
-            </ThemedView>
-
-            {/* Right: Amount colored by transaction type */}
-            <ThemedView style={tw`items-end pl-2`}>
-              <ThemedText
-                type="body1"
-                style={[tw``, { fontFamily: typography.medium }]}
-              >
-                {isIncome ? "+" : "-"}
-                {formatCurrency(transaction.amount)}
-              </ThemedText>
-              {hasProofs && (
-                <Ionicons
-                  name="image-outline"
-                  size={14}
-                  color={tw.color("gray-400")}
-                  style={tw`mt-1`}
-                />
-              )}
+              <Label
+                color="primary"
+                text={formatCurrency(transaction.amount)}
+              />
             </ThemedView>
           </ThemedView>
         </Pressable>

@@ -6,7 +6,8 @@ import {
   Pressable,
   View,
   RefreshControl,
- Modal } from "react-native";
+  Modal,
+} from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -29,13 +30,18 @@ import { TransactionStatus } from "@/core/transactions/models/transaction-status
 import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.model";
 import { AccountType } from "@/core/restaurant/models/account.model";
 import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
-import { BottomSheetView, type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import {
+  BottomSheetView,
+  type BottomSheetMethods,
+} from "@expo/ui/community/bottom-sheet";
 import * as ImagePicker from "expo-image-picker";
 import { PaymentProofsService } from "@/core/transactions/services/payment-proofs.service";
 import ImageViewer from "react-native-image-zoom-viewer";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
+import IconButton from "@/presentation/theme/components/icon-button";
+import dayjs from "dayjs";
 
 export default function TransactionDetailScreen() {
   const { t } = useTranslation(["common", "bills"]);
@@ -281,7 +287,7 @@ export default function TransactionDetailScreen() {
           >
             {transaction.name}
           </ThemedText>
-          <ThemedText style={tw`text-4xl font-bold text-light-text`}>
+          <ThemedText style={tw`text-4xl `}>
             {formatCurrency(transaction.amount)}
           </ThemedText>
           <StatusBadge status={transaction.status} />
@@ -289,17 +295,16 @@ export default function TransactionDetailScreen() {
 
         {/* Details Card */}
         <ThemedView
-          style={tw`bg-white rounded-2xl border border-gray-100 overflow-hidden p-6 gap-4`}
+          style={tw`bg-light-surface rounded-2xl overflow-hidden p-6 gap-4`}
         >
           <DetailRow
             icon="wallet-outline"
             label={t("common:transactions.paymentMethod")}
             value={transaction.paymentMethod.name}
           />
-          <View style={tw`h-px bg-gray-100 mx-4`} />
 
           {/* Account - editable for admin/cashier */}
-          <ThemedView style={tw`flex-row items-center gap-3 px-4 py-3`}>
+          <ThemedView style={tw`flex-row items-center gap-3  py-3`}>
             <Ionicons
               name="business-outline"
               size={18}
@@ -315,24 +320,19 @@ export default function TransactionDetailScreen() {
               </ThemedText>
             </ThemedView>
             {canManage && (
-              <Pressable onPress={openAccountPicker} hitSlop={8}>
-                <ThemedText
-                  type="body2"
-                  style={tw`text-light-primary font-medium`}
-                >
-                  {t("common:actions.edit")}
-                </ThemedText>
-              </Pressable>
+              <IconButton
+                icon="create-outline"
+                onPress={openAccountPicker}
+                variant="secondary"
+              />
             )}
           </ThemedView>
-          <View style={tw`h-px bg-gray-100 mx-4`} />
 
           <DetailRow
             icon="pricetag-outline"
             label={t("common:transactions.category")}
             value={transaction.category.name}
           />
-          <View style={tw`h-px bg-gray-100 mx-4`} />
           <DetailRow
             icon="person-outline"
             label={t("common:transactions.createdBy")}
@@ -343,7 +343,6 @@ export default function TransactionDetailScreen() {
           />
           {transaction.description && (
             <>
-              <View style={tw`h-px bg-gray-100 mx-4`} />
               <DetailRow
                 icon="document-text-outline"
                 label={t("common:transactions.description")}
@@ -351,11 +350,12 @@ export default function TransactionDetailScreen() {
               />
             </>
           )}
-          <View style={tw`h-px bg-gray-100 mx-4`} />
           <DetailRow
             icon="calendar-outline"
             label={t("common:labels.date")}
-            value={new Date(transaction.createdAt).toLocaleDateString()}
+            value={dayjs(new Date(transaction.createdAt)).format(
+              "DD MMM YYYY, HH:mm",
+            )}
           />
         </ThemedView>
 
@@ -651,7 +651,7 @@ function DetailRow({
         <ThemedText type="small" style={tw`text-gray-500`}>
           {label}
         </ThemedText>
-        <ThemedText type="body2" style={tw`font-medium text-gray-800`}>
+        <ThemedText type="body2" style={tw` text-gray-800`}>
           {value}
         </ThemedText>
       </ThemedView>

@@ -36,7 +36,8 @@ export default function CartScreen() {
   const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
   const newOrder = useNewOrderStore();
   const { isOnline, isLoading, mutate: createOrder } = useOrders().createOrder;
-  const { mutate: createSale } = useBills().createSale;
+  const { mutate: createSale, isLoading: createSaleLoading } =
+    useBills().createSale;
 
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
@@ -293,13 +294,19 @@ export default function CartScreen() {
             <ThemedText type="h2">{formatCurrency(total)}</ThemedText>
           </ThemedView>
           <Button
+            loading={isLoading || createSaleLoading}
             label={t(
               cartType === "order"
                 ? "menu:cart.createOrder"
                 : "menu:cart.createSale",
             )}
             onPress={onCreateOrder}
-            disabled={!isOnline || isLoading || details.length === 0}
+            disabled={
+              !isOnline ||
+              isLoading ||
+              details.length === 0 ||
+              createSaleLoading
+            }
           ></Button>
         </ThemedView>
       </ScreenLayout>

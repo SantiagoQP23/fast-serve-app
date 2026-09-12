@@ -1,11 +1,17 @@
 import { Stack, useRouter } from "expo-router";
 import IconButton from "@/presentation/theme/components/icon-button";
+import { Colors } from "@/constants/theme";
 
 export default function TransactionLayout() {
   const router = useRouter();
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        headerStyle: { backgroundColor: Colors.light.background },
+      }}
+    >
       <Stack.Screen
         name="[id]/index"
         options={{
