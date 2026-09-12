@@ -23,6 +23,17 @@ function applyOrderEvent(event: SyncEventDto) {
       ordersState.addOrder(order);
       break;
     case SyncOperation.UPDATED:
+      if (order.isClosed) {
+        ordersState.deleteOrder(order.id);
+        break;
+      }
+
+      const currentActiveOrder = useOrdersStore.getState().activeOrder;
+
+      if (currentActiveOrder?.id === order?.id) {
+        ordersState.setActiveOrder(order!);
+      }
+
       if (ordersState.orders.some((o) => o.id === order.id)) {
         ordersState.updateOrder(order);
       } else {
