@@ -98,9 +98,12 @@ export default function ManageScreen() {
               {/*         : tw.color("red-500") */}
               {/*   } */}
               {/* /> */}
-              <ThemedText type="h3">{currentRestaurant?.name}</ThemedText>
+              <ThemedText type="h4">{currentRestaurant?.name}</ThemedText>
               <ThemedView style={tw`flex-row items-center gap-2`}>
-                <ThemedText style={[{ fontFamily: typography.medium }]}>
+                <ThemedText
+                  type="body2"
+                  style={[{ fontFamily: typography.medium }]}
+                >
                   Plan: {subscription.plan?.name}
                 </ThemedText>
                 {subscription.plan && (
@@ -137,7 +140,7 @@ export default function ManageScreen() {
               color={tw.color("gray-400")}
             />
             <ThemedView style={tw`flex-1 gap-1`}>
-              <ThemedText type="h4">
+              <ThemedText type="body1">
                 {user?.person?.firstName} {user?.person?.lastName}
               </ThemedText>
               <ThemedText type="small" style={tw`text-gray-500`}>
@@ -153,7 +156,7 @@ export default function ManageScreen() {
           <ThemedView style={tw`flex-row items-center gap-2`}>
             <Label
               text={user?.role?.description || ""}
-              color="primary"
+              color="info"
               size="small"
             />
           </ThemedView>

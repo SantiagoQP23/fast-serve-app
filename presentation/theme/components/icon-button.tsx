@@ -20,7 +20,7 @@ interface IconButtonProps {
   style?: ViewStyle;
   backgroundColor?: string;
   disabled?: boolean;
-  variant?: "filled" | "secondary" | "outlined" | "text";
+  variant?: "filled" | "secondary" | "outlined" | "text" | "destructive";
 }
 
 export default function IconButton({
@@ -36,6 +36,7 @@ export default function IconButton({
     secondary: "bg-light-secondary",
     outlined: "border border-light-border bg-transparent",
     text: "bg-transparent",
+    destructive: "bg-red-50",
   };
 
   const variantStyles = {
@@ -43,6 +44,7 @@ export default function IconButton({
     secondary: Colors.light.onSecondary,
     outlined: Colors.light.onSurfaceVariant,
     text: Colors.light.primary,
+    destructive: tw.color("red-600") as string,
   };
 
   return (

@@ -16,6 +16,7 @@ import { TicketItem } from "@/core/tickets/models/ticket-item.model";
 import dayjs from "dayjs";
 import Card from "@/presentation/theme/components/card";
 import Button from "@/presentation/theme/components/button";
+import Label from "@/presentation/theme/components/label";
 
 function TicketCard({
   ticket,
@@ -65,25 +66,16 @@ function TicketCard({
     <Card style={tw``}>
       {/* Ticket Header */}
       <ThemedView
-        style={tw`flex-row justify-between items-center border-b border-gray-100 pb-4`}
+        style={tw`flex-row justify-between items-center border-b border-light-border pb-4`}
       >
         <ThemedView style={tw`flex-row items-center gap-2`}>
-          <ThemedView
-            style={tw`px-2 py-1 rounded-full ${typeColor.split(" ")[0]}`}
-          >
-            <ThemedText
-              type="small"
-              style={tw`font-bold ${typeColor.split(" ")[1]}`}
-            >
-              {typeLabel}
-            </ThemedText>
-          </ThemedView>
-          <ThemedText type="caption" style={tw`text-gray-500`}>
-            {dayjs(ticket.createdAt).format("HH:mm")}
-          </ThemedText>
+          <Label text={typeLabel} />
         </ThemedView>
 
         <ThemedView style={tw`flex-row items-center gap-2`}>
+          <ThemedText type="caption" style={tw`text-gray-500`}>
+            {dayjs(ticket.createdAt).format("HH:mm")}
+          </ThemedText>
           {ticket.printed && (
             <Ionicons
               name="checkmark-circle"
@@ -99,8 +91,8 @@ function TicketCard({
         {areaGroups.map((group) => (
           <ThemedView key={group.areaName} style={tw`gap-2`}>
             <ThemedText
-              type="body2"
-              style={tw`font-bold text-light-primary uppercase`}
+              type="body1"
+              style={tw`font-bold text-light-on-surface-variant uppercase`}
             >
               {group.areaName}
             </ThemedText>
@@ -183,22 +175,22 @@ export default function OrderTicketsScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* Order Summary Header */}
-          <ThemedView style={tw`gap-1 mb-2 items-center `}>
-            <ThemedText type="caption" style={tw`text-gray-500`}>
-              {t("orders:details.orderNumber", { num: order.num })}
-            </ThemedText>
-            <ThemedText type="h2" style={tw`font-bold`}>
-              {order.table
-                ? t("orders:comanda.table", { name: order.table.name })
-                : t("orders:comanda.takeAway")}
-            </ThemedText>
-            <ThemedText type="body2" style={tw`text-gray-500`}>
-              {tickets.length}{" "}
-              {tickets.length === 1
-                ? t("orders:tickets.ticketSingular")
-                : t("orders:tickets.ticketPlural")}
-            </ThemedText>
-          </ThemedView>
+          {/* <ThemedView style={tw`gap-1 mb-2 items-center `}> */}
+          {/*   <ThemedText type="caption" style={tw`text-gray-500`}> */}
+          {/*     {t("orders:details.orderNumber", { num: order.num })} */}
+          {/*   </ThemedText> */}
+          {/*   <ThemedText type="h2" style={tw`font-bold`}> */}
+          {/*     {order.table */}
+          {/*       ? t("orders:comanda.table", { name: order.table.name }) */}
+          {/*       : t("orders:comanda.takeAway")} */}
+          {/*   </ThemedText> */}
+          {/*   <ThemedText type="body2" style={tw`text-gray-500`}> */}
+          {/*     {tickets.length}{" "} */}
+          {/*     {tickets.length === 1 */}
+          {/*       ? t("orders:tickets.ticketSingular") */}
+          {/*       : t("orders:tickets.ticketPlural")} */}
+          {/*   </ThemedText> */}
+          {/* </ThemedView> */}
 
           {tickets.length === 0 && !isLoading && (
             <ThemedView style={tw`items-center py-12`}>

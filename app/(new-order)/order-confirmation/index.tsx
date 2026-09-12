@@ -40,8 +40,8 @@ export default function OrderConfirmationScreen() {
             {t("orders:confirmation.message")}
           </ThemedText>
         </ThemedView>
-        <ThemedView style={tw` w-full   rounded-lg gap-4`}>
-          <ThemedView style={tw` w-full bg-light-surface p-4 rounded-lg`}>
+        <ThemedView style={tw` w-full  gap-4`}>
+          <ThemedView style={tw` w-full bg-light-surface p-4 rounded-3xl`}>
             <ThemedView
               style={tw`flex-row  items-center bg-transparent gap-2 `}
             >
@@ -89,7 +89,9 @@ export default function OrderConfirmationScreen() {
               </ThemedView>
             </ThemedView>
           )}
-          <ThemedView style={tw` w-full bg-gray-100 p-4 rounded-lg gap-2`}>
+          <ThemedView
+            style={tw` w-full bg-light-surface p-4 rounded-3xl gap-2`}
+          >
             {order.details.map((item, index) => (
               <ThemedView
                 style={tw`flex-row justify-between items-center bg-transparent `}

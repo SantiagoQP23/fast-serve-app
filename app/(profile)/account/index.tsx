@@ -12,6 +12,8 @@ import { router } from "expo-router";
 import { toast } from "sonner-native";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import DeleteAccountBottomSheet from "@/presentation/auth/components/delete-account-bottom-sheet";
+import { dismissNotificationAsync } from "expo-notifications";
+import Button from "@/presentation/theme/components/button";
 
 export default function AccountScreen() {
   const { t } = useTranslation(["auth", "common"]);
@@ -47,14 +49,14 @@ export default function AccountScreen() {
   return (
     <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <ThemedView style={tw`rounded-lg p-4 gap-2`}>
+        <ThemedView style={tw`rounded-lg  gap-2`}>
           <Pressable
             style={({ pressed }) =>
               tw.style(
-                `flex-row items-center gap-4 bg-light-surface p-4 rounded-3xl`,
-                pressed && "opacity-70",
+                `flex-row items-center gap-4 bg-light-surface p-4 rounded-3xl opacity-50`,
               )
             }
+            disabled
             onPress={handleChangeEmail}
           >
             <Ionicons
@@ -75,8 +77,7 @@ export default function AccountScreen() {
           <Pressable
             style={({ pressed }) =>
               tw.style(
-                `flex-row items-center gap-4 bg-light-surface p-4 rounded-3xl`,
-                pressed && "opacity-70",
+                `flex-row items-center gap-4 bg-light-surface p-4 rounded-3xl opacity-50`,
               )
             }
             onPress={handleChangePassword}
@@ -96,29 +97,14 @@ export default function AccountScreen() {
             />
           </Pressable>
 
-          <Pressable
-            style={({ pressed }) =>
-              tw.style(
-                `flex-row items-center gap-4 bg-red-50 p-4 rounded-3xl`,
-                pressed && "opacity-70",
-              )
-            }
-            onPress={handleOpenDeleteAccount}
-          >
-            <Ionicons
-              name="trash-outline"
-              size={24}
-              color={tw.color("red-600")}
-            />
-            <ThemedText type="body1" style={tw`flex-1 text-red-800`}>
-              {t("account.deleteAccount")}
-            </ThemedText>
-            <Ionicons
-              name="chevron-forward-outline"
-              size={20}
-              color={tw.color("red-600")}
-            />
-          </Pressable>
+          <Button
+            variant="destructive"
+            label={t("account.deleteAccount")}
+            leftIcon="trash-outline"
+            onPress={() => {
+              handleOpenDeleteAccount();
+            }}
+          />
         </ThemedView>
 
         <DeleteAccountBottomSheet

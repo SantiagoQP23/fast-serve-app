@@ -13,7 +13,13 @@ import { ThemedText } from "./themed-text";
 
 export interface ButtonProps extends PressableProps {
   label?: string;
-  variant?: "primary" | "secondary" | "outline" | "text" | "surface";
+  variant?:
+    | "primary"
+    | "secondary"
+    | "outline"
+    | "text"
+    | "surface"
+    | "destructive";
   size?: "small" | "medium" | "large";
   loading?: boolean;
   disabled?: boolean;
@@ -48,6 +54,7 @@ export default function Button({
     surface: "bg-light-surface",
     outline: "border border-light-border bg-transparent",
     text: "bg-transparent",
+    destructive: "bg-red-50",
   };
 
   const sizeStyles = {
@@ -86,6 +93,7 @@ export default function Button({
     outline: "text-light-on-surface-variant",
     text: "text-light-primary",
     surface: "text-light-on-surface-variant",
+    destructive: "text-red-800",
   };
 
   const iconColors = {
@@ -94,6 +102,7 @@ export default function Button({
     outline: Colors.light.onSurfaceVariant,
     text: Colors.light.primary,
     surface: Colors.light.onSurfaceVariant,
+    destructive: tw.color("red-600"),
   };
 
   const currentIconSize = isVertical

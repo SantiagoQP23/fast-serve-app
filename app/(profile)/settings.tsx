@@ -1,6 +1,7 @@
-import { Pressable, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
+import Button from "@/presentation/theme/components/button";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { Ionicons } from "@expo/vector-icons";
@@ -44,9 +45,9 @@ export default function SettingsScreen() {
   };
 
   return (
-    <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
+    <ScreenLayout style={tw`px-4 pt-4 flex-1 gap-4`}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <ThemedView style={tw`rounded-lg p-4 gap-2 `}>
+        <ThemedView style={tw`rounded-lg  gap-2 `}>
           <Card
             style={tw`gap-2 p-4 rounded-3xl`}
             onPress={() => router.push("/(profile)/account")}
@@ -69,7 +70,9 @@ export default function SettingsScreen() {
             onPress={handleOpenLanguagePicker}
           >
             <ThemedView style={tw`flex-row items-center justify-between`}>
-              <ThemedText type="body1">{t("settings.languageTitle")}</ThemedText>
+              <ThemedText type="body1">
+                {t("settings.languageTitle")}
+              </ThemedText>
               <Ionicons
                 name="chevron-forward-outline"
                 size={20}
@@ -97,26 +100,14 @@ export default function SettingsScreen() {
             onChange={handleLanguageChange}
           />
 
-          <Pressable
-            style={({ pressed }) =>
-              tw.style(
-                `flex-row items-center gap-4 bg-red-50 p-4 rounded-3xl`,
-                pressed && "opacity-70",
-              )
-            }
+          <Button
+            variant="destructive"
+            label={t("manage.logout")}
+            leftIcon="log-out-outline"
             onPress={() => {
               setVisible(true);
             }}
-          >
-            <Ionicons
-              name="log-out-outline"
-              size={24}
-              color={tw.color(`red-600`)}
-            />
-            <ThemedText style={tw`text-red-800`}>
-              {t("manage.logout")}
-            </ThemedText>
-          </Pressable>
+          />
         </ThemedView>
 
         <DialogModal
