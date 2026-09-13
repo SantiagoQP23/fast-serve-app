@@ -27,7 +27,10 @@ import Label from "@/presentation/theme/components/label";
 import { BillSource, BillStatus } from "@/core/orders/models/bill.model";
 import TransactionCard from "@/presentation/transactions/components/transaction-card";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
-import { BottomSheetView, type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import {
+  BottomSheetView,
+  type BottomSheetMethods,
+} from "@expo/ui/community/bottom-sheet";
 import { useBillStatus } from "@/presentation/orders/hooks/useBillStatus";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles } from "@/core/auth/models/user.model";
@@ -261,35 +264,37 @@ export default function BillScreen() {
               }
             >
               {/* Header Section */}
-              <ThemedView style={tw`mb-6 justify-center items-center`}>
-                <ThemedText type="h2" style={tw` mb-2`}>
-                  {t(`bills:list.${bill.source}`, { number: bill.num })}
-                </ThemedText>
+              <ThemedView style={tw`mb-4`}>
+                <ThemedView style={tw`flex-row gap-2 items-center mb-2`}>
+                  <ThemedText type="caption" style={tw`text-gray-500 `}>
+                    {t(`bills:list.${bill.source}`, { number: bill.num })}
+                  </ThemedText>
+                  {bill.order && (
+                    <>
+                      <ThemedText> </ThemedText>
+                      <ThemedText type="caption" style={tw`text-gray-500`}>
+                        {t("orders:details.orderNumber", {
+                          num: bill.order.num,
+                        })}
+                      </ThemedText>
+                    </>
+                  )}
+                </ThemedView>
 
+                <ThemedText type="h1" style={tw`text-5xl  `}>
+                  {formatCurrency(bill.total)}
+                </ThemedText>
+              </ThemedView>
+
+              <ThemedView
+                style={tw`mb-6 flex-row gap-2 items-center flex-wrap gap-y-2`}
+              >
                 <Label
                   color={status.color}
                   size="small"
                   text={status.text}
                   leftIcon={status.icon}
                 />
-              </ThemedView>
-
-              {/* Total Amount */}
-              <ThemedView style={tw`mb-2 pb-4  items-center`}>
-                <ThemedText type="caption" style={tw`text-gray-500 mb-2`}>
-                  {t("bills:details.totalAmount")}
-                </ThemedText>
-                <ThemedText style={tw`text-5xl  `}>
-                  {formatCurrency(bill.total)}
-                </ThemedText>
-                {/* {bill.discount > 0 && ( */}
-                {/*   <ThemedText type="body2" style={tw`text-green-600`}> */}
-                {/*     {t("bills:details.discount")}: - */}
-                {/*     {formatCurrency(bill.discount)} */}
-                {/*   </ThemedText> */}
-                {/* )} */}
-              </ThemedView>
-              <ThemedView style={tw`mb-6 items-center`}>
                 <Label
                   text={getUserDisplayName(
                     bill.owner,
@@ -299,6 +304,23 @@ export default function BillScreen() {
                   leftIcon="person-outline"
                   size="small"
                 />
+
+                {bill.order && (
+                  <Label
+                    text={
+                      bill.order.type === OrderType.IN_PLACE
+                        ? `${t("common:labels.table")} ${bill.order.table?.name}`
+                        : t("common:labels.takeAway")
+                    }
+                    color="default"
+                    leftIcon={
+                      bill.order.type === OrderType.IN_PLACE
+                        ? "restaurant-outline"
+                        : "bicycle-outline"
+                    }
+                    size="small"
+                  />
+                )}
               </ThemedView>
 
               {/* Items List */}
@@ -364,7 +386,7 @@ export default function BillScreen() {
                 </ThemedView>
               ) : (
                 bill.discount > 0 && (
-                  <ThemedView style={tw` overflow-hidden mb-6`}>
+                  <ThemedView style={tw` overflow-hidden mb-4`}>
                     {/* Subtotal */}
                     <ThemedView
                       style={tw`flex-row justify-between items-center px-4 `}
@@ -426,29 +448,15 @@ export default function BillScreen() {
                 )
               )}
 
-              {bill.order && (
-                <ThemedView>
-                  <ThemedText type="body2" style={tw`text-gray-500`}>
-                    Order information
-                  </ThemedText>
-
-                  <ThemedView style={tw`mb-6 mt-2`}>
-                    <ThemedView
-                      style={tw`flex-row items-center bg-transparent justify-between`}
-                    >
-                      <ThemedText type="h3" style={tw``}>
-                        {bill.order.type === OrderType.IN_PLACE
-                          ? `${t("common:labels.table")} ${bill.order.table?.name}`
-                          : t("common:labels.takeAway")}{" "}
-                      </ThemedText>
-                    </ThemedView>
-
-                    <ThemedText type="small" style={tw`text-gray-500`}>
-                      {t("orders:details.orderNumber", { num: bill.order.num })}
-                    </ThemedText>
-                  </ThemedView>
-                </ThemedView>
-              )}
+              {/* {bill.order && ( */}
+              {/*   <ThemedView> */}
+              {/*     <ThemedText type="caption" style={tw`text-gray-500`}> */}
+              {/*       Order information */}
+              {/*     </ThemedText> */}
+              {/**/}
+              {/*     <ThemedView style={tw`mb-6 mt-2`}></ThemedView> */}
+              {/*   </ThemedView> */}
+              {/* )} */}
 
               {bill.transactions.length > 0 && (
                 <ThemedView>

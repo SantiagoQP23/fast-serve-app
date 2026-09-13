@@ -1,4 +1,7 @@
-import { BottomSheetView, type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import {
+  BottomSheetView,
+  type BottomSheetMethods,
+} from "@expo/ui/community/bottom-sheet";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -38,11 +41,7 @@ export default function OrderDetailActivityBottomSheet({
     : null;
 
   return (
-    <ThemedBottomSheetModal
-      ref={bottomSheetRef}
-      snapPoints={["30%"]}
-      enablePanDownToClose
-    >
+    <ThemedBottomSheetModal ref={bottomSheetRef} enablePanDownToClose>
       <BottomSheetView style={tw`px-4 pb-6`}>
         <ThemedView style={tw`mb-4`}>
           <ThemedText type="h3">{t("orders:details.activity")}</ThemedText>

@@ -263,7 +263,7 @@ export default function OrderDetailCard({
                   <ThemedView style={tw`justify-center  pl-2 `}>
                     <IconButton
                       icon="trash-outline"
-                      color="red"
+                      variant="destructive"
                       onPress={onRemoveDetail}
                     />
                   </ThemedView>
@@ -346,7 +346,7 @@ export default function OrderDetailCard({
                       )}
                   </ThemedView>
                 </ThemedView>
-                <ThemedView style={tw`flex-row gap-4 flex-wrap`}>
+                <ThemedView style={tw`flex-row gap-2 flex-wrap gap-y-2`}>
                   <Label
                     text={statusText}
                     color={labelColor}
