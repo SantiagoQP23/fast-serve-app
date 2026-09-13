@@ -46,7 +46,6 @@ const ReassignOrderBottomSheet = ({
           tw.style(
             "flex-row items-center gap-3 p-3 rounded-xl",
             pressed && "bg-gray-100",
-            isCurrentUser && "bg-gray-50",
           ),
         ]}
       >

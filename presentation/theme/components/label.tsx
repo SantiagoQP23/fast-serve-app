@@ -83,7 +83,13 @@ export default function Label({
     <Pressable
       onPress={onPress}
       disabled={disabled}
-      style={tw`gap-2 flex-row items-center ${isOutline ? "border border-light-border" : `${bgColors[color]}/10`} ${isSmall ? "px-3 py-1" : "px-4 py-1"} rounded-full`}
+      style={({ pressed }) => [
+        tw.style(
+          `gap-2 flex-row items-center ${isOutline ? "border border-light-border" : `${bgColors[color]}/10`} ${isSmall ? "px-3 py-1" : "px-4 py-1"} rounded-full`,
+
+          pressed && onPress && "opacity-80",
+        ),
+      ]}
     >
       {icon && (
         <Ionicons

@@ -40,6 +40,7 @@ import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enu
 import { useOrderPrint } from "@/presentation/orders/hooks/useOrderPrint";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bottom-sheet";
+import ReassignOrderBottomSheet from "@/presentation/orders/components/reassign-order-bottom-sheet";
 
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { typography } from "@/constants/theme";
@@ -105,6 +106,7 @@ export default function OrderScreen() {
   const { handlePrintOrder, handleShareOrder } = useOrderPrint(order);
 
   const editBottomSheetRef = useRef<BottomSheetMethods>(null);
+  const reassignBottomSheetRef = useRef<BottomSheetMethods>(null);
 
   const closeEditBottomSheet = () => {
     editBottomSheetRef.current?.close();
@@ -112,6 +114,14 @@ export default function OrderScreen() {
 
   const handlePresentEditModal = useCallback(() => {
     editBottomSheetRef.current?.present();
+  }, []);
+
+  const closeReassignBottomSheet = () => {
+    reassignBottomSheetRef.current?.close();
+  };
+
+  const handlePresentReassignModal = useCallback(() => {
+    reassignBottomSheetRef.current?.present();
   }, []);
 
   const onRefresh = useCallback(async () => {
@@ -475,6 +485,7 @@ export default function OrderScreen() {
                 <Label
                   leftIcon="person-outline"
                   text={`${order.user?.person.firstName} ${order.user?.person.lastName}`}
+                  onPress={!isClosed ? handlePresentReassignModal : undefined}
                 />
               </ThemedView>
             </ThemedView>
@@ -827,6 +838,15 @@ export default function OrderScreen() {
           <EditOrderBottomSheet
             order={order}
             onOrderUpdated={closeEditBottomSheet}
+          />
+        )}
+      </ThemedBottomSheetModal>
+
+      <ThemedBottomSheetModal ref={reassignBottomSheetRef} enablePanDownToClose>
+        {order && (
+          <ReassignOrderBottomSheet
+            order={order}
+            onClose={closeReassignBottomSheet}
           />
         )}
       </ThemedBottomSheetModal>

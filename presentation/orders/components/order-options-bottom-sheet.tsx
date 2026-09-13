@@ -129,24 +129,24 @@ const OrderOptionsBottomSheet = ({
     isAdmin && order.status === OrderStatus.DELIVERED && !order.isPaid;
 
   const options: OptionItem[] = [
-    {
-      icon: "person-outline",
-      label: t("orders:options.reassignOrder"),
-      onPress: () => {
-        onClose?.();
-        onReassign?.();
-      },
-      divider: true,
-    },
-    {
-      icon: "checkmark-done-outline",
-      label: t("orders:options.markDelivered"),
-      onPress: handleMarkDelivered,
-      disabled: order.details.every(
-        (detail) => detail.status === OrderDetailStatus.DELIVERED,
-      ),
-      divider: true,
-    },
+    // {
+    //   icon: "person-outline",
+    //   label: t("orders:options.reassignOrder"),
+    //   onPress: () => {
+    //     onClose?.();
+    //     onReassign?.();
+    //   },
+    //   divider: true,
+    // },
+    // {
+    //   icon: "checkmark-done-outline",
+    //   label: t("orders:options.markDelivered"),
+    //   onPress: handleMarkDelivered,
+    //   disabled: order.details.every(
+    //     (detail) => detail.status === OrderDetailStatus.DELIVERED,
+    //   ),
+    //   divider: true,
+    // },
     {
       icon: "lock-closed-outline",
       label: t("orders:options.forceCloseOrder"),
