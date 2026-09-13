@@ -91,7 +91,11 @@ export const useSyncEventListener = () => {
     OrderSocketEvent.syncEvent,
     ({ data: event }) => {
       if (!event) return;
-      console.log("[useSyncEventListener] Received sync event", event);
+      console.log(
+        "[useSyncEventListener] Received sync event",
+        event.resourceType,
+        event.operation,
+      );
 
       const restaurantId = currentRestaurant?.id;
       if (!restaurantId) return;

@@ -5,6 +5,8 @@ import { useEffect } from "react";
 
 export const useOrder = (orderId: string | null) => {
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
+  const updateOrder = useOrdersStore((state) => state.updateOrder);
+  const deleteOrder = useOrdersStore((state) => state.deleteOrder);
 
   const orderQuery = useQuery({
     queryKey: ["order", orderId],
@@ -21,6 +23,11 @@ export const useOrder = (orderId: string | null) => {
   useEffect(() => {
     if (orderQuery.data) {
       setActiveOrder(orderQuery.data);
+      if (orderQuery.data.isClosed) {
+        deleteOrder(orderQuery.data.id);
+      } else {
+        updateOrder(orderQuery.data);
+      }
     }
   }, [orderQuery.data, setActiveOrder]);
 

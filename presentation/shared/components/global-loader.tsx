@@ -51,16 +51,20 @@ export function GlobalLoader({ message }: GlobalLoaderProps) {
           justifyContent: "center",
         }}
       >
-        <ActivityIndicator size="large" color={tw.color("light-primary")} />
-        <ThemedText
-          type="body1"
-          style={{
-            color: Colors.light.primary,
-            marginTop: 16,
-          }}
+        <ThemedView
+          style={tw`bg-light-surface dark:bg-dark-surface p-6 rounded-lg items-center`}
         >
-          {loaderMessage}
-        </ThemedText>
+          <ActivityIndicator size="large" color={tw.color("light-primary")} />
+          <ThemedText
+            type="body1"
+            style={{
+              color: Colors.light.primary,
+              marginTop: 16,
+            }}
+          >
+            {loaderMessage}
+          </ThemedText>
+        </ThemedView>
       </BlurView>
     </ThemedView>
   );

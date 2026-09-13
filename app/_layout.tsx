@@ -17,6 +17,7 @@ import { useState, useEffect } from "react";
 import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
 import { WebSocketIndicator } from "@/presentation/shared/components/websocket-indicator";
 import { GlobalLoader } from "@/presentation/shared/components/global-loader";
+import { SocketLoaderBottomSheet } from "@/presentation/shared/components/socket-loader-bottom-sheet";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 // Initialize i18n
@@ -168,6 +169,7 @@ export default function RootLayout() {
           {!isAuthPage && <WebSocketIndicator />}
 
           <GlobalLoader />
+          <SocketLoaderBottomSheet />
         </ThemedView>
       </BottomSheetModalProvider>
     );

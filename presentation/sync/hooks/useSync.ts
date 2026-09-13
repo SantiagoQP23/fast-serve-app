@@ -165,7 +165,7 @@ async function applySyncResponse(
   response: SnapshotSyncResponseDto | IncrementalSyncResponseDto,
   restaurantId: string,
 ): Promise<number> {
-  console.log("[useSync] Applying sync response", response);
+  console.log("[useSync] Applying sync response", response.type);
   if (response.type === "snapshot") {
     applySnapshot(response, restaurantId);
     return response.sequence;
