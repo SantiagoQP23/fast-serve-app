@@ -15,6 +15,7 @@ import {
   translatePaymentMethod,
 } from "@/core/i18n/utils";
 import { useBillStatus } from "../hooks/useBillStatus";
+import { OrderType } from "@/core/orders/enums/order-type.enum";
 
 /** Minimal shape required by BillCard — satisfied by both Bill and BillListItemDto */
 interface BillCardItem {
@@ -45,18 +46,20 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
   const { status } = useBillStatus(bill.status);
 
   const showCreatedBy =
-    bill.createdBy &&
-    bill.owner &&
-    bill.createdBy.id !== bill.owner.id;
+    bill.createdBy && bill.owner && bill.createdBy.id !== bill.owner.id;
 
   return (
     <Card onPress={onPress} style={tw`px-4 py-5 `}>
       <ThemedView style={tw`bg-transparent gap-3`}>
         {/* Header: Bill number and status */}
 
-        <ThemedView
-          style={tw`flex-row bg-transparent justify-between items-center`}
-        >
+        <ThemedView style={tw`flex-row bg-transparent gap-2 items-center`}>
+          {/* <ThemedText>{JSON.stringify(bill.order)}</ThemedText> */}
+          {bill.order && (
+            <ThemedText type="caption" style={tw`text-gray-500 `}>
+              {t(`bills:list.${bill.source}`, { number: bill.num })}
+            </ThemedText>
+          )}
           <Label
             color={status.color}
             size="small"
@@ -77,9 +80,17 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
               />
             </ThemedView>
             <ThemedView style={tw`bg-transparent gap-1`}>
-              <ThemedText type="body1" style={tw``}>
-                {t(`bills:list.${bill.source}`, { number: bill.num })}
-              </ThemedText>
+              {bill.order ? (
+                <ThemedText type="body1" style={tw``}>
+                  {bill.order.type === OrderType.IN_PLACE
+                    ? `${t("common:labels.table")} ${bill.order.table?.name}`
+                    : t("common:labels.takeAway")}
+                </ThemedText>
+              ) : (
+                <ThemedText type="body1" style={tw``}>
+                  {t(`bills:list.${bill.source}`, { number: bill.num })}
+                </ThemedText>
+              )}
               <ThemedText type="body2" style={tw`text-gray-500`}>
                 {bill.owner
                   ? `${bill.owner.person.firstName} ${bill.owner.person.lastName}`
@@ -88,7 +99,7 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
             </ThemedView>
           </ThemedView>
           <ThemedView style={tw`bg-transparent gap-1 items-end`}>
-            <ThemedText type="h3" style={tw``}>
+            <ThemedText type="h4" style={tw``}>
               {formatCurrency(bill.total)}
             </ThemedText>
             <ThemedText type="small" style={tw`text-gray-500`}>
