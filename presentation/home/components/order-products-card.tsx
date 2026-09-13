@@ -19,6 +19,8 @@ import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enu
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 import { Ionicons } from "@expo/vector-icons";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
+import Checkbox from "@/presentation/theme/components/checkbox";
+import { useMarkOrderDelivered } from "@/presentation/orders/hooks/useMarkOrderDelivered";
 
 interface OrderProductsCardProps {
   order: Order;
@@ -32,6 +34,7 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
   );
   const { statusText, statusIcon, labelColor } = useOrderStatus(order.status);
   const { paymentStatus } = useOrderPaymentStatus(order.paymentStatus);
+  const { markDelivered } = useMarkOrderDelivered();
 
   // Calculate delivery progress - handle missing details
   const hasDetails = order.details && order.details.length > 0;
@@ -42,6 +45,20 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
     ? order.details.reduce((sum, detail) => sum + detail.qtyDelivered, 0)
     : 0;
   const deliveryProgress = totalItems > 0 ? deliveredItems / totalItems : 0;
+
+  const deliverableDetails = hasDetails
+    ? order.details.filter(
+        (detail) =>
+          detail.status !== OrderDetailStatus.DELIVERED &&
+          detail.status !== OrderDetailStatus.CANCELLED,
+      )
+    : [];
+  const allDelivered = hasDetails && deliverableDetails.length === 0;
+
+  const handleMarkAllDelivered = () => {
+    if (deliverableDetails.length === 0) return;
+    markDelivered(order, deliverableDetails);
+  };
 
   // Get relative time
   const relativeTime = getRelativeTime(order.deliveryTime);
@@ -95,8 +112,14 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
             </ThemedView>
           </ThemedView>
           <ThemedView
-            style={tw`flex-row items-center justify-between bg-transparent mt-4`}
+            style={tw`flex-row items-center  bg-transparent mt-4 gap-4`}
           >
+            <Checkbox
+              value={allDelivered}
+              disabled={allDelivered}
+              onValueChange={handleMarkAllDelivered}
+            />
+
             <ThemedView style={tw` gap-2`}>
               <ThemedText type="h3">
                 {order.type === OrderType.IN_PLACE

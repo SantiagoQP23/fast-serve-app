@@ -47,6 +47,8 @@ import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCart
 import Card from "@/presentation/theme/components/card";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import Checkbox from "@/presentation/theme/components/checkbox";
+import { useMarkOrderDelivered } from "@/presentation/orders/hooks/useMarkOrderDelivered";
 
 dayjs.extend(relativeTime);
 
@@ -62,6 +64,7 @@ export default function OrderScreen() {
   const init = useEditOrderCartStore((state) => state.init);
   const { mutate: updateOrder, isOnline, isLoading } = useOrders().updateOrder;
   const { mutate: deleteOrder } = useOrders().deleteOrder;
+  const { markDelivered } = useMarkOrderDelivered();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
@@ -289,6 +292,11 @@ export default function OrderScreen() {
   const allDetails = hasDetails ? order.details : [];
   const hasItems = allDetails.length > 0;
 
+  const handleMarkAllDelivered = () => {
+    if (pendingDetails.length === 0) return;
+    markDelivered(order, pendingDetails);
+  };
+
   const toggleDeliveredSection = () => {
     setIsDeliveredExpanded(!isDeliveredExpanded);
   };
@@ -499,9 +507,15 @@ export default function OrderScreen() {
                 <ThemedView
                   style={tw`flex-row justify-between items-center mb-4`}
                 >
-                  <ThemedText type="body2" style={tw`text-gray-500`}>
-                    {t("orders:details.pendingItems")}
-                  </ThemedText>
+                  <ThemedView style={tw`flex-row items-center gap-3`}>
+                    <Checkbox
+                      value={false}
+                      onValueChange={handleMarkAllDelivered}
+                    />
+                    <ThemedText type="body2" style={tw`text-gray-500`}>
+                      {t("orders:details.pendingItems")}
+                    </ThemedText>
+                  </ThemedView>
                   <ThemedView
                     style={tw`bg-primary-50 px-2.5 py-1 rounded-full`}
                   >

@@ -18,6 +18,12 @@ interface WebSocketOptions<TData> {
    * falling back to `common:socketLoader.default` when no translation exists.
    */
   loadingMessageKey?: string;
+  /**
+   * Whether this call should drive the global socket-loading bottom sheet.
+   * Defaults to true. Set to false for optimistic mutations that already
+   * provide their own feedback (e.g. an undo toast).
+   */
+  showLoader?: boolean;
 }
 
 /**
@@ -41,16 +47,23 @@ export function useWebsocketEventEmitter<TData, TVariables>(
   ) => {
     setLoading(true);
 
+    const showLoader =
+      secondaryOptions?.showLoader ?? options?.showLoader ?? true;
+
     const requestId = `${eventMessage}-${Date.now()}-${requestIdRef.current++}`;
     const messageKey =
       secondaryOptions?.loadingMessageKey ??
       options?.loadingMessageKey ??
       `common:socketLoader.${eventMessage}`;
-    useGlobalStore.getState().pushSocketLoading(requestId, messageKey);
+    if (showLoader) {
+      useGlobalStore.getState().pushSocketLoading(requestId, messageKey);
+    }
 
     const clearLoading = () => {
       setLoading(false);
-      useGlobalStore.getState().popSocketLoading(requestId);
+      if (showLoader) {
+        useGlobalStore.getState().popSocketLoading(requestId);
+      }
     };
 
     const timeoutDuration =
