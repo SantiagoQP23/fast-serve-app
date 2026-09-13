@@ -281,7 +281,7 @@ export default function BillScreen() {
                   )}
                 </ThemedView>
 
-                <ThemedText type="h1" style={tw`text-5xl  `}>
+                <ThemedText type="h1" style={tw`text-5xl h-12 `}>
                   {formatCurrency(bill.total)}
                 </ThemedText>
               </ThemedView>

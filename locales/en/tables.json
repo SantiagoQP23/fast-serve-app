@@ -29,5 +29,43 @@
     "loading": "Loading...",
     "retry": "Retry",
     "error": "Failed to load tables. Please try again."
+  },
+  "settings": {
+    "title": "Tables",
+    "tableName": "Table {{name}}",
+    "chairsCount": "{{count}} chairs",
+    "newTable": "New table",
+    "editTable": "Edit table",
+    "createTable": "Create table",
+    "saveTable": "Save table",
+    "noTables": "No tables found",
+    "noTablesDescription": "There are no tables configured for this restaurant.",
+    "loading": "Loading tables...",
+    "loadError": "Failed to load tables",
+    "retry": "Retry",
+    "createSuccess": "Table created successfully",
+    "createError": "Could not create the table",
+    "updateSuccess": "Table updated successfully",
+    "updateError": "Could not update the table",
+    "active": "Active",
+    "inactive": "Inactive",
+    "fields": {
+      "name": "Name",
+      "description": "Description",
+      "chairs": "Chairs",
+      "isActive": "Active",
+      "isAvailable": "Available"
+    },
+    "placeholders": {
+      "name": "e.g. Terrace table",
+      "description": "e.g. Near the window",
+      "chairs": "4"
+    },
+    "validations": {
+      "nameRequired": "Name is required",
+      "nameMaxLength": "Name must be at most 60 characters",
+      "chairsRequired": "Number of chairs is required",
+      "chairsInvalid": "Chairs must be a whole number greater than 0"
+    }
   }
 }

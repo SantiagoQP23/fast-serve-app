@@ -201,14 +201,23 @@ export default function ManageScreen() {
                 <CardButton
                   icon="list-outline"
                   label={t("manage.menu.sections")}
+                  onPress={() => {
+                    router.push("/(profile)/menu-sections");
+                  }}
                 />
                 <CardButton
                   icon="pricetag-outline"
                   label={t("manage.menu.categories")}
+                  onPress={() => {
+                    router.push("/(profile)/menu-categories");
+                  }}
                 />
                 <CardButton
                   icon="fast-food-outline"
                   label={t("manage.menu.products")}
+                  onPress={() => {
+                    router.push("/(profile)/menu-products");
+                  }}
                 />
               </ThemedView>
             </ThemedView>
@@ -218,10 +227,19 @@ export default function ManageScreen() {
               <ThemedText type="small" style={tw`text-gray-500`}>
                 {t("manage.restaurant")}
               </ThemedText>
-              <CardButton icon="grid-outline" label={t("manage.tables")} />
+              <CardButton
+                icon="grid-outline"
+                label={t("manage.tables")}
+                onPress={() => {
+                  router.push("/(profile)/tables-settings");
+                }}
+              />
               <CardButton
                 icon="card-outline"
                 label={t("manage.paymentMethods")}
+                onPress={() => {
+                  router.push("/(profile)/payment-methods-settings");
+                }}
               />
               <CardButton
                 icon="print-outline"

@@ -15,6 +15,8 @@ import enReports from '../../locales/en/reports.json';
 import enOfflineData from '../../locales/en/offlineData.json';
 import enPrinters from '../../locales/en/printers.json';
 import enProductionAreas from '../../locales/en/productionAreas.json';
+import enMenuManagement from '../../locales/en/menuManagement.json';
+import enPaymentMethods from '../../locales/en/paymentMethods.json';
 
 import esCommon from '../../locales/es/common.json';
 import esAuth from '../../locales/es/auth.json';
@@ -28,6 +30,8 @@ import esReports from '../../locales/es/reports.json';
 import esOfflineData from '../../locales/es/offlineData.json';
 import esPrinters from '../../locales/es/printers.json';
 import esProductionAreas from '../../locales/es/productionAreas.json';
+import esMenuManagement from '../../locales/es/menuManagement.json';
+import esPaymentMethods from '../../locales/es/paymentMethods.json';
 
 // Define available languages
 export const AVAILABLE_LANGUAGES = {
@@ -58,7 +62,7 @@ i18n
     debug: __DEV__,
     
     // Namespaces
-    ns: ['common', 'auth', 'orders', 'tables', 'menu', 'bills', 'validations', 'errors', 'reports', 'offlineData', 'printers', 'productionAreas'],
+    ns: ['common', 'auth', 'orders', 'tables', 'menu', 'bills', 'validations', 'errors', 'reports', 'offlineData', 'printers', 'productionAreas', 'menuManagement', 'paymentMethods'],
     defaultNS: 'common',
     
     interpolation: {
@@ -79,6 +83,8 @@ i18n
         offlineData: enOfflineData,
         printers: enPrinters,
         productionAreas: enProductionAreas,
+        menuManagement: enMenuManagement,
+        paymentMethods: enPaymentMethods,
       },
       es: {
         common: esCommon,
@@ -93,6 +99,8 @@ i18n
         offlineData: esOfflineData,
         printers: esPrinters,
         productionAreas: esProductionAreas,
+        menuManagement: esMenuManagement,
+        paymentMethods: esPaymentMethods,
       },
     },
     

@@ -1,0 +1,92 @@
+{
+  "title": "Métodos de pago",
+  "loading": "Cargando...",
+  "loadError": "Error al cargar",
+  "retry": "Reintentar",
+  "cancel": "Cancelar",
+  "confirm": "Confirmar",
+  "active": "Activo",
+  "inactive": "Inactivo",
+  "accounts": {
+    "title": "Cuentas",
+    "subtitle": "Gestiona cajas y cuentas bancarias.",
+    "newAccount": "Nueva cuenta",
+    "editAccount": "Editar cuenta",
+    "createAccount": "Crear cuenta",
+    "saveAccount": "Guardar cuenta",
+    "noAccounts": "No se encontraron cuentas",
+    "noAccountsDescription": "No hay cuentas configuradas para este restaurante.",
+    "deleteTitle": "Eliminar cuenta",
+    "deleteMessage": "¿Estás seguro de que deseas eliminar esta cuenta?",
+    "createSuccess": "Cuenta creada exitosamente",
+    "createError": "No se pudo crear la cuenta",
+    "updateSuccess": "Cuenta actualizada exitosamente",
+    "updateError": "No se pudo actualizar la cuenta",
+    "deleteSuccess": "Cuenta eliminada exitosamente",
+    "deleteError": "No se pudo eliminar la cuenta",
+    "fields": {
+      "name": "Nombre",
+      "description": "Descripción",
+      "num": "Número de cuenta",
+      "type": "Tipo",
+      "isActive": "Activa"
+    },
+    "placeholders": {
+      "name": "ej. Caja principal",
+      "description": "ej. Caja del mostrador",
+      "num": "ej. 1234567890",
+      "type": "Selecciona un tipo"
+    },
+    "validations": {
+      "nameRequired": "El nombre es requerido",
+      "nameMaxLength": "El nombre debe tener máximo 60 caracteres",
+      "typeRequired": "El tipo es requerido"
+    },
+    "types": {
+      "CASH": "Efectivo",
+      "BANK": "Banco"
+    }
+  },
+  "methods": {
+    "title": "Métodos",
+    "subtitle": "Define comisiones y cuentas destino.",
+    "newMethod": "Nuevo método",
+    "editMethod": "Editar método de pago",
+    "createMethod": "Crear método de pago",
+    "saveMethod": "Guardar método de pago",
+    "noMethods": "No se encontraron métodos de pago",
+    "noMethodsDescription": "No hay métodos de pago configurados para este restaurante.",
+    "noAccountsAvailable": "No hay cuentas disponibles",
+    "noAccountsAvailableDescription": "Crea una cuenta primero para asignarla a un método de pago.",
+    "deleteTitle": "Eliminar método de pago",
+    "deleteMessage": "¿Estás seguro de que deseas eliminar este método de pago?",
+    "createSuccess": "Método de pago creado exitosamente",
+    "createError": "No se pudo crear el método de pago",
+    "updateSuccess": "Método de pago actualizado exitosamente",
+    "updateError": "No se pudo actualizar el método de pago",
+    "deleteSuccess": "Método de pago eliminado exitosamente",
+    "deleteError": "No se pudo eliminar el método de pago",
+    "fields": {
+      "category": "Categoría",
+      "name": "Nombre",
+      "commission": "Comisión (%)",
+      "allowedAccounts": "Cuentas permitidas",
+      "allowedAccountsDescription": "Selecciona las cuentas donde se puede depositar.",
+      "defaultAccount": "Cuenta por defecto",
+      "isActive": "Activo"
+    },
+    "placeholders": {
+      "category": "Selecciona una categoría",
+      "name": "ej. Mastercard",
+      "commission": "0.00",
+      "defaultAccount": "Selecciona una cuenta"
+    },
+    "validations": {
+      "nameRequired": "El nombre es requerido",
+      "categoryRequired": "La categoría es requerida",
+      "commissionInvalid": "La comisión debe ser un número positivo",
+      "allowedAccountsRequired": "Selecciona al menos una cuenta permitida",
+      "defaultAccountRequired": "Selecciona una cuenta por defecto"
+    }
+  }
+}

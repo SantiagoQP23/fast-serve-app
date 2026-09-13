@@ -29,5 +29,43 @@
     "loading": "Cargando...",
     "retry": "Reintentar",
     "error": "Error al cargar las mesas. Por favor, inténtelo de nuevo."
+  },
+  "settings": {
+    "title": "Mesas",
+    "tableName": "Mesa {{name}}",
+    "chairsCount": "{{count}} sillas",
+    "newTable": "Nueva mesa",
+    "editTable": "Editar mesa",
+    "createTable": "Crear mesa",
+    "saveTable": "Guardar mesa",
+    "noTables": "No se encontraron mesas",
+    "noTablesDescription": "No hay mesas configuradas para este restaurante.",
+    "loading": "Cargando mesas...",
+    "loadError": "Error al cargar las mesas",
+    "retry": "Reintentar",
+    "createSuccess": "Mesa creada exitosamente",
+    "createError": "No se pudo crear la mesa",
+    "updateSuccess": "Mesa actualizada exitosamente",
+    "updateError": "No se pudo actualizar la mesa",
+    "active": "Activa",
+    "inactive": "Inactiva",
+    "fields": {
+      "name": "Nombre",
+      "description": "Descripción",
+      "chairs": "Sillas",
+      "isActive": "Activa",
+      "isAvailable": "Disponible"
+    },
+    "placeholders": {
+      "name": "ej. Mesa terraza",
+      "description": "ej. Cerca de la ventana",
+      "chairs": "4"
+    },
+    "validations": {
+      "nameRequired": "El nombre es requerido",
+      "nameMaxLength": "El nombre debe tener máximo 60 caracteres",
+      "chairsRequired": "El número de sillas es requerido",
+      "chairsInvalid": "Las sillas deben ser un número entero mayor a 0"
+    }
   }
 }

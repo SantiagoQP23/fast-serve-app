@@ -14,6 +14,8 @@ interface PaymentMethodsActions {
     paymentMethods: PaymentMethod[],
     restaurantId: string,
   ) => void;
+  upsertPaymentMethod: (paymentMethod: PaymentMethod) => void;
+  removePaymentMethod: (id: number) => void;
   clearPaymentMethods: () => void;
   reset: () => void;
 }
@@ -32,6 +34,28 @@ export const usePaymentMethodsStore = create<
       ...initialState,
       setPaymentMethods: (paymentMethods, restaurantId) =>
         set({ paymentMethods, restaurantId, lastUpdated: Date.now() }),
+
+      upsertPaymentMethod: (paymentMethod) =>
+        set((state) => {
+          const exists = state.paymentMethods.some(
+            (p) => p.id === paymentMethod.id,
+          );
+          return {
+            paymentMethods: exists
+              ? state.paymentMethods.map((p) =>
+                  p.id === paymentMethod.id ? paymentMethod : p,
+                )
+              : [...state.paymentMethods, paymentMethod],
+            lastUpdated: Date.now(),
+          };
+        }),
+
+      removePaymentMethod: (id) =>
+        set((state) => ({
+          paymentMethods: state.paymentMethods.filter((p) => p.id !== id),
+          lastUpdated: Date.now(),
+        })),
+
       clearPaymentMethods: () =>
         set({ paymentMethods: [], restaurantId: null, lastUpdated: null }),
       reset: () => set(initialState),

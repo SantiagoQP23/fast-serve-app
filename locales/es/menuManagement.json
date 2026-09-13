@@ -1,0 +1,135 @@
+{
+  "sections": {
+    "title": "Secciones",
+    "newSection": "Nueva sección",
+    "editSection": "Editar sección",
+    "createSection": "Crear sección",
+    "saveSection": "Guardar sección",
+    "noSections": "No se encontraron secciones",
+    "noSectionsDescription": "No hay secciones de menú configuradas para este restaurante.",
+    "categoryCount": "{{count}} categoría",
+    "categoryCount_plural": "{{count}} categorías",
+    "createSuccess": "Sección creada exitosamente",
+    "createError": "No se pudo crear la sección",
+    "updateSuccess": "Sección actualizada exitosamente",
+    "updateError": "No se pudo actualizar la sección",
+    "fields": {
+      "name": "Nombre",
+      "isActive": "Activa",
+      "isPublic": "Visible para los clientes"
+    },
+    "placeholders": {
+      "name": "ej. Bebidas"
+    },
+    "validations": {
+      "nameMinLength": "El nombre debe tener al menos 2 caracteres",
+      "nameMaxLength": "El nombre debe tener máximo 60 caracteres"
+    }
+  },
+  "categories": {
+    "title": "Categorías",
+    "newCategory": "Nueva categoría",
+    "editCategory": "Editar categoría",
+    "createCategory": "Crear categoría",
+    "saveCategory": "Guardar categoría",
+    "noCategories": "No se encontraron categorías",
+    "noCategoriesDescription": "No hay categorías de menú configuradas para este restaurante.",
+    "noSectionsAvailable": "No hay secciones disponibles",
+    "noSectionsAvailableDescription": "Crea una sección primero para asignarle categorías.",
+    "productCount": "{{count}} producto",
+    "productCount_plural": "{{count}} productos",
+    "createSuccess": "Categoría creada exitosamente",
+    "createError": "No se pudo crear la categoría",
+    "updateSuccess": "Categoría actualizada exitosamente",
+    "updateError": "No se pudo actualizar la categoría",
+    "deleteSuccess": "Categoría eliminada exitosamente",
+    "deleteError": "No se pudo eliminar la categoría",
+    "deleteTitle": "Eliminar categoría",
+    "deleteMessage": "¿Estás seguro de que deseas eliminar esta categoría?",
+    "fields": {
+      "name": "Nombre",
+      "section": "Sección",
+      "isActive": "Activa",
+      "isPublic": "Visible para los clientes"
+    },
+    "placeholders": {
+      "name": "ej. Cócteles",
+      "section": "Selecciona una sección"
+    },
+    "validations": {
+      "nameMinLength": "El nombre debe tener al menos 2 caracteres",
+      "nameMaxLength": "El nombre debe tener máximo 60 caracteres",
+      "sectionRequired": "La sección es requerida"
+    }
+  },
+  "products": {
+    "title": "Productos",
+    "newProduct": "Nuevo producto",
+    "editProduct": "Editar producto",
+    "createProduct": "Crear producto",
+    "saveProduct": "Guardar producto",
+    "noProducts": "No se encontraron productos",
+    "noProductsDescription": "No hay productos configurados para este restaurante.",
+    "noCategoriesAvailable": "No hay categorías disponibles",
+    "noCategoriesAvailableDescription": "Crea una categoría primero para asignarle productos.",
+    "createSuccess": "Producto creado exitosamente",
+    "createError": "No se pudo crear el producto",
+    "updateSuccess": "Producto actualizado exitosamente",
+    "updateError": "No se pudo actualizar el producto",
+    "fields": {
+      "name": "Nombre",
+      "description": "Descripción",
+      "price": "Precio",
+      "unitCost": "Costo unitario",
+      "quantity": "Cantidad en stock",
+      "category": "Categoría",
+      "productionArea": "Área de producción",
+      "isActive": "Activo",
+      "isPublic": "Visible para los clientes"
+    },
+    "placeholders": {
+      "name": "ej. Hamburguesa con queso",
+      "description": "Qué hace especial a este producto",
+      "price": "0.00",
+      "unitCost": "0.00",
+      "quantity": "0",
+      "category": "Selecciona una categoría",
+      "productionArea": "Selecciona un área de producción (opcional)"
+    },
+    "validations": {
+      "nameMinLength": "El nombre debe tener al menos 2 caracteres",
+      "nameMaxLength": "El nombre debe tener máximo 80 caracteres",
+      "priceInvalid": "El precio debe ser un número positivo",
+      "categoryRequired": "La categoría es requerida"
+    },
+    "variants": {
+      "title": "Variantes",
+      "addVariant": "Agregar variante",
+      "empty": "Aún no hay variantes. Agrega una si este producto tiene distintas opciones (tamaños, sabores, etc.).",
+      "variantNumber": "Variante {{number}}",
+      "fields": {
+        "name": "Nombre",
+        "price": "Precio",
+        "quantity": "Stock",
+        "manageStock": "Controlar inventario",
+        "isDefault": "Predeterminada"
+      },
+      "placeholders": {
+        "name": "ej. Grande",
+        "price": "0.00",
+        "quantity": "0"
+      },
+      "validations": {
+        "nameRequired": "El nombre de la variante es requerido",
+        "priceInvalid": "El precio debe ser un número positivo"
+      }
+    }
+  },
+  "loading": "Cargando...",
+  "loadError": "Error al cargar el menú",
+  "retry": "Reintentar",
+  "cancel": "Cancelar",
+  "confirm": "Confirmar",
+  "active": "Activo",
+  "inactive": "Inactivo"
+}

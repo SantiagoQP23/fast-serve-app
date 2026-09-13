@@ -9,7 +9,13 @@ import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-b
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 
 export default function OrdersLayout() {
-  const { t } = useTranslation(["auth", "orders"]);
+  const { t } = useTranslation([
+    "auth",
+    "orders",
+    "menuManagement",
+    "tables",
+    "paymentMethods",
+  ]);
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
 
   const closeBottomSheet = () => {
@@ -92,6 +98,93 @@ export default function OrdersLayout() {
 
         <Stack.Screen
           name="production-area-form/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="menu-sections/index"
+          options={{
+            headerShown: true,
+            title: t("menuManagement:sections.title"),
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="menu-section-form/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="menu-categories/index"
+          options={{
+            headerShown: true,
+            title: t("menuManagement:categories.title"),
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="menu-category-form/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="menu-products/index"
+          options={{
+            headerShown: true,
+            title: t("menuManagement:products.title"),
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="menu-product-form/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="tables-settings/index"
+          options={{
+            headerShown: true,
+            title: t("tables:settings.title"),
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="table-settings-form/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="payment-methods-settings/index"
+          options={{
+            headerShown: true,
+            title: t("paymentMethods:title"),
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="account-form/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="payment-method-form/index"
           options={{
             headerShown: false,
           }}

@@ -23,6 +23,10 @@ interface MenuActions {
   setMenu: (menu: Menu, restaurantId: string) => void;
   clearMenu: () => void;
   reset: () => void;
+  upsertSection: (section: Section) => void;
+  upsertCategory: (category: Category) => void;
+  removeCategory: (id: string) => void;
+  upsertProduct: (product: Product) => void;
 }
 
 const initialState: MenuState = {
@@ -61,6 +65,43 @@ export const useMenuStore = create<MenuState & MenuActions>()(
         }),
       
       reset: () => set(initialState),
+
+      upsertSection: (section: Section) =>
+        set((state) => {
+          const exists = state.sections.some((s) => s.id === section.id);
+          return {
+            sections: exists
+              ? state.sections.map((s) => (s.id === section.id ? section : s))
+              : [...state.sections, section],
+          };
+        }),
+
+      upsertCategory: (category: Category) =>
+        set((state) => {
+          const exists = state.categories.some((c) => c.id === category.id);
+          return {
+            categories: exists
+              ? state.categories.map((c) =>
+                  c.id === category.id ? category : c,
+                )
+              : [...state.categories, category],
+          };
+        }),
+
+      removeCategory: (id: string) =>
+        set((state) => ({
+          categories: state.categories.filter((c) => c.id !== id),
+        })),
+
+      upsertProduct: (product: Product) =>
+        set((state) => {
+          const exists = state.products.some((p) => p.id === product.id);
+          return {
+            products: exists
+              ? state.products.map((p) => (p.id === product.id ? product : p))
+              : [...state.products, product],
+          };
+        }),
     }),
     {
       name: "menuStore",
