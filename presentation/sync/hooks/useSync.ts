@@ -241,7 +241,7 @@ export const useSync = (opts?: { showGlobalLoader?: boolean }) => {
 
   useEffect(() => {
     if (opts?.showGlobalLoader) {
-      setIsLoading(syncQuery.isFetching);
+      setIsLoading(syncQuery.isFetching, "common:status.syncing");
     }
   }, [syncQuery.isFetching, setIsLoading, opts?.showGlobalLoader]);
 

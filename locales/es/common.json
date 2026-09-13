@@ -53,6 +53,7 @@
     "occupied": "Ocupada",
     "active": "activo",
     "loading": "Cargando...",
+    "syncing": "Sincronizando...",
     "success": "Éxito",
     "approved": "Aprobado",
     "rejected": "Rechazado"

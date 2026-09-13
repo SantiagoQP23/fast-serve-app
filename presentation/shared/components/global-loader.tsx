@@ -15,6 +15,7 @@ interface GlobalLoaderProps {
 export function GlobalLoader({ message }: GlobalLoaderProps) {
   const { t } = useTranslation();
   const isLoading = useGlobalStore((state) => state.isLoading);
+  const loadingMessageKey = useGlobalStore((state) => state.loadingMessageKey);
   const httpActiveRequests = useGlobalStore(
     (state) => state.httpActiveRequests,
   );
@@ -25,7 +26,9 @@ export function GlobalLoader({ message }: GlobalLoaderProps) {
     return null;
   }
 
-  const loaderMessage = message ?? t("common:status.loading");
+  const loaderMessage =
+    message ??
+    (loadingMessageKey ? t(loadingMessageKey) : t("common:status.loading"));
 
   return (
     <ThemedView

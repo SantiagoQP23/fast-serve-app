@@ -53,6 +53,7 @@
     "occupied": "Occupied",
     "active": "active",
     "loading": "Loading...",
+    "syncing": "Syncing...",
     "success": "Success",
     "approved": "Approved",
     "rejected": "Rejected"
