@@ -4,7 +4,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 
 import TableCard from "@/presentation/home/components/table-card";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTables } from "@/presentation/tables/hooks/useTables";
 import Chip from "@/presentation/theme/components/chip";
@@ -26,7 +26,11 @@ interface TablesViewProps {
 export default function TablesView({ onTablePress, style }: TablesViewProps) {
   const { t } = useTranslation(["tables", "errors"]);
   const [selectedStatus, setSelectedStatus] = useState<boolean | "all">("all");
-  const { tables, isLoading, tablesQuery } = useTables();
+  const { tables: allTables, isLoading, tablesQuery } = useTables();
+  const tables = useMemo(
+    () => allTables.filter((table) => table.isActive !== false),
+    [allTables],
+  );
   const { availableTables, occupiedTables } = useTableByStatus(tables);
   const queryClient = useQueryClient();
   const { currentRestaurant } = useAuthStore();

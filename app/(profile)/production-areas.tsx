@@ -101,7 +101,7 @@ export default function ProductionAreasScreen() {
         {!isLoading && !isError && productionAreas.length > 0 && (
           <ThemedView style={tw`gap-4`}>
             {productionAreas.map((area) => (
-              <Card key={area.id}>
+              <Card key={area.id} style={!area.isActive && tw`opacity-50`}>
                 <ThemedView style={tw`gap-4`}>
                   {/* Area Name & Status */}
                   <ThemedView style={tw`flex-row items-center justify-between`}>

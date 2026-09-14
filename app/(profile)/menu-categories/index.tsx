@@ -12,7 +12,6 @@ import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
 import IconButton from "@/presentation/theme/components/icon-button";
-import Label from "@/presentation/theme/components/label";
 import type { Category } from "@/core/menu/models/category.model";
 
 export default function MenuCategoriesScreen() {
@@ -99,7 +98,11 @@ export default function MenuCategoriesScreen() {
         {categories.length > 0 && (
           <ThemedView style={tw`gap-4`}>
             {categories.map((category) => (
-              <Card key={category.id} onPress={() => handleEditCategory(category)}>
+              <Card
+                key={category.id}
+                onPress={() => handleEditCategory(category)}
+                style={!category.isActive && tw`opacity-50`}
+              >
                 <ThemedView style={tw`flex-row items-center justify-between`}>
                   <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
                     <Ionicons
@@ -121,13 +124,6 @@ export default function MenuCategoriesScreen() {
                             count: getProductCount(category.id),
                           })}
                         </ThemedText>
-                        {!category.isActive && (
-                          <Label
-                            text={t("inactive")}
-                            color="error"
-                            size="small"
-                          />
-                        )}
                       </ThemedView>
                     </ThemedView>
                   </ThemedView>

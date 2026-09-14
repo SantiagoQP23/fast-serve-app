@@ -1,7 +1,7 @@
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { router, useNavigation } from "expo-router";
 import TextInput from "@/presentation/theme/components/text-input";
 import Button from "@/presentation/theme/components/button";
@@ -51,10 +51,15 @@ export default function ProductScreen() {
     activeOrderDetail?.tagIds ?? [],
   );
 
+  const activeOptions = useMemo(
+    () => activeProduct?.options.filter((option) => option.isActive) ?? [],
+    [activeProduct],
+  );
+
   const [selectedOption, setSelectedOption] = useState<ProductOption | null>(
     activeOrderDetail
       ? activeOrderDetail.productOption
-      : activeProduct?.options.find((option) => option.isDefault) || null,
+      : activeOptions.find((option) => option.isDefault) || null,
   );
 
   const [price, setPrice] = useState(
@@ -252,13 +257,13 @@ export default function ProductScreen() {
               />
             </ThemedView>
 
-            {activeProduct.options.length > 0 && (
+            {activeOptions.length > 0 && (
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={tw`gap-3`}
               >
-                {activeProduct.options.map((option) => {
+                {activeOptions.map((option) => {
                   const isSelected = selectedOption?.id === option.id;
                   return (
                     <ThemedView

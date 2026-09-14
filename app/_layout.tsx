@@ -16,6 +16,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { useState, useEffect } from "react";
 import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
 import { WebSocketIndicator } from "@/presentation/shared/components/websocket-indicator";
+import { SyncIndicator } from "@/presentation/shared/components/sync-indicator";
 import { GlobalLoader } from "@/presentation/shared/components/global-loader";
 import { SocketLoaderBottomSheet } from "@/presentation/shared/components/socket-loader-bottom-sheet";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
@@ -167,6 +168,7 @@ export default function RootLayout() {
 
           {/* WebSocket Connection Indicator - only show on non-auth pages */}
           {!isAuthPage && <WebSocketIndicator />}
+          {!isAuthPage && <SyncIndicator />}
 
           <GlobalLoader />
           <SocketLoaderBottomSheet />

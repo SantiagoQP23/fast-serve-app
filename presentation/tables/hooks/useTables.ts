@@ -45,7 +45,7 @@ export const useTables = () => {
     cachedTables.length > 0 ? cachedTables : tablesQuery.data || [];
 
   return {
-    tables: tables.filter((t) => t.isActive),
+    tables,
     refetch: tablesQuery.refetch,
     isRefetching: tablesQuery.isRefetching,
     isLoading: tablesQuery.isLoading,

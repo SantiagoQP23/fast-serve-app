@@ -12,7 +12,6 @@ import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
 import IconButton from "@/presentation/theme/components/icon-button";
-import Label from "@/presentation/theme/components/label";
 import type { Section } from "@/core/menu/models/section.model";
 
 export default function MenuSectionsScreen() {
@@ -102,7 +101,11 @@ export default function MenuSectionsScreen() {
               .slice()
               .sort((a, b) => a.order - b.order)
               .map((section) => (
-                <Card key={section.id} onPress={() => handleEditSection(section)}>
+                <Card
+                  key={section.id}
+                  onPress={() => handleEditSection(section)}
+                  style={!section.isActive && tw`opacity-50`}
+                >
                   <ThemedView style={tw`flex-row items-center justify-between`}>
                     <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
                       <Ionicons
@@ -118,13 +121,6 @@ export default function MenuSectionsScreen() {
                               count: getCategoryCount(section.id),
                             })}
                           </ThemedText>
-                          {!section.isActive && (
-                            <Label
-                              text={t("inactive")}
-                              color="error"
-                              size="small"
-                            />
-                          )}
                         </ThemedView>
                       </ThemedView>
                     </ThemedView>

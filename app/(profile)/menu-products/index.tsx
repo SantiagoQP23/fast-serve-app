@@ -12,7 +12,6 @@ import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
 import IconButton from "@/presentation/theme/components/icon-button";
-import Label from "@/presentation/theme/components/label";
 import type { Product } from "@/core/menu/models/product.model";
 
 export default function MenuProductsScreen() {
@@ -104,7 +103,11 @@ export default function MenuProductsScreen() {
         {products.length > 0 && (
           <ThemedView style={tw`gap-4`}>
             {products.map((product) => (
-              <Card key={product.id} onPress={() => handleEditProduct(product)}>
+              <Card
+                key={product.id}
+                onPress={() => handleEditProduct(product)}
+                style={!product.isActive && tw`opacity-50`}
+              >
                 <ThemedView style={tw`flex-row items-center justify-between`}>
                   <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
                     <Ionicons
@@ -124,13 +127,6 @@ export default function MenuProductsScreen() {
                         <ThemedText type="small" style={tw`text-gray-500`}>
                           ${product.price?.toFixed(2)}
                         </ThemedText>
-                        {!product.isActive && (
-                          <Label
-                            text={t("inactive")}
-                            color="error"
-                            size="small"
-                          />
-                        )}
                       </ThemedView>
                     </ThemedView>
                   </ThemedView>

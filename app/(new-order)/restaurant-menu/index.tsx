@@ -4,7 +4,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import ProductCard from "@/presentation/restaurant-menu/product-card";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Chip from "@/presentation/theme/components/chip";
 import { useRouter } from "expo-router";
 import TextInput from "@/presentation/theme/components/text-input";
@@ -31,7 +31,24 @@ export default function RestaurantMenuScreen() {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const router = useRouter();
   const [search, setSearch] = useState("");
-  const { categories, sections, products, menuQuery } = useMenu();
+  const {
+    categories: allCategories,
+    sections: allSections,
+    products: allProducts,
+    menuQuery,
+  } = useMenu();
+  const sections = useMemo(
+    () => allSections.filter((s) => s.isActive),
+    [allSections],
+  );
+  const categories = useMemo(
+    () => allCategories.filter((c) => c.isActive),
+    [allCategories],
+  );
+  const products = useMemo(
+    () => allProducts.filter((p) => p.isActive),
+    [allProducts],
+  );
   const { setActiveProduct } = useMenuStore();
   const details = useNewOrderStore((state) => state.details);
   const order = useOrdersStore((state) => state.activeOrder);
@@ -244,15 +261,13 @@ export default function RestaurantMenuScreen() {
             </ThemedView>
           )}
           <ThemedView style={tw`flex-1 gap-3 mb-20`}>
-            {filteredProducts
-              .filter((p) => p.isActive)
-              .map((product) => (
-                <ProductCard
-                  key={product.id}
-                  onPress={() => openProduct(product)}
-                  product={product}
-                ></ProductCard>
-              ))}
+            {filteredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                onPress={() => openProduct(product)}
+                product={product}
+              ></ProductCard>
+            ))}
           </ThemedView>
         </ThemedView>
       </ScrollView>

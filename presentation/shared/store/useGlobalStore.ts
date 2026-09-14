@@ -11,11 +11,10 @@ export interface SocketLoadingEntry {
 
 export interface GlobalStoreState {
   isLoading: boolean;
-  loadingMessageKey: string | null;
   language: LanguageCode;
   httpActiveRequests: number;
   socketLoadingQueue: SocketLoadingEntry[];
-  setIsLoading: (isLoading: boolean, messageKey?: string | null) => void;
+  setIsLoading: (isLoading: boolean) => void;
   setLanguage: (language: LanguageCode) => Promise<void>;
   incrementHttpActiveRequests: () => void;
   decrementHttpActiveRequests: () => void;
@@ -27,12 +26,10 @@ export const useGlobalStore = create<GlobalStoreState>()(
   persist(
     (set) => ({
       isLoading: false,
-      loadingMessageKey: null,
       language: 'es', // Default to Spanish as per requirements
       httpActiveRequests: 0,
       socketLoadingQueue: [],
-      setIsLoading: (isLoading: boolean, messageKey: string | null = null) =>
-        set({ isLoading, loadingMessageKey: isLoading ? messageKey : null }),
+      setIsLoading: (isLoading: boolean) => set({ isLoading }),
       setLanguage: async (language: LanguageCode) => {
         await i18n.changeLanguage(language);
         set({ language });

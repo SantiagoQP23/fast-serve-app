@@ -13,7 +13,6 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import IconButton from "@/presentation/theme/components/icon-button";
-import Label from "@/presentation/theme/components/label";
 import type { Account } from "@/core/restaurant/models/account.model";
 import type { PaymentMethod } from "@/core/restaurant/models/payment-method.model";
 
@@ -126,6 +125,7 @@ export default function PaymentMethodsSettingsScreen() {
                 <Card
                   key={account.id}
                   onPress={() => handleEditAccount(account)}
+                  style={!account.isActive && tw`opacity-50`}
                 >
                   <ThemedView style={tw`flex-row items-center justify-between`}>
                     <ThemedView style={tw`gap-3 flex-1 flex-row items-center`}>
@@ -153,13 +153,6 @@ export default function PaymentMethodsSettingsScreen() {
                               • {account.description}
                             </ThemedText>
                           ) : null}
-                          {!account.isActive && (
-                            <Label
-                              text={t("inactive")}
-                              color="error"
-                              size="small"
-                            />
-                          )}
                         </ThemedView>
                       </ThemedView>
                     </ThemedView>
@@ -220,7 +213,11 @@ export default function PaymentMethodsSettingsScreen() {
           {paymentMethods.length > 0 && (
             <ThemedView style={tw`gap-3`}>
               {paymentMethods.map((method) => (
-                <Card key={method.id} onPress={() => handleEditMethod(method)}>
+                <Card
+                  key={method.id}
+                  onPress={() => handleEditMethod(method)}
+                  style={!method.isActive && tw`opacity-50`}
+                >
                   <ThemedView style={tw`flex-row items-center justify-between`}>
                     <ThemedView style={tw`gap-3 flex-1 flex-row items-center`}>
                       <Ionicons
@@ -241,13 +238,6 @@ export default function PaymentMethodsSettingsScreen() {
                           <ThemedText type="small" style={tw`text-gray-500`}>
                             • {method.commissionPercentage}%
                           </ThemedText>
-                          {!method.isActive && (
-                            <Label
-                              text={t("inactive")}
-                              color="error"
-                              size="small"
-                            />
-                          )}
                         </ThemedView>
                       </ThemedView>
                     </ThemedView>

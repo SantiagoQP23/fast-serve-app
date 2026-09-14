@@ -12,7 +12,6 @@ import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
 import IconButton from "@/presentation/theme/components/icon-button";
-import Label from "@/presentation/theme/components/label";
 import type { Table } from "@/core/tables/models/table.model";
 
 export default function TablesSettingsScreen() {
@@ -97,7 +96,11 @@ export default function TablesSettingsScreen() {
         {tables.length > 0 && (
           <ThemedView style={tw`gap-4`}>
             {tables.map((table) => (
-              <Card key={table.id} onPress={() => handleEditTable(table)}>
+              <Card
+                key={table.id}
+                onPress={() => handleEditTable(table)}
+                style={table.isActive === false && tw`opacity-50`}
+              >
                 <ThemedView style={tw`flex-row items-center justify-between`}>
                   <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
                     <Ionicons
@@ -109,7 +112,9 @@ export default function TablesSettingsScreen() {
                       <ThemedText type="h4">
                         {t("settings.tableName", { name: table.name })}
                       </ThemedText>
-                      <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
+                      <ThemedView
+                        style={tw`flex-row items-center gap-2 flex-wrap`}
+                      >
                         {table.chairs != null && (
                           <ThemedText type="small" style={tw`text-gray-500`}>
                             {t("settings.chairsCount", {
@@ -122,22 +127,15 @@ export default function TablesSettingsScreen() {
                             • {table.description}
                           </ThemedText>
                         ) : null}
-                        {table.isActive === false && (
-                          <Label
-                            text={t("settings.inactive")}
-                            color="error"
-                            size="small"
-                          />
-                        )}
                       </ThemedView>
                     </ThemedView>
                   </ThemedView>
-                  <IconButton
-                    icon="create-outline"
-                    size={20}
-                    variant="text"
-                    onPress={() => handleEditTable(table)}
-                  />
+                  {/* <IconButton */}
+                  {/*   icon="create-outline" */}
+                  {/*   size={20} */}
+                  {/*   variant="text" */}
+                  {/*   onPress={() => handleEditTable(table)} */}
+                  {/* /> */}
                 </ThemedView>
               </Card>
             ))}

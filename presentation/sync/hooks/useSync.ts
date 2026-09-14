@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useTablesStore } from "@/presentation/tables/hooks/useTablesStore";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
@@ -187,9 +186,8 @@ async function applySyncResponse(
   return response.toSequence;
 }
 
-export const useSync = (opts?: { showGlobalLoader?: boolean }) => {
+export const useSync = () => {
   const { currentRestaurant } = useAuthStore();
-  const setIsLoading = useGlobalStore((state) => state.setIsLoading);
   const { restaurantId, setRestaurantId, startSync, setSynced, setError } =
     useSyncStore();
 
@@ -238,12 +236,6 @@ export const useSync = (opts?: { showGlobalLoader?: boolean }) => {
       void syncQuery.refetch();
     }
   });
-
-  useEffect(() => {
-    if (opts?.showGlobalLoader) {
-      setIsLoading(syncQuery.isFetching, "common:status.syncing");
-    }
-  }, [syncQuery.isFetching, setIsLoading, opts?.showGlobalLoader]);
 
   return {
     syncQuery,

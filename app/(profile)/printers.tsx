@@ -122,7 +122,10 @@ export default function PrintersScreen() {
         {!isLoading && !isError && printers && printers.length > 0 && (
           <ThemedView style={tw`gap-4`}>
             {printers.map((printer) => (
-              <Card key={printer.id}>
+              <Card
+                key={printer.id}
+                style={!printer.isActive && tw`opacity-50`}
+              >
                 <ThemedView style={tw`gap-4`}>
                   {/* Printer Name & Status */}
                   <ThemedView style={tw`flex-row items-center justify-between`}>

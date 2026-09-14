@@ -63,7 +63,7 @@ export default function TabLayout() {
   // useOrderCreatedListener();
   // useOrderUpdatedListener();
   // useOrderDeletedListener();
-  useSync({ showGlobalLoader: true });
+  useSync();
   useSyncEventListener();
 
   // const { printComanda } = usePrintComanda();
