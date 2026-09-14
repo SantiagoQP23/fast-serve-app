@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -18,6 +18,7 @@ import Checkbox from "@/presentation/theme/components/checkbox";
 import Select from "@/presentation/theme/components/select";
 import Card from "@/presentation/theme/components/card";
 import IconButton from "@/presentation/theme/components/icon-button";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
 import tw from "@/presentation/theme/lib/tailwind";
 import type { ProductOption } from "@/core/menu/models/product-optionl.model";
 
@@ -85,9 +86,11 @@ export default function MenuProductFormScreen() {
   const isEditing = !!params.productId;
 
   const { categories } = useMenu();
-  const { createProduct, updateProduct } = useMenuManagement();
+  const { createProduct, updateProduct, deleteProduct } = useMenuManagement();
   const { getAllQuery: productionAreasQuery } = useProductionAreas();
   const productionAreas = productionAreasQuery.data ?? [];
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const schema = buildProductSchema(t);
 
@@ -177,6 +180,13 @@ export default function MenuProductFormScreen() {
     router.back();
   };
 
+  const handleConfirmDelete = async () => {
+    if (!params.productId) return;
+    await deleteProduct.mutateAsync(params.productId);
+    setShowDeleteConfirm(false);
+    router.back();
+  };
+
   const categoryOptions = categories.map((category) => ({
     label: category.name,
     value: category.id,
@@ -197,16 +207,28 @@ export default function MenuProductFormScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`pb-8`}
         >
-          <ThemedView style={tw`items-center gap-2 flex-row`}>
-            <Pressable
-              onPress={() => router.back()}
-              style={({ pressed }) => tw.style(pressed && "opacity-70")}
-            >
-              <Ionicons name="arrow-back-outline" size={24} />
-            </Pressable>
-            <ThemedText type="h2">
-              {isEditing ? t("products.editProduct") : t("products.createProduct")}
-            </ThemedText>
+          <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
+            <ThemedView style={tw`items-center gap-2 flex-row`}>
+              <Pressable
+                onPress={() => router.back()}
+                style={({ pressed }) => tw.style(pressed && "opacity-70")}
+              >
+                <Ionicons name="arrow-back-outline" size={24} />
+              </Pressable>
+              <ThemedText type="h2">
+                {isEditing
+                  ? t("products.editProduct")
+                  : t("products.createProduct")}
+              </ThemedText>
+            </ThemedView>
+            {isEditing && (
+              <IconButton
+                icon="trash-outline"
+                size={18}
+                variant="destructive"
+                onPress={() => setShowDeleteConfirm(true)}
+              />
+            )}
           </ThemedView>
 
           <ThemedView style={tw`my-6`} />
@@ -529,6 +551,16 @@ export default function MenuProductFormScreen() {
           />
         </ScrollView>
       </ScreenLayout>
+
+      <DialogModal
+        visible={showDeleteConfirm}
+        title={t("products.deleteTitle")}
+        message={t("products.deleteMessage")}
+        confirmText={t("confirm")}
+        cancelText={t("cancel")}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </KeyboardAvoidingView>
   );
 }

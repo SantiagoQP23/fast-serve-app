@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -14,6 +15,8 @@ import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import Select from "@/presentation/theme/components/select";
+import IconButton from "@/presentation/theme/components/icon-button";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
 import tw from "@/presentation/theme/lib/tailwind";
 
 const buildAccountSchema = (t: (key: string) => string) =>
@@ -45,7 +48,10 @@ export default function AccountFormScreen() {
 
   const isEditing = !!params.accountId;
 
-  const { createAccount, updateAccount } = useAccountsManagement();
+  const { createAccount, updateAccount, deleteAccount } =
+    useAccountsManagement();
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const schema = buildAccountSchema(t);
 
@@ -88,6 +94,13 @@ export default function AccountFormScreen() {
     router.back();
   };
 
+  const handleConfirmDelete = async () => {
+    if (!params.accountId) return;
+    await deleteAccount.mutateAsync(Number(params.accountId));
+    setShowDeleteConfirm(false);
+    router.back();
+  };
+
   const typeOptions = Object.values(AccountType).map((value) => ({
     label: t(`accounts.types.${value}`),
     value,
@@ -103,16 +116,28 @@ export default function AccountFormScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`pb-8`}
         >
-          <ThemedView style={tw`items-center gap-2 flex-row`}>
-            <Pressable
-              onPress={() => router.back()}
-              style={({ pressed }) => tw.style(pressed && "opacity-70")}
-            >
-              <Ionicons name="arrow-back-outline" size={24} />
-            </Pressable>
-            <ThemedText type="h2">
-              {isEditing ? t("accounts.editAccount") : t("accounts.createAccount")}
-            </ThemedText>
+          <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
+            <ThemedView style={tw`items-center gap-2 flex-row`}>
+              <Pressable
+                onPress={() => router.back()}
+                style={({ pressed }) => tw.style(pressed && "opacity-70")}
+              >
+                <Ionicons name="arrow-back-outline" size={24} />
+              </Pressable>
+              <ThemedText type="h2">
+                {isEditing
+                  ? t("accounts.editAccount")
+                  : t("accounts.createAccount")}
+              </ThemedText>
+            </ThemedView>
+            {isEditing && (
+              <IconButton
+                icon="trash-outline"
+                size={18}
+                variant="destructive"
+                onPress={() => setShowDeleteConfirm(true)}
+              />
+            )}
           </ThemedView>
 
           <ThemedView style={tw`my-6`} />
@@ -211,6 +236,16 @@ export default function AccountFormScreen() {
           />
         </ScrollView>
       </ScreenLayout>
+
+      <DialogModal
+        visible={showDeleteConfirm}
+        title={t("accounts.deleteTitle")}
+        message={t("accounts.deleteMessage")}
+        confirmText={t("confirm")}
+        cancelText={t("cancel")}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </KeyboardAvoidingView>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,25 +7,18 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
-import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuManagement";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Label from "@/presentation/theme/components/label";
-import DialogModal from "@/presentation/theme/components/dialog-modal";
 import type { Category } from "@/core/menu/models/category.model";
 
 export default function MenuCategoriesScreen() {
   const { t } = useTranslation("menuManagement");
   const { categories, products, menuQuery } = useMenu();
   const { isLoading, isError, refetch, isRefetching } = menuQuery;
-  const { deleteCategory } = useMenuManagement();
-
-  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
-    null,
-  );
 
   useEffect(() => {
     if (categories.length === 0) {
@@ -49,12 +42,6 @@ export default function MenuCategoriesScreen() {
         isPublic: String(category.isPublic),
       },
     });
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!categoryToDelete) return;
-    await deleteCategory.mutateAsync(categoryToDelete.id);
-    setCategoryToDelete(null);
   };
 
   const getProductCount = (categoryId: string) =>
@@ -151,12 +138,6 @@ export default function MenuCategoriesScreen() {
                       variant="text"
                       onPress={() => handleEditCategory(category)}
                     />
-                    <IconButton
-                      icon="trash-outline"
-                      size={20}
-                      variant="destructive"
-                      onPress={() => setCategoryToDelete(category)}
-                    />
                   </ThemedView>
                 </ThemedView>
               </Card>
@@ -166,16 +147,6 @@ export default function MenuCategoriesScreen() {
       </ScrollView>
 
       <Fab icon="add" onPress={handleCreateCategory} />
-
-      <DialogModal
-        visible={!!categoryToDelete}
-        title={t("categories.deleteTitle")}
-        message={t("categories.deleteMessage")}
-        confirmText={t("confirm")}
-        cancelText={t("cancel")}
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setCategoryToDelete(null)}
-      />
     </ScreenLayout>
   );
 }

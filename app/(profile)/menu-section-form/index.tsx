@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,6 +13,8 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Checkbox from "@/presentation/theme/components/checkbox";
+import IconButton from "@/presentation/theme/components/icon-button";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
 import tw from "@/presentation/theme/lib/tailwind";
 
 const buildSectionSchema = (t: (key: string) => string) =>
@@ -37,7 +40,9 @@ export default function MenuSectionFormScreen() {
 
   const isEditing = !!params.sectionId;
 
-  const { createSection, updateSection } = useMenuManagement();
+  const { createSection, updateSection, deleteSection } = useMenuManagement();
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const schema = buildSectionSchema(t);
 
@@ -71,6 +76,13 @@ export default function MenuSectionFormScreen() {
     router.back();
   };
 
+  const handleConfirmDelete = async () => {
+    if (!params.sectionId) return;
+    await deleteSection.mutateAsync(params.sectionId);
+    setShowDeleteConfirm(false);
+    router.back();
+  };
+
   return (
     <KeyboardAvoidingView
       style={tw`flex-1`}
@@ -81,16 +93,28 @@ export default function MenuSectionFormScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`pb-8`}
         >
-          <ThemedView style={tw`items-center gap-2 flex-row`}>
-            <Pressable
-              onPress={() => router.back()}
-              style={({ pressed }) => tw.style(pressed && "opacity-70")}
-            >
-              <Ionicons name="arrow-back-outline" size={24} />
-            </Pressable>
-            <ThemedText type="h2">
-              {isEditing ? t("sections.editSection") : t("sections.createSection")}
-            </ThemedText>
+          <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
+            <ThemedView style={tw`items-center gap-2 flex-row`}>
+              <Pressable
+                onPress={() => router.back()}
+                style={({ pressed }) => tw.style(pressed && "opacity-70")}
+              >
+                <Ionicons name="arrow-back-outline" size={24} />
+              </Pressable>
+              <ThemedText type="h2">
+                {isEditing
+                  ? t("sections.editSection")
+                  : t("sections.createSection")}
+              </ThemedText>
+            </ThemedView>
+            {isEditing && (
+              <IconButton
+                icon="trash-outline"
+                size={18}
+                variant="destructive"
+                onPress={() => setShowDeleteConfirm(true)}
+              />
+            )}
           </ThemedView>
 
           <ThemedView style={tw`my-6`} />
@@ -154,6 +178,16 @@ export default function MenuSectionFormScreen() {
           />
         </ScrollView>
       </ScreenLayout>
+
+      <DialogModal
+        visible={showDeleteConfirm}
+        title={t("sections.deleteTitle")}
+        message={t("sections.deleteMessage")}
+        confirmText={t("confirm")}
+        cancelText={t("cancel")}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </KeyboardAvoidingView>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -9,14 +9,11 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { getPaymentMethodTranslationKey } from "@/core/i18n/utils";
 import { useAccounts } from "@/presentation/restaurant/hooks/useAccounts";
 import { usePaymentMethods } from "@/presentation/restaurant/hooks/usePaymentMethods";
-import { useAccountsManagement } from "@/presentation/restaurant/hooks/useAccountsManagement";
-import { usePaymentMethodsManagement } from "@/presentation/restaurant/hooks/usePaymentMethodsManagement";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Label from "@/presentation/theme/components/label";
-import DialogModal from "@/presentation/theme/components/dialog-modal";
 import type { Account } from "@/core/restaurant/models/account.model";
 import type { PaymentMethod } from "@/core/restaurant/models/payment-method.model";
 
@@ -24,15 +21,6 @@ export default function PaymentMethodsSettingsScreen() {
   const { t } = useTranslation("paymentMethods");
   const { accounts, accountsQuery } = useAccounts();
   const { paymentMethods, paymentMethodsQuery } = usePaymentMethods();
-  const { deleteAccount } = useAccountsManagement();
-  const { deletePaymentMethod } = usePaymentMethodsManagement();
-
-  const [accountToDelete, setAccountToDelete] = useState<Account | null>(
-    null,
-  );
-  const [methodToDelete, setMethodToDelete] = useState<PaymentMethod | null>(
-    null,
-  );
 
   useEffect(() => {
     if (accounts.length === 0) accountsQuery.refetch();
@@ -40,7 +28,8 @@ export default function PaymentMethodsSettingsScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const isRefetching = accountsQuery.isRefetching || paymentMethodsQuery.isRefetching;
+  const isRefetching =
+    accountsQuery.isRefetching || paymentMethodsQuery.isRefetching;
 
   const onRefresh = () => {
     accountsQuery.refetch();
@@ -63,12 +52,6 @@ export default function PaymentMethodsSettingsScreen() {
         isActive: String(account.isActive),
       },
     });
-  };
-
-  const handleConfirmDeleteAccount = async () => {
-    if (!accountToDelete) return;
-    await deleteAccount.mutateAsync(accountToDelete.id);
-    setAccountToDelete(null);
   };
 
   const handleCreateMethod = () => {
@@ -94,12 +77,6 @@ export default function PaymentMethodsSettingsScreen() {
     });
   };
 
-  const handleConfirmDeleteMethod = async () => {
-    if (!methodToDelete) return;
-    await deletePaymentMethod.mutateAsync(methodToDelete.id);
-    setMethodToDelete(null);
-  };
-
   return (
     <ScreenLayout style={tw`flex-1 px-4 pt-2`}>
       <ScrollView
@@ -123,20 +100,17 @@ export default function PaymentMethodsSettingsScreen() {
                 {t("accounts.subtitle")}
               </ThemedText>
             </ThemedView>
-            <Button
-              label={t("accounts.newAccount")}
-              onPress={handleCreateAccount}
-              variant="outline"
-              size="small"
-              leftIcon="add-outline"
-            />
           </ThemedView>
 
           {!accountsQuery.isLoading && accounts.length === 0 && (
             <ThemedView
               style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
             >
-              <Ionicons name="wallet-outline" size={32} color={tw.color("gray-400")} />
+              <Ionicons
+                name="wallet-outline"
+                size={32}
+                color={tw.color("gray-400")}
+              />
               <ThemedText type="body2" style={tw`font-semibold`}>
                 {t("accounts.noAccounts")}
               </ThemedText>
@@ -149,11 +123,18 @@ export default function PaymentMethodsSettingsScreen() {
           {accounts.length > 0 && (
             <ThemedView style={tw`gap-3`}>
               {accounts.map((account) => (
-                <Card key={account.id} onPress={() => handleEditAccount(account)}>
+                <Card
+                  key={account.id}
+                  onPress={() => handleEditAccount(account)}
+                >
                   <ThemedView style={tw`flex-row items-center justify-between`}>
                     <ThemedView style={tw`gap-3 flex-1 flex-row items-center`}>
                       <Ionicons
-                        name={account.type === "BANK" ? "business-outline" : "cash-outline"}
+                        name={
+                          account.type === "BANK"
+                            ? "business-outline"
+                            : "cash-outline"
+                        }
                         size={26}
                         color={tw.color("text-light-on-surface-variant")}
                       />
@@ -161,7 +142,9 @@ export default function PaymentMethodsSettingsScreen() {
                         <ThemedText type="body1" style={tw`font-semibold`}>
                           {account.name}
                         </ThemedText>
-                        <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
+                        <ThemedView
+                          style={tw`flex-row items-center gap-2 flex-wrap`}
+                        >
                           <ThemedText type="small" style={tw`text-gray-500`}>
                             {t(`accounts.types.${account.type}`)}
                           </ThemedText>
@@ -171,31 +154,37 @@ export default function PaymentMethodsSettingsScreen() {
                             </ThemedText>
                           ) : null}
                           {!account.isActive && (
-                            <Label text={t("inactive")} color="error" size="small" />
+                            <Label
+                              text={t("inactive")}
+                              color="error"
+                              size="small"
+                            />
                           )}
                         </ThemedView>
                       </ThemedView>
                     </ThemedView>
-                    <ThemedView style={tw`flex-row items-center`}>
-                      <IconButton
-                        icon="create-outline"
-                        size={18}
-                        variant="text"
-                        onPress={() => handleEditAccount(account)}
-                      />
-                      <IconButton
-                        icon="trash-outline"
-                        size={18}
-                        variant="destructive"
-                        onPress={() => setAccountToDelete(account)}
-                      />
-                    </ThemedView>
+                    {/* <ThemedView style={tw`flex-row items-center`}> */}
+                    {/*   <IconButton */}
+                    {/*     icon="create-outline" */}
+                    {/*     size={18} */}
+                    {/*     variant="text" */}
+                    {/*     onPress={() => handleEditAccount(account)} */}
+                    {/*   /> */}
+                    {/* </ThemedView> */}
                   </ThemedView>
                 </Card>
               ))}
             </ThemedView>
           )}
         </ThemedView>
+
+        <Button
+          label={t("accounts.newAccount")}
+          onPress={handleCreateAccount}
+          variant="outline"
+          size="small"
+          leftIcon="add-outline"
+        />
 
         <ThemedView style={tw`my-2`} />
 
@@ -208,20 +197,17 @@ export default function PaymentMethodsSettingsScreen() {
                 {t("methods.subtitle")}
               </ThemedText>
             </ThemedView>
-            <Button
-              label={t("methods.newMethod")}
-              onPress={handleCreateMethod}
-              variant="outline"
-              size="small"
-              leftIcon="add-outline"
-            />
           </ThemedView>
 
           {!paymentMethodsQuery.isLoading && paymentMethods.length === 0 && (
             <ThemedView
               style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
             >
-              <Ionicons name="card-outline" size={32} color={tw.color("gray-400")} />
+              <Ionicons
+                name="card-outline"
+                size={32}
+                color={tw.color("gray-400")}
+              />
               <ThemedText type="body2" style={tw`font-semibold`}>
                 {t("methods.noMethods")}
               </ThemedText>
@@ -246,7 +232,9 @@ export default function PaymentMethodsSettingsScreen() {
                         <ThemedText type="body1" style={tw`font-semibold`}>
                           {method.name}
                         </ThemedText>
-                        <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
+                        <ThemedView
+                          style={tw`flex-row items-center gap-2 flex-wrap`}
+                        >
                           <ThemedText type="small" style={tw`text-gray-500`}>
                             {t(getPaymentMethodTranslationKey(method.type))}
                           </ThemedText>
@@ -254,52 +242,38 @@ export default function PaymentMethodsSettingsScreen() {
                             • {method.commissionPercentage}%
                           </ThemedText>
                           {!method.isActive && (
-                            <Label text={t("inactive")} color="error" size="small" />
+                            <Label
+                              text={t("inactive")}
+                              color="error"
+                              size="small"
+                            />
                           )}
                         </ThemedView>
                       </ThemedView>
                     </ThemedView>
-                    <ThemedView style={tw`flex-row items-center`}>
-                      <IconButton
-                        icon="create-outline"
-                        size={18}
-                        variant="text"
-                        onPress={() => handleEditMethod(method)}
-                      />
-                      <IconButton
-                        icon="trash-outline"
-                        size={18}
-                        variant="destructive"
-                        onPress={() => setMethodToDelete(method)}
-                      />
-                    </ThemedView>
+                    {/* <ThemedView style={tw`flex-row items-center`}> */}
+                    {/*   <IconButton */}
+                    {/*     icon="create-outline" */}
+                    {/*     size={18} */}
+                    {/*     variant="text" */}
+                    {/*     onPress={() => handleEditMethod(method)} */}
+                    {/*   /> */}
+                    {/* </ThemedView> */}
                   </ThemedView>
                 </Card>
               ))}
+
+              <Button
+                label={t("methods.newMethod")}
+                onPress={handleCreateMethod}
+                variant="outline"
+                size="small"
+                leftIcon="add-outline"
+              />
             </ThemedView>
           )}
         </ThemedView>
       </ScrollView>
-
-      <DialogModal
-        visible={!!accountToDelete}
-        title={t("accounts.deleteTitle")}
-        message={t("accounts.deleteMessage")}
-        confirmText={t("confirm")}
-        cancelText={t("cancel")}
-        onConfirm={handleConfirmDeleteAccount}
-        onCancel={() => setAccountToDelete(null)}
-      />
-
-      <DialogModal
-        visible={!!methodToDelete}
-        title={t("methods.deleteTitle")}
-        message={t("methods.deleteMessage")}
-        confirmText={t("confirm")}
-        cancelText={t("cancel")}
-        onConfirm={handleConfirmDeleteMethod}
-        onCancel={() => setMethodToDelete(null)}
-      />
     </ScreenLayout>
   );
 }

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,6 +13,8 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Checkbox from "@/presentation/theme/components/checkbox";
+import IconButton from "@/presentation/theme/components/icon-button";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
 import tw from "@/presentation/theme/lib/tailwind";
 
 const buildTableSchema = (t: (key: string) => string) =>
@@ -47,7 +50,9 @@ export default function TableSettingsFormScreen() {
 
   const isEditing = !!params.tableId;
 
-  const { createTable, updateTable } = useTablesManagement();
+  const { createTable, updateTable, deleteTable } = useTablesManagement();
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const schema = buildTableSchema(t);
 
@@ -87,6 +92,13 @@ export default function TableSettingsFormScreen() {
     router.back();
   };
 
+  const handleConfirmDelete = async () => {
+    if (!params.tableId) return;
+    await deleteTable.mutateAsync(params.tableId);
+    setShowDeleteConfirm(false);
+    router.back();
+  };
+
   return (
     <KeyboardAvoidingView
       style={tw`flex-1`}
@@ -97,16 +109,28 @@ export default function TableSettingsFormScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`pb-8`}
         >
-          <ThemedView style={tw`items-center gap-2 flex-row`}>
-            <Pressable
-              onPress={() => router.back()}
-              style={({ pressed }) => tw.style(pressed && "opacity-70")}
-            >
-              <Ionicons name="arrow-back-outline" size={24} />
-            </Pressable>
-            <ThemedText type="h2">
-              {isEditing ? t("settings.editTable") : t("settings.createTable")}
-            </ThemedText>
+          <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
+            <ThemedView style={tw`items-center gap-2 flex-row`}>
+              <Pressable
+                onPress={() => router.back()}
+                style={({ pressed }) => tw.style(pressed && "opacity-70")}
+              >
+                <Ionicons name="arrow-back-outline" size={24} />
+              </Pressable>
+              <ThemedText type="h2">
+                {isEditing
+                  ? t("settings.editTable")
+                  : t("settings.createTable")}
+              </ThemedText>
+            </ThemedView>
+            {isEditing && (
+              <IconButton
+                icon="trash-outline"
+                size={18}
+                variant="destructive"
+                onPress={() => setShowDeleteConfirm(true)}
+              />
+            )}
           </ThemedView>
 
           <ThemedView style={tw`my-6`} />
@@ -205,6 +229,16 @@ export default function TableSettingsFormScreen() {
           />
         </ScrollView>
       </ScreenLayout>
+
+      <DialogModal
+        visible={showDeleteConfirm}
+        title={t("settings.deleteTitle")}
+        message={t("settings.deleteMessage")}
+        confirmText={t("settings.confirm")}
+        cancelText={t("settings.cancel")}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </KeyboardAvoidingView>
   );
 }

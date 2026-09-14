@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -14,6 +15,8 @@ import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import Select from "@/presentation/theme/components/select";
+import IconButton from "@/presentation/theme/components/icon-button";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
 import tw from "@/presentation/theme/lib/tailwind";
 
 const buildCategorySchema = (t: (key: string) => string) =>
@@ -42,7 +45,10 @@ export default function MenuCategoryFormScreen() {
   const isEditing = !!params.categoryId;
 
   const { sections } = useMenu();
-  const { createCategory, updateCategory } = useMenuManagement();
+  const { createCategory, updateCategory, deleteCategory } =
+    useMenuManagement();
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const schema = buildCategorySchema(t);
 
@@ -79,6 +85,13 @@ export default function MenuCategoryFormScreen() {
     router.back();
   };
 
+  const handleConfirmDelete = async () => {
+    if (!params.categoryId) return;
+    await deleteCategory.mutateAsync(params.categoryId);
+    setShowDeleteConfirm(false);
+    router.back();
+  };
+
   const sectionOptions = sections.map((section) => ({
     label: section.name,
     value: section.id,
@@ -94,18 +107,28 @@ export default function MenuCategoryFormScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`pb-8`}
         >
-          <ThemedView style={tw`items-center gap-2 flex-row`}>
-            <Pressable
-              onPress={() => router.back()}
-              style={({ pressed }) => tw.style(pressed && "opacity-70")}
-            >
-              <Ionicons name="arrow-back-outline" size={24} />
-            </Pressable>
-            <ThemedText type="h2">
-              {isEditing
-                ? t("categories.editCategory")
-                : t("categories.createCategory")}
-            </ThemedText>
+          <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
+            <ThemedView style={tw`items-center gap-2 flex-row`}>
+              <Pressable
+                onPress={() => router.back()}
+                style={({ pressed }) => tw.style(pressed && "opacity-70")}
+              >
+                <Ionicons name="arrow-back-outline" size={24} />
+              </Pressable>
+              <ThemedText type="h2">
+                {isEditing
+                  ? t("categories.editCategory")
+                  : t("categories.createCategory")}
+              </ThemedText>
+            </ThemedView>
+            {isEditing && (
+              <IconButton
+                icon="trash-outline"
+                size={18}
+                variant="destructive"
+                onPress={() => setShowDeleteConfirm(true)}
+              />
+            )}
           </ThemedView>
 
           <ThemedView style={tw`my-6`} />
@@ -211,6 +234,16 @@ export default function MenuCategoryFormScreen() {
           />
         </ScrollView>
       </ScreenLayout>
+
+      <DialogModal
+        visible={showDeleteConfirm}
+        title={t("categories.deleteTitle")}
+        message={t("categories.deleteMessage")}
+        confirmText={t("confirm")}
+        cancelText={t("cancel")}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </KeyboardAvoidingView>
   );
 }
