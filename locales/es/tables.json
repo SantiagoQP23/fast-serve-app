@@ -47,6 +47,12 @@
     "createError": "No se pudo crear la mesa",
     "updateSuccess": "Mesa actualizada exitosamente",
     "updateError": "No se pudo actualizar la mesa",
+    "deleteSuccess": "Mesa eliminada exitosamente",
+    "deleteError": "No se pudo eliminar la mesa",
+    "deleteTitle": "Eliminar mesa",
+    "deleteMessage": "¿Estás seguro de que deseas eliminar esta mesa?",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
     "active": "Activa",
     "inactive": "Inactiva",
     "fields": {

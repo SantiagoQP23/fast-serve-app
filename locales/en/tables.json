@@ -47,6 +47,12 @@
     "createError": "Could not create the table",
     "updateSuccess": "Table updated successfully",
     "updateError": "Could not update the table",
+    "deleteSuccess": "Table deleted successfully",
+    "deleteError": "Could not delete the table",
+    "deleteTitle": "Delete table",
+    "deleteMessage": "Are you sure you want to delete this table?",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
     "active": "Active",
     "inactive": "Inactive",
     "fields": {

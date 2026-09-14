@@ -9,7 +9,11 @@ import type { UpdateTableDto } from "../interfaces/dto/update-table.dto";
 
 export const useTablesManagement = () => {
   const { t } = useTranslation("tables");
-  const { addTable, updateTable: updateTableCache } = useTablesStore();
+  const {
+    addTable,
+    updateTable: updateTableCache,
+    deleteTable: deleteTableCache,
+  } = useTablesStore();
 
   const createTable = useMutation<Table, Error, CreateTableDto>({
     mutationFn: (data) => TablesService.createTable(data),
@@ -33,8 +37,20 @@ export const useTablesManagement = () => {
     },
   });
 
+  const deleteTable = useMutation<void, Error, string>({
+    mutationFn: (id) => TablesService.deleteTable(id),
+    onSuccess: (_, id) => {
+      deleteTableCache(id);
+      toast.success(t("settings.deleteSuccess"));
+    },
+    onError: (error) => {
+      toast.error(error.message || t("settings.deleteError"));
+    },
+  });
+
   return {
     createTable,
     updateTable,
+    deleteTable,
   };
 };

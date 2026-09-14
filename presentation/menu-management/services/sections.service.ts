@@ -17,4 +17,8 @@ export class SectionsService {
     );
     return resp.data;
   }
+
+  static async remove(id: string): Promise<void> {
+    await restaurantApi.delete(`/sections/${id}`);
+  }
 }

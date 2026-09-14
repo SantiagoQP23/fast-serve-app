@@ -24,9 +24,11 @@ interface MenuActions {
   clearMenu: () => void;
   reset: () => void;
   upsertSection: (section: Section) => void;
+  removeSection: (id: string) => void;
   upsertCategory: (category: Category) => void;
   removeCategory: (id: string) => void;
   upsertProduct: (product: Product) => void;
+  removeProduct: (id: string) => void;
 }
 
 const initialState: MenuState = {
@@ -88,6 +90,11 @@ export const useMenuStore = create<MenuState & MenuActions>()(
           };
         }),
 
+      removeSection: (id: string) =>
+        set((state) => ({
+          sections: state.sections.filter((s) => s.id !== id),
+        })),
+
       removeCategory: (id: string) =>
         set((state) => ({
           categories: state.categories.filter((c) => c.id !== id),
@@ -102,6 +109,11 @@ export const useMenuStore = create<MenuState & MenuActions>()(
               : [...state.products, product],
           };
         }),
+
+      removeProduct: (id: string) =>
+        set((state) => ({
+          products: state.products.filter((p) => p.id !== id),
+        })),
     }),
     {
       name: "menuStore",

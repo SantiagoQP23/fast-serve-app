@@ -19,4 +19,8 @@ export class TablesService {
     const resp = await restaurantApi.patch<Table>(`/tables/${id}`, updateData);
     return resp.data;
   }
+
+  static async deleteTable(id: string): Promise<void> {
+    await restaurantApi.delete(`/tables/${id}`);
+  }
 }

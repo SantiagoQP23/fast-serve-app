@@ -17,8 +17,14 @@ import type { UpdateProductDto } from "../interfaces/dto/update-product.dto";
 
 export const useMenuManagement = () => {
   const { t } = useTranslation("menuManagement");
-  const { upsertSection, upsertCategory, removeCategory, upsertProduct } =
-    useMenuStore();
+  const {
+    upsertSection,
+    removeSection,
+    upsertCategory,
+    removeCategory,
+    upsertProduct,
+    removeProduct,
+  } = useMenuStore();
 
   const createSection = useMutation<Section, Error, CreateSectionDto>({
     mutationFn: (data) => SectionsService.create(data),
@@ -39,6 +45,17 @@ export const useMenuManagement = () => {
     },
     onError: (error) => {
       toast.error(error.message || t("sections.updateError"));
+    },
+  });
+
+  const deleteSection = useMutation<void, Error, string>({
+    mutationFn: (id) => SectionsService.remove(id),
+    onSuccess: (_, id) => {
+      removeSection(id);
+      toast.success(t("sections.deleteSuccess"));
+    },
+    onError: (error) => {
+      toast.error(error.message || t("sections.deleteError"));
     },
   });
 
@@ -97,13 +114,26 @@ export const useMenuManagement = () => {
     },
   });
 
+  const deleteProduct = useMutation<void, Error, string>({
+    mutationFn: (id) => ProductsService.remove(id),
+    onSuccess: (_, id) => {
+      removeProduct(id);
+      toast.success(t("products.deleteSuccess"));
+    },
+    onError: (error) => {
+      toast.error(error.message || t("products.deleteError"));
+    },
+  });
+
   return {
     createSection,
     updateSection,
+    deleteSection,
     createCategory,
     updateCategory,
     deleteCategory,
     createProduct,
     updateProduct,
+    deleteProduct,
   };
 };

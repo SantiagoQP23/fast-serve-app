@@ -13,6 +13,10 @@
     "createError": "No se pudo crear la sección",
     "updateSuccess": "Sección actualizada exitosamente",
     "updateError": "No se pudo actualizar la sección",
+    "deleteSuccess": "Sección eliminada exitosamente",
+    "deleteError": "No se pudo eliminar la sección",
+    "deleteTitle": "Eliminar sección",
+    "deleteMessage": "¿Estás seguro de que deseas eliminar esta sección?",
     "fields": {
       "name": "Nombre",
       "isActive": "Activa",
@@ -76,6 +80,10 @@
     "createError": "No se pudo crear el producto",
     "updateSuccess": "Producto actualizado exitosamente",
     "updateError": "No se pudo actualizar el producto",
+    "deleteSuccess": "Producto eliminado exitosamente",
+    "deleteError": "No se pudo eliminar el producto",
+    "deleteTitle": "Eliminar producto",
+    "deleteMessage": "¿Estás seguro de que deseas eliminar este producto?",
     "fields": {
       "name": "Nombre",
       "description": "Descripción",
