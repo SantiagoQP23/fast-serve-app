@@ -13,7 +13,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
-import Checkbox from "@/presentation/theme/components/checkbox";
+import Switch from "@/presentation/theme/components/switch";
 import Select from "@/presentation/theme/components/select";
 import IconButton from "@/presentation/theme/components/icon-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
@@ -193,19 +193,8 @@ export default function MenuCategoryFormScreen() {
                   control={control}
                   name="isActive"
                   render={({ field: { value, onChange } }) => (
-                    <Checkbox
+                    <Switch
                       label={t("categories.fields.isActive")}
-                      value={value}
-                      onValueChange={onChange}
-                    />
-                  )}
-                />
-                <Controller
-                  control={control}
-                  name="isPublic"
-                  render={({ field: { value, onChange } }) => (
-                    <Checkbox
-                      label={t("categories.fields.isPublic")}
                       value={value}
                       onValueChange={onChange}
                     />

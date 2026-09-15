@@ -2,7 +2,12 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { KeyboardAvoidingView, Pressable, ScrollView, Platform } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Pressable,
+  ScrollView,
+  Platform,
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -13,6 +18,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Checkbox from "@/presentation/theme/components/checkbox";
+import Switch from "@/presentation/theme/components/switch";
 import IconButton from "@/presentation/theme/components/icon-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -191,29 +197,29 @@ export default function TableSettingsFormScreen() {
                   control={control}
                   name="isActive"
                   render={({ field: { value, onChange } }) => (
-                    <Checkbox
+                    <Switch
                       label={t("settings.fields.isActive")}
                       value={value}
                       onValueChange={onChange}
                     />
                   )}
                 />
-                <Controller
-                  control={control}
-                  name="isAvailable"
-                  render={({ field: { value, onChange } }) => (
-                    <Checkbox
-                      label={t("settings.fields.isAvailable")}
-                      value={value}
-                      onValueChange={onChange}
-                    />
-                  )}
-                />
+                {/* <Controller */}
+                {/*   control={control} */}
+                {/*   name="isAvailable" */}
+                {/*   render={({ field: { value, onChange } }) => ( */}
+                {/*     <Checkbox */}
+                {/*       label={t("settings.fields.isAvailable")} */}
+                {/*       value={value} */}
+                {/*       onValueChange={onChange} */}
+                {/*     /> */}
+                {/*   )} */}
+                {/* /> */}
               </ThemedView>
             )}
           </ThemedView>
 
-          <ThemedView style={tw`my-6`} />
+          <ThemedView style={tw`my-4`} />
 
           <Button
             label={

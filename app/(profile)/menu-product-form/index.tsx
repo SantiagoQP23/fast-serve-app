@@ -15,6 +15,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Checkbox from "@/presentation/theme/components/checkbox";
+import Switch from "@/presentation/theme/components/switch";
 import Select from "@/presentation/theme/components/select";
 import Card from "@/presentation/theme/components/card";
 import IconButton from "@/presentation/theme/components/icon-button";
@@ -375,19 +376,8 @@ export default function MenuProductFormScreen() {
                   control={control}
                   name="isActive"
                   render={({ field: { value, onChange } }) => (
-                    <Checkbox
+                    <Switch
                       label={t("products.fields.isActive")}
-                      value={value}
-                      onValueChange={onChange}
-                    />
-                  )}
-                />
-                <Controller
-                  control={control}
-                  name="isPublic"
-                  render={({ field: { value, onChange } }) => (
-                    <Checkbox
-                      label={t("products.fields.isPublic")}
                       value={value}
                       onValueChange={onChange}
                     />
