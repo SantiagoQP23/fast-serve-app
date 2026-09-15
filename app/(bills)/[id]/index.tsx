@@ -44,6 +44,7 @@ import { Transaction } from "@/core/transactions/models/transaction.model";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import Fab from "@/presentation/theme/components/fab";
 
 dayjs.extend(relativeTime);
 
@@ -73,6 +74,7 @@ export default function BillScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [visible, setVisible] = useState(false);
   const bottomSheetRef = useRef<BottomSheetMethods>(null);
+  const moreOptionsSheetRef = useRef<BottomSheetMethods>(null);
 
   const primaryColor = useThemeColor({}, "primary");
   const { mutate: removeBill } = useBills().removeBill;
@@ -183,6 +185,20 @@ export default function BillScreen() {
   const handleOpenDiscountSheet = () => {
     setDiscountInput(discount || "");
     bottomSheetRef.current?.present();
+  };
+
+  const handleOpenMoreOptions = () => {
+    moreOptionsSheetRef.current?.present();
+  };
+
+  const handleAddDiscountFromMenu = () => {
+    moreOptionsSheetRef.current?.dismiss();
+    handleOpenDiscountSheet();
+  };
+
+  const handleShareFromMenu = () => {
+    moreOptionsSheetRef.current?.dismiss();
+    handleShareBill();
   };
 
   const handleSaveDiscount = () => {
@@ -378,11 +394,11 @@ export default function BillScreen() {
 
               {bill.discount === 0 && bill.status !== BillStatus.PAID ? (
                 <ThemedView style={tw`mb-6 items-center`}>
-                  <Button
-                    label={t("bills:details.addDiscount")}
-                    variant="secondary"
-                    onPress={handleOpenDiscountSheet}
-                  />
+                  {/* <Button */}
+                  {/*   label={t("bills:details.addDiscount")} */}
+                  {/*   variant="secondary" */}
+                  {/*   onPress={handleOpenDiscountSheet} */}
+                  {/* /> */}
                 </ThemedView>
               ) : (
                 bill.discount > 0 && (
@@ -549,29 +565,22 @@ export default function BillScreen() {
                   ]
                 : []),
               { icon: "print-outline", onPress: handlePrintBill },
-              { icon: "share-outline", onPress: handleShareBill },
+              { icon: "ellipsis-horizontal-outline", onPress: handleOpenMoreOptions },
             ]}
           />
           {bill.status !== BillStatus.PAID && canChargeBill && (
-            <Pressable
+            <IconButton
               onPress={handlePayBillPress}
-              style={({ pressed }) => [
-                tw`w-14 h-14 rounded-full bg-light-primary items-center justify-center shadow-lg`,
-                { transform: [{ scale: pressed ? 0.95 : 1 }] },
-              ]}
-            >
-              <Ionicons name="card-outline" size={24} color="white" />
-            </Pressable>
+              icon="card-outline"
+              size={40}
+              variant="filled"
+            ></IconButton>
           )}
         </ThemedView>
       </View>
 
       {/* Discount Bottom Sheet */}
-      <ThemedBottomSheetModal
-        ref={bottomSheetRef}
-        snapPoints={["45%"]}
-        enablePanDownToClose
-      >
+      <ThemedBottomSheetModal ref={bottomSheetRef} enablePanDownToClose>
         <BottomSheetView style={tw`p-4 gap-4 `}>
           <ThemedView style={tw` gap-1`}>
             <ThemedText type="h3" style={tw`text-center`}>
@@ -617,6 +626,52 @@ export default function BillScreen() {
               discountInput === "" && discountInput === String(discount)
             }
           />
+        </BottomSheetView>
+      </ThemedBottomSheetModal>
+
+      {/* More Options Bottom Sheet */}
+      <ThemedBottomSheetModal ref={moreOptionsSheetRef} enablePanDownToClose>
+        <BottomSheetView style={tw`p-4 gap-2`}>
+          <ThemedText type="h3" style={tw`text-center mb-2`}>
+            {t("bills:details.moreOptions")}
+          </ThemedText>
+
+          <ThemedView style={tw`bg-light-surface rounded-xl p-2`}>
+            {bill.status !== BillStatus.PAID && (
+              <Pressable
+                onPress={handleAddDiscountFromMenu}
+                style={({ pressed }) => [
+                  tw`flex-row items-center gap-3 px-2 py-3 rounded-xl`,
+                  pressed && tw`opacity-60`,
+                ]}
+              >
+                <Ionicons
+                  name="pricetag-outline"
+                  size={22}
+                  color={tw.color("gray-600")}
+                />
+                <ThemedText type="body1">
+                  {t("bills:details.addDiscount")}
+                </ThemedText>
+              </Pressable>
+            )}
+            <Pressable
+              onPress={handleShareFromMenu}
+              style={({ pressed }) => [
+                tw`flex-row items-center gap-3 px-2 py-3 rounded-xl`,
+                pressed && tw`opacity-60`,
+              ]}
+            >
+              <Ionicons
+                name="share-outline"
+                size={22}
+                color={tw.color("gray-600")}
+              />
+              <ThemedText type="body1">
+                {t("common:actions.share")}
+              </ThemedText>
+            </Pressable>
+          </ThemedView>
         </BottomSheetView>
       </ThemedBottomSheetModal>
     </>

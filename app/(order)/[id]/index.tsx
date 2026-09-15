@@ -50,6 +50,7 @@ import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-b
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import { useMarkOrderDelivered } from "@/presentation/orders/hooks/useMarkOrderDelivered";
+import IconButton from "@/presentation/theme/components/icon-button";
 
 dayjs.extend(relativeTime);
 
@@ -313,6 +314,12 @@ export default function OrderScreen() {
 
   const toggleCancelledSection = () => {
     setIsCancelledExpanded(!isCancelledExpanded);
+  };
+
+  const handleAddProduct = () => {
+    init(order); // Initialize the edit order cart store with the current order
+
+    router.push("/(new-order)/restaurant-menu");
   };
 
   return (
@@ -696,18 +703,18 @@ export default function OrderScreen() {
             )}
 
             {/* Add Product Button - Only for active orders */}
-            {!isClosed && (
-              <Button
-                leftIcon="add-outline"
-                label={t("orders:details.addProduct")}
-                variant="outline"
-                onPress={() => {
-                  init(order); // Initialize the edit order cart store with the current order
-
-                  router.push("/(new-order)/restaurant-menu");
-                }}
-              />
-            )}
+            {/* {!isClosed && ( */}
+            {/*   <Button */}
+            {/*     leftIcon="add-outline" */}
+            {/*     label={t("orders:details.addProduct")} */}
+            {/*     variant="outline" */}
+            {/*     onPress={() => { */}
+            {/*       init(order); // Initialize the edit order cart store with the current order */}
+            {/**/}
+            {/*       router.push("/(new-order)/restaurant-menu"); */}
+            {/*     }} */}
+            {/*   /> */}
+            {/* )} */}
 
             <ThemedView style={tw`mt-4 mb-6`} />
             <ThemedView style={tw`flex-row gap-4`}>
@@ -806,30 +813,39 @@ export default function OrderScreen() {
 
         {/* Floating Toolbar */}
         <View style={tw`absolute bottom-20 left-0 right-0 items-center`}>
-          <FloatingToolbar
-            items={[
-              ...(!isClosed
-                ? [
-                    {
-                      icon: "create-outline" as const,
-                      onPress: handlePresentEditModal,
-                    },
-                  ]
-                : []),
-              { icon: "print-outline", onPress: handlePrintOrder },
-              { icon: "share-outline", onPress: handleShareOrder },
-              ...(order.status === OrderStatus.DELIVERED &&
-              order.isClosed === false &&
-              order.isPaid === true
-                ? [
-                    {
-                      icon: "lock-closed-outline" as const,
-                      onPress: handleCloseOrder,
-                    },
-                  ]
-                : []),
-            ]}
-          />
+          <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
+            <FloatingToolbar
+              items={[
+                ...(!isClosed
+                  ? [
+                      {
+                        icon: "create-outline" as const,
+                        onPress: handlePresentEditModal,
+                      },
+                    ]
+                  : []),
+                { icon: "print-outline", onPress: handlePrintOrder },
+                { icon: "share-outline", onPress: handleShareOrder },
+                ...(order.status === OrderStatus.DELIVERED &&
+                order.isClosed === false &&
+                order.isPaid === true
+                  ? [
+                      {
+                        icon: "lock-closed-outline" as const,
+                        onPress: handleCloseOrder,
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+
+            <IconButton
+              onPress={handleAddProduct}
+              icon="add-outline"
+              size={40}
+              variant="secondary"
+            ></IconButton>
+          </ThemedView>
         </View>
       </View>
 
