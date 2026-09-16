@@ -135,6 +135,7 @@ export const useBills = () => {
     useQuery({
       queryKey: ["bills", orderId],
       queryFn: async () => BillsService.getBillByOrders(orderId),
+      enabled: !!orderId,
     });
 
   const billByIdQuery = (billId: number) =>

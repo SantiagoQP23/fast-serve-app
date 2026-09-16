@@ -53,19 +53,21 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
       <ThemedView style={tw`bg-transparent gap-3`}>
         {/* Header: Bill number and status */}
 
-        <ThemedView style={tw`flex-row bg-transparent gap-2 items-center`}>
+        <ThemedView
+          style={tw`flex-row bg-transparent gap-2 items-center justify-between`}
+        >
           {/* <ThemedText>{JSON.stringify(bill.order)}</ThemedText> */}
-          {bill.order && (
-            <ThemedText type="caption" style={tw`text-gray-500 `}>
-              {t(`bills:list.${bill.source}`, { number: bill.num })}
-            </ThemedText>
-          )}
           <Label
             color={status.color}
             size="small"
             text={status.text}
             leftIcon={status.icon}
           />
+          {bill.order && (
+            <ThemedText type="caption" style={tw`text-gray-500 text-sx`}>
+              {t(`bills:list.${bill.source}`, { number: bill.num })}
+            </ThemedText>
+          )}
           {/* <Label color="default" text={bill.source} size="small" /> */}
         </ThemedView>
         <ThemedView

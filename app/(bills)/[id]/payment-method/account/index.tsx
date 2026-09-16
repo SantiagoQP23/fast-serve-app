@@ -160,13 +160,13 @@ export default function AccountScreen() {
             return;
           }
 
-          if (bill.source === "direct") {
-            router.replace("/(app)/(tabs)/sales");
-          } else {
-            router.back();
-            router.back();
-            router.back();
-          }
+          // router.replace(`/(bills)/${bill.id}`);
+          // if (bill.source === "direct") {
+          // } else {
+          router.back();
+          router.back();
+          //   router.back();
+          // }
         },
         onError: (resp) => {
           toast.error(resp.msg || t("errors:general.error"));
@@ -187,7 +187,7 @@ export default function AccountScreen() {
           <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
             {t("bills:details.totalToPay")}
           </ThemedText>
-          <ThemedText style={tw`text-5xl font-bold`}>
+          <ThemedText style={tw`text-5xl `}>
             {formatCurrency(totalToPay)}
           </ThemedText>
           {isCard && commissionRate > 0 && (

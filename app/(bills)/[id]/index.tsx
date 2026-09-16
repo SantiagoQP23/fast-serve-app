@@ -45,6 +45,7 @@ import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import Fab from "@/presentation/theme/components/fab";
+import Card from "@/presentation/theme/components/card";
 
 dayjs.extend(relativeTime);
 
@@ -474,11 +475,11 @@ export default function BillScreen() {
               {/*   </ThemedView> */}
               {/* )} */}
 
+              <ThemedText type="caption" style={tw`mb-2 mt-4`}>
+                Payments
+              </ThemedText>
               {bill.transactions.length > 0 && (
-                <ThemedView>
-                  <ThemedText type="caption" style={tw``}>
-                    Payments
-                  </ThemedText>
+                <Card style={tw`px-2`}>
                   <ThemedView>
                     {bill.transactions.map((transaction) => (
                       <TransactionCard
@@ -488,7 +489,7 @@ export default function BillScreen() {
                       />
                     ))}
                   </ThemedView>
-                </ThemedView>
+                </Card>
               )}
 
               <ThemedView style={tw`mt-10 mb-30`}>
@@ -565,7 +566,10 @@ export default function BillScreen() {
                   ]
                 : []),
               { icon: "print-outline", onPress: handlePrintBill },
-              { icon: "ellipsis-horizontal-outline", onPress: handleOpenMoreOptions },
+              {
+                icon: "ellipsis-horizontal-outline",
+                onPress: handleOpenMoreOptions,
+              },
             ]}
           />
           {bill.status !== BillStatus.PAID && canChargeBill && (
@@ -667,9 +671,7 @@ export default function BillScreen() {
                 size={22}
                 color={tw.color("gray-600")}
               />
-              <ThemedText type="body1">
-                {t("common:actions.share")}
-              </ThemedText>
+              <ThemedText type="body1">{t("common:actions.share")}</ThemedText>
             </Pressable>
           </ThemedView>
         </BottomSheetView>

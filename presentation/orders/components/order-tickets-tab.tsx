@@ -178,6 +178,7 @@ export default function OrderTicketsTab({ order }: OrderTicketsTabProps) {
           onReprint={() => printComanda(order, ticket)}
         />
       ))}
+      <ThemedView style={tw`h-20`} />
     </ScrollView>
   );
 }

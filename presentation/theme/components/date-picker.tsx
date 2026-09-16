@@ -70,7 +70,7 @@ export default function DatePicker({
           <Ionicons
             name="calendar-outline"
             size={20}
-            color={tw.color("primary-600")}
+            color={tw.color("light-primary")}
           />
           <ThemedText type="body1" style={tw`font-medium`}>
             {displayText}
@@ -97,6 +97,7 @@ export default function DatePicker({
             maximumDate={maxDate}
             minimumDate={minDate}
             themeVariant="light"
+            accentColor={tw.color("light-primary")}
           />
 
           {/* Action buttons for iOS */}
@@ -134,6 +135,7 @@ export default function DatePicker({
           onChange={handleChange}
           maximumDate={maxDate}
           minimumDate={minDate}
+          accentColor={tw.color("light-primary")}
         />
       )}
     </View>

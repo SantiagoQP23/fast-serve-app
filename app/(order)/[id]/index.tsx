@@ -43,14 +43,13 @@ import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bo
 import ReassignOrderBottomSheet from "@/presentation/orders/components/reassign-order-bottom-sheet";
 
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { typography } from "@/constants/theme";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
-import Card from "@/presentation/theme/components/card";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import { useMarkOrderDelivered } from "@/presentation/orders/hooks/useMarkOrderDelivered";
 import IconButton from "@/presentation/theme/components/icon-button";
+import { useBills } from "@/presentation/orders/hooks/useBills";
 import OrderBillsTab from "@/presentation/orders/components/order-bills-tab";
 import OrderTicketsTab from "@/presentation/orders/components/order-tickets-tab";
 
@@ -83,6 +82,7 @@ export default function OrderScreen() {
   const { paymentStatus } = useOrderPaymentStatus(
     order?.paymentStatus || OrderPaymentStatus.UNPAID,
   );
+  const { data: orderBills } = useBills().billsByOrderQuery(order?.id || "");
 
   const {
     isOpen: closeModalIsOpen,
@@ -177,6 +177,13 @@ export default function OrderScreen() {
 
   // Check if this is a closed order
   const isClosed = order.isClosed === true;
+
+  const orderAmountInBills: number = orderBills
+    ? orderBills
+        .map((bill) => bill.total + bill.discount)
+        .reduce((acc, curr) => acc + (curr ?? 0), 0)
+    : 0;
+  const remainingAmount = Math.max(order.total - orderAmountInBills, 0);
 
   // Non-hook functions and computed values can be after the early return
   const openProduct = (detail: OrderDetail) => {
@@ -889,12 +896,13 @@ export default function OrderScreen() {
               ]}
             />
 
-            {activeTab !== "tickets" && (
+            {(activeTab === "products" ||
+              (activeTab === "bills" && remainingAmount > 0)) && (
               <IconButton
                 onPress={
                   activeTab === "products" ? handleAddProduct : handleAddBill
                 }
-                icon="add-outline"
+                icon={activeTab === "products" ? "add-outline" : "card-outline"}
                 size={40}
                 variant="secondary"
               ></IconButton>
