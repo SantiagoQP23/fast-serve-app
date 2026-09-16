@@ -52,6 +52,12 @@
     "actions": "Acciones",
     "payments": "Cuentas",
     "orderTickets": "Tickets",
+    "moreOptions": "Más opciones",
+    "tabs": {
+      "products": "Productos",
+      "bills": "Cuentas",
+      "tickets": "Tickets"
+    },
     "activity": "Actividad",
     "createdAt": "Creado",
     "updatedAt": "Actualizado"
