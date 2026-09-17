@@ -1,11 +1,10 @@
-import { Alert } from "react-native";
 import { Colors, typography } from "@/constants/theme";
 import OrderOptionsBottomSheet from "@/presentation/orders/components/order-options-bottom-sheet";
 import ReassignOrderBottomSheet from "@/presentation/orders/components/reassign-order-bottom-sheet";
+import CloseOrderModal from "@/presentation/orders/components/close-order-modal";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
-import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
-import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { useModal } from "@/presentation/shared/hooks/useModal";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -16,12 +15,15 @@ import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-b
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 
 export default function OrdersLayout() {
-  const { t } = useTranslation(["common", "orders"]);
   const optionsBottomSheetRef = useRef<BottomSheetMethods>(null);
   const reassignBottomSheetRef = useRef<BottomSheetMethods>(null);
   const order = useOrdersStore((state) => state.activeOrder);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
-  const { mutate: updateOrder } = useOrders().updateOrder;
+  const {
+    isOpen: closeModalIsOpen,
+    handleOpen: openCloseModal,
+    handleClose: closeCloseModal,
+  } = useModal();
 
   // Check if the order is closed
   const isClosed = order?.isClosed === true;
@@ -46,25 +48,6 @@ export default function OrdersLayout() {
   const handlePresentReassignModal = useCallback(() => {
     reassignBottomSheetRef.current?.present();
   }, []);
-
-  const handleCloseOrder = useCallback(() => {
-    if (!order) return;
-
-    Alert.alert(
-      t("orders:dialogs.closeTitle"),
-      t("orders:dialogs.closeMessage"),
-      [
-        { text: t("common:actions.cancel"), style: "cancel" },
-        {
-          text: t("common:actions.close"),
-          style: "destructive",
-          onPress: () => {
-            updateOrder({ id: order.id, isClosed: true });
-          },
-        },
-      ],
-    );
-  }, [order, t, updateOrder]);
 
   useEffect(() => {
     return () => {
@@ -93,7 +76,7 @@ export default function OrdersLayout() {
                   {canCloseOrder && (
                     <IconButton
                       icon="lock-closed-outline"
-                      onPress={handleCloseOrder}
+                      onPress={openCloseModal}
                       variant="secondary"
                     ></IconButton>
                   )}
@@ -158,6 +141,12 @@ export default function OrdersLayout() {
           />
         )}
       </ThemedBottomSheetModal>
+
+      <CloseOrderModal
+        order={order}
+        visible={closeModalIsOpen}
+        onClose={closeCloseModal}
+      />
     </>
   );
 }

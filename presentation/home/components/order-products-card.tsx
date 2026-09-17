@@ -86,6 +86,11 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
         <ThemedView style={tw`mb-6 `}>
           <ThemedView style={tw`flex-row justify-between items-center`}>
             <ThemedView style={tw`flex-row items-center bg-transparent gap-2`}>
+              <Checkbox
+                value={allDelivered}
+                disabled={allDelivered}
+                onValueChange={handleMarkAllDelivered}
+              />
               <Label
                 text={statusText}
                 color={labelColor}
@@ -114,12 +119,6 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
           <ThemedView
             style={tw`flex-row items-center  bg-transparent mt-4 gap-4`}
           >
-            <Checkbox
-              value={allDelivered}
-              disabled={allDelivered}
-              onValueChange={handleMarkAllDelivered}
-            />
-
             <ThemedView style={tw` gap-2`}>
               <ThemedText type="h3">
                 {order.type === OrderType.IN_PLACE

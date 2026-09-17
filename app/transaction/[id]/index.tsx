@@ -22,7 +22,6 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import {
   useTransaction,
   useUpdateTransaction,
-  useApproveTransaction,
   useRejectTransaction,
 } from "@/presentation/transactions/hooks/useTransaction";
 import { PaymentProofStatus } from "@/core/transactions/models/payment-proof.model";
@@ -37,11 +36,12 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { PaymentProofsService } from "@/core/transactions/services/payment-proofs.service";
 import ImageViewer from "react-native-image-zoom-viewer";
-import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import IconButton from "@/presentation/theme/components/icon-button";
 import dayjs from "dayjs";
+import { useModal } from "@/presentation/shared/hooks/useModal";
+import ApproveTransactionModal from "@/presentation/transactions/components/approve-transaction-modal";
 
 export default function TransactionDetailScreen() {
   const { t } = useTranslation(["common", "bills"]);
@@ -56,8 +56,6 @@ export default function TransactionDetailScreen() {
 
   const { transaction, isLoading, refetch } = useTransaction(transactionId);
   const { updateTransaction, isLoading: isUpdating } = useUpdateTransaction();
-  const { approveTransaction, isLoading: isApproving } =
-    useApproveTransaction();
   const { rejectTransaction, isLoading: isRejecting } = useRejectTransaction();
 
   const { paymentMethods } = usePaymentMethodsStore();
@@ -79,6 +77,12 @@ export default function TransactionDetailScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const accountBottomSheetRef = useRef<BottomSheetMethods>(null);
+
+  const {
+    isOpen: approveModalIsOpen,
+    handleOpen: openApproveModal,
+    handleClose: closeApproveModal,
+  } = useModal();
 
   const isTransfer =
     transaction?.paymentMethod?.type === PaymentMethodCategory.TRANSFER;
@@ -166,30 +170,13 @@ export default function TransactionDetailScreen() {
     }
   };
 
-  const handleApproveTransaction = useCallback(() => {
+  const handleTransactionApproved = useCallback(() => {
+    refetch();
     Alert.alert(
-      t("bills:proofUpload.approveTitle"),
-      t("bills:proofUpload.approveMessage"),
-      [
-        { text: t("common:actions.cancel"), style: "cancel" },
-        {
-          text: t("common:actions.approve"),
-          style: "default",
-          onPress: () => {
-            approveTransaction(transactionId, {
-              onSuccess: () => {
-                refetch();
-                Alert.alert(
-                  t("common:status.success"),
-                  t("common:transactions.status.completed"),
-                );
-              },
-            });
-          },
-        },
-      ],
+      t("common:status.success"),
+      t("common:transactions.status.completed"),
     );
-  }, [approveTransaction, transactionId, refetch, t]);
+  }, [refetch, t]);
 
   const handleRejectTransaction = useCallback(() => {
     if (!rejectReason.trim()) {
@@ -520,29 +507,40 @@ export default function TransactionDetailScreen() {
       {isTransfer &&
         canManage &&
         (canApproveTransaction || canRejectTransaction) && (
-          <View style={tw`absolute bottom-6 left-0 right-0 items-center`}>
-            <FloatingToolbar
-              items={[
-                ...(canRejectTransaction
-                  ? [
-                      {
-                        icon: "close-outline" as const,
-                        onPress: handleRejectTransaction,
-                      },
-                    ]
-                  : []),
-                ...(canApproveTransaction
-                  ? [
-                      {
-                        icon: "checkmark-outline" as const,
-                        onPress: handleApproveTransaction,
-                      },
-                    ]
-                  : []),
-              ]}
-            />
+          <View style={tw`absolute bottom-6 left-4 right-4`}>
+            <ThemedView
+              style={tw`flex-row gap-3 bg-light-surface rounded-3xl p-2 shadow-sm`}
+            >
+              {canRejectTransaction && (
+                <Button
+                  label={t("common:actions.reject")}
+                  leftIcon="close-outline"
+                  variant="destructive"
+                  onPress={handleRejectTransaction}
+                  loading={isRejecting}
+                  disabled={isRejecting}
+                  style={tw`flex-1`}
+                />
+              )}
+              {canApproveTransaction && (
+                <Button
+                  label={t("common:actions.approve")}
+                  leftIcon="checkmark-outline"
+                  variant="primary"
+                  onPress={openApproveModal}
+                  style={tw`flex-1`}
+                />
+              )}
+            </ThemedView>
           </View>
         )}
+
+      <ApproveTransactionModal
+        transaction={transaction}
+        visible={approveModalIsOpen}
+        onClose={closeApproveModal}
+        onApproved={handleTransactionApproved}
+      />
 
       {/* Image Preview Modal */}
       <Modal

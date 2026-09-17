@@ -45,7 +45,7 @@ export default function FloatingToolbar({
           disabled={item.disabled}
           style={({ pressed }) => [
             tw`w-14 h-14 rounded-full items-center justify-center `,
-            item.active && { backgroundColor: activeBgColor },
+            item.active && tw`bg-light-secondary`,
             pressed && !item.disabled && tw`opacity-70`,
             item.disabled && tw`opacity-40`,
           ]}
@@ -53,7 +53,11 @@ export default function FloatingToolbar({
           <Ionicons
             name={item.icon}
             size={24}
-            color={Colors.light.onSurfaceVariant}
+            color={
+              item.icon
+                ? Colors.light.onSecondary
+                : Colors.light.onSurfaceVariant
+            }
           />
         </Pressable>
       ))}

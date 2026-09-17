@@ -14,6 +14,8 @@ import { useOrdersStore } from "../store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { i18nAlert } from "@/core/i18n/utils";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { useModal } from "@/presentation/shared/hooks/useModal";
+import CloseOrderModal from "./close-order-modal";
 
 interface OrderOptionsBottomSheetProps {
   order: Order;
@@ -37,37 +39,21 @@ const OrderOptionsBottomSheet = ({
   onReassign,
 }: OrderOptionsBottomSheetProps) => {
   const { t } = useTranslation(["common", "orders", "bills"]);
-  const { mutate: updateOrder } = useOrders().updateOrder;
   const { mutate: deleteOrder } = useOrders().deleteOrder;
   const { markDelivered } = useMarkOrderDelivered();
   const router = useRouter();
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const { user } = useAuthStore();
   const isAdmin = user?.role?.name === "admin";
+  const {
+    isOpen: closeModalIsOpen,
+    handleOpen: openCloseModal,
+    handleClose: closeCloseModal,
+  } = useModal();
 
-  const handleCloseOrder = () => {
-    Alert.alert(
-      t("orders:dialogs.closeTitle"),
-      t("orders:dialogs.closeMessage"),
-      [
-        { text: t("common:actions.cancel"), style: "cancel" },
-        {
-          text: t("common:actions.close"),
-          style: "destructive",
-          onPress: () => {
-            updateOrder(
-              { id: order.id, isClosed: true },
-              {
-                onSuccess: () => {
-                  onClose?.();
-                  router.back();
-                },
-              },
-            );
-          },
-        },
-      ],
-    );
+  const handleOrderClosed = () => {
+    onClose?.();
+    router.back();
   };
 
   const handleDeleteOrder = () => {
@@ -150,7 +136,7 @@ const OrderOptionsBottomSheet = ({
     {
       icon: "lock-closed-outline",
       label: t("orders:options.forceCloseOrder"),
-      onPress: handleCloseOrder,
+      onPress: openCloseModal,
       disabled: !canForceCloseOrder,
       visible: isAdmin,
       divider: true,
@@ -167,61 +153,72 @@ const OrderOptionsBottomSheet = ({
   const visibleOptions = options.filter((opt) => opt.visible !== false);
 
   return (
-    <BottomSheetView style={tw`px-4 pb-6 bg-light-brackground`}>
-      <ThemedView style={tw`mb-4`}>
-        <ThemedText type="h3">{t("orders:options.title")}</ThemedText>
-        <ThemedText type="body2" style={tw`text-gray-500 mt-1`}>
-          {t("orders:details.orderNumber", { num: order.num })}
-        </ThemedText>
-      </ThemedView>
+    <>
+      <BottomSheetView style={tw`px-4 pb-6 bg-light-brackground`}>
+        <ThemedView style={tw`mb-4`}>
+          <ThemedText type="h3">{t("orders:options.title")}</ThemedText>
+          <ThemedText type="body2" style={tw`text-gray-500 mt-1`}>
+            {t("orders:details.orderNumber", { num: order.num })}
+          </ThemedText>
+        </ThemedView>
 
-      <ThemedView style={tw`gap-2`}>
-        {visibleOptions.map((option, index) => (
-          <ThemedView key={index}>
-            <Pressable
-              onPress={option.onPress}
-              disabled={option.disabled}
-              style={({ pressed }) => [
-                tw.style(
-                  "flex-row items-center gap-3 p-3 rounded-xl",
-                  pressed && !option.disabled && "bg-gray-100",
-                  option.disabled && "opacity-40",
-                ),
-              ]}
-            >
-              <Ionicons
-                name={option.icon}
-                size={22}
-                color={
-                  option.disabled
-                    ? tw.color("light-on-surface-variant")
-                    : option.color
-                      ? tw.color(option.color.replace("text-", ""))
-                      : tw.color("light-on-surface-variant")
-                }
-              />
-              <ThemedText
-                type="body1"
-                style={tw.style(
-                  "flex-1",
-                  option.color && !option.disabled && option.color,
-                )}
+        <ThemedView style={tw`gap-2`}>
+          {visibleOptions.map((option, index) => (
+            <ThemedView key={index}>
+              <Pressable
+                onPress={option.onPress}
+                disabled={option.disabled}
+                style={({ pressed }) => [
+                  tw.style(
+                    "flex-row items-center gap-3 p-3 rounded-xl",
+                    pressed && !option.disabled && "bg-gray-100",
+                    option.disabled && "opacity-40",
+                  ),
+                ]}
               >
-                {option.label}
-              </ThemedText>
-              {!option.disabled && (
                 <Ionicons
-                  name="chevron-forward"
-                  size={18}
-                  color={tw.color("gray-400")}
+                  name={option.icon}
+                  size={22}
+                  color={
+                    option.disabled
+                      ? tw.color("light-on-surface-variant")
+                      : option.color
+                        ? tw.color(option.color.replace("text-", ""))
+                        : tw.color("light-on-surface-variant")
+                  }
                 />
+                <ThemedText
+                  type="body1"
+                  style={tw.style(
+                    "flex-1",
+                    option.color && !option.disabled && option.color,
+                  )}
+                >
+                  {option.label}
+                </ThemedText>
+                {!option.disabled && (
+                  <Ionicons
+                    name="chevron-forward"
+                    size={18}
+                    color={tw.color("gray-400")}
+                  />
+                )}
+              </Pressable>
+              {option.divider && (
+                <ThemedView style={tw`h-px bg-gray-200 my-2`} />
               )}
-            </Pressable>
-            {option.divider && <ThemedView style={tw`h-px bg-gray-200 my-2`} />}
-          </ThemedView>
-        ))}
-      </ThemedView>
-    </BottomSheetView>
+            </ThemedView>
+          ))}
+        </ThemedView>
+      </BottomSheetView>
+
+      <CloseOrderModal
+        order={order}
+        visible={closeModalIsOpen}
+        onClose={closeCloseModal}
+        onClosed={handleOrderClosed}
+      />
+    </>
   );
 };
 

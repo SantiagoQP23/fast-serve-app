@@ -119,6 +119,7 @@ export default function SettingsScreen() {
             setVisible(false);
             handleLogout();
           }}
+          confirmLabel={t("dialogs.logoutTitle")}
         />
       </ScrollView>
     </ScreenLayout>

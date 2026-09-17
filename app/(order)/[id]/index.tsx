@@ -41,6 +41,7 @@ import { useOrderPrint } from "@/presentation/orders/hooks/useOrderPrint";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bottom-sheet";
 import ReassignOrderBottomSheet from "@/presentation/orders/components/reassign-order-bottom-sheet";
+import CloseOrderModal from "@/presentation/orders/components/close-order-modal";
 
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
@@ -223,22 +224,6 @@ export default function OrderScreen() {
     );
   };
 
-  const onCloseOrder = () => {
-    closeCloseModal();
-    updateOrder(
-      {
-        id: order.id,
-        isClosed: true,
-      },
-      {
-        onSuccess: (resp) => {
-          // router.replace("/(app)/(tabs)/(orders-module)/my-orders");
-          // Handle success if needed
-        },
-      },
-    );
-  };
-
   const closeModal = () => {
     setVisible(false);
   };
@@ -396,37 +381,11 @@ export default function OrderScreen() {
           </View>
         </View>
       </Modal>
-      <Modal
-        transparent
+      <CloseOrderModal
+        order={order}
         visible={closeModalIsOpen}
-        animationType="fade"
-        onRequestClose={() => setVisible(false)}
-      >
-        {/* Backdrop */}
-        <View style={tw`flex-1 bg-black/50 items-center justify-center`}>
-          {/* Modal card */}
-          <View style={tw`bg-white rounded-2xl w-4/5 p-5 shadow-lg`}>
-            <ThemedText type="h3">{t("orders:dialogs.closeTitle")}</ThemedText>
-            <ThemedText type="body1" style={tw`mt-2 mb-4`}>
-              {t("orders:dialogs.closeMessage")}{" "}
-            </ThemedText>
-
-            <ThemedView style={tw`flex-row justify-end gap-2`}>
-              <Button
-                label={t("common:actions.cancel")}
-                onPress={closeCloseModal}
-                variant="outline"
-                size="small"
-              />
-              <Button
-                label={t("common:actions.close")}
-                onPress={onCloseOrder}
-                size="small"
-              />
-            </ThemedView>
-          </View>
-        </View>
-      </Modal>
+        onClose={closeCloseModal}
+      />
       <View style={tw`flex-1 relative`}>
         <ScreenLayout style={tw`px-4 pt-6 flex-1`}>
           {/* Header Section */}

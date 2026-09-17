@@ -109,10 +109,7 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
         <Ionicons name="grid-outline" size={64} color="#999" />
         <ThemedView style={tw`gap-2 items-center`}>
           <ThemedText type="h2">{t("tables:noTables.title")}</ThemedText>
-          <ThemedText
-            type="body2"
-            style={tw`text-center text-gray-500 px-8`}
-          >
+          <ThemedText type="body2" style={tw`text-center text-gray-500 px-8`}>
             {t("tables:noTables.description")}
           </ThemedText>
         </ThemedView>
@@ -152,7 +149,7 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
               rightContent={
                 <ThemedText
                   type="small"
-                  style={tw`${isActive ? "text-white" : ""}`}
+                  style={tw`${isActive ? "text-light-on-secondary" : ""}`}
                 >
                   {tab.count}
                 </ThemedText>

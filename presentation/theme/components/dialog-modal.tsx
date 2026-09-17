@@ -1,33 +1,36 @@
-import React from "react";
-import {
-  Modal,
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  GestureResponderEvent,
-} from "react-native";
+import { Modal, View } from "react-native";
+import { ThemedText } from "./themed-text";
+import { ThemedView } from "./themed-view";
+import Button, { ButtonProps } from "./button";
 import tw from "../lib/tailwind";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { typography } from "@/constants/theme";
 
 interface DialogModalProps {
   visible: boolean;
-  title?: string;
-  message?: string;
-  onConfirm?: (event: GestureResponderEvent) => void;
-  onCancel?: (event: GestureResponderEvent) => void;
-  confirmText?: string;
-  cancelText?: string;
+  title: string;
+  message: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+  confirmLabel: string;
+  cancelLabel?: string;
+  confirmVariant?: ButtonProps["variant"];
+  loading?: boolean;
 }
 
 export default function DialogModal({
   visible,
-  title = "Confirm",
-  message = "Are you sure?",
+  title,
+  message,
   onConfirm,
   onCancel,
-  confirmText = "OK",
-  cancelText = "Cancel",
+  confirmLabel,
+  cancelLabel,
+  confirmVariant = "text",
+  loading = false,
 }: DialogModalProps) {
+  const { t } = useTranslation(["common"]);
+
   return (
     <Modal
       transparent
@@ -35,24 +38,35 @@ export default function DialogModal({
       animationType="fade"
       onRequestClose={onCancel}
     >
-      {/* Backdrop */}
       <View style={tw`flex-1 bg-black/50 items-center justify-center`}>
-        {/* Modal card */}
-        <View style={tw`bg-white rounded-2xl w-4/5 p-5 shadow-lg`}>
-          {title && (
-            <Text style={tw`text-lg font-semibold text-gray-800 mb-2`}>
-              {title}
-            </Text>
-          )}
-          {message && <Text style={tw`text-gray-600 mb-4`}>{message}</Text>}
-          <View style={tw`flex-row justify-end`}>
-            <Pressable onPress={onCancel} style={tw`mr-4`}>
-              <Text style={tw`text-gray-500 font-medium`}>{cancelText}</Text>
-            </Pressable>
-            <Pressable onPress={onConfirm}>
-              <Text style={tw`text-blue-600 font-semibold`}>{confirmText}</Text>
-            </Pressable>
-          </View>
+        <View style={tw`bg-white rounded-2xl w-4/5 p-6 shadow-lg`}>
+          <ThemedText type="h3" style={{ fontFamily: typography.medium }}>
+            {title}
+          </ThemedText>
+          <ThemedText
+            type="body1"
+            style={[tw`mt-4 mb-4`, { fontFamily: typography.regular }]}
+          >
+            {message}
+          </ThemedText>
+
+          <ThemedView style={tw`flex-row justify-end gap-2`}>
+            <Button
+              label={cancelLabel ?? t("common:actions.cancel")}
+              onPress={onCancel}
+              variant="text"
+              size="small"
+              disabled={loading}
+            />
+            <Button
+              label={confirmLabel}
+              onPress={onConfirm}
+              variant={confirmVariant}
+              size="small"
+              loading={loading}
+              disabled={loading}
+            />
+          </ThemedView>
         </View>
       </View>
     </Modal>
