@@ -54,6 +54,11 @@ async function applyIncremental(
   let needsProductionAreasRefetch = false;
 
   for (const event of events) {
+    console.log(
+      "[useSync] Applying sync event",
+      event.resourceType,
+      event.operation,
+    );
     applyEvent(event);
 
     if (
@@ -131,6 +136,12 @@ function applyOrderEvent(event: SyncEventDto) {
       ordersState.addOrder(order);
       break;
     case SyncOperation.UPDATED:
+      console.log("[useSync] Order updated", order.id, order.status);
+      if (order.isClosed) {
+        console.log("[useSync] Order closed, removing from state", order.id);
+        ordersState.deleteOrder(order.id);
+        return;
+      }
       if (ordersState.orders.some((o) => o.id === order.id)) {
         ordersState.updateOrder(order);
       } else {

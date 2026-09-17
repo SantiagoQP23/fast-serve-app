@@ -29,10 +29,12 @@ import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { MyOrdersHeaderRight } from "../_layout";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import { useSyncStore } from "@/presentation/sync/store/useSyncStore";
 
 export default function MyOrdersScreen() {
   const { t } = useTranslation(["common", "orders", "errors", "tables"]);
   const { user } = useAuthStore();
+  const lastSequence = useSyncStore((state) => state.lastSequence);
   const allOrders = useOrdersStore((state) => state.orders);
   const orders = allOrders.filter((order) => order.user?.id === user?.id);
   const router = useRouter();
@@ -81,7 +83,7 @@ export default function MyOrdersScreen() {
     try {
       setRefreshing(true);
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      // await refetchOrders();
+      await refetchOrders();
     } catch {
       Alert.alert(
         t("errors:order.fetchError"),

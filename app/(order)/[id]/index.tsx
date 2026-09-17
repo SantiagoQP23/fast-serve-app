@@ -493,7 +493,7 @@ export default function OrderScreen() {
               <ScrollView
                 style={tw`flex-1`}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={tw`pb-4`}
+                contentContainerStyle={tw`pb-10`}
                 refreshControl={
                   <RefreshControl
                     refreshing={refreshing}
