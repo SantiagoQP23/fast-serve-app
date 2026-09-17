@@ -1,7 +1,9 @@
 {
   "titles": {
     "dailyReport": "Daily Report",
-    "paymentMethodReport": "Payment Method Report"
+    "paymentMethodReport": "Payment Method Report",
+    "bestSellingProducts": "Best Selling Products",
+    "bestSellingCategories": "Best Selling Categories"
   },
   "summary": {
     "title": "Summary",
@@ -68,5 +70,17 @@
   "empty": {
     "noReport": "No report data available",
     "noReportDescription": "There is no data for the selected date"
+  },
+  "bestSelling": {
+    "unitsSold": "{{count}} sold",
+    "noData": "No sales data available for this period",
+    "products": {
+      "title": "Best Selling Products",
+      "empty": "No products sold in this period"
+    },
+    "categories": {
+      "title": "Best Selling Categories",
+      "empty": "No categories sold in this period"
+    }
   }
 }

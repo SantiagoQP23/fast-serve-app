@@ -33,6 +33,7 @@
     "share": "Share",
     "print": "Print",
     "loadMore": "Load More",
+    "seeAll": "See All",
     "continue": "Continue",
     "clearAll": "Clear All",
     "approve": "Approve",
@@ -105,12 +106,29 @@
   },
   "stats": {
     "totalOrders": "Total Orders",
+    "ordersQuantity": "Orders",
+    "salesQuantity": "Sales",
+    "totalSales": "Total Sales",
     "totalAmount": "Total Amount",
     "collectionRate": "Collection Rate",
     "totalIncome": "Total Income",
     "ordersPendingPayment": "Orders Pending Payment",
     "myStats": "My Stats",
-    "analytics": "Analytics"
+    "analytics": "Analytics",
+    "viewScope": {
+      "all": "All Staff",
+      "mine": "Only Me"
+    },
+    "dateRange": {
+      "today": "Today",
+      "weekToDate": "Week to Date",
+      "monthToDate": "Month to Date",
+      "yearToDate": "Year to Date",
+      "custom": "Custom",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "apply": "Apply"
+    }
   },
   "connection": {
     "offline": "Connection Lost",

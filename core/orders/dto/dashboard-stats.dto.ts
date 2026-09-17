@@ -1,6 +1,9 @@
 export interface DashboardStatsDto {
-  date: string;
-  totalOrders: number;
+  startDate: string;
+  endDate: string;
+  ordersQuantity: number;
+  salesQuantity: number;
+  totalSales: number;
   totalAmount: number;
   totalIncome: number;
 }

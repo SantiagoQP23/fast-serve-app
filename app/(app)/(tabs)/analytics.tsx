@@ -5,7 +5,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 
 import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
@@ -22,6 +22,20 @@ import DailyReportSummaryCard from "@/presentation/home/components/daily-report-
 import { useDailyReport } from "@/presentation/orders/hooks/useDailyReport";
 import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import Card from "@/presentation/theme/components/card";
+import { typography } from "@/constants/theme";
+import Chip from "@/presentation/theme/components/chip";
+import {
+  DateRangeFilter,
+  getDateRangeFor,
+} from "@/core/orders/enums/date-range-filter.enum";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import CustomDateRangeBottomSheet from "@/presentation/orders/components/custom-date-range-bottom-sheet";
+import BestSellingProductsCard from "@/presentation/home/components/best-selling-products-card";
+import BestSellingCategoriesCard from "@/presentation/home/components/best-selling-categories-card";
+import Button from "@/presentation/theme/components/button";
+import Label from "@/presentation/theme/components/label";
 
 export default function AnalyticsScreen() {
   const { t } = useTranslation(["common", "errors", "reports"]);
@@ -29,25 +43,84 @@ export default function AnalyticsScreen() {
   const allOrders = useOrdersStore((state) => state.orders);
   const isAdmin = user?.role?.name === "admin";
 
-  // Use all orders for admin, personal orders for non-admin
-  const orders = isAdmin
-    ? allOrders
-    : allOrders.filter((order) => order.user?.id === user?.id);
+  // Admins can toggle between restaurant-wide data and their own data.
+  // Non-admins always see their own data (enforced by the backend).
+  const [viewOnlyMine, setViewOnlyMine] = useState(false);
+
+  // Use all orders for admin (unless scoped to "only me"), personal orders for non-admin
+  const orders =
+    isAdmin && !viewOnlyMine
+      ? allOrders
+      : allOrders.filter((order) => order.user?.id === user?.id);
 
   const primaryColor = useThemeColor({}, "primary");
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
   const [showTotalAmount, setShowTotalAmount] = useState(false);
 
+  const [selectedDateRangeFilter, setSelectedDateRangeFilter] =
+    useState<DateRangeFilter>(DateRangeFilter.TODAY);
+  const [customRange, setCustomRange] = useState<{
+    startDate: Date;
+    endDate: Date;
+  }>();
+  const customRangeSheetRef = useRef<BottomSheetMethods>(null);
+
+  const dateRangeChips = [
+    { filter: DateRangeFilter.TODAY, label: t("common:stats.dateRange.today") },
+    {
+      filter: DateRangeFilter.WEEK_TO_DATE,
+      label: t("common:stats.dateRange.weekToDate"),
+    },
+    {
+      filter: DateRangeFilter.MONTH_TO_DATE,
+      label: t("common:stats.dateRange.monthToDate"),
+    },
+    {
+      filter: DateRangeFilter.YEAR_TO_DATE,
+      label: t("common:stats.dateRange.yearToDate"),
+    },
+    {
+      filter: DateRangeFilter.CUSTOM,
+      label: t("common:stats.dateRange.custom"),
+    },
+  ];
+
+  const handleSelectDateRangeFilter = (filter: DateRangeFilter) => {
+    if (filter === DateRangeFilter.CUSTOM) {
+      customRangeSheetRef.current?.present();
+      return;
+    }
+    setSelectedDateRangeFilter(filter);
+  };
+
+  const handleApplyCustomRange = (range: {
+    startDate: Date;
+    endDate: Date;
+  }) => {
+    setCustomRange(range);
+    setSelectedDateRangeFilter(DateRangeFilter.CUSTOM);
+  };
+
+  const dateRange = useMemo(
+    () => getDateRangeFor(selectedDateRangeFilter, customRange),
+    [selectedDateRangeFilter, customRange],
+  );
+
+  const statsUserId = isAdmin && viewOnlyMine ? user?.id : undefined;
+
   const {
     dashboardStats,
     isLoading: isLoadingStats,
     refetch: refetchStats,
-  } = useDashboardStats();
+  } = useDashboardStats(dateRange, statsUserId);
 
   const { isLoading: isLoadingOrders } = useActiveOrders();
 
-  const { dailyReport } = useDailyReport();
+  const { dailyReport } = useDailyReport({
+    startDate: dateRange.startDate,
+    endDate: dateRange.endDate,
+  });
   const reportWaiters = dailyReport?.waiterStats || [];
 
   const onRefresh = useCallback(async () => {
@@ -78,10 +151,44 @@ export default function AnalyticsScreen() {
 
   return (
     <ScreenLayout style={tw`flex-1 bg-light-background pt-4`}>
-      <ThemedView style={tw`px-4 py-4`}>
-        <ThemedText type="h2">
-          {isAdmin ? t("common:stats.analytics") : t("common:stats.myStats")}
-        </ThemedText>
+      <ThemedView style={tw`px-4 py-4 gap-3`}>
+        <ThemedView style={tw`flex-row items-center justify-between`}>
+          <ThemedText type="h2">
+            {isAdmin ? t("common:stats.analytics") : t("common:stats.myStats")}
+          </ThemedText>
+          {isAdmin && (
+            <ThemedView style={tw`flex-row gap-2`}>
+              {viewOnlyMine ? (
+                <Label
+                  text={t("common:stats.viewScope.mine")}
+                  size="small"
+                  onPress={() => setViewOnlyMine(false)}
+                />
+              ) : (
+                <Label
+                  text={t("common:stats.viewScope.mine")}
+                  size="small"
+                  onPress={() => setViewOnlyMine(true)}
+                  color="outline"
+                />
+              )}
+            </ThemedView>
+          )}
+        </ThemedView>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={tw`gap-2`}
+        >
+          {dateRangeChips.map(({ filter, label }) => (
+            <Chip
+              key={filter}
+              label={label}
+              selected={selectedDateRangeFilter === filter}
+              onPress={() => handleSelectDateRangeFilter(filter)}
+            />
+          ))}
+        </ScrollView>
       </ThemedView>
       <ScrollView
         contentContainerStyle={tw`pb-20 gap-4`}
@@ -154,8 +261,8 @@ export default function AnalyticsScreen() {
             {/* Stats Cards Row */}
             <ThemedView style={tw`flex-row gap-4`}>
               <StatsCard
-                title={t("common:stats.totalOrders")}
-                value={dashboardStats?.totalOrders ?? 0}
+                title={t("common:stats.ordersQuantity")}
+                value={dashboardStats?.ordersQuantity ?? 0}
                 icon="receipt-outline"
                 loading={isLoadingStats}
               />
@@ -170,6 +277,32 @@ export default function AnalyticsScreen() {
                 loading={isLoadingStats}
               />
             </ThemedView>
+
+            {/* Sales Cards Row */}
+            <ThemedView style={tw`flex-row gap-4`}>
+              <StatsCard
+                title={t("common:stats.salesQuantity")}
+                value={dashboardStats?.salesQuantity ?? 0}
+                icon="cash-outline"
+                loading={isLoadingStats}
+              />
+              <StatsCard
+                title={t("common:stats.totalSales")}
+                value={formatCurrency(dashboardStats?.totalSales ?? 0)}
+                icon="cash-outline"
+                loading={isLoadingStats}
+              />
+            </ThemedView>
+
+            {/* Best Selling Products & Categories */}
+            <BestSellingProductsCard
+              dateRange={dateRange}
+              userId={statsUserId}
+            />
+            <BestSellingCategoriesCard
+              dateRange={dateRange}
+              userId={statsUserId}
+            />
           </ThemedView>
         )}
 
@@ -181,28 +314,37 @@ export default function AnalyticsScreen() {
 
         {isAdmin && reportWaiters.length > 0 && (
           <ThemedView style={tw`px-4`}>
-            <ThemedView style={tw`rounded-2xl border border-light-border p-4`}>
-              <ThemedText type="h3" style={tw`mb-3`}>
+            <Card style={tw``}>
+              <ThemedText type="h4" style={tw`mb-3`}>
                 {t("reports:waiterStats.title")}
               </ThemedText>
               <ThemedView style={tw`gap-4`}>
                 {reportWaiters.map((waiter) => (
                   <ThemedView key={waiter.userId} style={tw`gap-2`}>
-                    <ThemedView style={tw`gap-1`}>
-                      <ThemedText type="body2">{waiter.fullName}</ThemedText>
-                      <ThemedText type="small" style={tw`text-gray-500`}>
-                        {t("reports:waiterStats.orders")}: {waiter.totalOrders}
-                      </ThemedText>
-                    </ThemedView>
                     <ThemedView
-                      style={tw`flex-row gap-4 items-center justify-between`}
+                      style={tw`flex-row justify-between items-center`}
                     >
-                      <ThemedText type="small">
-                        {formatCurrency(waiter.totalIncome)}
-                      </ThemedText>
-                      <ThemedText type="small">
-                        {formatCurrency(waiter.totalAmount)}
-                      </ThemedText>
+                      <ThemedView style={tw`gap-1`}>
+                        <ThemedText
+                          type="body2"
+                          style={{ fontFamily: typography.medium }}
+                        >
+                          {waiter.fullName}
+                        </ThemedText>
+                        <ThemedText type="small" style={tw`text-gray-500`}>
+                          {waiter.totalOrders} {t("reports:waiterStats.orders")}
+                          {" · "}
+                          {formatCurrency(waiter.totalIncome)}
+                        </ThemedText>
+                      </ThemedView>
+
+                      <ThemedView
+                        style={tw`flex-row gap-1 items-center justify-end`}
+                      >
+                        <ThemedText type="body2">
+                          {formatCurrency(waiter.totalAmount)}
+                        </ThemedText>
+                      </ThemedView>
                     </ThemedView>
                     <ProgressBar
                       height={2}
@@ -213,10 +355,19 @@ export default function AnalyticsScreen() {
                   </ThemedView>
                 ))}
               </ThemedView>
-            </ThemedView>
+            </Card>
           </ThemedView>
         )}
       </ScrollView>
+
+      <ThemedBottomSheetModal ref={customRangeSheetRef} enablePanDownToClose>
+        <CustomDateRangeBottomSheet
+          onClose={() => customRangeSheetRef.current?.dismiss()}
+          onApply={handleApplyCustomRange}
+          initialStartDate={customRange?.startDate}
+          initialEndDate={customRange?.endDate}
+        />
+      </ThemedBottomSheetModal>
     </ScreenLayout>
   );
 }

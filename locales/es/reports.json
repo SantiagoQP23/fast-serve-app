@@ -1,7 +1,9 @@
 {
   "titles": {
     "dailyReport": "Reporte Diario",
-    "paymentMethodReport": "Reporte de Método de Pago"
+    "paymentMethodReport": "Reporte de Método de Pago",
+    "bestSellingProducts": "Productos Más Vendidos",
+    "bestSellingCategories": "Categorías Más Vendidas"
   },
   "summary": {
     "title": "Resumen",
@@ -68,5 +70,17 @@
   "empty": {
     "noReport": "No hay datos de reporte disponibles",
     "noReportDescription": "No hay datos para la fecha seleccionada"
+  },
+  "bestSelling": {
+    "unitsSold": "{{count}} vendidos",
+    "noData": "No hay datos de ventas para este período",
+    "products": {
+      "title": "Productos Más Vendidos",
+      "empty": "No se vendieron productos en este período"
+    },
+    "categories": {
+      "title": "Categorías Más Vendidas",
+      "empty": "No se vendieron categorías en este período"
+    }
   }
 }

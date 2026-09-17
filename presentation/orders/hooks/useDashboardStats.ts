@@ -1,14 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
 import { OrdersService } from "@/core/orders/services/orders.service";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { DateRange } from "@/core/orders/enums/date-range-filter.enum";
 
-export const useDashboardStats = () => {
+export const useDashboardStats = (dateRange?: DateRange, userId?: string) => {
   const { currentRestaurant } = useAuthStore((state) => state);
 
   const dashboardStatsQuery = useQuery({
-    queryKey: ["dashboardStats", currentRestaurant?.id],
+    queryKey: [
+      "dashboardStats",
+      currentRestaurant?.id,
+      dateRange?.startDate,
+      dateRange?.endDate,
+      userId,
+    ],
     queryFn: async () => {
-      const result = await OrdersService.getDashboardStats();
+      const result = await OrdersService.getDashboardStats({
+        ...dateRange,
+        userId,
+      });
       return result;
     },
     enabled: !!currentRestaurant?.id,

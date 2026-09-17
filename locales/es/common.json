@@ -33,6 +33,7 @@
     "share": "Compartir",
     "print": "Imprimir",
     "loadMore": "Cargar Más",
+    "seeAll": "Ver Todo",
     "continue": "Continuar",
     "clearAll": "Limpiar Todo",
     "approve": "Aprobar",
@@ -105,12 +106,29 @@
   },
   "stats": {
     "totalOrders": "Pedidos",
+    "ordersQuantity": "Pedidos",
+    "salesQuantity": "Ventas",
+    "totalSales": "Total Ventas",
     "totalAmount": "Monto Total",
     "collectionRate": "Ingresos",
     "totalIncome": "Total Cobrado",
     "ordersPendingPayment": "Por cobrar",
     "myStats": "Mis Estadísticas",
-    "analytics": "Análisis"
+    "analytics": "Análisis",
+    "viewScope": {
+      "all": "Todo el Personal",
+      "mine": "Solo Yo"
+    },
+    "dateRange": {
+      "today": "Hoy",
+      "weekToDate": "Esta Semana",
+      "monthToDate": "Este Mes",
+      "yearToDate": "Este Año",
+      "custom": "Personalizado",
+      "startDate": "Fecha Inicio",
+      "endDate": "Fecha Fin",
+      "apply": "Aplicar"
+    }
   },
   "connection": {
     "offline": "Sin Conexión",
