@@ -1,6 +1,5 @@
 import {
   KeyboardAvoidingView,
-  Modal,
   ScrollView,
   View,
   RefreshControl,
@@ -46,6 +45,7 @@ import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCart
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import Fab from "@/presentation/theme/components/fab";
 import Card from "@/presentation/theme/components/card";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
 
 dayjs.extend(relativeTime);
 
@@ -78,7 +78,8 @@ export default function BillScreen() {
   const moreOptionsSheetRef = useRef<BottomSheetMethods>(null);
 
   const primaryColor = useThemeColor({}, "primary");
-  const { mutate: removeBill } = useBills().removeBill;
+  const { mutate: removeBill, isLoading: isRemovingBill } =
+    useBills().removeBill;
   const { mutate: updateBill } = useBills().updateBill;
 
   const { user } = useAuthStore();
@@ -156,7 +157,6 @@ export default function BillScreen() {
   };
 
   const onRemoveBill = () => {
-    closeModal();
     removeBill(
       { id: bill.id },
       {
@@ -233,34 +233,16 @@ export default function BillScreen() {
 
   return (
     <>
-      <Modal
-        transparent
+      <DialogModal
         visible={visible}
-        animationType="fade"
-        onRequestClose={() => setVisible(false)}
-      >
-        <View style={tw`flex-1 bg-black/50 items-center justify-center`}>
-          <View style={tw`bg-white rounded-2xl w-4/5 p-5 shadow-lg`}>
-            <ThemedText type="h4">{t("bills:dialogs.removeTitle")}</ThemedText>
-            <ThemedText type="body1" style={tw`mt-2 mb-4`}>
-              {t("bills:dialogs.removeMessage")}
-            </ThemedText>
-            <ThemedView style={tw`flex-row justify-end gap-2`}>
-              <Button
-                label={t("common:actions.cancel")}
-                onPress={closeModal}
-                variant="outline"
-                size="small"
-              />
-              <Button
-                label={t("common:actions.remove")}
-                onPress={onRemoveBill}
-                size="small"
-              />
-            </ThemedView>
-          </View>
-        </View>
-      </Modal>
+        title={t("bills:dialogs.removeTitle")}
+        message={t("bills:dialogs.removeMessage")}
+        onConfirm={onRemoveBill}
+        onCancel={closeModal}
+        confirmLabel={t("common:actions.remove")}
+        confirmVariant="destructive"
+        loading={isRemovingBill}
+      />
 
       <ScreenLayout>
         <KeyboardAvoidingView

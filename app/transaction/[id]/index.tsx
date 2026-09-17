@@ -27,21 +27,18 @@ import {
 import { PaymentProofStatus } from "@/core/transactions/models/payment-proof.model";
 import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
 import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.model";
-import { AccountType } from "@/core/restaurant/models/account.model";
 import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
-import {
-  BottomSheetView,
-  type BottomSheetMethods,
-} from "@expo/ui/community/bottom-sheet";
 import * as ImagePicker from "expo-image-picker";
 import { PaymentProofsService } from "@/core/transactions/services/payment-proofs.service";
 import ImageViewer from "react-native-image-zoom-viewer";
-import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import IconButton from "@/presentation/theme/components/icon-button";
 import dayjs from "dayjs";
 import { useModal } from "@/presentation/shared/hooks/useModal";
 import ApproveTransactionModal from "@/presentation/transactions/components/approve-transaction-modal";
+import BottomSheetPicker, {
+  type BottomSheetPickerRef,
+} from "@/presentation/theme/components/bottom-sheet-picker";
 
 export default function TransactionDetailScreen() {
   const { t } = useTranslation(["common", "bills"]);
@@ -55,7 +52,7 @@ export default function TransactionDetailScreen() {
   const canManage = isAdmin || isCashier;
 
   const { transaction, isLoading, refetch } = useTransaction(transactionId);
-  const { updateTransaction, isLoading: isUpdating } = useUpdateTransaction();
+  const { updateTransaction } = useUpdateTransaction();
   const { rejectTransaction, isLoading: isRejecting } = useRejectTransaction();
 
   const { paymentMethods } = usePaymentMethodsStore();
@@ -76,7 +73,7 @@ export default function TransactionDetailScreen() {
   const [previewIndex, setPreviewIndex] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
 
-  const accountBottomSheetRef = useRef<BottomSheetMethods>(null);
+  const accountBottomSheetRef = useRef<BottomSheetPickerRef>(null);
 
   const {
     isOpen: approveModalIsOpen,
@@ -219,9 +216,9 @@ export default function TransactionDetailScreen() {
     setRefreshing(false);
   }, [refetch, refetchProofs]);
 
-  const handleChangeAccount = (accountId: number) => {
+  const handleChangeAccount = (accountId: string | number) => {
     updateTransaction(
-      { id: transactionId, data: { accountId } },
+      { id: transactionId, data: { accountId: Number(accountId) } },
       {
         onSuccess: () => {
           accountBottomSheetRef.current?.dismiss();
@@ -291,14 +288,14 @@ export default function TransactionDetailScreen() {
           />
 
           {/* Account - editable for admin/cashier */}
-          <ThemedView style={tw`flex-row items-center gap-3  py-3`}>
+          <ThemedView style={tw`flex-row items-center gap-4  py-3`}>
             <Ionicons
               name="business-outline"
               size={18}
-              color={tw.color("gray-400")}
+              color={tw.color("light-on-surface")}
             />
             <ThemedView style={tw`flex-1`}>
-              <ThemedText type="small" style={tw`text-gray-500`}>
+              <ThemedText type="body1" style={tw`text-light-on-surface`}>
                 {t("common:transactions.account")}
               </ThemedText>
               <ThemedText type="body2" style={tw`font-medium text-gray-800`}>
@@ -574,61 +571,16 @@ export default function TransactionDetailScreen() {
       </Modal>
 
       {/* Account Picker Bottom Sheet */}
-      <ThemedBottomSheetModal
+      <BottomSheetPicker
         ref={accountBottomSheetRef}
-        snapPoints={["50%"]}
-        enablePanDownToClose
-      >
-        <BottomSheetView style={tw`flex-1 px-4 pt-4 pb-8`}>
-          <ThemedText type="h4" style={tw`font-bold mb-4`}>
-            {t("bills:account.destinationAccount")}
-          </ThemedText>
-          <ThemedView style={tw`gap-3`}>
-            {allowedAccounts.map((account) => {
-              const isSelected = account.id === transaction?.account?.id;
-              return (
-                <Pressable
-                  key={account.id}
-                  onPress={() => handleChangeAccount(account.id)}
-                  disabled={isUpdating}
-                  style={({ pressed }) => [
-                    tw`flex-row items-center px-4 py-3 rounded-xl border border-gray-200 gap-3`,
-                    pressed && tw`opacity-80`,
-                    isSelected && tw`border-light-primary bg-gray-100`,
-                  ]}
-                >
-                  <Ionicons
-                    name={
-                      account.type === AccountType.BANK
-                        ? "business-outline"
-                        : "cash-outline"
-                    }
-                    size={20}
-                    color={tw.color("gray-700")}
-                  />
-                  <ThemedView style={tw`flex-1`}>
-                    <ThemedText type="body2" style={tw`font-medium`}>
-                      {account.name}
-                    </ThemedText>
-                    {account.num && (
-                      <ThemedText type="small" style={tw`text-gray-500`}>
-                        {account.num}
-                      </ThemedText>
-                    )}
-                  </ThemedView>
-                  {isSelected && (
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={22}
-                      color={tw.color("green-500")}
-                    />
-                  )}
-                </Pressable>
-              );
-            })}
-          </ThemedView>
-        </BottomSheetView>
-      </ThemedBottomSheetModal>
+        title={t("bills:account.destinationAccount")}
+        options={allowedAccounts.map((account) => ({
+          label: account.num ? `${account.name} #${account.num}` : account.name,
+          value: account.id,
+        }))}
+        value={transaction?.account?.id}
+        onChange={handleChangeAccount}
+      />
     </ScreenLayout>
   );
 }
@@ -643,10 +595,14 @@ function DetailRow({
   value: string;
 }) {
   return (
-    <ThemedView style={tw`flex-row items-center gap-3`}>
-      <Ionicons name={icon as any} size={18} color={tw.color("gray-400")} />
-      <ThemedView style={tw`flex-1`}>
-        <ThemedText type="small" style={tw`text-gray-500`}>
+    <ThemedView style={tw`flex-row items-center gap-4`}>
+      <Ionicons
+        name={icon as any}
+        size={18}
+        color={tw.color("text-light-on-surface")}
+      />
+      <ThemedView style={tw`flex-1 gap-1`}>
+        <ThemedText type="body1" style={tw`text-light-on-surface`}>
           {label}
         </ThemedText>
         <ThemedText type="body2" style={tw` text-gray-800`}>

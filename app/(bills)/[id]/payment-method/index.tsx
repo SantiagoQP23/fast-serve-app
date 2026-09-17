@@ -28,7 +28,10 @@ import {
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { Ionicons } from "@expo/vector-icons";
-import { BottomSheetView, type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import {
+  BottomSheetView,
+  type BottomSheetMethods,
+} from "@expo/ui/community/bottom-sheet";
 import { useBills } from "@/presentation/orders/hooks/useBills";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Chip from "@/presentation/theme/components/chip";
@@ -308,8 +311,8 @@ export default function PaymentMethodScreen() {
       >
         <BottomSheetView style={tw`p-6 gap-4 bg-light-background`}>
           <ThemedView style={tw`gap-1`}>
-            <ThemedText type="h4">{t("bills:details.transferNote")}</ThemedText>
-            <ThemedText type="body2" style={tw`text-gray-500`}>
+            <ThemedText type="h3">{t("bills:details.transferNote")}</ThemedText>
+            <ThemedText type="body1" style={tw`text-gray-500`}>
               {formatCurrency(bill.total)}
             </ThemedText>
           </ThemedView>
@@ -349,7 +352,7 @@ export default function PaymentMethodScreen() {
                 <Pressable
                   onPress={() => pickProofImage("gallery")}
                   style={({ pressed }) => [
-                    tw`flex-1 items-center justify-center p-4 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 gap-2`,
+                    tw`flex-1 items-center justify-center p-4 rounded-xl border-2 border-dashed border-light-border  bg-light-surface gap-2`,
                     pressed && tw`opacity-70 bg-gray-100`,
                   ]}
                 >
@@ -368,7 +371,7 @@ export default function PaymentMethodScreen() {
                 <Pressable
                   onPress={() => pickProofImage("camera")}
                   style={({ pressed }) => [
-                    tw`flex-1 items-center justify-center p-4 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 gap-2`,
+                    tw`flex-1 items-center justify-center p-4 rounded-xl border-2 border-dashed border-light-border  bg-light-surface gap-2`,
                     pressed && tw`opacity-70 bg-gray-100`,
                   ]}
                 >
@@ -408,10 +411,14 @@ export default function PaymentMethodScreen() {
       </ThemedBottomSheetModal>
 
       {/* Card bottom sheet */}
-      <ThemedBottomSheetModal ref={cardBottomSheetRef} index={0} enablePanDownToClose>
+      <ThemedBottomSheetModal
+        ref={cardBottomSheetRef}
+        index={0}
+        enablePanDownToClose
+      >
         <BottomSheetView style={tw`p-6 gap-4 bg-light-background`}>
           <ThemedView style={tw`gap-1 items-center`}>
-            <ThemedText type="h2">{t("bills:details.commission")}</ThemedText>
+            <ThemedText type="h3">{t("bills:details.commission")}</ThemedText>
             <ThemedText type="body2" style={tw`text-gray-500`}>
               {t("bills:details.totalAmount")}: {formatCurrency(bill.total)}
             </ThemedText>
@@ -438,10 +445,14 @@ export default function PaymentMethodScreen() {
       </ThemedBottomSheetModal>
 
       {/* Cash bottom sheet */}
-      <ThemedBottomSheetModal ref={cashBottomSheetRef} index={0} enablePanDownToClose>
+      <ThemedBottomSheetModal
+        ref={cashBottomSheetRef}
+        index={0}
+        enablePanDownToClose
+      >
         <BottomSheetView style={tw`p-4 gap-4 mb-8 bg-light-background`}>
           <ThemedView style={tw`gap-1`}>
-            <ThemedText type="h4">
+            <ThemedText type="h3">
               {t("bills:details.receivedAmount")}
             </ThemedText>
             <ThemedText type="body2" style={tw`text-gray-500`}>

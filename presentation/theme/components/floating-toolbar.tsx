@@ -44,7 +44,7 @@ export default function FloatingToolbar({
           onPress={item.onPress}
           disabled={item.disabled}
           style={({ pressed }) => [
-            tw`w-14 h-14 rounded-full items-center justify-center `,
+            tw`w-12 h-12 rounded-full items-center justify-center `,
             item.active && tw`bg-light-secondary`,
             pressed && !item.disabled && tw`opacity-70`,
             item.disabled && tw`opacity-40`,
@@ -52,7 +52,7 @@ export default function FloatingToolbar({
         >
           <Ionicons
             name={item.icon}
-            size={24}
+            size={22}
             color={
               item.icon
                 ? Colors.light.onSecondary
