@@ -57,23 +57,28 @@ function TextInput(
           <Ionicons
             name={icon}
             size={18}
-            style={[tw`text-gray-500`, { marginRight: 10 }]}
+            style={[tw``, { marginRight: 10, marginLeft: 4 }]}
+            color={tw.color("light-on-surface-variant")}
           />
         )}
         <InputComponent
           ref={ref as React.ForwardedRef<RNTextInput>}
           style={[
-            tw`flex-1`,
+            tw`flex-1 text-light-on-surface`,
             { fontSize: 16, fontFamily: typography.regular },
             style as StyleProp<TextStyle>,
           ]}
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={tw.color("light-on-surface-variant")}
           {...inputProps}
         />
 
         {leftIcon && leftIcon}
       </View>
-      {error && <Text style={tw`text-red-500 text-sm mt-1`}>{error}</Text>}
+      {error && (
+        <ThemedText type="small" style={tw`text-red-500 text-sm mt-1 ml-4`}>
+          {error}
+        </ThemedText>
+      )}
     </ThemedView>
   );
 }

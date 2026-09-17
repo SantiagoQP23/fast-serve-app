@@ -124,7 +124,6 @@ export default function TabLayout() {
           tabBarItemStyle: {
             justifyContent: "center",
             alignItems: "center",
-            gap: 4,
             paddingVertical: 0,
           },
           tabBarButton: (props) => (
@@ -136,7 +135,7 @@ export default function TabLayout() {
           name="(orders-module)"
           options={{
             tabBarLabel: ({ color }) => (
-              <ThemedText type="small" style={{ color }}>
+              <ThemedText type="small" style={{ color, marginTop: 6 }}>
                 {t("navigation.home")}
               </ThemedText>
             ),
@@ -161,7 +160,7 @@ export default function TabLayout() {
           name="sales"
           options={{
             tabBarLabel: ({ color }) => (
-              <ThemedText type="small" style={{ color }}>
+              <ThemedText type="small" style={{ color, marginTop: 6 }}>
                 {t("navigation.sales")}
               </ThemedText>
             ),
@@ -182,7 +181,7 @@ export default function TabLayout() {
           name="analytics"
           options={{
             tabBarLabel: ({ color }) => (
-              <ThemedText type="small" style={{ color }}>
+              <ThemedText type="small" style={{ color, marginTop: 6 }}>
                 {t("navigation.analytics")}
               </ThemedText>
             ),
@@ -203,7 +202,7 @@ export default function TabLayout() {
           name="incomes"
           options={{
             tabBarLabel: ({ color }) => (
-              <ThemedText type="small" style={{ color }}>
+              <ThemedText type="small" style={{ color, marginTop: 6 }}>
                 {t("navigation.incomes")}
               </ThemedText>
             ),
@@ -225,7 +224,7 @@ export default function TabLayout() {
           name="manage"
           options={{
             tabBarLabel: ({ color }) => (
-              <ThemedText type="small" style={{ color }}>
+              <ThemedText type="small" style={{ color, marginTop: 6 }}>
                 {t("navigation.manage")}
               </ThemedText>
             ),

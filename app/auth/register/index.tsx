@@ -1,4 +1,9 @@
-import { KeyboardAvoidingView, ScrollView, Pressable, useWindowDimensions } from "react-native";
+import {
+  KeyboardAvoidingView,
+  ScrollView,
+  Pressable,
+  useWindowDimensions,
+} from "react-native";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Checkbox from "@/presentation/theme/components/checkbox";
@@ -24,9 +29,7 @@ const signupSchema = z
     lastName: z
       .string()
       .min(2, "Los apellidos deben tener al menos 2 caracteres"),
-    username: z
-      .string()
-      .min(2, "El usuario debe tener al menos 2 caracteres"),
+    username: z.string().min(2, "El usuario debe tener al menos 2 caracteres"),
     numPhone: z
       .string()
       .optional()
@@ -35,9 +38,7 @@ const signupSchema = z
         (val) => !val || /^\d{10}$/.test(val),
         "El celular debe tener 10 dígitos",
       ),
-    email: z
-      .string()
-      .email("Ingresa un email válido"),
+    email: z.string().email("Ingresa un email válido"),
     password: z
       .string()
       .min(8, "La contraseña debe tener al menos 8 caracteres")
@@ -152,7 +153,9 @@ const SignupScreen = () => {
                   onBlur={onBlur}
                   value={value}
                   onChangeText={onChange}
-                  error={errors.firstName ? errors.firstName.message : undefined}
+                  error={
+                    errors.firstName ? errors.firstName.message : undefined
+                  }
                 />
               )}
             />
@@ -236,9 +239,13 @@ const SignupScreen = () => {
                   error={errors.password ? errors.password.message : undefined}
                   leftIcon={
                     value && (
-                      <Pressable onPress={() => setShowPassword((prev) => !prev)}>
+                      <Pressable
+                        onPress={() => setShowPassword((prev) => !prev)}
+                      >
                         <Ionicons
-                          name={showPassword ? "eye-off-outline" : "eye-outline"}
+                          name={
+                            showPassword ? "eye-off-outline" : "eye-outline"
+                          }
                           size={20}
                           style={{ color: "#9CA3AF" }}
                         />
@@ -269,9 +276,7 @@ const SignupScreen = () => {
                   leftIcon={
                     value && (
                       <Pressable
-                        onPress={() =>
-                          setShowConfirmPassword((prev) => !prev)
-                        }
+                        onPress={() => setShowConfirmPassword((prev) => !prev)}
                       >
                         <Ionicons
                           name={
@@ -289,22 +294,22 @@ const SignupScreen = () => {
               )}
             />
 
-            <Controller
-              control={control}
-              name="termsAccepted"
-              render={({ field: { onChange, value } }) => (
-                <Checkbox
-                  value={value}
-                  onValueChange={onChange}
-                  label={t("auth:signup.termsLabel")}
-                  error={
-                    errors.termsAccepted
-                      ? errors.termsAccepted.message
-                      : undefined
-                  }
-                />
-              )}
-            />
+            {/* <Controller */}
+            {/*   control={control} */}
+            {/*   name="termsAccepted" */}
+            {/*   render={({ field: { onChange, value } }) => ( */}
+            {/*     <Checkbox */}
+            {/*       value={value} */}
+            {/*       onValueChange={onChange} */}
+            {/*       label={t("auth:signup.termsLabel")} */}
+            {/*       error={ */}
+            {/*         errors.termsAccepted */}
+            {/*           ? errors.termsAccepted.message */}
+            {/*           : undefined */}
+            {/*       } */}
+            {/*     /> */}
+            {/*   )} */}
+            {/* /> */}
           </ThemedView>
 
           <ThemedView style={tw`my-6`} />

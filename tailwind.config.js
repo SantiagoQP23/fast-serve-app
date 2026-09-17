@@ -14,6 +14,7 @@ module.exports = {
           "on-primary-container": Colors.light.onPrimaryContainer,
           "surface-high": Colors.light.surfaceHigh,
           "on-surface-variant": Colors.light.onSurfaceVariant,
+          "outline-variant": Colors.light.outlineVariant,
 
           background: Colors.light.background,
           surface: Colors.light.surface,

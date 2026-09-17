@@ -55,9 +55,6 @@ export default function AnalyticsScreen() {
       setRefreshing(true);
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       await Promise.all([
-        queryClient.refetchQueries({
-          queryKey: ["activeOrders", currentRestaurant?.id],
-        }),
         refetchStats(),
         queryClient.invalidateQueries({ queryKey: ["dailyReport"] }),
       ]);

@@ -18,6 +18,7 @@ export const Colors = {
     onPrimaryContainer: "#1C4975",
     secondary: "#D7E3F8",
     onSecondary: "#3C4858",
+    outlineVariant: "#C3C6CF",
 
     surface: "#ECEEF4", // cards, lists, inputs
     onSurfaceVariant: "#43474E",

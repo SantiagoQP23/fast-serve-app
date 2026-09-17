@@ -6,6 +6,7 @@ import QRCode from "react-native-qrcode-svg";
 
 import tw from "@/presentation/theme/lib/tailwind";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { RestaurantService } from "@/core/restaurant/services/restaurant.service";
 import { useWebsocketEventListener } from "@/presentation/shared/hooks/useWebsocketEventListener";
 import { OrderSocketEvent } from "@/core/orders/enums/socket-events.enum";
@@ -14,17 +15,19 @@ import Button from "@/presentation/theme/components/button";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import Card from "@/presentation/theme/components/card";
 
 const EXPIRY_SECONDS = 5 * 60; // 5 minutes
 
 export default function JoinRestaurantScreen() {
+  const { t } = useTranslation("auth");
   const { checkStatus } = useAuthStore();
   const [token, setToken] = useState<string>("");
   const [secondsLeft, setSecondsLeft] = useState(EXPIRY_SECONDS);
   const [isLoading, setIsLoading] = useState(false);
 
   useWebsocketEventListener(OrderSocketEvent.restaurantAssigned, async () => {
-    toast.success("¡Fuiste agregado al restaurante exitosamente!");
+    toast.success(t("noRestaurant.assignedSuccess"));
     await checkStatus();
     router.replace("/(app)/(tabs)/(orders-module)/my-orders");
   });
@@ -36,11 +39,11 @@ export default function JoinRestaurantScreen() {
       setToken(response.token);
       setSecondsLeft(EXPIRY_SECONDS);
     } catch {
-      toast.error("Error al generar el codigo QR");
+      toast.error(t("joinRestaurant.errorMessage"));
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     generateToken();
@@ -80,17 +83,14 @@ export default function JoinRestaurantScreen() {
             color={tw.color("light-primary")}
           />
           <ThemedText type="h2" style={tw`text-center`}>
-            Unirse a un restaurante
+            {t("joinRestaurant.title")}
           </ThemedText>
           <ThemedText type="body2" style={tw`text-center text-gray-600`}>
-            Muestra este codigo QR a un administrador para que te agregue a su
-            restaurante.
+            {t("joinRestaurant.description")}
           </ThemedText>
         </ThemedView>
 
-        <ThemedView
-          style={tw`bg-white rounded-3xl p-6 items-center gap-4 shadow-sm`}
-        >
+        <Card style={tw`gap-4 items-center justify-center`}>
           {qrPayload ? (
             <QRCode value={qrPayload} size={220} />
           ) : (
@@ -119,20 +119,24 @@ export default function JoinRestaurantScreen() {
                 secondsLeft < 30 ? "text-red-500" : "text-gray-500",
               )}
             >
-              Expira en {formatTime(secondsLeft)}
+              {t("joinRestaurant.expiresIn", { time: formatTime(secondsLeft) })}
             </ThemedText>
           </ThemedView>
-        </ThemedView>
+        </Card>
 
         <ThemedView style={tw`w-full gap-3`}>
           <Button
-            label="Regenerar codigo"
+            label={t("joinRestaurant.regenerateButton")}
             onPress={generateToken}
             loading={isLoading}
             disabled={isLoading}
             variant="secondary"
           />
-          <Button label="Volver" onPress={() => router.back()} variant="text" />
+          <Button
+            label={t("joinRestaurant.backButton")}
+            onPress={() => router.back()}
+            variant="text"
+          />
         </ThemedView>
       </ThemedView>
     </ScreenLayout>
