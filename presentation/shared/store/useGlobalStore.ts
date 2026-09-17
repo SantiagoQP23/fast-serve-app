@@ -9,6 +9,25 @@ export interface SocketLoadingEntry {
   messageKey: string;
 }
 
+// Native sheets (SwiftUI .sheet() / Compose ModalBottomSheet) dismiss asynchronously:
+// dismiss() returns immediately but the sheet is only actually gone once its onDismiss
+// fires. Presenting another native modal (e.g. Alert.alert) before that happens can
+// make the OS reject/interrupt the transition, leaving the sheet stuck on screen.
+// Callers that need to present something right after the socket loader hides should
+// wait on this instead of assuming dismiss() already finished.
+let socketLoaderCloseListeners: (() => void)[] = [];
+
+export const waitForSocketLoaderClose = () =>
+  new Promise<void>((resolve) => {
+    socketLoaderCloseListeners.push(resolve);
+  });
+
+export const notifySocketLoaderClosed = () => {
+  const listeners = socketLoaderCloseListeners;
+  socketLoaderCloseListeners = [];
+  listeners.forEach((resolve) => resolve());
+};
+
 export interface GlobalStoreState {
   isLoading: boolean;
   language: LanguageCode;

@@ -6,7 +6,10 @@ import {
 } from "@expo/ui/community/bottom-sheet";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
-import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
+import {
+  notifySocketLoaderClosed,
+  useGlobalStore,
+} from "@/presentation/shared/store/useGlobalStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import tw from "@/presentation/theme/lib/tailwind";
 
@@ -44,6 +47,7 @@ export function SocketLoaderBottomSheet() {
       enableContentPanningGesture={false}
       enableHandlePanningGesture={false}
       handleComponent={null}
+      onDismiss={notifySocketLoaderClosed}
     >
       <BottomSheetView
         style={tw`items-center justify-center py-10 px-6 gap-4`}

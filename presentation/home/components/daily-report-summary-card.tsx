@@ -10,6 +10,7 @@ import { useDailyReport } from "@/presentation/orders/hooks/useDailyReport";
 import { useRouter } from "expo-router";
 import CircularProgressGauge from "@/presentation/theme/components/circular-progress-gauge";
 import { typography } from "@/constants/theme";
+import Card from "@/presentation/theme/components/card";
 
 export default function DailyReportSummaryCard({
   startDate,
@@ -44,50 +45,48 @@ export default function DailyReportSummaryCard({
   };
 
   return (
-    <Pressable>
-      <ThemedView style={tw`rounded-2xl border border-light-border p-4  mb-4`}>
-        <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
-          <ThemedText type="h3" style={{ fontFamily: typography.bold }}>
-            {t("reports:summary.title")}
-          </ThemedText>
-          {enableAmountVisibilityToggle && (
-            <Pressable
-              onPress={() => setShowAmounts((prev) => !prev)}
-              hitSlop={8}
-            >
-              <Ionicons
-                name={showAmounts ? "eye-off-outline" : "eye-outline"}
-                size={18}
-                color={tw.color("gray-500")}
-              />
-            </Pressable>
-          )}
-        </ThemedView>
-
-        {isLoading ? (
-          <ThemedView style={tw`py-4`}>
-            <ThemedText type="body2" style={tw`text-gray-400 text-center`}>
-              {t("common:status.loading")}
-            </ThemedText>
-          </ThemedView>
-        ) : (
-          <ThemedView style={tw`gap-3`}>
-            {/* Circular Progress Gauge - Income vs Amount */}
-            <ThemedView style={tw`items-center py-2`}>
-              <CircularProgressGauge
-                percentage={collectionRate * 100}
-                currentValue={summary?.totalIncome ?? 0}
-                goalValue={summary?.totalAmount ?? 0}
-                currentLabel={t("reports:summary.collected")}
-                goalLabel={t("reports:summary.totalAmount")}
-                formatValue={formatSummaryValue}
-                size={160}
-                strokeWidth={12}
-              />
-            </ThemedView>
-          </ThemedView>
+    <Card>
+      <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
+        <ThemedText type="h3" style={{ fontFamily: typography.bold }}>
+          {t("reports:summary.title")}
+        </ThemedText>
+        {enableAmountVisibilityToggle && (
+          <Pressable
+            onPress={() => setShowAmounts((prev) => !prev)}
+            hitSlop={8}
+          >
+            <Ionicons
+              name={showAmounts ? "eye-off-outline" : "eye-outline"}
+              size={18}
+              color={tw.color("gray-500")}
+            />
+          </Pressable>
         )}
       </ThemedView>
-    </Pressable>
+
+      {isLoading ? (
+        <ThemedView style={tw`py-4`}>
+          <ThemedText type="body2" style={tw`text-gray-400 text-center`}>
+            {t("common:status.loading")}
+          </ThemedText>
+        </ThemedView>
+      ) : (
+        <ThemedView style={tw`gap-3`}>
+          {/* Circular Progress Gauge - Income vs Amount */}
+          <ThemedView style={tw`items-center py-2`}>
+            <CircularProgressGauge
+              percentage={collectionRate * 100}
+              currentValue={summary?.totalIncome ?? 0}
+              goalValue={summary?.totalAmount ?? 0}
+              currentLabel={t("reports:summary.collected")}
+              goalLabel={t("reports:summary.totalAmount")}
+              formatValue={formatSummaryValue}
+              size={160}
+              strokeWidth={12}
+            />
+          </ThemedView>
+        </ThemedView>
+      )}
+    </Card>
   );
 }

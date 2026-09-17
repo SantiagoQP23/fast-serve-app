@@ -173,11 +173,11 @@ export default function AnalyticsScreen() {
           </ThemedView>
         )}
 
-        {isAdmin && (
-          <ThemedView style={tw`px-4 pt-2`}>
-            <DailyReportSummaryCard enableAmountVisibilityToggle />
-          </ThemedView>
-        )}
+        {/* {isAdmin && ( */}
+        {/*   <ThemedView style={tw`px-4 pt-2`}> */}
+        {/*     <DailyReportSummaryCard enableAmountVisibilityToggle /> */}
+        {/*   </ThemedView> */}
+        {/* )} */}
 
         {isAdmin && reportWaiters.length > 0 && (
           <ThemedView style={tw`px-4`}>

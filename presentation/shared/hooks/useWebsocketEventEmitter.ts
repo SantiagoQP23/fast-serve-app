@@ -5,7 +5,10 @@ import {
   SocketResponseData,
 } from "@/core/common/dto/socket.dto";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
+import {
+  useGlobalStore,
+  waitForSocketLoaderClose,
+} from "@/presentation/shared/store/useGlobalStore";
 
 interface WebSocketOptions<TData> {
   onSuccess?: (resp: TData) => void;
@@ -59,11 +62,21 @@ export function useWebsocketEventEmitter<TData, TVariables>(
       useGlobalStore.getState().pushSocketLoading(requestId, messageKey);
     }
 
-    const clearLoading = () => {
+    // Resolves once it's safe to present another native modal (e.g. Alert.alert)
+    // on top of the socket-loader bottom sheet: immediately if this call isn't
+    // the one hiding it, otherwise once the native dismiss animation is done.
+    const clearLoadingAndWaitToPresent = async () => {
       setLoading(false);
-      if (showLoader) {
-        useGlobalStore.getState().popSocketLoading(requestId);
-      }
+      if (!showLoader) return;
+
+      useGlobalStore.getState().popSocketLoading(requestId);
+      const stillShowing = useGlobalStore.getState().socketLoadingQueue.length > 0;
+      if (stillShowing) return;
+
+      await Promise.race([
+        waitForSocketLoaderClose(),
+        new Promise((resolve) => setTimeout(resolve, 1000)),
+      ]);
     };
 
     const timeoutDuration =
@@ -72,9 +85,9 @@ export function useWebsocketEventEmitter<TData, TVariables>(
     let responseReceived = false;
 
     // Set up timeout handler
-    timeoutId = setTimeout(() => {
+    timeoutId = setTimeout(async () => {
       if (!responseReceived) {
-        clearLoading();
+        await clearLoadingAndWaitToPresent();
 
         const timeoutError: SocketResponse = {
           ok: false,
@@ -91,24 +104,28 @@ export function useWebsocketEventEmitter<TData, TVariables>(
       }
     }, timeoutDuration);
 
-    socket?.emit(eventMessage, data, (resp: SocketResponseData<TData>) => {
-      responseReceived = true;
+    socket?.emit(
+      eventMessage,
+      data,
+      async (resp: SocketResponseData<TData>) => {
+        responseReceived = true;
 
-      // Clear timeout since we received a response
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
+        // Clear timeout since we received a response
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
 
-      clearLoading();
+        await clearLoadingAndWaitToPresent();
 
-      if (resp.ok) {
-        options?.onSuccess?.(resp);
-        secondaryOptions?.onSuccess?.(resp);
-      } else {
-        options?.onError?.(resp);
-        secondaryOptions?.onError?.(resp);
-      }
-    });
+        if (resp.ok) {
+          options?.onSuccess?.(resp);
+          secondaryOptions?.onSuccess?.(resp);
+        } else {
+          options?.onError?.(resp);
+          secondaryOptions?.onError?.(resp);
+        }
+      },
+    );
   };
 
   return {
