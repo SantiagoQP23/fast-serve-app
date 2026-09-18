@@ -6,6 +6,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useCallback, useMemo, useRef, useState } from "react";
+import { router } from "expo-router";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
@@ -358,6 +359,28 @@ export default function AnalyticsScreen() {
             </Card>
           </ThemedView>
         )}
+
+        <ThemedView style={tw`px-4`}>
+          <Card onPress={() => router.push("/(profile)/history")}>
+            <ThemedView style={tw`flex-row items-center gap-3`}>
+              <Ionicons
+                name="time-outline"
+                size={22}
+                color={tw.color("gray-500")}
+              />
+              <ThemedView style={tw`flex-1`}>
+                <ThemedText type="body1">
+                  {t("common:stats.orderHistory")}
+                </ThemedText>
+              </ThemedView>
+              <Ionicons
+                name="chevron-forward-outline"
+                size={20}
+                color={tw.color("gray-400")}
+              />
+            </ThemedView>
+          </Card>
+        </ThemedView>
       </ScrollView>
 
       <ThemedBottomSheetModal ref={customRangeSheetRef} enablePanDownToClose>

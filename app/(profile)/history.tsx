@@ -16,7 +16,10 @@ import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Ionicons } from "@expo/vector-icons";
-import { BottomSheetView, type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import {
+  BottomSheetView,
+  type BottomSheetMethods,
+} from "@expo/ui/community/bottom-sheet";
 import Button from "@/presentation/theme/components/button";
 import DatePicker from "@/presentation/theme/components/date-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -276,15 +279,6 @@ export default function HistoryScreen() {
             />
           }
         >
-          {isAdmin && (
-            <ThemedView style={tw`px-4 pt-4`}>
-              <DailyReportSummaryCard
-                startDate={dateFilter}
-                endDate={dateFilter}
-                enableAmountVisibilityToggle
-              />
-            </ThemedView>
-          )}
           {isLoading && !refreshing ? (
             <ThemedView style={tw`py-20 items-center`}>
               <ThemedText type="body2" style={tw`text-gray-400`}>
@@ -292,7 +286,7 @@ export default function HistoryScreen() {
               </ThemedText>
             </ThemedView>
           ) : count > 0 ? (
-            <ThemedView style={tw`px-4 gap-4`}>
+            <ThemedView style={tw`px-4`}>
               {orders.map((order) => (
                 <OrderCard key={order.id} order={order} />
               ))}

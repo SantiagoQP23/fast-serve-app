@@ -115,6 +115,7 @@
     "ordersPendingPayment": "Por cobrar",
     "myStats": "Mis Estadísticas",
     "analytics": "Análisis",
+    "orderHistory": "Historial de pedidos",
     "viewScope": {
       "all": "Todo el Personal",
       "mine": "Solo Yo"

@@ -115,6 +115,7 @@
     "ordersPendingPayment": "Orders Pending Payment",
     "myStats": "My Stats",
     "analytics": "Analytics",
+    "orderHistory": "Order History",
     "viewScope": {
       "all": "All Staff",
       "mine": "Only Me"

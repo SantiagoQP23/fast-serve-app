@@ -55,19 +55,6 @@ export default function ManageScreen() {
   const isAdmin = user?.role?.name === Roles.ADMIN;
   const subscription = currentRestaurant?.subscription;
 
-  const orderOptions: ManageOption[] = [
-    ...(isAdmin
-      ? [
-          {
-            key: "history",
-            icon: "time-outline" as const,
-            label: t("manage.history"),
-            onPress: () => router.push("/(profile)/history"),
-          },
-        ]
-      : []),
-  ];
-
   const menuOptions: ManageOption[] = [
     {
       key: "sections",
@@ -215,21 +202,6 @@ export default function ManageScreen() {
         />
 
         <ThemedView style={tw`my-6 gap-6`}>
-          {/* Orders */}
-          {orderOptions.length > 0 && (
-            <ThemedView style={tw`gap-2`}>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {t("manage.orders")}
-              </ThemedText>
-              <GroupedList
-                data={orderOptions}
-                keyExtractor={(option) => option.key}
-                onItemPress={(option) => option.onPress()}
-                renderItem={renderManageOption}
-              />
-            </ThemedView>
-          )}
-
           {/* Menu */}
           <ThemedView style={tw`gap-2`}>
             <ThemedText type="small" style={tw`text-gray-500`}>
