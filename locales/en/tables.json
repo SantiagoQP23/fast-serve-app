@@ -38,6 +38,8 @@
     "editTable": "Edit table",
     "createTable": "Create table",
     "saveTable": "Save table",
+    "save": "Save",
+    "create": "Create",
     "noTables": "No tables found",
     "noTablesDescription": "There are no tables configured for this restaurant.",
     "loading": "Loading tables...",

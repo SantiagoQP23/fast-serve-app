@@ -94,7 +94,7 @@ export default function TablesSettingsScreen() {
         )}
 
         {tables.length > 0 && (
-          <ThemedView style={tw`gap-4`}>
+          <ThemedView style={tw`gap-2`}>
             {tables.map((table) => (
               <Card
                 key={table.id}

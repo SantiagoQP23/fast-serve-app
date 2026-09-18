@@ -38,6 +38,8 @@
     "editTable": "Editar mesa",
     "createTable": "Crear mesa",
     "saveTable": "Guardar mesa",
+    "save": "Guardar",
+    "create": "Crear",
     "noTables": "No se encontraron mesas",
     "noTablesDescription": "No hay mesas configuradas para este restaurante.",
     "loading": "Cargando mesas...",

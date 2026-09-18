@@ -19,6 +19,7 @@ import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import tw from "@/presentation/theme/lib/tailwind";
+import { typography } from "@/constants/theme";
 
 const buildProductionAreaSchema = (t: (key: string) => string) =>
   z.object({
@@ -110,16 +111,33 @@ export default function ProductionAreaFormScreen() {
           contentContainerStyle={tw`pb-8`}
         >
           {/* Header */}
-          <ThemedView style={tw`items-center gap-2 flex-row`}>
-            <Pressable
-              onPress={() => router.back()}
-              style={({ pressed }) => tw.style(pressed && "opacity-70")}
-            >
-              <Ionicons name="arrow-back-outline" size={24} />
-            </Pressable>
-            <ThemedText type="h2">
-              {isEditing ? t("editArea") : t("createArea")}
-            </ThemedText>
+          <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
+            <ThemedView style={tw`items-center gap-4 flex-row`}>
+              <Pressable
+                onPress={() => router.back()}
+                style={({ pressed }) => tw.style(pressed && "opacity-70")}
+              >
+                <Ionicons name="arrow-back-outline" size={24} />
+              </Pressable>
+              <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
+                {isEditing ? t("editArea") : t("createArea")}
+              </ThemedText>
+            </ThemedView>
+            <Button
+              label={isEditing ? t("save") : t("create")}
+              size="small"
+              onPress={handleSubmit(onSubmit)}
+              loading={
+                isSubmitting ||
+                createProductionArea.isPending ||
+                updateProductionArea.isPending
+              }
+              disabled={
+                isSubmitting ||
+                createProductionArea.isPending ||
+                updateProductionArea.isPending
+              }
+            />
           </ThemedView>
 
           <ThemedView style={tw`my-6`} />
@@ -217,22 +235,6 @@ export default function ProductionAreaFormScreen() {
             </ThemedView>
           </ThemedView>
 
-          <ThemedView style={tw`my-6`} />
-
-          <Button
-            label={isEditing ? t("saveArea") : t("createArea")}
-            onPress={handleSubmit(onSubmit)}
-            loading={
-              isSubmitting ||
-              createProductionArea.isPending ||
-              updateProductionArea.isPending
-            }
-            disabled={
-              isSubmitting ||
-              createProductionArea.isPending ||
-              updateProductionArea.isPending
-            }
-          />
         </ScrollView>
       </ScreenLayout>
     </KeyboardAvoidingView>

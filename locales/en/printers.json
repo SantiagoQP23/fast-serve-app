@@ -5,6 +5,8 @@
   "editPrinter": "Edit printer",
   "createPrinter": "Create printer",
   "savePrinter": "Save printer",
+  "save": "Save",
+  "create": "Create",
   "noPrinters": "No printers found",
   "noPrintersDescription": "There are no printers configured for this restaurant.",
   "loading": "Loading printers...",

@@ -6,6 +6,7 @@ import "dayjs/locale/es";
 import "dayjs/locale/en";
 import { PaymentMethod } from "../orders/enums/payment-method";
 import { PaymentMethodCategory } from "../restaurant/models/payment-method.model";
+import { Roles } from "../auth/models/user.model";
 import { Ionicons } from "@expo/vector-icons";
 
 // Extend dayjs with relativeTime plugin
@@ -257,4 +258,30 @@ export const translatePaymentMethod = (
 ): string => {
   const translationKey = getPaymentMethodTranslationKey(method);
   return i18n.t(translationKey);
+};
+
+/**
+ * Get translation key for a user role
+ */
+export const getRoleTranslationKey = (role: Roles | string): string => {
+  switch (role) {
+    case Roles.ADMIN:
+      return "auth:roles.admin";
+    case Roles.COOK:
+      return "auth:roles.cook";
+    case Roles.WAITER:
+      return "auth:roles.waiter";
+    case Roles.CASHIER:
+      return "auth:roles.cashier";
+    default:
+      return "";
+  }
+};
+
+/**
+ * Translate a user role using current language
+ */
+export const translateRole = (role: Roles | string): string => {
+  const translationKey = getRoleTranslationKey(role);
+  return translationKey ? i18n.t(translationKey) : "";
 };

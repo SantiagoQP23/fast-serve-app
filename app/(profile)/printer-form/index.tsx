@@ -20,6 +20,7 @@ import TextInput from "@/presentation/theme/components/text-input";
 import Select from "@/presentation/theme/components/select";
 import Switch from "@/presentation/theme/components/switch";
 import tw from "@/presentation/theme/lib/tailwind";
+import { typography } from "@/constants/theme";
 
 const CONNECTION_OPTIONS: { label: string; value: PrinterConnectionType }[] = [
   { label: "TCP", value: "TCP" },
@@ -135,16 +136,29 @@ export default function PrinterFormScreen() {
           contentContainerStyle={tw`pb-8`}
         >
           {/* Header */}
-          <ThemedView style={tw`items-center gap-2 flex-row`}>
-            <Pressable
-              onPress={() => router.back()}
-              style={({ pressed }) => tw.style(pressed && "opacity-70")}
-            >
-              <Ionicons name="arrow-back-outline" size={24} />
-            </Pressable>
-            <ThemedText type="h2">
-              {isEditing ? t("editPrinter") : t("createPrinter")}
-            </ThemedText>
+          <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
+            <ThemedView style={tw`items-center gap-4 flex-row`}>
+              <Pressable
+                onPress={() => router.back()}
+                style={({ pressed }) => tw.style(pressed && "opacity-70")}
+              >
+                <Ionicons name="arrow-back-outline" size={24} />
+              </Pressable>
+              <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
+                {isEditing ? t("editPrinter") : t("createPrinter")}
+              </ThemedText>
+            </ThemedView>
+            <Button
+              label={isEditing ? t("save") : t("create")}
+              size="small"
+              onPress={handleSubmit(onSubmit)}
+              loading={
+                isSubmitting || createPrinter.isPending || updatePrinter.isPending
+              }
+              disabled={
+                isSubmitting || createPrinter.isPending || updatePrinter.isPending
+              }
+            />
           </ThemedView>
 
           <ThemedView style={tw`my-6`} />
@@ -230,19 +244,6 @@ export default function PrinterFormScreen() {
             />
           </ThemedView>
 
-          <ThemedView style={tw`my-6`} />
-
-          <Button
-            label={isEditing ? t("savePrinter") : t("createPrinter")}
-            onPress={handleSubmit(onSubmit)}
-            loading={
-              isSubmitting || createPrinter.isPending || updatePrinter.isPending
-            }
-            disabled={
-              isSubmitting || createPrinter.isPending || updatePrinter.isPending
-            }
-            leftIcon={isEditing ? "save-outline" : "add-outline"}
-          />
         </ScrollView>
       </ScreenLayout>
     </KeyboardAvoidingView>

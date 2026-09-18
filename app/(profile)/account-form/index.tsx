@@ -15,9 +15,9 @@ import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Switch from "@/presentation/theme/components/switch";
 import Select from "@/presentation/theme/components/select";
-import IconButton from "@/presentation/theme/components/icon-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import tw from "@/presentation/theme/lib/tailwind";
+import { typography } from "@/constants/theme";
 
 const buildAccountSchema = (t: (key: string) => string) =>
   z.object({
@@ -117,27 +117,30 @@ export default function AccountFormScreen() {
           contentContainerStyle={tw`pb-8`}
         >
           <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
-            <ThemedView style={tw`items-center gap-2 flex-row`}>
+            <ThemedView style={tw`items-center gap-4 flex-row`}>
               <Pressable
                 onPress={() => router.back()}
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
                 <Ionicons name="arrow-back-outline" size={24} />
               </Pressable>
-              <ThemedText type="h2">
+              <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
                 {isEditing
                   ? t("accounts.editAccount")
                   : t("accounts.createAccount")}
               </ThemedText>
             </ThemedView>
-            {isEditing && (
-              <IconButton
-                icon="trash-outline"
-                size={18}
-                variant="destructive"
-                onPress={() => setShowDeleteConfirm(true)}
-              />
-            )}
+            <Button
+              label={isEditing ? t("accounts.save") : t("accounts.create")}
+              size="small"
+              onPress={handleSubmit(onSubmit)}
+              loading={
+                isSubmitting || createAccount.isPending || updateAccount.isPending
+              }
+              disabled={
+                isSubmitting || createAccount.isPending || updateAccount.isPending
+              }
+            />
           </ThemedView>
 
           <ThemedView style={tw`my-6`} />
@@ -220,20 +223,6 @@ export default function AccountFormScreen() {
             )}
           </ThemedView>
 
-          <ThemedView style={tw`my-6`} />
-
-          <Button
-            label={
-              isEditing ? t("accounts.saveAccount") : t("accounts.createAccount")
-            }
-            onPress={handleSubmit(onSubmit)}
-            loading={
-              isSubmitting || createAccount.isPending || updateAccount.isPending
-            }
-            disabled={
-              isSubmitting || createAccount.isPending || updateAccount.isPending
-            }
-          />
         </ScrollView>
       </ScreenLayout>
 

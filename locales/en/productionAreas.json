@@ -5,6 +5,8 @@
   "editArea": "Edit production area",
   "createArea": "Create production area",
   "saveArea": "Save production area",
+  "save": "Save",
+  "create": "Create",
   "noAreas": "No production areas found",
   "noAreasDescription": "There are no production areas configured for this restaurant.",
   "loading": "Loading production areas...",

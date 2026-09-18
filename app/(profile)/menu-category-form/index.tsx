@@ -15,9 +15,9 @@ import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Switch from "@/presentation/theme/components/switch";
 import Select from "@/presentation/theme/components/select";
-import IconButton from "@/presentation/theme/components/icon-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import tw from "@/presentation/theme/lib/tailwind";
+import { typography } from "@/constants/theme";
 
 const buildCategorySchema = (t: (key: string) => string) =>
   z.object({
@@ -108,27 +108,33 @@ export default function MenuCategoryFormScreen() {
           contentContainerStyle={tw`pb-8`}
         >
           <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
-            <ThemedView style={tw`items-center gap-2 flex-row`}>
+            <ThemedView style={tw`items-center gap-4 flex-row`}>
               <Pressable
                 onPress={() => router.back()}
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
                 <Ionicons name="arrow-back-outline" size={24} />
               </Pressable>
-              <ThemedText type="h2">
+              <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
                 {isEditing
                   ? t("categories.editCategory")
                   : t("categories.createCategory")}
               </ThemedText>
             </ThemedView>
-            {isEditing && (
-              <IconButton
-                icon="trash-outline"
-                size={18}
-                variant="destructive"
-                onPress={() => setShowDeleteConfirm(true)}
-              />
-            )}
+            <Button
+              label={isEditing ? t("categories.save") : t("categories.create")}
+              size="small"
+              onPress={handleSubmit(onSubmit)}
+              loading={
+                isSubmitting || createCategory.isPending || updateCategory.isPending
+              }
+              disabled={
+                isSubmitting ||
+                createCategory.isPending ||
+                updateCategory.isPending ||
+                sections.length === 0
+              }
+            />
           </ThemedView>
 
           <ThemedView style={tw`my-6`} />
@@ -204,23 +210,6 @@ export default function MenuCategoryFormScreen() {
             )}
           </ThemedView>
 
-          <ThemedView style={tw`my-6`} />
-
-          <Button
-            label={
-              isEditing ? t("categories.saveCategory") : t("categories.createCategory")
-            }
-            onPress={handleSubmit(onSubmit)}
-            loading={
-              isSubmitting || createCategory.isPending || updateCategory.isPending
-            }
-            disabled={
-              isSubmitting ||
-              createCategory.isPending ||
-              updateCategory.isPending ||
-              sections.length === 0
-            }
-          />
         </ScrollView>
       </ScreenLayout>
 

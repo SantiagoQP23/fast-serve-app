@@ -1,4 +1,4 @@
-import { ScrollView, Pressable, PressableProps, Linking } from "react-native";
+import { ScrollView, Linking } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -15,26 +15,14 @@ import { Roles } from "@/core/auth/models/user.model";
 import { toast } from "sonner-native";
 import Card from "@/presentation/theme/components/card";
 import IconButton from "@/presentation/theme/components/icon-button";
+import { GroupedList } from "@/presentation/theme/components/grouped-list";
 
-interface CardButtonProps extends PressableProps {
-  icon?: keyof typeof Ionicons.glyphMap;
+interface ManageOption {
+  key: string;
+  icon: keyof typeof Ionicons.glyphMap;
   label: string;
+  onPress: () => void;
 }
-
-export const CardButton = ({ icon, label, onPress }: CardButtonProps) => {
-  return (
-    <Pressable onPress={onPress}>
-      <ThemedView style={tw`flex-row gap-4`}>
-        <ThemedView>
-          <Ionicons name={icon} size={22} />
-        </ThemedView>
-        <ThemedText style={[{ fontFamily: typography.medium }]}>
-          {label}
-        </ThemedText>
-      </ThemedView>
-    </Pressable>
-  );
-};
 
 export default function ManageScreen() {
   const { t } = useTranslation("auth");
@@ -63,6 +51,86 @@ export default function ManageScreen() {
   const isAdmin = user?.role?.name === Roles.ADMIN;
   const subscription = currentRestaurant?.subscription;
 
+  const orderOptions: ManageOption[] = [
+    ...(isAdmin
+      ? [
+          {
+            key: "history",
+            icon: "time-outline" as const,
+            label: t("manage.history"),
+            onPress: () => router.push("/(profile)/history"),
+          },
+        ]
+      : []),
+  ];
+
+  const menuOptions: ManageOption[] = [
+    {
+      key: "sections",
+      icon: "list-outline",
+      label: t("manage.menu.sections"),
+      onPress: () => router.push("/(profile)/menu-sections"),
+    },
+    {
+      key: "categories",
+      icon: "pricetag-outline",
+      label: t("manage.menu.categories"),
+      onPress: () => router.push("/(profile)/menu-categories"),
+    },
+    {
+      key: "products",
+      icon: "fast-food-outline",
+      label: t("manage.menu.products"),
+      onPress: () => router.push("/(profile)/menu-products"),
+    },
+  ];
+
+  const restaurantOptions: ManageOption[] = [
+    {
+      key: "tables",
+      icon: "grid-outline",
+      label: t("manage.tables"),
+      onPress: () => router.push("/(profile)/tables-settings"),
+    },
+    {
+      key: "paymentMethods",
+      icon: "card-outline",
+      label: t("manage.paymentMethods"),
+      onPress: () => router.push("/(profile)/payment-methods-settings"),
+    },
+    {
+      key: "printers",
+      icon: "print-outline",
+      label: t("manage.printers"),
+      onPress: () => router.push("/(profile)/printers"),
+    },
+    {
+      key: "productionAreas",
+      icon: "cube-outline",
+      label: t("manage.productionAreas"),
+      onPress: () => router.push("/(profile)/production-areas"),
+    },
+    ...(isAdmin
+      ? [
+          {
+            key: "staff",
+            icon: "people-outline" as const,
+            label: t("manage.staff"),
+            onPress: () => router.push("/staff"),
+          },
+        ]
+      : []),
+  ];
+
+  const renderManageOption = (option: ManageOption) => (
+    <ThemedView style={tw`flex-row items-center gap-4`}>
+      <Ionicons name={option.icon} size={22} />
+      <ThemedText style={[{ fontFamily: typography.medium }]}>
+        {option.label}
+      </ThemedText>
+    </ThemedView>
+  );
+
   return (
     <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -79,8 +147,8 @@ export default function ManageScreen() {
 
         {/* Subscription Banner */}
         {subscription && (
-          <Card style={tw`gap-4 `}>
-            <ThemedView style={tw`flex  gap-4`}>
+          <ThemedView>
+            <ThemedView style={tw`flex  items-center gap-2`}>
               {/* <Ionicons */}
               {/*   name={ */}
               {/*     subscription.status === "ACTIVE" */}
@@ -98,7 +166,7 @@ export default function ManageScreen() {
               {/*         : tw.color("red-500") */}
               {/*   } */}
               {/* /> */}
-              <ThemedText type="h4">{currentRestaurant?.name}</ThemedText>
+              <ThemedText type="h1">{currentRestaurant?.name}</ThemedText>
               <ThemedView style={tw`flex-row items-center gap-2`}>
                 <ThemedText
                   type="body2"
@@ -124,9 +192,9 @@ export default function ManageScreen() {
                 })}
               </ThemedText>
             )}
-          </Card>
+          </ThemedView>
         )}
-        <ThemedView style={tw`h-4`} />
+        <ThemedView style={tw`h-8`} />
 
         {/* User Info Card */}
         <Card
@@ -172,99 +240,46 @@ export default function ManageScreen() {
           size="small"
         />
 
-        <ThemedView style={tw`my-6`}>
-          <ThemedView style={tw`rounded-lg p-4 gap-8`}>
-            {/* Orders */}
-            <ThemedView style={tw`gap-4`}>
+        <ThemedView style={tw`my-6 gap-6`}>
+          {/* Orders */}
+          {orderOptions.length > 0 && (
+            <ThemedView style={tw`gap-2`}>
               <ThemedText type="small" style={tw`text-gray-500`}>
                 {t("manage.orders")}
               </ThemedText>
-              <ThemedView style={tw`gap-6`}>
-                {isAdmin && (
-                  <CardButton
-                    icon="time-outline"
-                    label={t("manage.history")}
-                    onPress={() => {
-                      router.push("/(profile)/history");
-                    }}
-                  />
-                )}
-              </ThemedView>
+              <GroupedList
+                data={orderOptions}
+                keyExtractor={(option) => option.key}
+                onItemPress={(option) => option.onPress()}
+                renderItem={renderManageOption}
+              />
             </ThemedView>
+          )}
 
-            {/* Menu */}
-            <ThemedView style={tw`gap-4`}>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {t("manage.menu.title")}
-              </ThemedText>
-              <ThemedView style={tw`gap-6`}>
-                <CardButton
-                  icon="list-outline"
-                  label={t("manage.menu.sections")}
-                  onPress={() => {
-                    router.push("/(profile)/menu-sections");
-                  }}
-                />
-                <CardButton
-                  icon="pricetag-outline"
-                  label={t("manage.menu.categories")}
-                  onPress={() => {
-                    router.push("/(profile)/menu-categories");
-                  }}
-                />
-                <CardButton
-                  icon="fast-food-outline"
-                  label={t("manage.menu.products")}
-                  onPress={() => {
-                    router.push("/(profile)/menu-products");
-                  }}
-                />
-              </ThemedView>
-            </ThemedView>
+          {/* Menu */}
+          <ThemedView style={tw`gap-2`}>
+            <ThemedText type="small" style={tw`text-gray-500`}>
+              {t("manage.menu.title")}
+            </ThemedText>
+            <GroupedList
+              data={menuOptions}
+              keyExtractor={(option) => option.key}
+              onItemPress={(option) => option.onPress()}
+              renderItem={renderManageOption}
+            />
+          </ThemedView>
 
-            {/* Restaurant */}
-            <ThemedView style={tw`gap-6`}>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {t("manage.restaurant")}
-              </ThemedText>
-              <CardButton
-                icon="grid-outline"
-                label={t("manage.tables")}
-                onPress={() => {
-                  router.push("/(profile)/tables-settings");
-                }}
-              />
-              <CardButton
-                icon="card-outline"
-                label={t("manage.paymentMethods")}
-                onPress={() => {
-                  router.push("/(profile)/payment-methods-settings");
-                }}
-              />
-              <CardButton
-                icon="print-outline"
-                label={t("manage.printers")}
-                onPress={() => {
-                  router.push("/(profile)/printers");
-                }}
-              />
-              <CardButton
-                icon="cube-outline"
-                label={t("manage.productionAreas")}
-                onPress={() => {
-                  router.push("/(profile)/production-areas");
-                }}
-              />
-              {isAdmin && (
-                <CardButton
-                  icon="people-outline"
-                  label={t("manage.staff")}
-                  onPress={() => {
-                    router.push("/staff");
-                  }}
-                />
-              )}
-            </ThemedView>
+          {/* Restaurant */}
+          <ThemedView style={tw`gap-2`}>
+            <ThemedText type="small" style={tw`text-gray-500`}>
+              {t("manage.restaurant")}
+            </ThemedText>
+            <GroupedList
+              data={restaurantOptions}
+              keyExtractor={(option) => option.key}
+              onItemPress={(option) => option.onPress()}
+              renderItem={renderManageOption}
+            />
           </ThemedView>
         </ThemedView>
 

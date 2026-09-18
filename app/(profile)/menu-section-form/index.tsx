@@ -13,9 +13,9 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Switch from "@/presentation/theme/components/switch";
-import IconButton from "@/presentation/theme/components/icon-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import tw from "@/presentation/theme/lib/tailwind";
+import { typography } from "@/constants/theme";
 
 const buildSectionSchema = (t: (key: string) => string) =>
   z.object({
@@ -94,27 +94,30 @@ export default function MenuSectionFormScreen() {
           contentContainerStyle={tw`pb-8`}
         >
           <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
-            <ThemedView style={tw`items-center gap-2 flex-row`}>
+            <ThemedView style={tw`items-center gap-4 flex-row`}>
               <Pressable
                 onPress={() => router.back()}
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
                 <Ionicons name="arrow-back-outline" size={24} />
               </Pressable>
-              <ThemedText type="h2">
+              <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
                 {isEditing
                   ? t("sections.editSection")
                   : t("sections.createSection")}
               </ThemedText>
             </ThemedView>
-            {isEditing && (
-              <IconButton
-                icon="trash-outline"
-                size={18}
-                variant="destructive"
-                onPress={() => setShowDeleteConfirm(true)}
-              />
-            )}
+            <Button
+              label={isEditing ? t("sections.save") : t("sections.create")}
+              size="small"
+              onPress={handleSubmit(onSubmit)}
+              loading={
+                isSubmitting || createSection.isPending || updateSection.isPending
+              }
+              disabled={
+                isSubmitting || createSection.isPending || updateSection.isPending
+              }
+            />
           </ThemedView>
 
           <ThemedView style={tw`my-6`} />
@@ -153,18 +156,6 @@ export default function MenuSectionFormScreen() {
             )}
           </ThemedView>
 
-          <ThemedView style={tw`my-6`} />
-
-          <Button
-            label={isEditing ? t("sections.saveSection") : t("sections.createSection")}
-            onPress={handleSubmit(onSubmit)}
-            loading={
-              isSubmitting || createSection.isPending || updateSection.isPending
-            }
-            disabled={
-              isSubmitting || createSection.isPending || updateSection.isPending
-            }
-          />
         </ScrollView>
       </ScreenLayout>
 

@@ -65,7 +65,7 @@ function TextInput(
           ref={ref as React.ForwardedRef<RNTextInput>}
           style={[
             tw`flex-1 text-light-on-surface`,
-            { fontSize: 16, fontFamily: typography.regular },
+            { fontSize: 16, fontFamily: typography.medium },
             style as StyleProp<TextStyle>,
           ]}
           placeholderTextColor={tw.color("light-on-surface-variant")}

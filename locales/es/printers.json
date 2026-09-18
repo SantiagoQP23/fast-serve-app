@@ -5,6 +5,8 @@
   "editPrinter": "Editar impresora",
   "createPrinter": "Crear impresora",
   "savePrinter": "Guardar impresora",
+  "save": "Guardar",
+  "create": "Crear",
   "noPrinters": "No se encontraron impresoras",
   "noPrintersDescription": "No hay impresoras configuradas para este restaurante.",
   "loading": "Cargando impresoras...",

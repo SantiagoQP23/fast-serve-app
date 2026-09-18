@@ -5,6 +5,8 @@
   "editArea": "Editar área de producción",
   "createArea": "Crear área de producción",
   "saveArea": "Guardar área de producción",
+  "save": "Guardar",
+  "create": "Crear",
   "noAreas": "No se encontraron áreas de producción",
   "noAreasDescription": "No hay áreas de producción configuradas para este restaurante.",
   "loading": "Cargando áreas de producción...",

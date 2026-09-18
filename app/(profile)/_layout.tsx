@@ -54,15 +54,6 @@ export default function OrdersLayout() {
           }}
         />
         <Stack.Screen
-          name="all-orders"
-          options={{
-            headerShown: true,
-            title: t("orders:drawer.allOrders"),
-            headerShadowVisible: false,
-          }}
-        />
-
-        <Stack.Screen
           name="history"
           options={{
             headerShown: true,

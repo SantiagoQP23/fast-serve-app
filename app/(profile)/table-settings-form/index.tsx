@@ -19,9 +19,9 @@ import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import Switch from "@/presentation/theme/components/switch";
-import IconButton from "@/presentation/theme/components/icon-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import tw from "@/presentation/theme/lib/tailwind";
+import { typography } from "@/constants/theme";
 
 const buildTableSchema = (t: (key: string) => string) =>
   z.object({
@@ -116,30 +116,33 @@ export default function TableSettingsFormScreen() {
           contentContainerStyle={tw`pb-8`}
         >
           <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
-            <ThemedView style={tw`items-center gap-2 flex-row`}>
+            <ThemedView style={tw`items-center gap-4 flex-row`}>
               <Pressable
                 onPress={() => router.back()}
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
                 <Ionicons name="arrow-back-outline" size={24} />
               </Pressable>
-              <ThemedText type="h2">
+              <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
                 {isEditing
                   ? t("settings.editTable")
                   : t("settings.createTable")}
               </ThemedText>
             </ThemedView>
-            {isEditing && (
-              <IconButton
-                icon="trash-outline"
-                size={18}
-                variant="destructive"
-                onPress={() => setShowDeleteConfirm(true)}
-              />
-            )}
+            <Button
+              label={isEditing ? t("settings.save") : t("settings.create")}
+              size="small"
+              onPress={handleSubmit(onSubmit)}
+              loading={
+                isSubmitting || createTable.isPending || updateTable.isPending
+              }
+              disabled={
+                isSubmitting || createTable.isPending || updateTable.isPending
+              }
+            />
           </ThemedView>
 
-          <ThemedView style={tw`my-6`} />
+          <ThemedView style={tw`my-4`} />
 
           <ThemedView style={tw`gap-4`}>
             <Controller
@@ -218,21 +221,6 @@ export default function TableSettingsFormScreen() {
               </ThemedView>
             )}
           </ThemedView>
-
-          <ThemedView style={tw`my-4`} />
-
-          <Button
-            label={
-              isEditing ? t("settings.saveTable") : t("settings.createTable")
-            }
-            onPress={handleSubmit(onSubmit)}
-            loading={
-              isSubmitting || createTable.isPending || updateTable.isPending
-            }
-            disabled={
-              isSubmitting || createTable.isPending || updateTable.isPending
-            }
-          />
         </ScrollView>
       </ScreenLayout>
 
