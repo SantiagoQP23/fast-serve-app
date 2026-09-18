@@ -81,7 +81,7 @@ export default function StaffScreen() {
                   {getRoleName(staffMember) || ""}
                 </ThemedText>
                 <ThemedText type="small" style={tw`text-gray-500`}>
-                  {staffMember.person?.email}
+                  {staffMember.email}
                 </ThemedText>
               </ThemedView>
             </Card>

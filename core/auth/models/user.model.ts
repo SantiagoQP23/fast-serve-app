@@ -31,6 +31,7 @@ export interface User {
   restaurantRoles: RestaurantRole[];
   isActive: boolean;
   authProvider?: AuthProvider[];
-  googleEmail?: string;
   googleId?: string;
+  email: string;
+  emailVerifiedAt?: Date;
 }

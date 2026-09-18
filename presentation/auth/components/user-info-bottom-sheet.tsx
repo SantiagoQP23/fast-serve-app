@@ -53,7 +53,7 @@ function UserInfoBottomSheet(
               {user?.person?.firstName} {user?.person?.lastName}
             </ThemedText>
             <ThemedText type="small" style={tw`text-gray-500`}>
-              {user?.person?.email}
+              {user?.email}
             </ThemedText>
           </ThemedView>
           <Label

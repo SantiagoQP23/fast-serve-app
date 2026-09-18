@@ -45,7 +45,7 @@ export default function EditProfileScreen() {
     defaultValues: {
       firstName: user?.person?.firstName || "",
       lastName: user?.person?.lastName || "",
-      email: user?.person?.email || "",
+      email: user?.email || "",
       phone: user?.person?.numPhone || "",
     },
   });
