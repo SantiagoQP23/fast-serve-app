@@ -152,7 +152,7 @@ export default function TabLayout() {
             ),
             headerShown: false,
             headerShadowVisible: false,
-            title: `${t("common:greetings.hello")} ${user?.person.firstName}!`,
+            title: `${t("common:greetings.hello")} ${user?.person?.firstName}!`,
             headerRight: () => <MyOrdersHeaderRight />,
           }}
         />

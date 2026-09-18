@@ -225,6 +225,29 @@ export const authSetCredentials = async (
   }
 };
 
+export const authChangeEmail = async (
+  newEmail: string,
+  currentPassword?: string,
+  googleIdToken?: string,
+): Promise<{ user: User | null; errorCode?: string }> => {
+  try {
+    const { data } = await restaurantApi.post<User>("/auth/change-email", {
+      newEmail,
+      currentPassword,
+      googleIdToken,
+    });
+
+    return { user: data };
+  } catch (error) {
+    const axiosError = error as AxiosError<{
+      error?: { code?: string; message?: string };
+    }>;
+    const errorCode = axiosError.response?.data?.error?.code;
+    console.log("Change email error", errorCode, axiosError.response?.data);
+    return { user: null, errorCode };
+  }
+};
+
 export const authLogout = async () => {
   try {
     const pushToken = await SecureStorageAdapter.getItem("expoPushToken");

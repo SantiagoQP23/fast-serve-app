@@ -10,6 +10,7 @@ import {
   authDeleteAccount,
   authChangePassword,
   authSetCredentials,
+  authChangeEmail,
 } from "@/core/auth/actions/auth-actions";
 import { SecureStorageAdapter } from "@/helpers/adapters/secure-storage.adapter";
 import { User } from "@/core/auth/models/user.model";
@@ -58,6 +59,10 @@ export interface AuthState {
   setCredentials: (
     username: string,
     password: string,
+  ) => Promise<{ success: boolean; errorCode?: string }>;
+  changeEmail: (
+    newEmail: string,
+    currentPassword?: string,
   ) => Promise<{ success: boolean; errorCode?: string }>;
   checkStatus: () => Promise<void>;
   logout: () => Promise<void>;
@@ -317,6 +322,48 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     const { user: updatedUser, errorCode } = await authSetCredentials(
       username,
       password,
+    );
+
+    if (errorCode) return { success: false, errorCode };
+    if (!updatedUser) return { success: false };
+
+    set({ user: updatedUser });
+
+    return { success: true };
+  },
+
+  changeEmail: async (newEmail: string, currentPassword?: string) => {
+    const hasLocalPassword =
+      get().user?.authProvider?.includes("local") ?? true;
+
+    let googleIdToken: string | undefined;
+
+    if (!hasLocalPassword) {
+      try {
+        await GoogleSignin.hasPlayServices();
+        const response = await GoogleSignin.signIn();
+
+        if (response.type === "cancelled") {
+          return { success: false };
+        }
+
+        googleIdToken = response.data?.idToken ?? undefined;
+
+        if (!googleIdToken) {
+          console.log("Google signin failed: no idToken");
+          return { success: false };
+        }
+      } catch (error: any) {
+        console.log("Google signin error", error);
+        Alert.alert("Google Sign-In Error", JSON.stringify(error, null, 2));
+        return { success: false };
+      }
+    }
+
+    const { user: updatedUser, errorCode } = await authChangeEmail(
+      newEmail,
+      hasLocalPassword ? currentPassword : undefined,
+      googleIdToken,
     );
 
     if (errorCode) return { success: false, errorCode };
