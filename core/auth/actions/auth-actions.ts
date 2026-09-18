@@ -175,12 +175,53 @@ export const authDeleteAccount = async (): Promise<{
       error?: { code?: string; message?: string };
     }>;
     const errorCode = axiosError.response?.data?.error?.code;
+    console.log("Delete account error", errorCode, axiosError.response?.data);
+    return { success: false, errorCode };
+  }
+};
+
+export const authChangePassword = async (
+  currentPassword: string,
+  newPassword: string,
+): Promise<{ success: boolean; errorCode?: string }> => {
+  try {
+    await restaurantApi.patch("/auth/change-password", {
+      currentPassword,
+      newPassword,
+    });
+    return { success: true };
+  } catch (error) {
+    const axiosError = error as AxiosError<{
+      error?: { code?: string; message?: string };
+    }>;
+    const errorCode = axiosError.response?.data?.error?.code;
+    console.log("Change password error", errorCode, axiosError.response?.data);
+    return { success: false, errorCode };
+  }
+};
+
+export const authSetCredentials = async (
+  username: string,
+  password: string,
+): Promise<{ user: User | null; errorCode?: string }> => {
+  try {
+    const { data } = await restaurantApi.patch<User>("/auth/set-credentials", {
+      username,
+      password,
+    });
+
+    return { user: data };
+  } catch (error) {
+    const axiosError = error as AxiosError<{
+      error?: { code?: string; message?: string };
+    }>;
+    const errorCode = axiosError.response?.data?.error?.code;
     console.log(
-      "Delete account error",
+      "Set credentials error",
       errorCode,
       axiosError.response?.data,
     );
-    return { success: false, errorCode };
+    return { user: null, errorCode };
   }
 };
 

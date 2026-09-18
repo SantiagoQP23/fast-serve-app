@@ -206,6 +206,20 @@ export default function OrdersLayout() {
           }}
         />
 
+        <Stack.Screen
+          name="change-password/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="set-credentials/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
         {/* <Stack.Screen */}
         {/*   name="[id]/edit-order-detail/index" */}
         {/*   options={{ */}

@@ -21,12 +21,18 @@ export default function AccountScreen() {
   const deleteAccountSheetRef = useRef<BottomSheetMethods>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const hasLocalPassword = user?.authProvider?.includes("local") ?? true;
+
   const handleChangeEmail = () => {
     // TODO: implement change email
   };
 
   const handleChangePassword = () => {
-    // TODO: implement change password
+    router.push("/(profile)/change-password");
+  };
+
+  const handleSetCredentials = () => {
+    router.push("/(profile)/set-credentials");
   };
 
   const handleOpenDeleteAccount = () => {
@@ -77,9 +83,12 @@ export default function AccountScreen() {
           <Pressable
             style={({ pressed }) =>
               tw.style(
-                `flex-row items-center gap-4 bg-light-surface p-4 rounded-3xl opacity-50`,
+                `flex-row items-center gap-4 bg-light-surface p-4 rounded-3xl`,
+                !hasLocalPassword && "opacity-50",
+                pressed && hasLocalPassword && "opacity-70",
               )
             }
+            disabled={!hasLocalPassword}
             onPress={handleChangePassword}
           >
             <Ionicons
@@ -96,6 +105,32 @@ export default function AccountScreen() {
               color={tw.color("gray-400")}
             />
           </Pressable>
+
+          {!hasLocalPassword && (
+            <Pressable
+              style={({ pressed }) =>
+                tw.style(
+                  `flex-row items-center gap-4 bg-light-surface p-4 rounded-3xl`,
+                  pressed && "opacity-70",
+                )
+              }
+              onPress={handleSetCredentials}
+            >
+              <Ionicons
+                name="key-outline"
+                size={24}
+                color={tw.color("light-primary")}
+              />
+              <ThemedText type="body1" style={tw`flex-1`}>
+                {t("account.setCredentials")}
+              </ThemedText>
+              <Ionicons
+                name="chevron-forward-outline"
+                size={20}
+                color={tw.color("gray-400")}
+              />
+            </Pressable>
+          )}
 
           <Button
             variant="destructive"

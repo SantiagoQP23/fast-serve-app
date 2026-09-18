@@ -8,6 +8,8 @@ import {
   authRegister,
   authLogout,
   authDeleteAccount,
+  authChangePassword,
+  authSetCredentials,
 } from "@/core/auth/actions/auth-actions";
 import { SecureStorageAdapter } from "@/helpers/adapters/secure-storage.adapter";
 import { User } from "@/core/auth/models/user.model";
@@ -49,6 +51,14 @@ export interface AuthState {
     numPhone?: string,
   ) => Promise<{ success: boolean; errorCode?: string }>;
   deleteAccount: () => Promise<{ success: boolean; errorCode?: string }>;
+  changePassword: (
+    currentPassword: string,
+    newPassword: string,
+  ) => Promise<{ success: boolean; errorCode?: string }>;
+  setCredentials: (
+    username: string,
+    password: string,
+  ) => Promise<{ success: boolean; errorCode?: string }>;
   checkStatus: () => Promise<void>;
   logout: () => Promise<void>;
   resetBootstrap: () => void;
@@ -295,6 +305,24 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       bootstrapStatus: "idle",
       bootstrapError: null,
     });
+
+    return { success: true };
+  },
+
+  changePassword: async (currentPassword: string, newPassword: string) => {
+    return authChangePassword(currentPassword, newPassword);
+  },
+
+  setCredentials: async (username: string, password: string) => {
+    const { user: updatedUser, errorCode } = await authSetCredentials(
+      username,
+      password,
+    );
+
+    if (errorCode) return { success: false, errorCode };
+    if (!updatedUser) return { success: false };
+
+    set({ user: updatedUser });
 
     return { success: true };
   },
