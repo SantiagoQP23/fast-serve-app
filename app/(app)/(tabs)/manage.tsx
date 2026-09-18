@@ -1,4 +1,6 @@
+import { useRef } from "react";
 import { ScrollView, Linking } from "react-native";
+import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -13,9 +15,10 @@ import { typography } from "@/constants/theme";
 import Label from "@/presentation/theme/components/label";
 import { Roles } from "@/core/auth/models/user.model";
 import { toast } from "sonner-native";
-import Card from "@/presentation/theme/components/card";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { GroupedList } from "@/presentation/theme/components/grouped-list";
+import Avatar from "@/presentation/theme/components/avatar";
+import UserInfoBottomSheet from "@/presentation/auth/components/user-info-bottom-sheet";
 
 interface ManageOption {
   key: string;
@@ -27,6 +30,7 @@ interface ManageOption {
 export default function ManageScreen() {
   const { t } = useTranslation("auth");
   const { user, currentRestaurant } = useAuthStore();
+  const userInfoSheetRef = useRef<BottomSheetMethods>(null);
 
   const handleOpenWeb = async () => {
     const appUrl = process.env.EXPO_PUBLIC_APP_URL;
@@ -136,11 +140,18 @@ export default function ManageScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
           <ThemedText type="h2">{t("manage.title")}</ThemedText>
-          <IconButton
-            onPress={() => router.push("/(profile)/settings")}
-            icon="settings-outline"
-            variant="secondary"
-          ></IconButton>
+          <ThemedView style={tw`items-center gap-3 flex-row`}>
+            <Avatar
+              name={user?.person?.firstName}
+              size={42}
+              onPress={() => userInfoSheetRef.current?.present()}
+            />
+            <IconButton
+              onPress={() => router.push("/(profile)/settings")}
+              icon="settings-outline"
+              variant="secondary"
+            ></IconButton>
+          </ThemedView>
         </ThemedView>
 
         <ThemedView style={tw`my-4`} />
@@ -194,43 +205,6 @@ export default function ManageScreen() {
             )}
           </ThemedView>
         )}
-        <ThemedView style={tw`h-8`} />
-
-        {/* User Info Card */}
-        <Card
-          onPress={() => router.push("/(profile)/edit-profile")}
-          style={({ pressed }) => tw.style("  gap-4 ")}
-        >
-          <ThemedView style={tw`flex-row items-center gap-3`}>
-            <Ionicons
-              name="person-circle-outline"
-              size={40}
-              color={tw.color("gray-400")}
-            />
-            <ThemedView style={tw`flex-1 gap-1`}>
-              <ThemedText type="body1">
-                {user?.person?.firstName} {user?.person?.lastName}
-              </ThemedText>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {user?.person?.email}
-              </ThemedText>
-            </ThemedView>
-            <Ionicons
-              name="chevron-forward-outline"
-              size={20}
-              color={tw.color("gray-400")}
-            />
-          </ThemedView>
-          <ThemedView style={tw`flex-row items-center gap-2`}>
-            <Label
-              text={user?.role?.description || ""}
-              color="info"
-              size="small"
-            />
-          </ThemedView>
-        </Card>
-
-        <ThemedView style={tw`h-4`} />
         <Button
           label={t("manage.manageOtherRestaurant")}
           onPress={() => router.push("/(profile)/restaurants")}
@@ -298,6 +272,8 @@ export default function ManageScreen() {
           </ThemedView>
         )}
       </ScrollView>
+
+      <UserInfoBottomSheet ref={userInfoSheetRef} user={user} />
     </ScreenLayout>
   );
 }
