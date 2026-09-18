@@ -360,17 +360,10 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       }
     }
 
-    const { user: updatedUser, errorCode } = await authChangeEmail(
+    return authChangeEmail(
       newEmail,
       hasLocalPassword ? currentPassword : undefined,
       googleIdToken,
     );
-
-    if (errorCode) return { success: false, errorCode };
-    if (!updatedUser) return { success: false };
-
-    set({ user: updatedUser });
-
-    return { success: true };
   },
 }));

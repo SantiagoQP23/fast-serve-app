@@ -22,7 +22,6 @@ export default function AccountScreen() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const hasLocalPassword = user?.authProvider?.includes("local") ?? true;
-  const canChangeEmail = !user?.emailVerifiedAt;
 
   const handleChangeEmail = () => {
     router.push("/(profile)/change-email");
@@ -61,11 +60,9 @@ export default function AccountScreen() {
             style={({ pressed }) =>
               tw.style(
                 `flex-row items-center gap-4 bg-light-surface p-4 rounded-3xl`,
-                !canChangeEmail && "opacity-50",
-                pressed && canChangeEmail && "opacity-70",
+                pressed && "opacity-70",
               )
             }
-            disabled={!canChangeEmail}
             onPress={handleChangeEmail}
           >
             <Ionicons

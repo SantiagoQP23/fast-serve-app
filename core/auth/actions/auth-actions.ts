@@ -229,22 +229,22 @@ export const authChangeEmail = async (
   newEmail: string,
   currentPassword?: string,
   googleIdToken?: string,
-): Promise<{ user: User | null; errorCode?: string }> => {
+): Promise<{ success: boolean; errorCode?: string }> => {
   try {
-    const { data } = await restaurantApi.post<User>("/auth/change-email", {
+    await restaurantApi.post("/auth/change-email", {
       newEmail,
       currentPassword,
       googleIdToken,
     });
 
-    return { user: data };
+    return { success: true };
   } catch (error) {
     const axiosError = error as AxiosError<{
       error?: { code?: string; message?: string };
     }>;
     const errorCode = axiosError.response?.data?.error?.code;
     console.log("Change email error", errorCode, axiosError.response?.data);
-    return { user: null, errorCode };
+    return { success: false, errorCode };
   }
 };
 

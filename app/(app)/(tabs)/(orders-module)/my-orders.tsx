@@ -139,7 +139,7 @@ export default function MyOrdersScreen() {
           <ThemedView>
             <ThemedText type="body1">{t("common:greetings.hello")},</ThemedText>
             <ThemedText type="h2" style={tw`mt-1`}>
-              {user?.person.firstName}!
+              {user?.person?.firstName}!
             </ThemedText>
           </ThemedView>
           <MyOrdersHeaderRight />
