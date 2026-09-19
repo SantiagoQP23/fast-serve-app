@@ -32,7 +32,7 @@ import {
 } from "@expo/ui/community/bottom-sheet";
 import { useBillStatus } from "@/presentation/orders/hooks/useBillStatus";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { Roles } from "@/core/auth/models/user.model";
+import { Roles, isAdminLevelRole } from "@/core/auth/models/user.model";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -83,7 +83,7 @@ export default function BillScreen() {
   const { mutate: updateBill } = useBills().updateBill;
 
   const { user } = useAuthStore();
-  const isAdmin = user?.role?.name === Roles.ADMIN;
+  const isAdmin = isAdminLevelRole(user?.role?.name);
   const isCashier = user?.role?.name === Roles.CASHIER;
   const canChargeBill = isAdmin || isCashier;
   const canManage = isAdmin || isCashier;

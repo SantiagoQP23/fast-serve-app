@@ -32,6 +32,7 @@ import * as ImagePicker from "expo-image-picker";
 import { PaymentProofsService } from "@/core/transactions/services/payment-proofs.service";
 import ImageViewer from "react-native-image-zoom-viewer";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
+import { Roles, isAdminLevelRole } from "@/core/auth/models/user.model";
 import IconButton from "@/presentation/theme/components/icon-button";
 import dayjs from "dayjs";
 import { useModal } from "@/presentation/shared/hooks/useModal";
@@ -47,8 +48,8 @@ export default function TransactionDetailScreen() {
   const transactionId = Number(id);
 
   const { user } = useAuthStore();
-  const isAdmin = user?.role?.name === "admin";
-  const isCashier = user?.role?.name === "cashier";
+  const isAdmin = isAdminLevelRole(user?.role?.name);
+  const isCashier = user?.role?.name === Roles.CASHIER;
   const canManage = isAdmin || isCashier;
 
   const { transaction, isLoading, refetch } = useTransaction(transactionId);

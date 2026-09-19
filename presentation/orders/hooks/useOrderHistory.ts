@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { OrdersService } from "@/core/orders/services/orders.service";
 import { OrderHistoryFiltersDto } from "@/core/orders/dto/order-history-filters.dto";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useState, useCallback, useEffect } from "react";
 import { Order } from "@/core/orders/models/order.model";
 
@@ -11,7 +12,7 @@ export const useOrderHistory = (filters?: OrderHistoryFiltersDto) => {
   const [allOrders, setAllOrders] = useState<Order[]>([]);
   const limit = 10;
   const { user } = useAuthStore();
-  const isAdmin = user?.role?.name === "admin";
+  const isAdmin = isAdminLevelRole(user?.role?.name);
 
   const filtersWithDefaults: OrderHistoryFiltersDto = {
     startDate: new Date().toISOString().split("T")[0],

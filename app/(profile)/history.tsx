@@ -15,6 +15,7 @@ import { useUsers } from "@/presentation/users/hooks/useUsers";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { Ionicons } from "@expo/vector-icons";
 import {
   BottomSheetView,
@@ -130,7 +131,7 @@ export default function HistoryScreen() {
   }, [refetch, t]);
 
   const { users } = useUsers();
-  const isAdmin = user?.role?.name === "admin";
+  const isAdmin = isAdminLevelRole(user?.role?.name);
   const availableWaiters = useMemo(() => {
     const filteredUsers = isAdmin
       ? users.filter((u) => u.isActive)

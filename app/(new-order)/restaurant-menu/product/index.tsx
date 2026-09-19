@@ -14,6 +14,7 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { ProductStatus } from "@/core/menu/models/product.model";
@@ -69,7 +70,7 @@ export default function ProductScreen() {
   const order = useOrdersStore((state) => state.activeOrder);
   const navigation = useNavigation();
   const { user } = useAuthStore();
-  const isAdmin = user?.role?.name === "admin";
+  const isAdmin = isAdminLevelRole(user?.role?.name);
 
   const [typeOrderDetail, setTypeOrderDetail] = useState<OrderType>(
     activeOrderDetail

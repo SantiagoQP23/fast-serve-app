@@ -15,6 +15,7 @@ import { useRouter } from "expo-router";
 import { PieChart } from "react-native-gifted-charts";
 import { Colors, typography } from "@/constants/theme";
 import { useColorScheme } from "@/presentation/theme/hooks/use-color-scheme";
+import Card from "@/presentation/theme/components/card";
 
 export default function PaymentMethodSummaryCard({
   startDate,
@@ -61,154 +62,143 @@ export default function PaymentMethodSummaryCard({
     : formattedTotalIncome.replace(/\d/g, "*");
 
   return (
-    <Pressable>
-      <ThemedView
-        style={tw`rounded-2xl border border-light-border py-8 px-6  mb-4`}
-      >
-        <ThemedView style={tw`flex-row items-center justify-between mb-8`}>
-          <ThemedText
-            type="h4"
-            style={[tw``, { fontFamily: typography.medium }]}
-          >
-            {t("reports:paymentMethodReport.title")}
+    <Card style={tw``}>
+      <ThemedView style={tw`flex-row items-center justify-between mb-8`}>
+        <ThemedText type="h4" style={[tw``, { fontFamily: typography.medium }]}>
+          {t("reports:paymentMethodReport.title")}
+        </ThemedText>
+        <Pressable
+          onPress={() => setShowTotalIncome((prev) => !prev)}
+          hitSlop={8}
+        >
+          <Ionicons
+            name={showTotalIncome ? "eye-off-outline" : "eye-outline"}
+            size={18}
+            color={tw.color("gray-500")}
+          />
+        </Pressable>
+      </ThemedView>
+      {/* <ThemedText>{JSON.stringify(paymentMethods)}</ThemedText> */}
+
+      {isLoading ? (
+        <ThemedView style={tw`py-4`}>
+          <ThemedText type="body2" style={tw`text-gray-400 text-center`}>
+            {t("common:status.loading")}
           </ThemedText>
-          <Pressable
-            onPress={() => setShowTotalIncome((prev) => !prev)}
-            hitSlop={8}
-          >
-            <Ionicons
-              name={showTotalIncome ? "eye-off-outline" : "eye-outline"}
-              size={18}
-              color={tw.color("gray-500")}
-            />
-          </Pressable>
         </ThemedView>
-        {/* <ThemedText>{JSON.stringify(paymentMethods)}</ThemedText> */}
-
-        {isLoading ? (
-          <ThemedView style={tw`py-4`}>
-            <ThemedText type="body2" style={tw`text-gray-400 text-center`}>
-              {t("common:status.loading")}
-            </ThemedText>
+      ) : paymentMethods.length > 0 ? (
+        <ThemedView style={tw`gap-3`}>
+          {/* Donut Chart */}
+          <ThemedView style={tw`items-center`}>
+            <PieChart
+              data={pieData}
+              donut
+              radius={100}
+              innerRadius={65}
+              innerCircleColor="#fff"
+              centerLabelComponent={() => (
+                <ThemedView style={tw`items-center bg-transparent`}>
+                  <ThemedText
+                    type="caption"
+                    style={tw`text-gray-500 text-xs mb-1`}
+                  >
+                    {t("reports:summary.totalIncome")}
+                  </ThemedText>
+                  <ThemedText
+                    type="h3"
+                    style={[
+                      tw``,
+                      {
+                        color: themePrimaryColor,
+                        fontFamily: typography.medium,
+                      },
+                    ]}
+                  >
+                    {displayedTotalIncome}
+                  </ThemedText>
+                </ThemedView>
+              )}
+              textSize={12}
+              textColor="#fff"
+              showText
+              textBackgroundRadius={10}
+              strokeWidth={2}
+              strokeColor="#fff"
+            />
           </ThemedView>
-        ) : paymentMethods.length > 0 ? (
-          <ThemedView style={tw`gap-3`}>
-            {/* Donut Chart */}
-            <ThemedView style={tw`items-center`}>
-              <PieChart
-                data={pieData}
-                donut
-                radius={100}
-                innerRadius={65}
-                innerCircleColor="#fff"
-                centerLabelComponent={() => (
-                  <ThemedView style={tw`items-center bg-transparent`}>
-                    <ThemedText
-                      type="caption"
-                      style={tw`text-gray-500 text-xs mb-1`}
-                    >
-                      {t("reports:summary.totalIncome")}
-                    </ThemedText>
-                    <ThemedText
-                      type="h3"
-                      style={[
-                        tw``,
-                        {
-                          color: themePrimaryColor,
-                          fontFamily: typography.medium,
-                        },
-                      ]}
-                    >
-                      {displayedTotalIncome}
-                    </ThemedText>
-                  </ThemedView>
-                )}
-                textSize={12}
-                textColor="#fff"
-                showText
-                textBackgroundRadius={10}
-                strokeWidth={2}
-                strokeColor="#fff"
-              />
-            </ThemedView>
 
-            {/* Legend */}
-            <ThemedView style={tw`gap-4 mt-4`}>
-              {paymentMethods.map((pm) => {
-                const info = getPaymentMethodInfo(pm.paymentMethodType);
-                const percentage = paymentMethodReport?.summary?.totalIncome
-                  ? (pm.totalIncome / paymentMethodReport.summary.totalIncome) *
-                    100
-                  : 0;
-                const formattedPaymentMethodIncome = formatCurrency(
-                  pm.totalIncome,
-                );
-                const displayedPaymentMethodIncome = showTotalIncome
-                  ? formattedPaymentMethodIncome
-                  : formattedPaymentMethodIncome.replace(/\d/g, "*");
+          {/* Legend */}
+          <ThemedView style={tw`gap-4 mt-4`}>
+            {paymentMethods.map((pm) => {
+              const info = getPaymentMethodInfo(pm.paymentMethodType);
+              const percentage = paymentMethodReport?.summary?.totalIncome
+                ? (pm.totalIncome / paymentMethodReport.summary.totalIncome) *
+                  100
+                : 0;
+              const formattedPaymentMethodIncome = formatCurrency(
+                pm.totalIncome,
+              );
+              const displayedPaymentMethodIncome = showTotalIncome
+                ? formattedPaymentMethodIncome
+                : formattedPaymentMethodIncome.replace(/\d/g, "*");
 
-                return (
-                  <ThemedView key={pm.paymentMethodId}>
-                    <ThemedView
-                      style={tw`flex-row items-center justify-between`}
-                    >
+              return (
+                <ThemedView key={pm.paymentMethodId}>
+                  <ThemedView style={tw`flex-row items-center justify-between`}>
+                    <ThemedView style={tw`flex-row items-center gap-4 flex-1`}>
                       <ThemedView
-                        style={tw`flex-row items-center gap-4 flex-1`}
-                      >
-                        <ThemedView
-                          style={[
-                            tw`w-3 h-3 rounded-full`,
-                            { backgroundColor: info.color },
-                          ]}
-                        />
-                        <ThemedView style={tw`gap-1`}>
-                          <ThemedText
-                            type="body2"
-                            style={[
-                              tw`flex-1`,
-                              { fontFamily: typography.medium },
-                            ]}
-                          >
-                            {pm.paymentMethodName}
-                          </ThemedText>
-                          <ThemedView style={tw`flex-row items-center gap-1.5`}>
-                            <ThemedText type="small" style={tw`text-gray-500`}>
-                              {pm.transactionCount}{" "}
-                              {pm.transactionCount === 1
-                                ? t("bills:bill")
-                                : t("bills:bills")}
-                            </ThemedText>
-                            <ThemedText type="small" style={tw`text-gray-400`}>
-                              •
-                            </ThemedText>
-                            <ThemedText type="small" style={tw`text-gray-500`}>
-                              {percentage.toFixed(1)}%
-                            </ThemedText>
-                          </ThemedView>
-                        </ThemedView>
-                      </ThemedView>
-                      <ThemedView style={tw`items-end gap-0.5`}>
+                        style={[
+                          tw`w-3 h-3 rounded-full`,
+                          { backgroundColor: info.color },
+                        ]}
+                      />
+                      <ThemedView style={tw`gap-1`}>
                         <ThemedText
                           type="body2"
-                          style={[tw``, { fontFamily: typography.medium }]}
+                          style={[
+                            tw`flex-1`,
+                            { fontFamily: typography.medium },
+                          ]}
                         >
-                          {displayedPaymentMethodIncome}
+                          {pm.paymentMethodName}
                         </ThemedText>
+                        <ThemedView style={tw`flex-row items-center gap-1.5`}>
+                          <ThemedText type="small" style={tw`text-gray-500`}>
+                            {pm.transactionCount}{" "}
+                            {pm.transactionCount === 1
+                              ? t("bills:bill")
+                              : t("bills:bills")}
+                          </ThemedText>
+                          <ThemedText type="small" style={tw`text-gray-400`}>
+                            •
+                          </ThemedText>
+                          <ThemedText type="small" style={tw`text-gray-500`}>
+                            {percentage.toFixed(1)}%
+                          </ThemedText>
+                        </ThemedView>
                       </ThemedView>
                     </ThemedView>
+                    <ThemedView style={tw`items-end gap-0.5`}>
+                      <ThemedText
+                        type="body2"
+                        style={[tw``, { fontFamily: typography.medium }]}
+                      >
+                        {displayedPaymentMethodIncome}
+                      </ThemedText>
+                    </ThemedView>
                   </ThemedView>
-                );
-              })}
-            </ThemedView>
+                </ThemedView>
+              );
+            })}
           </ThemedView>
-        ) : (
-          <ThemedView style={tw`py-4`}>
-            <ThemedText type="body2" style={tw`text-gray-400 text-center`}>
-              {t("reports:paymentMethodReport.noData")}
-            </ThemedText>
-          </ThemedView>
-        )}
-      </ThemedView>
-    </Pressable>
+        </ThemedView>
+      ) : (
+        <ThemedView style={tw`py-4`}>
+          <ThemedText type="body2" style={tw`text-gray-400 text-center`}>
+            {t("reports:paymentMethodReport.noData")}
+          </ThemedText>
+        </ThemedView>
+      )}
+    </Card>
   );
 }

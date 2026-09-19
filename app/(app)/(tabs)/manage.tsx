@@ -13,7 +13,7 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import { typography } from "@/constants/theme";
 import Label from "@/presentation/theme/components/label";
-import { Roles } from "@/core/auth/models/user.model";
+import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { toast } from "sonner-native";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { GroupedList } from "@/presentation/theme/components/grouped-list";
@@ -52,7 +52,7 @@ export default function ManageScreen() {
     }
   };
 
-  const isAdmin = user?.role?.name === Roles.ADMIN;
+  const isAdmin = isAdminLevelRole(user?.role?.name);
   const subscription = currentRestaurant?.subscription;
 
   const menuOptions: ManageOption[] = [

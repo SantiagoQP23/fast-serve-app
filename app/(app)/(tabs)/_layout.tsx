@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/presentation/theme/hooks/use-color-scheme";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useEffect, useRef } from "react";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ActivityIndicator, Pressable, View } from "react-native";
@@ -69,8 +70,8 @@ export default function TabLayout() {
   // const { printComanda } = usePrintComanda();
   // useNewTicketListener(printComanda);
 
-  // Check if user is admin
-  const isAdmin = user?.role?.name === "admin";
+  // Check if user has admin-level access (admin or owner)
+  const isAdmin = isAdminLevelRole(user?.role?.name);
 
   useEffect(() => {
     checkStatus();

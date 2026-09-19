@@ -15,6 +15,7 @@ import { useDashboardStats } from "@/presentation/orders/hooks/useDashboardStats
 import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 import OrderCardSkeleton from "@/presentation/home/components/order-card-skeleton";
@@ -42,7 +43,7 @@ export default function AnalyticsScreen() {
   const { t } = useTranslation(["common", "errors", "reports"]);
   const { user, currentRestaurant } = useAuthStore();
   const allOrders = useOrdersStore((state) => state.orders);
-  const isAdmin = user?.role?.name === "admin";
+  const isAdmin = isAdminLevelRole(user?.role?.name);
 
   // Admins can toggle between restaurant-wide data and their own data.
   // Non-admins always see their own data (enforced by the backend).

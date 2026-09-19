@@ -1,17 +1,24 @@
 import { Person } from "@/core/common/models/person.model";
 import { Restaurant } from "@/core/common/models/restaurant.model";
 
-export interface IRole {
-  id: number;
-  name: string;
-  description: string;
-}
-
 export enum Roles {
   ADMIN = "admin",
+  OWNER = "owner",
   COOK = "cook",
   WAITER = "waiter",
   CASHIER = "cashier",
+}
+
+export interface IRole {
+  id: number;
+  name: Roles;
+  description: string;
+}
+
+const ADMIN_LEVEL_ROLES = [Roles.ADMIN, Roles.OWNER];
+
+export function isAdminLevelRole(role?: Roles): boolean {
+  return !!role && ADMIN_LEVEL_ROLES.includes(role);
 }
 
 export interface RestaurantRole {

@@ -16,6 +16,7 @@ import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { Ionicons } from "@expo/vector-icons";
 
 import BillsFilterBottomSheet from "@/presentation/orders/components/bills-filter-bottom-sheet";
@@ -158,7 +159,7 @@ export default function SalesScreen() {
     : formattedTotalSales.replace(/\d/g, "*");
 
   const { users } = useUsers();
-  const isAdmin = user?.role?.name === "admin";
+  const isAdmin = isAdminLevelRole(user?.role?.name);
   const availableWaiters = useMemo(() => {
     const filteredUsers = isAdmin
       ? users.filter((u) => u.isActive)

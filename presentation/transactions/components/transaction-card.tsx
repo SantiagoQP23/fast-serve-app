@@ -13,6 +13,7 @@ import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { useTransactions } from "@/presentation/transactions/hooks/useTransactions";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
 import { typography } from "@/constants/theme";
@@ -33,7 +34,7 @@ export default function TransactionCard({
   const { user } = useAuthStore();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const isAdmin = user?.role?.name === "admin";
+  const isAdmin = isAdminLevelRole(user?.role?.name);
   const isIncome =
     transaction.category.transactionType === TransactionType.INCOME;
   const relativeTime = getRelativeTime(transaction.createdAt);

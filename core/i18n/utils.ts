@@ -267,6 +267,8 @@ export const getRoleTranslationKey = (role: Roles | string): string => {
   switch (role) {
     case Roles.ADMIN:
       return "auth:roles.admin";
+    case Roles.OWNER:
+      return "auth:roles.owner";
     case Roles.COOK:
       return "auth:roles.cook";
     case Roles.WAITER:

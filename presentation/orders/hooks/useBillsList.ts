@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { BillsService } from "@/core/orders/services/bills.service";
 import { BillListFiltersDto } from "@/core/orders/dto/bill-list-filters.dto";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useState, useCallback, useEffect } from "react";
 import { BillListItemDto } from "@/core/orders/dto/bill-list-response.dto";
 import { Bill } from "@/core/orders/models/bill.model";
@@ -12,7 +13,7 @@ export const useBillsList = (filters?: BillListFiltersDto) => {
   const [allBills, setAllBills] = useState<Bill[]>([]);
   const limit = 10;
   const { user } = useAuthStore();
-  const isAdmin = user?.role?.name === "admin";
+  const isAdmin = isAdminLevelRole(user?.role?.name);
 
   // Add default startDate (today) if not provided, plus pagination params
   const filtersWithDefaults: BillListFiltersDto = {

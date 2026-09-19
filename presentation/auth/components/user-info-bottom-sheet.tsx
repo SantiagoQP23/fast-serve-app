@@ -12,6 +12,7 @@ import Label from "@/presentation/theme/components/label";
 import Button from "@/presentation/theme/components/button";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { translateRole } from "@/core/i18n/utils";
 import type { User } from "@/core/auth/models/user.model";
 
 interface UserInfoBottomSheetProps {
@@ -57,7 +58,7 @@ function UserInfoBottomSheet(
             </ThemedText>
           </ThemedView>
           <Label
-            text={user?.role?.description || ""}
+            text={user?.role?.name ? translateRole(user.role.name) : ""}
             color="info"
             size="small"
           />

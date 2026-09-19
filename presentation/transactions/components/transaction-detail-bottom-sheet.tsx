@@ -16,6 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Button from "@/presentation/theme/components/button";
 import { usePaymentProofs } from "@/presentation/transactions/hooks/usePaymentProofs";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useTranslation } from "react-i18next";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 
@@ -28,7 +29,7 @@ export default function TransactionDetailBottomSheet({
 }: TransactionDetailBottomSheetProps) {
   const { t } = useTranslation(["common", "bills"]);
   const { user } = useAuthStore();
-  const isAdmin = user?.role?.name === "admin";
+  const isAdmin = isAdminLevelRole(user?.role?.name);
 
   const transactionId = transaction?.id;
   const {

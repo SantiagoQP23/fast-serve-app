@@ -14,6 +14,7 @@ import { useOrdersStore } from "../store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { i18nAlert } from "@/core/i18n/utils";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useModal } from "@/presentation/shared/hooks/useModal";
 import CloseOrderModal from "./close-order-modal";
 
@@ -44,7 +45,7 @@ const OrderOptionsBottomSheet = ({
   const router = useRouter();
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const { user } = useAuthStore();
-  const isAdmin = user?.role?.name === "admin";
+  const isAdmin = isAdminLevelRole(user?.role?.name);
   const {
     isOpen: closeModalIsOpen,
     handleOpen: openCloseModal,

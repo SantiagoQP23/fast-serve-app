@@ -11,6 +11,7 @@ import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
@@ -63,7 +64,7 @@ export default function EditOrderDetailScreen() {
   const router = useRouter();
   const navigation = useNavigation();
   const { user } = useAuthStore();
-  const isAdmin = user?.role?.name === "admin";
+  const isAdmin = isAdminLevelRole(user?.role?.name);
   const {
     isOnline,
     isLoading,
