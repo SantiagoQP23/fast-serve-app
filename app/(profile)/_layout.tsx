@@ -111,6 +111,13 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="menu-section-categories/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
           name="menu-categories/index"
           options={{
             headerShown: true,
@@ -127,11 +134,25 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="menu-category-products/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
           name="menu-products/index"
           options={{
             headerShown: true,
             title: t("menuManagement:products.title"),
             headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="menu-product-detail/index"
+          options={{
+            headerShown: false,
           }}
         />
 

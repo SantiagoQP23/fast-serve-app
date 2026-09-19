@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,21 +7,25 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useTables } from "@/presentation/tables/hooks/useTables";
+import { useTablesManagement } from "@/presentation/tables/hooks/useTablesManagement";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
-import IconButton from "@/presentation/theme/components/icon-button";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
+import SwipeableRow from "@/presentation/theme/components/swipeable-row";
 import type { Table } from "@/core/tables/models/table.model";
 
 export default function TablesSettingsScreen() {
   const { t } = useTranslation("tables");
   const { tables, tablesQuery } = useTables();
   const { isLoading, isError, refetch, isRefetching } = tablesQuery;
+  const { deleteTable } = useTablesManagement();
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
+  const [tableToDelete, setTableToDelete] = useState<Table | null>(null);
 
   useEffect(() => {
     if (tables.length === 0) {
@@ -46,6 +50,12 @@ export default function TablesSettingsScreen() {
         isAvailable: String(table.isAvailable !== false),
       },
     });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!tableToDelete) return;
+    await deleteTable.mutateAsync(tableToDelete.id);
+    setTableToDelete(null);
   };
 
   return (
@@ -100,54 +110,67 @@ export default function TablesSettingsScreen() {
         {tables.length > 0 && (
           <ThemedView style={tw`gap-2`}>
             {tables.map((table) => (
-              <Card
+              <SwipeableRow
                 key={table.id}
-                onPress={canManage ? () => handleEditTable(table) : undefined}
-                style={table.isActive === false && tw`opacity-50`}
+                onEdit={canManage ? () => handleEditTable(table) : undefined}
+                onDelete={
+                  canManage ? () => setTableToDelete(table) : undefined
+                }
               >
-                <ThemedView style={tw`flex-row items-center justify-between`}>
-                  <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
-                    <Ionicons
-                      name="grid-outline"
-                      size={28}
-                      color={tw.color("text-light-on-surface-variant")}
-                    />
-                    <ThemedView style={tw`flex-1 gap-2`}>
-                      <ThemedText type="h4">
-                        {t("settings.tableName", { name: table.name })}
-                      </ThemedText>
-                      <ThemedView
-                        style={tw`flex-row items-center gap-2 flex-wrap`}
-                      >
-                        {table.chairs != null && (
-                          <ThemedText type="small" style={tw`text-gray-500`}>
-                            {t("settings.chairsCount", {
-                              count: table.chairs,
-                            })}
-                          </ThemedText>
-                        )}
-                        {table.description ? (
-                          <ThemedText type="small" style={tw`text-gray-500`}>
-                            • {table.description}
-                          </ThemedText>
-                        ) : null}
+                <Card
+                  onPress={canManage ? () => handleEditTable(table) : undefined}
+                  style={table.isActive === false && tw`opacity-50`}
+                >
+                  <ThemedView style={tw`flex-row items-center justify-between`}>
+                    <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
+                      <Ionicons
+                        name="grid-outline"
+                        size={28}
+                        color={tw.color("text-light-on-surface-variant")}
+                      />
+                      <ThemedView style={tw`flex-1 gap-2`}>
+                        <ThemedText type="h4">
+                          {t("settings.tableName", { name: table.name })}
+                        </ThemedText>
+                        <ThemedView
+                          style={tw`flex-row items-center gap-2 flex-wrap`}
+                        >
+                          {table.chairs != null && (
+                            <ThemedText type="small" style={tw`text-gray-500`}>
+                              {t("settings.chairsCount", {
+                                count: table.chairs,
+                              })}
+                            </ThemedText>
+                          )}
+                          {table.description ? (
+                            <ThemedText type="small" style={tw`text-gray-500`}>
+                              • {table.description}
+                            </ThemedText>
+                          ) : null}
+                        </ThemedView>
                       </ThemedView>
                     </ThemedView>
                   </ThemedView>
-                  {/* <IconButton */}
-                  {/*   icon="create-outline" */}
-                  {/*   size={20} */}
-                  {/*   variant="text" */}
-                  {/*   onPress={() => handleEditTable(table)} */}
-                  {/* /> */}
-                </ThemedView>
-              </Card>
+                </Card>
+              </SwipeableRow>
             ))}
           </ThemedView>
         )}
       </ScrollView>
 
       {canManage && <Fab icon="add" onPress={handleCreateTable} />}
+
+      <DialogModal
+        visible={!!tableToDelete}
+        title={t("settings.deleteTitle")}
+        message={t("settings.deleteMessage")}
+        confirmLabel={t("settings.confirm")}
+        cancelLabel={t("settings.cancel")}
+        confirmVariant="destructive"
+        loading={deleteTable.isPending}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setTableToDelete(null)}
+      />
     </ScreenLayout>
   );
 }

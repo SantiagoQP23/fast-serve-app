@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,21 +7,25 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
+import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuManagement";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
-import IconButton from "@/presentation/theme/components/icon-button";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
+import SwipeableRow from "@/presentation/theme/components/swipeable-row";
 import type { Section } from "@/core/menu/models/section.model";
 
 export default function MenuSectionsScreen() {
   const { t } = useTranslation("menuManagement");
   const { sections, categories, menuQuery } = useMenu();
   const { isLoading, isError, refetch, isRefetching } = menuQuery;
+  const { deleteSection } = useMenuManagement();
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
+  const [sectionToDelete, setSectionToDelete] = useState<Section | null>(null);
 
   useEffect(() => {
     if (sections.length === 0) {
@@ -46,9 +50,27 @@ export default function MenuSectionsScreen() {
     });
   };
 
+  const handleViewSection = (section: Section) => {
+    router.push({
+      pathname: "/(profile)/menu-section-categories",
+      params: {
+        sectionId: section.id,
+        name: section.name,
+        isActive: String(section.isActive),
+        isPublic: String(section.isPublic),
+      },
+    });
+  };
+
   const getCategoryCount = (sectionId: string) =>
     categories.filter((category) => category.section.id === sectionId)
       .length;
+
+  const handleConfirmDelete = async () => {
+    if (!sectionToDelete) return;
+    await deleteSection.mutateAsync(sectionToDelete.id);
+    setSectionToDelete(null);
+  };
 
   return (
     <ScreenLayout style={tw`flex-1 px-4 pt-2`}>
@@ -105,45 +127,56 @@ export default function MenuSectionsScreen() {
               .slice()
               .sort((a, b) => a.order - b.order)
               .map((section) => (
-                <Card
+                <SwipeableRow
                   key={section.id}
-                  onPress={canManage ? () => handleEditSection(section) : undefined}
-                  style={!section.isActive && tw`opacity-50`}
+                  onEdit={canManage ? () => handleEditSection(section) : undefined}
+                  onDelete={
+                    canManage ? () => setSectionToDelete(section) : undefined
+                  }
                 >
-                  <ThemedView style={tw`flex-row items-center justify-between`}>
-                    <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
-                      <Ionicons
-                        name="list-outline"
-                        size={28}
-                        color={tw.color("text-light-on-surface-variant")}
-                      />
-                      <ThemedView style={tw`flex-1 gap-2`}>
-                        <ThemedText type="h4">{section.name}</ThemedText>
-                        <ThemedView style={tw`flex-row items-center gap-2`}>
-                          <ThemedText type="small" style={tw`text-gray-500`}>
-                            {t("sections.categoryCount", {
-                              count: getCategoryCount(section.id),
-                            })}
-                          </ThemedText>
+                  <Card
+                    onPress={() => handleViewSection(section)}
+                    style={!section.isActive && tw`opacity-50`}
+                  >
+                    <ThemedView style={tw`flex-row items-center justify-between`}>
+                      <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
+                        <Ionicons
+                          name="list-outline"
+                          size={28}
+                          color={tw.color("text-light-on-surface-variant")}
+                        />
+                        <ThemedView style={tw`flex-1 gap-2`}>
+                          <ThemedText type="h4">{section.name}</ThemedText>
+                          <ThemedView style={tw`flex-row items-center gap-2`}>
+                            <ThemedText type="small" style={tw`text-gray-500`}>
+                              {t("sections.categoryCount", {
+                                count: getCategoryCount(section.id),
+                              })}
+                            </ThemedText>
+                          </ThemedView>
                         </ThemedView>
                       </ThemedView>
                     </ThemedView>
-                    {canManage && (
-                      <IconButton
-                        icon="create-outline"
-                        size={20}
-                        variant="text"
-                        onPress={() => handleEditSection(section)}
-                      />
-                    )}
-                  </ThemedView>
-                </Card>
+                  </Card>
+                </SwipeableRow>
               ))}
           </ThemedView>
         )}
       </ScrollView>
 
       {canManage && <Fab icon="add" onPress={handleCreateSection} />}
+
+      <DialogModal
+        visible={!!sectionToDelete}
+        title={t("sections.deleteTitle")}
+        message={t("sections.deleteMessage")}
+        confirmLabel={t("confirm")}
+        cancelLabel={t("cancel")}
+        confirmVariant="destructive"
+        loading={deleteSection.isPending}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setSectionToDelete(null)}
+      />
     </ScreenLayout>
   );
 }
