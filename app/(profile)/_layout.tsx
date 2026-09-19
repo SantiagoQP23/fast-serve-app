@@ -41,7 +41,7 @@ export default function OrdersLayout() {
           name="restaurants/index"
           options={{
             headerShown: true,
-            title: "My restaurants",
+            title: t("manage.myRestaurants"),
             headerShadowVisible: false,
           }}
         />

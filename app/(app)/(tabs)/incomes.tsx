@@ -5,13 +5,7 @@ import React, {
   useRef,
   useMemo,
 } from "react";
-import {
-  ScrollView,
-  RefreshControl,
-  Alert,
-  FlatList,
-  Pressable,
-} from "react-native";
+import { ScrollView, RefreshControl, Alert, Pressable } from "react-native";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -44,6 +38,8 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { Transaction } from "@/core/transactions/models/transaction.model";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import { GroupedList } from "@/presentation/theme/components/grouped-list";
+import Card from "@/presentation/theme/components/card";
 
 const STORAGE_KEY = "incomes_selected_date";
 const FILTERS_STORAGE_KEY = "incomes_filters";
@@ -373,7 +369,7 @@ export default function IncomesScreen() {
 
             {/* Accounts Summary Section */}
             {accountsSummary.length > 0 && (
-              <ThemedView style={tw`mb-4`}>
+              <ThemedView style={tw`mb-4 mt-8`}>
                 <ThemedView
                   style={tw`flex-row items-center justify-between mb-3`}
                 >
@@ -405,10 +401,7 @@ export default function IncomesScreen() {
                       : formattedAccountIncome.replace(/\d/g, "*");
 
                     return (
-                      <ThemedView
-                        key={account.accountId}
-                        style={tw`w-36 rounded-xl p-6 border border-light-border`}
-                      >
+                      <Card key={account.accountId} style={tw`w-36 `}>
                         <ThemedText
                           type="small"
                           style={tw`text-gray-500 mb-3`}
@@ -419,7 +412,7 @@ export default function IncomesScreen() {
                         <ThemedText type="h3" style={tw`font-semibold`}>
                           {displayedAccountIncome}
                         </ThemedText>
-                      </ThemedView>
+                      </Card>
                     );
                   })}
                 </ScrollView>
@@ -448,20 +441,16 @@ export default function IncomesScreen() {
                 </ThemedView>
               ) : transactions.length > 0 ? (
                 <>
-                  <ThemedView style={tw` rounded-2xl`}>
-                    <FlatList
-                      data={transactions}
-                      keyExtractor={(item) => item.id.toString()}
-                      renderItem={({ item }) => (
-                        <TransactionCard
-                          transaction={item}
-                          onPress={() => openTransactionDetail(item)}
-                        />
-                      )}
-                      scrollEnabled={false}
-                      contentContainerStyle={tw`py-2 `}
-                    />
-                  </ThemedView>
+                  <GroupedList
+                    data={transactions}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={(item) => (
+                      <TransactionCard
+                        transaction={item}
+                        onPress={() => openTransactionDetail(item)}
+                      />
+                    )}
+                  />
 
                   {/* Load More Button */}
                   {hasMore && (

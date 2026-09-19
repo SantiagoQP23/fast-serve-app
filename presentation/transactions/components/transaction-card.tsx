@@ -96,7 +96,7 @@ export default function TransactionCard({
         }
       >
         <Pressable onPress={onPress} {...rest} style={tw``}>
-          <ThemedView style={tw`flex-row justify-between py-3   rounded-3xl`}>
+          <ThemedView style={tw`flex-row justify-between   rounded-3xl`}>
             {/* Left: Colored icon circle + transaction info */}
             <ThemedView style={tw`flex-row  gap-3 flex-1 items-center`}>
               {/* Category color circle */}
@@ -128,20 +128,21 @@ export default function TransactionCard({
                     t("common:labels.deletedUser"),
                   )}
                 </ThemedText>
-                <ThemedView
-                  style={tw`flex-row items-center gap-1.5`}
-                ></ThemedView>
                 <ThemedView style={tw`flex-row items-center gap-2 mt-0.5`}>
-                  {/* <ThemedText type="small" style={tw`text-gray-500`}> */}
-                  {/*   {relativeTime} */}
-                  {/* </ThemedText> */}
+                  <ThemedText type="small" style={tw`text-gray-500`}>
+                    {relativeTime}
+                  </ThemedText>
                 </ThemedView>
               </ThemedView>
-              <Label
-                color="primary"
-                text={formatCurrency(transaction.amount)}
-                size="medium"
-              />
+              <ThemedText
+                type="body1"
+                style={[
+                  tw`text-light-primary`,
+                  { fontFamily: typography.medium },
+                ]}
+              >
+                {formatCurrency(transaction.amount)}
+              </ThemedText>
             </ThemedView>
           </ThemedView>
         </Pressable>
