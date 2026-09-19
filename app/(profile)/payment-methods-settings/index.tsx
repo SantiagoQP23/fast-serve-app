@@ -9,6 +9,8 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { getPaymentMethodTranslationKey } from "@/core/i18n/utils";
 import { useAccounts } from "@/presentation/restaurant/hooks/useAccounts";
 import { usePaymentMethods } from "@/presentation/restaurant/hooks/usePaymentMethods";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
@@ -20,6 +22,8 @@ export default function PaymentMethodsSettingsScreen() {
   const { t } = useTranslation("paymentMethods");
   const { accounts, accountsQuery } = useAccounts();
   const { paymentMethods, paymentMethodsQuery } = usePaymentMethods();
+  const { user } = useAuthStore();
+  const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
 
   useEffect(() => {
     if (accounts.length === 0) accountsQuery.refetch();
@@ -124,7 +128,7 @@ export default function PaymentMethodsSettingsScreen() {
               {accounts.map((account) => (
                 <Card
                   key={account.id}
-                  onPress={() => handleEditAccount(account)}
+                  onPress={canManage ? () => handleEditAccount(account) : undefined}
                   style={!account.isActive && tw`opacity-50`}
                 >
                   <ThemedView style={tw`flex-row items-center justify-between`}>
@@ -171,13 +175,15 @@ export default function PaymentMethodsSettingsScreen() {
           )}
         </ThemedView>
 
-        <Button
-          label={t("accounts.newAccount")}
-          onPress={handleCreateAccount}
-          variant="outline"
-          size="small"
-          leftIcon="add-outline"
-        />
+        {canManage && (
+          <Button
+            label={t("accounts.newAccount")}
+            onPress={handleCreateAccount}
+            variant="outline"
+            size="small"
+            leftIcon="add-outline"
+          />
+        )}
 
         <ThemedView style={tw`my-2`} />
 
@@ -215,7 +221,7 @@ export default function PaymentMethodsSettingsScreen() {
               {paymentMethods.map((method) => (
                 <Card
                   key={method.id}
-                  onPress={() => handleEditMethod(method)}
+                  onPress={canManage ? () => handleEditMethod(method) : undefined}
                   style={!method.isActive && tw`opacity-50`}
                 >
                   <ThemedView style={tw`flex-row items-center justify-between`}>
@@ -253,13 +259,15 @@ export default function PaymentMethodsSettingsScreen() {
                 </Card>
               ))}
 
-              <Button
-                label={t("methods.newMethod")}
-                onPress={handleCreateMethod}
-                variant="outline"
-                size="small"
-                leftIcon="add-outline"
-              />
+              {canManage && (
+                <Button
+                  label={t("methods.newMethod")}
+                  onPress={handleCreateMethod}
+                  variant="outline"
+                  size="small"
+                  leftIcon="add-outline"
+                />
+              )}
             </ThemedView>
           )}
         </ThemedView>

@@ -7,6 +7,8 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
@@ -18,6 +20,8 @@ export default function MenuCategoriesScreen() {
   const { t } = useTranslation("menuManagement");
   const { categories, products, menuQuery } = useMenu();
   const { isLoading, isError, refetch, isRefetching } = menuQuery;
+  const { user } = useAuthStore();
+  const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
 
   useEffect(() => {
     if (categories.length === 0) {
@@ -100,7 +104,7 @@ export default function MenuCategoriesScreen() {
             {categories.map((category) => (
               <Card
                 key={category.id}
-                onPress={() => handleEditCategory(category)}
+                onPress={canManage ? () => handleEditCategory(category) : undefined}
                 style={!category.isActive && tw`opacity-50`}
               >
                 <ThemedView style={tw`flex-row items-center justify-between`}>
@@ -127,14 +131,16 @@ export default function MenuCategoriesScreen() {
                       </ThemedView>
                     </ThemedView>
                   </ThemedView>
-                  <ThemedView style={tw`flex-row items-center`}>
-                    <IconButton
-                      icon="create-outline"
-                      size={20}
-                      variant="text"
-                      onPress={() => handleEditCategory(category)}
-                    />
-                  </ThemedView>
+                  {canManage && (
+                    <ThemedView style={tw`flex-row items-center`}>
+                      <IconButton
+                        icon="create-outline"
+                        size={20}
+                        variant="text"
+                        onPress={() => handleEditCategory(category)}
+                      />
+                    </ThemedView>
+                  )}
                 </ThemedView>
               </Card>
             ))}
@@ -142,7 +148,7 @@ export default function MenuCategoriesScreen() {
         )}
       </ScrollView>
 
-      <Fab icon="add" onPress={handleCreateCategory} />
+      {canManage && <Fab icon="add" onPress={handleCreateCategory} />}
     </ScreenLayout>
   );
 }

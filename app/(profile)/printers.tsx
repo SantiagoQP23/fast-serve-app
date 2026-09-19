@@ -10,6 +10,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { usePrinters } from "@/core/printers/hooks/usePrinters";
 import { ThermalPrinterService } from "@/core/printers/services/thermal-printer.service";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
@@ -22,7 +23,8 @@ export default function PrintersScreen() {
   const { t } = useTranslation("printers");
   const { getAll, deletePrinter } = usePrinters();
   const { data: printers, isLoading, isError, refetch, isRefetching } = getAll;
-  const { currentRestaurant } = useAuthStore();
+  const { currentRestaurant, user } = useAuthStore();
+  const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
 
   const [testingPrinterId, setTestingPrinterId] = useState<string | null>(null);
   const [printerToDelete, setPrinterToDelete] = useState<Printer | null>(null);
@@ -221,7 +223,7 @@ export default function PrintersScreen() {
         )}
       </ScrollView>
 
-      <Fab icon="add" onPress={handleCreatePrinter} />
+      {canManage && <Fab icon="add" onPress={handleCreatePrinter} />}
 
       <DialogModal
         visible={!!printerToDelete}

@@ -15,10 +15,14 @@ export interface IRole {
   description: string;
 }
 
+export function isValidRole(role: Roles | undefined, allowedRoles: Roles[]): boolean {
+  return !!role && allowedRoles.includes(role);
+}
+
 const ADMIN_LEVEL_ROLES = [Roles.ADMIN, Roles.OWNER];
 
 export function isAdminLevelRole(role?: Roles): boolean {
-  return !!role && ADMIN_LEVEL_ROLES.includes(role);
+  return isValidRole(role, ADMIN_LEVEL_ROLES);
 }
 
 export interface RestaurantRole {

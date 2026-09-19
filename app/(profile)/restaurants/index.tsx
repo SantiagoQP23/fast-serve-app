@@ -50,7 +50,7 @@ export default function RestaurantsScreen() {
                 restaurantRole.restaurant.id === currentRestaurant?.id;
 
               return (
-                <ThemedView style={tw`flex-row items-center gap-3`}>
+                <ThemedView style={[tw`flex-row items-center gap-3`]}>
                   <ThemedView style={tw`flex-1 gap-1`}>
                     <ThemedText type={isSelected ? "h4" : "body1"}>
                       {restaurantRole.restaurant.name}
@@ -60,9 +60,14 @@ export default function RestaurantsScreen() {
                         {translateRole(restaurantRole.role.name)}
                       </ThemedText>
                       {restaurantRole.restaurant.address && (
-                        <ThemedText type={isSelected ? "body1" : "body2"}>
-                          {restaurantRole.restaurant.address}
-                        </ThemedText>
+                        <>
+                          <ThemedText type={isSelected ? "body2" : "small"}>
+                            •
+                          </ThemedText>
+                          <ThemedText type={isSelected ? "body1" : "body2"}>
+                            {restaurantRole.restaurant.address}
+                          </ThemedText>
+                        </>
                       )}
                     </ThemedView>
                   </ThemedView>

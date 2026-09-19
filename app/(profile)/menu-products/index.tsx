@@ -7,6 +7,8 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
@@ -18,6 +20,8 @@ export default function MenuProductsScreen() {
   const { t } = useTranslation("menuManagement");
   const { products, menuQuery } = useMenu();
   const { isLoading, isError, refetch, isRefetching } = menuQuery;
+  const { user } = useAuthStore();
+  const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
 
   useEffect(() => {
     if (products.length === 0) {
@@ -105,7 +109,7 @@ export default function MenuProductsScreen() {
             {products.map((product) => (
               <Card
                 key={product.id}
-                onPress={() => handleEditProduct(product)}
+                onPress={canManage ? () => handleEditProduct(product) : undefined}
                 style={!product.isActive && tw`opacity-50`}
               >
                 <ThemedView style={tw`flex-row items-center justify-between`}>
@@ -130,12 +134,14 @@ export default function MenuProductsScreen() {
                       </ThemedView>
                     </ThemedView>
                   </ThemedView>
-                  <IconButton
-                    icon="create-outline"
-                    size={20}
-                    variant="text"
-                    onPress={() => handleEditProduct(product)}
-                  />
+                  {canManage && (
+                    <IconButton
+                      icon="create-outline"
+                      size={20}
+                      variant="text"
+                      onPress={() => handleEditProduct(product)}
+                    />
+                  )}
                 </ThemedView>
               </Card>
             ))}
@@ -143,7 +149,7 @@ export default function MenuProductsScreen() {
         )}
       </ScrollView>
 
-      <Fab icon="add" onPress={handleCreateProduct} />
+      {canManage && <Fab icon="add" onPress={handleCreateProduct} />}
     </ScreenLayout>
   );
 }

@@ -7,6 +7,8 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useProductionAreas } from "@/presentation/production-areas/hooks/useProductionAreas";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
@@ -20,6 +22,8 @@ export default function ProductionAreasScreen() {
   const { getAllQuery, productionAreas, deleteProductionArea } =
     useProductionAreas();
   const { isLoading, isError, refetch, isRefetching } = getAllQuery;
+  const { user } = useAuthStore();
+  const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
 
   const [areaToDelete, setAreaToDelete] = useState<ProductionArea | null>(null);
 
@@ -153,7 +157,7 @@ export default function ProductionAreasScreen() {
         )}
       </ScrollView>
 
-      <Fab icon="add" onPress={handleCreateArea} />
+      {canManage && <Fab icon="add" onPress={handleCreateArea} />}
 
       <DialogModal
         visible={!!areaToDelete}

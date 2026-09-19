@@ -7,6 +7,8 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useTables } from "@/presentation/tables/hooks/useTables";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
@@ -18,6 +20,8 @@ export default function TablesSettingsScreen() {
   const { t } = useTranslation("tables");
   const { tables, tablesQuery } = useTables();
   const { isLoading, isError, refetch, isRefetching } = tablesQuery;
+  const { user } = useAuthStore();
+  const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
 
   useEffect(() => {
     if (tables.length === 0) {
@@ -98,7 +102,7 @@ export default function TablesSettingsScreen() {
             {tables.map((table) => (
               <Card
                 key={table.id}
-                onPress={() => handleEditTable(table)}
+                onPress={canManage ? () => handleEditTable(table) : undefined}
                 style={table.isActive === false && tw`opacity-50`}
               >
                 <ThemedView style={tw`flex-row items-center justify-between`}>
@@ -143,7 +147,7 @@ export default function TablesSettingsScreen() {
         )}
       </ScrollView>
 
-      <Fab icon="add" onPress={handleCreateTable} />
+      {canManage && <Fab icon="add" onPress={handleCreateTable} />}
     </ScreenLayout>
   );
 }
