@@ -1,18 +1,35 @@
+export enum PlanLimitResource {
+  TABLES = "TABLES",
+  PRODUCTS = "PRODUCTS",
+  USERS = "USERS",
+  ORDERS_PER_MONTH = "ORDERS_PER_MONTH",
+}
+
+export interface PlanLimit {
+  id: string;
+  planId: number;
+  resource: PlanLimitResource;
+  limit: number; // -1 means unlimited
+}
+
 export interface Plan {
   id: number;
+  code: string; // stable identifier, e.g. 'FREE' | 'PREMIUM'
   name: string;
   description: string;
   price: number;
   isActive: boolean;
+  limits?: PlanLimit[];
 }
 
 export interface Subscription {
   id: string;
   status: "TRIAL" | "ACTIVE" | "EXPIRED" | "CANCELLED";
   startDate: string;
-  endDate?: string;
-  trialEndsAt?: string;
-  isActive: boolean;
+  trialEndsAt?: string | null;
+  currentPeriodStart?: string | null;
+  currentPeriodEnd?: string | null;
+  cancelledAt?: string | null;
   plan?: Plan;
 }
 

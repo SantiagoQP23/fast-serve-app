@@ -53,6 +53,15 @@ export default function OrdersLayout() {
             headerShadowVisible: false,
           }}
         />
+
+        <Stack.Screen
+          name="subscription"
+          options={{
+            headerShown: true,
+            title: t("manage.subscription.title"),
+            headerShadowVisible: false,
+          }}
+        />
         <Stack.Screen
           name="history"
           options={{

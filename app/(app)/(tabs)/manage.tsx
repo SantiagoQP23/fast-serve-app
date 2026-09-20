@@ -13,7 +13,7 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import { typography } from "@/constants/theme";
 import Label from "@/presentation/theme/components/label";
-import { isAdminLevelRole } from "@/core/auth/models/user.model";
+import { isAdminLevelRole, Roles } from "@/core/auth/models/user.model";
 import { toast } from "sonner-native";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { GroupedList } from "@/presentation/theme/components/grouped-list";
@@ -53,6 +53,7 @@ export default function ManageScreen() {
   };
 
   const isAdmin = isAdminLevelRole(user?.role?.name);
+  const isOwner = user?.role?.name === Roles.OWNER;
   const subscription = currentRestaurant?.subscription;
 
   const menuOptions: ManageOption[] = [
@@ -73,6 +74,15 @@ export default function ManageScreen() {
       icon: "fast-food-outline",
       label: t("manage.menu.products"),
       onPress: () => router.push("/(profile)/menu-products"),
+    },
+  ];
+
+  const subscriptionOptions: ManageOption[] = [
+    {
+      key: "subscription",
+      icon: "ribbon-outline",
+      label: t("manage.subscription.menuItem"),
+      onPress: () => router.push("/(profile)/subscription"),
     },
   ];
 
@@ -214,6 +224,21 @@ export default function ManageScreen() {
               renderItem={renderManageOption}
             />
           </ThemedView>
+
+          {/* Subscription (owner only) */}
+          {isOwner && (
+            <ThemedView style={tw`gap-2`}>
+              <ThemedText type="small" style={tw`text-gray-500`}>
+                {t("manage.subscription.title")}
+              </ThemedText>
+              <GroupedList
+                data={subscriptionOptions}
+                keyExtractor={(option) => option.key}
+                onItemPress={(option) => option.onPress()}
+                renderItem={renderManageOption}
+              />
+            </ThemedView>
+          )}
 
           {/* Restaurant */}
           <ThemedView style={tw`gap-2`}>

@@ -47,9 +47,6 @@ const signupSchema = z
         "Debe incluir mayúscula, minúscula, número y carácter especial",
       ),
     samePassword: z.string(),
-    termsAccepted: z.boolean().refine((val) => val === true, {
-      message: "Debes aceptar los términos y condiciones",
-    }),
   })
   .refine((data) => data.password === data.samePassword, {
     message: "Las contraseñas no coinciden",
@@ -80,11 +77,11 @@ const SignupScreen = () => {
       email: "",
       password: "",
       samePassword: "",
-      termsAccepted: false,
     },
   });
 
   const onSubmit = async (data: SignupFormData) => {
+    console.log("Form data:", data);
     setIsSubmitting(true);
 
     const result = await register(

@@ -1,6 +1,8 @@
+import { useRef } from "react";
 import { ScrollView, RefreshControl, Pressable } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 
 import tw from "@/presentation/theme/lib/tailwind";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
@@ -14,13 +16,25 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Card from "@/presentation/theme/components/card";
 import { typography } from "@/constants/theme";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import InviteStaffBottomSheet from "@/presentation/users/components/invite-staff-bottom-sheet";
 
 export default function StaffScreen() {
   const { t } = useTranslation("auth");
   const { user: currentUser, currentRestaurant } = useAuthStore();
   const { users, isLoading, refetch } = useUsers();
 
+  const inviteBottomSheetRef = useRef<BottomSheetMethods>(null);
+
   const staffMembers = users.filter((u) => u.id !== currentUser?.id);
+
+  const handlePresentInvite = () => {
+    inviteBottomSheetRef.current?.present();
+  };
+
+  const closeInviteBottomSheet = () => {
+    inviteBottomSheetRef.current?.close();
+  };
 
   const getRoleName = (staffMember: (typeof staffMembers)[number]) => {
     const role = staffMember.restaurantRoles.find(
@@ -92,10 +106,18 @@ export default function StaffScreen() {
       <ThemedView style={tw`pb-6`}>
         <Button
           label={t("staff.addUser")}
-          onPress={() => router.push("/scan-qr-invite")}
+          onPress={handlePresentInvite}
           leftIcon="add-circle-outline"
         />
       </ThemedView>
+
+      <ThemedBottomSheetModal ref={inviteBottomSheetRef} enablePanDownToClose>
+        <InviteStaffBottomSheet
+          existingUserIds={users.map((u) => u.id)}
+          onClose={closeInviteBottomSheet}
+          onInvited={refetch}
+        />
+      </ThemedBottomSheetModal>
     </ScreenLayout>
   );
 }
