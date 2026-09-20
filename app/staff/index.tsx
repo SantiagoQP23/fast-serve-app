@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { ScrollView, RefreshControl, Pressable } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -18,6 +18,8 @@ import Card from "@/presentation/theme/components/card";
 import { typography } from "@/constants/theme";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import InviteStaffBottomSheet from "@/presentation/users/components/invite-staff-bottom-sheet";
+import ChangeUserRoleBottomSheet from "@/presentation/users/components/change-user-role-bottom-sheet";
+import { User } from "@/core/auth/models/user.model";
 
 export default function StaffScreen() {
   const { t } = useTranslation("auth");
@@ -25,6 +27,10 @@ export default function StaffScreen() {
   const { users, isLoading, refetch } = useUsers();
 
   const inviteBottomSheetRef = useRef<BottomSheetMethods>(null);
+  const changeRoleBottomSheetRef = useRef<BottomSheetMethods>(null);
+  const [selectedStaffMember, setSelectedStaffMember] = useState<User | null>(
+    null,
+  );
 
   const staffMembers = users.filter((u) => u.id !== currentUser?.id);
 
@@ -34,6 +40,15 @@ export default function StaffScreen() {
 
   const closeInviteBottomSheet = () => {
     inviteBottomSheetRef.current?.close();
+  };
+
+  const handlePresentChangeRole = (staffMember: User) => {
+    setSelectedStaffMember(staffMember);
+    changeRoleBottomSheetRef.current?.present();
+  };
+
+  const closeChangeRoleBottomSheet = () => {
+    changeRoleBottomSheetRef.current?.close();
   };
 
   const getRoleName = (staffMember: (typeof staffMembers)[number]) => {
@@ -75,7 +90,11 @@ export default function StaffScreen() {
           )}
 
           {staffMembers.map((staffMember) => (
-            <Card key={staffMember.id} style={tw`gap-3 flex-row`}>
+            <Card
+              key={staffMember.id}
+              style={tw`gap-3 flex-row items-center`}
+              onPress={() => handlePresentChangeRole(staffMember)}
+            >
               <Ionicons
                 name="person-circle-outline"
                 size={40}
@@ -98,6 +117,11 @@ export default function StaffScreen() {
                   {staffMember.email}
                 </ThemedText>
               </ThemedView>
+              <Ionicons
+                name="chevron-forward-outline"
+                size={20}
+                color={tw.color("gray-400")}
+              />
             </Card>
           ))}
         </ThemedView>
@@ -116,6 +140,18 @@ export default function StaffScreen() {
           existingUserIds={users.map((u) => u.id)}
           onClose={closeInviteBottomSheet}
           onInvited={refetch}
+        />
+      </ThemedBottomSheetModal>
+
+      <ThemedBottomSheetModal
+        ref={changeRoleBottomSheetRef}
+        enablePanDownToClose
+      >
+        <ChangeUserRoleBottomSheet
+          user={selectedStaffMember}
+          onClose={closeChangeRoleBottomSheet}
+          onRoleChanged={refetch}
+          onRemoved={refetch}
         />
       </ThemedBottomSheetModal>
     </ScreenLayout>

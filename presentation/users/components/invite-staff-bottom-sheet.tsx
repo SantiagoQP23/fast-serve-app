@@ -9,7 +9,7 @@ import {
 
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { User } from "@/core/auth/models/user.model";
+import { Roles, User } from "@/core/auth/models/user.model";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -87,10 +87,12 @@ const InviteStaffBottomSheet = ({
       <Select
         label={t("staff.invite.roleLabel")}
         placeholder={t("staff.invite.rolePlaceholder")}
-        options={roles.map((role) => ({
-          value: role.id,
-          label: t(`roles.${role.name}`),
-        }))}
+        options={roles
+          .filter((role) => role.name !== Roles.OWNER)
+          .map((role) => ({
+            value: role.id,
+            label: t(`roles.${role.name}`),
+          }))}
         value={selectedRoleId ?? undefined}
         onChange={(value) => setSelectedRoleId(Number(value))}
       />
