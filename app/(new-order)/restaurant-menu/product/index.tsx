@@ -178,6 +178,7 @@ export default function ProductScreen() {
       });
     } else {
       updateDetail({
+        id: activeOrderDetail.id,
         quantity: counter,
         product: activeProduct!,
         description: notes,
