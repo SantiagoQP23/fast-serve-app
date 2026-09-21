@@ -1,6 +1,4 @@
 import { Colors, typography } from "@/constants/theme";
-import OrderOptionsBottomSheet from "@/presentation/orders/components/order-options-bottom-sheet";
-import ReassignOrderBottomSheet from "@/presentation/orders/components/reassign-order-bottom-sheet";
 import CloseOrderModal from "@/presentation/orders/components/close-order-modal";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
@@ -10,13 +8,9 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 
 import { Stack } from "expo-router";
-import { useCallback, useEffect, useRef } from "react";
-import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
-import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import { useEffect } from "react";
 
 export default function OrdersLayout() {
-  const optionsBottomSheetRef = useRef<BottomSheetMethods>(null);
-  const reassignBottomSheetRef = useRef<BottomSheetMethods>(null);
   const order = useOrdersStore((state) => state.activeOrder);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const {
@@ -31,23 +25,6 @@ export default function OrdersLayout() {
     !isClosed &&
     order?.status === OrderStatus.DELIVERED &&
     order?.isPaid === true;
-
-  const closeOptionsBottomSheet = () => {
-    optionsBottomSheetRef.current?.close();
-  };
-
-  const closeReassignBottomSheet = () => {
-    reassignBottomSheetRef.current?.close();
-  };
-
-  // callbacks
-  const handlePresentOptionsModal = useCallback(() => {
-    optionsBottomSheetRef.current?.present();
-  }, []);
-
-  const handlePresentReassignModal = useCallback(() => {
-    reassignBottomSheetRef.current?.present();
-  }, []);
 
   useEffect(() => {
     return () => {
@@ -71,18 +48,11 @@ export default function OrdersLayout() {
             title: "",
             headerShadowVisible: false,
             headerRight: () =>
-              !isClosed ? (
+              !isClosed && canCloseOrder ? (
                 <ThemedView style={tw`flex-row items-center gap-2`}>
-                  {canCloseOrder && (
-                    <IconButton
-                      icon="lock-closed-outline"
-                      onPress={openCloseModal}
-                      variant="secondary"
-                    ></IconButton>
-                  )}
                   <IconButton
-                    icon="ellipsis-horizontal"
-                    onPress={handlePresentOptionsModal}
+                    icon="lock-closed-outline"
+                    onPress={openCloseModal}
                     variant="secondary"
                   ></IconButton>
                 </ThemedView>
@@ -122,25 +92,6 @@ export default function OrdersLayout() {
           }}
         />
       </Stack>
-
-      <ThemedBottomSheetModal ref={optionsBottomSheetRef} enablePanDownToClose>
-        {order && (
-          <OrderOptionsBottomSheet
-            order={order}
-            onClose={closeOptionsBottomSheet}
-            onReassign={handlePresentReassignModal}
-          />
-        )}
-      </ThemedBottomSheetModal>
-
-      <ThemedBottomSheetModal ref={reassignBottomSheetRef} enablePanDownToClose>
-        {order && (
-          <ReassignOrderBottomSheet
-            order={order}
-            onClose={closeReassignBottomSheet}
-          />
-        )}
-      </ThemedBottomSheetModal>
 
       <CloseOrderModal
         order={order}

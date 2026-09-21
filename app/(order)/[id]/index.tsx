@@ -29,7 +29,9 @@ import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import Label from "@/presentation/theme/components/label";
 import { useModal } from "@/presentation/shared/hooks/useModal";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatCurrency } from "@/core/i18n/utils";
+import { formatCurrency, i18nAlert } from "@/core/i18n/utils";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
@@ -51,10 +53,18 @@ import Checkbox from "@/presentation/theme/components/checkbox";
 import { useMarkOrderDelivered } from "@/presentation/orders/hooks/useMarkOrderDelivered";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useBills } from "@/presentation/orders/hooks/useBills";
+import { GroupedList } from "@/presentation/theme/components/grouped-list";
 import OrderBillsTab from "@/presentation/orders/components/order-bills-tab";
 import OrderTicketsTab from "@/presentation/orders/components/order-tickets-tab";
 
 dayjs.extend(relativeTime);
+
+interface MoreOptionItem {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  onPress: () => void;
+  disabled?: boolean;
+}
 
 export default function OrderScreen() {
   const { t } = useTranslation(["common", "orders", "errors"]);
@@ -73,6 +83,8 @@ export default function OrderScreen() {
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
   const primaryColor = useThemeColor({}, "primary");
+  const { user } = useAuthStore();
+  const isAdmin = isAdminLevelRole(user?.role?.name);
 
   // Fetch and sync the order data (this enables the query for refetch)
   const {
@@ -178,6 +190,16 @@ export default function OrderScreen() {
 
   // Check if this is a closed order
   const isClosed = order.isClosed === true;
+
+  const orderCantBeDeleted =
+    order.status !== OrderStatus.PENDING ||
+    (order.details ?? []).some((detail) => detail.qtyDelivered !== 0);
+
+  const canForceCloseOrder =
+    isAdmin &&
+    !isClosed &&
+    order.status === OrderStatus.DELIVERED &&
+    order.isPaid === false;
 
   const orderAmountInBills: number = orderBills
     ? orderBills
@@ -347,6 +369,78 @@ export default function OrderScreen() {
     moreOptionsSheetRef.current?.dismiss();
     handleCloseOrder();
   };
+
+  const handleForceCloseFromMenu = () => {
+    moreOptionsSheetRef.current?.dismiss();
+    handleCloseOrder();
+  };
+
+  const handleDeleteFromMenu = () => {
+    moreOptionsSheetRef.current?.dismiss();
+
+    if (orderCantBeDeleted) {
+      i18nAlert(
+        t("orders:deleteAlerts.cannotDelete"),
+        t("orders:deleteAlerts.cannotDeleteMessage"),
+      );
+      return;
+    }
+
+    setVisible(true);
+  };
+
+  const moreOptions: MoreOptionItem[] = [
+    ...(!isClosed
+      ? [
+          {
+            icon: "create-outline" as const,
+            label: t("common:actions.edit"),
+            onPress: handleEditFromMenu,
+          },
+        ]
+      : []),
+    {
+      icon: "print-outline",
+      label: t("common:actions.print"),
+      onPress: handlePrintFromMenu,
+    },
+    {
+      icon: "share-outline",
+      label: t("common:actions.share"),
+      onPress: handleShareFromMenu,
+    },
+    ...(order.status === OrderStatus.DELIVERED &&
+    order.isClosed === false &&
+    order.isPaid === true
+      ? [
+          {
+            icon: "lock-closed-outline" as const,
+            label: t("common:actions.close"),
+            onPress: handleCloseFromMenu,
+          },
+        ]
+      : []),
+    ...(isAdmin && canForceCloseOrder
+      ? [
+          {
+            icon: "lock-closed-outline" as const,
+            label: t("orders:options.forceCloseOrder"),
+            onPress: handleForceCloseFromMenu,
+          },
+        ]
+      : []),
+  ];
+
+  const dangerOptions: MoreOptionItem[] = !isClosed
+    ? [
+        {
+          icon: "trash-outline",
+          label: t("orders:options.deleteOrder"),
+          onPress: handleDeleteFromMenu,
+          disabled: orderCantBeDeleted,
+        },
+      ]
+    : [];
 
   return (
     <>
@@ -890,80 +984,49 @@ export default function OrderScreen() {
 
       {/* More Options Bottom Sheet */}
       <ThemedBottomSheetModal ref={moreOptionsSheetRef} enablePanDownToClose>
-        <ThemedView style={tw`p-4 gap-2`}>
-          <ThemedText type="h3" style={tw`text-center mb-2`}>
+        <ThemedView style={tw`p-4 gap-4`}>
+          <ThemedText type="h3" style={tw`text-center`}>
             {t("orders:details.moreOptions")}
           </ThemedText>
 
-          <ThemedView style={tw`bg-light-surface rounded-xl p-2`}>
-            {!isClosed && (
-              <Pressable
-                onPress={handleEditFromMenu}
-                style={({ pressed }) => [
-                  tw`flex-row items-center gap-3 px-2 py-3 rounded-xl`,
-                  pressed && tw`opacity-60`,
-                ]}
-              >
+          <GroupedList
+            data={moreOptions}
+            keyExtractor={(item) => item.label}
+            onItemPress={(item) => !item.disabled && item.onPress()}
+            renderItem={(item) => (
+              <ThemedView style={tw`flex-row items-center gap-3`}>
                 <Ionicons
-                  name="create-outline"
+                  name={item.icon}
                   size={22}
                   color={tw.color("gray-600")}
                 />
-                <ThemedText type="body1">{t("common:actions.edit")}</ThemedText>
-              </Pressable>
+                <ThemedText type="body1">{item.label}</ThemedText>
+              </ThemedView>
             )}
+          />
 
-            <Pressable
-              onPress={handlePrintFromMenu}
-              style={({ pressed }) => [
-                tw`flex-row items-center gap-3 px-2 py-3 rounded-xl`,
-                pressed && tw`opacity-60`,
-              ]}
-            >
-              <Ionicons
-                name="print-outline"
-                size={22}
-                color={tw.color("gray-600")}
-              />
-              <ThemedText type="body1">{t("common:actions.print")}</ThemedText>
-            </Pressable>
-
-            <Pressable
-              onPress={handleShareFromMenu}
-              style={({ pressed }) => [
-                tw`flex-row items-center gap-3 px-2 py-3 rounded-xl`,
-                pressed && tw`opacity-60`,
-              ]}
-            >
-              <Ionicons
-                name="share-outline"
-                size={22}
-                color={tw.color("gray-600")}
-              />
-              <ThemedText type="body1">{t("common:actions.share")}</ThemedText>
-            </Pressable>
-
-            {order.status === OrderStatus.DELIVERED &&
-              order.isClosed === false &&
-              order.isPaid === true && (
-                <Pressable
-                  onPress={handleCloseFromMenu}
-                  style={({ pressed }) => [
-                    tw`flex-row items-center gap-3 px-2 py-3 rounded-xl`,
-                    pressed && tw`opacity-60`,
-                  ]}
-                >
-                  <Ionicons
-                    name="lock-closed-outline"
-                    size={22}
-                    color={tw.color("gray-600")}
-                  />
-                  <ThemedText type="body1">
-                    {t("common:actions.close")}
-                  </ThemedText>
-                </Pressable>
-              )}
-          </ThemedView>
+          <GroupedList
+            data={dangerOptions}
+            keyExtractor={(item) => item.label}
+            onItemPress={(item) => !item.disabled && item.onPress()}
+            renderItem={(item) => (
+              <ThemedView
+                style={tw.style(
+                  "flex-row items-center gap-3",
+                  item.disabled && "opacity-40",
+                )}
+              >
+                <Ionicons
+                  name={item.icon}
+                  size={22}
+                  color={tw.color("red-500")}
+                />
+                <ThemedText type="body1" style={tw`text-red-500`}>
+                  {item.label}
+                </ThemedText>
+              </ThemedView>
+            )}
+          />
         </ThemedView>
       </ThemedBottomSheetModal>
     </>
