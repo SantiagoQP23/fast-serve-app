@@ -11,6 +11,8 @@ interface PrintersState {
 
 interface PrintersActions {
   setPrinters: (printers: Printer[], restaurantId: string) => void;
+  upsertPrinter: (printer: Printer) => void;
+  removePrinter: (id: string) => void;
   clearPrinters: () => void;
   reset: () => void;
 }
@@ -27,6 +29,23 @@ export const usePrintersStore = create<PrintersState & PrintersActions>()(
       ...initialState,
       setPrinters: (printers: Printer[], restaurantId: string) =>
         set({ printers, restaurantId, lastUpdated: Date.now() }),
+      upsertPrinter: (printer: Printer) =>
+        set((state) => {
+          const exists = state.printers.some((p) => p.id === printer.id);
+          return {
+            printers: exists
+              ? state.printers.map((p) => (p.id === printer.id ? printer : p))
+              : [...state.printers, printer],
+            lastUpdated: Date.now(),
+          };
+        }),
+
+      removePrinter: (id: string) =>
+        set((state) => ({
+          printers: state.printers.filter((p) => p.id !== id),
+          lastUpdated: Date.now(),
+        })),
+
       clearPrinters: () =>
         set({ printers: [], restaurantId: null, lastUpdated: null }),
       reset: () => set(initialState),

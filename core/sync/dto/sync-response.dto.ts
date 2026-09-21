@@ -29,6 +29,9 @@ export interface SnapshotSyncResponseDto {
   categories: unknown[];
   sections: unknown[];
   productionAreas: unknown[];
+  paymentMethods?: unknown[];
+  accounts?: unknown[];
+  printers?: unknown[];
   settings: Record<string, string | number | boolean>;
 }
 

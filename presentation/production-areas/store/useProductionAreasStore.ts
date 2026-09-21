@@ -11,6 +11,8 @@ export interface ProductionAreasState {
 
 interface ProductionAreasActions {
   setProductionAreas: (areas: ProductionArea[], restaurantId: string) => void;
+  upsertProductionArea: (area: ProductionArea) => void;
+  removeProductionArea: (id: number) => void;
   clearProductionAreas: () => void;
   reset: () => void;
 }
@@ -34,6 +36,25 @@ export const useProductionAreasStore = create<
           restaurantId,
           lastUpdated: Date.now(),
         }),
+
+      upsertProductionArea: (area: ProductionArea) =>
+        set((state) => {
+          const exists = state.productionAreas.some((a) => a.id === area.id);
+          return {
+            productionAreas: exists
+              ? state.productionAreas.map((a) =>
+                  a.id === area.id ? area : a,
+                )
+              : [...state.productionAreas, area],
+            lastUpdated: Date.now(),
+          };
+        }),
+
+      removeProductionArea: (id: number) =>
+        set((state) => ({
+          productionAreas: state.productionAreas.filter((a) => a.id !== id),
+          lastUpdated: Date.now(),
+        })),
 
       clearProductionAreas: () =>
         set({

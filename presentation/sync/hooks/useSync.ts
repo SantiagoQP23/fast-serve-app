@@ -5,6 +5,9 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useTablesStore } from "@/presentation/tables/hooks/useTablesStore";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { useProductionAreasStore } from "@/presentation/production-areas/store/useProductionAreasStore";
+import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
+import { useAccountsStore } from "@/presentation/restaurant/store/useAccountsStore";
+import { usePrintersStore } from "@/presentation/printers/store/usePrintersStore";
 import { SyncService } from "@/core/sync/services/sync.service";
 import {
   SyncEventDto,
@@ -13,12 +16,16 @@ import {
 } from "@/core/sync/dto/sync-response.dto";
 import { SyncOperation } from "@/core/sync/enums/sync-operation.enum";
 import { SyncResourceType } from "@/core/sync/enums/sync-resource-type.enum";
-import { RestaurantMenuService } from "@/core/menu/services/restaurant-menu.service";
-import { ProductionAreasService } from "@/presentation/production-areas/services/production-areas.service";
 import { Order } from "@/core/orders/models/order.model";
 import { Table } from "@/core/tables/models/table.model";
 import { Menu } from "@/core/menu/models/menu.model";
+import { Product } from "@/core/menu/models/product.model";
+import { Category } from "@/core/menu/models/category.model";
+import { Section } from "@/core/menu/models/section.model";
 import { ProductionArea } from "@/core/menu/models/producion-area.model";
+import { PaymentMethod } from "@/core/restaurant/models/payment-method.model";
+import { Account } from "@/core/restaurant/models/account.model";
+import { Printer } from "@/core/common/models/printer.model";
 import { useSyncStore } from "../store/useSyncStore";
 import { useAppForeground } from "@/presentation/shared/hooks/useAppForeground";
 
@@ -34,6 +41,9 @@ function applySnapshot(
   const categories = (snapshot.categories ?? []) as Menu["categories"];
   const sections = (snapshot.sections ?? []) as Menu["sections"];
   const productionAreas = (snapshot.productionAreas ?? []) as ProductionArea[];
+  const paymentMethods = (snapshot.paymentMethods ?? []) as PaymentMethod[];
+  const accounts = (snapshot.accounts ?? []) as Account[];
+  const printers = (snapshot.printers ?? []) as Printer[];
 
   useOrdersStore.getState().setOrders(orders);
   useTablesStore.getState().setTables(tables, restaurantId);
@@ -43,15 +53,15 @@ function applySnapshot(
   useProductionAreasStore
     .getState()
     .setProductionAreas(productionAreas, restaurantId);
+  usePaymentMethodsStore
+    .getState()
+    .setPaymentMethods(paymentMethods, restaurantId);
+  useAccountsStore.getState().setAccounts(accounts, restaurantId);
+  usePrintersStore.getState().setPrinters(printers, restaurantId);
 }
 
-async function applyIncremental(
-  response: IncrementalSyncResponseDto,
-  restaurantId: string,
-) {
+async function applyIncremental(response: IncrementalSyncResponseDto) {
   const events = response.events;
-  let needsMenuRefetch = false;
-  let needsProductionAreasRefetch = false;
 
   for (const event of events) {
     console.log(
@@ -60,44 +70,6 @@ async function applyIncremental(
       event.operation,
     );
     applyEvent(event);
-
-    if (
-      event.resourceType === SyncResourceType.PRODUCT ||
-      event.resourceType === SyncResourceType.CATEGORY ||
-      event.resourceType === SyncResourceType.SECTION
-    ) {
-      needsMenuRefetch = true;
-    }
-
-    if (event.resourceType === SyncResourceType.PRODUCTION_AREA) {
-      needsProductionAreasRefetch = true;
-    }
-  }
-
-  if (needsMenuRefetch) {
-    try {
-      const menu = await RestaurantMenuService.getAllMenu(restaurantId);
-      useMenuStore.getState().setMenu(menu, restaurantId);
-    } catch (error) {
-      console.error(
-        "[useSync] Failed to refetch menu after sync events",
-        error,
-      );
-    }
-  }
-
-  if (needsProductionAreasRefetch) {
-    try {
-      const areas = await ProductionAreasService.getAll();
-      useProductionAreasStore
-        .getState()
-        .setProductionAreas(areas, restaurantId);
-    } catch (error) {
-      console.error(
-        "[useSync] Failed to refetch production areas after sync events",
-        error,
-      );
-    }
   }
 }
 
@@ -114,13 +86,29 @@ function applyEvent(event: SyncEventDto) {
       // ORDER sync events keep the order state up to date.
       break;
     case SyncResourceType.PRODUCT:
+      applyProductEvent(event);
+      break;
     case SyncResourceType.CATEGORY:
+      applyCategoryEvent(event);
+      break;
     case SyncResourceType.SECTION:
+      applySectionEvent(event);
+      break;
+    case SyncResourceType.PAYMENT_METHOD:
+      applyPaymentMethodEvent(event);
+      break;
+    case SyncResourceType.ACCOUNT:
+      applyAccountEvent(event);
+      break;
     case SyncResourceType.PRODUCTION_AREA:
+      applyProductionAreaEvent(event);
+      break;
+    case SyncResourceType.PRINTER:
+      applyPrinterEvent(event);
+      break;
     case SyncResourceType.RESTAURANT:
     case SyncResourceType.SETTINGS:
-      // Handled in batch after all events are processed (menu / production
-      // areas) or intentionally ignored for now (restaurant, settings).
+      // Intentionally ignored for now.
       break;
     default:
       console.warn("[useSync] Unknown sync resource type", event.resourceType);
@@ -171,6 +159,104 @@ function applyTableEvent(event: SyncEventDto) {
   }
 }
 
+function applyProductEvent(event: SyncEventDto) {
+  const menuState = useMenuStore.getState();
+
+  switch (event.operation) {
+    case SyncOperation.CREATED:
+    case SyncOperation.UPDATED:
+      menuState.upsertProduct(event.data as Product);
+      break;
+    case SyncOperation.DELETED:
+      menuState.removeProduct(event.resourceId);
+      break;
+  }
+}
+
+function applyCategoryEvent(event: SyncEventDto) {
+  const menuState = useMenuStore.getState();
+
+  switch (event.operation) {
+    case SyncOperation.CREATED:
+    case SyncOperation.UPDATED:
+      menuState.upsertCategory(event.data as Category);
+      break;
+    case SyncOperation.DELETED:
+      menuState.removeCategory(event.resourceId);
+      break;
+  }
+}
+
+function applySectionEvent(event: SyncEventDto) {
+  const menuState = useMenuStore.getState();
+
+  switch (event.operation) {
+    case SyncOperation.CREATED:
+    case SyncOperation.UPDATED:
+      menuState.upsertSection(event.data as Section);
+      break;
+    case SyncOperation.DELETED:
+      menuState.removeSection(event.resourceId);
+      break;
+  }
+}
+
+function applyPaymentMethodEvent(event: SyncEventDto) {
+  const paymentMethodsState = usePaymentMethodsStore.getState();
+
+  switch (event.operation) {
+    case SyncOperation.CREATED:
+    case SyncOperation.UPDATED:
+      paymentMethodsState.upsertPaymentMethod(event.data as PaymentMethod);
+      break;
+    case SyncOperation.DELETED:
+      paymentMethodsState.removePaymentMethod(Number(event.resourceId));
+      break;
+  }
+}
+
+function applyAccountEvent(event: SyncEventDto) {
+  const accountsState = useAccountsStore.getState();
+
+  switch (event.operation) {
+    case SyncOperation.CREATED:
+    case SyncOperation.UPDATED:
+      accountsState.upsertAccount(event.data as Account);
+      break;
+    case SyncOperation.DELETED:
+      accountsState.removeAccount(Number(event.resourceId));
+      break;
+  }
+}
+
+function applyProductionAreaEvent(event: SyncEventDto) {
+  const productionAreasState = useProductionAreasStore.getState();
+
+  switch (event.operation) {
+    case SyncOperation.CREATED:
+    case SyncOperation.UPDATED:
+      productionAreasState.upsertProductionArea(event.data as ProductionArea);
+      break;
+    case SyncOperation.DELETED:
+      productionAreasState.removeProductionArea(Number(event.resourceId));
+      break;
+  }
+}
+
+function applyPrinterEvent(event: SyncEventDto) {
+  const printersState = usePrintersStore.getState();
+
+  switch (event.operation) {
+    case SyncOperation.CREATED:
+    case SyncOperation.UPDATED:
+      printersState.upsertPrinter(event.data as Printer);
+      break;
+    case SyncOperation.DELETED:
+      printersState.removePrinter(event.resourceId);
+      break;
+  }
+}
+
 async function applySyncResponse(
   response: SnapshotSyncResponseDto | IncrementalSyncResponseDto,
   restaurantId: string,
@@ -181,7 +267,7 @@ async function applySyncResponse(
     return response.sequence;
   }
 
-  await applyIncremental(response, restaurantId);
+  await applyIncremental(response);
 
   if (
     response.events.length === INCREMENTAL_SYNC_LIMIT &&

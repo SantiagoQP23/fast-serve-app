@@ -7,5 +7,8 @@ export enum SyncResourceType {
   CATEGORY = "category",
   SECTION = "section",
   PRODUCTION_AREA = "production_area",
+  PAYMENT_METHOD = "payment_method",
+  ACCOUNT = "account",
+  PRINTER = "printer",
   SETTINGS = "settings",
 }
