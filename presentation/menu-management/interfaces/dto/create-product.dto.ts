@@ -3,7 +3,7 @@ export interface CreateProductOptionDto {
   price: number;
   cost?: number;
   quantity?: number;
-  manageStock?: boolean;
+  trackStock?: boolean;
   isDefault?: boolean;
 }
 
@@ -15,5 +15,5 @@ export interface CreateProductDto {
   productionAreaId?: number;
   unitCost?: number;
   quantity?: number;
-  options?: CreateProductOptionDto[];
+  productOptions?: CreateProductOptionDto[];
 }

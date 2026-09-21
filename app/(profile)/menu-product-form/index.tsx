@@ -2,7 +2,12 @@ import { useMemo, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { KeyboardAvoidingView, Pressable, ScrollView, Platform } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Pressable,
+  ScrollView,
+  Platform,
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -24,7 +29,8 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import type { ProductOption } from "@/core/menu/models/product-optionl.model";
 
-const isValidNumber = (v: string) => v === "" || (!Number.isNaN(Number(v)) && Number(v) >= 0);
+const isValidNumber = (v: string) =>
+  v === "" || (!Number.isNaN(Number(v)) && Number(v) >= 0);
 
 const buildProductSchema = (t: (key: string) => string) =>
   z.object({
@@ -47,11 +53,15 @@ const buildProductSchema = (t: (key: string) => string) =>
     isPublic: z.boolean(),
     options: z.array(
       z.object({
-        name: z.string().min(1, t("products.variants.validations.nameRequired")),
-        price: z.string().refine(
-          isValidNumber,
-          t("products.variants.validations.priceInvalid"),
-        ),
+        name: z
+          .string()
+          .min(1, t("products.variants.validations.nameRequired")),
+        price: z
+          .string()
+          .refine(
+            isValidNumber,
+            t("products.variants.validations.priceInvalid"),
+          ),
         quantity: z.string().optional(),
         manageStock: z.boolean(),
         isDefault: z.boolean(),
@@ -156,13 +166,13 @@ export default function MenuProductFormScreen() {
       productionAreaId: data.productionAreaId
         ? Number(data.productionAreaId)
         : undefined,
-      options:
+      productOptions:
         data.options.length > 0
           ? data.options.map((opt) => ({
               name: opt.name.trim(),
               price: Number(opt.price) || 0,
               quantity: opt.quantity ? Number(opt.quantity) : undefined,
-              manageStock: opt.manageStock,
+              trackStock: opt.manageStock,
               isDefault: opt.isDefault,
             }))
           : undefined,
@@ -228,7 +238,9 @@ export default function MenuProductFormScreen() {
               size="small"
               onPress={handleSubmit(onSubmit)}
               loading={
-                isSubmitting || createProduct.isPending || updateProduct.isPending
+                isSubmitting ||
+                createProduct.isPending ||
+                updateProduct.isPending
               }
               disabled={
                 isSubmitting ||
@@ -427,7 +439,9 @@ export default function MenuProductFormScreen() {
                 {fields.map((field, index) => (
                   <Card key={field.id}>
                     <ThemedView style={tw`gap-4`}>
-                      <ThemedView style={tw`flex-row items-center justify-between`}>
+                      <ThemedView
+                        style={tw`flex-row items-center justify-between`}
+                      >
                         <ThemedText type="body1" style={tw`font-semibold`}>
                           {t("products.variants.variantNumber", {
                             number: index + 1,
@@ -447,7 +461,9 @@ export default function MenuProductFormScreen() {
                         render={({ field: { onChange, onBlur, value } }) => (
                           <TextInput
                             label={t("products.variants.fields.name")}
-                            placeholder={t("products.variants.placeholders.name")}
+                            placeholder={t(
+                              "products.variants.placeholders.name",
+                            )}
                             onBlur={onBlur}
                             value={value}
                             onChangeText={onChange}
@@ -461,7 +477,9 @@ export default function MenuProductFormScreen() {
                           <Controller
                             control={control}
                             name={`options.${index}.price`}
-                            render={({ field: { onChange, onBlur, value } }) => (
+                            render={({
+                              field: { onChange, onBlur, value },
+                            }) => (
                               <TextInput
                                 label={t("products.variants.fields.price")}
                                 placeholder={t(
@@ -480,7 +498,9 @@ export default function MenuProductFormScreen() {
                           <Controller
                             control={control}
                             name={`options.${index}.quantity`}
-                            render={({ field: { onChange, onBlur, value } }) => (
+                            render={({
+                              field: { onChange, onBlur, value },
+                            }) => (
                               <TextInput
                                 label={t("products.variants.fields.quantity")}
                                 placeholder={t(
@@ -496,7 +516,9 @@ export default function MenuProductFormScreen() {
                         </ThemedView>
                       </ThemedView>
 
-                      <ThemedView style={tw`flex-row items-center justify-between`}>
+                      <ThemedView
+                        style={tw`flex-row items-center justify-between`}
+                      >
                         <Controller
                           control={control}
                           name={`options.${index}.manageStock`}
@@ -516,7 +538,9 @@ export default function MenuProductFormScreen() {
                             <Checkbox
                               label={t("products.variants.fields.isDefault")}
                               value={value}
-                              onValueChange={() => handleSetDefaultOption(index)}
+                              onValueChange={() =>
+                                handleSetDefaultOption(index)
+                              }
                               size="small"
                             />
                           )}
@@ -528,7 +552,6 @@ export default function MenuProductFormScreen() {
               </ThemedView>
             )}
           </ThemedView>
-
         </ScrollView>
       </ScreenLayout>
 
@@ -536,8 +559,8 @@ export default function MenuProductFormScreen() {
         visible={showDeleteConfirm}
         title={t("products.deleteTitle")}
         message={t("products.deleteMessage")}
-        confirmText={t("confirm")}
-        cancelText={t("cancel")}
+        confirmLabel={t("confirm")}
+        cancelLabel={t("cancel")}
         onConfirm={handleConfirmDelete}
         onCancel={() => setShowDeleteConfirm(false)}
       />

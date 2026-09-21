@@ -29,7 +29,7 @@ export default function MenuCategoryProductsScreen() {
     isActive?: string;
     isPublic?: string;
   }>();
-  const { products, menuQuery } = useMenu();
+  const { categories, products, menuQuery } = useMenu();
   const { isLoading, isError, refetch, isRefetching } = menuQuery;
   const { deleteProduct } = useMenuManagement();
   const { user } = useAuthStore();
@@ -37,6 +37,19 @@ export default function MenuCategoryProductsScreen() {
   const [productToDelete, setProductToDelete] = useState<Product | null>(
     null,
   );
+
+  // Route params are a snapshot from when this screen was pushed and go
+  // stale after editing the category elsewhere, so prefer the live category
+  // from the store and fall back to params only until it loads.
+  const currentCategory = categories.find((c) => c.id === params.categoryId);
+  const categoryName = currentCategory?.name ?? params.name;
+  const categorySectionId = currentCategory?.section.id ?? params.sectionId;
+  const categoryIsActive = currentCategory
+    ? String(currentCategory.isActive)
+    : params.isActive;
+  const categoryIsPublic = currentCategory
+    ? String(currentCategory.isPublic)
+    : params.isPublic;
 
   const categoryProducts = products.filter(
     (product) => product.category.id === params.categoryId,
@@ -95,10 +108,10 @@ export default function MenuCategoryProductsScreen() {
       pathname: "/(profile)/menu-category-form",
       params: {
         categoryId: params.categoryId,
-        name: params.name,
-        sectionId: params.sectionId,
-        isActive: params.isActive,
-        isPublic: params.isPublic,
+        name: categoryName,
+        sectionId: categorySectionId,
+        isActive: categoryIsActive,
+        isPublic: categoryIsPublic,
       },
     });
   };
@@ -118,7 +131,7 @@ export default function MenuCategoryProductsScreen() {
             style={{ fontFamily: typography.regular }}
             numberOfLines={1}
           >
-            {params.name}
+            {categoryName}
           </ThemedText>
         </ThemedView>
         {canManage && (

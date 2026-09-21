@@ -126,6 +126,7 @@ export default function PrintersScreen() {
             {printers.map((printer) => (
               <Card
                 key={printer.id}
+                onPress={canManage ? () => handleEditPrinter(printer) : undefined}
                 style={!printer.isActive && tw`opacity-50`}
               >
                 <ThemedView style={tw`gap-4`}>
@@ -146,76 +147,9 @@ export default function PrintersScreen() {
                         <ThemedText type="small">
                           {printer.ipAddress}
                         </ThemedText>
-                        {/* <ThemedText type="small"> */}
-                        {/*   {printer.isActive ? t("active") : t("inactive")} */}
-                        {/* </ThemedText> */}
                       </ThemedView>
                     </ThemedView>
                   </ThemedView>
-
-                  {/* Divider */}
-                  {/* <ThemedView style={tw`h-px bg-gray-200 dark:bg-gray-700`} /> */}
-
-                  {/* Printer Details */}
-                  {/* <ThemedView style={tw`gap-2`}> */}
-                  {/*   <ThemedView style={tw`flex-row items-center gap-2`}> */}
-                  {/*     <Ionicons name="wifi-outline" size={16} color="#999" /> */}
-                  {/*     <ThemedText type="body2" style={tw`text-gray-500`}> */}
-                  {/*       {t("fields.connectionType")}: {printer.connectionType} */}
-                  {/*     </ThemedText> */}
-                  {/*   </ThemedView> */}
-                  {/**/}
-                  {/*   {printer.ipAddress && ( */}
-                  {/*     <ThemedView style={tw`flex-row items-center gap-2`}> */}
-                  {/*       <Ionicons name="globe-outline" size={16} color="#999" /> */}
-                  {/*       <ThemedText type="body2" style={tw`text-gray-500`}> */}
-                  {/*         {t("fields.ipAddress")}: {printer.ipAddress} */}
-                  {/*       </ThemedText> */}
-                  {/*     </ThemedView> */}
-                  {/*   )} */}
-                  {/**/}
-                  {/*   <ThemedView style={tw`flex-row items-center gap-2`}> */}
-                  {/*     <Ionicons */}
-                  {/*       name="hardware-chip-outline" */}
-                  {/*       size={16} */}
-                  {/*       color="#999" */}
-                  {/*     /> */}
-                  {/*     <ThemedText type="body2" style={tw`text-gray-500`}> */}
-                  {/*       {t("fields.port")}: {printer.port} */}
-                  {/*     </ThemedText> */}
-                  {/*   </ThemedView> */}
-                  {/* </ThemedView> */}
-
-                  {/* Test Button */}
-
-                  {/* <ThemedView style={tw`flex-row items-center gap-4`}> */}
-                  {/* <IconButton */}
-                  {/*   icon="trash-outline" */}
-                  {/*   size={20} */}
-                  {/*   color="danger" */}
-                  {/*   onPress={() => setPrinterToDelete(printer)} */}
-                  {/* /> */}
-                  {/* <IconButton */}
-                  {/*   icon="create-outline" */}
-                  {/*   size={20} */}
-                  {/*   color="primary" */}
-                  {/*   onPress={() => handleEditPrinter(printer)} */}
-                  {/* /> */}
-                  {/* <ThemedView style={tw`flex-1`} /> */}
-                  {/* <Button */}
-                  {/*   label={ */}
-                  {/*     testingPrinterId === printer.id */}
-                  {/*       ? t("testing") */}
-                  {/*       : t("test") */}
-                  {/*   } */}
-                  {/*   leftIcon="send-outline" */}
-                  {/*   variant="secondary" */}
-                  {/*   size="small" */}
-                  {/*   onPress={() => handleTestPrinter(printer.id)} */}
-                  {/*   disabled={testingPrinterId !== null} */}
-                  {/*   loading={testingPrinterId === printer.id} */}
-                  {/* /> */}
-                  {/* </ThemedView> */}
                 </ThemedView>
               </Card>
             ))}
@@ -229,8 +163,10 @@ export default function PrintersScreen() {
         visible={!!printerToDelete}
         title={t("deleteTitle")}
         message={t("deleteMessage")}
-        confirmText={t("confirm")}
-        cancelText={t("cancel")}
+        confirmLabel={t("confirm")}
+        cancelLabel={t("cancel")}
+        confirmVariant="destructive"
+        loading={deletePrinter.isPending}
         onConfirm={handleConfirmDelete}
         onCancel={() => setPrinterToDelete(null)}
       />

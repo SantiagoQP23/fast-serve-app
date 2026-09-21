@@ -28,7 +28,7 @@ export default function MenuSectionCategoriesScreen() {
     isActive?: string;
     isPublic?: string;
   }>();
-  const { categories, products, menuQuery } = useMenu();
+  const { sections, categories, products, menuQuery } = useMenu();
   const { isLoading, isError, refetch, isRefetching } = menuQuery;
   const { deleteCategory } = useMenuManagement();
   const { user } = useAuthStore();
@@ -36,6 +36,18 @@ export default function MenuSectionCategoriesScreen() {
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
     null,
   );
+
+  // Route params are a snapshot from when this screen was pushed and go
+  // stale after editing the section elsewhere, so prefer the live section
+  // from the store and fall back to params only until it loads.
+  const currentSection = sections.find((s) => s.id === params.sectionId);
+  const sectionName = currentSection?.name ?? params.name;
+  const sectionIsActive = currentSection
+    ? String(currentSection.isActive)
+    : params.isActive;
+  const sectionIsPublic = currentSection
+    ? String(currentSection.isPublic)
+    : params.isPublic;
 
   const sectionCategories = categories.filter(
     (category) => category.section.id === params.sectionId,
@@ -86,9 +98,9 @@ export default function MenuSectionCategoriesScreen() {
       pathname: "/(profile)/menu-section-form",
       params: {
         sectionId: params.sectionId,
-        name: params.name,
-        isActive: params.isActive,
-        isPublic: params.isPublic,
+        name: sectionName,
+        isActive: sectionIsActive,
+        isPublic: sectionIsPublic,
       },
     });
   };
@@ -117,7 +129,7 @@ export default function MenuSectionCategoriesScreen() {
             style={{ fontFamily: typography.regular }}
             numberOfLines={1}
           >
-            {params.name}
+            {sectionName}
           </ThemedText>
         </ThemedView>
         {canManage && (

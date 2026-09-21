@@ -13,7 +13,6 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
-import IconButton from "@/presentation/theme/components/icon-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import type { ProductionArea } from "@/core/menu/models/producion-area.model";
 
@@ -105,7 +104,11 @@ export default function ProductionAreasScreen() {
         {!isLoading && !isError && productionAreas.length > 0 && (
           <ThemedView style={tw`gap-4`}>
             {productionAreas.map((area) => (
-              <Card key={area.id} style={!area.isActive && tw`opacity-50`}>
+              <Card
+                key={area.id}
+                onPress={canManage ? () => handleEditArea(area) : undefined}
+                style={!area.isActive && tw`opacity-50`}
+              >
                 <ThemedView style={tw`gap-4`}>
                   {/* Area Name & Status */}
                   <ThemedView style={tw`flex-row items-center justify-between`}>
@@ -134,21 +137,6 @@ export default function ProductionAreasScreen() {
                         </ThemedView>
                       </ThemedView>
                     </ThemedView>
-
-                    {/* <ThemedView style={tw`flex-row items-center`}> */}
-                    {/*   <IconButton */}
-                    {/*     icon="create-outline" */}
-                    {/*     size={20} */}
-                    {/*     color="primary" */}
-                    {/*     onPress={() => handleEditArea(area)} */}
-                    {/*   /> */}
-                    {/*   <IconButton */}
-                    {/*     icon="trash-outline" */}
-                    {/*     size={20} */}
-                    {/*     color="danger" */}
-                    {/*     onPress={() => setAreaToDelete(area)} */}
-                    {/*   /> */}
-                    {/* </ThemedView> */}
                   </ThemedView>
                 </ThemedView>
               </Card>
@@ -163,8 +151,10 @@ export default function ProductionAreasScreen() {
         visible={!!areaToDelete}
         title={t("deleteTitle")}
         message={t("deleteMessage")}
-        confirmText={t("confirm")}
-        cancelText={t("cancel")}
+        confirmLabel={t("confirm")}
+        cancelLabel={t("cancel")}
+        confirmVariant="destructive"
+        loading={deleteProductionArea.isPending}
         onConfirm={handleConfirmDelete}
         onCancel={() => setAreaToDelete(null)}
       />
