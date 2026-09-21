@@ -1,14 +1,17 @@
-import { ScrollView } from "react-native";
+import { Platform, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Card from "@/presentation/theme/components/card";
 import Label from "@/presentation/theme/components/label";
+import Button from "@/presentation/theme/components/button";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { usePlans } from "@/presentation/subscriptions/hooks/usePlans";
+import { usePurchaseSubscription } from "@/presentation/subscriptions/hooks/usePurchaseSubscription";
+import { useRestorePurchases } from "@/presentation/subscriptions/hooks/useRestorePurchases";
 import {
   PlanLimitResource,
   type Plan,
@@ -20,6 +23,9 @@ const STATUS_COLOR: Record<
 > = {
   ACTIVE: "success",
   TRIAL: "info",
+  GRACE_PERIOD: "info",
+  ON_HOLD: "error",
+  PAUSED: "default",
   EXPIRED: "error",
   CANCELLED: "error",
 };
@@ -33,6 +39,10 @@ export default function SubscriptionScreen() {
   const plans = [...(plansQuery.data ?? [])].sort(
     (a, b) => Number(a.price) - Number(b.price),
   );
+
+  const purchaseSubscription = usePurchaseSubscription();
+  const restorePurchases = useRestorePurchases();
+  const canPurchase = Platform.OS === "android";
 
   const formatLimit = (limit: number) =>
     limit === -1 ? t("manage.subscription.unlimited") : String(limit);
@@ -175,12 +185,31 @@ export default function SubscriptionScreen() {
                           </ThemedView>
                         ))}
                     </ThemedView>
+
+                    {!current && Number(plan.price) > 0 && canPurchase && (
+                      <Button
+                        label={t("manage.subscription.subscribe")}
+                        onPress={() => purchaseSubscription.mutate()}
+                        loading={purchaseSubscription.isPending}
+                        disabled={purchaseSubscription.isPending}
+                      />
+                    )}
                   </ThemedView>
                 </Card>
               );
             })}
           </ThemedView>
         </ThemedView>
+
+        {canPurchase && (
+          <Button
+            label={t("manage.subscription.restorePurchases")}
+            variant="text"
+            onPress={() => restorePurchases.mutate()}
+            loading={restorePurchases.isPending}
+            disabled={restorePurchases.isPending}
+          />
+        )}
       </ScrollView>
     </ScreenLayout>
   );

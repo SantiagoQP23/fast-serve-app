@@ -24,12 +24,20 @@ export interface Plan {
 
 export interface Subscription {
   id: string;
-  status: "TRIAL" | "ACTIVE" | "EXPIRED" | "CANCELLED";
+  status:
+    | "TRIAL"
+    | "ACTIVE"
+    | "GRACE_PERIOD"
+    | "ON_HOLD"
+    | "PAUSED"
+    | "EXPIRED"
+    | "CANCELLED";
   startDate: string;
   trialEndsAt?: string | null;
   currentPeriodStart?: string | null;
   currentPeriodEnd?: string | null;
   cancelledAt?: string | null;
+  provider?: "GOOGLE_PLAY" | "APP_STORE" | "STRIPE" | null;
   plan?: Plan;
 }
 
