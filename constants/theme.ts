@@ -22,7 +22,9 @@ export const Colors = {
 
     surface: "#ECEEF4", // cards, lists, inputs
     onSurfaceVariant: "#43474E",
+
     surfaceHigh: "#E7E8EE",
+    surfaceContainerLow: "#F2F3FA",
     // surface: "#FFFFFF", // cards, lists, inputs
     background: "#F8F9FF", // app canvas
     // background: "#F7F7F7", // app canvas

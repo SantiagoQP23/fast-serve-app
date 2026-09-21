@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { ScrollView, RefreshControl, Pressable } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { ScrollView, RefreshControl, Pressable, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -18,6 +18,9 @@ import Fab from "@/presentation/theme/components/fab";
 import IconButton from "@/presentation/theme/components/icon-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import SwipeableRow from "@/presentation/theme/components/swipeable-row";
+import Popover, {
+  AnchorPosition,
+} from "@/presentation/theme/components/popover";
 import type { Product } from "@/core/menu/models/product.model";
 
 export default function MenuCategoryProductsScreen() {
@@ -31,12 +34,18 @@ export default function MenuCategoryProductsScreen() {
   }>();
   const { categories, products, menuQuery } = useMenu();
   const { isLoading, isError, refetch, isRefetching } = menuQuery;
-  const { deleteProduct } = useMenuManagement();
+  const { deleteProduct, updateCategory, deleteCategory } =
+    useMenuManagement();
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
   const [productToDelete, setProductToDelete] = useState<Product | null>(
     null,
   );
+  const [categoryDeleteVisible, setCategoryDeleteVisible] = useState(false);
+  const [categoryMenuVisible, setCategoryMenuVisible] = useState(false);
+  const [categoryMenuAnchor, setCategoryMenuAnchor] =
+    useState<AnchorPosition | null>(null);
+  const categoryMenuButtonRef = useRef<View>(null);
 
   // Route params are a snapshot from when this screen was pushed and go
   // stale after editing the category elsewhere, so prefer the live category
@@ -116,6 +125,30 @@ export default function MenuCategoryProductsScreen() {
     });
   };
 
+  const handleOpenCategoryMenu = () => {
+    categoryMenuButtonRef.current?.measure(
+      (_x, _y, width, height, pageX, pageY) => {
+        setCategoryMenuAnchor({ x: pageX, y: pageY, width, height });
+        setCategoryMenuVisible(true);
+      },
+    );
+  };
+
+  const handleToggleCategoryActive = () => {
+    if (!currentCategory) return;
+    updateCategory.mutate({
+      id: currentCategory.id,
+      isActive: !currentCategory.isActive,
+    });
+  };
+
+  const handleConfirmDeleteCategory = async () => {
+    if (!params.categoryId) return;
+    await deleteCategory.mutateAsync(params.categoryId);
+    setCategoryDeleteVisible(false);
+    router.back();
+  };
+
   return (
     <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
       <ThemedView style={tw`items-center gap-2 flex-row justify-between mb-6`}>
@@ -135,12 +168,14 @@ export default function MenuCategoryProductsScreen() {
           </ThemedText>
         </ThemedView>
         {canManage && (
-          <IconButton
-            icon="create-outline"
-            size={20}
-            variant="text"
-            onPress={handleEditCategory}
-          />
+          <View ref={categoryMenuButtonRef} collapsable={false}>
+            <IconButton
+              icon="ellipsis-vertical"
+              size={20}
+              variant="text"
+              onPress={handleOpenCategoryMenu}
+            />
+          </View>
         )}
       </ThemedView>
 
@@ -228,6 +263,45 @@ export default function MenuCategoryProductsScreen() {
       </ScrollView>
 
       {canManage && <Fab icon="add" onPress={handleCreateProduct} />}
+
+      <Popover
+        visible={categoryMenuVisible}
+        onClose={() => setCategoryMenuVisible(false)}
+        anchor={categoryMenuAnchor}
+        items={[
+          {
+            label: t("edit"),
+            icon: "create-outline",
+            onPress: handleEditCategory,
+          },
+          {
+            label: currentCategory?.isActive
+              ? t("deactivate")
+              : t("activate"),
+            icon: currentCategory?.isActive
+              ? "eye-off-outline"
+              : "eye-outline",
+            onPress: handleToggleCategoryActive,
+          },
+          {
+            label: t("delete"),
+            icon: "trash-outline",
+            onPress: () => setCategoryDeleteVisible(true),
+          },
+        ]}
+      />
+
+      <DialogModal
+        visible={categoryDeleteVisible}
+        title={t("categories.deleteTitle")}
+        message={t("categories.deleteMessage")}
+        confirmLabel={t("confirm")}
+        cancelLabel={t("cancel")}
+        confirmVariant="destructive"
+        loading={deleteCategory.isPending}
+        onConfirm={handleConfirmDeleteCategory}
+        onCancel={() => setCategoryDeleteVisible(false)}
+      />
 
       <DialogModal
         visible={!!productToDelete}

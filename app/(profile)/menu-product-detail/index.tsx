@@ -1,4 +1,5 @@
-import { ScrollView, Pressable } from "react-native";
+import { useRef, useState } from "react";
+import { ScrollView, Pressable, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -7,20 +8,31 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
+import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuManagement";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Card from "@/presentation/theme/components/card";
 import IconButton from "@/presentation/theme/components/icon-button";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
 import Label from "@/presentation/theme/components/label";
+import Popover, {
+  AnchorPosition,
+} from "@/presentation/theme/components/popover";
 import { formatCurrency } from "@/core/i18n/utils";
 
 export default function MenuProductDetailScreen() {
   const { t } = useTranslation("menuManagement");
   const params = useLocalSearchParams<{ productId: string }>();
   const { products } = useMenu();
+  const { updateProduct, deleteProduct } = useMenuManagement();
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
+  const [productDeleteVisible, setProductDeleteVisible] = useState(false);
+  const [productMenuVisible, setProductMenuVisible] = useState(false);
+  const [productMenuAnchor, setProductMenuAnchor] =
+    useState<AnchorPosition | null>(null);
+  const productMenuButtonRef = useRef<View>(null);
 
   const product = products.find((p) => p.id === params.productId);
 
@@ -44,6 +56,27 @@ export default function MenuProductDetailScreen() {
         options: JSON.stringify(product.options ?? []),
       },
     });
+  };
+
+  const handleOpenProductMenu = () => {
+    productMenuButtonRef.current?.measure(
+      (_x, _y, width, height, pageX, pageY) => {
+        setProductMenuAnchor({ x: pageX, y: pageY, width, height });
+        setProductMenuVisible(true);
+      },
+    );
+  };
+
+  const handleToggleProductActive = () => {
+    if (!product) return;
+    updateProduct.mutate({ id: product.id, isActive: !product.isActive });
+  };
+
+  const handleConfirmDeleteProduct = async () => {
+    if (!product) return;
+    await deleteProduct.mutateAsync(product.id);
+    setProductDeleteVisible(false);
+    router.back();
   };
 
   if (!product) {
@@ -86,12 +119,14 @@ export default function MenuProductDetailScreen() {
           </ThemedText>
         </ThemedView>
         {canManage && (
-          <IconButton
-            icon="create-outline"
-            size={20}
-            variant="text"
-            onPress={handleEditProduct}
-          />
+          <View ref={productMenuButtonRef} collapsable={false}>
+            <IconButton
+              icon="ellipsis-vertical"
+              size={20}
+              variant="text"
+              onPress={handleOpenProductMenu}
+            />
+          </View>
         )}
       </ThemedView>
 
@@ -237,6 +272,41 @@ export default function MenuProductDetailScreen() {
           </ThemedView>
         )}
       </ScrollView>
+
+      <Popover
+        visible={productMenuVisible}
+        onClose={() => setProductMenuVisible(false)}
+        anchor={productMenuAnchor}
+        items={[
+          {
+            label: t("edit"),
+            icon: "create-outline",
+            onPress: handleEditProduct,
+          },
+          {
+            label: product.isActive ? t("deactivate") : t("activate"),
+            icon: product.isActive ? "eye-off-outline" : "eye-outline",
+            onPress: handleToggleProductActive,
+          },
+          {
+            label: t("delete"),
+            icon: "trash-outline",
+            onPress: () => setProductDeleteVisible(true),
+          },
+        ]}
+      />
+
+      <DialogModal
+        visible={productDeleteVisible}
+        title={t("products.deleteTitle")}
+        message={t("products.deleteMessage")}
+        confirmLabel={t("confirm")}
+        cancelLabel={t("cancel")}
+        confirmVariant="destructive"
+        loading={deleteProduct.isPending}
+        onConfirm={handleConfirmDeleteProduct}
+        onCancel={() => setProductDeleteVisible(false)}
+      />
     </ScreenLayout>
   );
 }

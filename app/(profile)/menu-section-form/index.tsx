@@ -12,7 +12,6 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
-import Switch from "@/presentation/theme/components/switch";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
@@ -23,7 +22,6 @@ const buildSectionSchema = (t: (key: string) => string) =>
       .string()
       .min(2, t("sections.validations.nameMinLength"))
       .max(60, t("sections.validations.nameMaxLength")),
-    isActive: z.boolean(),
     isPublic: z.boolean(),
   });
 
@@ -34,7 +32,6 @@ export default function MenuSectionFormScreen() {
   const params = useLocalSearchParams<{
     sectionId?: string;
     name?: string;
-    isActive?: string;
     isPublic?: string;
   }>();
 
@@ -54,7 +51,6 @@ export default function MenuSectionFormScreen() {
     resolver: zodResolver(schema),
     defaultValues: {
       name: params.name || "",
-      isActive: params.isActive !== "false",
       isPublic: params.isPublic !== "false",
     },
   });
@@ -64,7 +60,6 @@ export default function MenuSectionFormScreen() {
       await updateSection.mutateAsync({
         id: params.sectionId!,
         name: data.name.trim(),
-        isActive: data.isActive,
         isPublic: data.isPublic,
       });
     } else {
@@ -139,21 +134,6 @@ export default function MenuSectionFormScreen() {
               )}
             />
 
-            {isEditing && (
-              <ThemedView style={tw`gap-3 mt-2`}>
-                <Controller
-                  control={control}
-                  name="isActive"
-                  render={({ field: { value, onChange } }) => (
-                    <Switch
-                      label={t("sections.fields.isActive")}
-                      value={value}
-                      onValueChange={onChange}
-                    />
-                  )}
-                />
-              </ThemedView>
-            )}
           </ThemedView>
 
         </ScrollView>
@@ -163,8 +143,10 @@ export default function MenuSectionFormScreen() {
         visible={showDeleteConfirm}
         title={t("sections.deleteTitle")}
         message={t("sections.deleteMessage")}
-        confirmText={t("confirm")}
-        cancelText={t("cancel")}
+        confirmLabel={t("confirm")}
+        cancelLabel={t("cancel")}
+        confirmVariant="destructive"
+        loading={deleteSection.isPending}
         onConfirm={handleConfirmDelete}
         onCancel={() => setShowDeleteConfirm(false)}
       />

@@ -17,8 +17,6 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
-import Checkbox from "@/presentation/theme/components/checkbox";
-import Switch from "@/presentation/theme/components/switch";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
@@ -37,7 +35,6 @@ const buildTableSchema = (t: (key: string) => string) =>
         (v) => Number.isInteger(Number(v)) && Number(v) > 0,
         t("settings.validations.chairsInvalid"),
       ),
-    isActive: z.boolean(),
     isAvailable: z.boolean(),
   });
 
@@ -50,7 +47,6 @@ export default function TableSettingsFormScreen() {
     name?: string;
     description?: string;
     chairs?: string;
-    isActive?: string;
     isAvailable?: string;
   }>();
 
@@ -72,7 +68,6 @@ export default function TableSettingsFormScreen() {
       name: params.name || "",
       description: params.description || "",
       chairs: params.chairs || "4",
-      isActive: params.isActive !== "false",
       isAvailable: params.isAvailable !== "false",
     },
   });
@@ -84,7 +79,6 @@ export default function TableSettingsFormScreen() {
         name: data.name.trim(),
         description: data.description?.trim() || "",
         chairs: Number(data.chairs),
-        isActive: data.isActive,
         isAvailable: data.isAvailable,
       });
     } else {
@@ -194,32 +188,6 @@ export default function TableSettingsFormScreen() {
               )}
             />
 
-            {isEditing && (
-              <ThemedView style={tw`gap-3 mt-2`}>
-                <Controller
-                  control={control}
-                  name="isActive"
-                  render={({ field: { value, onChange } }) => (
-                    <Switch
-                      label={t("settings.fields.isActive")}
-                      value={value}
-                      onValueChange={onChange}
-                    />
-                  )}
-                />
-                {/* <Controller */}
-                {/*   control={control} */}
-                {/*   name="isAvailable" */}
-                {/*   render={({ field: { value, onChange } }) => ( */}
-                {/*     <Checkbox */}
-                {/*       label={t("settings.fields.isAvailable")} */}
-                {/*       value={value} */}
-                {/*       onValueChange={onChange} */}
-                {/*     /> */}
-                {/*   )} */}
-                {/* /> */}
-              </ThemedView>
-            )}
           </ThemedView>
         </ScrollView>
       </ScreenLayout>
@@ -228,8 +196,10 @@ export default function TableSettingsFormScreen() {
         visible={showDeleteConfirm}
         title={t("settings.deleteTitle")}
         message={t("settings.deleteMessage")}
-        confirmText={t("settings.confirm")}
-        cancelText={t("settings.cancel")}
+        confirmLabel={t("settings.confirm")}
+        cancelLabel={t("settings.cancel")}
+        confirmVariant="destructive"
+        loading={deleteTable.isPending}
         onConfirm={handleConfirmDelete}
         onCancel={() => setShowDeleteConfirm(false)}
       />

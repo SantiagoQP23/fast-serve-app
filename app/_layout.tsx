@@ -199,6 +199,7 @@ export default function RootLayout() {
             descriptionStyle: { fontFamily: typography.regular },
             actionButtonTextStyle: { fontFamily: typography.medium },
             cancelButtonTextStyle: { fontFamily: typography.medium },
+            style: { backgroundColor: tw.color("light-surface-container-low") },
           }}
         />
       </GestureHandlerRootView>

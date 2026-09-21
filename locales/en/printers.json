@@ -52,5 +52,9 @@
   "cancel": "Cancel",
   "confirm": "Confirm",
   "active": "Active",
-  "inactive": "Inactive"
+  "inactive": "Inactive",
+  "edit": "Edit",
+  "delete": "Delete",
+  "activate": "Activate",
+  "deactivate": "Deactivate"
 }

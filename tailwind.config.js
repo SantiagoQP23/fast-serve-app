@@ -13,6 +13,7 @@ module.exports = {
           "primary-container": Colors.light.primaryContainer,
           "on-primary-container": Colors.light.onPrimaryContainer,
           "surface-high": Colors.light.surfaceHigh,
+          "surface-container-low": Colors.light.surfaceContainerLow,
           "on-surface-variant": Colors.light.onSurfaceVariant,
           "outline-variant": Colors.light.outlineVariant,
 

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import { router } from "expo-router";
 import { toast } from "sonner-native";
 import { Ionicons } from "@expo/vector-icons";
+import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -15,19 +16,24 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
-import IconButton from "@/presentation/theme/components/icon-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import type { Printer } from "@/core/common/models/printer.model";
 
 export default function PrintersScreen() {
   const { t } = useTranslation("printers");
-  const { getAll, deletePrinter } = usePrinters();
+  const { getAll, updatePrinter, deletePrinter } = usePrinters();
   const { data: printers, isLoading, isError, refetch, isRefetching } = getAll;
   const { currentRestaurant, user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
 
   const [testingPrinterId, setTestingPrinterId] = useState<string | null>(null);
   const [printerToDelete, setPrinterToDelete] = useState<Printer | null>(null);
+  const [selectedPrinter, setSelectedPrinter] = useState<Printer | null>(
+    null,
+  );
+  const actionsSheetRef = useRef<BottomSheetMethods>(null);
 
   const handleTestPrinter = async (printerId: string) => {
     const printer = printers?.find((p) => p.id === printerId);
@@ -64,6 +70,28 @@ export default function PrintersScreen() {
         isActive: String(printer.isActive),
       },
     });
+  };
+
+  const handleOpenPrinterActions = (printer: Printer) => {
+    setSelectedPrinter(printer);
+    actionsSheetRef.current?.present();
+  };
+
+  const handleClosePrinterActions = () => {
+    actionsSheetRef.current?.dismiss();
+  };
+
+  const handleToggleActive = () => {
+    if (!selectedPrinter) return;
+    updatePrinter.mutate({
+      id: selectedPrinter.id,
+      name: selectedPrinter.name,
+      connectionType: selectedPrinter.connectionType,
+      ipAddress: selectedPrinter.ipAddress,
+      port: selectedPrinter.port,
+      isActive: !selectedPrinter.isActive,
+    });
+    handleClosePrinterActions();
   };
 
   const handleConfirmDelete = async () => {
@@ -126,7 +154,11 @@ export default function PrintersScreen() {
             {printers.map((printer) => (
               <Card
                 key={printer.id}
-                onPress={canManage ? () => handleEditPrinter(printer) : undefined}
+                onPress={
+                  canManage
+                    ? () => handleOpenPrinterActions(printer)
+                    : undefined
+                }
                 style={!printer.isActive && tw`opacity-50`}
               >
                 <ThemedView style={tw`gap-4`}>
@@ -158,6 +190,42 @@ export default function PrintersScreen() {
       </ScrollView>
 
       {canManage && <Fab icon="add" onPress={handleCreatePrinter} />}
+
+      <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
+        {selectedPrinter && (
+          <ActionsBottomSheet
+            title={selectedPrinter.name}
+            items={[
+              {
+                icon: "create-outline",
+                label: t("edit"),
+                onPress: () => {
+                  handleClosePrinterActions();
+                  handleEditPrinter(selectedPrinter);
+                },
+              },
+              {
+                icon: selectedPrinter.isActive
+                  ? "eye-off-outline"
+                  : "eye-outline",
+                label: selectedPrinter.isActive
+                  ? t("deactivate")
+                  : t("activate"),
+                onPress: handleToggleActive,
+              },
+              {
+                icon: "trash-outline",
+                label: t("delete"),
+                color: "text-red-500",
+                onPress: () => {
+                  handleClosePrinterActions();
+                  setPrinterToDelete(selectedPrinter);
+                },
+              },
+            ]}
+          />
+        )}
+      </ThemedBottomSheetModal>
 
       <DialogModal
         visible={!!printerToDelete}

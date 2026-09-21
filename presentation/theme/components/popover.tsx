@@ -11,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
+import { typography } from "@/constants/theme";
 
 export interface PopoverItem {
   label: string;
@@ -49,7 +50,6 @@ export default function Popover({
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
-  const textColor = useThemeColor({}, "text");
   const dividerColor = useThemeColor(
     { light: "#e5e7eb", dark: "#374151" },
     "border" as any,
@@ -107,7 +107,7 @@ export default function Popover({
 
       <Animated.View
         style={[
-          tw`absolute rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-light-background dark:bg-black`,
+          tw`absolute rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-light-surface-container-low dark:bg-black`,
           shadows.card,
           {
             top,
@@ -142,23 +142,25 @@ export default function Popover({
                 onClose();
               }}
               style={({ pressed }) => [
-                tw`flex-row items-center h-11 px-4`,
+                tw`flex-row items-center h-11 px-6`,
                 pressed && tw`opacity-60`,
-                index < items.length - 1 && {
-                  borderBottomWidth: StyleSheet.hairlineWidth,
-                  borderBottomColor: dividerColor,
-                },
               ]}
             >
               {item.icon && (
                 <Ionicons
                   name={item.icon}
                   size={18}
-                  color={textColor}
-                  style={tw`mr-2.5`}
+                  color={tw.color("text-light-on-surface-variant")}
+                  style={tw`mr-4`}
                 />
               )}
-              <ThemedText type="body2" style={tw`flex-1`}>
+              <ThemedText
+                type="body2"
+                style={[
+                  tw`flex-1 text-on-surface`,
+                  { fontFamily: typography.medium },
+                ]}
+              >
                 {item.label}
               </ThemedText>
               {isSelected && (

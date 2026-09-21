@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -14,17 +15,23 @@ import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import type { ProductionArea } from "@/core/menu/models/producion-area.model";
 
 export default function ProductionAreasScreen() {
   const { t } = useTranslation("productionAreas");
-  const { getAllQuery, productionAreas, deleteProductionArea } =
+  const { getAllQuery, productionAreas, updateProductionArea, deleteProductionArea } =
     useProductionAreas();
   const { isLoading, isError, refetch, isRefetching } = getAllQuery;
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
 
   const [areaToDelete, setAreaToDelete] = useState<ProductionArea | null>(null);
+  const [selectedArea, setSelectedArea] = useState<ProductionArea | null>(
+    null,
+  );
+  const actionsSheetRef = useRef<BottomSheetMethods>(null);
 
   const handleCreateArea = () => {
     router.push("/(profile)/production-area-form");
@@ -40,6 +47,27 @@ export default function ProductionAreasScreen() {
         printerIds: area.printers?.map((p) => p.id).join(",") || "",
       },
     });
+  };
+
+  const handleOpenAreaActions = (area: ProductionArea) => {
+    setSelectedArea(area);
+    actionsSheetRef.current?.present();
+  };
+
+  const handleCloseAreaActions = () => {
+    actionsSheetRef.current?.dismiss();
+  };
+
+  const handleToggleActive = () => {
+    if (!selectedArea) return;
+    updateProductionArea.mutate({
+      id: selectedArea.id,
+      name: selectedArea.name,
+      description: selectedArea.description,
+      printerIds: selectedArea.printers?.map((p) => p.id) || [],
+      isActive: !selectedArea.isActive,
+    });
+    handleCloseAreaActions();
   };
 
   const handleConfirmDelete = async () => {
@@ -106,7 +134,9 @@ export default function ProductionAreasScreen() {
             {productionAreas.map((area) => (
               <Card
                 key={area.id}
-                onPress={canManage ? () => handleEditArea(area) : undefined}
+                onPress={
+                  canManage ? () => handleOpenAreaActions(area) : undefined
+                }
                 style={!area.isActive && tw`opacity-50`}
               >
                 <ThemedView style={tw`gap-4`}>
@@ -146,6 +176,42 @@ export default function ProductionAreasScreen() {
       </ScrollView>
 
       {canManage && <Fab icon="add" onPress={handleCreateArea} />}
+
+      <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
+        {selectedArea && (
+          <ActionsBottomSheet
+            title={selectedArea.name}
+            items={[
+              {
+                icon: "create-outline",
+                label: t("edit"),
+                onPress: () => {
+                  handleCloseAreaActions();
+                  handleEditArea(selectedArea);
+                },
+              },
+              {
+                icon: selectedArea.isActive
+                  ? "eye-off-outline"
+                  : "eye-outline",
+                label: selectedArea.isActive
+                  ? t("deactivate")
+                  : t("activate"),
+                onPress: handleToggleActive,
+              },
+              {
+                icon: "trash-outline",
+                label: t("delete"),
+                color: "text-red-500",
+                onPress: () => {
+                  handleCloseAreaActions();
+                  setAreaToDelete(selectedArea);
+                },
+              },
+            ]}
+          />
+        )}
+      </ThemedBottomSheetModal>
 
       <DialogModal
         visible={!!areaToDelete}

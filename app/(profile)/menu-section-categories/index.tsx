@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { ScrollView, RefreshControl, Pressable } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { ScrollView, RefreshControl, Pressable, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -18,6 +18,9 @@ import Fab from "@/presentation/theme/components/fab";
 import IconButton from "@/presentation/theme/components/icon-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import SwipeableRow from "@/presentation/theme/components/swipeable-row";
+import Popover, {
+  AnchorPosition,
+} from "@/presentation/theme/components/popover";
 import type { Category } from "@/core/menu/models/category.model";
 
 export default function MenuSectionCategoriesScreen() {
@@ -30,12 +33,18 @@ export default function MenuSectionCategoriesScreen() {
   }>();
   const { sections, categories, products, menuQuery } = useMenu();
   const { isLoading, isError, refetch, isRefetching } = menuQuery;
-  const { deleteCategory } = useMenuManagement();
+  const { deleteCategory, updateSection, deleteSection } =
+    useMenuManagement();
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
     null,
   );
+  const [sectionDeleteVisible, setSectionDeleteVisible] = useState(false);
+  const [sectionMenuVisible, setSectionMenuVisible] = useState(false);
+  const [sectionMenuAnchor, setSectionMenuAnchor] =
+    useState<AnchorPosition | null>(null);
+  const sectionMenuButtonRef = useRef<View>(null);
 
   // Route params are a snapshot from when this screen was pushed and go
   // stale after editing the section elsewhere, so prefer the live section
@@ -105,6 +114,30 @@ export default function MenuSectionCategoriesScreen() {
     });
   };
 
+  const handleOpenSectionMenu = () => {
+    sectionMenuButtonRef.current?.measure(
+      (_x, _y, width, height, pageX, pageY) => {
+        setSectionMenuAnchor({ x: pageX, y: pageY, width, height });
+        setSectionMenuVisible(true);
+      },
+    );
+  };
+
+  const handleToggleSectionActive = () => {
+    if (!currentSection) return;
+    updateSection.mutate({
+      id: currentSection.id,
+      isActive: !currentSection.isActive,
+    });
+  };
+
+  const handleConfirmDeleteSection = async () => {
+    if (!params.sectionId) return;
+    await deleteSection.mutateAsync(params.sectionId);
+    setSectionDeleteVisible(false);
+    router.back();
+  };
+
   const getProductCount = (categoryId: string) =>
     products.filter((product) => product.category.id === categoryId).length;
 
@@ -133,12 +166,14 @@ export default function MenuSectionCategoriesScreen() {
           </ThemedText>
         </ThemedView>
         {canManage && (
-          <IconButton
-            icon="create-outline"
-            size={20}
-            variant="text"
-            onPress={handleEditSection}
-          />
+          <View ref={sectionMenuButtonRef} collapsable={false}>
+            <IconButton
+              icon="ellipsis-vertical"
+              size={20}
+              variant="text"
+              onPress={handleOpenSectionMenu}
+            />
+          </View>
         )}
       </ThemedView>
 
@@ -228,6 +263,45 @@ export default function MenuSectionCategoriesScreen() {
       </ScrollView>
 
       {canManage && <Fab icon="add" onPress={handleCreateCategory} />}
+
+      <Popover
+        visible={sectionMenuVisible}
+        onClose={() => setSectionMenuVisible(false)}
+        anchor={sectionMenuAnchor}
+        items={[
+          {
+            label: t("edit"),
+            icon: "create-outline",
+            onPress: handleEditSection,
+          },
+          {
+            label: currentSection?.isActive
+              ? t("deactivate")
+              : t("activate"),
+            icon: currentSection?.isActive
+              ? "eye-off-outline"
+              : "eye-outline",
+            onPress: handleToggleSectionActive,
+          },
+          {
+            label: t("delete"),
+            icon: "trash-outline",
+            onPress: () => setSectionDeleteVisible(true),
+          },
+        ]}
+      />
+
+      <DialogModal
+        visible={sectionDeleteVisible}
+        title={t("sections.deleteTitle")}
+        message={t("sections.deleteMessage")}
+        confirmLabel={t("confirm")}
+        cancelLabel={t("cancel")}
+        confirmVariant="destructive"
+        loading={deleteSection.isPending}
+        onConfirm={handleConfirmDeleteSection}
+        onCancel={() => setSectionDeleteVisible(false)}
+      />
 
       <DialogModal
         visible={!!categoryToDelete}

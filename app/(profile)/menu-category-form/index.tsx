@@ -13,7 +13,6 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
-import Switch from "@/presentation/theme/components/switch";
 import Select from "@/presentation/theme/components/select";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -26,7 +25,6 @@ const buildCategorySchema = (t: (key: string) => string) =>
       .min(2, t("categories.validations.nameMinLength"))
       .max(60, t("categories.validations.nameMaxLength")),
     sectionId: z.string().min(1, t("categories.validations.sectionRequired")),
-    isActive: z.boolean(),
     isPublic: z.boolean(),
   });
 
@@ -38,7 +36,6 @@ export default function MenuCategoryFormScreen() {
     categoryId?: string;
     name?: string;
     sectionId?: string;
-    isActive?: string;
     isPublic?: string;
   }>();
 
@@ -61,7 +58,6 @@ export default function MenuCategoryFormScreen() {
     defaultValues: {
       name: params.name || "",
       sectionId: params.sectionId || "",
-      isActive: params.isActive !== "false",
       isPublic: params.isPublic !== "false",
     },
   });
@@ -72,7 +68,6 @@ export default function MenuCategoryFormScreen() {
         id: params.categoryId!,
         name: data.name.trim(),
         sectionId: data.sectionId,
-        isActive: data.isActive,
         isPublic: data.isPublic,
       });
     } else {
@@ -193,21 +188,6 @@ export default function MenuCategoryFormScreen() {
               </ThemedText>
             )}
 
-            {isEditing && (
-              <ThemedView style={tw`gap-3 mt-2`}>
-                <Controller
-                  control={control}
-                  name="isActive"
-                  render={({ field: { value, onChange } }) => (
-                    <Switch
-                      label={t("categories.fields.isActive")}
-                      value={value}
-                      onValueChange={onChange}
-                    />
-                  )}
-                />
-              </ThemedView>
-            )}
           </ThemedView>
 
         </ScrollView>
@@ -217,8 +197,10 @@ export default function MenuCategoryFormScreen() {
         visible={showDeleteConfirm}
         title={t("categories.deleteTitle")}
         message={t("categories.deleteMessage")}
-        confirmText={t("confirm")}
-        cancelText={t("cancel")}
+        confirmLabel={t("confirm")}
+        cancelLabel={t("cancel")}
+        confirmVariant="destructive"
+        loading={deleteCategory.isPending}
         onConfirm={handleConfirmDelete}
         onCancel={() => setShowDeleteConfirm(false)}
       />

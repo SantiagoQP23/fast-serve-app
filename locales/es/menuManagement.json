@@ -148,6 +148,10 @@
   "retry": "Reintentar",
   "cancel": "Cancelar",
   "confirm": "Confirmar",
+  "edit": "Editar",
+  "delete": "Eliminar",
   "active": "Activo",
-  "inactive": "Inactivo"
+  "inactive": "Inactivo",
+  "activate": "Activar",
+  "deactivate": "Desactivar"
 }

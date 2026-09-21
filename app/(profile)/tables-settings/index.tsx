@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -16,16 +17,20 @@ import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import SwipeableRow from "@/presentation/theme/components/swipeable-row";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import type { Table } from "@/core/tables/models/table.model";
 
 export default function TablesSettingsScreen() {
   const { t } = useTranslation("tables");
   const { tables, tablesQuery } = useTables();
   const { isLoading, isError, refetch, isRefetching } = tablesQuery;
-  const { deleteTable } = useTablesManagement();
+  const { updateTable, deleteTable } = useTablesManagement();
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
   const [tableToDelete, setTableToDelete] = useState<Table | null>(null);
+  const [selectedTable, setSelectedTable] = useState<Table | null>(null);
+  const actionsSheetRef = useRef<BottomSheetMethods>(null);
 
   useEffect(() => {
     if (tables.length === 0) {
@@ -50,6 +55,24 @@ export default function TablesSettingsScreen() {
         isAvailable: String(table.isAvailable !== false),
       },
     });
+  };
+
+  const handleOpenTableActions = (table: Table) => {
+    setSelectedTable(table);
+    actionsSheetRef.current?.present();
+  };
+
+  const handleCloseTableActions = () => {
+    actionsSheetRef.current?.dismiss();
+  };
+
+  const handleToggleActive = () => {
+    if (!selectedTable) return;
+    updateTable.mutate({
+      id: selectedTable.id,
+      isActive: !(selectedTable.isActive !== false),
+    });
+    handleCloseTableActions();
   };
 
   const handleConfirmDelete = async () => {
@@ -118,7 +141,11 @@ export default function TablesSettingsScreen() {
                 }
               >
                 <Card
-                  onPress={canManage ? () => handleEditTable(table) : undefined}
+                  onPress={
+                    canManage
+                      ? () => handleOpenTableActions(table)
+                      : undefined
+                  }
                   style={table.isActive === false && tw`opacity-50`}
                 >
                   <ThemedView style={tw`flex-row items-center justify-between`}>
@@ -159,6 +186,44 @@ export default function TablesSettingsScreen() {
       </ScrollView>
 
       {canManage && <Fab icon="add" onPress={handleCreateTable} />}
+
+      <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
+        {selectedTable && (
+          <ActionsBottomSheet
+            title={t("settings.tableName", { name: selectedTable.name })}
+            items={[
+              {
+                icon: "create-outline",
+                label: t("settings.edit"),
+                onPress: () => {
+                  handleCloseTableActions();
+                  handleEditTable(selectedTable);
+                },
+              },
+              {
+                icon:
+                  selectedTable.isActive !== false
+                    ? "eye-off-outline"
+                    : "eye-outline",
+                label:
+                  selectedTable.isActive !== false
+                    ? t("settings.deactivate")
+                    : t("settings.activate"),
+                onPress: handleToggleActive,
+              },
+              {
+                icon: "trash-outline",
+                label: t("settings.delete"),
+                color: "text-red-500",
+                onPress: () => {
+                  handleCloseTableActions();
+                  setTableToDelete(selectedTable);
+                },
+              },
+            ]}
+          />
+        )}
+      </ThemedBottomSheetModal>
 
       <DialogModal
         visible={!!tableToDelete}

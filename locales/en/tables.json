@@ -57,6 +57,10 @@
     "confirm": "Confirm",
     "active": "Active",
     "inactive": "Inactive",
+    "edit": "Edit",
+    "delete": "Delete",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
     "fields": {
       "name": "Name",
       "description": "Description",

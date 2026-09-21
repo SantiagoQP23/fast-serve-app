@@ -156,13 +156,6 @@ const OrderOptionsBottomSheet = ({
   return (
     <>
       <BottomSheetView style={tw`px-4 pb-6 bg-light-brackground`}>
-        <ThemedView style={tw`mb-4`}>
-          <ThemedText type="h3">{t("orders:options.title")}</ThemedText>
-          <ThemedText type="body2" style={tw`text-gray-500 mt-1`}>
-            {t("orders:details.orderNumber", { num: order.num })}
-          </ThemedText>
-        </ThemedView>
-
         <ThemedView style={tw`gap-2`}>
           {visibleOptions.map((option, index) => (
             <ThemedView key={index}>
