@@ -53,15 +53,18 @@ export const useOrders = () => {
   );
 
   const updateOrderDetailEmitter = useWebsocketEventEmitter<
-    Order,
+    UpdateOrderResp,
     UpdateOrderDetailDto
   >(OrderSocketEvent.updateOrderDetail, {
     onSuccess: (resp) => {
-      if (resp.data) {
-        setActiveOrder(resp.data!);
-        updateOrder(resp.data!);
+      const data = resp.data;
+      if (data?.order) {
+        setActiveOrder(data.order);
+        updateOrder(data.order);
       }
-      // Alert.alert("Success", "Order detail updated successfully");
+      if (data?.order && data?.ticket) {
+        printComanda(data.order, data.ticket);
+      }
     },
     onError: (resp) => {
       Alert.alert("Error", resp.msg);
@@ -78,11 +81,15 @@ export const useOrders = () => {
   });
 
   const useOrderDetailToOrderEmitter = useWebsocketEventEmitter<
-    Order,
+    UpdateOrderResp,
     AddOrderDetailToOrderDto
   >(OrderSocketEvent.addOrderDetail, {
     onSuccess: (resp) => {
-      if (resp.data) setActiveOrder(resp.data!);
+      const data = resp.data;
+      if (data?.order) setActiveOrder(data.order);
+      if (data?.order && data?.ticket) {
+        printComanda(data.order, data.ticket);
+      }
     },
     onError: (resp) => {
       Alert.alert("Error", resp.msg);
