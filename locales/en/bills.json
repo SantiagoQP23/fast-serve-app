@@ -19,6 +19,13 @@
     "remainingDescription": "Still pending from the order",
     "salesCount": "{{count}} sales"
   },
+  "print": {
+    "title": "Print Bill",
+    "printing": "Printing bill...",
+    "printSuccess": "Bill printed successfully",
+    "printError": "Could not print the bill. Please check the printer connection.",
+    "printButton": "Print"
+  },
   "details": {
     "title": "Bill #{{number}}",
     "orderNumber": "Order #{{number}}",

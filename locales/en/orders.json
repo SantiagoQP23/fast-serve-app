@@ -116,6 +116,13 @@
     "title": "Edit Order",
     "saveChanges": "Save changes"
   },
+  "print": {
+    "title": "Print Order",
+    "status": "Status",
+    "payment": "Payment",
+    "type": "Type",
+    "printButton": "Print"
+  },
   "options": {
     "title": "Order Options",
     "printOrder": "Print Order",

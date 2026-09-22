@@ -5,6 +5,7 @@ import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { TicketItem } from "@/core/tickets/models/ticket-item.model";
 import { TicketType } from "@/core/tickets/enums/ticket-type.enum";
+import { Bill, BillSource } from "@/core/orders/models/bill.model";
 
 export class ThermalPrinterService {
   static printTest = async (
@@ -264,6 +265,88 @@ export class ThermalPrinterService {
       `[C]----------------------------------------------\n` +
       `${detailsText}` +
       `[C]-----------------------------------------------\n` +
+      `[C]${new Date().toLocaleString()}\n` +
+      `[C]\n` +
+      `[C]\n` +
+      `\x1B\x42\x03\x03 \n` +
+      `[C]\n`;
+
+    if (printer.connectionType === "TCP") {
+      if (!printer.ipAddress) {
+        throw new Error("TCP printer is missing IP address");
+      }
+      await ThermalPrinterModule.printTcp({
+        ip: printer.ipAddress,
+        port: printer.port,
+        payload,
+        autoCut: true,
+        printerWidthMM: 80,
+        mmFeedPaper: 10,
+      });
+    } else {
+      throw new Error("Only TCP printers are supported");
+    }
+  };
+
+  static printBill = async (
+    printer: Printer,
+    bill: Bill,
+    translations: {
+      title: string;
+      orderNumber: string;
+      table: (name: string) => string;
+      takeAway: string;
+      waiter: string;
+      deletedUser: string;
+      subtotal: string;
+      discount: string;
+      total: string;
+      payments: string;
+    },
+  ): Promise<void> => {
+    const itemsText = bill.details
+      .map((detail) => {
+        const productName =
+          bill.source === BillSource.ORDER && detail.orderDetail
+            ? detail.orderDetail.product.name
+            : detail.product?.name || "";
+        const optionName =
+          detail.productOption?.name || detail.orderDetail?.productOption?.name;
+
+        return `[L]${detail.quantity}x ${productName}${optionName ? ` (${optionName})` : ""}[R]$${detail.total.toFixed(2)}\n`;
+      })
+      .join("");
+
+    const transactionsText = bill.transactions
+      .map(
+        (tx) =>
+          `[L]${tx.paymentMethod?.name}[R]$${tx.amount.toFixed(2)}\n`,
+      )
+      .join("");
+
+    const orderInfoText = bill.order
+      ? `[C]${translations.orderNumber}\n` +
+        `[C]${bill.order.table ? translations.table(bill.order.table.name) : translations.takeAway}\n` +
+        `[L]${translations.waiter}: ${bill.owner?.person.firstName ?? translations.deletedUser}\n` +
+        `[C]--------------------------------\n`
+      : "";
+
+    const payload =
+      `[C]<font size='big'><b>${translations.title} #${bill.num}</b></font>\n` +
+      `[C]${new Date(bill.createdAt).toLocaleString()}\n` +
+      `[C]--------------------------------\n` +
+      `${orderInfoText}` +
+      `${itemsText}` +
+      `[C]--------------------------------\n` +
+      `[L]${translations.subtotal}[R]$${bill.subtotal.toFixed(2)}\n` +
+      `${bill.discount > 0 ? `[L]${translations.discount}[R]-$${bill.discount.toFixed(2)}\n` : ""}` +
+      `[L]<b>${translations.total}</b>[R]<b>$${bill.total.toFixed(2)}</b>\n` +
+      `${
+        bill.transactions.length > 0
+          ? `[C]--------------------------------\n[C]${translations.payments}\n${transactionsText}`
+          : ""
+      }` +
+      `[C]--------------------------------\n` +
       `[C]${new Date().toLocaleString()}\n` +
       `[C]\n` +
       `[C]\n` +

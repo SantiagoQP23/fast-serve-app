@@ -19,6 +19,13 @@
     "remainingDescription": "Pendiente del pedido",
     "salesCount": "{{count}} ventas"
   },
+  "print": {
+    "title": "Imprimir Cuenta",
+    "printing": "Imprimiendo cuenta...",
+    "printSuccess": "Cuenta impresa correctamente",
+    "printError": "No se pudo imprimir la cuenta. Por favor verifique la conexión de la impresora.",
+    "printButton": "Imprimir"
+  },
   "details": {
     "title": "Cuenta #{{number}}",
     "orderNumber": "Pedido #{{number}}",

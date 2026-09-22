@@ -122,7 +122,7 @@ export default function OrderScreen() {
     statusIconColor,
     bgColor,
   } = useOrderStatus(order?.status || OrderStatus.PENDING);
-  const { handlePrintOrder, handleShareOrder } = useOrderPrint(order);
+  const { handleShareOrder } = useOrderPrint(order);
 
   const editBottomSheetRef = useRef<BottomSheetMethods>(null);
   const reassignBottomSheetRef = useRef<BottomSheetMethods>(null);
@@ -357,7 +357,7 @@ export default function OrderScreen() {
 
   const handlePrintFromMenu = () => {
     moreOptionsSheetRef.current?.dismiss();
-    handlePrintOrder();
+    router.push(`/(order)/${order.id}/print`);
   };
 
   const handleShareFromMenu = () => {

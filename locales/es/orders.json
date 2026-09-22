@@ -116,6 +116,13 @@
     "title": "Editar Pedido",
     "saveChanges": "Guardar cambios"
   },
+  "print": {
+    "title": "Imprimir Pedido",
+    "status": "Estado",
+    "payment": "Pago",
+    "type": "Tipo",
+    "printButton": "Imprimir"
+  },
   "options": {
     "title": "Opciones de Pedido",
     "printOrder": "Imprimir",

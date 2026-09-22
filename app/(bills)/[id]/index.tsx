@@ -96,7 +96,7 @@ export default function BillScreen() {
     setBillDiscount(discount);
   }, [discount, setBillDiscount]);
 
-  const { handlePrintBill, handleShareBill } = useBillPrint(bill);
+  const { handleShareBill } = useBillPrint(bill);
 
   const onRefresh = useCallback(async () => {
     try {
@@ -547,7 +547,10 @@ export default function BillScreen() {
                     },
                   ]
                 : []),
-              { icon: "print-outline", onPress: handlePrintBill },
+              {
+                icon: "print-outline",
+                onPress: () => router.push(`/(bills)/${bill.id}/print`),
+              },
               {
                 icon: "ellipsis-horizontal-outline",
                 onPress: handleOpenMoreOptions,
