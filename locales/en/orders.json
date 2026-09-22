@@ -209,6 +209,11 @@
       "ADD": "ADD",
       "UPDATE": "UPDATE",
       "CANCEL": "CANCEL"
+    },
+    "itemAction": {
+      "ADD": "ADD",
+      "REMOVE": "REMOVE",
+      "MODIFY": "MODIFY"
     }
   }
 }

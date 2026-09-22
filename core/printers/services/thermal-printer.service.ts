@@ -211,9 +211,11 @@ export class ThermalPrinterService {
       inPlace: string;
       detailTakeAway: string;
       deletedUser: string;
+      itemAction: (action: TicketItem["action"]) => string;
     },
   ): Promise<void> => {
     const isCancel = ticketType === TicketType.CANCEL;
+    const isUpdate = ticketType === TicketType.UPDATE;
     const qtyPrefix = isCancel ? "-" : "";
 
     const detailsText = areaItems
@@ -231,6 +233,9 @@ export class ThermalPrinterService {
         if (item.description) {
           extra += `[L]  *** ${item.description} ***\n`;
         }
+        if (isUpdate) {
+          extra += `[L]  [${translations.itemAction(item.action)}]\n`;
+        }
         if (item.orderDetail && item.orderDetail.typeOrderDetail !== order.type) {
           const typeLabel =
             item.orderDetail.typeOrderDetail === OrderType.TAKE_AWAY
@@ -246,7 +251,7 @@ export class ThermalPrinterService {
     const payload =
       `[C]${translations.comandaTitle}\n` +
       `[C]${translations.area(areaName).toUpperCase()}\n` +
-      `[C]<b>${ticketTypeLabel}</b>\n` +
+      `[C]<font size='big'><b>${ticketTypeLabel}</b></font>\n` +
       `[C]\n` +
       `[C]${translations.order}\n` +
       `[C]<font size='big'>${order.table ? translations.table(order.table.name) : translations.takeAway}</font>\n` +

@@ -209,6 +209,11 @@
       "ADD": "AGREGAR",
       "UPDATE": "ACTUALIZAR",
       "CANCEL": "CANCELAR"
+    },
+    "itemAction": {
+      "ADD": "AGREGADO",
+      "REMOVE": "ELIMINADO",
+      "MODIFY": "MODIFICADO"
     }
   }
 }

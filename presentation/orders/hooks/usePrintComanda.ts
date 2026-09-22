@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { toast } from "sonner-native";
 import { Ticket } from "@/core/tickets/models/ticket.model";
+import { TicketItemAction } from "@/core/tickets/enums/ticket-item-action.enum";
 import { ThermalPrinterService } from "@/core/printers/services/thermal-printer.service";
 import { ProductionArea } from "@/core/menu/models/producion-area.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -60,6 +61,8 @@ export const usePrintComanda = () => {
         inPlace: t("orders:comanda.inPlace"),
         detailTakeAway: t("orders:comanda.detailTakeAway"),
         deletedUser: t("common:labels.deletedUser"),
+        itemAction: (action: TicketItemAction) =>
+          t(`orders:comanda.itemAction.${action}`),
       };
 
       let printedAny = false;
