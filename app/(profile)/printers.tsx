@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ScrollView, RefreshControl } from "react-native";
+import { ScrollView, RefreshControl, ActivityIndicator } from "react-native";
 import { router } from "expo-router";
 import { toast } from "sonner-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -19,6 +19,7 @@ import Fab from "@/presentation/theme/components/fab";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
+import IconButton from "@/presentation/theme/components/icon-button";
 import type { Printer } from "@/core/common/models/printer.model";
 
 export default function PrintersScreen() {
@@ -181,6 +182,20 @@ export default function PrintersScreen() {
                         </ThemedText>
                       </ThemedView>
                     </ThemedView>
+
+                    {testingPrinterId === printer.id ? (
+                      <ActivityIndicator
+                        size="small"
+                        color={tw.color("blue-500")}
+                        style={tw`p-3`}
+                      />
+                    ) : (
+                      <IconButton
+                        icon="flash-outline"
+                        onPress={() => handleTestPrinter(printer.id)}
+                        disabled={!!testingPrinterId}
+                      />
+                    )}
                   </ThemedView>
                 </ThemedView>
               </Card>

@@ -9,9 +9,13 @@ import {
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { toast } from "sonner-native";
+import { useState } from "react";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { usePrinters } from "@/core/printers/hooks/usePrinters";
 import { PrinterConnectionType } from "@/core/common/models/printer.model";
+import { ThermalPrinterService } from "@/core/printers/services/thermal-printer.service";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -82,6 +86,8 @@ export default function PrinterFormScreen() {
   const isEditing = !!printerId;
 
   const { createPrinter, updatePrinter } = usePrinters();
+  const { currentRestaurant } = useAuthStore();
+  const [isTestingPrinter, setIsTestingPrinter] = useState(false);
 
   const schema = buildPrinterSchema(t);
 
@@ -89,6 +95,7 @@ export default function PrinterFormScreen() {
     control,
     handleSubmit,
     watch,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<PrinterFormData>({
     resolver: zodResolver(schema),
@@ -101,6 +108,40 @@ export default function PrinterFormScreen() {
   });
 
   const connectionType = watch("connectionType");
+
+  const handleTestPrinter = async () => {
+    const result = schema.safeParse(getValues());
+    if (!result.success) {
+      toast.error(result.error.issues[0]?.message || t("testPrintErrorMessage"));
+      return;
+    }
+
+    const data = result.data;
+    setIsTestingPrinter(true);
+    const toastId = toast.loading(t("testPrintLoading"));
+    try {
+      await ThermalPrinterService.printTest(
+        {
+          id: printerId || "temp",
+          name: data.name.trim(),
+          connectionType: data.connectionType,
+          ipAddress: data.ipAddress?.trim(),
+          port: Number(data.port),
+          isActive: true,
+          createdAt: "",
+          updatedAt: "",
+        },
+        currentRestaurant?.name,
+      );
+      toast.success(t("testPrintSuccessMessage"), { id: toastId });
+    } catch (error: any) {
+      toast.error(error?.message || t("testPrintErrorMessage"), {
+        id: toastId,
+      });
+    } finally {
+      setIsTestingPrinter(false);
+    }
+  };
 
   const onSubmit = async (data: PrinterFormData) => {
     const payload = {
@@ -224,6 +265,15 @@ export default function PrinterFormScreen() {
                   error={errors.port?.message}
                 />
               )}
+            />
+
+            <Button
+              label={t(isTestingPrinter ? "testing" : "test")}
+              leftIcon="flash-outline"
+              variant="outline"
+              onPress={handleTestPrinter}
+              loading={isTestingPrinter}
+              disabled={isTestingPrinter}
             />
           </ThemedView>
 

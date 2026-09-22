@@ -62,6 +62,8 @@ export const usePrintComanda = () => {
         deletedUser: t("common:labels.deletedUser"),
       };
 
+      let printedAny = false;
+
       for (const group of areaGroups) {
         const activePrinter = group.area.printers?.find((p) => p.isActive);
         if (!activePrinter) {
@@ -80,7 +82,13 @@ export const usePrintComanda = () => {
             ticketTypeLabel,
             translations,
           );
+          printedAny = true;
         }
+      }
+
+      if (!printedAny) {
+        toast.error(t("orders:options.noProductionAreas"), { id: toastId });
+        return;
       }
 
         // Mark ticket as printed via REST
