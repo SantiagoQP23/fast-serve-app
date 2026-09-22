@@ -10,6 +10,7 @@ import { useTickets } from "@/presentation/orders/hooks/useTickets";
 import { Ticket } from "@/core/tickets/models/ticket.model";
 import { TicketType } from "@/core/tickets/enums/ticket-type.enum";
 import { TicketItem } from "@/core/tickets/models/ticket-item.model";
+import { TicketItemAction } from "@/core/tickets/enums/ticket-item-action.enum";
 import { Order } from "@/core/orders/models/order.model";
 import dayjs from "dayjs";
 import Card from "@/presentation/theme/components/card";
@@ -31,7 +32,9 @@ function TicketCard({
       ? t("orders:tickets.typeNew")
       : ticket.type === TicketType.ADD
         ? t("orders:tickets.typeAdd")
-        : ticket.type;
+        : ticket.type === TicketType.UPDATE
+          ? t("orders:tickets.typeUpdate")
+          : ticket.type;
 
   // Group items by production area using denormalized data
   const itemsByArea = ticket.items.reduce(
@@ -53,8 +56,22 @@ function TicketCard({
 
   const areaGroups = Object.values(itemsByArea);
 
+  const isUpdate = ticket.type === TicketType.UPDATE;
+
+  const actionLabels: Record<TicketItemAction, string> = {
+    [TicketItemAction.ADD]: t("orders:comanda.itemAction.ADD"),
+    [TicketItemAction.REMOVE]: t("orders:comanda.itemAction.REMOVE"),
+    [TicketItemAction.MODIFY]: t("orders:comanda.itemAction.MODIFY"),
+  };
+
+  const actionColors: Record<TicketItemAction, "success" | "error" | "info"> = {
+    [TicketItemAction.ADD]: "success",
+    [TicketItemAction.REMOVE]: "error",
+    [TicketItemAction.MODIFY]: "info",
+  };
+
   return (
-    <Card style={tw``}>
+    <Card style={tw`p-4`}>
       {/* Ticket Header */}
       <ThemedView
         style={tw`flex-row justify-between items-center border-b border-light-border pb-4`}
@@ -68,10 +85,11 @@ function TicketCard({
             {dayjs(ticket.createdAt).format("HH:mm")}
           </ThemedText>
           {ticket.printed && (
-            <Ionicons
-              name="checkmark-circle"
-              size={18}
-              color={tw.color("green-500")}
+            <Label
+              text={t("orders:tickets.printed")}
+              leftIcon="checkmark-circle"
+              color="success"
+              size="small"
             />
           )}
         </ThemedView>
@@ -80,7 +98,10 @@ function TicketCard({
       {/* Items by area */}
       <ThemedView style={tw`py-4 gap-4`}>
         {areaGroups.map((group) => (
-          <ThemedView key={group.areaName} style={tw`gap-2`}>
+          <ThemedView
+            key={group.areaName}
+            style={tw`gap-2 bg-white p-3 rounded-3xl`}
+          >
             <ThemedText
               type="body1"
               style={tw`font-bold text-light-on-surface-variant uppercase`}
@@ -103,6 +124,13 @@ function TicketCard({
                     >
                       {item.productName}
                     </ThemedText>
+                    {isUpdate && (
+                      <Label
+                        text={actionLabels[item.action]}
+                        color={actionColors[item.action]}
+                        size="small"
+                      />
+                    )}
                   </ThemedView>
 
                   {item.productOptionName && (
@@ -133,9 +161,13 @@ function TicketCard({
       </ThemedView>
 
       <Button
-        variant="text"
+        variant={ticket.printed ? "text" : "secondary"}
         leftIcon="print-outline"
-        label={t("orders:tickets.reprint")}
+        label={
+          ticket.printed
+            ? t("orders:tickets.reprint")
+            : t("orders:tickets.print")
+        }
         onPress={() => onReprint(ticket)}
       />
     </Card>

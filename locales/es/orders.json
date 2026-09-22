@@ -181,7 +181,10 @@
   "tickets": {
     "typeNew": "NUEVO",
     "typeAdd": "AGREGAR",
+    "typeUpdate": "ACTUALIZAR",
+    "print": "Imprimir",
     "reprint": "Reimprimir",
+    "printed": "Impreso",
     "ticketSingular": "ticket",
     "ticketPlural": "tickets",
     "noTickets": "Aún no hay tickets"
