@@ -173,6 +173,20 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="menu-product-option-inventory/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="menu-inventory-item-form/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
           name="tables-settings/index"
           options={{
             headerShown: true,

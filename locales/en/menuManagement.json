@@ -137,6 +137,7 @@
         "price": "0.00",
         "quantity": "0"
       },
+      "existingStockHint": "Stock for existing variants is now managed from the variant's inventory screen.",
       "validations": {
         "nameRequired": "Variant name is required",
         "priceInvalid": "Price must be a positive number"

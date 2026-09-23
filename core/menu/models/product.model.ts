@@ -19,7 +19,6 @@ export interface Product {
   isActive: boolean;
   isPublic: boolean;
   unitCost: number;
-  quantity: number;
   iva: number;
   category: { id: string; name: string };
   options: ProductOption[];

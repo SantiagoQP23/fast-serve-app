@@ -137,6 +137,7 @@
         "price": "0.00",
         "quantity": "0"
       },
+      "existingStockHint": "El stock de variantes existentes ahora se gestiona desde la pantalla de inventario de la variante.",
       "validations": {
         "nameRequired": "El nombre de la variante es requerido",
         "priceInvalid": "El precio debe ser un número positivo"

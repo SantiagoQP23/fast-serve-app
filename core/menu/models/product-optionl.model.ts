@@ -3,8 +3,6 @@ export interface ProductOption {
   name: string;
   price: number;
   cost?: number;
-  manageStock?: boolean;
-  quantity: number;
   isActive: boolean;
   isAvailable: boolean;
   isDefault: boolean;

@@ -20,6 +20,7 @@ import Popover, {
   AnchorPosition,
 } from "@/presentation/theme/components/popover";
 import { formatCurrency } from "@/core/i18n/utils";
+import OptionStockSummary from "@/presentation/inventory/components/option-stock-summary";
 
 export default function MenuProductDetailScreen() {
   const { t } = useTranslation("menuManagement");
@@ -46,7 +47,6 @@ export default function MenuProductDetailScreen() {
         description: product.description || "",
         price: String(product.price),
         unitCost: product.unitCost != null ? String(product.unitCost) : "",
-        quantity: product.quantity != null ? String(product.quantity) : "",
         categoryId: product.category.id,
         productionAreaId: product.productionArea?.id
           ? String(product.productionArea.id)
@@ -198,22 +198,6 @@ export default function MenuProductDetailScreen() {
               </ThemedView>
             )}
 
-            {product.quantity != null && (
-              <ThemedView style={tw`flex-row items-center justify-between`}>
-                <ThemedView style={tw`flex-row items-center gap-3`}>
-                  <Ionicons
-                    name="cube-outline"
-                    size={20}
-                    color={tw.color("text-light-on-surface-variant")}
-                  />
-                  <ThemedText type="body2" style={tw`text-gray-500`}>
-                    {t("products.fields.quantity")}
-                  </ThemedText>
-                </ThemedView>
-                <ThemedText type="body1">{product.quantity}</ThemedText>
-              </ThemedView>
-            )}
-
             <ThemedView style={tw`flex-row items-center justify-between`}>
               <ThemedView style={tw`flex-row items-center gap-3`}>
                 <Ionicons
@@ -256,17 +240,16 @@ export default function MenuProductDetailScreen() {
                 <ThemedView style={tw`flex-row items-center justify-between`}>
                   <ThemedView style={tw`gap-1`}>
                     <ThemedText type="body1">{option.name}</ThemedText>
-                    {option.quantity != null && (
-                      <ThemedText type="small" style={tw`text-gray-500`}>
-                        {t("products.variants.fields.quantity")}:{" "}
-                        {option.quantity}
-                      </ThemedText>
-                    )}
                   </ThemedView>
                   <ThemedText type="body1">
                     {formatCurrency(option.price)}
                   </ThemedText>
                 </ThemedView>
+                <OptionStockSummary
+                  productOptionId={option.id}
+                  productOptionName={option.name}
+                  canManage={canManage}
+                />
               </Card>
             ))}
           </ThemedView>

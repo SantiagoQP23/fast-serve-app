@@ -110,11 +110,14 @@ export default function MenuProductFormScreen() {
     if (!params.options) return [];
     try {
       const parsed = JSON.parse(params.options) as ProductOption[];
+      // Stock fields are write-only on create and no longer come back from
+      // the API for existing options — manage stock via the inventory
+      // screen instead of this form when editing.
       return parsed.map((option) => ({
         name: option.name,
         price: option.price != null ? String(option.price) : "",
-        quantity: option.quantity != null ? String(option.quantity) : "",
-        manageStock: !!option.manageStock,
+        quantity: "",
+        manageStock: false,
         isDefault: !!option.isDefault,
       }));
     } catch {
@@ -546,6 +549,12 @@ export default function MenuProductFormScreen() {
                           )}
                         />
                       </ThemedView>
+
+                      {isEditing && (
+                        <ThemedText type="small" style={tw`text-gray-500`}>
+                          {t("products.variants.existingStockHint")}
+                        </ThemedText>
+                      )}
                     </ThemedView>
                   </Card>
                 ))}

@@ -59,7 +59,6 @@ export default function MenuProductsScreen() {
         description: product.description || "",
         price: String(product.price),
         unitCost: product.unitCost != null ? String(product.unitCost) : "",
-        quantity: product.quantity != null ? String(product.quantity) : "",
         categoryId: product.category.id,
         productionAreaId: product.productionArea?.id
           ? String(product.productionArea.id)
