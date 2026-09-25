@@ -8,24 +8,18 @@ import type { CreateInventoryItemDto } from "../interfaces/dto/create-inventory-
 import type { UpdateInventoryItemDto } from "../interfaces/dto/update-inventory-item.dto";
 import type { AdjustInventoryDto } from "../interfaces/dto/adjust-inventory.dto";
 
-const getInventoryItemsQueryKey = (productOptionId?: number) => [
-  "inventory-items",
-  productOptionId,
-];
+const inventoryItemsQueryKey = ["inventory-items"];
 
-export const useInventoryItems = (productOptionId?: number) => {
+export const useInventoryItems = () => {
   const { t } = useTranslation("inventory");
 
   const itemsQuery = useQuery({
-    queryKey: getInventoryItemsQueryKey(productOptionId),
-    queryFn: () => InventoryService.getByProductOption(productOptionId!),
-    enabled: !!productOptionId,
+    queryKey: inventoryItemsQueryKey,
+    queryFn: () => InventoryService.getAll(),
   });
 
   const invalidate = () =>
-    queryClient.invalidateQueries({
-      queryKey: getInventoryItemsQueryKey(productOptionId),
-    });
+    queryClient.invalidateQueries({ queryKey: inventoryItemsQueryKey });
 
   const createItem = useMutation<
     InventoryItem,

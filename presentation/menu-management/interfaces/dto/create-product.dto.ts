@@ -2,8 +2,8 @@ export interface CreateProductOptionDto {
   name: string;
   price: number;
   cost?: number;
+  trackStock: boolean;
   quantity?: number;
-  trackStock?: boolean;
   isDefault?: boolean;
 }
 
@@ -15,5 +15,6 @@ export interface CreateProductDto {
   productionAreaId?: number;
   unitCost?: number;
   quantity?: number;
+  trackStock?: boolean;
   productOptions?: CreateProductOptionDto[];
 }

@@ -29,15 +29,8 @@ const buildItemSchema = (t: (key: string) => string) =>
     name: z.string().min(2, t("validations.nameMinLength")),
     unit: z.nativeEnum(InventoryUnit),
     quantity: z.string().optional(),
-    quantityPerUnit: z
-      .string()
-      .refine(
-        (v) => !Number.isNaN(Number(v)) && Number(v) >= 0.01,
-        t("validations.quantityPerUnitInvalid"),
-      ),
-    minStock: z.string().optional(),
-    unitCost: z.string().optional(),
-    trackStock: z.boolean(),
+    minimumQuantity: z.string().optional(),
+    isActive: z.boolean(),
   });
 
 type ItemFormData = z.infer<ReturnType<typeof buildItemSchema>>;
@@ -46,20 +39,15 @@ export default function MenuInventoryItemFormScreen() {
   const { t } = useTranslation("inventory");
   const params = useLocalSearchParams<{
     itemId?: string;
-    productOptionId: string;
     name?: string;
     unit?: string;
     quantity?: string;
-    quantityPerUnit?: string;
-    minStock?: string;
-    unitCost?: string;
-    trackStock?: string;
+    minimumQuantity?: string;
+    isActive?: string;
   }>();
 
   const isEditing = !!params.itemId;
-  const productOptionId = Number(params.productOptionId);
-  const { createItem, updateItem, deleteItem } =
-    useInventoryItems(productOptionId);
+  const { createItem, updateItem, deleteItem } = useInventoryItems();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -75,10 +63,8 @@ export default function MenuInventoryItemFormScreen() {
       name: params.name || "",
       unit: (params.unit as InventoryUnit) || InventoryUnit.UNIT,
       quantity: params.quantity || "",
-      quantityPerUnit: params.quantityPerUnit || "1",
-      minStock: params.minStock || "",
-      unitCost: params.unitCost || "",
-      trackStock: params.trackStock !== "false",
+      minimumQuantity: params.minimumQuantity || "",
+      isActive: params.isActive !== "false",
     },
   });
 
@@ -92,11 +78,10 @@ export default function MenuInventoryItemFormScreen() {
       name: data.name.trim(),
       unit: data.unit,
       quantity: data.quantity ? Number(data.quantity) : undefined,
-      quantityPerUnit: Number(data.quantityPerUnit),
-      minStock: data.minStock ? Number(data.minStock) : undefined,
-      unitCost: data.unitCost ? Number(data.unitCost) : undefined,
-      trackStock: data.trackStock,
-      productOptionId,
+      minimumQuantity: data.minimumQuantity
+        ? Number(data.minimumQuantity)
+        : undefined,
+      isActive: data.isActive,
     };
 
     if (isEditing) {
@@ -196,7 +181,6 @@ export default function MenuInventoryItemFormScreen() {
                       value={value}
                       onChangeText={onChange}
                       keyboardType="decimal-pad"
-                      editable={!isEditing}
                     />
                   )}
                 />
@@ -204,52 +188,11 @@ export default function MenuInventoryItemFormScreen() {
               <ThemedView style={tw`flex-1`}>
                 <Controller
                   control={control}
-                  name="quantityPerUnit"
+                  name="minimumQuantity"
                   render={({ field: { onChange, onBlur, value } }) => (
                     <TextInput
-                      label={t("fields.quantityPerUnit")}
-                      placeholder={t("placeholders.quantityPerUnit")}
-                      onBlur={onBlur}
-                      value={value}
-                      onChangeText={onChange}
-                      keyboardType="decimal-pad"
-                      error={errors.quantityPerUnit?.message}
-                    />
-                  )}
-                />
-              </ThemedView>
-            </ThemedView>
-            {isEditing && (
-              <ThemedText type="small" style={tw`text-gray-500 -mt-2`}>
-                {t("quantityEditHint")}
-              </ThemedText>
-            )}
-
-            <ThemedView style={tw`flex-row gap-3`}>
-              <ThemedView style={tw`flex-1`}>
-                <Controller
-                  control={control}
-                  name="minStock"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      label={t("fields.minStock")}
-                      placeholder={t("placeholders.minStock")}
-                      onBlur={onBlur}
-                      value={value}
-                      onChangeText={onChange}
-                      keyboardType="decimal-pad"
-                    />
-                  )}
-                />
-              </ThemedView>
-              <ThemedView style={tw`flex-1`}>
-                <Controller
-                  control={control}
-                  name="unitCost"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      label={t("fields.unitCost")}
-                      placeholder={t("placeholders.unitCost")}
+                      label={t("fields.minimumQuantity")}
+                      placeholder={t("placeholders.minimumQuantity")}
                       onBlur={onBlur}
                       value={value}
                       onChangeText={onChange}
@@ -262,10 +205,10 @@ export default function MenuInventoryItemFormScreen() {
 
             <Controller
               control={control}
-              name="trackStock"
+              name="isActive"
               render={({ field: { value, onChange } }) => (
                 <Switch
-                  label={t("fields.trackStock")}
+                  label={t("fields.isActive")}
                   value={value}
                   onValueChange={onChange}
                 />

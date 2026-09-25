@@ -4,9 +4,6 @@ export interface CreateInventoryItemDto {
   name: string;
   unit: InventoryUnit;
   quantity?: number;
-  quantityPerUnit: number;
-  minStock?: number;
-  unitCost?: number;
-  trackStock?: boolean;
-  productOptionId: number;
+  minimumQuantity?: number;
+  isActive?: boolean;
 }

@@ -6,4 +6,6 @@ export interface ProductOption {
   isActive: boolean;
   isAvailable: boolean;
   isDefault: boolean;
+  trackStock: boolean;
+  quantity: number;
 }

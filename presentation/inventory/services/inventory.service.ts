@@ -6,12 +6,8 @@ import type { UpdateInventoryItemDto } from "../interfaces/dto/update-inventory-
 import type { AdjustInventoryDto } from "../interfaces/dto/adjust-inventory.dto";
 
 export class InventoryService {
-  static async getByProductOption(
-    productOptionId: number,
-  ): Promise<InventoryItem[]> {
-    const resp = await restaurantApi.get<InventoryItem[]>(
-      `/inventory/items/by-product-option/${productOptionId}`,
-    );
+  static async getAll(): Promise<InventoryItem[]> {
+    const resp = await restaurantApi.get<InventoryItem[]>("/inventory/items");
     return resp.data;
   }
 

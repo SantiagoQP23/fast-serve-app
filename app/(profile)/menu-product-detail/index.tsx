@@ -248,6 +248,8 @@ export default function MenuProductDetailScreen() {
                 <OptionStockSummary
                   productOptionId={option.id}
                   productOptionName={option.name}
+                  trackStock={option.trackStock}
+                  quantity={option.quantity}
                   canManage={canManage}
                 />
               </Card>

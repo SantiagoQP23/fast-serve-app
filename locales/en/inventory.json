@@ -4,10 +4,9 @@
   "loadError": "Failed to load inventory items",
   "retry": "Retry",
   "empty": "No inventory items yet",
-  "emptyDescription": "Add an item to start tracking stock for this option.",
-  "manageStock": "Manage stock",
+  "emptyDescription": "Add an item to start tracking stock for your ingredients.",
   "stockCount": "{{count}} in stock",
-  "tracked": "Tracked",
+  "tracked": "Active",
   "notTracked": "Not tracked",
   "restock": "Restock",
   "waste": "Waste",
@@ -33,29 +32,23 @@
   "adjustStock": "Adjust stock",
   "currentStock": "Current stock",
   "amount": "Amount",
-  "reasonOptional": "Reason (optional)",
+  "reasonOptional": "Note (optional)",
   "reasonPlaceholder": "e.g. Weekly restock",
-  "quantityEditHint": "Use the restock/waste action from the list to change the current quantity — this keeps an audit trail.",
   "fields": {
     "name": "Name",
     "unit": "Unit",
-    "quantity": "Initial quantity",
-    "quantityPerUnit": "Used per unit sold",
-    "minStock": "Minimum stock",
-    "unitCost": "Unit cost",
-    "trackStock": "Track stock"
+    "quantity": "Quantity",
+    "minimumQuantity": "Minimum stock",
+    "isActive": "Active"
   },
   "placeholders": {
-    "name": "e.g. Beef patty",
+    "name": "e.g. Ground beef",
     "unit": "Select a unit",
     "quantity": "0",
-    "quantityPerUnit": "1",
-    "minStock": "0",
-    "unitCost": "0.00"
+    "minimumQuantity": "0"
   },
   "validations": {
-    "nameMinLength": "Name must be at least 2 characters",
-    "quantityPerUnitInvalid": "Must be a number of at least 0.01"
+    "nameMinLength": "Name must be at least 2 characters"
   },
   "units": {
     "UNIT": "unit(s)",
@@ -63,5 +56,29 @@
     "G": "g",
     "L": "L",
     "ML": "ml"
+  },
+  "recipe": {
+    "title": "Recipe",
+    "manageRecipe": "Manage recipe",
+    "empty": "No recipe lines yet",
+    "emptyDescription": "Add ingredients from your inventory catalog to track consumption for this option.",
+    "addLine": "Add ingredient",
+    "editLine": "Edit ingredient",
+    "deleteTitle": "Remove ingredient",
+    "deleteMessage": "Are you sure you want to remove this ingredient from the recipe?",
+    "createSuccess": "Ingredient added to the recipe",
+    "createError": "Could not add the ingredient",
+    "updateSuccess": "Ingredient updated",
+    "updateError": "Could not update the ingredient",
+    "deleteSuccess": "Ingredient removed from the recipe",
+    "deleteError": "Could not remove the ingredient",
+    "fields": {
+      "item": "Ingredient",
+      "quantity": "Quantity used per unit delivered"
+    },
+    "placeholders": {
+      "item": "Select an inventory item",
+      "quantity": "0"
+    }
   }
 }

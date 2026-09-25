@@ -46,11 +46,12 @@ const buildProductSchema = (t: (key: string) => string) =>
         t("products.validations.priceInvalid"),
       ),
     unitCost: z.string().optional(),
-    quantity: z.string().optional(),
     categoryId: z.string().min(1, t("products.validations.categoryRequired")),
     productionAreaId: z.string().optional(),
     isActive: z.boolean(),
     isPublic: z.boolean(),
+    trackStock: z.boolean(),
+    quantity: z.string().optional(),
     options: z.array(
       z.object({
         name: z
@@ -62,9 +63,9 @@ const buildProductSchema = (t: (key: string) => string) =>
             isValidNumber,
             t("products.variants.validations.priceInvalid"),
           ),
-        quantity: z.string().optional(),
-        manageStock: z.boolean(),
         isDefault: z.boolean(),
+        trackStock: z.boolean(),
+        quantity: z.string().optional(),
       }),
     ),
   });
@@ -74,9 +75,9 @@ type ProductFormData = z.infer<ReturnType<typeof buildProductSchema>>;
 const buildDefaultOption = () => ({
   name: "",
   price: "",
-  quantity: "",
-  manageStock: false,
   isDefault: false,
+  trackStock: false,
+  quantity: "",
 });
 
 export default function MenuProductFormScreen() {
@@ -87,11 +88,12 @@ export default function MenuProductFormScreen() {
     description?: string;
     price?: string;
     unitCost?: string;
-    quantity?: string;
     categoryId?: string;
     productionAreaId?: string;
     isActive?: string;
     isPublic?: string;
+    trackStock?: string;
+    quantity?: string;
     options?: string;
   }>();
 
@@ -110,15 +112,12 @@ export default function MenuProductFormScreen() {
     if (!params.options) return [];
     try {
       const parsed = JSON.parse(params.options) as ProductOption[];
-      // Stock fields are write-only on create and no longer come back from
-      // the API for existing options — manage stock via the inventory
-      // screen instead of this form when editing.
       return parsed.map((option) => ({
         name: option.name,
         price: option.price != null ? String(option.price) : "",
-        quantity: "",
-        manageStock: false,
         isDefault: !!option.isDefault,
+        trackStock: !!option.trackStock,
+        quantity: option.quantity != null ? String(option.quantity) : "",
       }));
     } catch {
       return [];
@@ -138,11 +137,12 @@ export default function MenuProductFormScreen() {
       description: params.description || "",
       price: params.price || "",
       unitCost: params.unitCost || "",
-      quantity: params.quantity || "",
       categoryId: params.categoryId || "",
       productionAreaId: params.productionAreaId || "",
       isActive: params.isActive !== "false",
       isPublic: params.isPublic !== "false",
+      trackStock: params.trackStock === "true",
+      quantity: params.quantity || "",
       options: initialOptions,
     },
   });
@@ -164,19 +164,23 @@ export default function MenuProductFormScreen() {
       description: data.description?.trim() || undefined,
       price: Number(data.price),
       unitCost: data.unitCost ? Number(data.unitCost) : undefined,
-      quantity: data.quantity ? Number(data.quantity) : undefined,
       categoryId: data.categoryId,
       productionAreaId: data.productionAreaId
         ? Number(data.productionAreaId)
         : undefined,
+      quantity:
+        data.options.length === 0 && data.quantity
+          ? Number(data.quantity)
+          : undefined,
+      trackStock: data.options.length === 0 ? data.trackStock : undefined,
       productOptions:
         data.options.length > 0
           ? data.options.map((opt) => ({
               name: opt.name.trim(),
               price: Number(opt.price) || 0,
-              quantity: opt.quantity ? Number(opt.quantity) : undefined,
-              trackStock: opt.manageStock,
               isDefault: opt.isDefault,
+              trackStock: opt.trackStock,
+              quantity: opt.quantity ? Number(opt.quantity) : undefined,
             }))
           : undefined,
     };
@@ -325,22 +329,6 @@ export default function MenuProductFormScreen() {
               )}
             />
 
-            <Controller
-              control={control}
-              name="quantity"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label={t("products.fields.quantity")}
-                  icon="cube-outline"
-                  placeholder={t("products.placeholders.quantity")}
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onChange}
-                  keyboardType="number-pad"
-                />
-              )}
-            />
-
             {categories.length === 0 ? (
               <ThemedView
                 style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
@@ -402,6 +390,36 @@ export default function MenuProductFormScreen() {
                       label={t("products.fields.isActive")}
                       value={value}
                       onValueChange={onChange}
+                    />
+                  )}
+                />
+              </ThemedView>
+            )}
+
+            {fields.length === 0 && (
+              <ThemedView style={tw`gap-4 mt-2`}>
+                <Controller
+                  control={control}
+                  name="trackStock"
+                  render={({ field: { value, onChange } }) => (
+                    <Switch
+                      label={t("products.fields.trackStock")}
+                      value={value}
+                      onValueChange={onChange}
+                    />
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="quantity"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      label={t("products.fields.quantity")}
+                      placeholder={t("products.placeholders.quantity")}
+                      onBlur={onBlur}
+                      value={value}
+                      onChangeText={onChange}
+                      keyboardType="decimal-pad"
                     />
                   )}
                 />
@@ -475,86 +493,63 @@ export default function MenuProductFormScreen() {
                         )}
                       />
 
-                      <ThemedView style={tw`flex-row gap-3`}>
-                        <ThemedView style={tw`flex-1`}>
-                          <Controller
-                            control={control}
-                            name={`options.${index}.price`}
-                            render={({
-                              field: { onChange, onBlur, value },
-                            }) => (
-                              <TextInput
-                                label={t("products.variants.fields.price")}
-                                placeholder={t(
-                                  "products.variants.placeholders.price",
-                                )}
-                                onBlur={onBlur}
-                                value={value}
-                                onChangeText={onChange}
-                                keyboardType="decimal-pad"
-                                error={errors.options?.[index]?.price?.message}
-                              />
+                      <Controller
+                        control={control}
+                        name={`options.${index}.price`}
+                        render={({ field: { onChange, onBlur, value } }) => (
+                          <TextInput
+                            label={t("products.variants.fields.price")}
+                            placeholder={t(
+                              "products.variants.placeholders.price",
                             )}
+                            onBlur={onBlur}
+                            value={value}
+                            onChangeText={onChange}
+                            keyboardType="decimal-pad"
+                            error={errors.options?.[index]?.price?.message}
                           />
-                        </ThemedView>
-                        <ThemedView style={tw`flex-1`}>
-                          <Controller
-                            control={control}
-                            name={`options.${index}.quantity`}
-                            render={({
-                              field: { onChange, onBlur, value },
-                            }) => (
-                              <TextInput
-                                label={t("products.variants.fields.quantity")}
-                                placeholder={t(
-                                  "products.variants.placeholders.quantity",
-                                )}
-                                onBlur={onBlur}
-                                value={value}
-                                onChangeText={onChange}
-                                keyboardType="number-pad"
-                              />
-                            )}
+                        )}
+                      />
+
+                      <Controller
+                        control={control}
+                        name={`options.${index}.isDefault`}
+                        render={({ field: { value } }) => (
+                          <Checkbox
+                            label={t("products.variants.fields.isDefault")}
+                            value={value}
+                            onValueChange={() => handleSetDefaultOption(index)}
+                            size="small"
                           />
-                        </ThemedView>
-                      </ThemedView>
+                        )}
+                      />
 
-                      <ThemedView
-                        style={tw`flex-row items-center justify-between`}
-                      >
-                        <Controller
-                          control={control}
-                          name={`options.${index}.manageStock`}
-                          render={({ field: { value, onChange } }) => (
-                            <Checkbox
-                              label={t("products.variants.fields.manageStock")}
-                              value={value}
-                              onValueChange={onChange}
-                              size="small"
-                            />
-                          )}
-                        />
-                        <Controller
-                          control={control}
-                          name={`options.${index}.isDefault`}
-                          render={({ field: { value } }) => (
-                            <Checkbox
-                              label={t("products.variants.fields.isDefault")}
-                              value={value}
-                              onValueChange={() =>
-                                handleSetDefaultOption(index)
-                              }
-                              size="small"
-                            />
-                          )}
-                        />
-                      </ThemedView>
+                      <Controller
+                        control={control}
+                        name={`options.${index}.trackStock`}
+                        render={({ field: { value, onChange } }) => (
+                          <Switch
+                            label={t("products.fields.trackStock")}
+                            value={value}
+                            onValueChange={onChange}
+                          />
+                        )}
+                      />
 
-                      {isEditing && (
-                        <ThemedText type="small" style={tw`text-gray-500`}>
-                          {t("products.variants.existingStockHint")}
-                        </ThemedText>
-                      )}
+                      <Controller
+                        control={control}
+                        name={`options.${index}.quantity`}
+                        render={({ field: { onChange, onBlur, value } }) => (
+                          <TextInput
+                            label={t("products.fields.quantity")}
+                            placeholder={t("products.placeholders.quantity")}
+                            onBlur={onBlur}
+                            value={value}
+                            onChangeText={onChange}
+                            keyboardType="decimal-pad"
+                          />
+                        )}
+                      />
                     </ThemedView>
                   </Card>
                 ))}

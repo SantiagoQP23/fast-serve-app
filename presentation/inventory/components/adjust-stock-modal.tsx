@@ -42,10 +42,10 @@ interface AdjustStockFormProps {
 
 function AdjustStockForm({ item, onClose }: AdjustStockFormProps) {
   const { t } = useTranslation("inventory");
-  const { adjustStock } = useInventoryItems(item.productOptionId);
+  const { adjustStock } = useInventoryItems();
   const [mode, setMode] = useState<"restock" | "waste">("restock");
   const [amount, setAmount] = useState("");
-  const [reason, setReason] = useState("");
+  const [note, setNote] = useState("");
 
   const handleSubmit = async () => {
     const parsedAmount = Number(amount);
@@ -58,7 +58,7 @@ function AdjustStockForm({ item, onClose }: AdjustStockFormProps) {
         mode === "restock"
           ? InventoryMovementType.MANUAL_RESTOCK
           : InventoryMovementType.MANUAL_ADJUSTMENT,
-      reason: reason.trim() || undefined,
+      note: note.trim() || undefined,
     });
     onClose();
   };
@@ -99,8 +99,8 @@ function AdjustStockForm({ item, onClose }: AdjustStockFormProps) {
 
       <TextInput
         label={t("reasonOptional")}
-        value={reason}
-        onChangeText={setReason}
+        value={note}
+        onChangeText={setNote}
         placeholder={t("reasonPlaceholder")}
       />
 

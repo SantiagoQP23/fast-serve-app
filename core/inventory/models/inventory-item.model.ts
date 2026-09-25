@@ -11,12 +11,9 @@ export interface InventoryItem {
   name: string;
   unit: InventoryUnit;
   quantity: number;
-  quantityPerUnit: number;
-  minStock?: number | null;
-  unitCost?: number | null;
-  trackStock: boolean;
+  minimumQuantity?: number | null;
   isActive: boolean;
-  productOptionId: number;
+  restaurant?: { id: string; name: string };
   createdAt?: string;
   updatedAt?: string;
   deletedAt?: string | null;

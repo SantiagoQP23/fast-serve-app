@@ -4,10 +4,9 @@
   "loadError": "Error al cargar los artículos de inventario",
   "retry": "Reintentar",
   "empty": "Aún no hay artículos de inventario",
-  "emptyDescription": "Agrega un artículo para empezar a controlar el stock de esta opción.",
-  "manageStock": "Gestionar stock",
+  "emptyDescription": "Agrega un artículo para empezar a controlar el stock de tus ingredientes.",
   "stockCount": "{{count}} en stock",
-  "tracked": "Controlado",
+  "tracked": "Activo",
   "notTracked": "No controlado",
   "restock": "Reabastecer",
   "waste": "Merma",
@@ -33,29 +32,23 @@
   "adjustStock": "Ajustar stock",
   "currentStock": "Stock actual",
   "amount": "Cantidad",
-  "reasonOptional": "Motivo (opcional)",
+  "reasonOptional": "Nota (opcional)",
   "reasonPlaceholder": "ej. Reabastecimiento semanal",
-  "quantityEditHint": "Usa la acción de reabastecer/merma en la lista para cambiar la cantidad actual — esto mantiene un registro de auditoría.",
   "fields": {
     "name": "Nombre",
     "unit": "Unidad",
-    "quantity": "Cantidad inicial",
-    "quantityPerUnit": "Usado por unidad vendida",
-    "minStock": "Stock mínimo",
-    "unitCost": "Costo unitario",
-    "trackStock": "Controlar stock"
+    "quantity": "Cantidad",
+    "minimumQuantity": "Stock mínimo",
+    "isActive": "Activo"
   },
   "placeholders": {
-    "name": "ej. Carne para hamburguesa",
+    "name": "ej. Carne molida",
     "unit": "Selecciona una unidad",
     "quantity": "0",
-    "quantityPerUnit": "1",
-    "minStock": "0",
-    "unitCost": "0.00"
+    "minimumQuantity": "0"
   },
   "validations": {
-    "nameMinLength": "El nombre debe tener al menos 2 caracteres",
-    "quantityPerUnitInvalid": "Debe ser un número de al menos 0.01"
+    "nameMinLength": "El nombre debe tener al menos 2 caracteres"
   },
   "units": {
     "UNIT": "unidad(es)",
@@ -63,5 +56,29 @@
     "G": "g",
     "L": "L",
     "ML": "ml"
+  },
+  "recipe": {
+    "title": "Receta",
+    "manageRecipe": "Gestionar receta",
+    "empty": "Aún no hay ingredientes en la receta",
+    "emptyDescription": "Agrega ingredientes desde tu catálogo de inventario para controlar el consumo de esta opción.",
+    "addLine": "Agregar ingrediente",
+    "editLine": "Editar ingrediente",
+    "deleteTitle": "Quitar ingrediente",
+    "deleteMessage": "¿Estás seguro de que deseas quitar este ingrediente de la receta?",
+    "createSuccess": "Ingrediente agregado a la receta",
+    "createError": "No se pudo agregar el ingrediente",
+    "updateSuccess": "Ingrediente actualizado",
+    "updateError": "No se pudo actualizar el ingrediente",
+    "deleteSuccess": "Ingrediente quitado de la receta",
+    "deleteError": "No se pudo quitar el ingrediente",
+    "fields": {
+      "item": "Ingrediente",
+      "quantity": "Cantidad usada por unidad entregada"
+    },
+    "placeholders": {
+      "item": "Selecciona un artículo de inventario",
+      "quantity": "0"
+    }
   }
 }

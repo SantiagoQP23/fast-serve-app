@@ -4,5 +4,5 @@ export interface AdjustInventoryDto {
   inventoryItemId: string;
   delta: number;
   type: InventoryMovementType;
-  reason?: string;
+  note?: string;
 }

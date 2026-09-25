@@ -5,26 +5,25 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import Button from "@/presentation/theme/components/button";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 
 interface OptionStockSummaryProps {
   productOptionId: number;
   productOptionName: string;
+  trackStock: boolean;
+  quantity: number;
   canManage: boolean;
 }
 
 export default function OptionStockSummary({
   productOptionId,
   productOptionName,
+  trackStock,
+  quantity,
   canManage,
 }: OptionStockSummaryProps) {
   const { t } = useTranslation("inventory");
-  const { items, itemsQuery } = useInventoryItems(productOptionId);
 
-  const trackedItems = items.filter((item) => item.trackStock);
-  const totalStock = trackedItems.reduce((sum, item) => sum + item.quantity, 0);
-
-  const handleManageStock = () => {
+  const handleManageRecipe = () => {
     router.push({
       pathname: "/(profile)/menu-product-option-inventory",
       params: {
@@ -36,11 +35,7 @@ export default function OptionStockSummary({
 
   return (
     <ThemedView style={tw`flex-row items-center justify-between mt-1`}>
-      {itemsQuery.isLoading ? (
-        <ThemedText type="small" style={tw`text-gray-500`}>
-          {t("loading")}
-        </ThemedText>
-      ) : trackedItems.length > 0 ? (
+      {trackStock ? (
         <ThemedView style={tw`flex-row items-center gap-1`}>
           <Ionicons
             name="cube-outline"
@@ -48,7 +43,7 @@ export default function OptionStockSummary({
             color={tw.color("text-light-on-surface-variant")}
           />
           <ThemedText type="small" style={tw`text-gray-500`}>
-            {t("stockCount", { count: totalStock })}
+            {t("stockCount", { count: quantity })}
           </ThemedText>
         </ThemedView>
       ) : (
@@ -58,10 +53,10 @@ export default function OptionStockSummary({
       )}
       {canManage && (
         <Button
-          label={t("manageStock")}
+          label={t("recipe.manageRecipe")}
           size="small"
           variant="text"
-          onPress={handleManageStock}
+          onPress={handleManageRecipe}
         />
       )}
     </ThemedView>

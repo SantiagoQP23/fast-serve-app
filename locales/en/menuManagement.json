@@ -99,20 +99,21 @@
       "description": "Description",
       "price": "Price",
       "unitCost": "Unit cost",
-      "quantity": "Stock quantity",
       "category": "Category",
       "productionArea": "Production area",
       "isActive": "Active",
-      "isPublic": "Visible to customers"
+      "isPublic": "Visible to customers",
+      "trackStock": "Track stock",
+      "quantity": "Quantity"
     },
     "placeholders": {
       "name": "e.g. Cheeseburger",
       "description": "What makes this product special",
       "price": "0.00",
       "unitCost": "0.00",
-      "quantity": "0",
       "category": "Select a category",
-      "productionArea": "Select a production area (optional)"
+      "productionArea": "Select a production area (optional)",
+      "quantity": "0"
     },
     "validations": {
       "nameMinLength": "Name must be at least 2 characters",
@@ -128,16 +129,12 @@
       "fields": {
         "name": "Name",
         "price": "Price",
-        "quantity": "Stock",
-        "manageStock": "Track stock",
         "isDefault": "Default"
       },
       "placeholders": {
         "name": "e.g. Large",
-        "price": "0.00",
-        "quantity": "0"
+        "price": "0.00"
       },
-      "existingStockHint": "Stock for existing variants is now managed from the variant's inventory screen.",
       "validations": {
         "nameRequired": "Variant name is required",
         "priceInvalid": "Price must be a positive number"
