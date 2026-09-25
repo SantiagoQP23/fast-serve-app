@@ -104,6 +104,15 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="menu-overview/index"
+          options={{
+            headerShown: true,
+            title: t("menuManagement:overview.title"),
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
           name="menu-sections/index"
           options={{
             headerShown: true,

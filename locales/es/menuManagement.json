@@ -1,4 +1,17 @@
 {
+  "overview": {
+    "title": "Menú",
+    "addSection": "Nueva sección",
+    "addCategory": "Nueva categoría",
+    "noMenu": {
+      "title": "Menú no cargado",
+      "description": "El menú aún no se ha cargado. Toca el botón de abajo para cargarlo.",
+      "loadButton": "Cargar menú",
+      "loading": "Cargando...",
+      "retry": "Reintentar",
+      "error": "No se pudo cargar el menú. Inténtalo de nuevo."
+    }
+  },
   "sections": {
     "title": "Secciones",
     "newSection": "Nueva sección",

@@ -1,0 +1,452 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { RefreshControl, ScrollView } from "react-native";
+import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+
+import { ThemedText } from "@/presentation/theme/components/themed-text";
+import { ThemedView } from "@/presentation/theme/components/themed-view";
+import tw from "@/presentation/theme/lib/tailwind";
+import Chip from "@/presentation/theme/components/chip";
+import TextInput from "@/presentation/theme/components/text-input";
+import IconButton from "@/presentation/theme/components/icon-button";
+import Card from "@/presentation/theme/components/card";
+import Button from "@/presentation/theme/components/button";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
+import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
+import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuManagement";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { isAdminLevelRole } from "@/core/auth/models/user.model";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
+import type { Section } from "@/core/menu/models/section.model";
+import type { Category } from "@/core/menu/models/category.model";
+import type { Product } from "@/core/menu/models/product.model";
+
+type SelectedEntity =
+  | { type: "section"; item: Section }
+  | { type: "category"; item: Category };
+
+export default function MenuOverviewScreen() {
+  const { t } = useTranslation("menuManagement");
+  const primaryColor = useThemeColor({}, "primary");
+  const { sections, categories, products, menuQuery } = useMenu();
+  const { isLoading, isError, refetch, isRefetching } = menuQuery;
+  const { updateSection, deleteSection, updateCategory, deleteCategory } =
+    useMenuManagement();
+  const { user } = useAuthStore();
+  const canManage = isAdminLevelRole(user?.role?.name);
+
+  const [sectionId, setSectionId] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [search, setSearch] = useState("");
+  const [isLoadingMenu, setIsLoadingMenu] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const [selected, setSelected] = useState<SelectedEntity | null>(null);
+  const [sectionToDelete, setSectionToDelete] = useState<Section | null>(
+    null,
+  );
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
+    null,
+  );
+  const actionsSheetRef = useRef<BottomSheetMethods>(null);
+
+  const sortedSections = useMemo(
+    () => sections.slice().sort((a, b) => a.order - b.order),
+    [sections],
+  );
+
+  const sectionCategories = useMemo(
+    () => categories.filter((category) => category.section.id === sectionId),
+    [categories, sectionId],
+  );
+
+  useEffect(() => {
+    if (!sectionId && sortedSections.length > 0) {
+      setSectionId(sortedSections[0].id);
+    }
+  }, [sortedSections, sectionId]);
+
+  useEffect(() => {
+    if (!sectionId) return;
+    if (sectionCategories.some((category) => category.id === categoryId)) {
+      return;
+    }
+    setCategoryId(sectionCategories[0]?.id ?? "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sectionId, sectionCategories]);
+
+  const filteredProducts = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (query) {
+      return products.filter((product) =>
+        product.name.toLowerCase().includes(query),
+      );
+    }
+    return products.filter((product) => product.category.id === categoryId);
+  }, [products, search, categoryId]);
+
+  const handleLoadMenu = async () => {
+    setIsLoadingMenu(true);
+    try {
+      await menuQuery.refetch();
+    } catch (error) {
+      // Error is handled by React Query
+    } finally {
+      setIsLoadingMenu(false);
+    }
+  };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await menuQuery.refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [menuQuery]);
+
+  const closeActions = () => actionsSheetRef.current?.dismiss();
+
+  const handleSelectSection = (section: Section) => {
+    if (sectionId === section.id) {
+      if (!canManage) return;
+      setSelected({ type: "section", item: section });
+      actionsSheetRef.current?.present();
+      return;
+    }
+    setSectionId(section.id);
+  };
+
+  const handleSelectCategory = (category: Category) => {
+    if (categoryId === category.id) {
+      if (!canManage) return;
+      setSelected({ type: "category", item: category });
+      actionsSheetRef.current?.present();
+      return;
+    }
+    setCategoryId(category.id);
+  };
+
+  const handleAddSection = () => {
+    router.push("/(profile)/menu-section-form");
+  };
+
+  const handleAddCategory = () => {
+    router.push({
+      pathname: "/(profile)/menu-category-form",
+      params: sectionId ? { sectionId } : undefined,
+    });
+  };
+
+  const handleEditSelected = () => {
+    if (!selected) return;
+    closeActions();
+    if (selected.type === "section") {
+      router.push({
+        pathname: "/(profile)/menu-section-form",
+        params: {
+          sectionId: selected.item.id,
+          name: selected.item.name,
+          isPublic: String(selected.item.isPublic),
+        },
+      });
+    } else {
+      router.push({
+        pathname: "/(profile)/menu-category-form",
+        params: {
+          categoryId: selected.item.id,
+          name: selected.item.name,
+          sectionId: selected.item.section.id,
+          isPublic: String(selected.item.isPublic),
+        },
+      });
+    }
+  };
+
+  const handleToggleSelectedActive = () => {
+    if (!selected) return;
+    if (selected.type === "section") {
+      updateSection.mutate({
+        id: selected.item.id,
+        isActive: !selected.item.isActive,
+      });
+    } else {
+      updateCategory.mutate({
+        id: selected.item.id,
+        isActive: !selected.item.isActive,
+      });
+    }
+    closeActions();
+  };
+
+  const handleDeleteSelected = () => {
+    if (!selected) return;
+    closeActions();
+    if (selected.type === "section") {
+      setSectionToDelete(selected.item);
+    } else {
+      setCategoryToDelete(selected.item);
+    }
+  };
+
+  const handleConfirmDeleteSection = async () => {
+    if (!sectionToDelete) return;
+    await deleteSection.mutateAsync(sectionToDelete.id);
+    setSectionToDelete(null);
+  };
+
+  const handleConfirmDeleteCategory = async () => {
+    if (!categoryToDelete) return;
+    await deleteCategory.mutateAsync(categoryToDelete.id);
+    setCategoryToDelete(null);
+  };
+
+  const openProduct = (product: Product) => {
+    router.push({
+      pathname: "/(profile)/menu-product-detail",
+      params: { productId: product.id },
+    });
+  };
+
+  const hasMenu =
+    sections.length > 0 || categories.length > 0 || products.length > 0;
+
+  if (!hasMenu) {
+    return (
+      <ThemedView
+        style={tw`flex-1 px-4 pt-8 items-center justify-center gap-4`}
+      >
+        <Ionicons name="restaurant-outline" size={64} color="#999" />
+        <ThemedView style={tw`gap-2 items-center`}>
+          <ThemedText type="h2">{t("overview.noMenu.title")}</ThemedText>
+          <ThemedText type="body2" style={tw`text-center text-gray-500 px-8`}>
+            {t("overview.noMenu.description")}
+          </ThemedText>
+        </ThemedView>
+        <Button
+          label={
+            menuQuery.isError
+              ? t("overview.noMenu.retry")
+              : isLoadingMenu
+                ? t("overview.noMenu.loading")
+                : t("overview.noMenu.loadButton")
+          }
+          leftIcon="cloud-download-outline"
+          onPress={handleLoadMenu}
+          disabled={isLoadingMenu}
+          loading={isLoadingMenu}
+        />
+        {menuQuery.isError && (
+          <ThemedText type="body2" style={tw`text-red-500 text-center px-8`}>
+            {t("overview.noMenu.error")}
+          </ThemedText>
+        )}
+      </ThemedView>
+    );
+  }
+
+  return (
+    <ScreenLayout style={tw`px-4 pt-2 flex-1 gap-4`}>
+      <ScrollView
+        style={tw`flex-1`}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={tw`gap-4 pb-8`}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing || isRefetching}
+            onRefresh={onRefresh}
+            tintColor={primaryColor}
+            colors={[primaryColor]}
+          />
+        }
+      >
+        {isLoading && sections.length === 0 && (
+          <ThemedView style={tw`items-center py-8 gap-3`}>
+            <Ionicons name="restaurant-outline" size={48} color="#999" />
+            <ThemedText type="body1" style={tw`text-gray-500`}>
+              {t("loading")}
+            </ThemedText>
+          </ThemedView>
+        )}
+
+        {isError && sections.length === 0 && (
+          <ThemedView style={tw`items-center py-8 gap-3`}>
+            <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
+            <ThemedText type="body1" style={tw`text-red-500`}>
+              {t("loadError")}
+            </ThemedText>
+            <Button
+              label={t("retry")}
+              onPress={() => refetch()}
+              variant="outline"
+            />
+          </ThemedView>
+        )}
+
+        <TextInput
+          value={search}
+          placeholder={t("products.searchPlaceholder")}
+          onChangeText={setSearch}
+          icon="search-outline"
+          leftIcon={
+            search && (
+              <IconButton
+                icon="close-circle-outline"
+                onPress={() => setSearch("")}
+              ></IconButton>
+            )
+          }
+        />
+
+        {!search && (
+          <ThemedView>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={tw`gap-2`}
+            >
+              {sortedSections.map((section) => (
+                <ThemedView
+                  style={[tw`mr-2`, !section.isActive && tw`opacity-50`]}
+                  key={section.id}
+                >
+                  <Chip
+                    label={section.name}
+                    selected={sectionId === section.id}
+                    onPress={() => handleSelectSection(section)}
+                  />
+                </ThemedView>
+              ))}
+              {canManage && (
+                <Chip
+                  label={t("overview.addSection")}
+                  icon="add"
+                  onPress={handleAddSection}
+                />
+              )}
+            </ScrollView>
+          </ThemedView>
+        )}
+
+        <ThemedView style={tw`flex-row gap-2`}>
+          {!search && (
+            <ThemedView style={tw`flex-wrap gap-2`}>
+              {sectionCategories.map((category) => (
+                <ThemedView
+                  key={category.id}
+                  style={!category.isActive && tw`opacity-50`}
+                >
+                  <Chip
+                    label={category.name}
+                    selected={categoryId === category.id}
+                    onPress={() => handleSelectCategory(category)}
+                  />
+                </ThemedView>
+              ))}
+              {canManage && (
+                <Chip
+                  label={t("overview.addCategory")}
+                  icon="add"
+                  onPress={handleAddCategory}
+                />
+              )}
+            </ThemedView>
+          )}
+          <ThemedView style={tw`flex-1 gap-3`}>
+            {filteredProducts.length === 0 && (
+              <ThemedView style={tw`items-center py-8 gap-3`}>
+                <Ionicons name="fast-food-outline" size={40} color="#999" />
+                <ThemedText
+                  type="body2"
+                  style={tw`text-center text-gray-500 px-4`}
+                >
+                  {t("products.noProducts")}
+                </ThemedText>
+              </ThemedView>
+            )}
+            {filteredProducts.map((product) => (
+              <Card
+                key={product.id}
+                onPress={() => openProduct(product)}
+                style={!product.isActive && tw`opacity-50`}
+              >
+                <ThemedView style={tw`flex-row items-center justify-between`}>
+                  <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
+                    <Ionicons
+                      name="fast-food-outline"
+                      size={28}
+                      color={tw.color("text-light-on-surface-variant")}
+                    />
+                    <ThemedView style={tw`flex-1 gap-2`}>
+                      <ThemedText type="h4">{product.name}</ThemedText>
+                      <ThemedText type="small" style={tw`text-gray-500`}>
+                        ${product.price?.toFixed(2)}
+                      </ThemedText>
+                    </ThemedView>
+                  </ThemedView>
+                </ThemedView>
+              </Card>
+            ))}
+          </ThemedView>
+        </ThemedView>
+      </ScrollView>
+
+      <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
+        {selected && (
+          <ActionsBottomSheet
+            title={selected.item.name}
+            items={[
+              {
+                icon: "create-outline",
+                label: t("edit"),
+                onPress: handleEditSelected,
+              },
+              {
+                icon: selected.item.isActive
+                  ? "eye-off-outline"
+                  : "eye-outline",
+                label: selected.item.isActive ? t("deactivate") : t("activate"),
+                onPress: handleToggleSelectedActive,
+              },
+              {
+                icon: "trash-outline",
+                label: t("delete"),
+                color: "text-red-500",
+                onPress: handleDeleteSelected,
+              },
+            ]}
+          />
+        )}
+      </ThemedBottomSheetModal>
+
+      <DialogModal
+        visible={!!sectionToDelete}
+        title={t("sections.deleteTitle")}
+        message={t("sections.deleteMessage")}
+        confirmLabel={t("confirm")}
+        cancelLabel={t("cancel")}
+        confirmVariant="destructive"
+        loading={deleteSection.isPending}
+        onConfirm={handleConfirmDeleteSection}
+        onCancel={() => setSectionToDelete(null)}
+      />
+
+      <DialogModal
+        visible={!!categoryToDelete}
+        title={t("categories.deleteTitle")}
+        message={t("categories.deleteMessage")}
+        confirmLabel={t("confirm")}
+        cancelLabel={t("cancel")}
+        confirmVariant="destructive"
+        loading={deleteCategory.isPending}
+        onConfirm={handleConfirmDeleteCategory}
+        onCancel={() => setCategoryToDelete(null)}
+      />
+    </ScreenLayout>
+  );
+}

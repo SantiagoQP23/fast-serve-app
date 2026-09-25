@@ -1,4 +1,17 @@
 {
+  "overview": {
+    "title": "Menu",
+    "addSection": "New section",
+    "addCategory": "New category",
+    "noMenu": {
+      "title": "No Menu Loaded",
+      "description": "The menu hasn't been loaded yet. Tap the button below to load it.",
+      "loadButton": "Load Menu",
+      "loading": "Loading...",
+      "retry": "Retry",
+      "error": "Failed to load menu. Please try again."
+    }
+  },
   "sections": {
     "title": "Sections",
     "newSection": "New section",

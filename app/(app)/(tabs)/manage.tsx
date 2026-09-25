@@ -58,6 +58,12 @@ export default function ManageScreen() {
 
   const menuOptions: ManageOption[] = [
     {
+      key: "overview",
+      icon: "restaurant-outline",
+      label: t("manage.menu.overview"),
+      onPress: () => router.push("/(profile)/menu-overview"),
+    },
+    {
       key: "sections",
       icon: "list-outline",
       label: t("manage.menu.sections"),
