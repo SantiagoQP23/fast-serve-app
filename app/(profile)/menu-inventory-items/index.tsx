@@ -151,7 +151,7 @@ export default function MenuInventoryItemsScreen() {
                     {/* /> */}
                     {canManage && (
                       <IconButton
-                        icon="arrow-forward"
+                        icon="add-outline"
                         onPress={() => setItemToAdjust(item)}
                       />
                     )}
