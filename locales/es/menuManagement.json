@@ -111,7 +111,6 @@
       "name": "Nombre",
       "description": "Descripción",
       "price": "Precio",
-      "unitCost": "Costo unitario",
       "category": "Categoría",
       "productionArea": "Área de producción",
       "isActive": "Activo",
@@ -123,7 +122,6 @@
       "name": "ej. Hamburguesa con queso",
       "description": "Qué hace especial a este producto",
       "price": "0.00",
-      "unitCost": "0.00",
       "category": "Selecciona una categoría",
       "productionArea": "Selecciona un área de producción (opcional)",
       "quantity": "0"

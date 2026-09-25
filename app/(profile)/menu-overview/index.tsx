@@ -143,6 +143,13 @@ export default function MenuOverviewScreen() {
     });
   };
 
+  const handleAddProduct = () => {
+    router.push({
+      pathname: "/(profile)/menu-product-form",
+      params: categoryId ? { categoryId } : undefined,
+    });
+  };
+
   const handleEditSelected = () => {
     if (!selected) return;
     closeActions();
@@ -357,6 +364,14 @@ export default function MenuOverviewScreen() {
             />
           }
         >
+          {canManage && (
+            <Button
+              label={t("products.newProduct")}
+              leftIcon="add"
+              variant="outline"
+              onPress={handleAddProduct}
+            />
+          )}
           {filteredProducts.length === 0 && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
               <Ionicons name="fast-food-outline" size={40} color="#999" />

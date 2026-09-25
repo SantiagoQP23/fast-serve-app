@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { ScrollView, Pressable, View } from "react-native";
+import { Fragment, useRef, useState } from "react";
+import { ScrollView, Pressable, View, StyleSheet } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -12,6 +12,8 @@ import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuM
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
+import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import IconButton from "@/presentation/theme/components/icon-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
@@ -20,7 +22,6 @@ import Popover, {
   AnchorPosition,
 } from "@/presentation/theme/components/popover";
 import { formatCurrency } from "@/core/i18n/utils";
-import OptionStockSummary from "@/presentation/inventory/components/option-stock-summary";
 
 export default function MenuProductDetailScreen() {
   const { t } = useTranslation("menuManagement");
@@ -34,6 +35,10 @@ export default function MenuProductDetailScreen() {
   const [productMenuAnchor, setProductMenuAnchor] =
     useState<AnchorPosition | null>(null);
   const productMenuButtonRef = useRef<View>(null);
+  const dividerColor = useThemeColor(
+    { light: "#e5e7eb", dark: "#374151" },
+    "border" as any,
+  );
 
   const product = products.find((p) => p.id === params.productId);
 
@@ -46,7 +51,6 @@ export default function MenuProductDetailScreen() {
         name: product.name,
         description: product.description || "",
         price: String(product.price),
-        unitCost: product.unitCost != null ? String(product.unitCost) : "",
         categoryId: product.category.id,
         productionAreaId: product.productionArea?.id
           ? String(product.productionArea.id)
@@ -85,6 +89,7 @@ export default function MenuProductDetailScreen() {
         <ThemedView style={tw`items-center gap-4 flex-row`}>
           <Pressable
             onPress={() => router.back()}
+            hitSlop={12}
             style={({ pressed }) => tw.style(pressed && "opacity-70")}
           >
             <Ionicons name="arrow-back-outline" size={24} />
@@ -95,6 +100,12 @@ export default function MenuProductDetailScreen() {
           <ThemedText type="body1" style={tw`text-gray-500`}>
             {t("products.noProducts")}
           </ThemedText>
+          <Button
+            label={t("common:actions.goBack")}
+            leftIcon="arrow-back-outline"
+            variant="outline"
+            onPress={() => router.back()}
+          />
         </ThemedView>
       </ScreenLayout>
     );
@@ -102,22 +113,14 @@ export default function MenuProductDetailScreen() {
 
   return (
     <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
-      <ThemedView style={tw`items-center gap-2 flex-row justify-between mb-6`}>
-        <ThemedView style={tw`items-center gap-4 flex-row flex-1`}>
-          <Pressable
-            onPress={() => router.back()}
-            style={({ pressed }) => tw.style(pressed && "opacity-70")}
-          >
-            <Ionicons name="arrow-back-outline" size={24} />
-          </Pressable>
-          <ThemedText
-            type="h3"
-            style={{ fontFamily: typography.regular }}
-            numberOfLines={1}
-          >
-            {product.name}
-          </ThemedText>
-        </ThemedView>
+      <ThemedView style={tw`items-center flex-row justify-between mb-6`}>
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={12}
+          style={({ pressed }) => tw.style(pressed && "opacity-70")}
+        >
+          <Ionicons name="arrow-back-outline" size={24} />
+        </Pressable>
         {canManage && (
           <View ref={productMenuButtonRef} collapsable={false}>
             <IconButton
@@ -134,6 +137,19 @@ export default function MenuProductDetailScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={tw`gap-4 pb-8`}
       >
+        <ThemedView style={tw`gap-1`}>
+          <ThemedText type="h1">{product.name}</ThemedText>
+          <ThemedText
+            type="body1"
+            style={[
+              tw`text-light-primary`,
+              { fontFamily: typography.semibold },
+            ]}
+          >
+            {formatCurrency(product.price)}
+          </ThemedText>
+        </ThemedView>
+
         <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
           <Label
             text={
@@ -164,96 +180,131 @@ export default function MenuProductDetailScreen() {
 
         <Card>
           <ThemedView style={tw`gap-4`}>
-            <ThemedView style={tw`flex-row items-center justify-between`}>
-              <ThemedView style={tw`flex-row items-center gap-3`}>
-                <Ionicons
-                  name="pricetag-outline"
-                  size={20}
-                  color={tw.color("text-light-on-surface-variant")}
-                />
-                <ThemedText type="body2" style={tw`text-gray-500`}>
-                  {t("products.fields.price")}
-                </ThemedText>
-              </ThemedView>
-              <ThemedText type="body1">
-                {formatCurrency(product.price)}
-              </ThemedText>
-            </ThemedView>
-
-            {product.unitCost != null && (
-              <ThemedView style={tw`flex-row items-center justify-between`}>
-                <ThemedView style={tw`flex-row items-center gap-3`}>
-                  <Ionicons
-                    name="cash-outline"
-                    size={20}
-                    color={tw.color("text-light-on-surface-variant")}
-                  />
-                  <ThemedText type="body2" style={tw`text-gray-500`}>
-                    {t("products.fields.unitCost")}
-                  </ThemedText>
-                </ThemedView>
-                <ThemedText type="body1">
-                  {formatCurrency(product.unitCost)}
-                </ThemedText>
-              </ThemedView>
-            )}
-
-            <ThemedView style={tw`flex-row items-center justify-between`}>
-              <ThemedView style={tw`flex-row items-center gap-3`}>
-                <Ionicons
-                  name="grid-outline"
-                  size={20}
-                  color={tw.color("text-light-on-surface-variant")}
-                />
-                <ThemedText type="body2" style={tw`text-gray-500`}>
-                  {t("products.fields.category")}
-                </ThemedText>
-              </ThemedView>
-              <ThemedText type="body1">{product.category?.name}</ThemedText>
-            </ThemedView>
-
-            {product.productionArea && (
-              <ThemedView style={tw`flex-row items-center justify-between`}>
-                <ThemedView style={tw`flex-row items-center gap-3`}>
-                  <Ionicons
-                    name="construct-outline"
-                    size={20}
-                    color={tw.color("text-light-on-surface-variant")}
-                  />
-                  <ThemedText type="body2" style={tw`text-gray-500`}>
-                    {t("products.fields.productionArea")}
-                  </ThemedText>
-                </ThemedView>
-                <ThemedText type="body1">
-                  {product.productionArea.name}
-                </ThemedText>
-              </ThemedView>
-            )}
+            {[
+              {
+                key: "category",
+                icon: "grid-outline" as const,
+                label: t("products.fields.category"),
+                value: product.category?.name,
+              },
+              product.productionArea && {
+                key: "productionArea",
+                icon: "construct-outline" as const,
+                label: t("products.fields.productionArea"),
+                value: product.productionArea.name,
+              },
+            ]
+              .filter((row): row is Exclude<typeof row, false> => !!row)
+              .map((row, index) => (
+                <Fragment key={row.key}>
+                  {index > 0 && (
+                    <ThemedView
+                      style={{
+                        height: StyleSheet.hairlineWidth,
+                        backgroundColor: dividerColor,
+                      }}
+                    />
+                  )}
+                  <ThemedView
+                    style={tw`flex-row items-center justify-between`}
+                  >
+                    <ThemedView style={tw`flex-row items-center gap-3`}>
+                      <Ionicons
+                        name={row.icon}
+                        size={20}
+                        color={tw.color("text-light-on-surface-variant")}
+                      />
+                      <ThemedText type="body2" style={tw`text-gray-500`}>
+                        {row.label}
+                      </ThemedText>
+                    </ThemedView>
+                    <ThemedText type="body1">{row.value}</ThemedText>
+                  </ThemedView>
+                </Fragment>
+              ))}
           </ThemedView>
         </Card>
 
         {product.options && product.options.length > 0 && (
           <ThemedView style={tw`gap-3`}>
             <ThemedText type="h4">{t("products.variants.title")}</ThemedText>
-            {product.options.map((option, index) => (
-              <Card key={option.id ?? index}>
-                <ThemedView style={tw`flex-row items-center justify-between`}>
-                  <ThemedView style={tw`gap-1`}>
-                    <ThemedText type="body1">{option.name}</ThemedText>
-                  </ThemedView>
-                  <ThemedText type="body1">
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={tw`gap-2`}
+            >
+              {product.options.map((option, index) => (
+                <Pressable
+                  key={option.id ?? index}
+                  disabled={!canManage}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/(profile)/menu-product-option-inventory",
+                      params: {
+                        productOptionId: String(option.id),
+                        productOptionName: option.name,
+                      },
+                    })
+                  }
+                  style={({ pressed }) => [
+                    tw.style(
+                      "rounded-3xl px-4 py-3 shadow-xs gap-1",
+                      option.isDefault ? "bg-light-secondary" : "bg-light-surface",
+                    ),
+                    { minWidth: 128 },
+                    pressed && canManage && tw`opacity-80`,
+                  ]}
+                >
+                  <ThemedText
+                    type="body1"
+                    numberOfLines={1}
+                    style={[
+                      option.isDefault && tw`text-light-on-secondary`,
+                      { fontFamily: typography.semibold },
+                    ]}
+                  >
+                    {option.name}
+                  </ThemedText>
+                  <ThemedText
+                    type="body2"
+                    style={
+                      option.isDefault
+                        ? tw`text-light-on-secondary`
+                        : tw`text-gray-500`
+                    }
+                  >
                     {formatCurrency(option.price)}
                   </ThemedText>
-                </ThemedView>
-                <OptionStockSummary
-                  productOptionId={option.id}
-                  productOptionName={option.name}
-                  trackStock={option.trackStock}
-                  quantity={option.quantity}
-                  canManage={canManage}
-                />
-              </Card>
-            ))}
+                  <ThemedView
+                    style={tw`flex-row items-center gap-1 bg-transparent`}
+                  >
+                    {option.trackStock && (
+                      <Ionicons
+                        name="cube-outline"
+                        size={12}
+                        color={tw.color(
+                          option.isDefault
+                            ? "light-on-secondary"
+                            : "gray-500",
+                        )}
+                      />
+                    )}
+                    <ThemedText
+                      type="small"
+                      style={
+                        option.isDefault
+                          ? tw`text-light-on-secondary/70`
+                          : tw`text-gray-500`
+                      }
+                    >
+                      {option.trackStock
+                        ? t("inventory:stockCount", { count: option.quantity })
+                        : t("inventory:notTracked")}
+                    </ThemedText>
+                  </ThemedView>
+                </Pressable>
+              ))}
+            </ScrollView>
           </ThemedView>
         )}
       </ScrollView>

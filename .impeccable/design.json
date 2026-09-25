@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-25T00:00:00Z",
+  "title": "Design System: Teikio",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Steel Harbor Blue",
+        "canonical": "#38608F",
+        "tonalRamp": ["#14233A", "#1C4975", "#2A527D", "#38608F", "#5B7FA6", "#86A2C1", "#B3C5DC", "#D2E4FF"]
+      },
+      "secondary": {
+        "role": "secondary",
+        "displayName": "Pale Sky Blue",
+        "canonical": "#D7E3F8",
+        "tonalRamp": ["#3C4858", "#55647A", "#7C8CA3", "#A3B6D0", "#C2D2EE", "#D7E3F8", "#E5EDFB", "#F2F6FD"]
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "Frost White",
+        "canonical": "#F8F9FF",
+        "tonalRamp": ["#191C20", "#43474E", "#64748B", "#C3C6CF", "#E7E8EE", "#ECEEF4", "#F2F3FA", "#F8F9FF"]
+      },
+      "success": { "role": "semantic", "displayName": "Success", "canonical": "#22C55E" },
+      "warning": { "role": "semantic", "displayName": "Warning", "canonical": "#F97316" },
+      "error": { "role": "semantic", "displayName": "Error", "canonical": "#EF4444" },
+      "info": { "role": "semantic", "displayName": "Info", "canonical": "#3B82F6" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display / h1", "purpose": "The one or two screen titles that need this weight." },
+      "headline": { "displayName": "Headline / h2", "purpose": "Empty-state and rare top-level headings." },
+      "title": { "displayName": "Subtitle / h4", "purpose": "Card headings and list item primary text." },
+      "body": { "displayName": "Body / body1", "purpose": "Default text style for form values and primary row text (medium weight, not regular)." },
+      "label": { "displayName": "Label / small", "purpose": "Field labels, metadata, counts — always neutral gray, never full-strength ink." }
+    },
+    "shadows": [
+      { "name": "resting", "value": "shadow-xs (near-invisible boundary shadow)", "purpose": "Cards and GroupedList rows sitting in the content flow." },
+      { "name": "floating", "value": "shadow-lg", "purpose": "The FAB and DialogModal — elements that float above the page." },
+      { "name": "popover", "value": "offset 0/4px, opacity 0.12, radius 12px, Android elevation 8", "purpose": "The one hand-tuned shadow in the system, used for the anchored options popover." }
+    ]
+  },
+  "components": [],
+  "narrative": {
+    "northStar": "The Steady Hand",
+    "overview": "Teikio is used tableside, mid-service, often one-handed, by someone who cannot afford to fumble the screen. The system reads as calm and efficient: steel-blue surfaces, soft 24px-rounded cards and controls, and a single medium-weight sans carrying every size from page titles down to status pills. Nothing decorative competes with the task — no gradients, no display face, no ornamental icons — because the interface's job is to disappear into the order, the table, the ticket in front of the user.\n\nThe Material-shaped color roles (primary / onPrimary / primaryContainer / secondary / surface / onSurfaceVariant) already speak Android's language even though the components themselves are hand-built rather than native Material widgets — a deliberate middle ground the system should keep leaning into as it moves toward fuller Android conformance, rather than abandoning for something more decorative.",
+    "keyCharacteristics": [
+      "One typeface (Plus Jakarta Sans), one accent hue, no display/body pairing.",
+      "A single dominant radius (24px) unifies cards, buttons, inputs, and pickers; only pills (chips, status labels) and a couple of floating elements (FAB, dialogs) break from it.",
+      "Outline-weight Ionicons throughout — no filled icon set, no mixed families.",
+      "Two-tier elevation: content surfaces sit nearly flat, overlays lift with real shadow."
+    ],
+    "rules": [
+      { "name": "The One Accent Rule", "body": "Steel Harbor Blue is the only brand color in the system. Selection state is Pale Sky Blue, not a tint of the primary. Status is the semantic four, never the primary.", "section": "colors" },
+      { "name": "Dark mode is incomplete", "body": "Colors.dark currently defines only primary / secondary / tertiary / text / background / tint / icon — none of the surface, container, or on-color roles the light palette has. Treat dark mode as a real gap to close deliberately, not a place to invent values ad hoc per screen.", "section": "colors" },
+      { "name": "The Medium-Body Rule", "body": "Default body text is medium weight (500), not regular. Only secondary/supporting text (body2) drops to regular.", "section": "typography" },
+      { "name": "The Two-Tier Rule", "body": "A surface is either resting (near-flat, shadow-xs) or floating (pronounced, shadow-lg or the tuned popover shadow). Nothing sits in between.", "section": "elevation" },
+      { "name": "The 24px Rule", "body": "Any new primary surface — a card, a button, an input, a picker trigger — takes the 24px radius by default. Reach for 16px only for a floating element not already covered (FAB/dialog), and for a pill only when the element is a selection or status chip.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do use 24px radius (rounded-3xl) as the default for any new card, button, input, or picker trigger.",
+      "Do use Pale Sky Blue (#D7E3F8) for selected/active chip and filter state — never a tint of the primary blue.",
+      "Do render an inactive record as its card at 50% opacity, not a separate badge-only treatment.",
+      "Do put \"more options\" (edit/activate/delete) behind a single bottom sheet or popover with Edit → Activate/Deactivate → Delete in that order, delete in red.",
+      "Do use outline-weight Ionicons exclusively, sized 18–28px depending on context.",
+      "Do keep body text at medium weight (500); drop to regular only for explicitly secondary text."
+    ],
+    "donts": [
+      "Don't introduce a second accent color. Steel Harbor Blue is the only brand hue; status uses the fixed semantic four (green/orange/red/blue).",
+      "Don't invent an intermediate shadow weight. A surface is resting (shadow-xs) or floating (shadow-lg/the tuned popover shadow) — nothing in between.",
+      "Don't default new body copy to regular weight; medium is the system default.",
+      "Don't reach for a full-screen Modal for anything beyond a short yes/no confirmation — everything else (options, pickers) is a bottom sheet.",
+      "Don't invent dark-mode color values ad hoc per screen — the dark palette is a known, incomplete gap, not a green light to freelance."
+    ]
+  }
+}

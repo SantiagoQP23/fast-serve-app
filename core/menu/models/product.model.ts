@@ -18,7 +18,6 @@ export interface Product {
   tags: Tag[];
   isActive: boolean;
   isPublic: boolean;
-  unitCost: number;
   iva: number;
   category: { id: string; name: string };
   options: ProductOption[];

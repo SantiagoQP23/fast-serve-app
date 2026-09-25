@@ -58,7 +58,6 @@ export default function MenuProductsScreen() {
         name: product.name,
         description: product.description || "",
         price: String(product.price),
-        unitCost: product.unitCost != null ? String(product.unitCost) : "",
         categoryId: product.category.id,
         productionAreaId: product.productionArea?.id
           ? String(product.productionArea.id)

@@ -13,7 +13,6 @@ export interface CreateProductDto {
   categoryId: string;
   description?: string;
   productionAreaId?: number;
-  unitCost?: number;
   quantity?: number;
   trackStock?: boolean;
   productOptions?: CreateProductOptionDto[];

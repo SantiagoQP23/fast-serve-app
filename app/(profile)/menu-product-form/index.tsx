@@ -20,7 +20,6 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Checkbox from "@/presentation/theme/components/checkbox";
-import Switch from "@/presentation/theme/components/switch";
 import Select from "@/presentation/theme/components/select";
 import Card from "@/presentation/theme/components/card";
 import IconButton from "@/presentation/theme/components/icon-button";
@@ -45,13 +44,9 @@ const buildProductSchema = (t: (key: string) => string) =>
         (v) => !Number.isNaN(Number(v)) && Number(v) >= 0,
         t("products.validations.priceInvalid"),
       ),
-    unitCost: z.string().optional(),
     categoryId: z.string().min(1, t("products.validations.categoryRequired")),
     productionAreaId: z.string().optional(),
-    isActive: z.boolean(),
     isPublic: z.boolean(),
-    trackStock: z.boolean(),
-    quantity: z.string().optional(),
     options: z.array(
       z.object({
         name: z
@@ -64,8 +59,6 @@ const buildProductSchema = (t: (key: string) => string) =>
             t("products.variants.validations.priceInvalid"),
           ),
         isDefault: z.boolean(),
-        trackStock: z.boolean(),
-        quantity: z.string().optional(),
       }),
     ),
   });
@@ -76,8 +69,6 @@ const buildDefaultOption = () => ({
   name: "",
   price: "",
   isDefault: false,
-  trackStock: false,
-  quantity: "",
 });
 
 export default function MenuProductFormScreen() {
@@ -87,13 +78,9 @@ export default function MenuProductFormScreen() {
     name?: string;
     description?: string;
     price?: string;
-    unitCost?: string;
     categoryId?: string;
     productionAreaId?: string;
-    isActive?: string;
     isPublic?: string;
-    trackStock?: string;
-    quantity?: string;
     options?: string;
   }>();
 
@@ -116,8 +103,6 @@ export default function MenuProductFormScreen() {
         name: option.name,
         price: option.price != null ? String(option.price) : "",
         isDefault: !!option.isDefault,
-        trackStock: !!option.trackStock,
-        quantity: option.quantity != null ? String(option.quantity) : "",
       }));
     } catch {
       return [];
@@ -136,13 +121,9 @@ export default function MenuProductFormScreen() {
       name: params.name || "",
       description: params.description || "",
       price: params.price || "",
-      unitCost: params.unitCost || "",
       categoryId: params.categoryId || "",
       productionAreaId: params.productionAreaId || "",
-      isActive: params.isActive !== "false",
       isPublic: params.isPublic !== "false",
-      trackStock: params.trackStock === "true",
-      quantity: params.quantity || "",
       options: initialOptions,
     },
   });
@@ -163,24 +144,17 @@ export default function MenuProductFormScreen() {
       name: data.name.trim(),
       description: data.description?.trim() || undefined,
       price: Number(data.price),
-      unitCost: data.unitCost ? Number(data.unitCost) : undefined,
       categoryId: data.categoryId,
       productionAreaId: data.productionAreaId
         ? Number(data.productionAreaId)
         : undefined,
-      quantity:
-        data.options.length === 0 && data.quantity
-          ? Number(data.quantity)
-          : undefined,
-      trackStock: data.options.length === 0 ? data.trackStock : undefined,
       productOptions:
         data.options.length > 0
           ? data.options.map((opt) => ({
               name: opt.name.trim(),
               price: Number(opt.price) || 0,
               isDefault: opt.isDefault,
-              trackStock: opt.trackStock,
-              quantity: opt.quantity ? Number(opt.quantity) : undefined,
+              trackStock: false,
             }))
           : undefined,
     };
@@ -189,7 +163,6 @@ export default function MenuProductFormScreen() {
       await updateProduct.mutateAsync({
         ...payload,
         id: params.productId!,
-        isActive: data.isActive,
         isPublic: data.isPublic,
       });
     } else {
@@ -313,22 +286,6 @@ export default function MenuProductFormScreen() {
               )}
             />
 
-            <Controller
-              control={control}
-              name="unitCost"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label={t("products.fields.unitCost")}
-                  icon="cash-outline"
-                  placeholder={t("products.placeholders.unitCost")}
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onChange}
-                  keyboardType="decimal-pad"
-                />
-              )}
-            />
-
             {categories.length === 0 ? (
               <ThemedView
                 style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
@@ -379,52 +336,6 @@ export default function MenuProductFormScreen() {
                 />
               )}
             />
-
-            {isEditing && (
-              <ThemedView style={tw`gap-3 mt-2`}>
-                <Controller
-                  control={control}
-                  name="isActive"
-                  render={({ field: { value, onChange } }) => (
-                    <Switch
-                      label={t("products.fields.isActive")}
-                      value={value}
-                      onValueChange={onChange}
-                    />
-                  )}
-                />
-              </ThemedView>
-            )}
-
-            {fields.length === 0 && (
-              <ThemedView style={tw`gap-4 mt-2`}>
-                <Controller
-                  control={control}
-                  name="trackStock"
-                  render={({ field: { value, onChange } }) => (
-                    <Switch
-                      label={t("products.fields.trackStock")}
-                      value={value}
-                      onValueChange={onChange}
-                    />
-                  )}
-                />
-                <Controller
-                  control={control}
-                  name="quantity"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      label={t("products.fields.quantity")}
-                      placeholder={t("products.placeholders.quantity")}
-                      onBlur={onBlur}
-                      value={value}
-                      onChangeText={onChange}
-                      keyboardType="decimal-pad"
-                    />
-                  )}
-                />
-              </ThemedView>
-            )}
           </ThemedView>
 
           <ThemedView style={tw`my-8`} />
@@ -520,33 +431,6 @@ export default function MenuProductFormScreen() {
                             value={value}
                             onValueChange={() => handleSetDefaultOption(index)}
                             size="small"
-                          />
-                        )}
-                      />
-
-                      <Controller
-                        control={control}
-                        name={`options.${index}.trackStock`}
-                        render={({ field: { value, onChange } }) => (
-                          <Switch
-                            label={t("products.fields.trackStock")}
-                            value={value}
-                            onValueChange={onChange}
-                          />
-                        )}
-                      />
-
-                      <Controller
-                        control={control}
-                        name={`options.${index}.quantity`}
-                        render={({ field: { onChange, onBlur, value } }) => (
-                          <TextInput
-                            label={t("products.fields.quantity")}
-                            placeholder={t("products.placeholders.quantity")}
-                            onBlur={onBlur}
-                            value={value}
-                            onChangeText={onChange}
-                            keyboardType="decimal-pad"
                           />
                         )}
                       />

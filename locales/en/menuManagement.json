@@ -111,7 +111,6 @@
       "name": "Name",
       "description": "Description",
       "price": "Price",
-      "unitCost": "Unit cost",
       "category": "Category",
       "productionArea": "Production area",
       "isActive": "Active",
@@ -123,7 +122,6 @@
       "name": "e.g. Cheeseburger",
       "description": "What makes this product special",
       "price": "0.00",
-      "unitCost": "0.00",
       "category": "Select a category",
       "productionArea": "Select a production area (optional)",
       "quantity": "0"
