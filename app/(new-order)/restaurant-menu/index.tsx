@@ -200,77 +200,75 @@ export default function RestaurantMenuScreen() {
 
   return (
     <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
-      <ScrollView
-        style={tw`flex-1`}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`gap-4 pb-40`}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={primaryColor}
-            colors={[primaryColor]}
-          />
+      <ThemedText type="h1">{t("menu:title")}</ThemedText>
+      <TextInput
+        value={search}
+        placeholder={t("menu:searchPlaceholder")}
+        onChangeText={(value) => onSearchChange(value)}
+        icon="search-outline"
+        leftIcon={
+          search && (
+            <IconButton
+              icon="close-circle-outline"
+              onPress={() => onSearchChange("")}
+            ></IconButton>
+          )
         }
-      >
-        <ThemedText type="h1">{t("menu:title")}</ThemedText>
-        <TextInput
-          value={search}
-          placeholder={t("menu:searchPlaceholder")}
-          onChangeText={(value) => onSearchChange(value)}
-          icon="search-outline"
-          leftIcon={
-            search && (
-              <IconButton
-                icon="close-circle-outline"
-                onPress={() => onSearchChange("")}
-              ></IconButton>
-            )
-          }
-        />
-        {!search && (
-          <ThemedView>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={tw`gap-2`}
-            >
-              {sections.map((f) => (
-                <ThemedView style={tw`mr-2`} key={f.id}>
-                  <Chip
-                    label={f.name}
-                    selected={section === f.id}
-                    onPress={() => onChangeSection(f.id)}
-                  />
-                </ThemedView>
-              ))}
-            </ScrollView>
-          </ThemedView>
-        )}
-        <ThemedView style={tw`flex-row gap-2`}>
-          {!search && (
-            <ThemedView style={tw`flex-wrap gap-2`}>
-              {filteredCategories.map((f) => (
+      />
+      {!search && (
+        <ThemedView>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={tw`gap-2`}
+          >
+            {sections.map((f) => (
+              <ThemedView style={tw`mr-2`} key={f.id}>
                 <Chip
-                  key={f.id}
                   label={f.name}
-                  selected={category === f.id}
-                  onPress={() => onChangeCategory(f.id)}
+                  selected={section === f.id}
+                  onPress={() => onChangeSection(f.id)}
                 />
-              ))}
-            </ThemedView>
-          )}
-          <ThemedView style={tw`flex-1 gap-3 mb-20`}>
-            {filteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                onPress={() => openProduct(product)}
-                product={product}
-              ></ProductCard>
+              </ThemedView>
+            ))}
+          </ScrollView>
+        </ThemedView>
+      )}
+      <ThemedView style={tw`flex-row gap-2 flex-1`}>
+        {!search && (
+          <ThemedView style={tw`flex-wrap gap-2`}>
+            {filteredCategories.map((f) => (
+              <Chip
+                key={f.id}
+                label={f.name}
+                selected={category === f.id}
+                onPress={() => onChangeCategory(f.id)}
+              />
             ))}
           </ThemedView>
-        </ThemedView>
-      </ScrollView>
+        )}
+        <ScrollView
+          style={tw`flex-1`}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={tw`gap-3 pb-40`}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={primaryColor}
+              colors={[primaryColor]}
+            />
+          }
+        >
+          {filteredProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              onPress={() => openProduct(product)}
+              product={product}
+            ></ProductCard>
+          ))}
+        </ScrollView>
+      </ThemedView>
 
       {!order && details.length > 0 && (
         <ThemedView style={tw`absolute bottom-4 left-4 right-4 bg-transparent`}>

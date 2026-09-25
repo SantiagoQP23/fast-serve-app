@@ -252,149 +252,147 @@ export default function MenuOverviewScreen() {
 
   return (
     <ScreenLayout style={tw`px-4 pt-2 flex-1 gap-4`}>
-      <ScrollView
-        style={tw`flex-1`}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`gap-4 pb-8`}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing || isRefetching}
-            onRefresh={onRefresh}
-            tintColor={primaryColor}
-            colors={[primaryColor]}
+      {isLoading && sections.length === 0 && (
+        <ThemedView style={tw`items-center py-8 gap-3`}>
+          <Ionicons name="restaurant-outline" size={48} color="#999" />
+          <ThemedText type="body1" style={tw`text-gray-500`}>
+            {t("loading")}
+          </ThemedText>
+        </ThemedView>
+      )}
+
+      {isError && sections.length === 0 && (
+        <ThemedView style={tw`items-center py-8 gap-3`}>
+          <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
+          <ThemedText type="body1" style={tw`text-red-500`}>
+            {t("loadError")}
+          </ThemedText>
+          <Button
+            label={t("retry")}
+            onPress={() => refetch()}
+            variant="outline"
           />
+        </ThemedView>
+      )}
+
+      <TextInput
+        value={search}
+        placeholder={t("products.searchPlaceholder")}
+        onChangeText={setSearch}
+        icon="search-outline"
+        leftIcon={
+          search && (
+            <IconButton
+              icon="close-circle-outline"
+              onPress={() => setSearch("")}
+            ></IconButton>
+          )
         }
-      >
-        {isLoading && sections.length === 0 && (
-          <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="restaurant-outline" size={48} color="#999" />
-            <ThemedText type="body1" style={tw`text-gray-500`}>
-              {t("loading")}
-            </ThemedText>
-          </ThemedView>
-        )}
+      />
 
-        {isError && sections.length === 0 && (
-          <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
-            <ThemedText type="body1" style={tw`text-red-500`}>
-              {t("loadError")}
-            </ThemedText>
-            <Button
-              label={t("retry")}
-              onPress={() => refetch()}
-              variant="outline"
-            />
-          </ThemedView>
-        )}
+      {!search && (
+        <ThemedView>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={tw`gap-2`}
+          >
+            {sortedSections.map((section) => (
+              <ThemedView
+                style={[tw`mr-2`, !section.isActive && tw`opacity-50`]}
+                key={section.id}
+              >
+                <Chip
+                  label={section.name}
+                  selected={sectionId === section.id}
+                  onPress={() => handleSelectSection(section)}
+                />
+              </ThemedView>
+            ))}
+            {canManage && (
+              <Chip
+                label={t("overview.addSection")}
+                icon="add"
+                onPress={handleAddSection}
+              />
+            )}
+          </ScrollView>
+        </ThemedView>
+      )}
 
-        <TextInput
-          value={search}
-          placeholder={t("products.searchPlaceholder")}
-          onChangeText={setSearch}
-          icon="search-outline"
-          leftIcon={
-            search && (
-              <IconButton
-                icon="close-circle-outline"
-                onPress={() => setSearch("")}
-              ></IconButton>
-            )
-          }
-        />
-
+      <ThemedView style={tw`flex-row gap-2 flex-1`}>
         {!search && (
-          <ThemedView>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={tw`gap-2`}
-            >
-              {sortedSections.map((section) => (
-                <ThemedView
-                  style={[tw`mr-2`, !section.isActive && tw`opacity-50`]}
-                  key={section.id}
-                >
-                  <Chip
-                    label={section.name}
-                    selected={sectionId === section.id}
-                    onPress={() => handleSelectSection(section)}
-                  />
-                </ThemedView>
-              ))}
-              {canManage && (
+          <ThemedView style={tw`flex-wrap gap-2`}>
+            {sectionCategories.map((category) => (
+              <ThemedView
+                key={category.id}
+                style={!category.isActive && tw`opacity-50`}
+              >
                 <Chip
-                  label={t("overview.addSection")}
-                  icon="add"
-                  onPress={handleAddSection}
+                  label={category.name}
+                  selected={categoryId === category.id}
+                  onPress={() => handleSelectCategory(category)}
                 />
-              )}
-            </ScrollView>
+              </ThemedView>
+            ))}
+            {canManage && (
+              <Chip
+                label={t("overview.addCategory")}
+                icon="add"
+                onPress={handleAddCategory}
+              />
+            )}
           </ThemedView>
         )}
-
-        <ThemedView style={tw`flex-row gap-2`}>
-          {!search && (
-            <ThemedView style={tw`flex-wrap gap-2`}>
-              {sectionCategories.map((category) => (
-                <ThemedView
-                  key={category.id}
-                  style={!category.isActive && tw`opacity-50`}
-                >
-                  <Chip
-                    label={category.name}
-                    selected={categoryId === category.id}
-                    onPress={() => handleSelectCategory(category)}
-                  />
-                </ThemedView>
-              ))}
-              {canManage && (
-                <Chip
-                  label={t("overview.addCategory")}
-                  icon="add"
-                  onPress={handleAddCategory}
-                />
-              )}
+        <ScrollView
+          style={tw`flex-1`}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={tw`gap-3 pb-8`}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing || isRefetching}
+              onRefresh={onRefresh}
+              tintColor={primaryColor}
+              colors={[primaryColor]}
+            />
+          }
+        >
+          {filteredProducts.length === 0 && (
+            <ThemedView style={tw`items-center py-8 gap-3`}>
+              <Ionicons name="fast-food-outline" size={40} color="#999" />
+              <ThemedText
+                type="body2"
+                style={tw`text-center text-gray-500 px-4`}
+              >
+                {t("products.noProducts")}
+              </ThemedText>
             </ThemedView>
           )}
-          <ThemedView style={tw`flex-1 gap-3`}>
-            {filteredProducts.length === 0 && (
-              <ThemedView style={tw`items-center py-8 gap-3`}>
-                <Ionicons name="fast-food-outline" size={40} color="#999" />
-                <ThemedText
-                  type="body2"
-                  style={tw`text-center text-gray-500 px-4`}
-                >
-                  {t("products.noProducts")}
-                </ThemedText>
-              </ThemedView>
-            )}
-            {filteredProducts.map((product) => (
-              <Card
-                key={product.id}
-                onPress={() => openProduct(product)}
-                style={!product.isActive && tw`opacity-50`}
-              >
-                <ThemedView style={tw`flex-row items-center justify-between`}>
-                  <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
-                    <Ionicons
-                      name="fast-food-outline"
-                      size={28}
-                      color={tw.color("text-light-on-surface-variant")}
-                    />
-                    <ThemedView style={tw`flex-1 gap-2`}>
-                      <ThemedText type="h4">{product.name}</ThemedText>
-                      <ThemedText type="small" style={tw`text-gray-500`}>
-                        ${product.price?.toFixed(2)}
-                      </ThemedText>
-                    </ThemedView>
+          {filteredProducts.map((product) => (
+            <Card
+              key={product.id}
+              onPress={() => openProduct(product)}
+              style={!product.isActive && tw`opacity-50`}
+            >
+              <ThemedView style={tw`flex-row items-center justify-between`}>
+                <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
+                  <Ionicons
+                    name="fast-food-outline"
+                    size={28}
+                    color={tw.color("text-light-on-surface-variant")}
+                  />
+                  <ThemedView style={tw`flex-1 gap-2`}>
+                    <ThemedText type="h4">{product.name}</ThemedText>
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      ${product.price?.toFixed(2)}
+                    </ThemedText>
                   </ThemedView>
                 </ThemedView>
-              </Card>
-            ))}
-          </ThemedView>
-        </ThemedView>
-      </ScrollView>
+              </ThemedView>
+            </Card>
+          ))}
+        </ScrollView>
+      </ThemedView>
 
       <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
         {selected && (
