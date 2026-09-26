@@ -7,6 +7,10 @@
   "confirm": "Confirmar",
   "active": "Activo",
   "inactive": "Inactivo",
+  "edit": "Editar",
+  "delete": "Eliminar",
+  "activate": "Activar",
+  "deactivate": "Desactivar",
   "accounts": {
     "title": "Cuentas",
     "subtitle": "Gestiona cajas y cuentas bancarias.",

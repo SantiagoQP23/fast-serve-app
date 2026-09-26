@@ -7,6 +7,10 @@
   "confirm": "Confirm",
   "active": "Active",
   "inactive": "Inactive",
+  "edit": "Edit",
+  "delete": "Delete",
+  "activate": "Activate",
+  "deactivate": "Deactivate",
   "accounts": {
     "title": "Accounts",
     "subtitle": "Manage cash boxes and bank accounts.",
