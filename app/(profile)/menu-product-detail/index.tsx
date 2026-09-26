@@ -9,7 +9,6 @@ import {
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
 import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuManagement";
@@ -30,15 +29,22 @@ import Popover, {
 import BottomSheetPicker, {
   type BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
+import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { formatCurrency } from "@/core/i18n/utils";
+import type { ProductOption } from "@/core/menu/models/product-optionl.model";
 
 export default function MenuProductDetailScreen() {
   const { t } = useTranslation("menuManagement");
   const params = useLocalSearchParams<{ productId: string }>();
   const { products, categories } = useMenu();
-  const { updateProduct, deleteProduct, createProductOption } =
-    useMenuManagement();
+  const {
+    updateProduct,
+    deleteProduct,
+    createProductOption,
+    updateProductOption,
+    deleteProductOption,
+  } = useMenuManagement();
   const { getAllQuery: productionAreasQuery } = useProductionAreas();
   const productionAreas = productionAreasQuery.data ?? [];
   const { user } = useAuthStore();
@@ -55,6 +61,18 @@ export default function MenuProductDetailScreen() {
   const [newOptionPrice, setNewOptionPrice] = useState("");
   const [newOptionIsDefault, setNewOptionIsDefault] = useState(false);
   const [newOptionError, setNewOptionError] = useState("");
+
+  const [selectedOption, setSelectedOption] = useState<ProductOption | null>(
+    null,
+  );
+  const optionActionsSheetRef = useRef<BottomSheetMethods>(null);
+  const editOptionSheetRef = useRef<BottomSheetMethods>(null);
+  const [editOptionName, setEditOptionName] = useState("");
+  const [editOptionPrice, setEditOptionPrice] = useState("");
+  const [editOptionError, setEditOptionError] = useState("");
+  const [optionToDelete, setOptionToDelete] = useState<ProductOption | null>(
+    null,
+  );
 
   const product = products.find((p) => p.id === params.productId);
 
@@ -147,6 +165,87 @@ export default function MenuProductDetailScreen() {
         onSuccess: () => addOptionSheetRef.current?.dismiss(),
       },
     );
+  };
+
+  const handleOpenOptionActions = (option: ProductOption) => {
+    setSelectedOption(option);
+    optionActionsSheetRef.current?.present();
+  };
+
+  const closeOptionActions = () => {
+    optionActionsSheetRef.current?.dismiss();
+  };
+
+  const handleMakeOptionDefault = () => {
+    if (!product || !selectedOption) return;
+    closeOptionActions();
+    updateProductOption.mutate({
+      id: selectedOption.id,
+      productId: product.id,
+      isDefault: true,
+    });
+  };
+
+  const handleToggleOptionActive = () => {
+    if (!product || !selectedOption) return;
+    closeOptionActions();
+    updateProductOption.mutate({
+      id: selectedOption.id,
+      productId: product.id,
+      isActive: !selectedOption.isActive,
+    });
+  };
+
+  const handleOpenEditOption = () => {
+    if (!selectedOption) return;
+    closeOptionActions();
+    setEditOptionName(selectedOption.name);
+    setEditOptionPrice(String(selectedOption.price));
+    setEditOptionError("");
+    editOptionSheetRef.current?.present();
+  };
+
+  const handleSaveEditOption = () => {
+    if (!product || !selectedOption) return;
+    const trimmedName = editOptionName.trim();
+    const parsedPrice = Number(editOptionPrice);
+
+    if (!trimmedName) {
+      setEditOptionError(t("products.variants.validations.nameRequired"));
+      return;
+    }
+    if (!editOptionPrice || Number.isNaN(parsedPrice) || parsedPrice < 0) {
+      setEditOptionError(t("products.variants.validations.priceInvalid"));
+      return;
+    }
+    setEditOptionError("");
+
+    updateProductOption.mutate(
+      {
+        id: selectedOption.id,
+        productId: product.id,
+        name: trimmedName,
+        price: parsedPrice,
+      },
+      {
+        onSuccess: () => editOptionSheetRef.current?.dismiss(),
+      },
+    );
+  };
+
+  const handleRequestDeleteOption = () => {
+    if (!selectedOption) return;
+    closeOptionActions();
+    setOptionToDelete(selectedOption);
+  };
+
+  const handleConfirmDeleteOption = async () => {
+    if (!product || !optionToDelete) return;
+    await deleteProductOption.mutateAsync({
+      id: optionToDelete.id,
+      productId: product.id,
+    });
+    setOptionToDelete(null);
   };
 
   const handleConfirmDeleteProduct = async () => {
@@ -295,87 +394,92 @@ export default function MenuProductDetailScreen() {
                 </ThemedText>
               </ThemedView>
             ) : (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={tw`gap-2`}
-              >
+              <ThemedView style={tw`gap-3`}>
                 {product.options.map((option, index) => (
-                  <Pressable
+                  <Card
                     key={option.id ?? index}
-                    disabled={!canManage}
-                    onPress={() =>
-                      router.push({
-                        pathname: "/(profile)/menu-product-option-inventory",
-                        params: {
-                          productOptionId: String(option.id),
-                          productOptionName: option.name,
-                        },
-                      })
+                    onPress={
+                      canManage
+                        ? () =>
+                            router.push({
+                              pathname:
+                                "/(profile)/menu-product-option-inventory",
+                              params: {
+                                productOptionId: String(option.id),
+                                productOptionName: option.name,
+                              },
+                            })
+                        : undefined
                     }
-                    style={({ pressed }) => [
-                      tw.style(
-                        "rounded-3xl px-4 py-3 shadow-xs gap-1",
-                        option.isDefault
-                          ? "bg-light-secondary"
-                          : "bg-light-surface",
-                      ),
-                      { minWidth: 128 },
-                      pressed && canManage && tw`opacity-80`,
+                    style={[
+                      option.isDefault && tw`bg-light-secondary`,
+                      !option.isActive && tw`opacity-50`,
                     ]}
                   >
-                    <ThemedText
-                      type="body1"
-                      numberOfLines={1}
-                      style={[
-                        option.isDefault && tw`text-light-on-secondary`,
-                        { fontFamily: typography.semibold },
-                      ]}
-                    >
-                      {option.name}
-                    </ThemedText>
-                    <ThemedText
-                      type="body2"
-                      style={
-                        option.isDefault
-                          ? tw`text-light-on-secondary`
-                          : tw`text-gray-500`
-                      }
-                    >
-                      {formatCurrency(option.price)}
-                    </ThemedText>
                     <ThemedView
-                      style={tw`flex-row items-center gap-1 bg-transparent`}
+                      style={tw`flex-row items-center justify-between bg-transparent`}
                     >
-                      {option.trackStock && (
-                        <Ionicons
-                          name="cube-outline"
-                          size={12}
-                          color={tw.color(
-                            option.isDefault
-                              ? "light-on-secondary"
-                              : "gray-500",
-                          )}
-                        />
-                      )}
-                      {/* <ThemedText */}
-                      {/*   type="small" */}
-                      {/*   style={ */}
-                      {/*     option.isDefault */}
-                      {/*       ? tw`text-light-on-secondary/70` */}
-                      {/*       : tw`text-gray-500` */}
-                      {/*   } */}
-                      {/* > */}
-                      {/*   {option.trackStock */}
-                      {/*     ? t("inventory:stockCount", { */}
-                      {/*         count: option.quantity, */}
-                      {/*       }) */}
-                      {/*     : t("inventory:notTracked")} */}
-                      {/* </ThemedText> */}
+                      <ThemedView
+                        style={tw`flex-1 gap-1 bg-transparent`}
+                      >
+                        <ThemedText
+                          type="h4"
+                          style={option.isDefault && tw`text-light-on-secondary`}
+                        >
+                          {option.name}
+                        </ThemedText>
+                        {option.trackStock && (
+                          <ThemedView
+                            style={tw`flex-row items-center gap-1 bg-transparent`}
+                          >
+                            <Ionicons
+                              name="cube-outline"
+                              size={14}
+                              color={tw.color(
+                                option.isDefault
+                                  ? "light-on-secondary"
+                                  : "gray-500",
+                              )}
+                            />
+                            <ThemedText
+                              type="small"
+                              style={
+                                option.isDefault
+                                  ? tw`text-light-on-secondary/70`
+                                  : tw`text-gray-500`
+                              }
+                            >
+                              {t("inventory:stockCount", {
+                                count: option.quantity,
+                              })}
+                            </ThemedText>
+                          </ThemedView>
+                        )}
+                      </ThemedView>
+                      <ThemedView
+                        style={tw`flex-row items-center gap-1 bg-transparent`}
+                      >
+                        <ThemedText
+                          type="body1"
+                          style={
+                            option.isDefault && tw`text-light-on-secondary`
+                          }
+                        >
+                          {formatCurrency(option.price)}
+                        </ThemedText>
+                        {canManage && (
+                          <IconButton
+                            icon="ellipsis-vertical"
+                            size={18}
+                            variant="text"
+                            onPress={() => handleOpenOptionActions(option)}
+                          />
+                        )}
+                      </ThemedView>
                     </ThemedView>
-                  </Pressable>
+                  </Card>
                 ))}
-              </ScrollView>
+              </ThemedView>
             )}
           </ThemedView>
         )}
@@ -478,6 +582,93 @@ export default function MenuProductDetailScreen() {
           />
         </BottomSheetView>
       </ThemedBottomSheetModal>
+
+      <ThemedBottomSheetModal ref={optionActionsSheetRef} enablePanDownToClose>
+        {selectedOption && (
+          <ActionsBottomSheet
+            title={selectedOption.name}
+            items={[
+              ...(!selectedOption.isDefault
+                ? [
+                    {
+                      icon: "star-outline" as const,
+                      label: t("products.variants.makeDefault"),
+                      onPress: handleMakeOptionDefault,
+                    },
+                  ]
+                : []),
+              {
+                icon: "create-outline",
+                label: t("edit"),
+                onPress: handleOpenEditOption,
+              },
+              {
+                icon: selectedOption.isActive
+                  ? "eye-off-outline"
+                  : "eye-outline",
+                label: selectedOption.isActive
+                  ? t("deactivate")
+                  : t("activate"),
+                onPress: handleToggleOptionActive,
+              },
+              {
+                icon: "trash-outline",
+                label: t("delete"),
+                color: "text-red-500",
+                onPress: handleRequestDeleteOption,
+              },
+            ]}
+          />
+        )}
+      </ThemedBottomSheetModal>
+
+      <ThemedBottomSheetModal ref={editOptionSheetRef} enablePanDownToClose>
+        <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
+          <ThemedText type="h3">{t("products.variants.editVariant")}</ThemedText>
+
+          <TextInput
+            bottomSheet
+            label={t("products.variants.fields.name")}
+            placeholder={t("products.variants.placeholders.name")}
+            value={editOptionName}
+            onChangeText={setEditOptionName}
+          />
+
+          <TextInput
+            bottomSheet
+            label={t("products.variants.fields.price")}
+            placeholder={t("products.variants.placeholders.price")}
+            value={editOptionPrice}
+            onChangeText={setEditOptionPrice}
+            keyboardType="decimal-pad"
+          />
+
+          {editOptionError ? (
+            <ThemedText type="small" style={tw`text-red-500`}>
+              {editOptionError}
+            </ThemedText>
+          ) : null}
+
+          <Button
+            label={t("products.save")}
+            onPress={handleSaveEditOption}
+            loading={updateProductOption.isPending}
+            disabled={updateProductOption.isPending}
+          />
+        </BottomSheetView>
+      </ThemedBottomSheetModal>
+
+      <DialogModal
+        visible={!!optionToDelete}
+        title={t("products.variants.deleteTitle")}
+        message={t("products.variants.deleteMessage")}
+        confirmLabel={t("confirm")}
+        cancelLabel={t("cancel")}
+        confirmVariant="destructive"
+        loading={deleteProductOption.isPending}
+        onConfirm={handleConfirmDeleteOption}
+        onCancel={() => setOptionToDelete(null)}
+      />
     </ScreenLayout>
   );
 }

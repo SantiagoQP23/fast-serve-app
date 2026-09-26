@@ -31,6 +31,8 @@ interface MenuActions {
   upsertProduct: (product: Product) => void;
   removeProduct: (id: string) => void;
   addProductOption: (productId: string, option: ProductOption) => void;
+  updateProductOption: (productId: string, option: ProductOption) => void;
+  removeProductOption: (productId: string, optionId: number) => void;
 }
 
 const initialState: MenuState = {
@@ -132,6 +134,33 @@ export const useMenuStore = create<MenuState & MenuActions>()(
                     option,
                   ],
                 }
+              : p,
+          ),
+        })),
+
+      updateProductOption: (productId: string, option: ProductOption) =>
+        set((state) => ({
+          products: state.products.map((p) =>
+            p.id === productId
+              ? {
+                  ...p,
+                  options: p.options.map((existing) =>
+                    existing.id === option.id
+                      ? option
+                      : option.isDefault
+                        ? { ...existing, isDefault: false }
+                        : existing,
+                  ),
+                }
+              : p,
+          ),
+        })),
+
+      removeProductOption: (productId: string, optionId: number) =>
+        set((state) => ({
+          products: state.products.map((p) =>
+            p.id === productId
+              ? { ...p, options: p.options.filter((o) => o.id !== optionId) }
               : p,
           ),
         })),

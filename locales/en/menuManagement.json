@@ -135,6 +135,8 @@
     "variants": {
       "title": "Variants",
       "addVariant": "Add variant",
+      "editVariant": "Edit variant",
+      "makeDefault": "Make default",
       "empty": "No variants yet. Add one if this product has different options (sizes, flavors, etc.).",
       "variantNumber": "Variant {{number}}",
       "fields": {
@@ -151,7 +153,13 @@
         "priceInvalid": "Price must be a positive number"
       },
       "createSuccess": "Variant added successfully",
-      "createError": "Could not add the variant"
+      "createError": "Could not add the variant",
+      "updateSuccess": "Variant updated successfully",
+      "updateError": "Could not update the variant",
+      "deleteSuccess": "Variant deleted successfully",
+      "deleteError": "Could not delete the variant",
+      "deleteTitle": "Delete variant",
+      "deleteMessage": "Are you sure you want to delete this variant?"
     }
   },
   "loading": "Loading...",

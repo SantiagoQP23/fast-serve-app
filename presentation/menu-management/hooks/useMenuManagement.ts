@@ -19,6 +19,7 @@ import type { UpdateCategoryDto } from "../interfaces/dto/update-category.dto";
 import type { CreateProductDto } from "../interfaces/dto/create-product.dto";
 import type { UpdateProductDto } from "../interfaces/dto/update-product.dto";
 import type { CreateProductOptionDto } from "../interfaces/dto/create-product-option.dto";
+import type { UpdateProductOptionDto } from "../interfaces/dto/update-product-option.dto";
 
 export const useMenuManagement = () => {
   const { t } = useTranslation("menuManagement");
@@ -30,6 +31,8 @@ export const useMenuManagement = () => {
     upsertProduct,
     removeProduct,
     addProductOption,
+    updateProductOption: updateProductOptionInStore,
+    removeProductOption,
   } = useMenuStore();
 
   const createSection = useMutation<Section, Error, CreateSectionDto>({
@@ -156,6 +159,47 @@ export const useMenuManagement = () => {
     },
   });
 
+  const updateProductOption = useMutation<
+    CreatedProductOption,
+    Error,
+    UpdateProductOptionDto & { id: number; productId: string }
+  >({
+    mutationFn: ({ id, productId, ...data }) =>
+      ProductOptionsService.update(id, data),
+    onSuccess: (option, variables) => {
+      updateProductOptionInStore(variables.productId, {
+        id: option.id,
+        name: option.name,
+        price: option.price,
+        cost: option.cost,
+        isActive: option.isActive,
+        isAvailable: option.isAvailable,
+        isDefault: option.isDefault,
+        trackStock: option.trackStock,
+        quantity: option.quantity,
+      });
+      toast.success(t("products.variants.updateSuccess"));
+    },
+    onError: (error) => {
+      toast.error(error.message || t("products.variants.updateError"));
+    },
+  });
+
+  const deleteProductOption = useMutation<
+    void,
+    Error,
+    { id: number; productId: string }
+  >({
+    mutationFn: ({ id }) => ProductOptionsService.remove(id),
+    onSuccess: (_, variables) => {
+      removeProductOption(variables.productId, variables.id);
+      toast.success(t("products.variants.deleteSuccess"));
+    },
+    onError: (error) => {
+      toast.error(error.message || t("products.variants.deleteError"));
+    },
+  });
+
   return {
     createSection,
     updateSection,
@@ -167,5 +211,7 @@ export const useMenuManagement = () => {
     updateProduct,
     deleteProduct,
     createProductOption,
+    updateProductOption,
+    deleteProductOption,
   };
 };
