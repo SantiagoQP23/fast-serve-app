@@ -115,6 +115,7 @@
       "price": "Precio",
       "category": "Categoría",
       "productionArea": "Área de producción",
+      "pricingMode": "Precio",
       "isActive": "Activo",
       "isPublic": "Visible para los clientes",
       "trackStock": "Controlar stock",
@@ -127,6 +128,10 @@
       "category": "Selecciona una categoría",
       "productionArea": "Selecciona un área de producción",
       "quantity": "0"
+    },
+    "pricingMode": {
+      "unique": "Precio único",
+      "variants": "Tiene variantes"
     },
     "validations": {
       "nameMinLength": "El nombre debe tener al menos 2 caracteres",
@@ -171,6 +176,8 @@
   "retry": "Reintentar",
   "cancel": "Cancelar",
   "confirm": "Confirmar",
+  "next": "Siguiente",
+  "back": "Atrás",
   "edit": "Editar",
   "delete": "Eliminar",
   "active": "Activo",
