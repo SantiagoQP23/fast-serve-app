@@ -107,6 +107,8 @@
     "deleteError": "No se pudo eliminar el producto",
     "deleteTitle": "Eliminar producto",
     "deleteMessage": "¿Estás seguro de que deseas eliminar este producto?",
+    "duplicate": "Duplicar",
+    "duplicateComingSoon": "Duplicar productos estará disponible próximamente",
     "fields": {
       "name": "Nombre",
       "description": "Descripción",

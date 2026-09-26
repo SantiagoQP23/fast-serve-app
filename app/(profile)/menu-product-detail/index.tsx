@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { ScrollView, Pressable, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { toast } from "sonner-native";
 import {
   BottomSheetView,
   type BottomSheetMethods,
@@ -23,13 +24,11 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import Label from "@/presentation/theme/components/label";
 import TextInput from "@/presentation/theme/components/text-input";
-import Popover, {
-  AnchorPosition,
-} from "@/presentation/theme/components/popover";
 import BottomSheetPicker, {
   type BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
 import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
+import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { formatCurrency } from "@/core/i18n/utils";
 import type { ProductOption } from "@/core/menu/models/product-optionl.model";
@@ -51,10 +50,7 @@ export default function MenuProductDetailScreen() {
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
   const [productDeleteVisible, setProductDeleteVisible] = useState(false);
-  const [productMenuVisible, setProductMenuVisible] = useState(false);
-  const [productMenuAnchor, setProductMenuAnchor] =
-    useState<AnchorPosition | null>(null);
-  const productMenuButtonRef = useRef<View>(null);
+  const productActionsSheetRef = useRef<BottomSheetMethods>(null);
   const categoryPickerRef = useRef<BottomSheetPickerRef>(null);
   const productionAreaPickerRef = useRef<BottomSheetPickerRef>(null);
   const addOptionSheetRef = useRef<BottomSheetMethods>(null);
@@ -107,18 +103,18 @@ export default function MenuProductDetailScreen() {
     });
   };
 
-  const handleOpenProductMenu = () => {
-    productMenuButtonRef.current?.measure(
-      (_x, _y, width, height, pageX, pageY) => {
-        setProductMenuAnchor({ x: pageX, y: pageY, width, height });
-        setProductMenuVisible(true);
-      },
-    );
-  };
-
   const handleToggleProductActive = () => {
     if (!product) return;
     updateProduct.mutate({ id: product.id, isActive: !product.isActive });
+  };
+
+  const handleOpenMoreProductActions = () => {
+    productActionsSheetRef.current?.present();
+  };
+
+  const handleDuplicateProduct = () => {
+    productActionsSheetRef.current?.dismiss();
+    toast.info(t("products.duplicateComingSoon"));
   };
 
   const handleChangeCategory = (value: string | number) => {
@@ -284,229 +280,233 @@ export default function MenuProductDetailScreen() {
   }
 
   return (
-    <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
-      <ThemedView style={tw`items-center flex-row justify-between mb-6`}>
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={12}
-          style={({ pressed }) => tw.style(pressed && "opacity-70")}
+    <View style={tw`flex-1 relative`}>
+      <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
+        <ThemedView style={tw`items-center flex-row mb-6`}>
+          <Pressable
+            onPress={() => router.back()}
+            hitSlop={12}
+            style={({ pressed }) => tw.style(pressed && "opacity-70")}
+          >
+            <Ionicons name="arrow-back-outline" size={24} />
+          </Pressable>
+        </ThemedView>
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={tw`gap-4 pb-8`}
         >
-          <Ionicons name="arrow-back-outline" size={24} />
-        </Pressable>
-        {canManage && (
-          <View ref={productMenuButtonRef} collapsable={false}>
-            <IconButton
-              icon="ellipsis-vertical"
-              size={20}
-              variant="text"
-              onPress={handleOpenProductMenu}
+          <ThemedView style={tw`gap-1`}>
+            <ThemedText type="h1">{product.name}</ThemedText>
+            {/* <ThemedText */}
+            {/*   type="body1" */}
+            {/*   style={[ */}
+            {/*     tw`text-light-primary`, */}
+            {/*     { fontFamily: typography.semibold }, */}
+            {/*   ]} */}
+            {/* > */}
+            {/*   {formatCurrency(product.price)} */}
+            {/* </ThemedText> */}
+          </ThemedView>
+
+          <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
+            <Label
+              text={product.isActive ? t("active") : t("inactive")}
+              color={product.isActive ? "success" : "default"}
             />
-          </View>
-        )}
-      </ThemedView>
+            {/* <Label */}
+            {/*   text={ */}
+            {/*     product.isPublic */}
+            {/*       ? t("products.visibleToCustomers") */}
+            {/*       : t("products.hiddenFromCustomers") */}
+            {/*   } */}
+            {/*   color={product.isPublic ? "info" : "default"} */}
+            {/* /> */}
+            <Label
+              text={product.category?.name ?? t("products.fields.category")}
+              leftIcon="grid-outline"
+              onPress={
+                canManage
+                  ? () => categoryPickerRef.current?.present()
+                  : undefined
+              }
+            />
+            <Label
+              text={
+                product.productionArea?.name ??
+                t("products.placeholders.productionArea")
+              }
+              leftIcon="construct-outline"
+              onPress={
+                canManage
+                  ? () => productionAreaPickerRef.current?.present()
+                  : undefined
+              }
+            />
+          </ThemedView>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`gap-4 pb-8`}
-      >
-        <ThemedView style={tw`gap-1`}>
-          <ThemedText type="h1">{product.name}</ThemedText>
-          {/* <ThemedText */}
-          {/*   type="body1" */}
-          {/*   style={[ */}
-          {/*     tw`text-light-primary`, */}
-          {/*     { fontFamily: typography.semibold }, */}
-          {/*   ]} */}
-          {/* > */}
-          {/*   {formatCurrency(product.price)} */}
-          {/* </ThemedText> */}
-        </ThemedView>
+          {product.description ? (
+            <Card>
+              <ThemedText type="small" style={tw`text-gray-500 mb-1`}>
+                {t("products.fields.description")}
+              </ThemedText>
+              <ThemedText type="body2">{product.description}</ThemedText>
+            </Card>
+          ) : null}
 
-        <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
-          <Label
-            text={product.isActive ? t("active") : t("inactive")}
-            color={product.isActive ? "success" : "default"}
-          />
-          {/* <Label */}
-          {/*   text={ */}
-          {/*     product.isPublic */}
-          {/*       ? t("products.visibleToCustomers") */}
-          {/*       : t("products.hiddenFromCustomers") */}
-          {/*   } */}
-          {/*   color={product.isPublic ? "info" : "default"} */}
-          {/* /> */}
-          <Label
-            text={product.category?.name ?? t("products.fields.category")}
-            leftIcon="grid-outline"
-            onPress={
-              canManage ? () => categoryPickerRef.current?.present() : undefined
-            }
-          />
-          <Label
-            text={
-              product.productionArea?.name ??
-              t("products.placeholders.productionArea")
-            }
-            leftIcon="construct-outline"
-            onPress={
-              canManage
-                ? () => productionAreaPickerRef.current?.present()
-                : undefined
-            }
-          />
-        </ThemedView>
-
-        {product.description ? (
-          <Card>
-            <ThemedText type="small" style={tw`text-gray-500 mb-1`}>
-              {t("products.fields.description")}
-            </ThemedText>
-            <ThemedText type="body2">{product.description}</ThemedText>
-          </Card>
-        ) : null}
-
-        {(canManage || product.options.length > 0) && (
-          <ThemedView style={tw`gap-3 mt-4`}>
-            <ThemedView style={tw`flex-row items-center justify-between`}>
-              <ThemedText type="h4">{t("products.variants.title")}</ThemedText>
-              {canManage && (
-                <Button
-                  label={t("products.variants.addVariant")}
-                  onPress={openAddOptionSheet}
-                  variant="outline"
-                  size="small"
-                  leftIcon="add-outline"
-                />
-              )}
-            </ThemedView>
-
-            {product.options.length === 0 ? (
-              <ThemedView
-                style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
-              >
-                <Ionicons
-                  name="options-outline"
-                  size={28}
-                  color={tw.color("gray-400")}
-                />
-                <ThemedText type="body2" style={tw`text-center text-gray-500`}>
-                  {t("products.variants.empty")}
+          {(canManage || product.options.length > 0) && (
+            <ThemedView style={tw`gap-3 mt-4`}>
+              <ThemedView style={tw`flex-row items-center justify-between`}>
+                <ThemedText type="h4">
+                  {t("products.variants.title")}
                 </ThemedText>
+                {canManage && (
+                  <Button
+                    label={t("products.variants.addVariant")}
+                    onPress={openAddOptionSheet}
+                    variant="outline"
+                    size="small"
+                    leftIcon="add-outline"
+                  />
+                )}
               </ThemedView>
-            ) : (
-              <ThemedView style={tw`gap-3`}>
-                {product.options.map((option, index) => (
-                  <Card
-                    key={option.id ?? index}
-                    onPress={
-                      canManage
-                        ? () =>
-                            router.push({
-                              pathname:
-                                "/(profile)/menu-product-option-inventory",
-                              params: {
-                                productOptionId: String(option.id),
-                                productOptionName: option.name,
-                              },
-                            })
-                        : undefined
-                    }
-                    style={[
-                      option.isDefault && tw`bg-light-secondary`,
-                      !option.isActive && tw`opacity-50`,
-                    ]}
+
+              {product.options.length === 0 ? (
+                <ThemedView
+                  style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+                >
+                  <Ionicons
+                    name="options-outline"
+                    size={28}
+                    color={tw.color("gray-400")}
+                  />
+                  <ThemedText
+                    type="body2"
+                    style={tw`text-center text-gray-500`}
                   >
-                    <ThemedView
-                      style={tw`flex-row items-center justify-between bg-transparent`}
+                    {t("products.variants.empty")}
+                  </ThemedText>
+                </ThemedView>
+              ) : (
+                <ThemedView style={tw`gap-3`}>
+                  {product.options.map((option, index) => (
+                    <Card
+                      key={option.id ?? index}
+                      onPress={
+                        canManage
+                          ? () =>
+                              router.push({
+                                pathname:
+                                  "/(profile)/menu-product-option-inventory",
+                                params: {
+                                  productOptionId: String(option.id),
+                                  productOptionName: option.name,
+                                },
+                              })
+                          : undefined
+                      }
+                      style={[
+                        option.isDefault && tw`bg-light-secondary`,
+                        !option.isActive && tw`opacity-50`,
+                      ]}
                     >
                       <ThemedView
-                        style={tw`flex-1 gap-1 bg-transparent`}
+                        style={tw`flex-row items-center justify-between bg-transparent`}
                       >
-                        <ThemedText
-                          type="h4"
-                          style={option.isDefault && tw`text-light-on-secondary`}
-                        >
-                          {option.name}
-                        </ThemedText>
-                        {option.trackStock && (
-                          <ThemedView
-                            style={tw`flex-row items-center gap-1 bg-transparent`}
+                        <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+                          <ThemedText
+                            type="h4"
+                            style={
+                              option.isDefault && tw`text-light-on-secondary`
+                            }
                           >
-                            <Ionicons
-                              name="cube-outline"
-                              size={14}
-                              color={tw.color(
-                                option.isDefault
-                                  ? "light-on-secondary"
-                                  : "gray-500",
-                              )}
-                            />
-                            <ThemedText
-                              type="small"
-                              style={
-                                option.isDefault
-                                  ? tw`text-light-on-secondary/70`
-                                  : tw`text-gray-500`
-                              }
+                            {option.name}
+                          </ThemedText>
+                          {option.trackStock && (
+                            <ThemedView
+                              style={tw`flex-row items-center gap-1 bg-transparent`}
                             >
-                              {t("inventory:stockCount", {
-                                count: option.quantity,
-                              })}
-                            </ThemedText>
-                          </ThemedView>
-                        )}
-                      </ThemedView>
-                      <ThemedView
-                        style={tw`flex-row items-center gap-1 bg-transparent`}
-                      >
-                        <ThemedText
-                          type="body1"
-                          style={
-                            option.isDefault && tw`text-light-on-secondary`
-                          }
+                              <Ionicons
+                                name="cube-outline"
+                                size={14}
+                                color={tw.color(
+                                  option.isDefault
+                                    ? "light-on-secondary"
+                                    : "gray-500",
+                                )}
+                              />
+                              <ThemedText
+                                type="small"
+                                style={
+                                  option.isDefault
+                                    ? tw`text-light-on-secondary/70`
+                                    : tw`text-gray-500`
+                                }
+                              >
+                                {t("inventory:stockCount", {
+                                  count: option.quantity,
+                                })}
+                              </ThemedText>
+                            </ThemedView>
+                          )}
+                        </ThemedView>
+                        <ThemedView
+                          style={tw`flex-row items-center gap-1 bg-transparent`}
                         >
-                          {formatCurrency(option.price)}
-                        </ThemedText>
-                        {canManage && (
-                          <IconButton
-                            icon="ellipsis-vertical"
-                            size={18}
-                            variant="text"
-                            onPress={() => handleOpenOptionActions(option)}
-                          />
-                        )}
+                          <ThemedText
+                            type="body1"
+                            style={
+                              option.isDefault && tw`text-light-on-secondary`
+                            }
+                          >
+                            {formatCurrency(option.price)}
+                          </ThemedText>
+                          {canManage && (
+                            <IconButton
+                              icon="ellipsis-vertical"
+                              size={18}
+                              variant="text"
+                              onPress={() => handleOpenOptionActions(option)}
+                            />
+                          )}
+                        </ThemedView>
                       </ThemedView>
-                    </ThemedView>
-                  </Card>
-                ))}
-              </ThemedView>
-            )}
-          </ThemedView>
-        )}
-      </ScrollView>
+                    </Card>
+                  ))}
+                </ThemedView>
+              )}
+            </ThemedView>
+          )}
+        </ScrollView>
+      </ScreenLayout>
 
-      <Popover
-        visible={productMenuVisible}
-        onClose={() => setProductMenuVisible(false)}
-        anchor={productMenuAnchor}
-        items={[
-          {
-            label: t("edit"),
-            icon: "create-outline",
-            onPress: handleEditProduct,
-          },
-          {
-            label: product.isActive ? t("deactivate") : t("activate"),
-            icon: product.isActive ? "eye-off-outline" : "eye-outline",
-            onPress: handleToggleProductActive,
-          },
-          {
-            label: t("delete"),
-            icon: "trash-outline",
-            onPress: () => setProductDeleteVisible(true),
-          },
-        ]}
-      />
+      {canManage && (
+        <View
+          style={tw`absolute bottom-8 left-0 right-0 items-center`}
+          pointerEvents="box-none"
+        >
+          <FloatingToolbar
+            items={[
+              {
+                icon: "create-outline",
+                onPress: handleEditProduct,
+              },
+              {
+                icon: product.isActive ? "eye-off-outline" : "eye-outline",
+                onPress: handleToggleProductActive,
+              },
+              {
+                icon: "trash-outline",
+                onPress: () => setProductDeleteVisible(true),
+              },
+              {
+                icon: "ellipsis-horizontal-outline",
+                onPress: handleOpenMoreProductActions,
+              },
+            ]}
+          />
+        </View>
+      )}
 
       <DialogModal
         visible={productDeleteVisible}
@@ -583,6 +583,19 @@ export default function MenuProductDetailScreen() {
         </BottomSheetView>
       </ThemedBottomSheetModal>
 
+      <ThemedBottomSheetModal ref={productActionsSheetRef} enablePanDownToClose>
+        <ActionsBottomSheet
+          title={product.name}
+          items={[
+            {
+              icon: "copy-outline",
+              label: t("products.duplicate"),
+              onPress: handleDuplicateProduct,
+            },
+          ]}
+        />
+      </ThemedBottomSheetModal>
+
       <ThemedBottomSheetModal ref={optionActionsSheetRef} enablePanDownToClose>
         {selectedOption && (
           <ActionsBottomSheet
@@ -624,7 +637,9 @@ export default function MenuProductDetailScreen() {
 
       <ThemedBottomSheetModal ref={editOptionSheetRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
-          <ThemedText type="h3">{t("products.variants.editVariant")}</ThemedText>
+          <ThemedText type="h3">
+            {t("products.variants.editVariant")}
+          </ThemedText>
 
           <TextInput
             bottomSheet
@@ -669,6 +684,6 @@ export default function MenuProductDetailScreen() {
         onConfirm={handleConfirmDeleteOption}
         onCancel={() => setOptionToDelete(null)}
       />
-    </ScreenLayout>
+    </View>
   );
 }
