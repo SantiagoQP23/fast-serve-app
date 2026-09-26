@@ -20,7 +20,7 @@ export interface ButtonProps extends PressableProps {
     | "text"
     | "surface"
     | "destructive";
-  size?: "small" | "medium" | "large";
+  size?: "extra-small" | "small" | "medium" | "large" | "extra-large";
   loading?: boolean;
   disabled?: boolean;
   leftIcon?: keyof typeof Ionicons.glyphMap;
@@ -58,33 +58,43 @@ export default function Button({
   };
 
   const sizeStyles = {
-    small: "px-4 py-2",
-    medium: "px-5 py-3",
-    large: "px-6 py-4",
+    "extra-small": "px-3 py-[6px]",
+    small: "px-4 py-[10px]",
+    medium: "px-6 py-4",
+    large: "px-12 py-8",
+    "extra-large": "px-16 py-12",
   };
 
   const verticalSizeStyles = {
+    "extra-small": "w-12 h-12 p-1",
     small: "w-16 h-16 p-2",
     medium: "w-20 h-20 p-3",
     large: "w-24 h-24 p-4",
+    "extra-large": "w-28 h-28 p-5",
   };
 
   const horizontalIconSizes = {
+    "extra-small": 16,
     small: 18,
     medium: 20,
     large: 24,
+    "extra-large": 28,
   };
 
   const verticalIconSizes = {
+    "extra-small": 16,
     small: 24,
     medium: 32,
     large: 40,
+    "extra-large": 48,
   };
 
-  const verticalTextSizes = {
-    small: "text-xs",
-    medium: "text-sm",
-    large: "text-base",
+  const textSizes = {
+    "extra-small": "text-sm",
+    small: "text-sm",
+    medium: "text-base",
+    large: "text-2xl",
+    "extra-large": "text-[32px]",
   };
 
   const textColors = {
@@ -137,7 +147,7 @@ export default function Button({
           )}
           {label && (
             <Text
-              style={tw`${textColors[variant]}  ${verticalTextSizes[size]} text-center`}
+              style={tw`${textColors[variant]}  ${textSizes[size]} text-center`}
             >
               {label}
             </Text>
@@ -154,7 +164,9 @@ export default function Button({
             />
           )}
           {label && (
-            <ThemedText style={tw`${textColors[variant]} `}>{label}</ThemedText>
+            <ThemedText style={tw`${textColors[variant]} ${textSizes[size]}`}>
+              {label}
+            </ThemedText>
           )}
 
           {rightIcon && (

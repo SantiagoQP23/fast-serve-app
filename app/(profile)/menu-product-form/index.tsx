@@ -520,7 +520,7 @@ export default function MenuProductFormScreen() {
                       label={t("products.variants.addVariant")}
                       onPress={openAddVariant}
                       variant="outline"
-                      size="small"
+                      size="extra-small"
                       leftIcon="add-outline"
                     />
                   </ThemedView>
