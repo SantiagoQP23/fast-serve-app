@@ -37,7 +37,8 @@ export default function MenuProductDetailScreen() {
   const { t } = useTranslation("menuManagement");
   const params = useLocalSearchParams<{ productId: string }>();
   const { products, categories } = useMenu();
-  const { updateProduct, deleteProduct } = useMenuManagement();
+  const { updateProduct, deleteProduct, createProductOption } =
+    useMenuManagement();
   const { getAllQuery: productionAreasQuery } = useProductionAreas();
   const productionAreas = productionAreasQuery.data ?? [];
   const { user } = useAuthStore();
@@ -134,25 +135,13 @@ export default function MenuProductDetailScreen() {
     }
     setNewOptionError("");
 
-    const existingOptions = product.options.map((option) => ({
-      name: option.name,
-      price: option.price,
-      isDefault: newOptionIsDefault ? false : option.isDefault,
-      trackStock: option.trackStock,
-    }));
-
-    updateProduct.mutate(
+    createProductOption.mutate(
       {
-        id: product.id,
-        productOptions: [
-          ...existingOptions,
-          {
-            name: trimmedName,
-            price: parsedPrice,
-            isDefault: newOptionIsDefault,
-            trackStock: false,
-          },
-        ],
+        productId: product.id,
+        name: trimmedName,
+        price: parsedPrice,
+        isDefault: newOptionIsDefault,
+        trackStock: false,
       },
       {
         onSuccess: () => addOptionSheetRef.current?.dismiss(),
@@ -223,36 +212,33 @@ export default function MenuProductDetailScreen() {
       >
         <ThemedView style={tw`gap-1`}>
           <ThemedText type="h1">{product.name}</ThemedText>
-          <ThemedText
-            type="body1"
-            style={[
-              tw`text-light-primary`,
-              { fontFamily: typography.semibold },
-            ]}
-          >
-            {formatCurrency(product.price)}
-          </ThemedText>
+          {/* <ThemedText */}
+          {/*   type="body1" */}
+          {/*   style={[ */}
+          {/*     tw`text-light-primary`, */}
+          {/*     { fontFamily: typography.semibold }, */}
+          {/*   ]} */}
+          {/* > */}
+          {/*   {formatCurrency(product.price)} */}
+          {/* </ThemedText> */}
         </ThemedView>
 
         <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
           <Label
             text={product.isActive ? t("active") : t("inactive")}
             color={product.isActive ? "success" : "default"}
-            size="small"
           />
-          <Label
-            text={
-              product.isPublic
-                ? t("products.visibleToCustomers")
-                : t("products.hiddenFromCustomers")
-            }
-            color={product.isPublic ? "info" : "default"}
-            size="small"
-          />
+          {/* <Label */}
+          {/*   text={ */}
+          {/*     product.isPublic */}
+          {/*       ? t("products.visibleToCustomers") */}
+          {/*       : t("products.hiddenFromCustomers") */}
+          {/*   } */}
+          {/*   color={product.isPublic ? "info" : "default"} */}
+          {/* /> */}
           <Label
             text={product.category?.name ?? t("products.fields.category")}
             leftIcon="grid-outline"
-            size="small"
             onPress={
               canManage ? () => categoryPickerRef.current?.present() : undefined
             }
@@ -263,7 +249,6 @@ export default function MenuProductDetailScreen() {
               t("products.placeholders.productionArea")
             }
             leftIcon="construct-outline"
-            size="small"
             onPress={
               canManage
                 ? () => productionAreaPickerRef.current?.present()
@@ -373,20 +358,20 @@ export default function MenuProductDetailScreen() {
                           )}
                         />
                       )}
-                      <ThemedText
-                        type="small"
-                        style={
-                          option.isDefault
-                            ? tw`text-light-on-secondary/70`
-                            : tw`text-gray-500`
-                        }
-                      >
-                        {option.trackStock
-                          ? t("inventory:stockCount", {
-                              count: option.quantity,
-                            })
-                          : t("inventory:notTracked")}
-                      </ThemedText>
+                      {/* <ThemedText */}
+                      {/*   type="small" */}
+                      {/*   style={ */}
+                      {/*     option.isDefault */}
+                      {/*       ? tw`text-light-on-secondary/70` */}
+                      {/*       : tw`text-gray-500` */}
+                      {/*   } */}
+                      {/* > */}
+                      {/*   {option.trackStock */}
+                      {/*     ? t("inventory:stockCount", { */}
+                      {/*         count: option.quantity, */}
+                      {/*       }) */}
+                      {/*     : t("inventory:notTracked")} */}
+                      {/* </ThemedText> */}
                     </ThemedView>
                   </Pressable>
                 ))}
@@ -488,8 +473,8 @@ export default function MenuProductDetailScreen() {
           <Button
             label={t("products.variants.addVariant")}
             onPress={handleAddOption}
-            loading={updateProduct.isPending}
-            disabled={updateProduct.isPending}
+            loading={createProductOption.isPending}
+            disabled={createProductOption.isPending}
           />
         </BottomSheetView>
       </ThemedBottomSheetModal>

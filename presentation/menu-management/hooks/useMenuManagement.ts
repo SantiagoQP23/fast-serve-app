@@ -8,12 +8,17 @@ import type { Product } from "@/core/menu/models/product.model";
 import { SectionsService } from "../services/sections.service";
 import { CategoriesService } from "../services/categories.service";
 import { ProductsService } from "../services/products.service";
+import {
+  ProductOptionsService,
+  type CreatedProductOption,
+} from "../services/product-options.service";
 import type { CreateSectionDto } from "../interfaces/dto/create-section.dto";
 import type { UpdateSectionDto } from "../interfaces/dto/update-section.dto";
 import type { CreateCategoryDto } from "../interfaces/dto/create-category.dto";
 import type { UpdateCategoryDto } from "../interfaces/dto/update-category.dto";
 import type { CreateProductDto } from "../interfaces/dto/create-product.dto";
 import type { UpdateProductDto } from "../interfaces/dto/update-product.dto";
+import type { CreateProductOptionDto } from "../interfaces/dto/create-product-option.dto";
 
 export const useMenuManagement = () => {
   const { t } = useTranslation("menuManagement");
@@ -24,6 +29,7 @@ export const useMenuManagement = () => {
     removeCategory,
     upsertProduct,
     removeProduct,
+    addProductOption,
   } = useMenuStore();
 
   const createSection = useMutation<Section, Error, CreateSectionDto>({
@@ -125,6 +131,31 @@ export const useMenuManagement = () => {
     },
   });
 
+  const createProductOption = useMutation<
+    CreatedProductOption,
+    Error,
+    CreateProductOptionDto
+  >({
+    mutationFn: (data) => ProductOptionsService.create(data),
+    onSuccess: (option) => {
+      addProductOption(option.productId, {
+        id: option.id,
+        name: option.name,
+        price: option.price,
+        cost: option.cost,
+        isActive: option.isActive,
+        isAvailable: option.isAvailable,
+        isDefault: option.isDefault,
+        trackStock: option.trackStock,
+        quantity: option.quantity,
+      });
+      toast.success(t("products.variants.createSuccess"));
+    },
+    onError: (error) => {
+      toast.error(error.message || t("products.variants.createError"));
+    },
+  });
+
   return {
     createSection,
     updateSection,
@@ -135,5 +166,6 @@ export const useMenuManagement = () => {
     createProduct,
     updateProduct,
     deleteProduct,
+    createProductOption,
   };
 };

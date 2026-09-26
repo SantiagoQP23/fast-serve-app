@@ -1,4 +1,5 @@
 import { Product } from "@/core/menu/models/product.model";
+import { ProductOption } from "@/core/menu/models/product-optionl.model";
 import { Section } from "@/core/menu/models/section.model";
 import { Category } from "@/core/menu/models/category.model";
 import { Menu } from "@/core/menu/models/menu.model";
@@ -29,6 +30,7 @@ interface MenuActions {
   removeCategory: (id: string) => void;
   upsertProduct: (product: Product) => void;
   removeProduct: (id: string) => void;
+  addProductOption: (productId: string, option: ProductOption) => void;
 }
 
 const initialState: MenuState = {
@@ -113,6 +115,25 @@ export const useMenuStore = create<MenuState & MenuActions>()(
       removeProduct: (id: string) =>
         set((state) => ({
           products: state.products.filter((p) => p.id !== id),
+        })),
+
+      addProductOption: (productId: string, option: ProductOption) =>
+        set((state) => ({
+          products: state.products.map((p) =>
+            p.id === productId
+              ? {
+                  ...p,
+                  options: [
+                    ...p.options.map((existing) =>
+                      option.isDefault
+                        ? { ...existing, isDefault: false }
+                        : existing,
+                    ),
+                    option,
+                  ],
+                }
+              : p,
+          ),
         })),
     }),
     {

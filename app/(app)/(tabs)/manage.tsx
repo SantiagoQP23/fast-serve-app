@@ -63,24 +63,26 @@ export default function ManageScreen() {
       label: t("manage.menu.overview"),
       onPress: () => router.push("/(profile)/menu-overview"),
     },
-    {
-      key: "sections",
-      icon: "list-outline",
-      label: t("manage.menu.sections"),
-      onPress: () => router.push("/(profile)/menu-sections"),
-    },
-    {
-      key: "categories",
-      icon: "pricetag-outline",
-      label: t("manage.menu.categories"),
-      onPress: () => router.push("/(profile)/menu-categories"),
-    },
-    {
-      key: "products",
-      icon: "fast-food-outline",
-      label: t("manage.menu.products"),
-      onPress: () => router.push("/(profile)/menu-products"),
-    },
+    // Hidden in favor of the consolidated menu-overview screen — routes are
+    // still registered and reachable, just not linked from here.
+    // {
+    //   key: "sections",
+    //   icon: "list-outline",
+    //   label: t("manage.menu.sections"),
+    //   onPress: () => router.push("/(profile)/menu-sections"),
+    // },
+    // {
+    //   key: "categories",
+    //   icon: "pricetag-outline",
+    //   label: t("manage.menu.categories"),
+    //   onPress: () => router.push("/(profile)/menu-categories"),
+    // },
+    // {
+    //   key: "products",
+    //   icon: "fast-food-outline",
+    //   label: t("manage.menu.products"),
+    //   onPress: () => router.push("/(profile)/menu-products"),
+    // },
     {
       key: "inventory",
       icon: "cube-outline",

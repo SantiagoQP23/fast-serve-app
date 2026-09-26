@@ -149,7 +149,9 @@
       "validations": {
         "nameRequired": "Variant name is required",
         "priceInvalid": "Price must be a positive number"
-      }
+      },
+      "createSuccess": "Variant added successfully",
+      "createError": "Could not add the variant"
     }
   },
   "loading": "Loading...",
