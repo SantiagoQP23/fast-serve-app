@@ -44,6 +44,7 @@ export default function MenuProductDetailScreen() {
     createProductOption,
     updateProductOption,
     deleteProductOption,
+    setDefaultProductOption,
   } = useMenuManagement();
   const { getAllQuery: productionAreasQuery } = useProductionAreas();
   const productionAreas = productionAreasQuery.data ?? [];
@@ -179,10 +180,9 @@ export default function MenuProductDetailScreen() {
   const handleMakeOptionDefault = () => {
     if (!product || !selectedOption) return;
     closeOptionActions();
-    updateProductOption.mutate({
-      id: selectedOption.id,
+    setDefaultProductOption.mutate({
       productId: product.id,
-      isDefault: true,
+      variantId: selectedOption.id,
     });
   };
 

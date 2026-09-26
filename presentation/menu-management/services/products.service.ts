@@ -21,4 +21,15 @@ export class ProductsService {
   static async remove(id: string): Promise<void> {
     await restaurantApi.delete(`/products/${id}`);
   }
+
+  static async setDefaultVariant(
+    productId: string,
+    variantId: number,
+  ): Promise<Product> {
+    const resp = await restaurantApi.patch<Product>(
+      `/products/${productId}/default-variant`,
+      { variantId },
+    );
+    return resp.data;
+  }
 }

@@ -200,6 +200,25 @@ export const useMenuManagement = () => {
     },
   });
 
+  // Dedicated endpoint: clears isDefault on every option, sets it on
+  // variantId, and syncs the product's price to that variant — all in one
+  // atomic call. Returns the full product, so we just replace it in the store.
+  const setDefaultProductOption = useMutation<
+    Product,
+    Error,
+    { productId: string; variantId: number }
+  >({
+    mutationFn: ({ productId, variantId }) =>
+      ProductsService.setDefaultVariant(productId, variantId),
+    onSuccess: (product) => {
+      upsertProduct(product);
+      toast.success(t("products.variants.updateSuccess"));
+    },
+    onError: (error) => {
+      toast.error(error.message || t("products.variants.updateError"));
+    },
+  });
+
   return {
     createSection,
     updateSection,
@@ -213,5 +232,6 @@ export const useMenuManagement = () => {
     createProductOption,
     updateProductOption,
     deleteProductOption,
+    setDefaultProductOption,
   };
 };
