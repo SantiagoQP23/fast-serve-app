@@ -108,7 +108,8 @@
     "deleteTitle": "Eliminar producto",
     "deleteMessage": "¿Estás seguro de que deseas eliminar este producto?",
     "duplicate": "Duplicar",
-    "duplicateComingSoon": "Duplicar productos estará disponible próximamente",
+    "duplicateSuccess": "Producto duplicado exitosamente",
+    "duplicateError": "No se pudo duplicar el producto",
     "fields": {
       "name": "Nombre",
       "description": "Descripción",

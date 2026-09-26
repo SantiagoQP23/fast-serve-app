@@ -22,6 +22,11 @@ export class ProductsService {
     await restaurantApi.delete(`/products/${id}`);
   }
 
+  static async duplicate(id: string): Promise<Product> {
+    const resp = await restaurantApi.post<Product>(`/products/${id}/duplicate`);
+    return resp.data;
+  }
+
   static async setDefaultVariant(
     productId: string,
     variantId: number,

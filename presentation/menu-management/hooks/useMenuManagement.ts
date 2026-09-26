@@ -134,6 +134,17 @@ export const useMenuManagement = () => {
     },
   });
 
+  const duplicateProduct = useMutation<Product, Error, string>({
+    mutationFn: (id) => ProductsService.duplicate(id),
+    onSuccess: (product) => {
+      upsertProduct(product);
+      toast.success(t("products.duplicateSuccess"));
+    },
+    onError: (error) => {
+      toast.error(error.message || t("products.duplicateError"));
+    },
+  });
+
   const createProductOption = useMutation<
     CreatedProductOption,
     Error,
@@ -229,6 +240,7 @@ export const useMenuManagement = () => {
     createProduct,
     updateProduct,
     deleteProduct,
+    duplicateProduct,
     createProductOption,
     updateProductOption,
     deleteProductOption,

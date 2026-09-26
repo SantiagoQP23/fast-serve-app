@@ -2,7 +2,6 @@ import { useRef, useState } from "react";
 import { ScrollView, Pressable, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { toast } from "sonner-native";
 import {
   BottomSheetView,
   type BottomSheetMethods,
@@ -44,6 +43,7 @@ export default function MenuProductDetailScreen() {
     updateProductOption,
     deleteProductOption,
     setDefaultProductOption,
+    duplicateProduct,
   } = useMenuManagement();
   const { getAllQuery: productionAreasQuery } = useProductionAreas();
   const productionAreas = productionAreasQuery.data ?? [];
@@ -113,8 +113,16 @@ export default function MenuProductDetailScreen() {
   };
 
   const handleDuplicateProduct = () => {
+    if (!product) return;
     productActionsSheetRef.current?.dismiss();
-    toast.info(t("products.duplicateComingSoon"));
+    duplicateProduct.mutate(product.id, {
+      onSuccess: (newProduct) => {
+        router.replace({
+          pathname: "/(profile)/menu-product-detail",
+          params: { productId: newProduct.id },
+        });
+      },
+    });
   };
 
   const handleChangeCategory = (value: string | number) => {
