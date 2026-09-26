@@ -125,14 +125,16 @@
       "description": "Qué hace especial a este producto",
       "price": "0.00",
       "category": "Selecciona una categoría",
-      "productionArea": "Selecciona un área de producción (opcional)",
+      "productionArea": "Selecciona un área de producción",
       "quantity": "0"
     },
     "validations": {
       "nameMinLength": "El nombre debe tener al menos 2 caracteres",
       "nameMaxLength": "El nombre debe tener máximo 80 caracteres",
       "priceInvalid": "El precio debe ser un número positivo",
-      "categoryRequired": "La categoría es requerida"
+      "priceMin": "El precio debe ser mayor a 0.25",
+      "categoryRequired": "La categoría es requerida",
+      "productionAreaRequired": "El área de producción es requerida"
     },
     "variants": {
       "title": "Variantes",

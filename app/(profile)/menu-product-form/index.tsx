@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -20,13 +20,10 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Checkbox from "@/presentation/theme/components/checkbox";
-import Chip from "@/presentation/theme/components/chip";
 import Card from "@/presentation/theme/components/card";
 import IconButton from "@/presentation/theme/components/icon-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
-import BottomSheetPicker, {
-  type BottomSheetPickerRef,
-} from "@/presentation/theme/components/bottom-sheet-picker";
+import Select from "@/presentation/theme/components/select";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import type { ProductOption } from "@/core/menu/models/product-optionl.model";
@@ -35,36 +32,50 @@ const isValidNumber = (v: string) =>
   v === "" || (!Number.isNaN(Number(v)) && Number(v) >= 0);
 
 const buildProductSchema = (t: (key: string) => string) =>
-  z.object({
-    name: z
-      .string()
-      .min(2, t("products.validations.nameMinLength"))
-      .max(80, t("products.validations.nameMaxLength")),
-    description: z.string().optional(),
-    price: z
-      .string()
-      .refine(
-        (v) => !Number.isNaN(Number(v)) && Number(v) >= 0,
-        t("products.validations.priceInvalid"),
+  z
+    .object({
+      name: z
+        .string()
+        .min(2, t("products.validations.nameMinLength"))
+        .max(80, t("products.validations.nameMaxLength")),
+      description: z.string().optional(),
+      price: z
+        .string()
+        .refine(
+          (v) => !Number.isNaN(Number(v)) && Number(v) >= 0,
+          t("products.validations.priceInvalid"),
+        ),
+      categoryId: z
+        .string()
+        .min(1, t("products.validations.categoryRequired")),
+      productionAreaId: z
+        .string()
+        .min(1, t("products.validations.productionAreaRequired")),
+      isPublic: z.boolean(),
+      options: z.array(
+        z.object({
+          name: z
+            .string()
+            .min(1, t("products.variants.validations.nameRequired")),
+          price: z
+            .string()
+            .refine(
+              isValidNumber,
+              t("products.variants.validations.priceInvalid"),
+            ),
+          isDefault: z.boolean(),
+        }),
       ),
-    categoryId: z.string().min(1, t("products.validations.categoryRequired")),
-    productionAreaId: z.string().optional(),
-    isPublic: z.boolean(),
-    options: z.array(
-      z.object({
-        name: z
-          .string()
-          .min(1, t("products.variants.validations.nameRequired")),
-        price: z
-          .string()
-          .refine(
-            isValidNumber,
-            t("products.variants.validations.priceInvalid"),
-          ),
-        isDefault: z.boolean(),
-      }),
-    ),
-  });
+    })
+    .superRefine((data, ctx) => {
+      if (data.options.length === 0 && Number(data.price) < 0.25) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["price"],
+          message: t("products.validations.priceMin"),
+        });
+      }
+    });
 
 type ProductFormData = z.infer<ReturnType<typeof buildProductSchema>>;
 
@@ -95,8 +106,6 @@ export default function MenuProductFormScreen() {
   const productionAreas = productionAreasQuery.data ?? [];
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const categoryPickerRef = useRef<BottomSheetPickerRef>(null);
-  const productionAreaPickerRef = useRef<BottomSheetPickerRef>(null);
 
   const schema = buildProductSchema(t);
 
@@ -119,7 +128,6 @@ export default function MenuProductFormScreen() {
     control,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormData>({
     resolver: zodResolver(schema),
@@ -146,23 +154,23 @@ export default function MenuProductFormScreen() {
   };
 
   const onSubmit = async (data: ProductFormData) => {
+    const hasVariants = data.options.length > 0;
+
     const payload = {
       name: data.name.trim(),
       description: data.description?.trim() || undefined,
       price: Number(data.price),
       categoryId: data.categoryId,
-      productionAreaId: data.productionAreaId
-        ? Number(data.productionAreaId)
-        : undefined,
-      productOptions:
-        data.options.length > 0
-          ? data.options.map((opt) => ({
-              name: opt.name.trim(),
-              price: Number(opt.price) || 0,
-              isDefault: opt.isDefault,
-              trackStock: false,
-            }))
-          : undefined,
+      productionAreaId: Number(data.productionAreaId),
+      hasVariants,
+      trackStock: hasVariants ? undefined : false,
+      quantity: hasVariants ? undefined : 0,
+      productOptions: data.options.map((opt) => ({
+        name: opt.name.trim(),
+        price: Number(opt.price) || 0,
+        isDefault: opt.isDefault,
+        trackStock: false,
+      })),
     };
 
     if (isEditing) {
@@ -194,9 +202,6 @@ export default function MenuProductFormScreen() {
     label: area.name,
     value: String(area.id),
   }));
-
-  const categoryIdValue = watch("categoryId");
-  const productionAreaIdValue = watch("productionAreaId");
 
   return (
     <KeyboardAvoidingView
@@ -320,46 +325,19 @@ export default function MenuProductFormScreen() {
                   <Controller
                     control={control}
                     name="categoryId"
-                    render={({ field: { value } }) => {
-                      const selectedCategory = categories.find(
-                        (category) => category.id === value,
-                      );
-                      return (
-                        <ThemedView style={tw`gap-2`}>
-                          <ThemedText style={tw`ml-2`}>
-                            {t("products.fields.category")}
-                          </ThemedText>
-                          <ThemedView style={tw`flex-row`}>
-                            <Chip
-                              label={
-                                selectedCategory?.name ??
-                                t("products.placeholders.category")
-                              }
-                              selected={!!selectedCategory}
-                              rightContent={
-                                <Ionicons
-                                  name="chevron-down"
-                                  size={16}
-                                  color={
-                                    selectedCategory ? "white" : "#4b5563"
-                                  }
-                                />
-                              }
-                              onPress={() =>
-                                categoryPickerRef.current?.present()
-                              }
-                            />
-                          </ThemedView>
-                        </ThemedView>
-                      );
-                    }}
+                    render={({ field: { value, onChange } }) => (
+                      <Select
+                        label={t("products.fields.category")}
+                        options={categoryOptions}
+                        value={value}
+                        onChange={(v) => onChange(String(v))}
+                        placeholder={t("products.placeholders.category")}
+                      />
+                    )}
                   />
                 )}
                 {errors.categoryId && (
-                  <ThemedText
-                    type="small"
-                    style={tw`text-red-500 -mt-2 ml-2`}
-                  >
+                  <ThemedText type="small" style={tw`text-red-500 -mt-2 ml-2`}>
                     {errors.categoryId.message}
                   </ThemedText>
                 )}
@@ -367,38 +345,21 @@ export default function MenuProductFormScreen() {
                 <Controller
                   control={control}
                   name="productionAreaId"
-                  render={({ field: { value } }) => {
-                    const selectedArea = productionAreas.find(
-                      (area) => String(area.id) === value,
-                    );
-                    return (
-                      <ThemedView style={tw`gap-2`}>
-                        <ThemedText style={tw`ml-2`}>
-                          {t("products.fields.productionArea")}
-                        </ThemedText>
-                        <ThemedView style={tw`flex-row`}>
-                          <Chip
-                            label={
-                              selectedArea?.name ??
-                              t("products.placeholders.productionArea")
-                            }
-                            selected={!!selectedArea}
-                            rightContent={
-                              <Ionicons
-                                name="chevron-down"
-                                size={16}
-                                color={selectedArea ? "white" : "#4b5563"}
-                              />
-                            }
-                            onPress={() =>
-                              productionAreaPickerRef.current?.present()
-                            }
-                          />
-                        </ThemedView>
-                      </ThemedView>
-                    );
-                  }}
+                  render={({ field: { value, onChange } }) => (
+                    <Select
+                      label={t("products.fields.productionArea")}
+                      options={productionAreaOptions}
+                      value={value}
+                      onChange={(v) => onChange(String(v))}
+                      placeholder={t("products.placeholders.productionArea")}
+                    />
+                  )}
                 />
+                {errors.productionAreaId && (
+                  <ThemedText type="small" style={tw`text-red-500 -mt-2 ml-2`}>
+                    {errors.productionAreaId.message}
+                  </ThemedText>
+                )}
               </>
             )}
           </ThemedView>
@@ -424,7 +385,7 @@ export default function MenuProductFormScreen() {
 
                 {fields.length === 0 ? (
                   <ThemedView
-                    style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+                    style={tw`items-center py-6 gap-2  dark:bg-gray-800 rounded-3xl px-4`}
                   >
                     <Ionicons
                       name="options-outline"
@@ -446,10 +407,7 @@ export default function MenuProductFormScreen() {
                           <ThemedView
                             style={tw`flex-row items-center justify-between`}
                           >
-                            <ThemedText
-                              type="body1"
-                              style={tw`font-semibold`}
-                            >
+                            <ThemedText type="body1" style={tw`font-semibold`}>
                               {t("products.variants.variantNumber", {
                                 number: index + 1,
                               })}
@@ -496,9 +454,7 @@ export default function MenuProductFormScreen() {
                                 value={value}
                                 onChangeText={onChange}
                                 keyboardType="decimal-pad"
-                                error={
-                                  errors.options?.[index]?.price?.message
-                                }
+                                error={errors.options?.[index]?.price?.message}
                               />
                             )}
                           />
@@ -508,9 +464,7 @@ export default function MenuProductFormScreen() {
                             name={`options.${index}.isDefault`}
                             render={({ field: { value } }) => (
                               <Checkbox
-                                label={t(
-                                  "products.variants.fields.isDefault",
-                                )}
+                                label={t("products.variants.fields.isDefault")}
                                 value={value}
                                 onValueChange={() =>
                                   handleSetDefaultOption(index)
@@ -538,24 +492,6 @@ export default function MenuProductFormScreen() {
         cancelLabel={t("cancel")}
         onConfirm={handleConfirmDelete}
         onCancel={() => setShowDeleteConfirm(false)}
-      />
-
-      <BottomSheetPicker
-        ref={categoryPickerRef}
-        title={t("products.fields.category")}
-        options={categoryOptions}
-        value={categoryIdValue}
-        onChange={(value) =>
-          setValue("categoryId", String(value), { shouldValidate: true })
-        }
-      />
-
-      <BottomSheetPicker
-        ref={productionAreaPickerRef}
-        title={t("products.fields.productionArea")}
-        options={productionAreaOptions}
-        value={productionAreaIdValue}
-        onChange={(value) => setValue("productionAreaId", String(value))}
       />
     </KeyboardAvoidingView>
   );
