@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -20,10 +20,13 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Checkbox from "@/presentation/theme/components/checkbox";
-import Select from "@/presentation/theme/components/select";
+import Chip from "@/presentation/theme/components/chip";
 import Card from "@/presentation/theme/components/card";
 import IconButton from "@/presentation/theme/components/icon-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
+import BottomSheetPicker, {
+  type BottomSheetPickerRef,
+} from "@/presentation/theme/components/bottom-sheet-picker";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import type { ProductOption } from "@/core/menu/models/product-optionl.model";
@@ -92,6 +95,8 @@ export default function MenuProductFormScreen() {
   const productionAreas = productionAreasQuery.data ?? [];
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const categoryPickerRef = useRef<BottomSheetPickerRef>(null);
+  const productionAreaPickerRef = useRef<BottomSheetPickerRef>(null);
 
   const schema = buildProductSchema(t);
 
@@ -114,6 +119,7 @@ export default function MenuProductFormScreen() {
     control,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormData>({
     resolver: zodResolver(schema),
@@ -189,6 +195,9 @@ export default function MenuProductFormScreen() {
     value: String(area.id),
   }));
 
+  const categoryIdValue = watch("categoryId");
+  const productionAreaIdValue = watch("productionAreaId");
+
   return (
     <KeyboardAvoidingView
       style={tw`flex-1`}
@@ -226,7 +235,7 @@ export default function MenuProductFormScreen() {
                 isSubmitting ||
                 createProduct.isPending ||
                 updateProduct.isPending ||
-                categories.length === 0
+                (!isEditing && categories.length === 0)
               }
             />
           </ThemedView>
@@ -269,177 +278,255 @@ export default function MenuProductFormScreen() {
               )}
             />
 
-            <Controller
-              control={control}
-              name="price"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label={t("products.fields.price")}
-                  icon="pricetag-outline"
-                  placeholder={t("products.placeholders.price")}
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onChange}
-                  keyboardType="decimal-pad"
-                  error={errors.price?.message}
+            {!isEditing && (
+              <>
+                <Controller
+                  control={control}
+                  name="price"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      label={t("products.fields.price")}
+                      icon="pricetag-outline"
+                      placeholder={t("products.placeholders.price")}
+                      onBlur={onBlur}
+                      value={value}
+                      onChangeText={onChange}
+                      keyboardType="decimal-pad"
+                      error={errors.price?.message}
+                    />
+                  )}
                 />
-              )}
-            />
 
-            {categories.length === 0 ? (
-              <ThemedView
-                style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
-              >
-                <Ionicons
-                  name="pricetag-outline"
-                  size={32}
-                  color={tw.color("gray-400")}
-                />
-                <ThemedText type="body2" style={tw`font-semibold`}>
-                  {t("products.noCategoriesAvailable")}
-                </ThemedText>
-                <ThemedText type="small" style={tw`text-center text-gray-500`}>
-                  {t("products.noCategoriesAvailableDescription")}
-                </ThemedText>
-              </ThemedView>
-            ) : (
-              <Controller
-                control={control}
-                name="categoryId"
-                render={({ field: { value, onChange } }) => (
-                  <Select
-                    label={t("products.fields.category")}
-                    options={categoryOptions}
-                    value={value}
-                    onChange={(v) => onChange(String(v))}
-                    placeholder={t("products.placeholders.category")}
+                {categories.length === 0 ? (
+                  <ThemedView
+                    style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+                  >
+                    <Ionicons
+                      name="pricetag-outline"
+                      size={32}
+                      color={tw.color("gray-400")}
+                    />
+                    <ThemedText type="body2" style={tw`font-semibold`}>
+                      {t("products.noCategoriesAvailable")}
+                    </ThemedText>
+                    <ThemedText
+                      type="small"
+                      style={tw`text-center text-gray-500`}
+                    >
+                      {t("products.noCategoriesAvailableDescription")}
+                    </ThemedText>
+                  </ThemedView>
+                ) : (
+                  <Controller
+                    control={control}
+                    name="categoryId"
+                    render={({ field: { value } }) => {
+                      const selectedCategory = categories.find(
+                        (category) => category.id === value,
+                      );
+                      return (
+                        <ThemedView style={tw`gap-2`}>
+                          <ThemedText style={tw`ml-2`}>
+                            {t("products.fields.category")}
+                          </ThemedText>
+                          <ThemedView style={tw`flex-row`}>
+                            <Chip
+                              label={
+                                selectedCategory?.name ??
+                                t("products.placeholders.category")
+                              }
+                              selected={!!selectedCategory}
+                              rightContent={
+                                <Ionicons
+                                  name="chevron-down"
+                                  size={16}
+                                  color={
+                                    selectedCategory ? "white" : "#4b5563"
+                                  }
+                                />
+                              }
+                              onPress={() =>
+                                categoryPickerRef.current?.present()
+                              }
+                            />
+                          </ThemedView>
+                        </ThemedView>
+                      );
+                    }}
                   />
                 )}
-              />
-            )}
-            {errors.categoryId && (
-              <ThemedText type="small" style={tw`text-red-500 -mt-2 ml-2`}>
-                {errors.categoryId.message}
-              </ThemedText>
-            )}
+                {errors.categoryId && (
+                  <ThemedText
+                    type="small"
+                    style={tw`text-red-500 -mt-2 ml-2`}
+                  >
+                    {errors.categoryId.message}
+                  </ThemedText>
+                )}
 
-            <Controller
-              control={control}
-              name="productionAreaId"
-              render={({ field: { value, onChange } }) => (
-                <Select
-                  label={t("products.fields.productionArea")}
-                  options={productionAreaOptions}
-                  value={value}
-                  onChange={(v) => onChange(String(v))}
-                  placeholder={t("products.placeholders.productionArea")}
-                />
-              )}
-            />
-          </ThemedView>
-
-          <ThemedView style={tw`my-8`} />
-
-          {/* Variants */}
-          <ThemedView style={tw`gap-4`}>
-            <ThemedView style={tw`flex-row items-center justify-between`}>
-              <ThemedText type="h4">{t("products.variants.title")}</ThemedText>
-              <Button
-                label={t("products.variants.addVariant")}
-                onPress={() => append(buildDefaultOption())}
-                variant="outline"
-                size="small"
-                leftIcon="add-outline"
-              />
-            </ThemedView>
-
-            {fields.length === 0 ? (
-              <ThemedView
-                style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
-              >
-                <Ionicons
-                  name="options-outline"
-                  size={32}
-                  color={tw.color("gray-400")}
-                />
-                <ThemedText type="body2" style={tw`text-center text-gray-500`}>
-                  {t("products.variants.empty")}
-                </ThemedText>
-              </ThemedView>
-            ) : (
-              <ThemedView style={tw`gap-3`}>
-                {fields.map((field, index) => (
-                  <Card key={field.id}>
-                    <ThemedView style={tw`gap-4`}>
-                      <ThemedView
-                        style={tw`flex-row items-center justify-between`}
-                      >
-                        <ThemedText type="body1" style={tw`font-semibold`}>
-                          {t("products.variants.variantNumber", {
-                            number: index + 1,
-                          })}
+                <Controller
+                  control={control}
+                  name="productionAreaId"
+                  render={({ field: { value } }) => {
+                    const selectedArea = productionAreas.find(
+                      (area) => String(area.id) === value,
+                    );
+                    return (
+                      <ThemedView style={tw`gap-2`}>
+                        <ThemedText style={tw`ml-2`}>
+                          {t("products.fields.productionArea")}
                         </ThemedText>
-                        <IconButton
-                          icon="trash-outline"
-                          size={18}
-                          variant="destructive"
-                          onPress={() => remove(index)}
-                        />
+                        <ThemedView style={tw`flex-row`}>
+                          <Chip
+                            label={
+                              selectedArea?.name ??
+                              t("products.placeholders.productionArea")
+                            }
+                            selected={!!selectedArea}
+                            rightContent={
+                              <Ionicons
+                                name="chevron-down"
+                                size={16}
+                                color={selectedArea ? "white" : "#4b5563"}
+                              />
+                            }
+                            onPress={() =>
+                              productionAreaPickerRef.current?.present()
+                            }
+                          />
+                        </ThemedView>
                       </ThemedView>
-
-                      <Controller
-                        control={control}
-                        name={`options.${index}.name`}
-                        render={({ field: { onChange, onBlur, value } }) => (
-                          <TextInput
-                            label={t("products.variants.fields.name")}
-                            placeholder={t(
-                              "products.variants.placeholders.name",
-                            )}
-                            onBlur={onBlur}
-                            value={value}
-                            onChangeText={onChange}
-                            error={errors.options?.[index]?.name?.message}
-                          />
-                        )}
-                      />
-
-                      <Controller
-                        control={control}
-                        name={`options.${index}.price`}
-                        render={({ field: { onChange, onBlur, value } }) => (
-                          <TextInput
-                            label={t("products.variants.fields.price")}
-                            placeholder={t(
-                              "products.variants.placeholders.price",
-                            )}
-                            onBlur={onBlur}
-                            value={value}
-                            onChangeText={onChange}
-                            keyboardType="decimal-pad"
-                            error={errors.options?.[index]?.price?.message}
-                          />
-                        )}
-                      />
-
-                      <Controller
-                        control={control}
-                        name={`options.${index}.isDefault`}
-                        render={({ field: { value } }) => (
-                          <Checkbox
-                            label={t("products.variants.fields.isDefault")}
-                            value={value}
-                            onValueChange={() => handleSetDefaultOption(index)}
-                            size="small"
-                          />
-                        )}
-                      />
-                    </ThemedView>
-                  </Card>
-                ))}
-              </ThemedView>
+                    );
+                  }}
+                />
+              </>
             )}
           </ThemedView>
+
+          {!isEditing && (
+            <>
+              <ThemedView style={tw`my-8`} />
+
+              {/* Variants */}
+              <ThemedView style={tw`gap-4`}>
+                <ThemedView style={tw`flex-row items-center justify-between`}>
+                  <ThemedText type="h4">
+                    {t("products.variants.title")}
+                  </ThemedText>
+                  <Button
+                    label={t("products.variants.addVariant")}
+                    onPress={() => append(buildDefaultOption())}
+                    variant="outline"
+                    size="small"
+                    leftIcon="add-outline"
+                  />
+                </ThemedView>
+
+                {fields.length === 0 ? (
+                  <ThemedView
+                    style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+                  >
+                    <Ionicons
+                      name="options-outline"
+                      size={32}
+                      color={tw.color("gray-400")}
+                    />
+                    <ThemedText
+                      type="body2"
+                      style={tw`text-center text-gray-500`}
+                    >
+                      {t("products.variants.empty")}
+                    </ThemedText>
+                  </ThemedView>
+                ) : (
+                  <ThemedView style={tw`gap-3`}>
+                    {fields.map((field, index) => (
+                      <Card key={field.id}>
+                        <ThemedView style={tw`gap-4`}>
+                          <ThemedView
+                            style={tw`flex-row items-center justify-between`}
+                          >
+                            <ThemedText
+                              type="body1"
+                              style={tw`font-semibold`}
+                            >
+                              {t("products.variants.variantNumber", {
+                                number: index + 1,
+                              })}
+                            </ThemedText>
+                            <IconButton
+                              icon="trash-outline"
+                              size={18}
+                              variant="destructive"
+                              onPress={() => remove(index)}
+                            />
+                          </ThemedView>
+
+                          <Controller
+                            control={control}
+                            name={`options.${index}.name`}
+                            render={({
+                              field: { onChange, onBlur, value },
+                            }) => (
+                              <TextInput
+                                label={t("products.variants.fields.name")}
+                                placeholder={t(
+                                  "products.variants.placeholders.name",
+                                )}
+                                onBlur={onBlur}
+                                value={value}
+                                onChangeText={onChange}
+                                error={errors.options?.[index]?.name?.message}
+                              />
+                            )}
+                          />
+
+                          <Controller
+                            control={control}
+                            name={`options.${index}.price`}
+                            render={({
+                              field: { onChange, onBlur, value },
+                            }) => (
+                              <TextInput
+                                label={t("products.variants.fields.price")}
+                                placeholder={t(
+                                  "products.variants.placeholders.price",
+                                )}
+                                onBlur={onBlur}
+                                value={value}
+                                onChangeText={onChange}
+                                keyboardType="decimal-pad"
+                                error={
+                                  errors.options?.[index]?.price?.message
+                                }
+                              />
+                            )}
+                          />
+
+                          <Controller
+                            control={control}
+                            name={`options.${index}.isDefault`}
+                            render={({ field: { value } }) => (
+                              <Checkbox
+                                label={t(
+                                  "products.variants.fields.isDefault",
+                                )}
+                                value={value}
+                                onValueChange={() =>
+                                  handleSetDefaultOption(index)
+                                }
+                                size="small"
+                              />
+                            )}
+                          />
+                        </ThemedView>
+                      </Card>
+                    ))}
+                  </ThemedView>
+                )}
+              </ThemedView>
+            </>
+          )}
         </ScrollView>
       </ScreenLayout>
 
@@ -451,6 +538,24 @@ export default function MenuProductFormScreen() {
         cancelLabel={t("cancel")}
         onConfirm={handleConfirmDelete}
         onCancel={() => setShowDeleteConfirm(false)}
+      />
+
+      <BottomSheetPicker
+        ref={categoryPickerRef}
+        title={t("products.fields.category")}
+        options={categoryOptions}
+        value={categoryIdValue}
+        onChange={(value) =>
+          setValue("categoryId", String(value), { shouldValidate: true })
+        }
+      />
+
+      <BottomSheetPicker
+        ref={productionAreaPickerRef}
+        title={t("products.fields.productionArea")}
+        options={productionAreaOptions}
+        value={productionAreaIdValue}
+        onChange={(value) => setValue("productionAreaId", String(value))}
       />
     </KeyboardAvoidingView>
   );
