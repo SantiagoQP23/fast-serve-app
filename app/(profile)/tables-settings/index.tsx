@@ -17,8 +17,10 @@ import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
-import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
+import Label from "@/presentation/theme/components/label";
 import type { Table } from "@/core/tables/models/table.model";
+import IconButton from "@/presentation/theme/components/icon-button";
+import { typography } from "@/constants/theme";
 
 export default function TablesSettingsScreen() {
   const { t } = useTranslation("tables");
@@ -173,39 +175,70 @@ export default function TablesSettingsScreen() {
 
       <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
         {selectedTable && (
-          <ActionsBottomSheet
-            title={t("settings.tableName", { name: selectedTable.name })}
-            items={[
-              {
-                icon: "create-outline",
-                label: t("settings.edit"),
-                onPress: () => {
-                  handleCloseTableActions();
-                  handleEditTable(selectedTable);
-                },
-              },
-              {
-                icon:
+          <ThemedView style={tw`px-4 py-4 gap-6`}>
+            <ThemedView style={tw`flex-row justify-between items-start gap-3`}>
+              <ThemedView style={tw`flex-1 gap-2`}>
+                <ThemedText type="h2" style={{ fontFamily: typography.medium }}>
+                  {t("settings.tableName", { name: selectedTable.name })}
+                </ThemedText>
+                <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
+                  <ThemedView style={tw`flex-row items-center gap-1`}>
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {t("settings.chairsCount", {
+                        count: selectedTable.chairs ?? 0,
+                      })}
+                    </ThemedText>
+                  </ThemedView>
+                  {/* <Label */}
+                  {/*   text={ */}
+                  {/*     selectedTable.isActive !== false */}
+                  {/*       ? t("settings.active") */}
+                  {/*       : t("settings.inactive") */}
+                  {/*   } */}
+                  {/*   color={ */}
+                  {/*     selectedTable.isActive !== false ? "success" : "default" */}
+                  {/*   } */}
+                  {/*   size="small" */}
+                  {/* /> */}
+                </ThemedView>
+                {!!selectedTable.description && (
+                  <ThemedText type="body2" style={tw`text-gray-500`}>
+                    {selectedTable.description}
+                  </ThemedText>
+                )}
+              </ThemedView>
+              <IconButton
+                icon={
                   selectedTable.isActive !== false
-                    ? "eye-off-outline"
-                    : "eye-outline",
-                label:
-                  selectedTable.isActive !== false
-                    ? t("settings.deactivate")
-                    : t("settings.activate"),
-                onPress: handleToggleActive,
-              },
-              {
-                icon: "trash-outline",
-                label: t("settings.delete"),
-                color: "text-red-500",
-                onPress: () => {
+                    ? "eye-outline"
+                    : "eye-off-outline"
+                }
+                variant="secondary"
+                onPress={handleToggleActive}
+              />
+            </ThemedView>
+            <ThemedView style={tw`flex-row gap-4 items-center`}>
+              <Button
+                label={t("settings.delete")}
+                leftIcon="trash"
+                variant="destructive"
+                onPress={() => {
                   handleCloseTableActions();
                   setTableToDelete(selectedTable);
-                },
-              },
-            ]}
-          />
+                }}
+              />
+              <Button
+                label={t("settings.edit")}
+                leftIcon="create"
+                variant="secondary"
+                style={tw`flex-1`}
+                onPress={() => {
+                  handleCloseTableActions();
+                  handleEditTable(selectedTable);
+                }}
+              />
+            </ThemedView>
+          </ThemedView>
         )}
       </ThemedBottomSheetModal>
 

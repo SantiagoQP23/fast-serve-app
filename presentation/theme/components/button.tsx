@@ -54,7 +54,7 @@ export default function Button({
     surface: "bg-light-surface",
     outline: "border border-light-border bg-transparent",
     text: "bg-transparent",
-    destructive: "bg-red-50",
+    destructive: "bg-red-100",
   };
 
   const sizeStyles = {
@@ -112,7 +112,7 @@ export default function Button({
     outline: Colors.light.onSurfaceVariant,
     text: Colors.light.primary,
     surface: Colors.light.onSurfaceVariant,
-    destructive: tw.color("red-600"),
+    destructive: tw.color("red-900"),
   };
 
   const currentIconSize = isVertical
