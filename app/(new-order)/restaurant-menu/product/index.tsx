@@ -92,6 +92,7 @@ export default function ProductScreen() {
   const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
   const editOrderId = useEditOrderCartStore((state) => state.orderId);
   const addEditItem = useEditOrderCartStore((state) => state.addNewItem);
+  const updateEditItem = useEditOrderCartStore((state) => state.updateNewItem);
   const isEditMode = !!order && editOrderId === order.id;
   const {
     isLoading,
@@ -192,15 +193,27 @@ export default function ProductScreen() {
 
   const onAddProduct = () => {
     if (isEditMode) {
-      addEditItem({
-        quantity: counter,
-        product: activeProduct!,
-        description: notes,
-        price: effectivePrice,
-        tagIds: selectedTagIds,
-        productOption: selectedOption!,
-        typeOrderDetail: typeOrderDetail || order!.type,
-      });
+      if (activeOrderDetail?.id) {
+        updateEditItem(activeOrderDetail.id, {
+          quantity: counter,
+          product: activeProduct!,
+          description: notes,
+          price: effectivePrice,
+          tagIds: selectedTagIds,
+          productOption: selectedOption!,
+          typeOrderDetail: typeOrderDetail || order!.type,
+        });
+      } else {
+        addEditItem({
+          quantity: counter,
+          product: activeProduct!,
+          description: notes,
+          price: effectivePrice,
+          tagIds: selectedTagIds,
+          productOption: selectedOption!,
+          typeOrderDetail: typeOrderDetail || order!.type,
+        });
+      }
     } else if (order) {
       addProductToOrder();
     } else {

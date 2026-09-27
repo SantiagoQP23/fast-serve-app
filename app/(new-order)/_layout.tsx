@@ -1,6 +1,7 @@
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import IconButton from "@/presentation/theme/components/icon-button";
 import NotificationBadge from "@/presentation/theme/components/notification-badge";
@@ -22,6 +23,8 @@ export default function NewOrderLayout() {
   const cartType = useNewOrderStore((state) => state.cartType);
   const order = useOrdersStore((state) => state.activeOrder);
   const { details } = useNewOrderStore();
+  const editOrderId = useEditOrderCartStore((state) => state.orderId);
+  const isEditMode = !!editOrderId && editOrderId === order?.id;
 
   const closeBottomSheet = () => {
     bottomSheetModalRef.current?.close(); // Close sheet before navigating
@@ -88,7 +91,7 @@ export default function NewOrderLayout() {
             title: "",
             headerShadowVisible: false,
             headerRight: () =>
-              cartType === "order" && (
+              cartType === "order" && !isEditMode && (
                 <IconButton
                   icon="create-outline"
                   onPress={handlePresentModalPress}

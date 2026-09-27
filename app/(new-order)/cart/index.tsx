@@ -210,17 +210,20 @@ export default function CartScreen() {
             }
           />
 
-          <ThemedView style={tw`gap-4 pb-2`}>
+          <ThemedView
+            style={tw`gap-4 pb-2 flex-row justify-between items-center`}
+          >
+            <Button
+              label={t("common:actions.cancel")}
+              variant="text"
+              onPress={onCancelEdit}
+            />
             <Button
               label={t("orders:editCart.addProducts")}
               onPress={onAddProductsToOrder}
               disabled={!isOnline || isAddingDetails || newItems.length === 0}
               loading={isAddingDetails}
-            />
-            <Button
-              label={t("common:actions.cancel")}
-              variant="outline"
-              onPress={onCancelEdit}
+              style={tw`flex-1`}
             />
           </ThemedView>
         </ScreenLayout>
