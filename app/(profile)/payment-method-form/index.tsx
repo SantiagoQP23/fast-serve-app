@@ -105,18 +105,59 @@ export default function PaymentMethodFormScreen() {
     ? params.allowedDestinationAccountIds.split(",").filter(Boolean)
     : [];
 
+  const selectableCategories = [
+    PaymentMethodCategory.CASH,
+    PaymentMethodCategory.CARD,
+    PaymentMethodCategory.TRANSFER,
+  ];
+
+  const currentMethod = paymentMethods.find(
+    (method) => String(method.id) === params.methodId,
+  );
+
+  // Multiple CARD payment methods are allowed (e.g. different processors),
+  // so CARD never counts as "already configured".
+  const usedCategories = new Set(
+    paymentMethods
+      .filter((method) => method.id !== currentMethod?.id)
+      .filter((method) => method.type !== PaymentMethodCategory.CARD)
+      .map((method) => method.type),
+  );
+
+  const categoryOptions = (
+    currentMethod && !selectableCategories.includes(currentMethod.type)
+      ? [...selectableCategories, currentMethod.type]
+      : selectableCategories
+  )
+    .filter(
+      (value) => !usedCategories.has(value) || value === currentMethod?.type,
+    )
+    .map((value) => ({
+      label: t(getPaymentMethodTranslationKey(value)),
+      value,
+    }));
+
+  const noCategoriesAvailable = !isEditing && categoryOptions.length === 0;
+
+  const initialType =
+    (params.type as PaymentMethodCategory) ||
+    categoryOptions[0]?.value ||
+    PaymentMethodCategory.CASH;
+
   const {
     control,
     handleSubmit,
     watch,
     setValue,
     trigger,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, dirtyFields },
   } = useForm<PaymentMethodFormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: params.name || "",
-      type: (params.type as PaymentMethodCategory) || PaymentMethodCategory.CASH,
+      name:
+        params.name ||
+        (!isEditing ? t(getPaymentMethodTranslationKey(initialType)) : ""),
+      type: initialType,
       commissionPercentage: params.commissionPercentage || "0",
       allowedDestinationAccountIds: initialAllowedIds,
       defaultDestinationAccountId: params.defaultDestinationAccountId || "",
@@ -129,12 +170,50 @@ export default function PaymentMethodFormScreen() {
   const typeValue = watch("type");
   const isCardType = typeValue === PaymentMethodCategory.CARD;
 
+  // Cash payment methods draw from cash accounts; every other category
+  // (card, transfer) draws from bank accounts.
+  const requiredAccountType =
+    typeValue === PaymentMethodCategory.CASH
+      ? AccountType.CASH
+      : AccountType.BANK;
+
+  const eligibleAccounts = accounts.filter(
+    (account) => account.type === requiredAccountType,
+  );
+
   // Auto-clear the default account if it's no longer in the allowed list
   useEffect(() => {
     if (defaultId && !allowedIds.includes(defaultId)) {
       setValue("defaultDestinationAccountId", "");
     }
   }, [allowedIds, defaultId, setValue]);
+
+  // Default the name to the selected category, as long as the user hasn't
+  // typed a custom name of their own.
+  const previousTypeRef = useRef(typeValue);
+  useEffect(() => {
+    if (typeValue === previousTypeRef.current) return;
+    previousTypeRef.current = typeValue;
+    if (!dirtyFields.name) {
+      setValue("name", t(getPaymentMethodTranslationKey(typeValue)));
+    }
+  }, [typeValue, dirtyFields.name, setValue, t]);
+
+  // Drop any selected accounts that no longer match the category's
+  // required account type.
+  const previousAccountTypeRef = useRef(requiredAccountType);
+  useEffect(() => {
+    if (requiredAccountType === previousAccountTypeRef.current) return;
+    previousAccountTypeRef.current = requiredAccountType;
+    const eligibleIds = new Set(
+      eligibleAccounts.map((account) => String(account.id)),
+    );
+    const filteredIds = allowedIds.filter((id) => eligibleIds.has(id));
+    if (filteredIds.length !== allowedIds.length) {
+      setValue("allowedDestinationAccountIds", filteredIds);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requiredAccountType]);
 
   const animateLayout = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -200,7 +279,7 @@ export default function PaymentMethodFormScreen() {
 
   const openAddAccountSheet = () => {
     setNewAccountName("");
-    setNewAccountType(AccountType.CASH);
+    setNewAccountType(requiredAccountType);
     setNewAccountDescription("");
     setNewAccountNum("");
     setNewAccountError("");
@@ -234,46 +313,14 @@ export default function PaymentMethodFormScreen() {
     closeAddAccountSheet();
   };
 
-  const selectableCategories = [
-    PaymentMethodCategory.CASH,
-    PaymentMethodCategory.CARD,
-    PaymentMethodCategory.TRANSFER,
-  ];
-
-  const currentMethod = paymentMethods.find(
-    (method) => String(method.id) === params.methodId,
-  );
-
-  // Multiple CARD payment methods are allowed (e.g. different processors),
-  // so CARD never counts as "already configured".
-  const usedCategories = new Set(
-    paymentMethods
-      .filter((method) => method.id !== currentMethod?.id)
-      .filter((method) => method.type !== PaymentMethodCategory.CARD)
-      .map((method) => method.type),
-  );
-
-  const categoryOptions = (
-    currentMethod && !selectableCategories.includes(currentMethod.type)
-      ? [...selectableCategories, currentMethod.type]
-      : selectableCategories
-  )
-    .filter(
-      (value) => !usedCategories.has(value) || value === currentMethod?.type,
-    )
+  const accountTypeOptions = Object.values(AccountType)
+    .filter((value) => value === requiredAccountType)
     .map((value) => ({
-      label: t(getPaymentMethodTranslationKey(value)),
+      label: t(`accounts.types.${value}`),
       value,
     }));
 
-  const noCategoriesAvailable = !isEditing && categoryOptions.length === 0;
-
-  const accountTypeOptions = Object.values(AccountType).map((value) => ({
-    label: t(`accounts.types.${value}`),
-    value,
-  }));
-
-  const defaultAccountOptions = accounts
+  const defaultAccountOptions = eligibleAccounts
     .filter((account) => allowedIds.includes(String(account.id)))
     .map((account) => ({ label: account.name, value: String(account.id) }));
 
@@ -416,7 +463,7 @@ export default function PaymentMethodFormScreen() {
                   />
                 </ThemedView>
 
-                {accounts.length === 0 ? (
+                {eligibleAccounts.length === 0 ? (
                   <ThemedView
                     style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
                   >
@@ -441,7 +488,7 @@ export default function PaymentMethodFormScreen() {
                     name="allowedDestinationAccountIds"
                     render={({ field: { value, onChange } }) => (
                       <ThemedView style={tw`gap-3`}>
-                        {accounts.map((account) => (
+                        {eligibleAccounts.map((account) => (
                           <Checkbox
                             key={account.id}
                             label={account.name}
