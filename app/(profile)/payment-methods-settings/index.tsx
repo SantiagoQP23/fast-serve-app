@@ -20,6 +20,18 @@ import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import type { Account } from "@/core/restaurant/models/account.model";
+import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.model";
+
+const paymentMethodIcons: Record<
+  PaymentMethodCategory,
+  keyof typeof Ionicons.glyphMap
+> = {
+  [PaymentMethodCategory.CASH]: "cash-outline",
+  [PaymentMethodCategory.CARD]: "card-outline",
+  [PaymentMethodCategory.TRANSFER]: "swap-horizontal-outline",
+  [PaymentMethodCategory.DIGITAL_WALLET]: "wallet-outline",
+  [PaymentMethodCategory.OTHER]: "ellipsis-horizontal-circle-outline",
+};
 
 export default function PaymentMethodsSettingsScreen() {
   const { t } = useTranslation("paymentMethods");
@@ -29,12 +41,8 @@ export default function PaymentMethodsSettingsScreen() {
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
 
-  const [selectedAccount, setSelectedAccount] = useState<Account | null>(
-    null,
-  );
-  const [accountToDelete, setAccountToDelete] = useState<Account | null>(
-    null,
-  );
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+  const [accountToDelete, setAccountToDelete] = useState<Account | null>(null);
   const accountActionsSheetRef = useRef<BottomSheetMethods>(null);
 
   useEffect(() => {
@@ -208,18 +216,6 @@ export default function PaymentMethodsSettingsScreen() {
                         <ThemedText type="body1" style={tw`font-semibold`}>
                           {account.name}
                         </ThemedText>
-                        <ThemedView
-                          style={tw`flex-row items-center gap-2 flex-wrap`}
-                        >
-                          <ThemedText type="small" style={tw`text-gray-500`}>
-                            {t(`accounts.types.${account.type}`)}
-                          </ThemedText>
-                          {account.description ? (
-                            <ThemedText type="small" style={tw`text-gray-500`}>
-                              • {account.description}
-                            </ThemedText>
-                          ) : null}
-                        </ThemedView>
                       </ThemedView>
                     </ThemedView>
                     {canManage && (
@@ -322,7 +318,7 @@ export default function PaymentMethodsSettingsScreen() {
                   <ThemedView style={tw`flex-row items-center justify-between`}>
                     <ThemedView style={tw`gap-3 flex-1 flex-row items-center`}>
                       <Ionicons
-                        name="card-outline"
+                        name={paymentMethodIcons[method.type]}
                         size={26}
                         color={tw.color("text-light-on-surface-variant")}
                       />
@@ -336,9 +332,11 @@ export default function PaymentMethodsSettingsScreen() {
                           <ThemedText type="small" style={tw`text-gray-500`}>
                             {t(getPaymentMethodTranslationKey(method.type))}
                           </ThemedText>
-                          <ThemedText type="small" style={tw`text-gray-500`}>
-                            • {method.commissionPercentage}%
-                          </ThemedText>
+                          {method.type === PaymentMethodCategory.CARD && (
+                            <ThemedText type="small" style={tw`text-gray-500`}>
+                              • {method.commissionPercentage}%
+                            </ThemedText>
+                          )}
                         </ThemedView>
                       </ThemedView>
                     </ThemedView>
