@@ -11,7 +11,6 @@ import { getPaymentMethodTranslationKey } from "@/core/i18n/utils";
 import { useAccounts } from "@/presentation/restaurant/hooks/useAccounts";
 import { usePaymentMethods } from "@/presentation/restaurant/hooks/usePaymentMethods";
 import { useAccountsManagement } from "@/presentation/restaurant/hooks/useAccountsManagement";
-import { usePaymentMethodsManagement } from "@/presentation/restaurant/hooks/usePaymentMethodsManagement";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
@@ -21,15 +20,12 @@ import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import type { Account } from "@/core/restaurant/models/account.model";
-import type { PaymentMethod } from "@/core/restaurant/models/payment-method.model";
 
 export default function PaymentMethodsSettingsScreen() {
   const { t } = useTranslation("paymentMethods");
   const { accounts, accountsQuery } = useAccounts();
   const { paymentMethods, paymentMethodsQuery } = usePaymentMethods();
   const { updateAccount, deleteAccount } = useAccountsManagement();
-  const { updatePaymentMethod, deletePaymentMethod } =
-    usePaymentMethodsManagement();
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
 
@@ -40,14 +36,6 @@ export default function PaymentMethodsSettingsScreen() {
     null,
   );
   const accountActionsSheetRef = useRef<BottomSheetMethods>(null);
-
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(
-    null,
-  );
-  const [methodToDelete, setMethodToDelete] = useState<PaymentMethod | null>(
-    null,
-  );
-  const methodActionsSheetRef = useRef<BottomSheetMethods>(null);
 
   useEffect(() => {
     if (accounts.length === 0) accountsQuery.refetch();
@@ -109,47 +97,11 @@ export default function PaymentMethodsSettingsScreen() {
     router.push("/(profile)/payment-method-form");
   };
 
-  const handleEditMethod = (method: PaymentMethod) => {
+  const handleOpenMethodDetails = (methodId: number) => {
     router.push({
-      pathname: "/(profile)/payment-method-form",
-      params: {
-        methodId: String(method.id),
-        name: method.name,
-        type: method.type,
-        commissionPercentage: String(method.commissionPercentage ?? 0),
-        allowedDestinationAccountIds: method.allowedDestinationAccounts
-          .map((a) => a.id)
-          .join(","),
-        defaultDestinationAccountId: method.defaultDestinationAccount?.id
-          ? String(method.defaultDestinationAccount.id)
-          : "",
-        isActive: String(method.isActive),
-      },
+      pathname: "/(profile)/payment-method-details",
+      params: { methodId: String(methodId) },
     });
-  };
-
-  const handleOpenMethodActions = (method: PaymentMethod) => {
-    setSelectedMethod(method);
-    methodActionsSheetRef.current?.present();
-  };
-
-  const handleCloseMethodActions = () => {
-    methodActionsSheetRef.current?.dismiss();
-  };
-
-  const handleToggleMethodActive = () => {
-    if (!selectedMethod) return;
-    updatePaymentMethod.mutate({
-      id: selectedMethod.id,
-      data: { isActive: !selectedMethod.isActive },
-    });
-    handleCloseMethodActions();
-  };
-
-  const handleConfirmDeleteMethod = async () => {
-    if (!methodToDelete) return;
-    await deletePaymentMethod.mutateAsync(methodToDelete.id);
-    setMethodToDelete(null);
   };
 
   return (
@@ -364,11 +316,7 @@ export default function PaymentMethodsSettingsScreen() {
               {paymentMethods.map((method) => (
                 <Card
                   key={method.id}
-                  onPress={
-                    canManage
-                      ? () => handleOpenMethodActions(method)
-                      : undefined
-                  }
+                  onPress={() => handleOpenMethodDetails(method.id)}
                   style={!method.isActive && tw`opacity-50`}
                 >
                   <ThemedView style={tw`flex-row items-center justify-between`}>
@@ -394,13 +342,11 @@ export default function PaymentMethodsSettingsScreen() {
                         </ThemedView>
                       </ThemedView>
                     </ThemedView>
-                    {canManage && (
-                      <Ionicons
-                        name="ellipsis-vertical"
-                        size={18}
-                        color={tw.color("gray-400")}
-                      />
-                    )}
+                    <Ionicons
+                      name="chevron-forward-outline"
+                      size={18}
+                      color={tw.color("gray-400")}
+                    />
                   </ThemedView>
                 </Card>
               ))}
@@ -455,42 +401,6 @@ export default function PaymentMethodsSettingsScreen() {
         )}
       </ThemedBottomSheetModal>
 
-      <ThemedBottomSheetModal ref={methodActionsSheetRef} enablePanDownToClose>
-        {selectedMethod && (
-          <ActionsBottomSheet
-            title={selectedMethod.name}
-            items={[
-              {
-                icon: "create-outline",
-                label: t("edit"),
-                onPress: () => {
-                  handleCloseMethodActions();
-                  handleEditMethod(selectedMethod);
-                },
-              },
-              {
-                icon: selectedMethod.isActive
-                  ? "eye-off-outline"
-                  : "eye-outline",
-                label: selectedMethod.isActive
-                  ? t("deactivate")
-                  : t("activate"),
-                onPress: handleToggleMethodActive,
-              },
-              {
-                icon: "trash-outline",
-                label: t("delete"),
-                color: "text-red-500",
-                onPress: () => {
-                  handleCloseMethodActions();
-                  setMethodToDelete(selectedMethod);
-                },
-              },
-            ]}
-          />
-        )}
-      </ThemedBottomSheetModal>
-
       <DialogModal
         visible={!!accountToDelete}
         title={t("accounts.deleteTitle")}
@@ -501,18 +411,6 @@ export default function PaymentMethodsSettingsScreen() {
         loading={deleteAccount.isPending}
         onConfirm={handleConfirmDeleteAccount}
         onCancel={() => setAccountToDelete(null)}
-      />
-
-      <DialogModal
-        visible={!!methodToDelete}
-        title={t("methods.deleteTitle")}
-        message={t("methods.deleteMessage")}
-        confirmLabel={t("confirm")}
-        cancelLabel={t("cancel")}
-        confirmVariant="destructive"
-        loading={deletePaymentMethod.isPending}
-        onConfirm={handleConfirmDeleteMethod}
-        onCancel={() => setMethodToDelete(null)}
       />
     </ScreenLayout>
   );
