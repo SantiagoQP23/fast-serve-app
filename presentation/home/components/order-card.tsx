@@ -18,6 +18,7 @@ import dayjs from "dayjs";
 import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
+import { typography } from "@/constants/theme";
 
 interface OrderCardProps {
   order: Order;
@@ -84,7 +85,7 @@ export default function OrderCard({ order }: OrderCardProps) {
             <ThemedView
               style={tw`flex-row items-center bg-transparent justify-between`}
             >
-              <ThemedText type="h3" style={tw``}>
+              <ThemedText type="h4" style={{ fontFamily: typography.semibold }}>
                 {order.type === OrderType.IN_PLACE
                   ? `${t("common:labels.table")} ${order.table?.name}`
                   : t("common:labels.takeAway")}{" "}

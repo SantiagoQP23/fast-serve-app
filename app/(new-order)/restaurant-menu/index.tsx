@@ -236,7 +236,11 @@ export default function RestaurantMenuScreen() {
       )}
       <ThemedView style={tw`flex-row gap-2 flex-1`}>
         {!search && (
-          <ThemedView style={tw`flex-wrap gap-2`}>
+          <ScrollView
+            style={tw`w-30 flex-shrink-0`}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={tw`gap-2`}
+          >
             {filteredCategories.map((f) => (
               <Chip
                 key={f.id}
@@ -245,10 +249,10 @@ export default function RestaurantMenuScreen() {
                 onPress={() => onChangeCategory(f.id)}
               />
             ))}
-          </ThemedView>
+          </ScrollView>
         )}
         <ScrollView
-          style={tw`flex-1`}
+          style={tw`${search ? "flex-1" : "w-[70%] flex-shrink-0"}`}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`gap-3 pb-40`}
           refreshControl={

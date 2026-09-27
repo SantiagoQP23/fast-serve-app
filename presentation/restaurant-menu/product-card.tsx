@@ -21,13 +21,10 @@ export default function ProductCard({ product, onPress }: ProductCardProps) {
       onPress={onPress}
     >
       <ThemedView style={tw` bg-transparent gap-2 `}>
-        <ThemedText
-          type="h4"
-          style={[tw``, { fontFamily: typography.semibold }]}
-        >
+        <ThemedText type="body1" style={[tw``, {}]}>
           {product.name}
         </ThemedText>
-        <ThemedText type="body1" style={tw`text-gray-600`}>
+        <ThemedText type="body2" style={tw`text-gray-600`}>
           {product.options.length > 1
             ? product.options.map((option) => option.name).join(" - ")
             : product.options[0]

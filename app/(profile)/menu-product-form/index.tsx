@@ -114,6 +114,7 @@ export default function MenuProductFormScreen() {
   }>();
 
   const isEditing = !!params.productId;
+  const hasPresetCategory = !isEditing && !!params.categoryId;
 
   const { categories } = useMenu();
   const { createProduct, updateProduct, deleteProduct } = useMenuManagement();
@@ -154,6 +155,7 @@ export default function MenuProductFormScreen() {
     formState: { errors, isSubmitting },
   } = useForm<ProductFormData>({
     resolver: zodResolver(schema),
+    mode: "onTouched",
     defaultValues: {
       name: params.name || "",
       description: params.description || "",
@@ -380,7 +382,7 @@ export default function MenuProductFormScreen() {
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
                     label={t("products.fields.name")}
-                    icon="fast-food-outline"
+                    icon="fast-food"
                     placeholder={t("products.placeholders.name")}
                     onBlur={onBlur}
                     value={value}
@@ -396,7 +398,7 @@ export default function MenuProductFormScreen() {
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
                     label={t("products.fields.description")}
-                    icon="document-text-outline"
+                    icon="document-text"
                     placeholder={t("products.placeholders.description")}
                     onBlur={onBlur}
                     value={value}
@@ -411,41 +413,42 @@ export default function MenuProductFormScreen() {
 
               {!isEditing && (
                 <>
-                  {categories.length === 0 ? (
-                    <ThemedView
-                      style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
-                    >
-                      <Ionicons
-                        name="pricetag-outline"
-                        size={32}
-                        color={tw.color("gray-400")}
-                      />
-                      <ThemedText type="body2" style={tw`font-semibold`}>
-                        {t("products.noCategoriesAvailable")}
-                      </ThemedText>
-                      <ThemedText
-                        type="small"
-                        style={tw`text-center text-gray-500`}
+                  {!hasPresetCategory &&
+                    (categories.length === 0 ? (
+                      <ThemedView
+                        style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
                       >
-                        {t("products.noCategoriesAvailableDescription")}
-                      </ThemedText>
-                    </ThemedView>
-                  ) : (
-                    <Controller
-                      control={control}
-                      name="categoryId"
-                      render={({ field: { value, onChange } }) => (
-                        <Select
-                          label={t("products.fields.category")}
-                          options={categoryOptions}
-                          value={value}
-                          onChange={(v) => onChange(String(v))}
-                          placeholder={t("products.placeholders.category")}
+                        <Ionicons
+                          name="pricetag-outline"
+                          size={32}
+                          color={tw.color("gray-400")}
                         />
-                      )}
-                    />
-                  )}
-                  {errors.categoryId && (
+                        <ThemedText type="body2" style={tw`font-semibold`}>
+                          {t("products.noCategoriesAvailable")}
+                        </ThemedText>
+                        <ThemedText
+                          type="small"
+                          style={tw`text-center text-gray-500`}
+                        >
+                          {t("products.noCategoriesAvailableDescription")}
+                        </ThemedText>
+                      </ThemedView>
+                    ) : (
+                      <Controller
+                        control={control}
+                        name="categoryId"
+                        render={({ field: { value, onChange } }) => (
+                          <Select
+                            label={t("products.fields.category")}
+                            options={categoryOptions}
+                            value={value}
+                            onChange={(v) => onChange(String(v))}
+                            placeholder={t("products.placeholders.category")}
+                          />
+                        )}
+                      />
+                    ))}
+                  {!hasPresetCategory && errors.categoryId && (
                     <ThemedText
                       type="small"
                       style={tw`text-red-500 -mt-2 ml-2`}

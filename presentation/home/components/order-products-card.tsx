@@ -21,6 +21,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import { useMarkOrderDelivered } from "@/presentation/orders/hooks/useMarkOrderDelivered";
+import { typography } from "@/constants/theme";
 
 interface OrderProductsCardProps {
   order: Order;
@@ -120,7 +121,7 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
             style={tw`flex-row items-center  bg-transparent mt-4 gap-4`}
           >
             <ThemedView style={tw` gap-2`}>
-              <ThemedText type="h3">
+              <ThemedText type="h4" style={{ fontFamily: typography.semibold }}>
                 {order.type === OrderType.IN_PLACE
                   ? `${t("common:labels.table")} ${order.table?.name}`
                   : t("common:labels.takeAway")}{" "}

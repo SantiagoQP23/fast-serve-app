@@ -2,7 +2,12 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { KeyboardAvoidingView, Pressable, ScrollView, Platform } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Pressable,
+  ScrollView,
+  Platform,
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -18,13 +23,15 @@ import DialogModal from "@/presentation/theme/components/dialog-modal";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 
-const buildCategorySchema = (t: (key: string) => string) =>
+const buildCategorySchema = (t: (key: string) => string, isEditing: boolean) =>
   z.object({
     name: z
       .string()
       .min(2, t("categories.validations.nameMinLength"))
       .max(60, t("categories.validations.nameMaxLength")),
-    sectionId: z.string().min(1, t("categories.validations.sectionRequired")),
+    sectionId: z.string().refine((value) => !isEditing || value.length > 0, {
+      message: t("categories.validations.sectionRequired"),
+    }),
     isPublic: z.boolean(),
   });
 
@@ -47,7 +54,7 @@ export default function MenuCategoryFormScreen() {
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const schema = buildCategorySchema(t);
+  const schema = buildCategorySchema(t, isEditing);
 
   const {
     control,
@@ -121,7 +128,9 @@ export default function MenuCategoryFormScreen() {
               size="small"
               onPress={handleSubmit(onSubmit)}
               loading={
-                isSubmitting || createCategory.isPending || updateCategory.isPending
+                isSubmitting ||
+                createCategory.isPending ||
+                updateCategory.isPending
               }
               disabled={
                 isSubmitting ||
@@ -141,7 +150,7 @@ export default function MenuCategoryFormScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("categories.fields.name")}
-                  icon="pricetag-outline"
+                  icon="pricetag"
                   placeholder={t("categories.placeholders.name")}
                   onBlur={onBlur}
                   value={value}
@@ -151,45 +160,47 @@ export default function MenuCategoryFormScreen() {
               )}
             />
 
-            {sections.length === 0 ? (
-              <ThemedView
-                style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
-              >
-                <Ionicons
-                  name="list-outline"
-                  size={32}
-                  color={tw.color("gray-400")}
-                />
-                <ThemedText type="body2" style={tw`font-semibold`}>
-                  {t("categories.noSectionsAvailable")}
-                </ThemedText>
-                <ThemedText type="small" style={tw`text-center text-gray-500`}>
-                  {t("categories.noSectionsAvailableDescription")}
-                </ThemedText>
-              </ThemedView>
-            ) : (
-              <Controller
-                control={control}
-                name="sectionId"
-                render={({ field: { value, onChange } }) => (
-                  <Select
-                    label={t("categories.fields.section")}
-                    options={sectionOptions}
-                    value={value}
-                    onChange={(v) => onChange(String(v))}
-                    placeholder={t("categories.placeholders.section")}
+            {isEditing &&
+              (sections.length === 0 ? (
+                <ThemedView
+                  style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+                >
+                  <Ionicons
+                    name="list-outline"
+                    size={32}
+                    color={tw.color("gray-400")}
                   />
-                )}
-              />
-            )}
-            {errors.sectionId && (
+                  <ThemedText type="body2" style={tw`font-semibold`}>
+                    {t("categories.noSectionsAvailable")}
+                  </ThemedText>
+                  <ThemedText
+                    type="small"
+                    style={tw`text-center text-gray-500`}
+                  >
+                    {t("categories.noSectionsAvailableDescription")}
+                  </ThemedText>
+                </ThemedView>
+              ) : (
+                <Controller
+                  control={control}
+                  name="sectionId"
+                  render={({ field: { value, onChange } }) => (
+                    <Select
+                      label={t("categories.fields.section")}
+                      options={sectionOptions}
+                      value={value}
+                      onChange={(v) => onChange(String(v))}
+                      placeholder={t("categories.placeholders.section")}
+                    />
+                  )}
+                />
+              ))}
+            {isEditing && errors.sectionId && (
               <ThemedText type="small" style={tw`text-red-500 -mt-2 ml-2`}>
                 {errors.sectionId.message}
               </ThemedText>
             )}
-
           </ThemedView>
-
         </ScrollView>
       </ScreenLayout>
 

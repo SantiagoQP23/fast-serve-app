@@ -47,9 +47,7 @@ export default function MenuOverviewScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const [selected, setSelected] = useState<SelectedEntity | null>(null);
-  const [sectionToDelete, setSectionToDelete] = useState<Section | null>(
-    null,
-  );
+  const [sectionToDelete, setSectionToDelete] = useState<Section | null>(null);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
     null,
   );
@@ -329,7 +327,11 @@ export default function MenuOverviewScreen() {
 
       <ThemedView style={tw`flex-row gap-2 flex-1`}>
         {!search && (
-          <ThemedView style={tw`flex-wrap gap-2`}>
+          <ScrollView
+            style={tw`w-30 flex-shrink-0`}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={tw`gap-2`}
+          >
             {sectionCategories.map((category) => (
               <ThemedView
                 key={category.id}
@@ -349,10 +351,10 @@ export default function MenuOverviewScreen() {
                 onPress={handleAddCategory}
               />
             )}
-          </ThemedView>
+          </ScrollView>
         )}
         <ScrollView
-          style={tw`flex-1`}
+          style={tw`${search ? "flex-1" : "w-[70%] flex-shrink-0"}`}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`gap-3 pb-8`}
           refreshControl={
@@ -391,13 +393,13 @@ export default function MenuOverviewScreen() {
             >
               <ThemedView style={tw`flex-row items-center justify-between`}>
                 <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
-                  <Ionicons
-                    name="fast-food-outline"
-                    size={28}
-                    color={tw.color("text-light-on-surface-variant")}
-                  />
+                  {/* <Ionicons */}
+                  {/*   name="fast-food-outline" */}
+                  {/*   size={28} */}
+                  {/*   color={tw.color("text-light-on-surface-variant")} */}
+                  {/* /> */}
                   <ThemedView style={tw`flex-1 gap-2`}>
-                    <ThemedText type="h4">{product.name}</ThemedText>
+                    <ThemedText type="body1">{product.name}</ThemedText>
                     <ThemedText type="small" style={tw`text-gray-500`}>
                       ${product.price?.toFixed(2)}
                     </ThemedText>

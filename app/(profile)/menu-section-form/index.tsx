@@ -2,7 +2,12 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { KeyboardAvoidingView, Pressable, ScrollView, Platform } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Pressable,
+  ScrollView,
+  Platform,
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -107,10 +112,14 @@ export default function MenuSectionFormScreen() {
               size="small"
               onPress={handleSubmit(onSubmit)}
               loading={
-                isSubmitting || createSection.isPending || updateSection.isPending
+                isSubmitting ||
+                createSection.isPending ||
+                updateSection.isPending
               }
               disabled={
-                isSubmitting || createSection.isPending || updateSection.isPending
+                isSubmitting ||
+                createSection.isPending ||
+                updateSection.isPending
               }
             />
           </ThemedView>
@@ -124,7 +133,7 @@ export default function MenuSectionFormScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("sections.fields.name")}
-                  icon="list-outline"
+                  icon="list"
                   placeholder={t("sections.placeholders.name")}
                   onBlur={onBlur}
                   value={value}
@@ -133,9 +142,7 @@ export default function MenuSectionFormScreen() {
                 />
               )}
             />
-
           </ThemedView>
-
         </ScrollView>
       </ScreenLayout>
 
