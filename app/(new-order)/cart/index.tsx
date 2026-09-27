@@ -22,6 +22,7 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useBills } from "@/presentation/orders/hooks/useBills";
 import { mapStoreToCreateSaleDto } from "@/presentation/orders/mappers/createBill.mapper";
 import Label from "@/presentation/theme/components/label";
+import { usePrintersStore } from "@/presentation/printers/store/usePrintersStore";
 
 export default function CartScreen() {
   const { t } = useTranslation(["common", "menu"]);
@@ -41,7 +42,12 @@ export default function CartScreen() {
 
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
+  const hasActivePrinters = usePrintersStore((state) =>
+    state.printers.some((printer) => printer.isActive),
+  );
+
   const [total, setTotal] = useState(0);
+  const [printOnCreate, setPrintOnCreate] = useState(false);
   const router = useRouter();
 
   const editOrderId = useEditOrderCartStore((state) => state.orderId);
@@ -58,13 +64,20 @@ export default function CartScreen() {
     router.push("/(new-order)/restaurant-menu/product");
   };
 
-  const onCreateOrder = () => {
+  const onCreateOrder = (print: boolean) => {
+    setPrintOnCreate(print);
+
     if (cartType === "sale") {
       const data = mapStoreToCreateSaleDto(newOrder);
       createSale(data, {
         onSuccess: (resp) => {
           resetNewOrder();
-          if (resp.data) router.replace(`/(bills)/${resp.data.id}`);
+          if (!resp.data) return;
+          router.replace(
+            print
+              ? `/(bills)/${resp.data.id}/print`
+              : `/(bills)/${resp.data.id}`,
+          );
         },
       });
     } else {
@@ -73,10 +86,15 @@ export default function CartScreen() {
       createOrder(data, {
         onSuccess: (resp) => {
           resetNewOrder();
-          if (resp.data) setActiveOrder(resp.data);
-          router.replace("/(new-order)/order-confirmation", {
-            withAnchor: true,
-          });
+          if (!resp.data) return;
+          setActiveOrder(resp.data);
+          if (print) {
+            router.replace(`/(order)/${resp.data.id}/print`);
+          } else {
+            router.replace("/(new-order)/order-confirmation", {
+              withAnchor: true,
+            });
+          }
         },
       });
     }
@@ -293,21 +311,53 @@ export default function CartScreen() {
             <ThemedText type="h3">{t("common:labels.total")}</ThemedText>
             <ThemedText type="h2">{formatCurrency(total)}</ThemedText>
           </ThemedView>
-          <Button
-            loading={isLoading || createSaleLoading}
-            label={t(
-              cartType === "order"
-                ? "menu:cart.createOrder"
-                : "menu:cart.createSale",
+          <ThemedView
+            style={[
+              tw.style(
+                ``,
+                hasActivePrinters
+                  ? " flex-row items-center justify-between gap-2"
+                  : "",
+              ),
+            ]}
+          >
+            <Button
+              variant={hasActivePrinters ? "outline" : "primary"}
+              loading={(isLoading || createSaleLoading) && !printOnCreate}
+              label={t(
+                cartType === "order"
+                  ? "menu:cart.createOrder"
+                  : "menu:cart.createSale",
+              )}
+              onPress={() => onCreateOrder(false)}
+              disabled={
+                !isOnline ||
+                isLoading ||
+                details.length === 0 ||
+                createSaleLoading
+              }
+              size={hasActivePrinters ? "small" : "medium"}
+            ></Button>
+            {hasActivePrinters && (
+              <Button
+                style={tw`flex-1`}
+                leftIcon="print-outline"
+                loading={(isLoading || createSaleLoading) && printOnCreate}
+                label={t(
+                  cartType === "order"
+                    ? "menu:cart.createAndPrintOrder"
+                    : "menu:cart.createAndPrintSale",
+                )}
+                onPress={() => onCreateOrder(true)}
+                disabled={
+                  !isOnline ||
+                  isLoading ||
+                  details.length === 0 ||
+                  createSaleLoading
+                }
+              />
             )}
-            onPress={onCreateOrder}
-            disabled={
-              !isOnline ||
-              isLoading ||
-              details.length === 0 ||
-              createSaleLoading
-            }
-          ></Button>
+          </ThemedView>
         </ThemedView>
       </ScreenLayout>
     </>
