@@ -1,15 +1,26 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { KeyboardAvoidingView, Pressable, ScrollView, Platform } from "react-native";
+import {
+  KeyboardAvoidingView,
+  LayoutAnimation,
+  Pressable,
+  ScrollView,
+  Platform,
+  UIManager,
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { getPaymentMethodTranslationKey } from "@/core/i18n/utils";
 import { useAccounts } from "@/presentation/restaurant/hooks/useAccounts";
+import { useAccountsManagement } from "@/presentation/restaurant/hooks/useAccountsManagement";
 import { usePaymentMethodsManagement } from "@/presentation/restaurant/hooks/usePaymentMethodsManagement";
 import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.model";
+import { AccountType } from "@/core/restaurant/models/account.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -19,8 +30,16 @@ import Checkbox from "@/presentation/theme/components/checkbox";
 import Switch from "@/presentation/theme/components/switch";
 import Select from "@/presentation/theme/components/select";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
+
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const buildPaymentMethodSchema = (t: (key: string) => string) =>
   z.object({
@@ -62,10 +81,21 @@ export default function PaymentMethodFormScreen() {
   const isEditing = !!params.methodId;
 
   const { accounts } = useAccounts();
+  const { createAccount } = useAccountsManagement();
   const { createPaymentMethod, updatePaymentMethod, deletePaymentMethod } =
     usePaymentMethodsManagement();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
+
+  const [newAccountName, setNewAccountName] = useState("");
+  const [newAccountType, setNewAccountType] = useState<AccountType>(
+    AccountType.CASH,
+  );
+  const [newAccountDescription, setNewAccountDescription] = useState("");
+  const [newAccountNum, setNewAccountNum] = useState("");
+  const [newAccountError, setNewAccountError] = useState("");
+  const newAccountSheetRef = useRef<BottomSheetMethods>(null);
 
   const schema = buildPaymentMethodSchema(t);
 
@@ -78,6 +108,7 @@ export default function PaymentMethodFormScreen() {
     handleSubmit,
     watch,
     setValue,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm<PaymentMethodFormData>({
     resolver: zodResolver(schema),
@@ -100,6 +131,10 @@ export default function PaymentMethodFormScreen() {
       setValue("defaultDestinationAccountId", "");
     }
   }, [allowedIds, defaultId, setValue]);
+
+  const animateLayout = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+  };
 
   const onSubmit = async (data: PaymentMethodFormData) => {
     const payload = {
@@ -142,6 +177,58 @@ export default function PaymentMethodFormScreen() {
     onChange(nextIds);
   };
 
+  const handleNext = async () => {
+    const valid = await trigger(["type", "name", "commissionPercentage"]);
+    if (!valid) return;
+    animateLayout();
+    setStep(2);
+  };
+
+  const handleBack = () => {
+    if (!isEditing && step === 2) {
+      animateLayout();
+      setStep(1);
+      return;
+    }
+    router.back();
+  };
+
+  const openAddAccountSheet = () => {
+    setNewAccountName("");
+    setNewAccountType(AccountType.CASH);
+    setNewAccountDescription("");
+    setNewAccountNum("");
+    setNewAccountError("");
+    newAccountSheetRef.current?.present();
+  };
+
+  const closeAddAccountSheet = () => {
+    newAccountSheetRef.current?.dismiss();
+  };
+
+  const handleCreateAccountInline = async () => {
+    const trimmedName = newAccountName.trim();
+    if (!trimmedName) {
+      setNewAccountError(t("accounts.validations.nameRequired"));
+      return;
+    }
+    setNewAccountError("");
+
+    const account = await createAccount.mutateAsync({
+      name: trimmedName,
+      description: newAccountDescription.trim() || "",
+      num: newAccountNum.trim() || undefined,
+      type: newAccountType,
+    });
+
+    const accountId = String(account.id);
+    setValue("allowedDestinationAccountIds", [...allowedIds, accountId]);
+    if (!defaultId) {
+      setValue("defaultDestinationAccountId", accountId);
+    }
+    closeAddAccountSheet();
+  };
+
   const categoryOptions = Object.values(PaymentMethodCategory).map(
     (value) => ({
       label: t(getPaymentMethodTranslationKey(value)),
@@ -149,9 +236,19 @@ export default function PaymentMethodFormScreen() {
     }),
   );
 
+  const accountTypeOptions = Object.values(AccountType).map((value) => ({
+    label: t(`accounts.types.${value}`),
+    value,
+  }));
+
   const defaultAccountOptions = accounts
     .filter((account) => allowedIds.includes(String(account.id)))
     .map((account) => ({ label: account.name, value: String(account.id) }));
+
+  const isCreateDisabled =
+    isSubmitting ||
+    createPaymentMethod.isPending ||
+    allowedIds.length === 0;
 
   return (
     <KeyboardAvoidingView
@@ -161,12 +258,12 @@ export default function PaymentMethodFormScreen() {
       <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={tw`pb-8`}
+          contentContainerStyle={tw`${!isEditing ? "pb-32" : "pb-8"}`}
         >
           <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
             <ThemedView style={tw`items-center gap-4 flex-row`}>
               <Pressable
-                onPress={() => router.back()}
+                onPress={handleBack}
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
                 <Ionicons name="arrow-back-outline" size={24} />
@@ -177,176 +274,272 @@ export default function PaymentMethodFormScreen() {
                   : t("methods.createMethod")}
               </ThemedText>
             </ThemedView>
-            <Button
-              label={isEditing ? t("methods.save") : t("methods.create")}
-              size="small"
-              onPress={handleSubmit(onSubmit)}
-              loading={
-                isSubmitting ||
-                createPaymentMethod.isPending ||
-                updatePaymentMethod.isPending
-              }
-              disabled={
-                isSubmitting ||
-                createPaymentMethod.isPending ||
-                updatePaymentMethod.isPending ||
-                accounts.length === 0
-              }
-            />
+            {isEditing && (
+              <Button
+                label={t("methods.save")}
+                size="small"
+                onPress={handleSubmit(onSubmit)}
+                loading={isSubmitting || updatePaymentMethod.isPending}
+                disabled={isSubmitting || updatePaymentMethod.isPending}
+              />
+            )}
           </ThemedView>
 
           <ThemedView style={tw`my-6`} />
 
-          <ThemedView style={tw`gap-4`}>
-            <Controller
-              control={control}
-              name="type"
-              render={({ field: { value, onChange } }) => (
-                <Select
-                  label={t("methods.fields.category")}
-                  options={categoryOptions}
-                  value={value}
-                  onChange={(v) => onChange(v as PaymentMethodCategory)}
-                  placeholder={t("methods.placeholders.category")}
-                />
-              )}
-            />
+          {(isEditing || step === 1) && (
+            <ThemedView style={tw`gap-4`}>
+              <Controller
+                control={control}
+                name="type"
+                render={({ field: { value, onChange } }) => (
+                  <Select
+                    label={t("methods.fields.category")}
+                    options={categoryOptions}
+                    value={value}
+                    onChange={(v) => onChange(v as PaymentMethodCategory)}
+                    placeholder={t("methods.placeholders.category")}
+                  />
+                )}
+              />
 
-            <Controller
-              control={control}
-              name="name"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label={t("methods.fields.name")}
-                  icon="card-outline"
-                  placeholder={t("methods.placeholders.name")}
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onChange}
-                  error={errors.name?.message}
-                />
-              )}
-            />
+              <Controller
+                control={control}
+                name="name"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    label={t("methods.fields.name")}
+                    icon="card-outline"
+                    placeholder={t("methods.placeholders.name")}
+                    onBlur={onBlur}
+                    value={value}
+                    onChangeText={onChange}
+                    error={errors.name?.message}
+                  />
+                )}
+              />
 
-            <Controller
-              control={control}
-              name="commissionPercentage"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label={t("methods.fields.commission")}
-                  icon="pricetag-outline"
-                  placeholder={t("methods.placeholders.commission")}
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onChange}
-                  keyboardType="decimal-pad"
-                  error={errors.commissionPercentage?.message}
-                />
-              )}
-            />
+              <Controller
+                control={control}
+                name="commissionPercentage"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    label={t("methods.fields.commission")}
+                    icon="pricetag-outline"
+                    placeholder={t("methods.placeholders.commission")}
+                    onBlur={onBlur}
+                    value={value}
+                    onChangeText={onChange}
+                    keyboardType="decimal-pad"
+                    error={errors.commissionPercentage?.message}
+                  />
+                )}
+              />
+            </ThemedView>
+          )}
 
-            {accounts.length === 0 ? (
-              <ThemedView
-                style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
-              >
-                <Ionicons
-                  name="wallet-outline"
-                  size={32}
-                  color={tw.color("gray-400")}
-                />
-                <ThemedText type="body2" style={tw`font-semibold`}>
-                  {t("methods.noAccountsAvailable")}
-                </ThemedText>
-                <ThemedText type="small" style={tw`text-center text-gray-500`}>
-                  {t("methods.noAccountsAvailableDescription")}
-                </ThemedText>
-              </ThemedView>
-            ) : (
+          {(isEditing || step === 2) && (
+            <ThemedView style={tw`gap-4 ${isEditing ? "mt-2" : ""}`}>
               <ThemedView style={tw`gap-3`}>
-                <ThemedText type="body1" style={tw`font-semibold`}>
-                  {t("methods.fields.allowedAccounts")}
-                </ThemedText>
-                <ThemedText type="small" style={tw`text-gray-500`}>
-                  {t("methods.fields.allowedAccountsDescription")}
-                </ThemedText>
-                <Controller
-                  control={control}
-                  name="allowedDestinationAccountIds"
-                  render={({ field: { value, onChange } }) => (
-                    <ThemedView style={tw`gap-3`}>
-                      {accounts.map((account) => (
-                        <Checkbox
-                          key={account.id}
-                          label={account.name}
-                          value={value.includes(String(account.id))}
-                          onValueChange={() =>
-                            toggleAccountId(value, String(account.id), onChange)
-                          }
-                        />
-                      ))}
-                    </ThemedView>
-                  )}
-                />
+                <ThemedView style={tw`flex-row items-center justify-between`}>
+                  <ThemedView style={tw`gap-1 flex-1`}>
+                    <ThemedText type="body1" style={tw`font-semibold`}>
+                      {t("methods.fields.allowedAccounts")}
+                    </ThemedText>
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {t("methods.fields.allowedAccountsDescription")}
+                    </ThemedText>
+                  </ThemedView>
+                  <Button
+                    label={t("methods.fields.addAccount")}
+                    onPress={openAddAccountSheet}
+                    variant="outline"
+                    size="extra-small"
+                    leftIcon="add-outline"
+                  />
+                </ThemedView>
+
+                {accounts.length === 0 ? (
+                  <ThemedView
+                    style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+                  >
+                    <Ionicons
+                      name="wallet-outline"
+                      size={32}
+                      color={tw.color("gray-400")}
+                    />
+                    <ThemedText type="body2" style={tw`font-semibold`}>
+                      {t("methods.noAccountsAvailable")}
+                    </ThemedText>
+                    <ThemedText
+                      type="small"
+                      style={tw`text-center text-gray-500`}
+                    >
+                      {t("methods.noAccountsAvailableDescription")}
+                    </ThemedText>
+                  </ThemedView>
+                ) : (
+                  <Controller
+                    control={control}
+                    name="allowedDestinationAccountIds"
+                    render={({ field: { value, onChange } }) => (
+                      <ThemedView style={tw`gap-3`}>
+                        {accounts.map((account) => (
+                          <Checkbox
+                            key={account.id}
+                            label={account.name}
+                            value={value.includes(String(account.id))}
+                            onValueChange={() =>
+                              toggleAccountId(
+                                value,
+                                String(account.id),
+                                onChange,
+                              )
+                            }
+                          />
+                        ))}
+                      </ThemedView>
+                    )}
+                  />
+                )}
                 {errors.allowedDestinationAccountIds && (
                   <ThemedText type="small" style={tw`text-red-500 ml-2`}>
                     {errors.allowedDestinationAccountIds.message}
                   </ThemedText>
                 )}
               </ThemedView>
-            )}
 
-            {allowedIds.length > 0 && (
-              <>
-                <Controller
-                  control={control}
-                  name="defaultDestinationAccountId"
-                  render={({ field: { value, onChange } }) => (
-                    <Select
-                      label={t("methods.fields.defaultAccount")}
-                      options={defaultAccountOptions}
-                      value={value}
-                      onChange={(v) => onChange(String(v))}
-                      placeholder={t("methods.placeholders.defaultAccount")}
-                    />
+              {allowedIds.length > 0 && (
+                <>
+                  <Controller
+                    control={control}
+                    name="defaultDestinationAccountId"
+                    render={({ field: { value, onChange } }) => (
+                      <Select
+                        label={t("methods.fields.defaultAccount")}
+                        options={defaultAccountOptions}
+                        value={value}
+                        onChange={(v) => onChange(String(v))}
+                        placeholder={t("methods.placeholders.defaultAccount")}
+                      />
+                    )}
+                  />
+                  {errors.defaultDestinationAccountId && (
+                    <ThemedText
+                      type="small"
+                      style={tw`text-red-500 -mt-2 ml-2`}
+                    >
+                      {errors.defaultDestinationAccountId.message}
+                    </ThemedText>
                   )}
-                />
-                {errors.defaultDestinationAccountId && (
-                  <ThemedText type="small" style={tw`text-red-500 -mt-2 ml-2`}>
-                    {errors.defaultDestinationAccountId.message}
-                  </ThemedText>
-                )}
-              </>
-            )}
+                </>
+              )}
 
-            {isEditing && (
-              <ThemedView style={tw`gap-3 mt-2`}>
-                <Controller
-                  control={control}
-                  name="isActive"
-                  render={({ field: { value, onChange } }) => (
-                    <Switch
-                      label={t("methods.fields.isActive")}
-                      value={value}
-                      onValueChange={onChange}
-                    />
-                  )}
-                />
-              </ThemedView>
-            )}
-          </ThemedView>
-
+              {isEditing && (
+                <ThemedView style={tw`gap-3 mt-2`}>
+                  <Controller
+                    control={control}
+                    name="isActive"
+                    render={({ field: { value, onChange } }) => (
+                      <Switch
+                        label={t("methods.fields.isActive")}
+                        value={value}
+                        onValueChange={onChange}
+                      />
+                    )}
+                  />
+                </ThemedView>
+              )}
+            </ThemedView>
+          )}
         </ScrollView>
       </ScreenLayout>
+
+      {!isEditing && (
+        <ThemedView
+          style={tw`absolute bottom-0 left-0 right-0 bg-light-background dark:bg-black px-4 py-4`}
+        >
+          {step === 1 ? (
+            <Button label={t("common:actions.next")} onPress={handleNext} />
+          ) : (
+            <ThemedView style={tw`flex-row gap-3 justify-between`}>
+              <Button
+                label={t("common:actions.back")}
+                onPress={handleBack}
+                variant="text"
+              />
+              <Button
+                label={t("methods.create")}
+                onPress={handleSubmit(onSubmit)}
+                loading={isSubmitting || createPaymentMethod.isPending}
+                disabled={isCreateDisabled}
+              />
+            </ThemedView>
+          )}
+        </ThemedView>
+      )}
 
       <DialogModal
         visible={showDeleteConfirm}
         title={t("methods.deleteTitle")}
         message={t("methods.deleteMessage")}
-        confirmText={t("confirm")}
-        cancelText={t("cancel")}
+        confirmLabel={t("confirm")}
+        cancelLabel={t("cancel")}
+        confirmVariant="destructive"
         onConfirm={handleConfirmDelete}
         onCancel={() => setShowDeleteConfirm(false)}
       />
+
+      <ThemedBottomSheetModal ref={newAccountSheetRef} enablePanDownToClose>
+        <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
+          <ThemedText type="h3">{t("accounts.createAccount")}</ThemedText>
+
+          <Select
+            label={t("accounts.fields.type")}
+            options={accountTypeOptions}
+            value={newAccountType}
+            onChange={(v) => setNewAccountType(v as AccountType)}
+            placeholder={t("accounts.placeholders.type")}
+          />
+
+          <TextInput
+            bottomSheet
+            label={t("accounts.fields.name")}
+            placeholder={t("accounts.placeholders.name")}
+            value={newAccountName}
+            onChangeText={setNewAccountName}
+          />
+
+          <TextInput
+            bottomSheet
+            label={t("accounts.fields.description")}
+            placeholder={t("accounts.placeholders.description")}
+            value={newAccountDescription}
+            onChangeText={setNewAccountDescription}
+          />
+
+          <TextInput
+            bottomSheet
+            label={t("accounts.fields.num")}
+            placeholder={t("accounts.placeholders.num")}
+            value={newAccountNum}
+            onChangeText={setNewAccountNum}
+          />
+
+          {newAccountError ? (
+            <ThemedText type="small" style={tw`text-red-500`}>
+              {newAccountError}
+            </ThemedText>
+          ) : null}
+
+          <Button
+            label={t("accounts.create")}
+            onPress={handleCreateAccountInline}
+            loading={createAccount.isPending}
+            disabled={createAccount.isPending}
+          />
+        </BottomSheetView>
+      </ThemedBottomSheetModal>
     </KeyboardAvoidingView>
   );
 }

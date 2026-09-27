@@ -81,6 +81,7 @@
       "commission": "Comisión (%)",
       "allowedAccounts": "Cuentas permitidas",
       "allowedAccountsDescription": "Selecciona las cuentas donde se puede depositar.",
+      "addAccount": "Agregar cuenta",
       "defaultAccount": "Cuenta por defecto",
       "isActive": "Activo"
     },

@@ -81,6 +81,7 @@
       "commission": "Commission (%)",
       "allowedAccounts": "Allowed accounts",
       "allowedAccountsDescription": "Select the accounts money can be deposited into.",
+      "addAccount": "Add account",
       "defaultAccount": "Default account",
       "isActive": "Active"
     },
