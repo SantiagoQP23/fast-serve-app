@@ -31,6 +31,7 @@ import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { formatCurrency } from "@/core/i18n/utils";
 import type { ProductOption } from "@/core/menu/models/product-optionl.model";
+import { typography } from "@/constants/theme";
 
 export default function MenuProductDetailScreen() {
   const { t } = useTranslation("menuManagement");
@@ -606,40 +607,81 @@ export default function MenuProductDetailScreen() {
 
       <ThemedBottomSheetModal ref={optionActionsSheetRef} enablePanDownToClose>
         {selectedOption && (
-          <ActionsBottomSheet
-            title={selectedOption.name}
-            items={[
-              ...(!selectedOption.isDefault
-                ? [
-                    {
-                      icon: "star-outline" as const,
-                      label: t("products.variants.makeDefault"),
-                      onPress: handleMakeOptionDefault,
-                    },
-                  ]
-                : []),
-              {
-                icon: "create-outline",
-                label: t("edit"),
-                onPress: handleOpenEditOption,
-              },
-              {
-                icon: selectedOption.isActive
-                  ? "eye-off-outline"
-                  : "eye-outline",
-                label: selectedOption.isActive
-                  ? t("deactivate")
-                  : t("activate"),
-                onPress: handleToggleOptionActive,
-              },
-              {
-                icon: "trash-outline",
-                label: t("delete"),
-                color: "text-red-500",
-                onPress: handleRequestDeleteOption,
-              },
-            ]}
-          />
+          <ThemedView style={tw`px-4 py-4 gap-6`}>
+            <ThemedView style={tw`flex-row justify-between items-start gap-3`}>
+              <ThemedView style={tw`flex-1 gap-2`}>
+                <ThemedText
+                  type="h2"
+                  style={{ fontFamily: typography.medium }}
+                >
+                  {selectedOption.name}
+                </ThemedText>
+                <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
+                  <ThemedView style={tw`flex-row items-center gap-1`}>
+                    <Ionicons
+                      name="pricetag-outline"
+                      size={16}
+                      color={tw.color("text-gray-500")}
+                    />
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {formatCurrency(selectedOption.price)}
+                    </ThemedText>
+                  </ThemedView>
+                  {selectedOption.trackStock && (
+                    <ThemedView style={tw`flex-row items-center gap-1`}>
+                      <Ionicons
+                        name="cube-outline"
+                        size={16}
+                        color={tw.color("text-gray-500")}
+                      />
+                      <ThemedText type="small" style={tw`text-gray-500`}>
+                        {t("inventory:stockCount", {
+                          count: selectedOption.quantity,
+                        })}
+                      </ThemedText>
+                    </ThemedView>
+                  )}
+                </ThemedView>
+                {selectedOption.isDefault ? (
+                  <Label
+                    text={t("products.variants.fields.isDefault")}
+                    leftIcon="star"
+                    color="primary"
+                    size="small"
+                  />
+                ) : (
+                  <Label
+                    text={t("products.variants.makeDefault")}
+                    leftIcon="star-outline"
+                    size="small"
+                    onPress={handleMakeOptionDefault}
+                  />
+                )}
+              </ThemedView>
+              <IconButton
+                icon={
+                  selectedOption.isActive ? "eye-outline" : "eye-off-outline"
+                }
+                variant="secondary"
+                onPress={handleToggleOptionActive}
+              />
+            </ThemedView>
+            <ThemedView style={tw`flex-row gap-4 items-center`}>
+              <Button
+                label={t("delete")}
+                leftIcon="trash"
+                variant="destructive"
+                onPress={handleRequestDeleteOption}
+              />
+              <Button
+                label={t("edit")}
+                leftIcon="create"
+                variant="secondary"
+                style={tw`flex-1`}
+                onPress={handleOpenEditOption}
+              />
+            </ThemedView>
+          </ThemedView>
         )}
       </ThemedBottomSheetModal>
 

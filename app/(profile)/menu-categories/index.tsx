@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -15,19 +16,25 @@ import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
-import SwipeableRow from "@/presentation/theme/components/swipeable-row";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import IconButton from "@/presentation/theme/components/icon-button";
 import type { Category } from "@/core/menu/models/category.model";
+import { typography } from "@/constants/theme";
 
 export default function MenuCategoriesScreen() {
   const { t } = useTranslation("menuManagement");
   const { categories, products, menuQuery } = useMenu();
   const { isLoading, isError, refetch, isRefetching } = menuQuery;
-  const { deleteCategory } = useMenuManagement();
+  const { updateCategory, deleteCategory } = useMenuManagement();
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
     null,
   );
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
+  const actionsSheetRef = useRef<BottomSheetMethods>(null);
 
   useEffect(() => {
     if (categories.length === 0) {
@@ -68,6 +75,24 @@ export default function MenuCategoriesScreen() {
 
   const getProductCount = (categoryId: string) =>
     products.filter((product) => product.category.id === categoryId).length;
+
+  const handleOpenCategoryActions = (category: Category) => {
+    setSelectedCategory(category);
+    actionsSheetRef.current?.present();
+  };
+
+  const handleCloseCategoryActions = () => {
+    actionsSheetRef.current?.dismiss();
+  };
+
+  const handleToggleActive = () => {
+    if (!selectedCategory) return;
+    updateCategory.mutate({
+      id: selectedCategory.id,
+      isActive: !selectedCategory.isActive,
+    });
+    handleCloseCategoryActions();
+  };
 
   const handleConfirmDelete = async () => {
     if (!categoryToDelete) return;
@@ -127,50 +152,117 @@ export default function MenuCategoriesScreen() {
         {categories.length > 0 && (
           <ThemedView style={tw`gap-4`}>
             {categories.map((category) => (
-              <SwipeableRow
+              <Card
                 key={category.id}
-                onEdit={canManage ? () => handleEditCategory(category) : undefined}
-                onDelete={
-                  canManage ? () => setCategoryToDelete(category) : undefined
-                }
+                onPress={() => handleViewCategory(category)}
+                style={!category.isActive && tw`opacity-50`}
               >
-                <Card
-                  onPress={() => handleViewCategory(category)}
-                  style={!category.isActive && tw`opacity-50`}
-                >
-                  <ThemedView style={tw`flex-row items-center justify-between`}>
-                    <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
-                      <Ionicons
-                        name="pricetag-outline"
-                        size={28}
-                        color={tw.color("text-light-on-surface-variant")}
-                      />
-                      <ThemedView style={tw`flex-1 gap-2`}>
-                        <ThemedText type="h4">{category.name}</ThemedText>
-                        <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
-                          <ThemedText type="small" style={tw`text-gray-500`}>
-                            {category.section.name}
-                          </ThemedText>
-                          <ThemedText type="small" style={tw`text-gray-500`}>
-                            •
-                          </ThemedText>
-                          <ThemedText type="small" style={tw`text-gray-500`}>
-                            {t("categories.productCount", {
-                              count: getProductCount(category.id),
-                            })}
-                          </ThemedText>
-                        </ThemedView>
+                <ThemedView style={tw`flex-row items-center justify-between`}>
+                  <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
+                    <Ionicons
+                      name="pricetag-outline"
+                      size={28}
+                      color={tw.color("text-light-on-surface-variant")}
+                    />
+                    <ThemedView style={tw`flex-1 gap-2`}>
+                      <ThemedText type="h4">{category.name}</ThemedText>
+                      <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
+                        <ThemedText type="small" style={tw`text-gray-500`}>
+                          {category.section.name}
+                        </ThemedText>
+                        <ThemedText type="small" style={tw`text-gray-500`}>
+                          •
+                        </ThemedText>
+                        <ThemedText type="small" style={tw`text-gray-500`}>
+                          {t("categories.productCount", {
+                            count: getProductCount(category.id),
+                          })}
+                        </ThemedText>
                       </ThemedView>
                     </ThemedView>
                   </ThemedView>
-                </Card>
-              </SwipeableRow>
+                  {canManage && (
+                    <IconButton
+                      icon="ellipsis-vertical"
+                      size={18}
+                      variant="text"
+                      onPress={() => handleOpenCategoryActions(category)}
+                    />
+                  )}
+                </ThemedView>
+              </Card>
             ))}
           </ThemedView>
         )}
       </ScrollView>
 
       {canManage && <Fab icon="add" onPress={handleCreateCategory} />}
+
+      <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
+        {selectedCategory && (
+          <ThemedView style={tw`px-4 py-4 gap-6`}>
+            <ThemedView style={tw`flex-row justify-between items-start gap-3`}>
+              <ThemedView style={tw`flex-1 gap-2`}>
+                <ThemedText type="h2" style={{ fontFamily: typography.medium }}>
+                  {selectedCategory.name}
+                </ThemedText>
+                <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
+                  <ThemedView style={tw`flex-row items-center gap-1`}>
+                    <Ionicons
+                      name="list-outline"
+                      size={16}
+                      color={tw.color("text-gray-500")}
+                    />
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {selectedCategory.section.name}
+                    </ThemedText>
+                  </ThemedView>
+                  <ThemedView style={tw`flex-row items-center gap-1`}>
+                    <Ionicons
+                      name="pricetag-outline"
+                      size={16}
+                      color={tw.color("text-gray-500")}
+                    />
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {t("categories.productCount", {
+                        count: getProductCount(selectedCategory.id),
+                      })}
+                    </ThemedText>
+                  </ThemedView>
+                </ThemedView>
+              </ThemedView>
+              <IconButton
+                icon={
+                  selectedCategory.isActive ? "eye-outline" : "eye-off-outline"
+                }
+                variant="secondary"
+                onPress={handleToggleActive}
+              />
+            </ThemedView>
+            <ThemedView style={tw`flex-row gap-4 items-center`}>
+              <Button
+                label={t("delete")}
+                leftIcon="trash"
+                variant="destructive"
+                onPress={() => {
+                  handleCloseCategoryActions();
+                  setCategoryToDelete(selectedCategory);
+                }}
+              />
+              <Button
+                label={t("edit")}
+                leftIcon="create"
+                variant="secondary"
+                style={tw`flex-1`}
+                onPress={() => {
+                  handleCloseCategoryActions();
+                  handleEditCategory(selectedCategory);
+                }}
+              />
+            </ThemedView>
+          </ThemedView>
+        )}
+      </ThemedBottomSheetModal>
 
       <DialogModal
         visible={!!categoryToDelete}

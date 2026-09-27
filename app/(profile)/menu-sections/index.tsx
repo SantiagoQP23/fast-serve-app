@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -15,17 +16,23 @@ import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
-import SwipeableRow from "@/presentation/theme/components/swipeable-row";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import IconButton from "@/presentation/theme/components/icon-button";
 import type { Section } from "@/core/menu/models/section.model";
+import { typography } from "@/constants/theme";
 
 export default function MenuSectionsScreen() {
   const { t } = useTranslation("menuManagement");
   const { sections, categories, menuQuery } = useMenu();
   const { isLoading, isError, refetch, isRefetching } = menuQuery;
-  const { deleteSection } = useMenuManagement();
+  const { updateSection, deleteSection } = useMenuManagement();
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
   const [sectionToDelete, setSectionToDelete] = useState<Section | null>(null);
+  const [selectedSection, setSelectedSection] = useState<Section | null>(
+    null,
+  );
+  const actionsSheetRef = useRef<BottomSheetMethods>(null);
 
   useEffect(() => {
     if (sections.length === 0) {
@@ -65,6 +72,24 @@ export default function MenuSectionsScreen() {
   const getCategoryCount = (sectionId: string) =>
     categories.filter((category) => category.section.id === sectionId)
       .length;
+
+  const handleOpenSectionActions = (section: Section) => {
+    setSelectedSection(section);
+    actionsSheetRef.current?.present();
+  };
+
+  const handleCloseSectionActions = () => {
+    actionsSheetRef.current?.dismiss();
+  };
+
+  const handleToggleActive = () => {
+    if (!selectedSection) return;
+    updateSection.mutate({
+      id: selectedSection.id,
+      isActive: !selectedSection.isActive,
+    });
+    handleCloseSectionActions();
+  };
 
   const handleConfirmDelete = async () => {
     if (!sectionToDelete) return;
@@ -127,44 +152,101 @@ export default function MenuSectionsScreen() {
               .slice()
               .sort((a, b) => a.order - b.order)
               .map((section) => (
-                <SwipeableRow
+                <Card
                   key={section.id}
-                  onEdit={canManage ? () => handleEditSection(section) : undefined}
-                  onDelete={
-                    canManage ? () => setSectionToDelete(section) : undefined
-                  }
+                  onPress={() => handleViewSection(section)}
+                  style={!section.isActive && tw`opacity-50`}
                 >
-                  <Card
-                    onPress={() => handleViewSection(section)}
-                    style={!section.isActive && tw`opacity-50`}
-                  >
-                    <ThemedView style={tw`flex-row items-center justify-between`}>
-                      <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
-                        <Ionicons
-                          name="list-outline"
-                          size={28}
-                          color={tw.color("text-light-on-surface-variant")}
-                        />
-                        <ThemedView style={tw`flex-1 gap-2`}>
-                          <ThemedText type="h4">{section.name}</ThemedText>
-                          <ThemedView style={tw`flex-row items-center gap-2`}>
-                            <ThemedText type="small" style={tw`text-gray-500`}>
-                              {t("sections.categoryCount", {
-                                count: getCategoryCount(section.id),
-                              })}
-                            </ThemedText>
-                          </ThemedView>
+                  <ThemedView style={tw`flex-row items-center justify-between`}>
+                    <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
+                      <Ionicons
+                        name="list-outline"
+                        size={28}
+                        color={tw.color("text-light-on-surface-variant")}
+                      />
+                      <ThemedView style={tw`flex-1 gap-2`}>
+                        <ThemedText type="h4">{section.name}</ThemedText>
+                        <ThemedView style={tw`flex-row items-center gap-2`}>
+                          <ThemedText type="small" style={tw`text-gray-500`}>
+                            {t("sections.categoryCount", {
+                              count: getCategoryCount(section.id),
+                            })}
+                          </ThemedText>
                         </ThemedView>
                       </ThemedView>
                     </ThemedView>
-                  </Card>
-                </SwipeableRow>
+                    {canManage && (
+                      <IconButton
+                        icon="ellipsis-vertical"
+                        size={18}
+                        variant="text"
+                        onPress={() => handleOpenSectionActions(section)}
+                      />
+                    )}
+                  </ThemedView>
+                </Card>
               ))}
           </ThemedView>
         )}
       </ScrollView>
 
       {canManage && <Fab icon="add" onPress={handleCreateSection} />}
+
+      <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
+        {selectedSection && (
+          <ThemedView style={tw`px-4 py-4 gap-6`}>
+            <ThemedView style={tw`flex-row justify-between items-start gap-3`}>
+              <ThemedView style={tw`flex-1 gap-2`}>
+                <ThemedText type="h2" style={{ fontFamily: typography.medium }}>
+                  {selectedSection.name}
+                </ThemedText>
+                <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
+                  <ThemedView style={tw`flex-row items-center gap-1`}>
+                    <Ionicons
+                      name="list-outline"
+                      size={16}
+                      color={tw.color("text-gray-500")}
+                    />
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {t("sections.categoryCount", {
+                        count: getCategoryCount(selectedSection.id),
+                      })}
+                    </ThemedText>
+                  </ThemedView>
+                </ThemedView>
+              </ThemedView>
+              <IconButton
+                icon={
+                  selectedSection.isActive ? "eye-outline" : "eye-off-outline"
+                }
+                variant="secondary"
+                onPress={handleToggleActive}
+              />
+            </ThemedView>
+            <ThemedView style={tw`flex-row gap-4 items-center`}>
+              <Button
+                label={t("delete")}
+                leftIcon="trash"
+                variant="destructive"
+                onPress={() => {
+                  handleCloseSectionActions();
+                  setSectionToDelete(selectedSection);
+                }}
+              />
+              <Button
+                label={t("edit")}
+                leftIcon="create"
+                variant="secondary"
+                style={tw`flex-1`}
+                onPress={() => {
+                  handleCloseSectionActions();
+                  handleEditSection(selectedSection);
+                }}
+              />
+            </ThemedView>
+          </ThemedView>
+        )}
+      </ThemedBottomSheetModal>
 
       <DialogModal
         visible={!!sectionToDelete}

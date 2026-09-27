@@ -14,7 +14,6 @@ import Card from "@/presentation/theme/components/card";
 import Button from "@/presentation/theme/components/button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
-import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
 import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuManagement";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
@@ -25,6 +24,7 @@ import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import type { Section } from "@/core/menu/models/section.model";
 import type { Category } from "@/core/menu/models/category.model";
 import type { Product } from "@/core/menu/models/product.model";
+import { typography } from "@/constants/theme";
 
 type SelectedEntity =
   | { type: "section"; item: Section }
@@ -62,6 +62,12 @@ export default function MenuOverviewScreen() {
     () => categories.filter((category) => category.section.id === sectionId),
     [categories, sectionId],
   );
+
+  const getCategoryCount = (id: string) =>
+    categories.filter((category) => category.section.id === id).length;
+
+  const getProductCount = (id: string) =>
+    products.filter((product) => product.category.id === id).length;
 
   useEffect(() => {
     if (!sectionId && sortedSections.length > 0) {
@@ -413,29 +419,78 @@ export default function MenuOverviewScreen() {
 
       <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
         {selected && (
-          <ActionsBottomSheet
-            title={selected.item.name}
-            items={[
-              {
-                icon: "create-outline",
-                label: t("edit"),
-                onPress: handleEditSelected,
-              },
-              {
-                icon: selected.item.isActive
-                  ? "eye-off-outline"
-                  : "eye-outline",
-                label: selected.item.isActive ? t("deactivate") : t("activate"),
-                onPress: handleToggleSelectedActive,
-              },
-              {
-                icon: "trash-outline",
-                label: t("delete"),
-                color: "text-red-500",
-                onPress: handleDeleteSelected,
-              },
-            ]}
-          />
+          <ThemedView style={tw`px-4 py-4 gap-6`}>
+            <ThemedView style={tw`flex-row justify-between items-start gap-3`}>
+              <ThemedView style={tw`flex-1 gap-2`}>
+                <ThemedText type="h2" style={{ fontFamily: typography.medium }}>
+                  {selected.item.name}
+                </ThemedText>
+                <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
+                  {selected.type === "section" ? (
+                    <ThemedView style={tw`flex-row items-center gap-1`}>
+                      <Ionicons
+                        name="list-outline"
+                        size={16}
+                        color={tw.color("text-gray-500")}
+                      />
+                      <ThemedText type="small" style={tw`text-gray-500`}>
+                        {t("sections.categoryCount", {
+                          count: getCategoryCount(selected.item.id),
+                        })}
+                      </ThemedText>
+                    </ThemedView>
+                  ) : (
+                    <>
+                      <ThemedView style={tw`flex-row items-center gap-1`}>
+                        <Ionicons
+                          name="list-outline"
+                          size={16}
+                          color={tw.color("text-gray-500")}
+                        />
+                        <ThemedText type="small" style={tw`text-gray-500`}>
+                          {selected.item.section.name}
+                        </ThemedText>
+                      </ThemedView>
+                      <ThemedView style={tw`flex-row items-center gap-1`}>
+                        <Ionicons
+                          name="pricetag-outline"
+                          size={16}
+                          color={tw.color("text-gray-500")}
+                        />
+                        <ThemedText type="small" style={tw`text-gray-500`}>
+                          {t("categories.productCount", {
+                            count: getProductCount(selected.item.id),
+                          })}
+                        </ThemedText>
+                      </ThemedView>
+                    </>
+                  )}
+                </ThemedView>
+              </ThemedView>
+              <IconButton
+                icon={
+                  selected.item.isActive ? "eye-outline" : "eye-off-outline"
+                }
+                variant="secondary"
+                onPress={handleToggleSelectedActive}
+              />
+            </ThemedView>
+            <ThemedView style={tw`flex-row gap-4 items-center`}>
+              <Button
+                label={t("delete")}
+                leftIcon="trash"
+                variant="destructive"
+                onPress={handleDeleteSelected}
+              />
+              <Button
+                label={t("edit")}
+                leftIcon="create"
+                variant="secondary"
+                style={tw`flex-1`}
+                onPress={handleEditSelected}
+              />
+            </ThemedView>
+          </ThemedView>
         )}
       </ThemedBottomSheetModal>
 

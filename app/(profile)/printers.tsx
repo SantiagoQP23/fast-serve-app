@@ -18,9 +18,9 @@ import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
-import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import IconButton from "@/presentation/theme/components/icon-button";
 import type { Printer } from "@/core/common/models/printer.model";
+import { typography } from "@/constants/theme";
 
 export default function PrintersScreen() {
   const { t } = useTranslation("printers");
@@ -208,37 +208,60 @@ export default function PrintersScreen() {
 
       <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
         {selectedPrinter && (
-          <ActionsBottomSheet
-            title={selectedPrinter.name}
-            items={[
-              {
-                icon: "create-outline",
-                label: t("edit"),
-                onPress: () => {
-                  handleClosePrinterActions();
-                  handleEditPrinter(selectedPrinter);
-                },
-              },
-              {
-                icon: selectedPrinter.isActive
-                  ? "eye-off-outline"
-                  : "eye-outline",
-                label: selectedPrinter.isActive
-                  ? t("deactivate")
-                  : t("activate"),
-                onPress: handleToggleActive,
-              },
-              {
-                icon: "trash-outline",
-                label: t("delete"),
-                color: "text-red-500",
-                onPress: () => {
+          <ThemedView style={tw`px-4 py-4 gap-6`}>
+            <ThemedView style={tw`flex-row justify-between items-start gap-3`}>
+              <ThemedView style={tw`flex-1 gap-2`}>
+                <ThemedText type="h2" style={{ fontFamily: typography.medium }}>
+                  {selectedPrinter.name}
+                </ThemedText>
+                <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
+                  <ThemedView style={tw`flex-row items-center gap-1`}>
+                    <Ionicons
+                      name="hardware-chip-outline"
+                      size={16}
+                      color={tw.color("text-gray-500")}
+                    />
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {selectedPrinter.connectionType === "TCP" &&
+                      selectedPrinter.ipAddress
+                        ? `${selectedPrinter.ipAddress}:${selectedPrinter.port}`
+                        : t(
+                            `connectionTypes.${selectedPrinter.connectionType}`,
+                          )}
+                    </ThemedText>
+                  </ThemedView>
+                </ThemedView>
+              </ThemedView>
+              <IconButton
+                icon={
+                  selectedPrinter.isActive ? "eye-outline" : "eye-off-outline"
+                }
+                variant="secondary"
+                onPress={handleToggleActive}
+              />
+            </ThemedView>
+            <ThemedView style={tw`flex-row gap-4 items-center`}>
+              <Button
+                label={t("delete")}
+                leftIcon="trash"
+                variant="destructive"
+                onPress={() => {
                   handleClosePrinterActions();
                   setPrinterToDelete(selectedPrinter);
-                },
-              },
-            ]}
-          />
+                }}
+              />
+              <Button
+                label={t("edit")}
+                leftIcon="create"
+                variant="secondary"
+                style={tw`flex-1`}
+                onPress={() => {
+                  handleClosePrinterActions();
+                  handleEditPrinter(selectedPrinter);
+                }}
+              />
+            </ThemedView>
+          </ThemedView>
         )}
       </ThemedBottomSheetModal>
 

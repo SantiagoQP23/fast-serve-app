@@ -16,8 +16,9 @@ import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
-import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
+import IconButton from "@/presentation/theme/components/icon-button";
 import type { ProductionArea } from "@/core/menu/models/producion-area.model";
+import { typography } from "@/constants/theme";
 
 export default function ProductionAreasScreen() {
   const { t } = useTranslation("productionAreas");
@@ -179,37 +180,58 @@ export default function ProductionAreasScreen() {
 
       <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
         {selectedArea && (
-          <ActionsBottomSheet
-            title={selectedArea.name}
-            items={[
-              {
-                icon: "create-outline",
-                label: t("edit"),
-                onPress: () => {
-                  handleCloseAreaActions();
-                  handleEditArea(selectedArea);
-                },
-              },
-              {
-                icon: selectedArea.isActive
-                  ? "eye-off-outline"
-                  : "eye-outline",
-                label: selectedArea.isActive
-                  ? t("deactivate")
-                  : t("activate"),
-                onPress: handleToggleActive,
-              },
-              {
-                icon: "trash-outline",
-                label: t("delete"),
-                color: "text-red-500",
-                onPress: () => {
+          <ThemedView style={tw`px-4 py-4 gap-6`}>
+            <ThemedView style={tw`flex-row justify-between items-start gap-3`}>
+              <ThemedView style={tw`flex-1 gap-2`}>
+                <ThemedText type="h2" style={{ fontFamily: typography.medium }}>
+                  {selectedArea.name}
+                </ThemedText>
+                <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
+                  <ThemedView style={tw`flex-row items-center gap-1`}>
+                    <Ionicons
+                      name="print-outline"
+                      size={16}
+                      color={tw.color("text-gray-500")}
+                    />
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {getPrinterCountText(selectedArea.printers?.length || 0)}
+                    </ThemedText>
+                  </ThemedView>
+                </ThemedView>
+                {!!selectedArea.description && (
+                  <ThemedText type="body2" style={tw`text-gray-500`}>
+                    {selectedArea.description}
+                  </ThemedText>
+                )}
+              </ThemedView>
+              <IconButton
+                icon={selectedArea.isActive ? "eye-outline" : "eye-off-outline"}
+                variant="secondary"
+                onPress={handleToggleActive}
+              />
+            </ThemedView>
+            <ThemedView style={tw`flex-row gap-4 items-center`}>
+              <Button
+                label={t("delete")}
+                leftIcon="trash"
+                variant="destructive"
+                onPress={() => {
                   handleCloseAreaActions();
                   setAreaToDelete(selectedArea);
-                },
-              },
-            ]}
-          />
+                }}
+              />
+              <Button
+                label={t("edit")}
+                leftIcon="create"
+                variant="secondary"
+                style={tw`flex-1`}
+                onPress={() => {
+                  handleCloseAreaActions();
+                  handleEditArea(selectedArea);
+                }}
+              />
+            </ThemedView>
+          </ThemedView>
         )}
       </ThemedBottomSheetModal>
 
