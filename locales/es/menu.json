@@ -37,7 +37,6 @@
     "createOrder": "Crear pedido",
     "createSale": "Crear venta",
     "createAndPrintOrder": "Crear e imprimir",
-    "createAndPrintSale": "Crear e imprimir venta",
     "empty": "Su carrito está vacío",
     "emptyDescription": "Agregue algunos productos para comenzar"
   },

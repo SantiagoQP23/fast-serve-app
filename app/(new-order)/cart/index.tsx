@@ -45,6 +45,7 @@ export default function CartScreen() {
   const hasActivePrinters = usePrintersStore((state) =>
     state.printers.some((printer) => printer.isActive),
   );
+  const canPrintOnCreate = cartType === "order" && hasActivePrinters;
 
   const [total, setTotal] = useState(0);
   const [printOnCreate, setPrintOnCreate] = useState(false);
@@ -72,12 +73,7 @@ export default function CartScreen() {
       createSale(data, {
         onSuccess: (resp) => {
           resetNewOrder();
-          if (!resp.data) return;
-          router.replace(
-            print
-              ? `/(bills)/${resp.data.id}/print`
-              : `/(bills)/${resp.data.id}`,
-          );
+          if (resp.data) router.replace(`/(bills)/${resp.data.id}`);
         },
       });
     } else {
@@ -315,14 +311,14 @@ export default function CartScreen() {
             style={[
               tw.style(
                 ``,
-                hasActivePrinters
+                canPrintOnCreate
                   ? " flex-row items-center justify-between gap-2"
                   : "",
               ),
             ]}
           >
             <Button
-              variant={hasActivePrinters ? "outline" : "primary"}
+              variant={canPrintOnCreate ? "outline" : "primary"}
               loading={(isLoading || createSaleLoading) && !printOnCreate}
               label={t(
                 cartType === "order"
@@ -336,18 +332,14 @@ export default function CartScreen() {
                 details.length === 0 ||
                 createSaleLoading
               }
-              size={hasActivePrinters ? "small" : "medium"}
+              size={canPrintOnCreate ? "small" : "medium"}
             ></Button>
-            {hasActivePrinters && (
+            {canPrintOnCreate && (
               <Button
                 style={tw`flex-1`}
                 leftIcon="print-outline"
                 loading={(isLoading || createSaleLoading) && printOnCreate}
-                label={t(
-                  cartType === "order"
-                    ? "menu:cart.createAndPrintOrder"
-                    : "menu:cart.createAndPrintSale",
-                )}
+                label={t("menu:cart.createAndPrintOrder")}
                 onPress={() => onCreateOrder(true)}
                 disabled={
                   !isOnline ||

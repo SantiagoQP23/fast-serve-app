@@ -9,6 +9,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 
 import { Stack } from "expo-router";
 import { useEffect } from "react";
+import Button from "@/presentation/theme/components/button";
 
 export default function OrdersLayout() {
   const order = useOrdersStore((state) => state.activeOrder);
@@ -50,11 +51,13 @@ export default function OrdersLayout() {
             headerRight: () =>
               !isClosed && canCloseOrder ? (
                 <ThemedView style={tw`flex-row items-center gap-2`}>
-                  <IconButton
-                    icon="lock-closed-outline"
+                  <Button
+                    leftIcon="lock-closed-outline"
+                    label="Close order"
                     onPress={openCloseModal}
                     variant="secondary"
-                  ></IconButton>
+                    size="small"
+                  ></Button>
                 </ThemedView>
               ) : null,
           }}
