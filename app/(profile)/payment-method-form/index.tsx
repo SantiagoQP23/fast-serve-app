@@ -18,6 +18,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { getPaymentMethodTranslationKey } from "@/core/i18n/utils";
 import { useAccounts } from "@/presentation/restaurant/hooks/useAccounts";
 import { useAccountsManagement } from "@/presentation/restaurant/hooks/useAccountsManagement";
+import { usePaymentMethods } from "@/presentation/restaurant/hooks/usePaymentMethods";
 import { usePaymentMethodsManagement } from "@/presentation/restaurant/hooks/usePaymentMethodsManagement";
 import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.model";
 import { AccountType } from "@/core/restaurant/models/account.model";
@@ -82,6 +83,7 @@ export default function PaymentMethodFormScreen() {
 
   const { accounts } = useAccounts();
   const { createAccount } = useAccountsManagement();
+  const { paymentMethods } = usePaymentMethods();
   const { createPaymentMethod, updatePaymentMethod, deletePaymentMethod } =
     usePaymentMethodsManagement();
 
@@ -124,6 +126,8 @@ export default function PaymentMethodFormScreen() {
 
   const allowedIds = watch("allowedDestinationAccountIds");
   const defaultId = watch("defaultDestinationAccountId");
+  const typeValue = watch("type");
+  const isCardType = typeValue === PaymentMethodCategory.CARD;
 
   // Auto-clear the default account if it's no longer in the allowed list
   useEffect(() => {
@@ -140,9 +144,10 @@ export default function PaymentMethodFormScreen() {
     const payload = {
       name: data.name.trim(),
       type: data.type,
-      commissionPercentage: data.commissionPercentage
-        ? Number(data.commissionPercentage)
-        : 0,
+      commissionPercentage:
+        data.type === PaymentMethodCategory.CARD && data.commissionPercentage
+          ? Number(data.commissionPercentage)
+          : 0,
       allowedDestinationAccountIds: data.allowedDestinationAccountIds.map(Number),
       defaultDestinationAccountId: Number(data.defaultDestinationAccountId),
     };
@@ -229,12 +234,39 @@ export default function PaymentMethodFormScreen() {
     closeAddAccountSheet();
   };
 
-  const categoryOptions = Object.values(PaymentMethodCategory).map(
-    (value) => ({
+  const selectableCategories = [
+    PaymentMethodCategory.CASH,
+    PaymentMethodCategory.CARD,
+    PaymentMethodCategory.TRANSFER,
+  ];
+
+  const currentMethod = paymentMethods.find(
+    (method) => String(method.id) === params.methodId,
+  );
+
+  // Multiple CARD payment methods are allowed (e.g. different processors),
+  // so CARD never counts as "already configured".
+  const usedCategories = new Set(
+    paymentMethods
+      .filter((method) => method.id !== currentMethod?.id)
+      .filter((method) => method.type !== PaymentMethodCategory.CARD)
+      .map((method) => method.type),
+  );
+
+  const categoryOptions = (
+    currentMethod && !selectableCategories.includes(currentMethod.type)
+      ? [...selectableCategories, currentMethod.type]
+      : selectableCategories
+  )
+    .filter(
+      (value) => !usedCategories.has(value) || value === currentMethod?.type,
+    )
+    .map((value) => ({
       label: t(getPaymentMethodTranslationKey(value)),
       value,
-    }),
-  );
+    }));
+
+  const noCategoriesAvailable = !isEditing && categoryOptions.length === 0;
 
   const accountTypeOptions = Object.values(AccountType).map((value) => ({
     label: t(`accounts.types.${value}`),
@@ -289,52 +321,77 @@ export default function PaymentMethodFormScreen() {
 
           {(isEditing || step === 1) && (
             <ThemedView style={tw`gap-4`}>
-              <Controller
-                control={control}
-                name="type"
-                render={({ field: { value, onChange } }) => (
-                  <Select
-                    label={t("methods.fields.category")}
-                    options={categoryOptions}
-                    value={value}
-                    onChange={(v) => onChange(v as PaymentMethodCategory)}
-                    placeholder={t("methods.placeholders.category")}
+              {noCategoriesAvailable ? (
+                <ThemedView
+                  style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+                >
+                  <Ionicons
+                    name="checkmark-done-circle-outline"
+                    size={32}
+                    color={tw.color("gray-400")}
                   />
-                )}
-              />
+                  <ThemedText type="body2" style={tw`font-semibold`}>
+                    {t("methods.allCategoriesConfigured")}
+                  </ThemedText>
+                  <ThemedText
+                    type="small"
+                    style={tw`text-center text-gray-500`}
+                  >
+                    {t("methods.allCategoriesConfiguredDescription")}
+                  </ThemedText>
+                </ThemedView>
+              ) : (
+                <>
+                  <Controller
+                    control={control}
+                    name="type"
+                    render={({ field: { value, onChange } }) => (
+                      <Select
+                        label={t("methods.fields.category")}
+                        options={categoryOptions}
+                        value={value}
+                        onChange={(v) => onChange(v as PaymentMethodCategory)}
+                        placeholder={t("methods.placeholders.category")}
+                      />
+                    )}
+                  />
 
-              <Controller
-                control={control}
-                name="name"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    label={t("methods.fields.name")}
-                    icon="card-outline"
-                    placeholder={t("methods.placeholders.name")}
-                    onBlur={onBlur}
-                    value={value}
-                    onChangeText={onChange}
-                    error={errors.name?.message}
+                  <Controller
+                    control={control}
+                    name="name"
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <TextInput
+                        label={t("methods.fields.name")}
+                        icon="card-outline"
+                        placeholder={t("methods.placeholders.name")}
+                        onBlur={onBlur}
+                        value={value}
+                        onChangeText={onChange}
+                        error={errors.name?.message}
+                      />
+                    )}
                   />
-                )}
-              />
 
-              <Controller
-                control={control}
-                name="commissionPercentage"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    label={t("methods.fields.commission")}
-                    icon="pricetag-outline"
-                    placeholder={t("methods.placeholders.commission")}
-                    onBlur={onBlur}
-                    value={value}
-                    onChangeText={onChange}
-                    keyboardType="decimal-pad"
-                    error={errors.commissionPercentage?.message}
-                  />
-                )}
-              />
+                  {isCardType && (
+                    <Controller
+                      control={control}
+                      name="commissionPercentage"
+                      render={({ field: { onChange, onBlur, value } }) => (
+                        <TextInput
+                          label={t("methods.fields.commission")}
+                          icon="pricetag-outline"
+                          placeholder={t("methods.placeholders.commission")}
+                          onBlur={onBlur}
+                          value={value}
+                          onChangeText={onChange}
+                          keyboardType="decimal-pad"
+                          error={errors.commissionPercentage?.message}
+                        />
+                      )}
+                    />
+                  )}
+                </>
+              )}
             </ThemedView>
           )}
 
@@ -460,7 +517,11 @@ export default function PaymentMethodFormScreen() {
           style={tw`absolute bottom-0 left-0 right-0 bg-light-background dark:bg-black px-4 py-4`}
         >
           {step === 1 ? (
-            <Button label={t("common:actions.next")} onPress={handleNext} />
+            <Button
+              label={t("common:actions.next")}
+              onPress={handleNext}
+              disabled={noCategoriesAvailable}
+            />
           ) : (
             <ThemedView style={tw`flex-row gap-3 justify-between`}>
               <Button

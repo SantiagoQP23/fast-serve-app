@@ -66,6 +66,8 @@
     "noMethodsDescription": "No hay métodos de pago configurados para este restaurante.",
     "noAccountsAvailable": "No hay cuentas disponibles",
     "noAccountsAvailableDescription": "Crea una cuenta primero para asignarla a un método de pago.",
+    "allCategoriesConfigured": "Ya se configuraron todos los métodos de pago",
+    "allCategoriesConfiguredDescription": "Ya existe un método de pago para efectivo, tarjeta y transferencia.",
     "notFound": "Método de pago no encontrado",
     "deleteTitle": "Eliminar método de pago",
     "deleteMessage": "¿Estás seguro de que deseas eliminar este método de pago?",

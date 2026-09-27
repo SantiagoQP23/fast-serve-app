@@ -66,6 +66,8 @@
     "noMethodsDescription": "There are no payment methods configured for this restaurant.",
     "noAccountsAvailable": "No accounts available",
     "noAccountsAvailableDescription": "Create an account first to assign it to a payment method.",
+    "allCategoriesConfigured": "All payment methods are already configured",
+    "allCategoriesConfiguredDescription": "There's already a payment method for cash, card, and transfer.",
     "notFound": "Payment method not found",
     "deleteTitle": "Delete payment method",
     "deleteMessage": "Are you sure you want to delete this payment method?",
