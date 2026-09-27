@@ -16,6 +16,7 @@ import dayjs from "dayjs";
 import Card from "@/presentation/theme/components/card";
 import Button from "@/presentation/theme/components/button";
 import Label from "@/presentation/theme/components/label";
+import { typography } from "@/constants/theme";
 
 function TicketCard({
   ticket,
@@ -71,7 +72,7 @@ function TicketCard({
   };
 
   return (
-    <Card style={tw`p-4`}>
+    <Card style={tw`p-4 bg-white`}>
       {/* Ticket Header */}
       <ThemedView
         style={tw`flex-row justify-between items-center border-b border-light-border pb-4`}
@@ -103,8 +104,11 @@ function TicketCard({
             style={tw`gap-2 bg-white p-3 rounded-3xl`}
           >
             <ThemedText
-              type="body1"
-              style={tw`font-bold text-light-on-surface-variant uppercase`}
+              type="body2"
+              style={[
+                tw` text-light-on-surface-variant uppercase`,
+                { fontFamily: typography.semibold },
+              ]}
             >
               {group.areaName}
             </ThemedText>
@@ -113,13 +117,13 @@ function TicketCard({
                 <ThemedView key={`${item.id}-${idx}`} style={tw`gap-1`}>
                   <ThemedView style={tw`flex-row items-start gap-2`}>
                     <ThemedText
-                      type="body1"
+                      type="small"
                       style={tw`font-bold text-light-text min-w-6`}
                     >
                       {item.quantity}x
                     </ThemedText>
                     <ThemedText
-                      type="body1"
+                      type="small"
                       style={tw`font-semibold text-light-text flex-1`}
                     >
                       {item.productName}
@@ -134,20 +138,20 @@ function TicketCard({
                   </ThemedView>
 
                   {item.productOptionName && (
-                    <ThemedText type="body2" style={tw`text-gray-500 ml-8`}>
+                    <ThemedText type="small" style={tw`text-gray-500 ml-8`}>
                       {item.productOptionName}
                     </ThemedText>
                   )}
 
                   {item.tagsSnapshot && (
-                    <ThemedText type="body2" style={tw`text-gray-500 ml-8`}>
+                    <ThemedText type="small" style={tw`text-gray-500 ml-8`}>
                       + {item.tagsSnapshot}
                     </ThemedText>
                   )}
 
                   {item.description && (
                     <ThemedText
-                      type="body2"
+                      type="small"
                       style={tw`text-gray-500 ml-8 italic`}
                     >
                       *** {item.description} ***

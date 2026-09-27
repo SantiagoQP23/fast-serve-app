@@ -2,18 +2,23 @@ import { Colors, typography } from "@/constants/theme";
 import CloseOrderModal from "@/presentation/orders/components/close-order-modal";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
+import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 import { useModal } from "@/presentation/shared/hooks/useModal";
+import { useMarkOrderDelivered } from "@/presentation/orders/hooks/useMarkOrderDelivered";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 import { Stack } from "expo-router";
 import { useEffect } from "react";
 import Button from "@/presentation/theme/components/button";
 
 export default function OrdersLayout() {
+  const { t } = useTranslation(["orders"]);
   const order = useOrdersStore((state) => state.activeOrder);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
+  const { markDelivered } = useMarkOrderDelivered();
   const {
     isOpen: closeModalIsOpen,
     handleOpen: openCloseModal,
@@ -26,6 +31,13 @@ export default function OrdersLayout() {
     !isClosed &&
     order?.status === OrderStatus.DELIVERED &&
     order?.isPaid === true;
+  const hasPendingItems = (order?.details ?? []).some(
+    (detail) =>
+      detail.status !== OrderDetailStatus.DELIVERED &&
+      detail.status !== OrderDetailStatus.CANCELLED,
+  );
+  const canMarkDelivered =
+    !isClosed && order?.status !== OrderStatus.DELIVERED && hasPendingItems;
 
   useEffect(() => {
     return () => {
@@ -49,15 +61,26 @@ export default function OrdersLayout() {
             title: "",
             headerShadowVisible: false,
             headerRight: () =>
-              !isClosed && canCloseOrder ? (
+              canMarkDelivered || canCloseOrder ? (
                 <ThemedView style={tw`flex-row items-center gap-2`}>
-                  <Button
-                    leftIcon="lock-closed-outline"
-                    label="Close order"
-                    onPress={openCloseModal}
-                    variant="secondary"
-                    size="small"
-                  ></Button>
+                  {canMarkDelivered && (
+                    <Button
+                      leftIcon="checkmark-done-outline"
+                      label={t("orders:options.markDelivered")}
+                      onPress={() => order && markDelivered(order)}
+                      variant="secondary"
+                      size="small"
+                    ></Button>
+                  )}
+                  {canCloseOrder && (
+                    <Button
+                      leftIcon="lock-closed-outline"
+                      label={t("orders:options.closeOrder")}
+                      onPress={openCloseModal}
+                      variant="secondary"
+                      size="small"
+                    ></Button>
+                  )}
                 </ThemedView>
               ) : null,
           }}

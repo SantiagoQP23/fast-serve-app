@@ -629,10 +629,10 @@ export default function OrderScreen() {
                       style={tw`flex-row justify-between items-center mb-4`}
                     >
                       <ThemedView style={tw`flex-row items-center gap-3`}>
-                        <Checkbox
-                          value={false}
-                          onValueChange={handleMarkAllDelivered}
-                        />
+                        {/* <Checkbox */}
+                        {/*   value={false} */}
+                        {/*   onValueChange={handleMarkAllDelivered} */}
+                        {/* /> */}
                         <ThemedText type="body2" style={tw`text-gray-500`}>
                           {t("orders:details.pendingItems")}
                         </ThemedText>
