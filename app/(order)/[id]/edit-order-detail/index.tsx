@@ -211,7 +211,7 @@ export default function EditOrderDetailScreen() {
               <ThemedView>
                 <ProgressBar
                   progress={orderDetail.qtyDelivered / orderDetail.quantity}
-                  height={1}
+                  height={1.5}
                 />
               </ThemedView>
             )}
@@ -222,19 +222,6 @@ export default function EditOrderDetailScreen() {
                 color={labelColor}
                 leftIcon={statusIcon}
                 onPress={openDeliveredBottomSheet}
-              />
-              <Label
-                text={
-                  orderDetail.typeOrderDetail === OrderType.IN_PLACE
-                    ? t("common:orderType.inPlace")
-                    : t("common:orderType.takeAway")
-                }
-                leftIcon={
-                  orderDetail.typeOrderDetail === OrderType.IN_PLACE
-                    ? "restaurant-outline"
-                    : "bag-outline"
-                }
-                onPress={() => typePickerRef.current?.present()}
               />
               <Label
                 leftIcon="notifications-outline"
@@ -330,33 +317,47 @@ export default function EditOrderDetailScreen() {
               />
             )}
 
-            <ThemedView
-              style={tw`flex-row  items-center gap-4 w-full ${!notes.trim() ? "justify-between" : "justify-center"}`}
-            >
-              {!notes.trim() && (
-                <Button
-                  variant="surface"
-                  label={t("orders:newOrder.addNote")}
-                  leftIcon="document-text-outline"
-                  style={tw`h-full flex-1`}
-                  onPress={openNoteBottomSheet}
-                />
-              )}
+            <ThemedView style={tw`flex-row  justify-center gap-4 w-full `}>
               <ThemedView style={tw`flex-row items-center gap-6`}>
                 <IconButton
                   icon="remove-outline"
                   onPress={decrement}
                   variant="secondary"
-                  size={40}
+                  size={50}
                 />
                 <ThemedText type="h1">{counter}</ThemedText>
                 <IconButton
                   icon="add"
                   onPress={increment}
                   variant="secondary"
-                  size={40}
+                  size={50}
                 />
               </ThemedView>
+            </ThemedView>
+            <ThemedView style={tw`flex-row items-center gap-4 justify-between`}>
+              <Label
+                text={
+                  orderDetail.typeOrderDetail === OrderType.IN_PLACE
+                    ? t("common:orderType.inPlace")
+                    : t("common:orderType.takeAway")
+                }
+                leftIcon={
+                  orderDetail.typeOrderDetail === OrderType.IN_PLACE
+                    ? "restaurant-outline"
+                    : "bag-outline"
+                }
+                onPress={() => typePickerRef.current?.present()}
+              />
+
+              {!notes.trim() && (
+                <Button
+                  variant="surface"
+                  label={t("orders:newOrder.addNote")}
+                  leftIcon="document-text-outline"
+                  onPress={openNoteBottomSheet}
+                  size="extra-small"
+                />
+              )}
             </ThemedView>
 
             <ThemedView style={tw`flex-row gap-5  mb-4`}>
