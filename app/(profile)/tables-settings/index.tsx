@@ -16,7 +16,6 @@ import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
-import SwipeableRow from "@/presentation/theme/components/swipeable-row";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import type { Table } from "@/core/tables/models/table.model";
@@ -131,55 +130,40 @@ export default function TablesSettingsScreen() {
         )}
 
         {tables.length > 0 && (
-          <ThemedView style={tw`gap-2`}>
+          <ThemedView style={tw`flex-row flex-wrap justify-between gap-y-4`}>
             {tables.map((table) => (
-              <SwipeableRow
-                key={table.id}
-                onEdit={canManage ? () => handleEditTable(table) : undefined}
-                onDelete={
-                  canManage ? () => setTableToDelete(table) : undefined
-                }
-              >
+              <ThemedView key={table.id} style={tw`w-[48%]`}>
                 <Card
                   onPress={
-                    canManage
-                      ? () => handleOpenTableActions(table)
-                      : undefined
+                    canManage ? () => handleOpenTableActions(table) : undefined
                   }
                   style={table.isActive === false && tw`opacity-50`}
                 >
-                  <ThemedView style={tw`flex-row items-center justify-between`}>
-                    <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
-                      <Ionicons
-                        name="grid-outline"
-                        size={28}
-                        color={tw.color("text-light-on-surface-variant")}
-                      />
-                      <ThemedView style={tw`flex-1 gap-2`}>
-                        <ThemedText type="h4">
-                          {t("settings.tableName", { name: table.name })}
-                        </ThemedText>
-                        <ThemedView
-                          style={tw`flex-row items-center gap-2 flex-wrap`}
-                        >
-                          {table.chairs != null && (
-                            <ThemedText type="small" style={tw`text-gray-500`}>
-                              {t("settings.chairsCount", {
-                                count: table.chairs,
-                              })}
-                            </ThemedText>
-                          )}
-                          {table.description ? (
-                            <ThemedText type="small" style={tw`text-gray-500`}>
-                              • {table.description}
-                            </ThemedText>
-                          ) : null}
-                        </ThemedView>
+                  <ThemedView style={tw`gap-4`}>
+                    <Ionicons
+                      name="grid-outline"
+                      size={28}
+                      color={tw.color("text-light-on-surface-variant")}
+                    />
+                    <ThemedView style={tw`gap-2`}>
+                      <ThemedText type="h4">
+                        {t("settings.tableName", { name: table.name })}
+                      </ThemedText>
+                      <ThemedView
+                        style={tw`flex-row items-center gap-2 flex-wrap`}
+                      >
+                        {table.chairs != null && (
+                          <ThemedText type="small" style={tw`text-gray-500`}>
+                            {t("settings.chairsCount", {
+                              count: table.chairs,
+                            })}
+                          </ThemedText>
+                        )}
                       </ThemedView>
                     </ThemedView>
                   </ThemedView>
                 </Card>
-              </SwipeableRow>
+              </ThemedView>
             ))}
           </ThemedView>
         )}

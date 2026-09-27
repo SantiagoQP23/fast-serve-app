@@ -148,23 +148,23 @@ export default function ManageScreen() {
 
   return (
     <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
-          <ThemedText type="h2">{t("manage.title")}</ThemedText>
-          <ThemedView style={tw`items-center gap-3 flex-row`}>
-            <Avatar
-              name={user?.person?.firstName}
-              size={42}
-              onPress={() => userInfoSheetRef.current?.present()}
-            />
-            <IconButton
-              onPress={() => router.push("/(profile)/settings")}
-              icon="settings-outline"
-              variant="secondary"
-            ></IconButton>
-          </ThemedView>
+      <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
+        <ThemedText type="h2">{t("manage.title")}</ThemedText>
+        <ThemedView style={tw`items-center gap-3 flex-row`}>
+          <Avatar
+            name={user?.person?.firstName}
+            size={42}
+            onPress={() => userInfoSheetRef.current?.present()}
+          />
+          <IconButton
+            onPress={() => router.push("/(profile)/settings")}
+            icon="settings-outline"
+            variant="secondary"
+          ></IconButton>
         </ThemedView>
+      </ThemedView>
 
+      <ScrollView showsVerticalScrollIndicator={false}>
         <ThemedView style={tw`my-4`} />
 
         {/* Subscription Banner */}

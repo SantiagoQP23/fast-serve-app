@@ -145,7 +145,7 @@ export default function TableSettingsFormScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("settings.fields.name")}
-                  icon="grid-outline"
+                  icon="grid"
                   placeholder={t("settings.placeholders.name")}
                   onBlur={onBlur}
                   value={value}
@@ -161,7 +161,7 @@ export default function TableSettingsFormScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("settings.fields.description")}
-                  icon="document-text-outline"
+                  icon="document-text"
                   placeholder={t("settings.placeholders.description")}
                   onBlur={onBlur}
                   value={value}
@@ -177,7 +177,7 @@ export default function TableSettingsFormScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("settings.fields.chairs")}
-                  icon="people-outline"
+                  icon="people"
                   placeholder={t("settings.placeholders.chairs")}
                   onBlur={onBlur}
                   value={value}
@@ -187,7 +187,6 @@ export default function TableSettingsFormScreen() {
                 />
               )}
             />
-
           </ThemedView>
         </ScrollView>
       </ScreenLayout>
