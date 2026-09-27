@@ -11,6 +11,8 @@
   "delete": "Delete",
   "activate": "Activate",
   "deactivate": "Deactivate",
+  "setDefaultAccount": "Set as default",
+  "removeAccount": "Remove from this method",
   "accounts": {
     "title": "Accounts",
     "subtitle": "Manage cash boxes and bank accounts.",
@@ -69,6 +71,12 @@
     "allCategoriesConfigured": "All payment methods are already configured",
     "allCategoriesConfiguredDescription": "There's already a payment method for cash, card, and transfer.",
     "notFound": "Payment method not found",
+    "selectAccount": {
+      "title": "Add account",
+      "subtitle": "Choose an existing account or create a new one.",
+      "empty": "No accounts to add",
+      "emptyDescription": "All eligible accounts are already assigned to this payment method. Create a new one below."
+    },
     "deleteTitle": "Delete payment method",
     "deleteMessage": "Are you sure you want to delete this payment method?",
     "createSuccess": "Payment method created successfully",

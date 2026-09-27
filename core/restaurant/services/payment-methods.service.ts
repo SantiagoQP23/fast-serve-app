@@ -33,4 +33,34 @@ export class PaymentMethodsService {
   static async remove(id: number): Promise<void> {
     await restaurantApi.delete(`/payment-methods/${id}`);
   }
+
+  static async linkAccount(
+    id: number,
+    accountId: number,
+  ): Promise<PaymentMethod> {
+    const resp = await restaurantApi.post<PaymentMethod>(
+      `/payment-methods/${id}/accounts/${accountId}`,
+    );
+    return resp.data;
+  }
+
+  static async unlinkAccount(
+    id: number,
+    accountId: number,
+  ): Promise<PaymentMethod> {
+    const resp = await restaurantApi.delete<PaymentMethod>(
+      `/payment-methods/${id}/accounts/${accountId}`,
+    );
+    return resp.data;
+  }
+
+  static async setDefaultAccount(
+    id: number,
+    accountId: number,
+  ): Promise<PaymentMethod> {
+    const resp = await restaurantApi.patch<PaymentMethod>(
+      `/payment-methods/${id}/default-account/${accountId}`,
+    );
+    return resp.data;
+  }
 }

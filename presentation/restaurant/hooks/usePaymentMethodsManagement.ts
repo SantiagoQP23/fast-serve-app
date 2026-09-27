@@ -53,9 +53,60 @@ export const usePaymentMethodsManagement = () => {
     },
   });
 
+  const linkAccount = useMutation<
+    PaymentMethod,
+    Error,
+    { id: number; accountId: number }
+  >({
+    mutationFn: ({ id, accountId }) =>
+      PaymentMethodsService.linkAccount(id, accountId),
+    onSuccess: (paymentMethod) => {
+      upsertPaymentMethod(paymentMethod);
+      toast.success(t("methods.updateSuccess"));
+    },
+    onError: (error) => {
+      toast.error(error.message || t("methods.updateError"));
+    },
+  });
+
+  const unlinkAccount = useMutation<
+    PaymentMethod,
+    Error,
+    { id: number; accountId: number }
+  >({
+    mutationFn: ({ id, accountId }) =>
+      PaymentMethodsService.unlinkAccount(id, accountId),
+    onSuccess: (paymentMethod) => {
+      upsertPaymentMethod(paymentMethod);
+      toast.success(t("methods.updateSuccess"));
+    },
+    onError: (error) => {
+      toast.error(error.message || t("methods.updateError"));
+    },
+  });
+
+  const setDefaultAccount = useMutation<
+    PaymentMethod,
+    Error,
+    { id: number; accountId: number }
+  >({
+    mutationFn: ({ id, accountId }) =>
+      PaymentMethodsService.setDefaultAccount(id, accountId),
+    onSuccess: (paymentMethod) => {
+      upsertPaymentMethod(paymentMethod);
+      toast.success(t("methods.updateSuccess"));
+    },
+    onError: (error) => {
+      toast.error(error.message || t("methods.updateError"));
+    },
+  });
+
   return {
     createPaymentMethod,
     updatePaymentMethod,
     deletePaymentMethod,
+    linkAccount,
+    unlinkAccount,
+    setDefaultAccount,
   };
 };

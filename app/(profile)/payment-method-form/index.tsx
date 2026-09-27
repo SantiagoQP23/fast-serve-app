@@ -10,7 +10,7 @@ import {
   Platform,
   UIManager,
 } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
@@ -28,9 +28,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Card from "@/presentation/theme/components/card";
-import Switch from "@/presentation/theme/components/switch";
 import Select from "@/presentation/theme/components/select";
-import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
@@ -41,6 +39,12 @@ if (
 ) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
+
+const selectableCategories = [
+  PaymentMethodCategory.CASH,
+  PaymentMethodCategory.CARD,
+  PaymentMethodCategory.TRANSFER,
+];
 
 const buildPaymentMethodSchema = (t: (key: string) => string) =>
   z.object({
@@ -60,7 +64,6 @@ const buildPaymentMethodSchema = (t: (key: string) => string) =>
     defaultDestinationAccountId: z
       .string()
       .min(1, t("methods.validations.defaultAccountRequired")),
-    isActive: z.boolean(),
   });
 
 type PaymentMethodFormData = z.infer<
@@ -72,25 +75,12 @@ const accountIcon = (type: AccountType) =>
 
 export default function PaymentMethodFormScreen() {
   const { t } = useTranslation("paymentMethods");
-  const params = useLocalSearchParams<{
-    methodId?: string;
-    name?: string;
-    type?: string;
-    commissionPercentage?: string;
-    allowedDestinationAccountIds?: string;
-    defaultDestinationAccountId?: string;
-    isActive?: string;
-  }>();
-
-  const isEditing = !!params.methodId;
 
   const { accounts } = useAccounts();
   const { createAccount } = useAccountsManagement();
   const { paymentMethods } = usePaymentMethods();
-  const { createPaymentMethod, updatePaymentMethod, deletePaymentMethod } =
-    usePaymentMethodsManagement();
+  const { createPaymentMethod } = usePaymentMethodsManagement();
 
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
 
   const [newAccountName, setNewAccountName] = useState("");
@@ -104,48 +94,24 @@ export default function PaymentMethodFormScreen() {
 
   const schema = buildPaymentMethodSchema(t);
 
-  const initialAllowedIds = params.allowedDestinationAccountIds
-    ? params.allowedDestinationAccountIds.split(",").filter(Boolean)
-    : [];
-
-  const selectableCategories = [
-    PaymentMethodCategory.CASH,
-    PaymentMethodCategory.CARD,
-    PaymentMethodCategory.TRANSFER,
-  ];
-
-  const currentMethod = paymentMethods.find(
-    (method) => String(method.id) === params.methodId,
-  );
-
   // Multiple CARD payment methods are allowed (e.g. different processors),
   // so CARD never counts as "already configured".
   const usedCategories = new Set(
     paymentMethods
-      .filter((method) => method.id !== currentMethod?.id)
       .filter((method) => method.type !== PaymentMethodCategory.CARD)
       .map((method) => method.type),
   );
 
-  const categoryOptions = (
-    currentMethod && !selectableCategories.includes(currentMethod.type)
-      ? [...selectableCategories, currentMethod.type]
-      : selectableCategories
-  )
-    .filter(
-      (value) => !usedCategories.has(value) || value === currentMethod?.type,
-    )
+  const categoryOptions = selectableCategories
+    .filter((value) => !usedCategories.has(value))
     .map((value) => ({
       label: t(getPaymentMethodTranslationKey(value)),
       value,
     }));
 
-  const noCategoriesAvailable = !isEditing && categoryOptions.length === 0;
+  const noCategoriesAvailable = categoryOptions.length === 0;
 
-  const initialType =
-    (params.type as PaymentMethodCategory) ||
-    categoryOptions[0]?.value ||
-    PaymentMethodCategory.CASH;
+  const initialType = categoryOptions[0]?.value || PaymentMethodCategory.CASH;
 
   const {
     control,
@@ -157,14 +123,11 @@ export default function PaymentMethodFormScreen() {
   } = useForm<PaymentMethodFormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name:
-        params.name ||
-        (!isEditing ? t(getPaymentMethodTranslationKey(initialType)) : ""),
+      name: t(getPaymentMethodTranslationKey(initialType)),
       type: initialType,
-      commissionPercentage: params.commissionPercentage || "0",
-      allowedDestinationAccountIds: initialAllowedIds,
-      defaultDestinationAccountId: params.defaultDestinationAccountId || "",
-      isActive: params.isActive !== "false",
+      commissionPercentage: "0",
+      allowedDestinationAccountIds: [],
+      defaultDestinationAccountId: "",
     },
   });
 
@@ -223,33 +186,19 @@ export default function PaymentMethodFormScreen() {
   };
 
   const onSubmit = async (data: PaymentMethodFormData) => {
-    const payload = {
+    await createPaymentMethod.mutateAsync({
       name: data.name.trim(),
       type: data.type,
       commissionPercentage:
         data.type === PaymentMethodCategory.CARD && data.commissionPercentage
           ? Number(data.commissionPercentage)
           : 0,
-      allowedDestinationAccountIds: data.allowedDestinationAccountIds.map(Number),
+      allowedDestinationAccountIds: data.allowedDestinationAccountIds.map(
+        Number,
+      ),
       defaultDestinationAccountId: Number(data.defaultDestinationAccountId),
-    };
+    });
 
-    if (isEditing) {
-      await updatePaymentMethod.mutateAsync({
-        id: Number(params.methodId),
-        data: { ...payload, isActive: data.isActive },
-      });
-    } else {
-      await createPaymentMethod.mutateAsync(payload);
-    }
-
-    router.back();
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!params.methodId) return;
-    await deletePaymentMethod.mutateAsync(Number(params.methodId));
-    setShowDeleteConfirm(false);
     router.back();
   };
 
@@ -272,7 +221,7 @@ export default function PaymentMethodFormScreen() {
   };
 
   const handleBack = () => {
-    if (!isEditing && step === 2) {
+    if (step === 2) {
       animateLayout();
       setStep(1);
       return;
@@ -328,9 +277,7 @@ export default function PaymentMethodFormScreen() {
     .map((account) => ({ label: account.name, value: String(account.id) }));
 
   const isCreateDisabled =
-    isSubmitting ||
-    createPaymentMethod.isPending ||
-    allowedIds.length === 0;
+    isSubmitting || createPaymentMethod.isPending || allowedIds.length === 0;
 
   return (
     <KeyboardAvoidingView
@@ -340,7 +287,7 @@ export default function PaymentMethodFormScreen() {
       <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={tw`${!isEditing ? "pb-32" : "pb-8"}`}
+          contentContainerStyle={tw`pb-32`}
         >
           <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
             <ThemedView style={tw`items-center gap-4 flex-row`}>
@@ -351,25 +298,14 @@ export default function PaymentMethodFormScreen() {
                 <Ionicons name="arrow-back-outline" size={24} />
               </Pressable>
               <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
-                {isEditing
-                  ? t("methods.editMethod")
-                  : t("methods.createMethod")}
+                {t("methods.createMethod")}
               </ThemedText>
             </ThemedView>
-            {isEditing && (
-              <Button
-                label={t("methods.save")}
-                size="small"
-                onPress={handleSubmit(onSubmit)}
-                loading={isSubmitting || updatePaymentMethod.isPending}
-                disabled={isSubmitting || updatePaymentMethod.isPending}
-              />
-            )}
           </ThemedView>
 
           <ThemedView style={tw`my-6`} />
 
-          {(isEditing || step === 1) && (
+          {step === 1 && (
             <ThemedView style={tw`gap-4`}>
               {noCategoriesAvailable ? (
                 <ThemedView
@@ -445,8 +381,8 @@ export default function PaymentMethodFormScreen() {
             </ThemedView>
           )}
 
-          {(isEditing || step === 2) && (
-            <ThemedView style={tw`gap-4 ${isEditing ? "mt-2" : ""}`}>
+          {step === 2 && (
+            <ThemedView style={tw`gap-4`}>
               <ThemedView style={tw`gap-3`}>
                 <ThemedView style={tw`gap-1`}>
                   <ThemedText type="body1" style={tw`font-semibold`}>
@@ -587,65 +523,36 @@ export default function PaymentMethodFormScreen() {
                   )}
                 </>
               )}
-
-              {isEditing && (
-                <ThemedView style={tw`gap-3 mt-2`}>
-                  <Controller
-                    control={control}
-                    name="isActive"
-                    render={({ field: { value, onChange } }) => (
-                      <Switch
-                        label={t("methods.fields.isActive")}
-                        value={value}
-                        onValueChange={onChange}
-                      />
-                    )}
-                  />
-                </ThemedView>
-              )}
             </ThemedView>
           )}
         </ScrollView>
       </ScreenLayout>
 
-      {!isEditing && (
-        <ThemedView
-          style={tw`absolute bottom-0 left-0 right-0 bg-light-background dark:bg-black px-4 py-4`}
-        >
-          {step === 1 ? (
+      <ThemedView
+        style={tw`absolute bottom-0 left-0 right-0 bg-light-background dark:bg-black px-4 py-4`}
+      >
+        {step === 1 ? (
+          <Button
+            label={t("common:actions.next")}
+            onPress={handleNext}
+            disabled={noCategoriesAvailable}
+          />
+        ) : (
+          <ThemedView style={tw`flex-row gap-3 justify-between`}>
             <Button
-              label={t("common:actions.next")}
-              onPress={handleNext}
-              disabled={noCategoriesAvailable}
+              label={t("common:actions.back")}
+              onPress={handleBack}
+              variant="text"
             />
-          ) : (
-            <ThemedView style={tw`flex-row gap-3 justify-between`}>
-              <Button
-                label={t("common:actions.back")}
-                onPress={handleBack}
-                variant="text"
-              />
-              <Button
-                label={t("methods.create")}
-                onPress={handleSubmit(onSubmit)}
-                loading={isSubmitting || createPaymentMethod.isPending}
-                disabled={isCreateDisabled}
-              />
-            </ThemedView>
-          )}
-        </ThemedView>
-      )}
-
-      <DialogModal
-        visible={showDeleteConfirm}
-        title={t("methods.deleteTitle")}
-        message={t("methods.deleteMessage")}
-        confirmLabel={t("confirm")}
-        cancelLabel={t("cancel")}
-        confirmVariant="destructive"
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setShowDeleteConfirm(false)}
-      />
+            <Button
+              label={t("methods.create")}
+              onPress={handleSubmit(onSubmit)}
+              loading={isSubmitting || createPaymentMethod.isPending}
+              disabled={isCreateDisabled}
+            />
+          </ThemedView>
+        )}
+      </ThemedView>
 
       <ThemedBottomSheetModal ref={newAccountSheetRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
@@ -675,13 +582,15 @@ export default function PaymentMethodFormScreen() {
             onChangeText={setNewAccountDescription}
           />
 
-          <TextInput
-            bottomSheet
-            label={t("accounts.fields.num")}
-            placeholder={t("accounts.placeholders.num")}
-            value={newAccountNum}
-            onChangeText={setNewAccountNum}
-          />
+          {newAccountType === AccountType.BANK && (
+            <TextInput
+              bottomSheet
+              label={t("accounts.fields.num")}
+              placeholder={t("accounts.placeholders.num")}
+              value={newAccountNum}
+              onChangeText={setNewAccountNum}
+            />
+          )}
 
           {newAccountError ? (
             <ThemedText type="small" style={tw`text-red-500`}>

@@ -11,6 +11,8 @@
   "delete": "Eliminar",
   "activate": "Activar",
   "deactivate": "Desactivar",
+  "setDefaultAccount": "Establecer como predeterminada",
+  "removeAccount": "Quitar de este método",
   "accounts": {
     "title": "Cuentas",
     "subtitle": "Gestiona cajas y cuentas bancarias.",
@@ -69,6 +71,12 @@
     "allCategoriesConfigured": "Ya se configuraron todos los métodos de pago",
     "allCategoriesConfiguredDescription": "Ya existe un método de pago para efectivo, tarjeta y transferencia.",
     "notFound": "Método de pago no encontrado",
+    "selectAccount": {
+      "title": "Agregar cuenta",
+      "subtitle": "Elige una cuenta existente o crea una nueva.",
+      "empty": "No hay cuentas para agregar",
+      "emptyDescription": "Todas las cuentas elegibles ya están asignadas a este método de pago. Crea una nueva a continuación."
+    },
     "deleteTitle": "Eliminar método de pago",
     "deleteMessage": "¿Estás seguro de que deseas eliminar este método de pago?",
     "createSuccess": "Método de pago creado exitosamente",

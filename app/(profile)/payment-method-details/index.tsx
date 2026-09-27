@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ScrollView, Pressable, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -9,6 +10,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { getPaymentMethodTranslationKey } from "@/core/i18n/utils";
 import { usePaymentMethods } from "@/presentation/restaurant/hooks/usePaymentMethods";
 import { usePaymentMethodsManagement } from "@/presentation/restaurant/hooks/usePaymentMethodsManagement";
+import { useAccountsManagement } from "@/presentation/restaurant/hooks/useAccountsManagement";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
@@ -17,10 +19,18 @@ import Card from "@/presentation/theme/components/card";
 import Label from "@/presentation/theme/components/label";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
-import { AccountType, type Account } from "@/core/restaurant/models/account.model";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
+import {
+  AccountType,
+  type Account,
+} from "@/core/restaurant/models/account.model";
 import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.model";
 
-const categoryIcons: Record<PaymentMethodCategory, keyof typeof Ionicons.glyphMap> = {
+const categoryIcons: Record<
+  PaymentMethodCategory,
+  keyof typeof Ionicons.glyphMap
+> = {
   [PaymentMethodCategory.CASH]: "cash-outline",
   [PaymentMethodCategory.CARD]: "card-outline",
   [PaymentMethodCategory.TRANSFER]: "swap-horizontal-outline",
@@ -32,32 +42,35 @@ export default function PaymentMethodDetailsScreen() {
   const { t } = useTranslation("paymentMethods");
   const params = useLocalSearchParams<{ methodId: string }>();
   const { paymentMethods } = usePaymentMethods();
-  const { updatePaymentMethod, deletePaymentMethod } =
-    usePaymentMethodsManagement();
+  const {
+    updatePaymentMethod,
+    deletePaymentMethod,
+    unlinkAccount,
+    setDefaultAccount,
+  } = usePaymentMethodsManagement();
+  const { updateAccount } = useAccountsManagement();
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
 
   const [deleteVisible, setDeleteVisible] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+  const accountActionsSheetRef = useRef<BottomSheetMethods>(null);
 
   const method = paymentMethods.find((m) => String(m.id) === params.methodId);
 
   const handleEditMethod = () => {
     if (!method) return;
     router.push({
-      pathname: "/(profile)/payment-method-form",
-      params: {
-        methodId: String(method.id),
-        name: method.name,
-        type: method.type,
-        commissionPercentage: String(method.commissionPercentage ?? 0),
-        allowedDestinationAccountIds: method.allowedDestinationAccounts
-          .map((a) => a.id)
-          .join(","),
-        defaultDestinationAccountId: method.defaultDestinationAccount?.id
-          ? String(method.defaultDestinationAccount.id)
-          : "",
-        isActive: String(method.isActive),
-      },
+      pathname: "/(profile)/payment-method-edit",
+      params: { methodId: String(method.id) },
+    });
+  };
+
+  const handleAddAccount = () => {
+    if (!method) return;
+    router.push({
+      pathname: "/(profile)/payment-method-account-select",
+      params: { methodId: String(method.id) },
     });
   };
 
@@ -78,6 +91,70 @@ export default function PaymentMethodDetailsScreen() {
 
   const accountIcon = (type: Account["type"]) =>
     type === AccountType.BANK ? "business-outline" : "cash-outline";
+
+  const handleOpenAccountActions = (account: Account) => {
+    setSelectedAccount(account);
+    accountActionsSheetRef.current?.present();
+  };
+
+  const handleCloseAccountActions = () => {
+    accountActionsSheetRef.current?.dismiss();
+  };
+
+  const handleEditAccount = (account: Account) => {
+    router.push({
+      pathname: "/(profile)/account-form",
+      params: {
+        accountId: String(account.id),
+        name: account.name,
+        description: account.description || "",
+        num: account.num || "",
+        type: account.type,
+        isActive: String(account.isActive),
+      },
+    });
+  };
+
+  const handleToggleAccountActive = () => {
+    if (!selectedAccount) return;
+    updateAccount.mutate({
+      id: selectedAccount.id,
+      data: { isActive: !selectedAccount.isActive },
+    });
+    handleCloseAccountActions();
+  };
+
+  const handleSetDefaultAccount = () => {
+    if (!method || !selectedAccount) return;
+    setDefaultAccount.mutate({ id: method.id, accountId: selectedAccount.id });
+    handleCloseAccountActions();
+  };
+
+  const handleRemoveAccount = () => {
+    if (!method || !selectedAccount) return;
+    const remainingAccounts = method.allowedDestinationAccounts.filter(
+      (candidate) => candidate.id !== selectedAccount.id,
+    );
+    if (remainingAccounts.length === 0) return;
+
+    const isRemovingDefault =
+      method.defaultDestinationAccount?.id === selectedAccount.id;
+
+    const unlink = () =>
+      unlinkAccount.mutate({ id: method.id, accountId: selectedAccount.id });
+
+    if (isRemovingDefault) {
+      // Reassign the default before unlinking, so the method is never left
+      // pointing at an account it no longer allows.
+      setDefaultAccount.mutate(
+        { id: method.id, accountId: remainingAccounts[0].id },
+        { onSuccess: unlink },
+      );
+    } else {
+      unlink();
+    }
+    handleCloseAccountActions();
+  };
 
   if (!method) {
     return (
@@ -106,6 +183,12 @@ export default function PaymentMethodDetailsScreen() {
       </ScreenLayout>
     );
   }
+
+  const sortedAccounts = [...method.allowedDestinationAccounts].sort((a, b) => {
+    if (a.id === method.defaultDestinationAccount?.id) return -1;
+    if (b.id === method.defaultDestinationAccount?.id) return 1;
+    return 0;
+  });
 
   return (
     <View style={tw`flex-1 relative`}>
@@ -143,79 +226,85 @@ export default function PaymentMethodDetailsScreen() {
             />
           </ThemedView>
 
-          {method.defaultDestinationAccount && (
-            <ThemedView style={tw`gap-3 mt-4`}>
-              <ThemedText type="h4">
-                {t("methods.fields.defaultAccount")}
-              </ThemedText>
-              <Card style={tw`bg-light-secondary`}>
-                <ThemedView
-                  style={tw`flex-row items-center gap-3 bg-transparent`}
-                >
-                  <Ionicons
-                    name={accountIcon(method.defaultDestinationAccount.type)}
-                    size={26}
-                    color={tw.color("text-light-on-secondary")}
-                  />
-                  <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-                    <ThemedText
-                      type="body1"
-                      style={tw`font-semibold text-light-on-secondary`}
-                    >
-                      {method.defaultDestinationAccount.name}
-                    </ThemedText>
-                    <ThemedText
-                      type="small"
-                      style={tw`text-light-on-secondary/70`}
-                    >
-                      {t(
-                        `accounts.types.${method.defaultDestinationAccount.type}`,
-                      )}
-                    </ThemedText>
-                  </ThemedView>
-                </ThemedView>
-              </Card>
-            </ThemedView>
-          )}
-
           <ThemedView style={tw`gap-3 mt-4`}>
-            <ThemedView style={tw`gap-1`}>
-              <ThemedText type="h4">
-                {t("methods.fields.allowedAccounts")}
-              </ThemedText>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {t("methods.fields.allowedAccountsDescription")}
-              </ThemedText>
-            </ThemedView>
+            {/* <ThemedView style={tw`gap-1`}> */}
+            {/*   <ThemedText type="h4"> */}
+            {/*     {t("methods.fields.allowedAccounts")} */}
+            {/*   </ThemedText> */}
+            {/*   <ThemedText type="small" style={tw`text-gray-500`}> */}
+            {/*     {t("methods.fields.allowedAccountsDescription")} */}
+            {/*   </ThemedText> */}
+            {/* </ThemedView> */}
 
             <ThemedView style={tw`gap-3`}>
-              {method.allowedDestinationAccounts
-                .filter(
-                  (account) =>
-                    account.id !== method.defaultDestinationAccount?.id,
-                )
-                .map((account) => (
-                  <Card key={account.id}>
+              {sortedAccounts.map((account) => {
+                const isDefault =
+                  method.defaultDestinationAccount?.id === account.id;
+                return (
+                  <Card
+                    key={account.id}
+                    onPress={
+                      canManage
+                        ? () => handleOpenAccountActions(account)
+                        : undefined
+                    }
+                    style={isDefault && tw`bg-light-secondary`}
+                  >
                     <ThemedView
                       style={tw`flex-row items-center gap-3 bg-transparent`}
                     >
                       <Ionicons
                         name={accountIcon(account.type)}
                         size={26}
-                        color={tw.color("text-light-on-surface-variant")}
+                        color={
+                          isDefault
+                            ? tw.color("light-on-secondary")
+                            : tw.color("text-light-on-surface-variant")
+                        }
                       />
                       <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-                        <ThemedText type="body1" style={tw`font-semibold`}>
+                        <ThemedText
+                          type="body1"
+                          style={[
+                            tw`font-semibold`,
+                            isDefault && tw`text-light-on-secondary`,
+                          ]}
+                        >
                           {account.name}
                         </ThemedText>
-                        <ThemedText type="small" style={tw`text-gray-500`}>
+                        <ThemedText
+                          type="small"
+                          style={
+                            isDefault
+                              ? tw`text-light-on-secondary/70`
+                              : tw`text-gray-500`
+                          }
+                        >
                           {t(`accounts.types.${account.type}`)}
                         </ThemedText>
                       </ThemedView>
+                      {isDefault && (
+                        <Ionicons
+                          name="star"
+                          size={18}
+                          color={tw.color("light-on-secondary")}
+                        />
+                      )}
                     </ThemedView>
                   </Card>
-                ))}
+                );
+              })}
             </ThemedView>
+
+            {canManage && (
+              <Button
+                label={t("methods.fields.addAccount")}
+                onPress={handleAddAccount}
+                variant="outline"
+                size="small"
+                leftIcon="add-outline"
+              />
+            )}
           </ThemedView>
         </ScrollView>
       </ScreenLayout>
@@ -255,6 +344,52 @@ export default function PaymentMethodDetailsScreen() {
         onConfirm={handleConfirmDelete}
         onCancel={() => setDeleteVisible(false)}
       />
+
+      <ThemedBottomSheetModal ref={accountActionsSheetRef} enablePanDownToClose>
+        {selectedAccount && (
+          <ActionsBottomSheet
+            title={selectedAccount.name}
+            items={[
+              {
+                icon: "create-outline",
+                label: t("edit"),
+                onPress: () => {
+                  handleCloseAccountActions();
+                  handleEditAccount(selectedAccount);
+                },
+              },
+              {
+                icon: selectedAccount.isActive
+                  ? "eye-off-outline"
+                  : "eye-outline",
+                label: selectedAccount.isActive
+                  ? t("deactivate")
+                  : t("activate"),
+                onPress: handleToggleAccountActive,
+              },
+              ...(method.defaultDestinationAccount?.id !== selectedAccount.id
+                ? [
+                    {
+                      icon: "star-outline" as const,
+                      label: t("setDefaultAccount"),
+                      onPress: handleSetDefaultAccount,
+                    },
+                  ]
+                : []),
+              ...(method.allowedDestinationAccounts.length > 1
+                ? [
+                    {
+                      icon: "close-circle-outline" as const,
+                      label: t("removeAccount"),
+                      color: "text-red-500",
+                      onPress: handleRemoveAccount,
+                    },
+                  ]
+                : []),
+            ]}
+          />
+        )}
+      </ThemedBottomSheetModal>
     </View>
   );
 }
