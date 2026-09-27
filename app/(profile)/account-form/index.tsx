@@ -13,7 +13,6 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
-import Switch from "@/presentation/theme/components/switch";
 import Select from "@/presentation/theme/components/select";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -58,6 +57,7 @@ export default function AccountFormScreen() {
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<AccountFormData>({
     resolver: zodResolver(schema),
@@ -70,14 +70,18 @@ export default function AccountFormScreen() {
     },
   });
 
+  const isBankType = watch("type") === AccountType.BANK;
+
   const onSubmit = async (data: AccountFormData) => {
+    const num = isBankType ? data.num?.trim() || undefined : undefined;
+
     if (isEditing) {
       await updateAccount.mutateAsync({
         id: Number(params.accountId),
         data: {
           name: data.name.trim(),
           description: data.description?.trim() || "",
-          num: data.num?.trim() || undefined,
+          num,
           type: data.type,
           isActive: data.isActive,
         },
@@ -86,7 +90,7 @@ export default function AccountFormScreen() {
       await createAccount.mutateAsync({
         name: data.name.trim(),
         description: data.description?.trim() || "",
-        num: data.num?.trim() || undefined,
+        num,
         type: data.type,
       });
     }
@@ -191,35 +195,21 @@ export default function AccountFormScreen() {
               )}
             />
 
-            <Controller
-              control={control}
-              name="num"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label={t("accounts.fields.num")}
-                  icon="keypad-outline"
-                  placeholder={t("accounts.placeholders.num")}
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onChange}
-                />
-              )}
-            />
-
-            {isEditing && (
-              <ThemedView style={tw`gap-3 mt-2`}>
-                <Controller
-                  control={control}
-                  name="isActive"
-                  render={({ field: { value, onChange } }) => (
-                    <Switch
-                      label={t("accounts.fields.isActive")}
-                      value={value}
-                      onValueChange={onChange}
-                    />
-                  )}
-                />
-              </ThemedView>
+            {isBankType && (
+              <Controller
+                control={control}
+                name="num"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    label={t("accounts.fields.num")}
+                    icon="keypad-outline"
+                    placeholder={t("accounts.placeholders.num")}
+                    onBlur={onBlur}
+                    value={value}
+                    onChangeText={onChange}
+                  />
+                )}
+              />
             )}
           </ThemedView>
 
@@ -230,8 +220,10 @@ export default function AccountFormScreen() {
         visible={showDeleteConfirm}
         title={t("accounts.deleteTitle")}
         message={t("accounts.deleteMessage")}
-        confirmText={t("confirm")}
-        cancelText={t("cancel")}
+        confirmLabel={t("confirm")}
+        cancelLabel={t("cancel")}
+        confirmVariant="destructive"
+        loading={deleteAccount.isPending}
         onConfirm={handleConfirmDelete}
         onCancel={() => setShowDeleteConfirm(false)}
       />

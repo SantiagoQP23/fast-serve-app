@@ -27,7 +27,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
-import Checkbox from "@/presentation/theme/components/checkbox";
+import Card from "@/presentation/theme/components/card";
 import Switch from "@/presentation/theme/components/switch";
 import Select from "@/presentation/theme/components/select";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
@@ -66,6 +66,9 @@ const buildPaymentMethodSchema = (t: (key: string) => string) =>
 type PaymentMethodFormData = z.infer<
   ReturnType<typeof buildPaymentMethodSchema>
 >;
+
+const accountIcon = (type: AccountType) =>
+  type === AccountType.BANK ? "business-outline" : "cash-outline";
 
 export default function PaymentMethodFormScreen() {
   const { t } = useTranslation("paymentMethods");
@@ -445,22 +448,13 @@ export default function PaymentMethodFormScreen() {
           {(isEditing || step === 2) && (
             <ThemedView style={tw`gap-4 ${isEditing ? "mt-2" : ""}`}>
               <ThemedView style={tw`gap-3`}>
-                <ThemedView style={tw`flex-row items-center justify-between`}>
-                  <ThemedView style={tw`gap-1 flex-1`}>
-                    <ThemedText type="body1" style={tw`font-semibold`}>
-                      {t("methods.fields.allowedAccounts")}
-                    </ThemedText>
-                    <ThemedText type="small" style={tw`text-gray-500`}>
-                      {t("methods.fields.allowedAccountsDescription")}
-                    </ThemedText>
-                  </ThemedView>
-                  <Button
-                    label={t("methods.fields.addAccount")}
-                    onPress={openAddAccountSheet}
-                    variant="outline"
-                    size="extra-small"
-                    leftIcon="add-outline"
-                  />
+                <ThemedView style={tw`gap-1`}>
+                  <ThemedText type="body1" style={tw`font-semibold`}>
+                    {t("methods.fields.allowedAccounts")}
+                  </ThemedText>
+                  <ThemedText type="small" style={tw`text-gray-500`}>
+                    {t("methods.fields.allowedAccountsDescription")}
+                  </ThemedText>
                 </ThemedView>
 
                 {eligibleAccounts.length === 0 ? (
@@ -488,20 +482,67 @@ export default function PaymentMethodFormScreen() {
                     name="allowedDestinationAccountIds"
                     render={({ field: { value, onChange } }) => (
                       <ThemedView style={tw`gap-3`}>
-                        {eligibleAccounts.map((account) => (
-                          <Checkbox
-                            key={account.id}
-                            label={account.name}
-                            value={value.includes(String(account.id))}
-                            onValueChange={() =>
-                              toggleAccountId(
-                                value,
-                                String(account.id),
-                                onChange,
-                              )
-                            }
-                          />
-                        ))}
+                        {eligibleAccounts.map((account) => {
+                          const isSelected = value.includes(
+                            String(account.id),
+                          );
+                          return (
+                            <Card
+                              key={account.id}
+                              onPress={() =>
+                                toggleAccountId(
+                                  value,
+                                  String(account.id),
+                                  onChange,
+                                )
+                              }
+                              style={isSelected && tw`bg-light-secondary`}
+                            >
+                              <ThemedView
+                                style={tw`flex-row items-center justify-between bg-transparent`}
+                              >
+                                <ThemedView
+                                  style={tw`flex-row items-center gap-3 flex-1 bg-transparent`}
+                                >
+                                  <Ionicons
+                                    name={accountIcon(account.type)}
+                                    size={22}
+                                    color={
+                                      isSelected
+                                        ? tw.color("light-on-secondary")
+                                        : tw.color(
+                                            "text-light-on-surface-variant",
+                                          )
+                                    }
+                                  />
+                                  <ThemedText
+                                    type="body1"
+                                    style={[
+                                      tw`font-semibold`,
+                                      isSelected &&
+                                        tw`text-light-on-secondary`,
+                                    ]}
+                                  >
+                                    {account.name}
+                                  </ThemedText>
+                                </ThemedView>
+                                <Ionicons
+                                  name={
+                                    isSelected
+                                      ? "checkmark-circle"
+                                      : "ellipse-outline"
+                                  }
+                                  size={22}
+                                  color={
+                                    isSelected
+                                      ? tw.color("light-on-secondary")
+                                      : tw.color("gray-300")
+                                  }
+                                />
+                              </ThemedView>
+                            </Card>
+                          );
+                        })}
                       </ThemedView>
                     )}
                   />
@@ -511,6 +552,14 @@ export default function PaymentMethodFormScreen() {
                     {errors.allowedDestinationAccountIds.message}
                   </ThemedText>
                 )}
+
+                <Button
+                  label={t("methods.fields.addAccount")}
+                  onPress={openAddAccountSheet}
+                  variant="outline"
+                  size="small"
+                  leftIcon="add-outline"
+                />
               </ThemedView>
 
               {allowedIds.length > 0 && (
