@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-background" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Ficha de Detalle de Insumo - Teikio</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Plus Jakarta Sans Font Family -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with custom configuration -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-tertiary-fixed-variant": "#37485e",
+            "on-error-container": "#93000a",
+            "on-tertiary": "#ffffff",
+            "on-primary-container": "#1C4975",
+            "tertiary-fixed-dim": "#b6c8e2",
+            "tertiary": "#36475d",
+            "status-success": "#22C55E",
+            "divider": "#F1F5F9",
+            "outline": "#737780",
+            "primary-container": "#38608f",
+            "on-surface": "#181c20",
+            "on-surface-variant": "#42474f",
+            "background": "#f7f9ff",
+            "on-secondary-container": "#596577",
+            "on-tertiary-container": "#c7d9f4",
+            "on-tertiary-fixed": "#091c30",
+            "secondary-fixed-dim": "#bbc7dc",
+            "primary-fixed": "#d3e4ff",
+            "status-error": "#EF4444",
+            "on-primary-fixed": "#001c38",
+            "on-primary": "#FFFFFF",
+            "surface-variant": "#e0e2e8",
+            "on-background": "#181c20",
+            "status-info": "#3B82F6",
+            "surface-bright": "#f7f9ff",
+            "on-secondary-fixed-variant": "#3c4858",
+            "outline-variant": "#c3c6d0",
+            "surface-container-highest": "#e0e2e8",
+            "border-hairline": "#C3C6CF",
+            "on-secondary-fixed": "#101c2b",
+            "status-warning": "#F97316",
+            "on-secondary": "#ffffff",
+            "ink": "#191C20",
+            "inverse-on-surface": "#eff1f7",
+            "secondary": "#535f71",
+            "surface": "#f7f9ff",
+            "surface-tint": "#38608f",
+            "surface-container-high": "#e6e8ee",
+            "surface-container-lowest": "#ffffff",
+            "inverse-surface": "#2d3135",
+            "canvas-background": "#F8F9FF",
+            "primary-fixed-dim": "#a2c9fe",
+            "primary": "#1c4876",
+            "on-error": "#ffffff",
+            "surface-container-low": "#F2F3FA",
+            "tertiary-container": "#4e5f76",
+            "secondary-fixed": "#d7e3f8",
+            "surface-container": "#eceef4",
+            "surface-dim": "#d8dae0",
+            "surface-high": "#E7E8EE",
+            "tertiary-fixed": "#d2e4ff",
+            "error": "#ba1a1a",
+            "secondary-container": "#d7e3f8",
+            "on-primary-fixed-variant": "#1d4876",
+            "error-container": "#ffdad6",
+            "icon-slate": "#64748B",
+            "inverse-primary": "#a2c9fe"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "3xl": "1.5rem",
+            "full": "9999px"
+          },
+          "boxShadow": {
+            "xs": "0 1px 2px 0 rgba(25, 28, 32, 0.05)",
+            "lg": "0 10px 15px -3px rgba(25, 28, 32, 0.10), 0 4px 6px -4px rgba(25, 28, 32, 0.06)"
+          },
+          "spacing": {
+            "space-md": "0.75rem",
+            "space-sm": "0.5rem",
+            "space-xl": "1.5rem",
+            "margin": "1rem",
+            "space-lg": "1rem",
+            "space-xs": "0.25rem",
+            "gutter": "1rem"
+          },
+          "fontFamily": {
+            "body-secondary": ["Plus Jakarta Sans"],
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Plus Jakarta Sans"],
+            "title": ["Plus Jakarta Sans"],
+            "subtitle": ["Plus Jakarta Sans"],
+            "caption": ["Plus Jakarta Sans"],
+            "label": ["Plus Jakarta Sans"],
+            "display": ["Plus Jakarta Sans"],
+            "headline-mobile": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "body-secondary": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "headline": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+            "body": ["16px", { "lineHeight": "24px", "fontWeight": "500" }],
+            "title": ["22px", { "lineHeight": "28px", "fontWeight": "600" }],
+            "subtitle": ["18px", { "lineHeight": "24px", "fontWeight": "500" }],
+            "caption": ["14px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
+            "label": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+            "display": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+            "headline-mobile": ["22px", { "lineHeight": "28px", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    body {
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-canvas-background text-on-surface antialiased min-h-screen relative flex justify-center">
+<!-- Mobile Screen Container -->
+<div class="w-full max-w-md bg-canvas-background min-h-screen flex flex-col relative pb-32 select-none overflow-x-hidden">
+<!-- TopAppBar (Tailored for focused sub-page task: Back + Contextual overflow) -->
+<header class="sticky top-0 z-30 bg-surface flex justify-between items-center w-full px-space-lg h-16 shadow-xs">
+<button aria-label="Volver" class="w-10 h-10 rounded-full flex items-center justify-center text-primary hover:bg-surface-container active:scale-95 transition-transform duration-150" type="button">
+<span class="material-symbols-outlined text-primary" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline-mobile text-headline-mobile text-primary font-bold tracking-tight">
+        Detalle de Insumo
+      </h1>
+<button aria-label="Más opciones" class="w-10 h-10 rounded-full flex items-center justify-center text-primary hover:bg-surface-container active:scale-95 transition-transform duration-150" id="open-sheet-btn" type="button">
+<span class="material-symbols-outlined text-primary" data-icon="more_vert">more_vert</span>
+</button>
+</header>
+<!-- Main Content Stream: The 16px Section Rhythm -->
+<main class="flex-1 px-margin pt-space-lg space-y-space-lg">
+<!-- Primary Stock Summary Card -->
+<section class="bg-surface-container rounded-3xl p-6 shadow-xs border border-transparent">
+<div class="flex items-start justify-between gap-2 mb-4">
+<div>
+<h2 class="font-title text-title text-ink font-semibold tracking-tight">
+              Salmón Fresco Premium
+            </h2>
+<div class="mt-2 inline-flex items-center rounded-full bg-secondary-container px-space-md py-1">
+<span class="font-caption text-caption text-on-secondary-fixed-variant">
+                Carnes &amp; Pescados
+              </span>
+</div>
+</div>
+</div>
+<!-- Current Stock Metric Block -->
+<div class="bg-surface-container-lowest rounded-3xl p-5 mb-5 shadow-xs flex items-baseline justify-between">
+<div>
+<span class="font-label text-label text-on-surface-variant block mb-1">
+              Stock actual disponible
+            </span>
+<div class="flex items-baseline gap-1.5">
+<span class="font-display text-display text-primary-container font-bold leading-none">
+                3.2
+              </span>
+<span class="font-subtitle text-subtitle text-primary-container font-semibold">
+                kg
+              </span>
+</div>
+</div>
+<!-- Semantic Badge: Crítico -->
+<div class="flex items-center gap-1.5 bg-error-container text-error rounded-full px-3 py-1.5">
+<span class="w-2 h-2 rounded-full bg-status-error animate-pulse"></span>
+<span class="font-label text-label text-error font-semibold">
+              Crítico
+            </span>
+</div>
+</div>
+<!-- 2x2 Clean Metadata Grid -->
+<div class="grid grid-cols-2 gap-y-4 gap-x-gutter pt-1 border-t border-divider">
+<div>
+<span class="font-label text-label text-icon-slate block">
+              Stock Mínimo
+            </span>
+<p class="font-body-secondary text-body-secondary text-ink font-medium mt-0.5">
+              8.0 kg
+            </p>
+</div>
+<div>
+<span class="font-label text-label text-icon-slate block">
+              Stock Máximo
+            </span>
+<p class="font-body-secondary text-body-secondary text-ink font-medium mt-0.5">
+              25.0 kg
+            </p>
+</div>
+<div>
+<span class="font-label text-label text-icon-slate block">
+              Costo Unitario
+            </span>
+<p class="font-body-secondary text-body-secondary text-ink font-medium mt-0.5">
+              $18.50 / kg
+            </p>
+</div>
+<div>
+<span class="font-label text-label text-icon-slate block">
+              Proveedor
+            </span>
+<p class="font-body-secondary text-body-secondary text-ink font-medium mt-0.5 truncate">
+              Pescaderías del Sur
+            </p>
+</div>
+</div>
+</section>
+<!-- Weekly Consumption Card -->
+<section class="bg-surface-container rounded-3xl p-6 shadow-xs">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-subtitle text-subtitle text-ink font-semibold">
+            Consumo últimos 7 días
+          </h3>
+<span class="font-label text-label text-icon-slate">Total: 26.2 kg</span>
+</div>
+<!-- Minimalist Bar Chart Breakdown -->
+<div class="grid grid-cols-5 gap-2 items-end h-32 pt-4 pb-2 px-1">
+<!-- Lun -->
+<div class="flex flex-col items-center h-full justify-end gap-1.5">
+<span class="font-label text-label text-on-surface-variant">4k</span>
+<div class="w-full bg-secondary-fixed rounded-t-lg transition-all duration-300" style="height: 50%;"></div>
+<span class="font-label text-label text-icon-slate">Lun</span>
+</div>
+<!-- Mar -->
+<div class="flex flex-col items-center h-full justify-end gap-1.5">
+<span class="font-label text-label text-on-surface-variant">5k</span>
+<div class="w-full bg-secondary-fixed rounded-t-lg transition-all duration-300" style="height: 62%;"></div>
+<span class="font-label text-label text-icon-slate">Mar</span>
+</div>
+<!-- Mié -->
+<div class="flex flex-col items-center h-full justify-end gap-1.5">
+<span class="font-label text-label text-on-surface-variant">6.2k</span>
+<div class="w-full bg-secondary-fixed rounded-t-lg transition-all duration-300" style="height: 77%;"></div>
+<span class="font-label text-label text-icon-slate">Mié</span>
+</div>
+<!-- Jue -->
+<div class="flex flex-col items-center h-full justify-end gap-1.5">
+<span class="font-label text-label text-on-surface-variant">3k</span>
+<div class="w-full bg-secondary-fixed rounded-t-lg transition-all duration-300" style="height: 38%;"></div>
+<span class="font-label text-label text-icon-slate">Jue</span>
+</div>
+<!-- Vie (Highlight: Peak consumption day) -->
+<div class="flex flex-col items-center h-full justify-end gap-1.5">
+<span class="font-label text-label text-primary font-bold">8k</span>
+<div class="w-full bg-primary-container rounded-t-lg transition-all duration-300 shadow-xs" style="height: 100%;"></div>
+<span class="font-label text-label text-primary font-bold">Vie</span>
+</div>
+</div>
+</section>
+<!-- Recent Inventory Movement History -->
+<section class="bg-surface-container rounded-3xl p-6 shadow-xs">
+<h3 class="font-subtitle text-subtitle text-ink font-semibold mb-4">
+          Historial de movimientos
+        </h3>
+<div class="divide-y divide-divider">
+<!-- Entrada -->
+<div class="py-3.5 flex items-center justify-between first:pt-0">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-surface-container-lowest flex items-center justify-center text-status-success shadow-xs">
+<span class="material-symbols-outlined text-status-success" data-icon="add">add</span>
+</div>
+<div>
+<p class="font-body-secondary text-body-secondary text-ink font-medium">
+                  Entrada de proveedor
+                </p>
+<span class="font-label text-label text-icon-slate">
+                  Hoy, 09:15 AM
+                </span>
+</div>
+</div>
+<span class="font-subtitle text-subtitle text-status-success font-semibold">
+              +15.0 kg
+            </span>
+</div>
+<!-- Merma -->
+<div class="py-3.5 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-surface-container-lowest flex items-center justify-center text-status-error shadow-xs">
+<span class="material-symbols-outlined text-status-error" data-icon="remove">remove</span>
+</div>
+<div>
+<p class="font-body-secondary text-body-secondary text-ink font-medium">
+                  Merma
+                </p>
+<span class="font-label text-label text-icon-slate">
+                  Ayer, 23:40 PM · Desperdicio de corte
+                </span>
+</div>
+</div>
+<span class="font-subtitle text-subtitle text-status-error font-semibold">
+              -1.5 kg
+            </span>
+</div>
+<!-- Consumo Servicio -->
+<div class="py-3.5 flex items-center justify-between last:pb-0">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-surface-container-lowest flex items-center justify-center text-primary shadow-xs">
+<span class="material-symbols-outlined text-primary" data-icon="trending_down">trending_down</span>
+</div>
+<div>
+<p class="font-body-secondary text-body-secondary text-ink font-medium">
+                  Consumo servicio
+                </p>
+<span class="font-label text-label text-icon-slate">
+                  24 Oct, 22:10 PM · Turno Noche
+                </span>
+</div>
+</div>
+<span class="font-subtitle text-subtitle text-on-surface font-semibold">
+              -10.3 kg
+            </span>
+</div>
+</div>
+</section>
+</main>
+<!-- Overlay Backdrop -->
+<div class="fixed inset-0 bg-ink/40 z-40 backdrop-blur-sm transition-opacity duration-300 opacity-100 pointer-events-auto" id="backdrop"></div>
+<!-- Actions Bottom Sheet ("More Options" Triad according to DESIGN.md) -->
+<div class="fixed bottom-0 inset-x-0 max-w-md mx-auto z-50 bg-surface-container-lowest rounded-t-3xl shadow-lg border-t border-hairline/20 transform transition-transform duration-300 translate-y-0 px-margin pt-3 pb-8" id="bottom-sheet">
+<!-- Touch Drag Handle -->
+<div class="w-full flex justify-center pb-3">
+<div class="w-12 h-1.5 bg-outline-variant rounded-full"></div>
+</div>
+<!-- Bottom Sheet Header with close button -->
+<div class="flex items-center justify-between mb-3 px-space-xs">
+<h2 class="font-title text-title text-ink font-semibold">
+          Opciones de Insumo
+        </h2>
+<button aria-label="Cerrar opciones" class="w-8 h-8 rounded-full flex items-center justify-center text-icon-slate hover:bg-surface-container active:scale-95 transition-transform duration-150" id="close-sheet-btn" type="button">
+<span class="material-symbols-outlined text-icon-slate" data-icon="close">close</span>
+</button>
+</div>
+<!-- Standardised Triad List: Edit -> Activate/Deactivate -> Delete -->
+<div class="flex flex-col space-y-1">
+<!-- 1. Editar Insumo -->
+<button class="w-full flex items-center justify-between p-3.5 rounded-3xl hover:bg-surface-container active:scale-98 transition-all duration-150" type="button">
+<div class="flex items-center gap-3.5">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-primary" data-icon="edit">edit</span>
+</div>
+<span class="font-body text-body text-ink font-medium">
+              Editar Insumo
+            </span>
+</div>
+<span class="material-symbols-outlined text-icon-slate" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- 2. Desactivar Insumo -->
+<button class="w-full flex items-center justify-between p-3.5 rounded-3xl hover:bg-surface-container active:scale-98 transition-all duration-150" type="button">
+<div class="flex items-center gap-3.5">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="pause_circle">pause_circle</span>
+</div>
+<span class="font-body text-body text-ink font-medium">
+              Desactivar Insumo
+            </span>
+</div>
+<span class="material-symbols-outlined text-icon-slate" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- 3. Eliminar Insumo (Permanent Destructive Style: Soft tinted fill & high-contrast crimson text) -->
+<button class="w-full flex items-center justify-between p-3.5 rounded-3xl bg-error-container/40 hover:bg-error-container active:scale-98 transition-all duration-150 mt-1" type="button">
+<div class="flex items-center gap-3.5">
+<div class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center text-status-error shadow-xs">
+<span class="material-symbols-outlined text-status-error" data-icon="delete">delete</span>
+</div>
+<span class="font-body text-body text-status-error font-semibold">
+              Eliminar Insumo
+            </span>
+</div>
+<span class="material-symbols-outlined text-status-error" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Interactive Logic for Sheet Toggling -->
+<script>
+    const backdrop = document.getElementById('backdrop');
+    const bottomSheet = document.getElementById('bottom-sheet');
+    const openBtn = document.getElementById('open-sheet-btn');
+    const closeBtn = document.getElementById('close-sheet-btn');
+
+    function openSheet() {
+      backdrop.classList.remove('opacity-0', 'pointer-events-none');
+      backdrop.classList.add('opacity-100', 'pointer-events-auto');
+      bottomSheet.classList.remove('translate-y-full');
+      bottomSheet.classList.add('translate-y-0');
+    }
+
+    function closeSheet() {
+      backdrop.classList.add('opacity-0', 'pointer-events-none');
+      backdrop.classList.remove('opacity-100', 'pointer-events-auto');
+      bottomSheet.classList.add('translate-y-full');
+      bottomSheet.classList.remove('translate-y-0');
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', closeSheet);
+    if (backdrop) backdrop.addEventListener('click', closeSheet);
+    if (openBtn) openBtn.addEventListener('click', openSheet);
+  </script>
+</body></html>

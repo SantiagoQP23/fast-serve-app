@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-canvas-background" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Teikio - Floor Inventory</title>
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-tertiary-fixed-variant": "#37485e",
+            "on-error-container": "#93000a",
+            "on-tertiary": "#ffffff",
+            "on-primary-container": "#1C4975",
+            "tertiary-fixed-dim": "#b6c8e2",
+            "tertiary": "#36475d",
+            "status-success": "#22C55E",
+            "divider": "#F1F5F9",
+            "outline": "#737780",
+            "primary-container": "#38608f",
+            "on-surface": "#181c20",
+            "on-surface-variant": "#42474f",
+            "background": "#f7f9ff",
+            "on-secondary-container": "#596577",
+            "on-tertiary-container": "#c7d9f4",
+            "on-tertiary-fixed": "#091c30",
+            "secondary-fixed-dim": "#bbc7dc",
+            "primary-fixed": "#d3e4ff",
+            "status-error": "#EF4444",
+            "on-primary-fixed": "#001c38",
+            "on-primary": "#FFFFFF",
+            "surface-variant": "#e0e2e8",
+            "on-background": "#181c20",
+            "status-info": "#3B82F6",
+            "surface-bright": "#f7f9ff",
+            "on-secondary-fixed-variant": "#3c4858",
+            "outline-variant": "#c3c6d0",
+            "surface-container-highest": "#e0e2e8",
+            "border-hairline": "#C3C6CF",
+            "on-secondary-fixed": "#101c2b",
+            "status-warning": "#F97316",
+            "on-secondary": "#ffffff",
+            "ink": "#191C20",
+            "inverse-on-surface": "#eff1f7",
+            "secondary": "#535f71",
+            "surface": "#f7f9ff",
+            "surface-tint": "#38608f",
+            "surface-container-high": "#e6e8ee",
+            "surface-container-lowest": "#ffffff",
+            "inverse-surface": "#2d3135",
+            "canvas-background": "#F8F9FF",
+            "primary-fixed-dim": "#a2c9fe",
+            "primary": "#1c4876",
+            "on-error": "#ffffff",
+            "surface-container-low": "#F2F3FA",
+            "tertiary-container": "#4e5f76",
+            "secondary-fixed": "#d7e3f8",
+            "surface-container": "#eceef4",
+            "surface-dim": "#d8dae0",
+            "surface-high": "#E7E8EE",
+            "tertiary-fixed": "#d2e4ff",
+            "error": "#ba1a1a",
+            "secondary-container": "#d7e3f8",
+            "on-primary-fixed-variant": "#1d4876",
+            "error-container": "#ffdad6",
+            "icon-slate": "#64748B",
+            "inverse-primary": "#a2c9fe"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "2xl": "1rem",
+            "3xl": "1.5rem",
+            "full": "9999px"
+          },
+          "boxShadow": {
+            "xs": "0 1px 2px 0 rgba(25, 28, 32, 0.05)",
+            "lg": "0 10px 15px -3px rgba(25, 28, 32, 0.10), 0 4px 6px -4px rgba(25, 28, 32, 0.06)"
+          },
+          "spacing": {
+            "space-md": "0.75rem",
+            "space-sm": "0.5rem",
+            "space-xl": "1.5rem",
+            "margin": "1rem",
+            "space-lg": "1rem",
+            "space-xs": "0.25rem",
+            "gutter": "1rem"
+          },
+          "fontFamily": {
+            "body-secondary": ["Plus Jakarta Sans"],
+            "headline": ["Plus Jakarta Sans"],
+            "body": ["Plus Jakarta Sans"],
+            "title": ["Plus Jakarta Sans"],
+            "subtitle": ["Plus Jakarta Sans"],
+            "caption": ["Plus Jakarta Sans"],
+            "label": ["Plus Jakarta Sans"],
+            "display": ["Plus Jakarta Sans"],
+            "headline-mobile": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "body-secondary": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "headline": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+            "body": ["16px", { "lineHeight": "24px", "fontWeight": "500" }],
+            "title": ["22px", { "lineHeight": "28px", "fontWeight": "600" }],
+            "subtitle": ["18px", { "lineHeight": "24px", "fontWeight": "500" }],
+            "caption": ["14px", { "lineHeight": "16px", "letterSpacing": "0.5px", "fontWeight": "500" }],
+            "label": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+            "display": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+            "headline-mobile": ["22px", { "lineHeight": "28px", "fontWeight": "600" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-canvas-background text-on-surface font-body antialiased flex flex-col min-h-screen relative pb-28 selection:bg-secondary-container">
+<!-- TOP APP BAR -->
+<header class="sticky top-0 z-40 bg-surface/95 backdrop-blur-md px-margin py-3 flex flex-col gap-3 shadow-xs">
+<div class="flex justify-between items-center w-full">
+<div class="flex items-center gap-3">
+<button aria-label="Menu" class="p-2 rounded-full hover:bg-surface-container active:scale-95 transition-transform text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[24px]">menu</span>
+</button>
+<div>
+<div class="flex items-center gap-2">
+<h1 class="font-headline-mobile text-headline-mobile text-primary tracking-tight font-bold">Inventario</h1>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-secondary-container text-on-secondary-fixed-variant">En vivo</span>
+</div>
+<p class="font-label text-label text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-icon-slate">store</span>
+            Cocina Central • Turno Tarde
+          </p>
+</div>
+</div>
+<div class="flex items-center gap-1">
+<button aria-label="Historial" class="w-10 h-10 rounded-full hover:bg-surface-container active:scale-95 transition-transform flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">history</span>
+</button>
+<button aria-label="Escanear" class="w-10 h-10 rounded-full bg-primary-container text-on-primary active:scale-95 transition-transform flex items-center justify-center shadow-xs">
+<span class="material-symbols-outlined text-[22px]">barcode_scanner</span>
+</button>
+</div>
+</div>
+<!-- Quick Search Bar -->
+<div class="relative w-full">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-icon-slate">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="w-full bg-surface-high text-on-surface placeholder:text-on-surface-variant text-body-secondary font-body-secondary rounded-3xl pl-10 pr-10 py-2.5 border-0 focus:ring-2 focus:ring-primary-container transition-all outline-none" placeholder="Buscar insumos por código o nombre..." type="text"/>
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+<button aria-label="Filtro rápido" class="p-1 text-icon-slate hover:text-on-surface active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+</button>
+</div>
+</div>
+</header>
+<!-- MAIN CANVAS -->
+<main class="flex-1 px-margin pt-4 flex flex-col gap-5 max-w-xl mx-auto w-full">
+<!-- METRIC TILES / STOCK HEALTH BANNER -->
+<section aria-label="Resumen de stock">
+<div class="grid grid-cols-3 gap-2.5">
+<!-- Críticos -->
+<div class="bg-surface-container rounded-3xl p-3.5 shadow-xs flex flex-col justify-between border-l-4 border-status-error">
+<div class="flex items-center justify-between">
+<span class="font-label text-label text-on-surface-variant">Crítico</span>
+<span class="material-symbols-outlined text-status-error text-[18px]">warning</span>
+</div>
+<div class="mt-2">
+<span class="font-title text-title font-bold text-on-surface">3</span>
+<p class="text-[11px] leading-tight text-status-error font-semibold mt-0.5">Urgente reponer</p>
+</div>
+</div>
+<!-- Mínimo / Por reponer -->
+<div class="bg-surface-container rounded-3xl p-3.5 shadow-xs flex flex-col justify-between border-l-4 border-status-warning">
+<div class="flex items-center justify-between">
+<span class="font-label text-label text-on-surface-variant">Bajo</span>
+<span class="material-symbols-outlined text-status-warning text-[18px]">low_priority</span>
+</div>
+<div class="mt-2">
+<span class="font-title text-title font-bold text-on-surface">5</span>
+<p class="text-[11px] leading-tight text-on-secondary-fixed-variant font-medium mt-0.5">En nivel mínimo</p>
+</div>
+</div>
+<!-- Óptimo -->
+<div class="bg-surface-container rounded-3xl p-3.5 shadow-xs flex flex-col justify-between border-l-4 border-status-success">
+<div class="flex items-center justify-between">
+<span class="font-label text-label text-on-surface-variant">Óptimo</span>
+<span class="material-symbols-outlined text-status-success text-[18px]">check_circle</span>
+</div>
+<div class="mt-2">
+<span class="font-title text-title font-bold text-on-surface">42</span>
+<p class="text-[11px] leading-tight text-status-success font-medium mt-0.5">Sin alertas</p>
+</div>
+</div>
+</div>
+</section>
+<!-- HORIZONTAL CATEGORY CHIPS (Full-pill) -->
+<section aria-label="Categorías" class="overflow-x-auto no-scrollbar -mx-margin px-margin py-1">
+<div class="flex items-center gap-2 w-max">
+<!-- Selected Pill -->
+<button class="bg-secondary-container text-on-secondary-fixed-variant font-label text-label px-4 py-2 rounded-full font-semibold flex items-center gap-1.5 shadow-xs transition-transform active:scale-95">
+<span class="material-symbols-outlined text-[16px]">apps</span>
+          Todos (50)
+        </button>
+<!-- Unselected Pills -->
+<button class="bg-transparent border border-border-hairline text-ink font-label text-label px-4 py-2 rounded-full font-medium flex items-center gap-1.5 hover:bg-surface-container active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[16px] text-icon-slate">set_meal</span>
+          Carnes &amp; Pescados
+        </button>
+<button class="bg-transparent border border-border-hairline text-ink font-label text-label px-4 py-2 rounded-full font-medium flex items-center gap-1.5 hover:bg-surface-container active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[16px] text-icon-slate">egg</span>
+          Lácteos &amp; Huevos
+        </button>
+<button class="bg-transparent border border-border-hairline text-ink font-label text-label px-4 py-2 rounded-full font-medium flex items-center gap-1.5 hover:bg-surface-container active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[16px] text-icon-slate">eco</span>
+          Verduras
+        </button>
+<button class="bg-transparent border border-border-hairline text-ink font-label text-label px-4 py-2 rounded-full font-medium flex items-center gap-1.5 hover:bg-surface-container active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[16px] text-icon-slate">grain</span>
+          Secos &amp; Salsas
+        </button>
+<button class="bg-transparent border border-border-hairline text-ink font-label text-label px-4 py-2 rounded-full font-medium flex items-center gap-1.5 hover:bg-surface-container active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[16px] text-icon-slate">local_bar</span>
+          Bebidas
+        </button>
+</div>
+</section>
+<!-- INVENTORY LIST (Vertical Flow, Cloud Surface 24px cards) -->
+<section aria-label="Lista de insumos" class="flex flex-col gap-3.5">
+<!-- ITEM 1: Salmón Fresco (Critical Alert) -->
+<article class="bg-surface-container rounded-3xl p-5 shadow-xs flex flex-col gap-3 relative overflow-hidden transition-all hover:bg-surface-container-high">
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-start gap-3">
+<div class="w-11 h-11 rounded-2xl bg-surface-container-lowest flex items-center justify-center text-status-error shadow-xs shrink-0">
+<span class="material-symbols-outlined text-[24px]">set_meal</span>
+</div>
+<div>
+<h2 class="font-subtitle text-subtitle font-bold text-on-surface leading-tight">Salmón Fresco Premium</h2>
+<p class="font-label text-label text-on-surface-variant mt-0.5">Cód: #ING-0412 • Cámara Fría 1</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-error-container text-on-error-container shrink-0">
+<span class="w-1.5 h-1.5 rounded-full bg-status-error animate-pulse"></span>
+            Stock Crítico
+          </span>
+</div>
+<!-- Inventory Bar and Data -->
+<div class="bg-surface-container-lowest/80 rounded-2xl p-3 flex flex-col gap-2">
+<div class="flex items-baseline justify-between">
+<div class="flex items-baseline gap-1">
+<span class="text-2xl font-bold font-title text-status-error tracking-tight">3.2</span>
+<span class="font-body-secondary text-body-secondary font-semibold text-on-surface">kg</span>
+<span class="text-[12px] text-on-surface-variant ml-1 font-medium">restantes</span>
+</div>
+<div class="font-label text-label text-on-surface-variant font-medium">
+              Mínimo: <span class="font-semibold text-on-surface">8.0 kg</span>
+</div>
+</div>
+<!-- Progress bar -->
+<div class="w-full bg-surface-variant h-2 rounded-full overflow-hidden">
+<div class="bg-status-error h-full rounded-full" style="width: 40%;"></div>
+</div>
+</div>
+<!-- Quick Adjustment Actions -->
+<div class="flex items-center justify-between pt-1">
+<button class="font-label text-label text-on-surface-variant flex items-center gap-1 hover:text-primary active:scale-95 transition-transform" onclick="toggleBottomSheet()">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+            Opciones
+          </button>
+<div class="flex items-center gap-2">
+<button class="w-9 h-9 rounded-full bg-surface-container-lowest text-primary hover:bg-secondary-container active:scale-95 transition-transform flex items-center justify-center shadow-xs" title="Descontar">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+<button class="px-4 py-2 rounded-full bg-primary-container text-on-primary font-label text-label font-semibold flex items-center gap-1.5 active:scale-95 transition-transform shadow-xs">
+<span class="material-symbols-outlined text-[16px]">add</span>
+              Registrar Entrada
+            </button>
+</div>
+</div>
+</article>
+<!-- ITEM 2: Aceite de Oliva (Optimal) -->
+<article class="bg-surface-container rounded-3xl p-5 shadow-xs flex flex-col gap-3 transition-all hover:bg-surface-container-high">
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-start gap-3">
+<div class="w-11 h-11 rounded-2xl bg-surface-container-lowest flex items-center justify-center text-status-success shadow-xs shrink-0">
+<span class="material-symbols-outlined text-[24px]">oil_barrel</span>
+</div>
+<div>
+<h2 class="font-subtitle text-subtitle font-bold text-on-surface leading-tight">Aceite de Oliva Extra Virgen</h2>
+<p class="font-label text-label text-on-surface-variant mt-0.5">Cód: #ING-1108 • Almacén Seco B</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 shrink-0">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+            Óptimo
+          </span>
+</div>
+<div class="bg-surface-container-lowest/80 rounded-2xl p-3 flex flex-col gap-2">
+<div class="flex items-baseline justify-between">
+<div class="flex items-baseline gap-1">
+<span class="text-2xl font-bold font-title text-on-surface tracking-tight">14.5</span>
+<span class="font-body-secondary text-body-secondary font-semibold text-on-surface">L</span>
+<span class="text-[12px] text-on-surface-variant ml-1 font-medium">restantes</span>
+</div>
+<div class="font-label text-label text-on-surface-variant font-medium">
+              Mínimo: <span class="font-semibold text-on-surface">10.0 L</span>
+</div>
+</div>
+<div class="w-full bg-surface-variant h-2 rounded-full overflow-hidden">
+<div class="bg-status-success h-full rounded-full" style="width: 85%;"></div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<button class="font-label text-label text-on-surface-variant flex items-center gap-1 hover:text-primary active:scale-95 transition-transform" onclick="toggleBottomSheet()">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+            Opciones
+          </button>
+<div class="flex items-center gap-2">
+<button class="w-9 h-9 rounded-full bg-surface-container-lowest text-primary hover:bg-secondary-container active:scale-95 transition-transform flex items-center justify-center shadow-xs" title="Descontar">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+<button class="w-9 h-9 rounded-full bg-surface-container-lowest text-primary hover:bg-secondary-container active:scale-95 transition-transform flex items-center justify-center shadow-xs" title="Añadir">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+</article>
+<!-- ITEM 3: Queso Mozzarella Barra (Low Alert) -->
+<article class="bg-surface-container rounded-3xl p-5 shadow-xs flex flex-col gap-3 transition-all hover:bg-surface-container-high">
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-start gap-3">
+<div class="w-11 h-11 rounded-2xl bg-surface-container-lowest flex items-center justify-center text-status-warning shadow-xs shrink-0">
+<span class="material-symbols-outlined text-[24px]">lunch_dining</span>
+</div>
+<div>
+<h2 class="font-subtitle text-subtitle font-bold text-on-surface leading-tight">Queso Mozzarella Barra</h2>
+<p class="font-label text-label text-on-surface-variant mt-0.5">Cód: #ING-0839 • Heladera Prep</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-orange-100 text-orange-800 shrink-0">
+<span class="w-1.5 h-1.5 rounded-full bg-status-warning"></span>
+            Bajo
+          </span>
+</div>
+<div class="bg-surface-container-lowest/80 rounded-2xl p-3 flex flex-col gap-2">
+<div class="flex items-baseline justify-between">
+<div class="flex items-baseline gap-1">
+<span class="text-2xl font-bold font-title text-status-warning tracking-tight">2.0</span>
+<span class="font-body-secondary text-body-secondary font-semibold text-on-surface">kg</span>
+<span class="text-[12px] text-on-surface-variant ml-1 font-medium">restantes</span>
+</div>
+<div class="font-label text-label text-on-surface-variant font-medium">
+              Mínimo: <span class="font-semibold text-on-surface">5.0 kg</span>
+</div>
+</div>
+<div class="w-full bg-surface-variant h-2 rounded-full overflow-hidden">
+<div class="bg-status-warning h-full rounded-full" style="width: 40%;"></div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<button class="font-label text-label text-on-surface-variant flex items-center gap-1 hover:text-primary active:scale-95 transition-transform" onclick="toggleBottomSheet()">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+            Opciones
+          </button>
+<div class="flex items-center gap-2">
+<button class="w-9 h-9 rounded-full bg-surface-container-lowest text-primary hover:bg-secondary-container active:scale-95 transition-transform flex items-center justify-center shadow-xs" title="Descontar">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+<button class="w-9 h-9 rounded-full bg-surface-container-lowest text-primary hover:bg-secondary-container active:scale-95 transition-transform flex items-center justify-center shadow-xs" title="Añadir">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+</article>
+<!-- ITEM 4: Harina 00 Especial (Optimal) -->
+<article class="bg-surface-container rounded-3xl p-5 shadow-xs flex flex-col gap-3 transition-all hover:bg-surface-container-high">
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-start gap-3">
+<div class="w-11 h-11 rounded-2xl bg-surface-container-lowest flex items-center justify-center text-status-success shadow-xs shrink-0">
+<span class="material-symbols-outlined text-[24px]">grain</span>
+</div>
+<div>
+<h2 class="font-subtitle text-subtitle font-bold text-on-surface leading-tight">Harina 00 Especial</h2>
+<p class="font-label text-label text-on-surface-variant mt-0.5">Cód: #ING-2004 • Depósito Central</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 shrink-0">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success"></span>
+            Óptimo
+          </span>
+</div>
+<div class="bg-surface-container-lowest/80 rounded-2xl p-3 flex flex-col gap-2">
+<div class="flex items-baseline justify-between">
+<div class="flex items-baseline gap-1">
+<span class="text-2xl font-bold font-title text-on-surface tracking-tight">45.0</span>
+<span class="font-body-secondary text-body-secondary font-semibold text-on-surface">kg</span>
+<span class="text-[12px] text-on-surface-variant ml-1 font-medium">restantes</span>
+</div>
+<div class="font-label text-label text-on-surface-variant font-medium">
+              Mínimo: <span class="font-semibold text-on-surface">20.0 kg</span>
+</div>
+</div>
+<div class="w-full bg-surface-variant h-2 rounded-full overflow-hidden">
+<div class="bg-status-success h-full rounded-full" style="width: 90%;"></div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<button class="font-label text-label text-on-surface-variant flex items-center gap-1 hover:text-primary active:scale-95 transition-transform" onclick="toggleBottomSheet()">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+            Opciones
+          </button>
+<div class="flex items-center gap-2">
+<button class="w-9 h-9 rounded-full bg-surface-container-lowest text-primary hover:bg-secondary-container active:scale-95 transition-transform flex items-center justify-center shadow-xs" title="Descontar">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+<button class="w-9 h-9 rounded-full bg-surface-container-lowest text-primary hover:bg-secondary-container active:scale-95 transition-transform flex items-center justify-center shadow-xs" title="Añadir">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+</article>
+<!-- ITEM 5: Tomate San Marzano Lata (INACTIVE ITEM - 50% OPACITY DEMONSTRATION) -->
+<article class="bg-surface-container rounded-3xl p-5 shadow-xs flex flex-col gap-3 opacity-50 border border-dashed border-border-hairline transition-opacity hover:opacity-75">
+<div class="flex items-start justify-between gap-3">
+<div class="flex items-start gap-3">
+<div class="w-11 h-11 rounded-2xl bg-surface-container-lowest flex items-center justify-center text-outline shadow-xs shrink-0">
+<span class="material-symbols-outlined text-[24px]">archive</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h2 class="font-subtitle text-subtitle font-bold text-on-surface leading-tight">Tomate San Marzano Lata</h2>
+</div>
+<p class="font-label text-label text-on-surface-variant mt-0.5">Cód: #ING-0199 • Desactivado de menú</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-surface-variant text-on-surface-variant shrink-0">
+            Inactivo
+          </span>
+</div>
+<div class="bg-surface-container-lowest/60 rounded-2xl p-3 flex flex-col gap-2">
+<div class="flex items-baseline justify-between">
+<div class="flex items-baseline gap-1">
+<span class="text-2xl font-bold font-title text-outline tracking-tight">0.0</span>
+<span class="font-body-secondary text-body-secondary font-semibold text-outline">Latas</span>
+<span class="text-[12px] text-outline ml-1 font-medium">agotado</span>
+</div>
+<div class="font-label text-label text-on-surface-variant font-medium">
+              Mínimo: <span class="font-semibold text-outline">12.0 Latas</span>
+</div>
+</div>
+<div class="w-full bg-surface-variant h-2 rounded-full overflow-hidden">
+<div class="bg-outline-variant h-full rounded-full" style="width: 0%;"></div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<button class="font-label text-label text-primary font-semibold flex items-center gap-1 active:scale-95 transition-transform" onclick="toggleBottomSheet()">
+<span class="material-symbols-outlined text-[18px]">settings_backup_restore</span>
+            Reactivar ítem
+          </button>
+<span class="text-[11px] font-label text-on-surface-variant">Sin pedidos activos</span>
+</div>
+</article>
+</section>
+</main>
+<!-- FLOATING ACTION BUTTON (FAB) - Elevated Tier (shadow-lg) -->
+<aside class="fixed bottom-20 right-4 z-40">
+<button aria-label="Nuevo Insumo" class="bg-primary-container hover:bg-primary text-on-primary font-label text-label font-bold px-5 py-3.5 rounded-2xl shadow-lg flex items-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[22px]">add</span>
+<span>Nuevo Insumo</span>
+</button>
+</aside>
+<!-- BOTTOM SHEET (Standardized "More Options" Triad) -->
+<div class="fixed inset-0 bg-ink/40 z-50 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity duration-200" id="bottom-sheet-backdrop" onclick="toggleBottomSheet()"></div>
+<div class="fixed bottom-0 left-0 right-0 z-50 bg-surface-container-lowest rounded-t-3xl shadow-lg p-6 max-w-xl mx-auto transform translate-y-full transition-transform duration-300 ease-out" id="bottom-sheet">
+<div class="w-12 h-1 bg-surface-variant rounded-full mx-auto mb-4"></div>
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-subtitle text-subtitle font-bold text-on-surface">Gestión de Insumo</h3>
+<button class="p-1 rounded-full text-icon-slate hover:bg-surface-container active:scale-95" onclick="toggleBottomSheet()">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Triad: Edit Item -> Activate / Deactivate -> Delete Item -->
+<div class="flex flex-col gap-1.5">
+<button class="w-full text-left px-4 py-3 rounded-2xl hover:bg-surface-container flex items-center gap-3 text-on-surface font-body-secondary font-medium active:scale-98 transition-transform">
+<span class="material-symbols-outlined text-icon-slate">edit</span>
+<span>Editar Item</span>
+</button>
+<button class="w-full text-left px-4 py-3 rounded-2xl hover:bg-surface-container flex items-center gap-3 text-on-surface font-body-secondary font-medium active:scale-98 transition-transform">
+<span class="material-symbols-outlined text-icon-slate">toggle_on</span>
+<span>Activar / Desactivar</span>
+</button>
+<!-- Destructive Action -->
+<button class="w-full text-left px-4 py-3 rounded-2xl bg-red-500/10 hover:bg-red-500/15 flex items-center gap-3 text-status-error font-body-secondary font-semibold active:scale-98 transition-transform mt-1">
+<span class="material-symbols-outlined text-status-error">delete</span>
+<span>Eliminar Item</span>
+</button>
+</div>
+</div>
+<!-- BOTTOM NAVBAR (Mapped directly from JSON Shared Components) -->
+<!-- Active state: 'Inventory' is mapped to 'Inventario' -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-space-md py-space-xs bg-surface-container-lowest shadow-lg">
+<!-- Tab 1: Inventario (ACTIVE) -->
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-space-md py-space-xs active:scale-95 transition-transform duration-150" href="#inventory">
+<span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span class="font-label text-label font-bold text-on-primary-container">Inventario</span>
+</a>
+<!-- Tab 2: Tables -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container rounded-full px-space-md py-space-xs active:scale-95 transition-transform duration-150" href="#tables">
+<span class="material-symbols-outlined text-[22px]">table_restaurant</span>
+<span class="font-label text-label">Mesas</span>
+</a>
+<!-- Tab 3: Stock Alerts -->
+<a class="relative flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container rounded-full px-space-md py-space-xs active:scale-95 transition-transform duration-150" href="#alerts">
+<span class="material-symbols-outlined text-[22px]">notification_important</span>
+<span class="font-label text-label">Alertas</span>
+<span class="absolute top-1 right-2.5 w-2 h-2 rounded-full bg-status-error"></span>
+</a>
+<!-- Tab 4: Settings -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container rounded-full px-space-md py-space-xs active:scale-95 transition-transform duration-150" href="#settings">
+<span class="material-symbols-outlined text-[22px]">tune</span>
+<span class="font-label text-label">Ajustes</span>
+</a>
+</nav>
+<!-- Interactive script for Bottom Sheet -->
+<script>
+    function toggleBottomSheet() {
+      const backdrop = document.getElementById('bottom-sheet-backdrop');
+      const sheet = document.getElementById('bottom-sheet');
+      
+      const isOpen = !backdrop.classList.contains('pointer-events-none');
+      
+      if (isOpen) {
+        backdrop.classList.add('opacity-0', 'pointer-events-none');
+        sheet.classList.add('translate-y-full');
+      } else {
+        backdrop.classList.remove('opacity-0', 'pointer-events-none');
+        sheet.classList.remove('translate-y-full');
+      }
+    }
+  </script>
+</body></html>

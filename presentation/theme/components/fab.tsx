@@ -1,6 +1,6 @@
-import React from "react";
-import { Pressable, Text } from "react-native";
+import { Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { ThemedText } from "./themed-text";
 import tw from "../lib/tailwind";
 
 type FabProps = {
@@ -22,11 +22,16 @@ export default function Fab({
   bottom = 24,
   right = 24,
 }: FabProps) {
+  const isExtended = !!label;
+
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
-        tw`absolute w-16 h-16 rounded-2xl items-center justify-center shadow-lg`,
+        tw`absolute rounded-2xl items-center justify-center shadow-lg`,
+        isExtended
+          ? tw`flex-row gap-2 px-5 py-4`
+          : tw`w-16 h-16`,
         tw`${bgColor}`,
         {
           bottom,
@@ -35,9 +40,11 @@ export default function Fab({
         },
       ]}
     >
-      <Ionicons name={icon} size={30} color={color} />
+      <Ionicons name={icon} size={isExtended ? 20 : 30} color={color} />
       {label && (
-        <Text style={tw`text-white text-xs mt-1 font-semibold`}>{label}</Text>
+        <ThemedText style={[tw`text-sm font-semibold`, { color }]}>
+          {label}
+        </ThemedText>
       )}
     </Pressable>
   );

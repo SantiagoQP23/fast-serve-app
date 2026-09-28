@@ -1,0 +1,26 @@
+{
+  "projectId": "16439597028686827574",
+  "title": "Inventory Design System Screens",
+  "deviceType": "MOBILE",
+  "lastSyncTime": "2026-09-28T18:05:00Z",
+  "screens": {
+    "40912e5db4544876a56eb9be287a9195": {
+      "title": "Inventario Principal",
+      "sourceScreen": "projects/16439597028686827574/screens/40912e5db4544876a56eb9be287a9195",
+      "width": 780,
+      "height": 3438,
+      "localDesign": ".stitch/designs/inventario-principal.html",
+      "localScreenshot": ".stitch/designs/inventario-principal.png",
+      "appliedTo": "app/(profile)/menu-inventory-items/index.tsx"
+    },
+    "a7f828eeb0bc460490c3f2b8a965cecc": {
+      "title": "Detalle de Insumo y Acciones",
+      "sourceScreen": "projects/16439597028686827574/screens/a7f828eeb0bc460490c3f2b8a965cecc",
+      "width": 780,
+      "height": 2202,
+      "localDesign": ".stitch/designs/detalle-insumo.html",
+      "localScreenshot": ".stitch/designs/detalle-insumo.png",
+      "appliedTo": "app/(profile)/menu-inventory-item-detail/index.tsx"
+    }
+  }
+}

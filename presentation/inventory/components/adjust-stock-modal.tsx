@@ -3,12 +3,16 @@ import { Modal, View } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
+import Counter from "@/presentation/theme/components/counter";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 import { InventoryMovementType } from "@/core/inventory/models/inventory-movement.model";
-import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
+import {
+  InventoryUnit,
+  type InventoryItem,
+} from "@/core/inventory/models/inventory-item.model";
 
 interface AdjustStockModalProps {
   item: InventoryItem | null;
@@ -44,16 +48,16 @@ function AdjustStockForm({ item, onClose }: AdjustStockFormProps) {
   const { t } = useTranslation("inventory");
   const { adjustStock } = useInventoryItems();
   const [mode, setMode] = useState<"restock" | "waste">("restock");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(0);
   const [note, setNote] = useState("");
+  const step = item.unit === InventoryUnit.UNIT ? 1 : 0.1;
 
   const handleSubmit = async () => {
-    const parsedAmount = Number(amount);
-    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) return;
+    if (amount <= 0) return;
 
     await adjustStock.mutateAsync({
       inventoryItemId: item.id,
-      delta: mode === "restock" ? parsedAmount : -parsedAmount,
+      delta: mode === "restock" ? amount : -amount,
       type:
         mode === "restock"
           ? InventoryMovementType.MANUAL_RESTOCK
@@ -89,13 +93,15 @@ function AdjustStockForm({ item, onClose }: AdjustStockFormProps) {
         />
       </View>
 
-      <TextInput
-        label={t("amount")}
-        value={amount}
-        onChangeText={setAmount}
-        keyboardType="decimal-pad"
-        placeholder="0"
-      />
+      <View style={tw`gap-2`}>
+        <Counter
+          value={amount}
+          onChangeValue={setAmount}
+          step={step}
+          min={0}
+          unit={t(`units.${item.unit}`)}
+        />
+      </View>
 
       <TextInput
         label={t("reasonOptional")}
@@ -117,7 +123,7 @@ function AdjustStockForm({ item, onClose }: AdjustStockFormProps) {
           onPress={handleSubmit}
           size="small"
           loading={adjustStock.isPending}
-          disabled={!amount || Number(amount) <= 0}
+          disabled={amount <= 0}
         />
       </View>
     </View>

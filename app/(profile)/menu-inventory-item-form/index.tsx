@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -16,9 +15,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
-import Switch from "@/presentation/theme/components/switch";
 import Select from "@/presentation/theme/components/select";
-import DialogModal from "@/presentation/theme/components/dialog-modal";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
@@ -47,9 +44,7 @@ export default function MenuInventoryItemFormScreen() {
   }>();
 
   const isEditing = !!params.itemId;
-  const { createItem, updateItem, deleteItem } = useInventoryItems();
-
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const { createItem, updateItem } = useInventoryItems();
 
   const schema = buildItemSchema(t);
 
@@ -90,13 +85,6 @@ export default function MenuInventoryItemFormScreen() {
       await createItem.mutateAsync(payload);
     }
 
-    router.back();
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!params.itemId) return;
-    await deleteItem.mutateAsync(params.itemId);
-    setShowDeleteConfirm(false);
     router.back();
   };
 
@@ -144,7 +132,7 @@ export default function MenuInventoryItemFormScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("fields.name")}
-                  icon="cube-outline"
+                  icon="cube"
                   placeholder={t("placeholders.name")}
                   onBlur={onBlur}
                   value={value}
@@ -202,41 +190,9 @@ export default function MenuInventoryItemFormScreen() {
                 />
               </ThemedView>
             </ThemedView>
-
-            <Controller
-              control={control}
-              name="isActive"
-              render={({ field: { value, onChange } }) => (
-                <Switch
-                  label={t("fields.isActive")}
-                  value={value}
-                  onValueChange={onChange}
-                />
-              )}
-            />
-
-            {isEditing && (
-              <Button
-                label={t("deleteItem")}
-                variant="destructive"
-                onPress={() => setShowDeleteConfirm(true)}
-              />
-            )}
           </ThemedView>
         </ScrollView>
       </ScreenLayout>
-
-      <DialogModal
-        visible={showDeleteConfirm}
-        title={t("deleteTitle")}
-        message={t("deleteMessage")}
-        confirmLabel={t("confirm")}
-        cancelLabel={t("cancel")}
-        confirmVariant="destructive"
-        loading={deleteItem.isPending}
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setShowDeleteConfirm(false)}
-      />
     </KeyboardAvoidingView>
   );
 }
