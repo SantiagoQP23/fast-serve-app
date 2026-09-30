@@ -21,6 +21,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatTime, i18nAlert } from "@/core/i18n/utils";
 import { useOrderTypes } from "../hooks/useOrderTypes";
 import Card from "@/presentation/theme/components/card";
+import PeopleSelector from "./people-selector";
 
 interface EditOrderBottomSheetProps {
   order: Order;
@@ -155,33 +156,10 @@ const EditOrderBottomSheet = ({
           <Text style={tw`text-gray-700 dark:text-gray-300  font-semibold`}>
             {t("orders:form.people")}
           </Text>
-          <ThemedView style={tw`flex-row gap-2 items-center`}>
-            <ThemedView style={tw`flex-1`}>
-              <ButtonGroup
-                options={[
-                  { label: "1", value: 1 },
-                  { label: "2", value: 2 },
-                  { label: "3", value: 3 },
-                  { label: "4", value: 4 },
-                  { label: "5", value: 5 },
-                  { label: "6", value: 6 },
-                ]}
-                selected={form.people}
-                onChange={(value: number) =>
-                  setForm({ ...form, people: value })
-                }
-              />
-            </ThemedView>
-            <TextInput
-              inputMode="numeric"
-              multiline
-              bottomSheet
-              onChangeText={(value) => setForm({ ...form, people: +value })}
-              value={form.people ? form.people.toString() : ""}
-              style={tw`w-10`}
-              containerStyle={tw`w-15 min-w-15`}
-            />
-          </ThemedView>
+          <PeopleSelector
+            value={form.people}
+            onChange={(value) => setForm({ ...form, people: value })}
+          />
         </ThemedView>
         <ThemedView>
           <Switch

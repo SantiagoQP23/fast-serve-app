@@ -16,6 +16,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useOrderTypes } from "./hooks/useOrderTypes";
 import { typography } from "@/constants/theme";
 import { toast } from "sonner-native";
+import PeopleSelector from "./components/people-selector";
 
 interface NewOrderBottomSheetProps {
   onCreateOrder?: () => void;
@@ -101,30 +102,7 @@ const NewOrderBottomSheet = ({
           >
             {t("newOrder.people")}
           </ThemedText>
-          <ThemedView style={tw`flex-row gap-2 items-center`}>
-            <ThemedView style={tw`flex-1`}>
-              <ButtonGroup
-                options={[
-                  { label: "1", value: 1 },
-                  { label: "2", value: 2 },
-                  { label: "3", value: 3 },
-                  { label: "4", value: 4 },
-                  { label: "5", value: 5 },
-                  { label: "6", value: 6 },
-                ]}
-                selected={people}
-                onChange={(value: number) => setPeople(value)}
-              />
-            </ThemedView>
-            <TextInput
-              inputMode="numeric"
-              multiline
-              bottomSheet
-              onChangeText={(value) => setPeople(+value)}
-              value={people ? people.toString() : ""}
-              containerStyle={tw`w-15 min-w-15`}
-            />
-          </ThemedView>
+          <PeopleSelector value={people} onChange={setPeople} />
         </ThemedView>
         <ThemedView>
           <Switch
