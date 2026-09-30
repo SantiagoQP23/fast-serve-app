@@ -24,10 +24,10 @@ import { forwardRef, useEffect, useState } from "react";
 
 const CONTAINER_HEIGHT = 56;
 const LABEL_REST_POSITION = 16;
-const LABEL_FLOAT_POSITION = 7;
+const LABEL_FLOAT_POSITION = 9;
 const LABEL_REST_SIZE = 16;
 const LABEL_FLOAT_SIZE = 11;
-const INPUT_MARGIN_TOP = 20;
+const INPUT_MARGIN_TOP = 25;
 
 interface Props extends TextInputProps {
   label?: string;
