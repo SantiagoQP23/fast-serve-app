@@ -199,8 +199,7 @@ export default function RestaurantMenuScreen() {
   }
 
   return (
-    <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
-      <ThemedText type="h1">{t("menu:title")}</ThemedText>
+    <ScreenLayout style={tw`px-4 pt-2 flex-1 gap-4`}>
       <TextInput
         value={search}
         placeholder={t("menu:searchPlaceholder")}

@@ -370,12 +370,10 @@ export default function MenuProductDetailScreen() {
                   {t("products.variants.title")}
                 </ThemedText>
                 {canManage && (
-                  <Button
-                    label={t("products.variants.addVariant")}
+                  <IconButton
                     onPress={openAddOptionSheet}
-                    variant="outline"
-                    size="small"
-                    leftIcon="add-outline"
+                    icon="add-outline"
+                    size={24}
                   />
                 )}
               </ThemedView>
@@ -416,6 +414,7 @@ export default function MenuProductDetailScreen() {
                           : undefined
                       }
                       style={[
+                        tw`p-4`,
                         option.isDefault && tw`bg-light-secondary`,
                         !option.isActive && tw`opacity-50`,
                       ]}
@@ -425,46 +424,19 @@ export default function MenuProductDetailScreen() {
                       >
                         <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
                           <ThemedText
-                            type="h4"
+                            type="body1"
                             style={
                               option.isDefault && tw`text-light-on-secondary`
                             }
                           >
                             {option.name}
                           </ThemedText>
-                          {option.trackStock && (
-                            <ThemedView
-                              style={tw`flex-row items-center gap-1 bg-transparent`}
-                            >
-                              <Ionicons
-                                name="cube-outline"
-                                size={14}
-                                color={tw.color(
-                                  option.isDefault
-                                    ? "light-on-secondary"
-                                    : "gray-500",
-                                )}
-                              />
-                              <ThemedText
-                                type="small"
-                                style={
-                                  option.isDefault
-                                    ? tw`text-light-on-secondary/70`
-                                    : tw`text-gray-500`
-                                }
-                              >
-                                {t("inventory:stockCount", {
-                                  count: option.quantity,
-                                })}
-                              </ThemedText>
-                            </ThemedView>
-                          )}
                         </ThemedView>
                         <ThemedView
                           style={tw`flex-row items-center gap-1 bg-transparent`}
                         >
                           <ThemedText
-                            type="body1"
+                            type="body2"
                             style={
                               option.isDefault && tw`text-light-on-secondary`
                             }
@@ -611,22 +583,14 @@ export default function MenuProductDetailScreen() {
           <ThemedView style={tw`px-4 py-4 gap-6`}>
             <ThemedView style={tw`flex-row justify-between items-start gap-3`}>
               <ThemedView style={tw`flex-1 gap-2`}>
-                <ThemedText
-                  type="h2"
-                  style={{ fontFamily: typography.medium }}
-                >
+                <ThemedText type="h2" style={{ fontFamily: typography.medium }}>
                   {selectedOption.name}
                 </ThemedText>
                 <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
                   <ThemedView style={tw`flex-row items-center gap-1`}>
-                    <Ionicons
-                      name="pricetag-outline"
-                      size={16}
-                      color={tw.color("text-gray-500")}
-                    />
-                    <ThemedText type="small" style={tw`text-gray-500`}>
-                      {formatCurrency(selectedOption.price)}
-                    </ThemedText>
+                    {/* <ThemedText type="small" style={tw`text-gray-500`}> */}
+                    {/*   {formatCurrency(selectedOption.price)} */}
+                    {/* </ThemedText> */}
                   </ThemedView>
                   {selectedOption.trackStock && (
                     <ThemedView style={tw`flex-row items-center gap-1`}>
@@ -651,9 +615,10 @@ export default function MenuProductDetailScreen() {
                     size="small"
                   />
                 ) : (
-                  <Label
-                    text={t("products.variants.makeDefault")}
+                  <Button
+                    label={t("products.variants.makeDefault")}
                     leftIcon="star-outline"
+                    variant="text"
                     size="small"
                     onPress={handleMakeOptionDefault}
                   />

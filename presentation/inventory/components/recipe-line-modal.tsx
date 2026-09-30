@@ -9,9 +9,6 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Select from "@/presentation/theme/components/select";
-import BottomSheetPicker, {
-  type BottomSheetPickerRef,
-} from "@/presentation/theme/components/bottom-sheet-picker";
 import Counter from "@/presentation/theme/components/counter";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
@@ -29,6 +26,7 @@ interface RecipeLineModalProps {
   productName?: string;
   productOptionName?: string;
   recipeLine: ProductOptionInventoryItem | null;
+  inventoryItemId?: string;
   onClose: () => void;
 }
 
@@ -38,6 +36,7 @@ export default function RecipeLineModal({
   productName,
   productOptionName,
   recipeLine,
+  inventoryItemId,
   onClose,
 }: RecipeLineModalProps) {
   const bottomSheetRef = useRef<BottomSheetMethods>(null);
@@ -59,11 +58,12 @@ export default function RecipeLineModal({
       <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
         {visible && (
           <RecipeLineForm
-            key={recipeLine?.id ?? "new"}
+            key={recipeLine?.id ?? inventoryItemId ?? "new"}
             productOptionId={productOptionId}
             productName={productName}
             productOptionName={productOptionName}
             recipeLine={recipeLine}
+            inventoryItemId={inventoryItemId}
             onClose={onClose}
           />
         )}
@@ -77,6 +77,7 @@ interface RecipeLineFormProps {
   productName?: string;
   productOptionName?: string;
   recipeLine: ProductOptionInventoryItem | null;
+  inventoryItemId?: string;
   onClose: () => void;
 }
 
@@ -85,19 +86,16 @@ function RecipeLineForm({
   productName,
   productOptionName,
   recipeLine,
+  inventoryItemId,
   onClose,
 }: RecipeLineFormProps) {
   const { t } = useTranslation("inventory");
   const isEditing = !!recipeLine;
+  const isCreatingNewItem = !isEditing && !inventoryItemId;
   const { items, createItem } = useInventoryItems();
   const { categories } = useInventoryItemCategories();
   const { createRecipe, updateRecipe } = useInventoryRecipes(productOptionId);
-  const itemPickerRef = useRef<BottomSheetPickerRef>(null);
-  const [inventoryItemId, setInventoryItemId] = useState(
-    recipeLine?.inventoryItemId ?? "",
-  );
   const [quantity, setQuantity] = useState(recipeLine?.quantity ?? 0);
-  const [isCreatingNewItem, setIsCreatingNewItem] = useState(false);
   const [newItemName, setNewItemName] = useState(
     [productName, productOptionName].filter(Boolean).join(" "),
   );
@@ -107,10 +105,6 @@ function RecipeLineForm({
   const [newItemCategoryId, setNewItemCategoryId] = useState("");
   const [isCreateCategoryModalVisible, setIsCreateCategoryModalVisible] =
     useState(false);
-
-  const itemOptions = items
-    .filter((item) => item.isActive)
-    .map((item) => ({ label: item.name, value: item.id }));
 
   const unitOptions = Object.values(InventoryUnit).map((unit) => ({
     label: t(`units.${unit}`),
@@ -185,29 +179,14 @@ function RecipeLineForm({
         {isEditing ? t("recipe.editLine") : t("recipe.addLine")}
       </ThemedText>
 
-      {!isEditing && !isCreatingNewItem && (
+      {!isEditing && !isCreatingNewItem && selectedExistingItem && (
         <View style={tw`gap-2`}>
-          {/* <ThemedText style={tw`dark:text-gray-300 `}> */}
-          {/*   {t("recipe.fields.item")} */}
-          {/* </ThemedText> */}
-          <Button
-            label={selectedExistingItem?.name ?? t("recipe.placeholders.item")}
-            variant="secondary"
-            leftIcon="git-merge"
-            onPress={() => itemPickerRef.current?.present()}
-            style={tw`w-full`}
-          />
-          <BottomSheetPicker
-            ref={itemPickerRef}
-            title={t("recipe.fields.item")}
-            options={itemOptions}
-            value={inventoryItemId}
-            onChange={(v) => setInventoryItemId(String(v))}
-            headerAction={{
-              label: t("recipe.createNewItem"),
-              onPress: () => setIsCreatingNewItem(true),
-            }}
-          />
+          <ThemedText style={tw`dark:text-gray-300`}>
+            {t("recipe.fields.item")}
+          </ThemedText>
+          <ThemedText type="body1" style={{ fontFamily: typography.medium }}>
+            {selectedExistingItem.name}
+          </ThemedText>
         </View>
       )}
 
@@ -219,9 +198,11 @@ function RecipeLineForm({
             value={newItemName}
             onChangeText={setNewItemName}
             placeholder={t("recipe.placeholders.newItemName")}
+            variant="outlined"
           />
           <Select
             label={t("fields.unit")}
+            variant="outlined"
             options={unitOptions}
             value={newItemUnit}
             onChange={(v) => setNewItemUnit(v as InventoryUnit)}
@@ -231,9 +212,9 @@ function RecipeLineForm({
           <Select
             label={t("fields.category")}
             options={categoryOptions}
+            variant="outlined"
             value={newItemCategoryId}
             onChange={(v) => setNewItemCategoryId(String(v))}
-            placeholder={t("placeholders.category")}
             headerAction={{
               label: t("recipe.createNewCategory"),
               onPress: () => setIsCreateCategoryModalVisible(true),

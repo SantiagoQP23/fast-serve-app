@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ScrollView, RefreshControl, Pressable } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -15,7 +15,11 @@ import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import SwipeableRow from "@/presentation/theme/components/swipeable-row";
+import BottomSheetPicker, {
+  type BottomSheetPickerRef,
+} from "@/presentation/theme/components/bottom-sheet-picker";
 import { useInventoryRecipes } from "@/presentation/inventory/hooks/useInventoryRecipes";
+import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 import RecipeLineModal from "@/presentation/inventory/components/recipe-line-modal";
 import type { ProductOptionInventoryItem } from "@/core/inventory/models/inventory-recipe.model";
 
@@ -31,11 +35,20 @@ export default function MenuProductOptionInventoryScreen() {
   const canManage = isAdminLevelRole(user?.role?.name);
   const { recipes, recipesQuery, deleteRecipe } =
     useInventoryRecipes(productOptionId);
+  const { items } = useInventoryItems();
+  const itemPickerRef = useRef<BottomSheetPickerRef>(null);
   const [lineToDelete, setLineToDelete] =
     useState<ProductOptionInventoryItem | null>(null);
   const [lineToEdit, setLineToEdit] =
     useState<ProductOptionInventoryItem | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [addInventoryItemId, setAddInventoryItemId] = useState<string | null>(
+    null,
+  );
+
+  const itemOptions = items
+    .filter((item) => item.isActive)
+    .map((item) => ({ label: item.name, value: item.id }));
 
   const handleConfirmDelete = async () => {
     if (!lineToDelete) return;
@@ -43,8 +56,21 @@ export default function MenuProductOptionInventoryScreen() {
     setLineToDelete(null);
   };
 
+  const openItemPicker = () => itemPickerRef.current?.present();
+
+  const handlePickExistingItem = (value: string | number) => {
+    setAddInventoryItemId(String(value));
+    setShowAddModal(true);
+  };
+
+  const handleCreateNewItem = () => {
+    setAddInventoryItemId(null);
+    setShowAddModal(true);
+  };
+
   const closeLineModal = () => {
     setShowAddModal(false);
+    setAddInventoryItemId(null);
     setLineToEdit(null);
   };
 
@@ -164,7 +190,7 @@ export default function MenuProductOptionInventoryScreen() {
         )}
       </ScrollView>
 
-      {canManage && <Fab icon="add" onPress={() => setShowAddModal(true)} />}
+      {canManage && <Fab icon="add" onPress={openItemPicker} />}
 
       <DialogModal
         visible={!!lineToDelete}
@@ -178,12 +204,24 @@ export default function MenuProductOptionInventoryScreen() {
         onCancel={() => setLineToDelete(null)}
       />
 
+      <BottomSheetPicker
+        ref={itemPickerRef}
+        title={t("recipe.fields.item")}
+        options={itemOptions}
+        onChange={handlePickExistingItem}
+        headerAction={{
+          label: t("recipe.createNewItem"),
+          onPress: handleCreateNewItem,
+        }}
+      />
+
       <RecipeLineModal
         visible={showAddModal || !!lineToEdit}
         productOptionId={productOptionId}
         productName={params.productName}
         productOptionName={params.productOptionName}
         recipeLine={lineToEdit}
+        inventoryItemId={addInventoryItemId ?? undefined}
         onClose={closeLineModal}
       />
     </ScreenLayout>

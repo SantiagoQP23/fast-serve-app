@@ -180,7 +180,7 @@ function TextInput(
             ]}
             value={value}
             defaultValue={defaultValue}
-            placeholder={placeholder}
+            placeholder={!label || isFocused ? placeholder : undefined}
             placeholderTextColor={tw.color("light-on-surface-variant")}
             editable={editable}
             onFocus={handleFocus as (e: any) => void}
