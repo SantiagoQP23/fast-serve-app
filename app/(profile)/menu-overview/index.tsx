@@ -291,7 +291,7 @@ export default function MenuOverviewScreen() {
         placeholder={t("products.searchPlaceholder")}
         onChangeText={setSearch}
         icon="search-outline"
-        leftIcon={
+        trailingIcon={
           search && (
             <IconButton
               icon="close-circle-outline"

@@ -27,9 +27,7 @@ export default function MenuProductsScreen() {
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [productToDelete, setProductToDelete] = useState<Product | null>(
-    null,
-  );
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
   useEffect(() => {
     if (products.length === 0) {
@@ -90,7 +88,7 @@ export default function MenuProductsScreen() {
           placeholder={t("products.searchPlaceholder")}
           value={searchQuery}
           onChangeText={setSearchQuery}
-          leftIcon={
+          trailingIcon={
             searchQuery.length > 0 ? (
               <Pressable onPress={() => setSearchQuery("")} hitSlop={8}>
                 <Ionicons name="close-circle" size={20} color="#9ca3af" />
@@ -154,7 +152,10 @@ export default function MenuProductsScreen() {
           filteredProducts.length === 0 && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
               <Ionicons name="search-outline" size={48} color="#999" />
-              <ThemedText type="body2" style={tw`text-center text-gray-500 px-4`}>
+              <ThemedText
+                type="body2"
+                style={tw`text-center text-gray-500 px-4`}
+              >
                 {t("products.noSearchResults", { query: searchQuery })}
               </ThemedText>
             </ThemedView>
@@ -165,7 +166,9 @@ export default function MenuProductsScreen() {
             {filteredProducts.map((product) => (
               <SwipeableRow
                 key={product.id}
-                onEdit={canManage ? () => handleEditProduct(product) : undefined}
+                onEdit={
+                  canManage ? () => handleEditProduct(product) : undefined
+                }
                 onDelete={
                   canManage ? () => setProductToDelete(product) : undefined
                 }
@@ -183,7 +186,9 @@ export default function MenuProductsScreen() {
                       />
                       <ThemedView style={tw`flex-1 gap-2`}>
                         <ThemedText type="h4">{product.name}</ThemedText>
-                        <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
+                        <ThemedView
+                          style={tw`flex-row items-center gap-2 flex-wrap`}
+                        >
                           <ThemedText type="small" style={tw`text-gray-500`}>
                             {product.category?.name}
                           </ThemedText>

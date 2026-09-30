@@ -206,7 +206,7 @@ export default function RestaurantMenuScreen() {
         placeholder={t("menu:searchPlaceholder")}
         onChangeText={(value) => onSearchChange(value)}
         icon="search-outline"
-        leftIcon={
+        trailingIcon={
           search && (
             <IconButton
               icon="close-circle-outline"

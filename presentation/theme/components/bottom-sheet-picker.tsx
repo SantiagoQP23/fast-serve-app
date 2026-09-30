@@ -147,7 +147,7 @@ const BottomSheetPicker = forwardRef<
                 placeholder={searchPlaceholder}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
-                leftIcon={
+                trailingIcon={
                   searchQuery.length > 0 ? (
                     <Pressable onPress={() => setSearchQuery("")} hitSlop={8}>
                       <Ionicons name="close-circle" size={20} color="#9ca3af" />

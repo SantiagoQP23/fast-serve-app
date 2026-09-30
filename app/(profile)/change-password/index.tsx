@@ -142,13 +142,11 @@ export default function ChangePasswordScreen() {
                   value={value}
                   onChangeText={onChange}
                   error={errors.currentPassword?.message}
-                  leftIcon={
+                  trailingIcon={
                     value && (
                       <PasswordVisibilityToggle
                         visible={showCurrentPassword}
-                        onToggle={() =>
-                          setShowCurrentPassword((prev) => !prev)
-                        }
+                        onToggle={() => setShowCurrentPassword((prev) => !prev)}
                       />
                     )
                   }
@@ -169,7 +167,7 @@ export default function ChangePasswordScreen() {
                   value={value}
                   onChangeText={onChange}
                   error={errors.newPassword?.message}
-                  leftIcon={
+                  trailingIcon={
                     value && (
                       <PasswordVisibilityToggle
                         visible={showNewPassword}
@@ -194,13 +192,11 @@ export default function ChangePasswordScreen() {
                   value={value}
                   onChangeText={onChange}
                   error={errors.confirmPassword?.message}
-                  leftIcon={
+                  trailingIcon={
                     value && (
                       <PasswordVisibilityToggle
                         visible={showConfirmPassword}
-                        onToggle={() =>
-                          setShowConfirmPassword((prev) => !prev)
-                        }
+                        onToggle={() => setShowConfirmPassword((prev) => !prev)}
                       />
                     )
                   }

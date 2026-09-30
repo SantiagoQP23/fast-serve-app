@@ -174,7 +174,7 @@ const LoginScreen = () => {
                 value={value}
                 onChangeText={onChange}
                 error={errors.password ? errors.password.message : undefined}
-                leftIcon={
+                trailingIcon={
                   value && (
                     <Pressable onPress={() => setShowPassword((prev) => !prev)}>
                       <Ionicons

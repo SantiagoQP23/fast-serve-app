@@ -166,7 +166,7 @@ export default function ChangeEmailScreen() {
                     value={value}
                     onChangeText={onChange}
                     error={errors.currentPassword?.message}
-                    leftIcon={
+                    trailingIcon={
                       value && (
                         <PasswordVisibilityToggle
                           visible={showPassword}

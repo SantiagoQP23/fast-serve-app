@@ -31,7 +31,10 @@ const buildSetCredentialsSchema = (t: (key: string) => string) =>
       username: z.string().min(2, t("account.validations.usernameMinLength")),
       password: z
         .string()
-        .regex(PASSWORD_PATTERN, t("account.validations.securePasswordPattern")),
+        .regex(
+          PASSWORD_PATTERN,
+          t("account.validations.securePasswordPattern"),
+        ),
       confirmPassword: z
         .string()
         .min(1, t("account.validations.confirmPasswordRequired")),
@@ -157,7 +160,7 @@ export default function SetCredentialsScreen() {
                   value={value}
                   onChangeText={onChange}
                   error={errors.password?.message}
-                  leftIcon={
+                  trailingIcon={
                     value && (
                       <PasswordVisibilityToggle
                         visible={showPassword}
@@ -182,13 +185,11 @@ export default function SetCredentialsScreen() {
                   value={value}
                   onChangeText={onChange}
                   error={errors.confirmPassword?.message}
-                  leftIcon={
+                  trailingIcon={
                     value && (
                       <PasswordVisibilityToggle
                         visible={showConfirmPassword}
-                        onToggle={() =>
-                          setShowConfirmPassword((prev) => !prev)
-                        }
+                        onToggle={() => setShowConfirmPassword((prev) => !prev)}
                       />
                     )
                   }

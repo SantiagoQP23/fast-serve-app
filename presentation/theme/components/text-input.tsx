@@ -34,7 +34,7 @@ interface Props extends TextInputProps {
   error?: string;
   icon?: keyof typeof Ionicons.glyphMap;
   bottomSheet?: boolean;
-  leftIcon?: React.ReactNode;
+  trailingIcon?: React.ReactNode;
   containerStyle?: StyleProp<ViewStyle>;
   variant?: "filled" | "outlined";
 }
@@ -44,7 +44,7 @@ function TextInput(
     label,
     error,
     icon,
-    leftIcon,
+    trailingIcon: leftIcon,
     bottomSheet,
     containerStyle,
     style,
@@ -180,7 +180,7 @@ function TextInput(
             ]}
             value={value}
             defaultValue={defaultValue}
-            placeholder={isFocused ? placeholder : undefined}
+            placeholder={placeholder}
             placeholderTextColor={tw.color("light-on-surface-variant")}
             editable={editable}
             onFocus={handleFocus as (e: any) => void}
@@ -189,6 +189,11 @@ function TextInput(
             {...inputProps}
           />
         </View>
+        {leftIcon && (
+          <View style={{ marginLeft: 8, alignSelf: "center" }}>
+            {leftIcon}
+          </View>
+        )}
       </View>
       {error && (
         <ThemedText type="small" style={tw`text-red-500 text-sm mt-1 ml-4`}>

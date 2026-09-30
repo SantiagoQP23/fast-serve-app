@@ -234,7 +234,7 @@ const SignupScreen = () => {
                   value={value}
                   onChangeText={onChange}
                   error={errors.password ? errors.password.message : undefined}
-                  leftIcon={
+                  trailingIcon={
                     value && (
                       <Pressable
                         onPress={() => setShowPassword((prev) => !prev)}
@@ -270,7 +270,7 @@ const SignupScreen = () => {
                       ? errors.samePassword.message
                       : undefined
                   }
-                  leftIcon={
+                  trailingIcon={
                     value && (
                       <Pressable
                         onPress={() => setShowConfirmPassword((prev) => !prev)}
