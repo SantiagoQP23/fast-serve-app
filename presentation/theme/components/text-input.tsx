@@ -36,6 +36,7 @@ interface Props extends TextInputProps {
   bottomSheet?: boolean;
   leftIcon?: React.ReactNode;
   containerStyle?: StyleProp<ViewStyle>;
+  variant?: "filled" | "outlined";
 }
 
 function TextInput(
@@ -47,6 +48,7 @@ function TextInput(
     bottomSheet,
     containerStyle,
     style,
+    variant = "filled",
     editable = true,
     value,
     defaultValue,
@@ -99,7 +101,9 @@ function TextInput(
     ? tw.color("red-500")
     : isFocused
       ? tw.color("light-primary")
-      : "transparent";
+      : variant === "outlined"
+        ? tw.color("light-border")
+        : "transparent";
 
   const handleFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
     setIsFocused(true);
@@ -121,10 +125,15 @@ function TextInput(
       <View
         style={[
           tw.style(
-            "flex-row rounded-3xl px-3 bg-light-surface-high",
+            "flex-row rounded-3xl px-3",
+            variant === "filled" ? "bg-light-surface-high" : "bg-transparent",
             !editable && "opacity-50",
           ),
-          { minHeight: CONTAINER_HEIGHT, borderWidth: 1, borderColor },
+          {
+            minHeight: CONTAINER_HEIGHT,
+            borderWidth: variant === "outlined" ? 1 : 0,
+            borderColor,
+          },
           containerStyle,
         ]}
       >
