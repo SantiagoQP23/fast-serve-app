@@ -82,7 +82,6 @@ const NewOrderBottomSheet = ({
         {orderType === OrderType.IN_PLACE && (
           <Select
             label={t("newOrder.selectTable")}
-            placeholder={t("newOrder.selectTable")}
             options={tables.map((table) => ({
               value: table.id,
               label: t("details.table") + " " + table.name,

@@ -23,7 +23,7 @@ import { typography } from "@/constants/theme";
 import { forwardRef, useEffect, useState } from "react";
 
 const CONTAINER_HEIGHT = 56;
-const LABEL_REST_POSITION = 16;
+const LABEL_REST_POSITION = 18;
 const LABEL_FLOAT_POSITION = 9;
 const LABEL_REST_SIZE = 16;
 const LABEL_FLOAT_SIZE = 11;
@@ -172,7 +172,7 @@ function TextInput(
               {
                 fontSize: 16,
                 fontFamily: typography.medium,
-                marginTop: label ? INPUT_MARGIN_TOP : 0,
+                marginTop: label ? INPUT_MARGIN_TOP : LABEL_REST_POSITION,
                 paddingVertical: 0,
                 includeFontPadding: false,
               },
