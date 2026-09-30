@@ -18,6 +18,7 @@ import DialogModal from "@/presentation/theme/components/dialog-modal";
 import SwipeableRow from "@/presentation/theme/components/swipeable-row";
 import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuManagement";
 import type { Product } from "@/core/menu/models/product.model";
+import { getProductOptionAvailableQuantity } from "@/core/menu/models/product-optionl.model";
 
 export default function MenuProductsScreen() {
   const { t } = useTranslation("menuManagement");
@@ -199,6 +200,42 @@ export default function MenuProductsScreen() {
                             ${product.price?.toFixed(2)}
                           </ThemedText>
                         </ThemedView>
+                        {product.options?.some(
+                          (option) => option.inventoryItems?.length,
+                        ) && (
+                          <ThemedView
+                            style={tw`flex-row items-center gap-3 flex-wrap`}
+                          >
+                            {product.options
+                              .filter((option) => option.inventoryItems?.length)
+                              .map((option) => (
+                                <ThemedView
+                                  key={option.id}
+                                  style={tw`flex-row items-center gap-1`}
+                                >
+                                  <Ionicons
+                                    name="cube-outline"
+                                    size={12}
+                                    color={tw.color(
+                                      "text-light-on-surface-variant",
+                                    )}
+                                  />
+                                  <ThemedText
+                                    type="small"
+                                    style={tw`text-gray-500`}
+                                  >
+                                    {option.name}:{" "}
+                                    {t("inventory:stockCount", {
+                                      count:
+                                        getProductOptionAvailableQuantity(
+                                          option,
+                                        ) ?? 0,
+                                    })}
+                                  </ThemedText>
+                                </ThemedView>
+                              ))}
+                          </ThemedView>
+                        )}
                       </ThemedView>
                     </ThemedView>
                   </ThemedView>

@@ -19,7 +19,10 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { ProductStatus } from "@/core/menu/models/product.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
-import { ProductOption } from "@/core/menu/models/product-optionl.model";
+import {
+  ProductOption,
+  getProductOptionAvailableQuantity,
+} from "@/core/menu/models/product-optionl.model";
 import { Ionicons } from "@expo/vector-icons";
 import {
   BottomSheetView,
@@ -284,34 +287,43 @@ export default function ProductScreen() {
                   return (
                     <ThemedView
                       key={option.id}
-                      style={tw`w-36 rounded-3xl border-2 ${isSelected ? "border-light-primary" : "border-transparent"}`}
+                      style={tw`min-w-36 rounded-3xl border-2 ${isSelected ? "border-light-primary" : "border-transparent"}`}
                     >
                       <Card
                         onPress={() => onChangeSelectedOption(option)}
                         style={tw`p-4 justify-between gap-2`}
                       >
-                        <ThemedText type="body1" style={tw``}>
-                          {option.name}
-                        </ThemedText>
+                        <ThemedView
+                          style={tw`flex-row items-center justify-between gap-2`}
+                        >
+                          <ThemedText type="body1" style={tw``}>
+                            {option.name}
+                          </ThemedText>
+                          {option.inventoryItems?.length ? (
+                            <ThemedView
+                              style={tw`flex-row items-center gap-1 bg-transparent`}
+                            >
+                              <Ionicons
+                                name="cube-outline"
+                                size={14}
+                                color={tw.color("text-gray-500")}
+                              />
+                              <ThemedText
+                                type="small"
+                                style={tw`text-gray-500`}
+                              >
+                                {t("inventory:stockCount", {
+                                  count:
+                                    getProductOptionAvailableQuantity(option) ??
+                                    0,
+                                })}
+                              </ThemedText>
+                            </ThemedView>
+                          ) : null}
+                        </ThemedView>
                         <ThemedText type="body2" style={tw``}>
                           {formatCurrency(option.price)}
                         </ThemedText>
-                        {option.trackStock && (
-                          <ThemedView
-                            style={tw`flex-row items-center gap-1 bg-transparent`}
-                          >
-                            <Ionicons
-                              name="cube-outline"
-                              size={14}
-                              color={tw.color("text-gray-500")}
-                            />
-                            <ThemedText type="small" style={tw`text-gray-500`}>
-                              {t("inventory:stockCount", {
-                                count: option.quantity,
-                              })}
-                            </ThemedText>
-                          </ThemedView>
-                        )}
                       </Card>
                     </ThemedView>
                   );
