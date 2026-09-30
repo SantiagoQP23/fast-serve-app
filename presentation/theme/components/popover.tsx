@@ -54,6 +54,7 @@ export default function Popover({
     { light: "#e5e7eb", dark: "#374151" },
     "border" as any,
   );
+  const textColor = useThemeColor({}, "primary");
 
   useEffect(() => {
     if (visible) {

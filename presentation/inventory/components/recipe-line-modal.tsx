@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import {
   BottomSheetView,
   type BottomSheetMethods,
@@ -10,6 +11,9 @@ import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Select from "@/presentation/theme/components/select";
 import Counter from "@/presentation/theme/components/counter";
+import Popover, {
+  type AnchorPosition,
+} from "@/presentation/theme/components/popover";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -105,19 +109,28 @@ function RecipeLineForm({
   const [newItemCategoryId, setNewItemCategoryId] = useState("");
   const [isCreateCategoryModalVisible, setIsCreateCategoryModalVisible] =
     useState(false);
+  const unitTriggerRef = useRef<View>(null);
+  const [isUnitTriggerPressed, setIsUnitTriggerPressed] = useState(false);
+  const [isUnitPopoverVisible, setIsUnitPopoverVisible] = useState(false);
+  const [unitPopoverAnchor, setUnitPopoverAnchor] =
+    useState<AnchorPosition | null>(null);
+
+  const openUnitPopover = () => {
+    unitTriggerRef.current?.measure((_x, _y, width, height, pageX, pageY) => {
+      setUnitPopoverAnchor({ x: pageX, y: pageY, width, height });
+      setIsUnitPopoverVisible(true);
+    });
+  };
 
   const unitOptions = Object.values(InventoryUnit).map((unit) => ({
     label: t(`units.${unit}`),
     value: unit,
   }));
 
-  const categoryOptions = [
-    { label: t("categories.none"), value: "" },
-    ...categories.map((category) => ({
-      label: category.name,
-      value: category.id,
-    })),
-  ];
+  const categoryOptions = categories.map((category) => ({
+    label: category.name,
+    value: category.id,
+  }));
 
   const selectedExistingItem = items.find(
     (item) => item.id === inventoryItemId,
@@ -181,7 +194,7 @@ function RecipeLineForm({
 
       {!isEditing && !isCreatingNewItem && selectedExistingItem && (
         <View style={tw`gap-2`}>
-          <ThemedText style={tw`dark:text-gray-300`}>
+          <ThemedText style={tw`dark:text-gray-300 text-gray-500`}>
             {t("recipe.fields.item")}
           </ThemedText>
           <ThemedText type="body1" style={{ fontFamily: typography.medium }}>
@@ -192,22 +205,47 @@ function RecipeLineForm({
 
       {!isEditing && isCreatingNewItem && (
         <>
-          <TextInput
-            bottomSheet
-            label={t("recipe.fields.newItemName")}
-            value={newItemName}
-            onChangeText={setNewItemName}
-            placeholder={t("recipe.placeholders.newItemName")}
-            variant="outlined"
-          />
-          <Select
-            label={t("fields.unit")}
-            variant="outlined"
-            options={unitOptions}
-            value={newItemUnit}
-            onChange={(v) => setNewItemUnit(v as InventoryUnit)}
-            placeholder={t("placeholders.unit")}
-          />
+          <View style={tw`flex-row gap-2`}>
+            <View style={tw`flex-1`}>
+              <TextInput
+                bottomSheet
+                label={t("recipe.fields.newItemName")}
+                value={newItemName}
+                onChangeText={setNewItemName}
+                placeholder={t("recipe.placeholders.newItemName")}
+                variant="outlined"
+              />
+            </View>
+            <View ref={unitTriggerRef} collapsable={false}>
+              <Pressable
+                onPress={openUnitPopover}
+                onPressIn={() => setIsUnitTriggerPressed(true)}
+                onPressOut={() => setIsUnitTriggerPressed(false)}
+                style={[
+                  tw`flex-row items-center rounded-3xl px-3 border`,
+                  {
+                    minHeight: 56,
+                    borderColor: isUnitTriggerPressed
+                      ? tw.color("light-primary")
+                      : tw.color("light-border"),
+                  },
+                ]}
+              >
+                <ThemedText
+                  numberOfLines={1}
+                  style={{ fontFamily: typography.medium, fontSize: 16 }}
+                >
+                  {t(`units.${newItemUnit}`)}
+                </ThemedText>
+                <Ionicons
+                  name="chevron-down"
+                  size={16}
+                  style={{ marginLeft: 4 }}
+                  color={tw.color("light-on-surface-variant")}
+                />
+              </Pressable>
+            </View>
+          </View>
 
           <Select
             label={t("fields.category")}
@@ -224,7 +262,7 @@ function RecipeLineForm({
       )}
 
       <View style={tw`gap-2`}>
-        <ThemedText style={tw`dark:text-gray-300`}>
+        <ThemedText style={tw`dark:text-gray-300 text-gray-500`}>
           {t("recipe.fields.quantity")}
         </ThemedText>
         <Counter
@@ -239,16 +277,8 @@ function RecipeLineForm({
 
       <View style={tw`flex-row justify-end gap-2`}>
         <Button
-          label={t("cancel")}
-          onPress={onClose}
-          variant="text"
-          size="small"
-          disabled={isPending}
-        />
-        <Button
           label={t("confirm")}
           onPress={handleSubmit}
-          size="small"
           loading={isPending}
           disabled={
             quantity < 0.001 ||
@@ -262,6 +292,19 @@ function RecipeLineForm({
         visible={isCreateCategoryModalVisible}
         onClose={() => setIsCreateCategoryModalVisible(false)}
         onCreated={(category) => setNewItemCategoryId(category.id)}
+      />
+
+      <Popover
+        visible={isUnitPopoverVisible}
+        onClose={() => setIsUnitPopoverVisible(false)}
+        anchor={unitPopoverAnchor}
+        title={t("fields.unit")}
+        selectedValue={newItemUnit}
+        items={unitOptions.map((option) => ({
+          label: option.label,
+          value: option.value,
+          onPress: () => setNewItemUnit(option.value),
+        }))}
       />
     </>
   );
