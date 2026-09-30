@@ -87,6 +87,7 @@ const NewOrderBottomSheet = ({
               value: table.id,
               label: t("details.table") + " " + table.name,
             }))}
+            variant="outlined"
             value={table?.id}
             onChange={(value) =>
               setTable(tables.find((t) => t.id === value) || null)
@@ -124,7 +125,7 @@ const NewOrderBottomSheet = ({
 
         <ThemedView style={tw`w-full `}>
           <Button
-            label={t("newOrder.createOrder")}
+            label={t("newOrder.selectProducts")}
             onPress={createOrder}
             {...buttonProps}
           />
