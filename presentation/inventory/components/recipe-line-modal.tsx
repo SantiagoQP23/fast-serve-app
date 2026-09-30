@@ -9,6 +9,9 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Select from "@/presentation/theme/components/select";
+import BottomSheetPicker, {
+  type BottomSheetPickerRef,
+} from "@/presentation/theme/components/bottom-sheet-picker";
 import Counter from "@/presentation/theme/components/counter";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
@@ -18,6 +21,7 @@ import { useInventoryItemCategories } from "@/presentation/inventory/hooks/useIn
 import { useInventoryRecipes } from "@/presentation/inventory/hooks/useInventoryRecipes";
 import { InventoryUnit } from "@/core/inventory/models/inventory-item.model";
 import type { ProductOptionInventoryItem } from "@/core/inventory/models/inventory-recipe.model";
+import CreateCategoryModal from "@/presentation/inventory/components/create-category-modal";
 
 interface RecipeLineModalProps {
   visible: boolean;
@@ -86,8 +90,9 @@ function RecipeLineForm({
   const { t } = useTranslation("inventory");
   const isEditing = !!recipeLine;
   const { items, createItem } = useInventoryItems();
-  const { categories, createCategory } = useInventoryItemCategories();
+  const { categories } = useInventoryItemCategories();
   const { createRecipe, updateRecipe } = useInventoryRecipes(productOptionId);
+  const itemPickerRef = useRef<BottomSheetPickerRef>(null);
   const [inventoryItemId, setInventoryItemId] = useState(
     recipeLine?.inventoryItemId ?? "",
   );
@@ -100,8 +105,8 @@ function RecipeLineForm({
     InventoryUnit.UNIT,
   );
   const [newItemCategoryId, setNewItemCategoryId] = useState("");
-  const [isCreatingNewCategory, setIsCreatingNewCategory] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState("");
+  const [isCreateCategoryModalVisible, setIsCreateCategoryModalVisible] =
+    useState(false);
 
   const itemOptions = items
     .filter((item) => item.isActive)
@@ -132,10 +137,7 @@ function RecipeLineForm({
     activeUnit && activeUnit !== InventoryUnit.UNIT ? 0.1 : 1;
 
   const isPending =
-    createRecipe.isPending ||
-    updateRecipe.isPending ||
-    createItem.isPending ||
-    createCategory.isPending;
+    createRecipe.isPending || updateRecipe.isPending || createItem.isPending;
 
   const handleSubmit = async () => {
     if (!Number.isFinite(quantity) || quantity < 0.001) return;
@@ -155,18 +157,9 @@ function RecipeLineForm({
       const trimmedName = newItemName.trim();
       if (!trimmedName) return;
 
-      let targetCategoryId: string | null = newItemCategoryId
+      const targetCategoryId: string | null = newItemCategoryId
         ? newItemCategoryId
         : null;
-
-      if (isCreatingNewCategory) {
-        const trimmedCategoryName = newCategoryName.trim();
-        if (!trimmedCategoryName) return;
-        const newCategory = await createCategory.mutateAsync({
-          name: trimmedCategoryName,
-        });
-        targetCategoryId = newCategory.id;
-      }
 
       const newItem = await createItem.mutateAsync({
         name: trimmedName,
@@ -193,33 +186,33 @@ function RecipeLineForm({
       </ThemedText>
 
       {!isEditing && !isCreatingNewItem && (
-        <Select
-          label={t("recipe.fields.item")}
-          options={itemOptions}
-          value={inventoryItemId}
-          onChange={(v) => setInventoryItemId(String(v))}
-          placeholder={t("recipe.placeholders.item")}
-          headerAction={{
-            label: t("recipe.createNewItem"),
-            onPress: () => setIsCreatingNewItem(true),
-          }}
-        />
+        <View style={tw`gap-2`}>
+          {/* <ThemedText style={tw`dark:text-gray-300 `}> */}
+          {/*   {t("recipe.fields.item")} */}
+          {/* </ThemedText> */}
+          <Button
+            label={selectedExistingItem?.name ?? t("recipe.placeholders.item")}
+            variant="secondary"
+            leftIcon="git-merge"
+            onPress={() => itemPickerRef.current?.present()}
+            style={tw`w-full`}
+          />
+          <BottomSheetPicker
+            ref={itemPickerRef}
+            title={t("recipe.fields.item")}
+            options={itemOptions}
+            value={inventoryItemId}
+            onChange={(v) => setInventoryItemId(String(v))}
+            headerAction={{
+              label: t("recipe.createNewItem"),
+              onPress: () => setIsCreatingNewItem(true),
+            }}
+          />
+        </View>
       )}
 
       {!isEditing && isCreatingNewItem && (
         <>
-          <View style={tw`flex-row items-center justify-between`}>
-            <ThemedText type="body1" style={{ fontFamily: typography.medium }}>
-              {t("recipe.newItemTitle")}
-            </ThemedText>
-            <Button
-              label={t("recipe.useExistingItem")}
-              variant="text"
-              size="small"
-              onPress={() => setIsCreatingNewItem(false)}
-            />
-          </View>
-
           <TextInput
             bottomSheet
             label={t("recipe.fields.newItemName")}
@@ -235,42 +228,17 @@ function RecipeLineForm({
             placeholder={t("placeholders.unit")}
           />
 
-          {!isCreatingNewCategory && (
-            <Select
-              label={t("fields.category")}
-              options={categoryOptions}
-              value={newItemCategoryId}
-              onChange={(v) => setNewItemCategoryId(String(v))}
-              placeholder={t("placeholders.category")}
-              headerAction={{
-                label: t("recipe.createNewCategory"),
-                onPress: () => setIsCreatingNewCategory(true),
-              }}
-            />
-          )}
-
-          {isCreatingNewCategory && (
-            <>
-              <View style={tw`flex-row items-center justify-between`}>
-                <ThemedText type="body2" style={tw`text-gray-500`}>
-                  {t("categories.title")}
-                </ThemedText>
-                <Button
-                  label={t("recipe.useExistingCategory")}
-                  variant="text"
-                  size="small"
-                  onPress={() => setIsCreatingNewCategory(false)}
-                />
-              </View>
-              <TextInput
-                bottomSheet
-                label={t("categories.fields.name")}
-                value={newCategoryName}
-                onChangeText={setNewCategoryName}
-                placeholder={t("categories.placeholders.name")}
-              />
-            </>
-          )}
+          <Select
+            label={t("fields.category")}
+            options={categoryOptions}
+            value={newItemCategoryId}
+            onChange={(v) => setNewItemCategoryId(String(v))}
+            placeholder={t("placeholders.category")}
+            headerAction={{
+              label: t("recipe.createNewCategory"),
+              onPress: () => setIsCreateCategoryModalVisible(true),
+            }}
+          />
         </>
       )}
 
@@ -304,13 +272,16 @@ function RecipeLineForm({
           disabled={
             quantity < 0.001 ||
             (!isEditing &&
-              (isCreatingNewItem
-                ? !newItemName.trim() ||
-                  (isCreatingNewCategory && !newCategoryName.trim())
-                : !inventoryItemId))
+              (isCreatingNewItem ? !newItemName.trim() : !inventoryItemId))
           }
         />
       </View>
+
+      <CreateCategoryModal
+        visible={isCreateCategoryModalVisible}
+        onClose={() => setIsCreateCategoryModalVisible(false)}
+        onCreated={(category) => setNewItemCategoryId(category.id)}
+      />
     </>
   );
 }
