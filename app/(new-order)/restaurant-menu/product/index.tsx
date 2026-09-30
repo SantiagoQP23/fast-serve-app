@@ -20,6 +20,7 @@ import { formatCurrency } from "@/core/i18n/utils";
 import { ProductStatus } from "@/core/menu/models/product.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { ProductOption } from "@/core/menu/models/product-optionl.model";
+import { Ionicons } from "@expo/vector-icons";
 import {
   BottomSheetView,
   type BottomSheetMethods,
@@ -34,7 +35,7 @@ import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet"
 import Card from "@/presentation/theme/components/card";
 
 export default function ProductScreen() {
-  const { t } = useTranslation(["menu", "orders"]);
+  const { t } = useTranslation(["menu", "orders", "inventory"]);
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
   const noteSheetRef = useRef<BottomSheetMethods>(null);
   const typePickerRef = useRef<BottomSheetPickerRef>(null);
@@ -295,6 +296,22 @@ export default function ProductScreen() {
                         <ThemedText type="body2" style={tw``}>
                           {formatCurrency(option.price)}
                         </ThemedText>
+                        {option.trackStock && (
+                          <ThemedView
+                            style={tw`flex-row items-center gap-1 bg-transparent`}
+                          >
+                            <Ionicons
+                              name="cube-outline"
+                              size={14}
+                              color={tw.color("text-gray-500")}
+                            />
+                            <ThemedText type="small" style={tw`text-gray-500`}>
+                              {t("inventory:stockCount", {
+                                count: option.quantity,
+                              })}
+                            </ThemedText>
+                          </ThemedView>
+                        )}
                       </Card>
                     </ThemedView>
                   );
