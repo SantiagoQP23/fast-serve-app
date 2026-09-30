@@ -14,6 +14,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import tw from "../lib/tailwind";
 import TextInput from "./text-input";
+import Button from "./button";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { ThemedText } from "./themed-text";
 import { typography } from "@/constants/theme";
@@ -24,6 +25,11 @@ export type Option = {
   value: string | number;
 };
 
+export type BottomSheetPickerAction = {
+  label: string;
+  onPress: () => void;
+};
+
 type BottomSheetPickerProps = {
   title?: string;
   options: Option[];
@@ -32,6 +38,8 @@ type BottomSheetPickerProps = {
   searchable?: boolean;
   searchPlaceholder?: string;
   snapPoints?: string[];
+  headerAction?: BottomSheetPickerAction;
+  footerAction?: BottomSheetPickerAction;
 };
 
 export type BottomSheetPickerRef = {
@@ -52,6 +60,8 @@ const BottomSheetPicker = forwardRef<
       searchable,
       searchPlaceholder = "Search...",
       snapPoints = ["40%", "70%", "90%"],
+      headerAction,
+      footerAction,
     },
     ref,
   ) => {
@@ -83,6 +93,16 @@ const BottomSheetPicker = forwardRef<
       bottomSheetModalRef.current?.dismiss();
     }, []);
 
+    const handleHeaderAction = useCallback(() => {
+      bottomSheetModalRef.current?.dismiss();
+      headerAction?.onPress();
+    }, [headerAction]);
+
+    const handleFooterAction = useCallback(() => {
+      bottomSheetModalRef.current?.dismiss();
+      footerAction?.onPress();
+    }, [footerAction]);
+
     const filteredOptions = useMemo(() => {
       if (!searchQuery.trim()) return options;
       return options.filter((opt) =>
@@ -95,12 +115,27 @@ const BottomSheetPicker = forwardRef<
         <BottomSheetView style={tw` px-4 `}>
           {/* Header */}
           <ThemedView style={tw`flex-row items-center justify-between mb-4 `}>
-            <ThemedText type="h3" style={tw`ml-3`}>
+            <ThemedText type="h3" style={tw`ml-3 flex-1`} numberOfLines={1}>
               {title || "Select an option"}
             </ThemedText>
-            {/* <Pressable onPress={handleClose} hitSlop={8}> */}
-            {/*   <Ionicons name="close" size={24} color={tw.color("gray-400")} /> */}
-            {/* </Pressable> */}
+            {headerAction && (
+              <Pressable
+                onPress={handleHeaderAction}
+                hitSlop={8}
+                style={tw`shrink-0 ml-2`}
+              >
+                <ThemedText
+                  type="body2"
+                  numberOfLines={1}
+                  style={[
+                    tw`text-light-primary`,
+                    { fontFamily: typography.medium },
+                  ]}
+                >
+                  {headerAction.label}
+                </ThemedText>
+              </Pressable>
+            )}
           </ThemedView>
 
           {/* Search Input */}
@@ -182,6 +217,16 @@ const BottomSheetPicker = forwardRef<
                   Try a different search term
                 </Text>
               )}
+            </View>
+          )}
+
+          {footerAction && (
+            <View style={tw`mt-2 mb-4`}>
+              <Button
+                label={footerAction.label}
+                variant="outline"
+                onPress={handleFooterAction}
+              />
             </View>
           )}
           <View style={tw`h-4`} />

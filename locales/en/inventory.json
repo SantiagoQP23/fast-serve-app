@@ -158,7 +158,11 @@
     "updateError": "Could not update the ingredient",
     "deleteSuccess": "Ingredient removed from the recipe",
     "deleteError": "Could not remove the ingredient",
-    "createNewItem": "+ Create new inventory item",
+    "createNewItem": "Create new inventory item",
+    "newItemTitle": "New inventory item",
+    "useExistingItem": "Use existing item",
+    "createNewCategory": "Create new category",
+    "useExistingCategory": "Use existing category",
     "fields": {
       "item": "Ingredient",
       "quantity": "Quantity used per unit delivered",

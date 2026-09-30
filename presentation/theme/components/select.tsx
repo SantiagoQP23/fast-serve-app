@@ -6,6 +6,7 @@ import { ThemedText } from "./themed-text";
 import { typography } from "@/constants/theme";
 import { ThemedView } from "./themed-view";
 import BottomSheetPicker, {
+  type BottomSheetPickerAction,
   type BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
 
@@ -23,6 +24,8 @@ type SelectProps = {
   searchable?: boolean;
   searchPlaceholder?: string;
   snapPoints?: string[];
+  headerAction?: BottomSheetPickerAction;
+  footerAction?: BottomSheetPickerAction;
 };
 
 export default function Select({
@@ -34,6 +37,8 @@ export default function Select({
   searchable,
   searchPlaceholder = "Search...",
   snapPoints = ["40%", "70%", "90%"],
+  headerAction,
+  footerAction,
 }: SelectProps) {
   const bottomSheetPickerRef = useRef<BottomSheetPickerRef>(null);
 
@@ -47,9 +52,7 @@ export default function Select({
     <>
       <ThemedView style={tw`w-full gap-2`}>
         {label && (
-          <ThemedText style={[tw` dark:text-gray-300 ml-2 `]}>
-            {label}
-          </ThemedText>
+          <ThemedText style={[tw` dark:text-gray-300 `]}>{label}</ThemedText>
         )}
 
         <Pressable
@@ -81,6 +84,8 @@ export default function Select({
         searchable={searchable}
         searchPlaceholder={searchPlaceholder}
         snapPoints={snapPoints}
+        headerAction={headerAction}
+        footerAction={footerAction}
       />
     </>
   );

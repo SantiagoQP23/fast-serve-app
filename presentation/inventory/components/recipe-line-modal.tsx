@@ -9,6 +9,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Select from "@/presentation/theme/components/select";
+import Counter from "@/presentation/theme/components/counter";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -17,8 +18,6 @@ import { useInventoryItemCategories } from "@/presentation/inventory/hooks/useIn
 import { useInventoryRecipes } from "@/presentation/inventory/hooks/useInventoryRecipes";
 import { InventoryUnit } from "@/core/inventory/models/inventory-item.model";
 import type { ProductOptionInventoryItem } from "@/core/inventory/models/inventory-recipe.model";
-
-const NEW_ITEM_VALUE = "__new__";
 
 interface RecipeLineModalProps {
   visible: boolean;
@@ -87,14 +86,13 @@ function RecipeLineForm({
   const { t } = useTranslation("inventory");
   const isEditing = !!recipeLine;
   const { items, createItem } = useInventoryItems();
-  const { categories } = useInventoryItemCategories();
+  const { categories, createCategory } = useInventoryItemCategories();
   const { createRecipe, updateRecipe } = useInventoryRecipes(productOptionId);
   const [inventoryItemId, setInventoryItemId] = useState(
     recipeLine?.inventoryItemId ?? "",
   );
-  const [quantity, setQuantity] = useState(
-    recipeLine ? String(recipeLine.quantity) : "",
-  );
+  const [quantity, setQuantity] = useState(recipeLine?.quantity ?? 0);
+  const [isCreatingNewItem, setIsCreatingNewItem] = useState(false);
   const [newItemName, setNewItemName] = useState(
     [productName, productOptionName].filter(Boolean).join(" "),
   );
@@ -102,15 +100,12 @@ function RecipeLineForm({
     InventoryUnit.UNIT,
   );
   const [newItemCategoryId, setNewItemCategoryId] = useState("");
+  const [isCreatingNewCategory, setIsCreatingNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
 
-  const isCreatingNewItem = inventoryItemId === NEW_ITEM_VALUE;
-
-  const itemOptions = [
-    { label: t("recipe.createNewItem"), value: NEW_ITEM_VALUE },
-    ...items
-      .filter((item) => item.isActive)
-      .map((item) => ({ label: item.name, value: item.id })),
-  ];
+  const itemOptions = items
+    .filter((item) => item.isActive)
+    .map((item) => ({ label: item.name, value: item.id }));
 
   const unitOptions = Object.values(InventoryUnit).map((unit) => ({
     label: t(`units.${unit}`),
@@ -125,17 +120,30 @@ function RecipeLineForm({
     })),
   ];
 
+  const selectedExistingItem = items.find(
+    (item) => item.id === inventoryItemId,
+  );
+  const activeUnit = recipeLine
+    ? recipeLine.inventoryItem?.unit
+    : isCreatingNewItem
+      ? newItemUnit
+      : selectedExistingItem?.unit;
+  const quantityStep =
+    activeUnit && activeUnit !== InventoryUnit.UNIT ? 0.1 : 1;
+
   const isPending =
-    createRecipe.isPending || updateRecipe.isPending || createItem.isPending;
+    createRecipe.isPending ||
+    updateRecipe.isPending ||
+    createItem.isPending ||
+    createCategory.isPending;
 
   const handleSubmit = async () => {
-    const parsedQuantity = Number(quantity);
-    if (!Number.isFinite(parsedQuantity) || parsedQuantity < 0.001) return;
+    if (!Number.isFinite(quantity) || quantity < 0.001) return;
 
     if (isEditing) {
       await updateRecipe.mutateAsync({
         id: recipeLine.id,
-        quantity: parsedQuantity,
+        quantity,
       });
       onClose();
       return;
@@ -146,10 +154,24 @@ function RecipeLineForm({
     if (isCreatingNewItem) {
       const trimmedName = newItemName.trim();
       if (!trimmedName) return;
+
+      let targetCategoryId: string | null = newItemCategoryId
+        ? newItemCategoryId
+        : null;
+
+      if (isCreatingNewCategory) {
+        const trimmedCategoryName = newCategoryName.trim();
+        if (!trimmedCategoryName) return;
+        const newCategory = await createCategory.mutateAsync({
+          name: trimmedCategoryName,
+        });
+        targetCategoryId = newCategory.id;
+      }
+
       const newItem = await createItem.mutateAsync({
         name: trimmedName,
         unit: newItemUnit,
-        categoryId: newItemCategoryId ? newItemCategoryId : null,
+        categoryId: targetCategoryId,
       });
       targetInventoryItemId = newItem.id;
     }
@@ -159,7 +181,7 @@ function RecipeLineForm({
     await createRecipe.mutateAsync({
       productOptionId,
       inventoryItemId: targetInventoryItemId,
-      quantity: parsedQuantity,
+      quantity,
     });
     onClose();
   };
@@ -170,18 +192,34 @@ function RecipeLineForm({
         {isEditing ? t("recipe.editLine") : t("recipe.addLine")}
       </ThemedText>
 
-      {!isEditing && (
+      {!isEditing && !isCreatingNewItem && (
         <Select
           label={t("recipe.fields.item")}
           options={itemOptions}
           value={inventoryItemId}
           onChange={(v) => setInventoryItemId(String(v))}
           placeholder={t("recipe.placeholders.item")}
+          headerAction={{
+            label: t("recipe.createNewItem"),
+            onPress: () => setIsCreatingNewItem(true),
+          }}
         />
       )}
 
       {!isEditing && isCreatingNewItem && (
         <>
+          <View style={tw`flex-row items-center justify-between`}>
+            <ThemedText type="body1" style={{ fontFamily: typography.medium }}>
+              {t("recipe.newItemTitle")}
+            </ThemedText>
+            <Button
+              label={t("recipe.useExistingItem")}
+              variant="text"
+              size="small"
+              onPress={() => setIsCreatingNewItem(false)}
+            />
+          </View>
+
           <TextInput
             bottomSheet
             label={t("recipe.fields.newItemName")}
@@ -196,24 +234,59 @@ function RecipeLineForm({
             onChange={(v) => setNewItemUnit(v as InventoryUnit)}
             placeholder={t("placeholders.unit")}
           />
-          <Select
-            label={t("fields.category")}
-            options={categoryOptions}
-            value={newItemCategoryId}
-            onChange={(v) => setNewItemCategoryId(String(v))}
-            placeholder={t("placeholders.category")}
-          />
+
+          {!isCreatingNewCategory && (
+            <Select
+              label={t("fields.category")}
+              options={categoryOptions}
+              value={newItemCategoryId}
+              onChange={(v) => setNewItemCategoryId(String(v))}
+              placeholder={t("placeholders.category")}
+              headerAction={{
+                label: t("recipe.createNewCategory"),
+                onPress: () => setIsCreatingNewCategory(true),
+              }}
+            />
+          )}
+
+          {isCreatingNewCategory && (
+            <>
+              <View style={tw`flex-row items-center justify-between`}>
+                <ThemedText type="body2" style={tw`text-gray-500`}>
+                  {t("categories.title")}
+                </ThemedText>
+                <Button
+                  label={t("recipe.useExistingCategory")}
+                  variant="text"
+                  size="small"
+                  onPress={() => setIsCreatingNewCategory(false)}
+                />
+              </View>
+              <TextInput
+                bottomSheet
+                label={t("categories.fields.name")}
+                value={newCategoryName}
+                onChangeText={setNewCategoryName}
+                placeholder={t("categories.placeholders.name")}
+              />
+            </>
+          )}
         </>
       )}
 
-      <TextInput
-        bottomSheet
-        label={t("recipe.fields.quantity")}
-        value={quantity}
-        onChangeText={setQuantity}
-        keyboardType="decimal-pad"
-        placeholder={t("recipe.placeholders.quantity")}
-      />
+      <View style={tw`gap-2`}>
+        <ThemedText style={tw`dark:text-gray-300`}>
+          {t("recipe.fields.quantity")}
+        </ThemedText>
+        <Counter
+          value={quantity}
+          onChangeValue={setQuantity}
+          step={quantityStep}
+          min={0}
+          unit={activeUnit ? t(`units.${activeUnit}`) : undefined}
+          size="medium"
+        />
+      </View>
 
       <View style={tw`flex-row justify-end gap-2`}>
         <Button
@@ -229,11 +302,12 @@ function RecipeLineForm({
           size="small"
           loading={isPending}
           disabled={
-            !quantity ||
-            Number(quantity) < 0.001 ||
+            quantity < 0.001 ||
             (!isEditing &&
-              (!inventoryItemId ||
-                (isCreatingNewItem && !newItemName.trim())))
+              (isCreatingNewItem
+                ? !newItemName.trim() ||
+                  (isCreatingNewCategory && !newCategoryName.trim())
+                : !inventoryItemId))
           }
         />
       </View>
