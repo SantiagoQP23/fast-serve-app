@@ -466,7 +466,6 @@ export default function MenuProductFormScreen() {
                         options={productionAreaOptions}
                         value={value}
                         onChange={(v) => onChange(String(v))}
-                        placeholder={t("products.placeholders.productionArea")}
                       />
                     )}
                   />
