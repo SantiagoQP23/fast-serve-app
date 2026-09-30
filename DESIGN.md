@@ -202,10 +202,11 @@ One dominant radius drives the system: **24px** (`rounded-3xl`) on every primary
 - **Inactive state:** an inactive record (product/category/section) renders its whole card at 50% opacity rather than a separate "inactive" visual treatment — the opacity drop *is* the inactive state.
 
 ### Inputs / Fields
-- **Style:** Cloud Surface High fill, 24px radius, no visible border at rest; a leading icon in on-surface-variant gray when the field has one.
-- **Error:** border shifts to red; an inline `small` red message renders below the field.
-- **Disabled:** 50% opacity on the whole field.
-- **Label:** always a `small`-style label above the field, never a floating/inline label.
+- **Style:** Cloud Surface High fill, 24px radius, 1.5px transparent border at rest (reserves space so states don't shift the field); a leading icon in on-surface-variant gray when the field has one.
+- **Label:** floating — centered in the field like a placeholder when empty and unfocused, animates to a small caption pinned above the text on focus or once filled. Gray at rest/filled, Steel Harbor Blue while focused, red on error. Any native `placeholder` text is shown only while focused and empty, as a format hint under the now-floated label — it never competes with the label for the same space.
+- **Active:** border becomes Steel Harbor Blue (`primary`) while focused.
+- **Error:** label and border turn red; an inline `small` red message renders below the field.
+- **Disabled:** 50% opacity on the whole field, same treatment whether empty or filled.
 
 ### Navigation
 - Screens use either the native stack header (title + system back chevron) or, on screens needing a trailing overflow action, a custom header row: leading back-chevron `Pressable` + `h3` title + trailing `ellipsis-vertical` `IconButton`. Bottom-of-list actions are a single bottom-right `Fab`, never a bottom tab bar for in-flow actions (the app's tab bar, where present, is reserved for top-level sections).
