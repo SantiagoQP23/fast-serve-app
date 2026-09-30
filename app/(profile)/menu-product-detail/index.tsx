@@ -410,6 +410,7 @@ export default function MenuProductDetailScreen() {
                                 params: {
                                   productOptionId: String(option.id),
                                   productOptionName: option.name,
+                                  productName: product.name,
                                 },
                               })
                           : undefined

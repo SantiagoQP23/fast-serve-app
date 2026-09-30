@@ -158,13 +158,16 @@
     "updateError": "Could not update the ingredient",
     "deleteSuccess": "Ingredient removed from the recipe",
     "deleteError": "Could not remove the ingredient",
+    "createNewItem": "+ Create new inventory item",
     "fields": {
       "item": "Ingredient",
-      "quantity": "Quantity used per unit delivered"
+      "quantity": "Quantity used per unit delivered",
+      "newItemName": "New item name"
     },
     "placeholders": {
       "item": "Select an inventory item",
-      "quantity": "0"
+      "quantity": "0",
+      "newItemName": "e.g. Ground beef"
     }
   }
 }

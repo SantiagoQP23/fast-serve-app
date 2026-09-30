@@ -24,6 +24,7 @@ export default function MenuProductOptionInventoryScreen() {
   const params = useLocalSearchParams<{
     productOptionId: string;
     productOptionName?: string;
+    productName?: string;
   }>();
   const productOptionId = Number(params.productOptionId);
   const { user } = useAuthStore();
@@ -126,7 +127,14 @@ export default function MenuProductOptionInventoryScreen() {
                   canManage ? () => setLineToDelete(line) : undefined
                 }
               >
-                <Card>
+                <Card
+                  onPress={() =>
+                    router.push({
+                      pathname: "/(profile)/menu-inventory-item-detail",
+                      params: { itemId: line.inventoryItemId },
+                    })
+                  }
+                >
                   <ThemedView
                     style={tw`flex-row items-center justify-between`}
                   >
@@ -143,6 +151,11 @@ export default function MenuProductOptionInventoryScreen() {
                         })}
                       </ThemedText>
                     </ThemedView>
+                    <Ionicons
+                      name="chevron-forward"
+                      size={18}
+                      color={tw.color("gray-400")}
+                    />
                   </ThemedView>
                 </Card>
               </SwipeableRow>
@@ -168,6 +181,8 @@ export default function MenuProductOptionInventoryScreen() {
       <RecipeLineModal
         visible={showAddModal || !!lineToEdit}
         productOptionId={productOptionId}
+        productName={params.productName}
+        productOptionName={params.productOptionName}
         recipeLine={lineToEdit}
         onClose={closeLineModal}
       />

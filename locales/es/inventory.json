@@ -158,13 +158,16 @@
     "updateError": "No se pudo actualizar el ingrediente",
     "deleteSuccess": "Ingrediente quitado de la receta",
     "deleteError": "No se pudo quitar el ingrediente",
+    "createNewItem": "+ Crear nuevo artículo de inventario",
     "fields": {
       "item": "Ingrediente",
-      "quantity": "Cantidad usada por unidad entregada"
+      "quantity": "Cantidad usada por unidad entregada",
+      "newItemName": "Nombre del nuevo artículo"
     },
     "placeholders": {
       "item": "Selecciona un artículo de inventario",
-      "quantity": "0"
+      "quantity": "0",
+      "newItemName": "ej. Carne molida"
     }
   }
 }
