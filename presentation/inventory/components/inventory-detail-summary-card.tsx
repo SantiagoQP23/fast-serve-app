@@ -98,6 +98,11 @@ export default function InventoryDetailSummaryCard({
         />
         <DetailField
           style={tw`w-1/2`}
+          label={t("detail.category")}
+          value={item.category?.name ?? t("categories.uncategorized")}
+        />
+        <DetailField
+          style={tw`w-1/2`}
           label={t("detail.status")}
           value={item.isActive ? t("active") : t("status.inactive")}
         />

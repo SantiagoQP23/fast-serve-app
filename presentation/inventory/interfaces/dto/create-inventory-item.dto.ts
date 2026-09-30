@@ -6,4 +6,5 @@ export interface CreateInventoryItemDto {
   quantity?: number;
   minimumQuantity?: number;
   isActive?: boolean;
+  categoryId?: string | null;
 }

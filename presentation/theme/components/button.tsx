@@ -44,10 +44,6 @@ export default function Button({
 }: ButtonProps) {
   const isVertical = layout === "vertical";
 
-  const baseStyle = isVertical
-    ? "rounded-full justify-center items-center"
-    : "rounded-3xl flex-row justify-center items-center";
-
   const variants = {
     primary: "bg-light-primary",
     secondary: "bg-light-secondary",
@@ -119,13 +115,55 @@ export default function Button({
     ? verticalIconSizes[size]
     : horizontalIconSizes[size];
 
+  if (isVertical) {
+    return (
+      <Pressable
+        disabled={disabled || loading}
+        onPress={onPress}
+        style={({ pressed }) => [
+          tw.style(
+            "items-center gap-1.5",
+            pressed && "opacity-80",
+            disabled && "opacity-50",
+          ),
+          { ...style },
+        ]}
+      >
+        <ThemedView
+          style={tw.style(
+            `rounded-full items-center justify-center ${variants[variant]} ${verticalSizeStyles[size]}`,
+          )}
+        >
+          {loading ? (
+            <ActivityIndicator color={iconColors[variant]} />
+          ) : (
+            verticalIcon && (
+              <Ionicons
+                name={verticalIcon}
+                size={currentIconSize}
+                color={iconColors[variant]}
+              />
+            )
+          )}
+        </ThemedView>
+        {label && (
+          <Text
+            style={tw`${textColors[variant]} ${textSizes[size]} text-center`}
+          >
+            {label}
+          </Text>
+        )}
+      </Pressable>
+    );
+  }
+
   return (
     <Pressable
       disabled={disabled || loading}
       onPress={onPress}
       style={({ pressed }) => [
         tw.style(
-          `${baseStyle} ${variants[variant]} ${isVertical ? verticalSizeStyles[size] : sizeStyles[size]} `,
+          `rounded-3xl flex-row justify-center items-center ${variants[variant]} ${sizeStyles[size]} `,
           pressed && "opacity-80",
           disabled && "opacity-50",
         ),
@@ -134,25 +172,6 @@ export default function Button({
     >
       {loading ? (
         <ActivityIndicator color={iconColors[variant]} />
-      ) : isVertical ? (
-        <ThemedView
-          style={tw`bg-transparent flex-col items-center justify-center gap-1`}
-        >
-          {verticalIcon && (
-            <Ionicons
-              name={verticalIcon}
-              size={currentIconSize}
-              color={iconColors[variant]}
-            />
-          )}
-          {label && (
-            <Text
-              style={tw`${textColors[variant]}  ${textSizes[size]} text-center`}
-            >
-              {label}
-            </Text>
-          )}
-        </ThemedView>
       ) : (
         <ThemedView style={tw`bg-transparent flex-row items-center gap-3`}>
           {icon && (

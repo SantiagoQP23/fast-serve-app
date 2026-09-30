@@ -1,3 +1,5 @@
+import type { InventoryItemCategory } from "./inventory-item-category.model";
+
 export enum InventoryUnit {
   UNIT = "UNIT",
   KG = "KG",
@@ -13,6 +15,7 @@ export interface InventoryItem {
   quantity: number;
   minimumQuantity?: number | null;
   isActive: boolean;
+  category?: InventoryItemCategory | null;
   restaurant?: { id: string; name: string };
   createdAt?: string;
   updatedAt?: string;

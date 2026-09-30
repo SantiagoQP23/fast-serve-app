@@ -16,11 +16,13 @@ import {
 
 interface AdjustStockModalProps {
   item: InventoryItem | null;
+  initialMode?: "restock" | "waste";
   onClose: () => void;
 }
 
 export default function AdjustStockModal({
   item,
+  initialMode = "restock",
   onClose,
 }: AdjustStockModalProps) {
   return (
@@ -32,7 +34,12 @@ export default function AdjustStockModal({
     >
       <View style={tw`flex-1 bg-black/50 items-center justify-center px-6`}>
         {item && (
-          <AdjustStockForm key={item.id} item={item} onClose={onClose} />
+          <AdjustStockForm
+            key={item.id}
+            item={item}
+            initialMode={initialMode}
+            onClose={onClose}
+          />
         )}
       </View>
     </Modal>
@@ -41,13 +48,14 @@ export default function AdjustStockModal({
 
 interface AdjustStockFormProps {
   item: InventoryItem;
+  initialMode: "restock" | "waste";
   onClose: () => void;
 }
 
-function AdjustStockForm({ item, onClose }: AdjustStockFormProps) {
+function AdjustStockForm({ item, initialMode, onClose }: AdjustStockFormProps) {
   const { t } = useTranslation("inventory");
   const { adjustStock } = useInventoryItems();
-  const [mode, setMode] = useState<"restock" | "waste">("restock");
+  const [mode, setMode] = useState<"restock" | "waste">(initialMode);
   const [amount, setAmount] = useState(0);
   const [note, setNote] = useState("");
   const step = item.unit === InventoryUnit.UNIT ? 1 : 0.1;

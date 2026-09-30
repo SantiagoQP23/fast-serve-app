@@ -19,6 +19,7 @@ import Select from "@/presentation/theme/components/select";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
+import { useInventoryItemCategories } from "@/presentation/inventory/hooks/useInventoryItemCategories";
 import { InventoryUnit } from "@/core/inventory/models/inventory-item.model";
 
 const buildItemSchema = (t: (key: string) => string) =>
@@ -28,6 +29,7 @@ const buildItemSchema = (t: (key: string) => string) =>
     quantity: z.string().optional(),
     minimumQuantity: z.string().optional(),
     isActive: z.boolean(),
+    categoryId: z.string().optional(),
   });
 
 type ItemFormData = z.infer<ReturnType<typeof buildItemSchema>>;
@@ -41,10 +43,12 @@ export default function MenuInventoryItemFormScreen() {
     quantity?: string;
     minimumQuantity?: string;
     isActive?: string;
+    categoryId?: string;
   }>();
 
   const isEditing = !!params.itemId;
   const { createItem, updateItem } = useInventoryItems();
+  const { categories } = useInventoryItemCategories();
 
   const schema = buildItemSchema(t);
 
@@ -60,6 +64,7 @@ export default function MenuInventoryItemFormScreen() {
       quantity: params.quantity || "",
       minimumQuantity: params.minimumQuantity || "",
       isActive: params.isActive !== "false",
+      categoryId: params.categoryId || "",
     },
   });
 
@@ -67,6 +72,14 @@ export default function MenuInventoryItemFormScreen() {
     label: t(`units.${unit}`),
     value: unit,
   }));
+
+  const categoryOptions = [
+    { label: t("categories.none"), value: "" },
+    ...categories.map((category) => ({
+      label: category.name,
+      value: category.id,
+    })),
+  ];
 
   const onSubmit = async (data: ItemFormData) => {
     const payload = {
@@ -77,6 +90,7 @@ export default function MenuInventoryItemFormScreen() {
         ? Number(data.minimumQuantity)
         : undefined,
       isActive: data.isActive,
+      categoryId: data.categoryId ? data.categoryId : null,
     };
 
     if (isEditing) {
@@ -155,6 +169,34 @@ export default function MenuInventoryItemFormScreen() {
                 />
               )}
             />
+
+            <ThemedView style={tw`gap-2`}>
+              <Controller
+                control={control}
+                name="categoryId"
+                render={({ field: { value, onChange } }) => (
+                  <Select
+                    label={t("fields.category")}
+                    options={categoryOptions}
+                    value={value || ""}
+                    onChange={(v) => onChange(String(v))}
+                    placeholder={t("placeholders.category")}
+                  />
+                )}
+              />
+              <Pressable
+                onPress={() =>
+                  router.push({
+                    pathname: "/(profile)/menu-inventory-categories",
+                  })
+                }
+                style={({ pressed }) => tw.style(pressed && "opacity-70")}
+              >
+                <ThemedText type="small" style={tw`text-light-primary ml-2`}>
+                  {t("categories.manageCategories")}
+                </ThemedText>
+              </Pressable>
+            </ThemedView>
 
             <ThemedView style={tw`flex-row gap-3`}>
               <ThemedView style={tw`flex-1`}>

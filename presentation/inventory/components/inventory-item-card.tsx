@@ -90,17 +90,22 @@ export default function InventoryItemCard({
       }
     >
       <ThemedView style={tw`flex-row items-start justify-between gap-3`}>
-        <ThemedView style={tw`flex-row items-start gap-3 flex-1`}>
+        <ThemedView style={tw`flex-1 gap-1`}>
           <ThemedText
             type="body1"
             style={[
               { fontFamily: typography.semibold },
-              tw`flex-1 text-light-on-surface`,
+              tw`text-light-on-surface`,
             ]}
             numberOfLines={2}
           >
             {item.name}
           </ThemedText>
+          {item.category && (
+            <ThemedText type="small" style={tw`text-gray-500`}>
+              {item.category.name}
+            </ThemedText>
+          )}
         </ThemedView>
         {status === "low" && (
           <Label

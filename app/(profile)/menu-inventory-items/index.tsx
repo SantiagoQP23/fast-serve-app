@@ -15,9 +15,12 @@ import Button from "@/presentation/theme/components/button";
 import Fab from "@/presentation/theme/components/fab";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import TextInput from "@/presentation/theme/components/text-input";
+import Chip from "@/presentation/theme/components/chip";
+import IconButton from "@/presentation/theme/components/icon-button";
 import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
+import { useInventoryItemCategories } from "@/presentation/inventory/hooks/useInventoryItemCategories";
 import AdjustStockModal from "@/presentation/inventory/components/adjust-stock-modal";
 import InventoryItemCard from "@/presentation/inventory/components/inventory-item-card";
 import InventoryStockSummary from "@/presentation/inventory/components/inventory-stock-summary";
@@ -28,19 +31,27 @@ export default function MenuInventoryItemsScreen() {
   const { user } = useAuthStore();
   const canManage = isAdminLevelRole(user?.role?.name);
   const { items, itemsQuery, deleteItem, updateItem } = useInventoryItems();
+  const { categories } = useInventoryItemCategories();
   const [itemToDelete, setItemToDelete] = useState<InventoryItem | null>(null);
   const [itemToAdjust, setItemToAdjust] = useState<InventoryItem | null>(null);
   const [itemForOptions, setItemForOptions] = useState<InventoryItem | null>(
     null,
   );
   const [search, setSearch] = useState("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    null,
+  );
   const optionsSheetRef = useRef<BottomSheetMethods>(null);
 
   const filteredItems = useMemo(() => {
     const query = search.trim().toLowerCase();
-    if (!query) return items;
-    return items.filter((item) => item.name.toLowerCase().includes(query));
-  }, [items, search]);
+    return items.filter((item) => {
+      const matchesQuery = !query || item.name.toLowerCase().includes(query);
+      const matchesCategory =
+        !selectedCategoryId || item.category?.id === selectedCategoryId;
+      return matchesQuery && matchesCategory;
+    });
+  }, [items, search, selectedCategoryId]);
 
   const handleCreateItem = () => {
     router.push({ pathname: "/(profile)/menu-inventory-item-form" });
@@ -57,8 +68,17 @@ export default function MenuInventoryItemsScreen() {
         minimumQuantity:
           item.minimumQuantity != null ? String(item.minimumQuantity) : "",
         isActive: String(item.isActive),
+        categoryId: item.category?.id ?? "",
       },
     });
+  };
+
+  const handleManageCategories = () => {
+    router.push({ pathname: "/(profile)/menu-inventory-categories" });
+  };
+
+  const handleCreateCategory = () => {
+    router.push({ pathname: "/(profile)/menu-inventory-category-form" });
   };
 
   const handleConfirmDelete = async () => {
@@ -98,6 +118,16 @@ export default function MenuInventoryItemsScreen() {
           >
             {t("title")}
           </ThemedText>
+          {canManage && (
+            <Pressable
+              onPress={handleManageCategories}
+              style={({ pressed }) => tw.style(pressed && "opacity-70")}
+              accessibilityLabel={t("categories.title")}
+              accessibilityRole="button"
+            >
+              <Ionicons name="folder-outline" size={22} />
+            </Pressable>
+          )}
         </ThemedView>
 
         <TextInput
@@ -107,6 +137,42 @@ export default function MenuInventoryItemsScreen() {
           onChangeText={setSearch}
           returnKeyType="search"
         />
+
+        {(categories.length > 0 || canManage) && (
+          <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={tw`gap-2 items-center`}
+              style={tw`flex-1`}
+            >
+              <Chip
+                label={t("categories.all")}
+                selected={selectedCategoryId === null}
+                onPress={() => setSelectedCategoryId(null)}
+              />
+              {categories.map((category) => (
+                <Chip
+                  key={category.id}
+                  label={category.name}
+                  selected={selectedCategoryId === category.id}
+                  onPress={() =>
+                    setSelectedCategoryId((current) =>
+                      current === category.id ? null : category.id,
+                    )
+                  }
+                />
+              ))}
+            </ScrollView>
+            {canManage && (
+              <IconButton
+                icon="add"
+                variant="secondary"
+                onPress={handleCreateCategory}
+              />
+            )}
+          </ThemedView>
+        )}
       </ThemedView>
 
       <ScrollView

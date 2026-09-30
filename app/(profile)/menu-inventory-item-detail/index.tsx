@@ -12,15 +12,15 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
+import QuickActionButton from "@/presentation/orders/components/quick-action-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 import { useInventoryItemDetail } from "@/presentation/inventory/hooks/useInventoryItemDetail";
+import AdjustStockModal from "@/presentation/inventory/components/adjust-stock-modal";
 import InventoryDetailSummaryCard from "@/presentation/inventory/components/inventory-detail-summary-card";
-import InventoryConsumptionChart from "@/presentation/inventory/components/inventory-consumption-chart";
 import InventoryMovementHistory from "@/presentation/inventory/components/inventory-movement-history";
-import { getWeeklyConsumption } from "@/core/inventory/models/inventory-movement.model";
 
 export default function MenuInventoryItemDetailScreen() {
   const { t } = useTranslation("inventory");
@@ -28,11 +28,15 @@ export default function MenuInventoryItemDetailScreen() {
   const { user } = useAuthStore();
   const canManage = isAdminLevelRole(user?.role?.name);
 
-  const { item, itemQuery, movements, movementsQuery } =
-    useInventoryItemDetail(params.itemId);
+  const { item, itemQuery, movements, movementsQuery } = useInventoryItemDetail(
+    params.itemId,
+  );
   const { deleteItem, updateItem } = useInventoryItems();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [adjustMode, setAdjustMode] = useState<"restock" | "waste" | null>(
+    null,
+  );
   const optionsSheetRef = useRef<BottomSheetMethods>(null);
 
   const handleEditItem = () => {
@@ -48,6 +52,7 @@ export default function MenuInventoryItemDetailScreen() {
         minimumQuantity:
           item.minimumQuantity != null ? String(item.minimumQuantity) : "",
         isActive: String(item.isActive),
+        categoryId: item.category?.id ?? "",
       },
     });
   };
@@ -70,7 +75,9 @@ export default function MenuInventoryItemDetailScreen() {
       <ThemedView
         style={tw`items-center gap-2 flex-row justify-between px-4 pt-8 pb-2 bg-transparent`}
       >
-        <ThemedView style={tw`items-center gap-4 flex-row flex-1 bg-transparent`}>
+        <ThemedView
+          style={tw`items-center gap-4 flex-row flex-1 bg-transparent`}
+        >
           <Pressable
             onPress={() => router.back()}
             style={({ pressed }) => tw.style(pressed && "opacity-70")}
@@ -126,10 +133,24 @@ export default function MenuInventoryItemDetailScreen() {
         {item && (
           <>
             <InventoryDetailSummaryCard item={item} />
-            <InventoryConsumptionChart
-              data={getWeeklyConsumption(movements)}
-              unit={t(`units.${item.unit}`)}
-            />
+
+            {canManage && (
+              <ThemedView
+                style={tw`flex-row justify-center gap-8 bg-transparent`}
+              >
+                <QuickActionButton
+                  icon="add-outline"
+                  label={t("restock")}
+                  onPress={() => setAdjustMode("restock")}
+                />
+                <QuickActionButton
+                  icon="remove-outline"
+                  label={t("waste")}
+                  onPress={() => setAdjustMode("waste")}
+                />
+              </ThemedView>
+            )}
+
             <InventoryMovementHistory
               movements={movements}
               unit={t(`units.${item.unit}`)}
@@ -142,6 +163,12 @@ export default function MenuInventoryItemDetailScreen() {
           </>
         )}
       </ScrollView>
+
+      <AdjustStockModal
+        item={adjustMode ? (item ?? null) : null}
+        initialMode={adjustMode ?? "restock"}
+        onClose={() => setAdjustMode(null)}
+      />
 
       <DialogModal
         visible={showDeleteConfirm}
@@ -168,9 +195,7 @@ export default function MenuInventoryItemDetailScreen() {
               },
               {
                 icon: "power-outline",
-                label: item.isActive
-                  ? t("deactivateItem")
-                  : t("activateItem"),
+                label: item.isActive ? t("deactivateItem") : t("activateItem"),
                 onPress: handleToggleActive,
               },
               {

@@ -30,6 +30,7 @@
     "currentStock": "Current available stock",
     "minimumStock": "Minimum Stock",
     "unit": "Unit",
+    "category": "Category",
     "status": "Status",
     "lastUpdated": "Last updated",
     "weeklyConsumption": "Consumption last 7 days",
@@ -88,13 +89,15 @@
     "unit": "Unit",
     "quantity": "Quantity",
     "minimumQuantity": "Minimum stock",
-    "isActive": "Active"
+    "isActive": "Active",
+    "category": "Category"
   },
   "placeholders": {
     "name": "e.g. Ground beef",
     "unit": "Select a unit",
     "quantity": "0",
-    "minimumQuantity": "0"
+    "minimumQuantity": "0",
+    "category": "Select a category"
   },
   "validations": {
     "nameMinLength": "Name must be at least 2 characters"
@@ -105,6 +108,40 @@
     "G": "g",
     "L": "L",
     "ML": "ml"
+  },
+  "categories": {
+    "title": "Categories",
+    "loading": "Loading...",
+    "loadError": "Failed to load categories",
+    "empty": "No categories yet",
+    "emptyDescription": "Create a category to organize your inventory items.",
+    "none": "No category",
+    "all": "All",
+    "uncategorized": "Uncategorized",
+    "manageCategories": "Manage categories",
+    "manageCategory": "Manage Category",
+    "createCategory": "New category",
+    "editCategory": "Edit category",
+    "deleteCategory": "Delete category",
+    "activateCategory": "Activate",
+    "deactivateCategory": "Deactivate",
+    "deleteTitle": "Delete category",
+    "deleteMessage": "Are you sure you want to delete this category? Its items will become uncategorized.",
+    "createSuccess": "Category created successfully",
+    "createError": "Could not create the category",
+    "updateSuccess": "Category updated successfully",
+    "updateError": "Could not update the category",
+    "deleteSuccess": "Category deleted successfully",
+    "deleteError": "Could not delete the category",
+    "fields": {
+      "name": "Name"
+    },
+    "placeholders": {
+      "name": "e.g. Beverages"
+    },
+    "validations": {
+      "nameMinLength": "Name must be at least 2 characters"
+    }
   },
   "recipe": {
     "title": "Recipe",

@@ -30,6 +30,7 @@
     "currentStock": "Stock actual disponible",
     "minimumStock": "Stock Mínimo",
     "unit": "Unidad",
+    "category": "Categoría",
     "status": "Estado",
     "lastUpdated": "Última actualización",
     "weeklyConsumption": "Consumo últimos 7 días",
@@ -88,13 +89,15 @@
     "unit": "Unidad",
     "quantity": "Cantidad",
     "minimumQuantity": "Stock mínimo",
-    "isActive": "Activo"
+    "isActive": "Activo",
+    "category": "Categoría"
   },
   "placeholders": {
     "name": "ej. Carne molida",
     "unit": "Selecciona una unidad",
     "quantity": "0",
-    "minimumQuantity": "0"
+    "minimumQuantity": "0",
+    "category": "Selecciona una categoría"
   },
   "validations": {
     "nameMinLength": "El nombre debe tener al menos 2 caracteres"
@@ -105,6 +108,40 @@
     "G": "g",
     "L": "L",
     "ML": "ml"
+  },
+  "categories": {
+    "title": "Categorías",
+    "loading": "Cargando...",
+    "loadError": "Error al cargar las categorías",
+    "empty": "Aún no hay categorías",
+    "emptyDescription": "Crea una categoría para organizar tus artículos de inventario.",
+    "none": "Sin categoría",
+    "all": "Todas",
+    "uncategorized": "Sin categoría",
+    "manageCategories": "Gestionar categorías",
+    "manageCategory": "Gestión de Categoría",
+    "createCategory": "Nueva categoría",
+    "editCategory": "Editar categoría",
+    "deleteCategory": "Eliminar categoría",
+    "activateCategory": "Activar",
+    "deactivateCategory": "Desactivar",
+    "deleteTitle": "Eliminar categoría",
+    "deleteMessage": "¿Estás seguro de que deseas eliminar esta categoría? Sus artículos quedarán sin categoría.",
+    "createSuccess": "Categoría creada exitosamente",
+    "createError": "No se pudo crear la categoría",
+    "updateSuccess": "Categoría actualizada exitosamente",
+    "updateError": "No se pudo actualizar la categoría",
+    "deleteSuccess": "Categoría eliminada exitosamente",
+    "deleteError": "No se pudo eliminar la categoría",
+    "fields": {
+      "name": "Nombre"
+    },
+    "placeholders": {
+      "name": "ej. Bebidas"
+    },
+    "validations": {
+      "nameMinLength": "El nombre debe tener al menos 2 caracteres"
+    }
   },
   "recipe": {
     "title": "Receta",
