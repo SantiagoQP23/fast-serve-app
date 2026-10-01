@@ -59,15 +59,18 @@ export default function MenuOverviewScreen() {
   );
 
   const sectionCategories = useMemo(
-    () => categories.filter((category) => category.section.id === sectionId),
+    () => categories.filter((category) => category.sectionId === sectionId),
     [categories, sectionId],
   );
 
   const getCategoryCount = (id: string) =>
-    categories.filter((category) => category.section.id === id).length;
+    categories.filter((category) => category.sectionId === id).length;
 
   const getProductCount = (id: string) =>
     products.filter((product) => product.category.id === id).length;
+
+  const getSectionName = (id: string) =>
+    sections.find((section) => section.id === id)?.name ?? "";
 
   useEffect(() => {
     if (!sectionId && sortedSections.length > 0) {
@@ -172,7 +175,7 @@ export default function MenuOverviewScreen() {
         params: {
           categoryId: selected.item.id,
           name: selected.item.name,
-          sectionId: selected.item.section.id,
+          sectionId: selected.item.sectionId,
           isPublic: String(selected.item.isPublic),
         },
       });
@@ -448,7 +451,7 @@ export default function MenuOverviewScreen() {
                           color={tw.color("text-gray-500")}
                         />
                         <ThemedText type="small" style={tw`text-gray-500`}>
-                          {selected.item.section.name}
+                          {getSectionName(selected.item.sectionId)}
                         </ThemedText>
                       </ThemedView>
                       <ThemedView style={tw`flex-row items-center gap-1`}>

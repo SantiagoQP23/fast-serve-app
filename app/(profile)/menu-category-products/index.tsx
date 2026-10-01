@@ -52,7 +52,7 @@ export default function MenuCategoryProductsScreen() {
   // from the store and fall back to params only until it loads.
   const currentCategory = categories.find((c) => c.id === params.categoryId);
   const categoryName = currentCategory?.name ?? params.name;
-  const categorySectionId = currentCategory?.section.id ?? params.sectionId;
+  const categorySectionId = currentCategory?.sectionId ?? params.sectionId;
   const categoryIsActive = currentCategory
     ? String(currentCategory.isActive)
     : params.isActive;

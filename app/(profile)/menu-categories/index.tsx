@@ -23,7 +23,7 @@ import { typography } from "@/constants/theme";
 
 export default function MenuCategoriesScreen() {
   const { t } = useTranslation("menuManagement");
-  const { categories, products, menuQuery } = useMenu();
+  const { categories, products, sections, menuQuery } = useMenu();
   const { isLoading, isError, refetch, isRefetching } = menuQuery;
   const { updateCategory, deleteCategory } = useMenuManagement();
   const { user } = useAuthStore();
@@ -53,7 +53,7 @@ export default function MenuCategoriesScreen() {
       params: {
         categoryId: category.id,
         name: category.name,
-        sectionId: category.section.id,
+        sectionId: category.sectionId,
         isActive: String(category.isActive),
         isPublic: String(category.isPublic),
       },
@@ -66,7 +66,7 @@ export default function MenuCategoriesScreen() {
       params: {
         categoryId: category.id,
         name: category.name,
-        sectionId: category.section.id,
+        sectionId: category.sectionId,
         isActive: String(category.isActive),
         isPublic: String(category.isPublic),
       },
@@ -75,6 +75,9 @@ export default function MenuCategoriesScreen() {
 
   const getProductCount = (categoryId: string) =>
     products.filter((product) => product.category.id === categoryId).length;
+
+  const getSectionName = (sectionId: string) =>
+    sections.find((section) => section.id === sectionId)?.name ?? "";
 
   const handleOpenCategoryActions = (category: Category) => {
     setSelectedCategory(category);
@@ -168,7 +171,7 @@ export default function MenuCategoriesScreen() {
                       <ThemedText type="h4">{category.name}</ThemedText>
                       <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
                         <ThemedText type="small" style={tw`text-gray-500`}>
-                          {category.section.name}
+                          {getSectionName(category.sectionId)}
                         </ThemedText>
                         <ThemedText type="small" style={tw`text-gray-500`}>
                           •
@@ -214,7 +217,7 @@ export default function MenuCategoriesScreen() {
                       color={tw.color("text-gray-500")}
                     />
                     <ThemedText type="small" style={tw`text-gray-500`}>
-                      {selectedCategory.section.name}
+                      {getSectionName(selectedCategory.sectionId)}
                     </ThemedText>
                   </ThemedView>
                   <ThemedView style={tw`flex-row items-center gap-1`}>

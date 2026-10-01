@@ -59,7 +59,7 @@ export default function MenuSectionCategoriesScreen() {
     : params.isPublic;
 
   const sectionCategories = categories.filter(
-    (category) => category.section.id === params.sectionId,
+    (category) => category.sectionId === params.sectionId,
   );
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export default function MenuSectionCategoriesScreen() {
       params: {
         categoryId: category.id,
         name: category.name,
-        sectionId: category.section.id,
+        sectionId: category.sectionId,
         isActive: String(category.isActive),
         isPublic: String(category.isPublic),
       },
@@ -95,7 +95,7 @@ export default function MenuSectionCategoriesScreen() {
       params: {
         categoryId: category.id,
         name: category.name,
-        sectionId: category.section.id,
+        sectionId: category.sectionId,
         isActive: String(category.isActive),
         isPublic: String(category.isPublic),
       },

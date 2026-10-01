@@ -105,7 +105,7 @@ export default function RestaurantMenuScreen() {
     (value: string) => {
       setSection(value);
       setFilteredCategories(() => {
-        const newCategories = categories.filter((c) => c.section.id === value);
+        const newCategories = categories.filter((c) => c.sectionId === value);
         if (newCategories.length > 0) onChangeCategory(newCategories[0].id);
         else onChangeCategory("");
         return newCategories;
@@ -138,7 +138,7 @@ export default function RestaurantMenuScreen() {
 
   useEffect(() => {
     if (!section) return;
-    setFilteredCategories(categories.filter((c) => c.section.id === section));
+    setFilteredCategories(categories.filter((c) => c.sectionId === section));
   }, [categories, section]);
 
   useEffect(() => {

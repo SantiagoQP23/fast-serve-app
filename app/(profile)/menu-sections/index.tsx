@@ -70,8 +70,7 @@ export default function MenuSectionsScreen() {
   };
 
   const getCategoryCount = (sectionId: string) =>
-    categories.filter((category) => category.section.id === sectionId)
-      .length;
+    categories.filter((category) => category.sectionId === sectionId).length;
 
   const handleOpenSectionActions = (section: Section) => {
     setSelectedSection(section);
