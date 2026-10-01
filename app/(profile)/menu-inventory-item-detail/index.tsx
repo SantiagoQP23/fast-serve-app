@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { ScrollView, Pressable } from "react-native";
+import { useCallback, useRef, useState } from "react";
+import { ScrollView, Pressable, RefreshControl } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
@@ -10,6 +10,7 @@ import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
+import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import QuickActionButton from "@/presentation/orders/components/quick-action-button";
@@ -27,6 +28,7 @@ export default function MenuInventoryItemDetailScreen() {
   const params = useLocalSearchParams<{ itemId: string }>();
   const { user } = useAuthStore();
   const canManage = isAdminLevelRole(user?.role?.name);
+  const primaryColor = useThemeColor({}, "primary");
 
   const { item, itemQuery, movements, movementsQuery } = useInventoryItemDetail(
     params.itemId,
@@ -37,7 +39,17 @@ export default function MenuInventoryItemDetailScreen() {
   const [adjustMode, setAdjustMode] = useState<"restock" | "waste" | null>(
     null,
   );
+  const [refreshing, setRefreshing] = useState(false);
   const optionsSheetRef = useRef<BottomSheetMethods>(null);
+
+  const onRefresh = useCallback(async () => {
+    try {
+      setRefreshing(true);
+      await Promise.all([itemQuery.refetch(), movementsQuery.refetch()]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [itemQuery, movementsQuery]);
 
   const handleEditItem = () => {
     if (!item) return;
@@ -107,6 +119,14 @@ export default function MenuInventoryItemDetailScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={tw`px-4 gap-4 pb-8 pt-2`}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={primaryColor}
+            colors={[primaryColor]}
+          />
+        }
       >
         {itemQuery.isLoading && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
