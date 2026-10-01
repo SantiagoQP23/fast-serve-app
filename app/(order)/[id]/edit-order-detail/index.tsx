@@ -9,13 +9,18 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import Label from "@/presentation/theme/components/label";
 import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
-import { ProductOption } from "@/core/menu/models/product-optionl.model";
+import {
+  ProductOption,
+  getProductOptionAvailableQuantity,
+} from "@/core/menu/models/product-optionl.model";
+import { Ionicons } from "@expo/vector-icons";
 import {
   BottomSheetView,
   type BottomSheetMethods,
@@ -35,13 +40,16 @@ import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet"
 import Card from "@/presentation/theme/components/card";
 
 export default function EditOrderDetailScreen() {
-  const { t } = useTranslation(["common", "orders", "menu"]);
+  const { t } = useTranslation(["common", "orders", "menu", "inventory"]);
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
   const noteSheetRef = useRef<BottomSheetMethods>(null);
   const activitySheetRef = useRef<BottomSheetMethods>(null);
   const typePickerRef = useRef<BottomSheetPickerRef>(null);
   const orderDetail = useOrdersStore((state) => state.activeOrderDetail);
   const order = useOrdersStore((state) => state.activeOrder);
+  const product = useMenuStore((state) =>
+    state.products.find((p) => p.id === orderDetail?.product.id),
+  );
 
   const { counter, increment, decrement } = useCounter(
     orderDetail?.quantity,
@@ -74,7 +82,7 @@ export default function EditOrderDetailScreen() {
   const [notes, setNotes] = useState(orderDetail?.description || "");
   const [selectedOption, setSelectedOption] = useState<ProductOption | null>(
     orderDetail?.productOption ??
-      orderDetail?.product.options.find((option) => option.isDefault) ??
+      product?.options.find((option) => option.isDefault) ??
       null,
   );
   const [price, setPrice] = useState(
@@ -141,7 +149,7 @@ export default function EditOrderDetailScreen() {
     deliveredSheetRef.current?.dismiss();
   };
 
-  if (!orderDetail) {
+  if (!orderDetail || !product) {
     return (
       <ThemedView style={tw`flex-1 justify-center items-center`}>
         <ThemedText type="h2">{t("orders:details.noActiveOrder")}</ThemedText>
@@ -196,14 +204,14 @@ export default function EditOrderDetailScreen() {
               <ThemedView
                 style={tw`flex-row items-center justify-between gap-2`}
               >
-                <ThemedText type="h2">{orderDetail.product.name}</ThemedText>
+                <ThemedText type="h2">{product.name}</ThemedText>
                 <ThemedText>
                   {formatCurrency(counter * effectivePrice)}
                 </ThemedText>
               </ThemedView>
-              {orderDetail.product.description && (
+              {product.description && (
                 <ThemedText type="body1" style={tw`text-gray-600`}>
-                  {orderDetail.product.description}
+                  {product.description}
                 </ThemedText>
               )}
             </ThemedView>
@@ -238,26 +246,52 @@ export default function EditOrderDetailScreen() {
               {/* <ThemedText style={tw`text-gray-500 mb-2`}> */}
               {/*   {t("menu:variants")} */}
               {/* </ThemedText> */}
-              {orderDetail.product.options.length > 0 && (
+              {product.options.length > 0 && (
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={tw`gap-3`}
                 >
-                  {orderDetail.product.options.map((option) => {
+                  {product.options.map((option) => {
                     const isSelected = selectedOption?.id === option.id;
                     return (
                       <ThemedView
                         key={option.id}
-                        style={tw`w-36 rounded-3xl border-2 ${isSelected ? "border-light-primary bg-transparent" : "border-transparent"}`}
+                        style={tw`min-w-36 rounded-3xl border-2 ${isSelected ? "border-light-primary bg-transparent" : "border-transparent"}`}
                       >
                         <Card
                           onPress={() => onChangeSelectedOption(option)}
                           style={tw`p-4  justify-between gap-2`}
                         >
-                          <ThemedText type="body1" style={tw``}>
-                            {option.name}
-                          </ThemedText>
+                          <ThemedView
+                            style={tw`flex-row items-center justify-between gap-2`}
+                          >
+                            <ThemedText type="body1" style={tw``}>
+                              {option.name}
+                            </ThemedText>
+                            {option.inventoryItems?.length ? (
+                              <ThemedView
+                                style={tw`flex-row items-center gap-1 bg-transparent`}
+                              >
+                                <Ionicons
+                                  name="cube-outline"
+                                  size={14}
+                                  color={tw.color("text-gray-500")}
+                                />
+                                <ThemedText
+                                  type="small"
+                                  style={tw`text-gray-500`}
+                                >
+                                  {t("inventory:stockCount", {
+                                    count:
+                                      getProductOptionAvailableQuantity(
+                                        option,
+                                      ) ?? 0,
+                                  })}
+                                </ThemedText>
+                              </ThemedView>
+                            ) : null}
+                          </ThemedView>
                           <ThemedText type="body2" style={tw``}>
                             {formatCurrency(option.price)}
                           </ThemedText>
@@ -268,11 +302,10 @@ export default function EditOrderDetailScreen() {
                 </ScrollView>
               )}
             </ThemedView>
-            {orderDetail.product.tags?.filter(
-              (tag) => tag.isActive && !tag.isArchived,
-            ).length > 0 && (
+            {product.tags?.filter((tag) => tag.isActive && !tag.isArchived)
+              .length > 0 && (
               <ThemedView style={tw`flex-row flex-wrap gap-2 `}>
-                {orderDetail.product.tags
+                {product.tags
                   .filter((tag) => tag.isActive && !tag.isArchived)
                   .map((tag) => (
                     <Label
@@ -405,7 +438,7 @@ export default function EditOrderDetailScreen() {
             <ThemedView style={tw`mb-4`}>
               <ThemedText type="h3">{t("common:status.delivered")}</ThemedText>
               <ThemedText type="body2" style={tw`text-gray-500 mt-1`}>
-                {orderDetail.product.name}
+                {product.name}
               </ThemedText>
             </ThemedView>
             <ThemedView style={tw`flex-row items-center justify-between mb-4`}>

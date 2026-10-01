@@ -602,7 +602,7 @@ export default function OrderScreen() {
 
                 {/* Notes Section */}
                 {order.notes && (
-                  <ThemedView style={tw`mb-6 p-4 bg-gray-50 rounded-xl`}>
+                  <ThemedView style={tw`mb-6   rounded-xl`}>
                     <ThemedView style={tw`flex-row items-center gap-2 mb-2`}>
                       <Ionicons
                         name="document-text-outline"
@@ -616,7 +616,7 @@ export default function OrderScreen() {
                         {t("common:labels.notes")}
                       </ThemedText>
                     </ThemedView>
-                    <ThemedText type="body2" style={tw`text-gray-700`}>
+                    <ThemedText type="body1" style={tw`text-gray-700`}>
                       {order.notes}
                     </ThemedText>
                   </ThemedView>
