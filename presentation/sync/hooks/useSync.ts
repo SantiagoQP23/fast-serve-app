@@ -165,7 +165,9 @@ function applyProductEvent(event: SyncEventDto) {
   switch (event.operation) {
     case SyncOperation.CREATED:
     case SyncOperation.UPDATED:
-      menuState.upsertProduct(event.data as Product);
+      const product = event.data as Product;
+      menuState.upsertProduct(product);
+      useOrdersStore.getState().updateProductInOrders(product);
       break;
     case SyncOperation.DELETED:
       menuState.removeProduct(event.resourceId);

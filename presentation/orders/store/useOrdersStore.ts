@@ -1,6 +1,7 @@
 import { Bill } from "@/core/orders/models/bill.model";
 import { OrderDetail } from "@/core/orders/models/order-detail.model";
 import { Order } from "@/core/orders/models/order.model";
+import { Product } from "@/core/menu/models/product.model";
 import { Account } from "@/core/restaurant/models/account.model";
 import { PaymentMethod } from "@/core/restaurant/models/payment-method.model";
 import { Transaction } from "@/core/transactions/models/transaction.model";
@@ -42,6 +43,7 @@ interface OrdersState {
   addOrder: (order: Order) => void;
   updateOrder: (order: Order) => void;
   deleteOrder: (orderId: string) => void;
+  updateProductInOrders: (product: Product) => void;
   reset: () => void;
 }
 
@@ -96,6 +98,32 @@ export const useOrdersStore = create<OrdersState>()(
         set((state) => ({
           orders: state.orders.filter((o) => o.id !== orderId),
         })),
+      updateProductInOrders: (product: Product) =>
+        set((state) => {
+          const replaceInDetails = (details: OrderDetail[]) =>
+            details.some((d) => d.product.id === product.id)
+              ? details.map((d) =>
+                  d.product.id === product.id ? { ...d, product } : d,
+                )
+              : details;
+
+          return {
+            orders: state.orders.map((o) => ({
+              ...o,
+              details: replaceInDetails(o.details),
+            })),
+            activeOrder: state.activeOrder
+              ? {
+                  ...state.activeOrder,
+                  details: replaceInDetails(state.activeOrder.details),
+                }
+              : state.activeOrder,
+            activeOrderDetail:
+              state.activeOrderDetail?.product.id === product.id
+                ? { ...state.activeOrderDetail, product }
+                : state.activeOrderDetail,
+          };
+        }),
       reset: () => set(initialState),
     }),
     {

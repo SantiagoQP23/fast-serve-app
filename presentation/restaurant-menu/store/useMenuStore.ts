@@ -111,6 +111,10 @@ export const useMenuStore = create<MenuState & MenuActions>()(
             products: exists
               ? state.products.map((p) => (p.id === product.id ? product : p))
               : [...state.products, product],
+            activeProduct:
+              state.activeProduct?.id === product.id
+                ? product
+                : state.activeProduct,
           };
         }),
 
