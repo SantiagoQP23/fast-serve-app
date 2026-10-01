@@ -81,6 +81,7 @@
   "confirm": "Confirm",
   "adjustStock": "Adjust stock",
   "currentStock": "Current stock",
+  "newStock": "New stock",
   "amount": "Amount",
   "reasonOptional": "Note (optional)",
   "reasonPlaceholder": "e.g. Weekly restock",

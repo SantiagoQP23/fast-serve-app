@@ -25,7 +25,7 @@ export default function InventoryDetailSummaryCard({
 
   return (
     <ThemedView style={tw`bg-light-surface rounded-3xl p-6 gap-5 shadow-xs`}>
-      <ThemedText type="h3" style={{ fontFamily: typography.bold }}>
+      <ThemedText type="h3" style={{ fontFamily: typography.medium }}>
         {item.name}
       </ThemedText>
 
@@ -41,10 +41,7 @@ export default function InventoryDetailSummaryCard({
           >
             <ThemedText
               type="h1"
-              style={[
-                { fontFamily: typography.bold },
-                tw`text-light-primary`,
-              ]}
+              style={[{ fontFamily: typography.bold }, tw`text-light-primary`]}
             >
               {item.quantity}
             </ThemedText>

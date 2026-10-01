@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
+import { typography } from "@/constants/theme";
 
 interface QuickActionButtonProps {
   icon: keyof typeof Ionicons.glyphMap;
@@ -20,7 +21,7 @@ export const QuickActionButton = ({
   return (
     <ThemedView style={tw`gap-2 items-center`}>
       <Pressable
-        style={tw`flex items-center gap-2 px-4 py-2 min-w-15 w-20`}
+        style={tw`flex items-center justify-center gap-2 px-4 py-2 h-16 min-w-16 w-16 bg-white rounded-full`}
         onPress={onPress}
         disabled={disabled}
       >
@@ -31,8 +32,14 @@ export const QuickActionButton = ({
         />
       </Pressable>
       <ThemedText
-        type="body2"
-        style={tw.style(disabled && "text-gray-400")}
+        type="small"
+        style={[
+          tw.style(
+            disabled && "text-gray-400",
+            "text-light-on-surface-variant",
+          ),
+          { fontFamily: typography.medium },
+        ]}
       >
         {label}
       </ThemedText>

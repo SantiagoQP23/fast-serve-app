@@ -1,5 +1,10 @@
-import { useState } from "react";
-import { Modal, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { View } from "react-native";
+import {
+  BottomSheetView,
+  type BottomSheetMethods,
+} from "@expo/ui/community/bottom-sheet";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
@@ -25,40 +30,52 @@ export default function AdjustStockModal({
   initialMode = "restock",
   onClose,
 }: AdjustStockModalProps) {
+  const bottomSheetRef = useRef<BottomSheetMethods>(null);
+  const visible = !!item;
+
+  useEffect(() => {
+    if (visible) {
+      bottomSheetRef.current?.present();
+    } else {
+      bottomSheetRef.current?.dismiss();
+    }
+  }, [visible]);
+
   return (
-    <Modal
-      transparent
-      visible={!!item}
-      animationType="fade"
-      onRequestClose={onClose}
+    <ThemedBottomSheetModal
+      ref={bottomSheetRef}
+      enablePanDownToClose
+      onDismiss={onClose}
     >
-      <View style={tw`flex-1 bg-black/50 items-center justify-center px-6`}>
+      <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
         {item && (
           <AdjustStockForm
             key={item.id}
             item={item}
-            initialMode={initialMode}
+            mode={initialMode}
             onClose={onClose}
           />
         )}
-      </View>
-    </Modal>
+      </BottomSheetView>
+    </ThemedBottomSheetModal>
   );
 }
 
 interface AdjustStockFormProps {
   item: InventoryItem;
-  initialMode: "restock" | "waste";
+  mode: "restock" | "waste";
   onClose: () => void;
 }
 
-function AdjustStockForm({ item, initialMode, onClose }: AdjustStockFormProps) {
+function AdjustStockForm({ item, mode, onClose }: AdjustStockFormProps) {
   const { t } = useTranslation("inventory");
   const { adjustStock } = useInventoryItems();
-  const [mode, setMode] = useState<"restock" | "waste">(initialMode);
   const [amount, setAmount] = useState(0);
   const [note, setNote] = useState("");
   const step = item.unit === InventoryUnit.UNIT ? 1 : 0.1;
+  const newQuantity = Number(
+    (item.quantity + (mode === "restock" ? amount : -amount)).toFixed(2),
+  );
 
   const handleSubmit = async () => {
     if (amount <= 0) return;
@@ -76,30 +93,10 @@ function AdjustStockForm({ item, initialMode, onClose }: AdjustStockFormProps) {
   };
 
   return (
-    <View style={tw`bg-white rounded-2xl w-full p-6 shadow-lg gap-4`}>
+    <>
       <ThemedText type="h3" style={{ fontFamily: typography.medium }}>
-        {t("adjustStock")}
+        {t(mode)}
       </ThemedText>
-      <ThemedText type="body2" style={tw`text-gray-500 -mt-2`}>
-        {item.name} · {t("currentStock")}: {item.quantity}
-      </ThemedText>
-
-      <View style={tw`flex-row gap-2`}>
-        <Button
-          label={t("restock")}
-          size="small"
-          variant={mode === "restock" ? "primary" : "outline"}
-          onPress={() => setMode("restock")}
-          style={tw`flex-1`}
-        />
-        <Button
-          label={t("waste")}
-          size="small"
-          variant={mode === "waste" ? "primary" : "outline"}
-          onPress={() => setMode("waste")}
-          style={tw`flex-1`}
-        />
-      </View>
 
       <View style={tw`gap-2`}>
         <Counter
@@ -109,31 +106,40 @@ function AdjustStockForm({ item, initialMode, onClose }: AdjustStockFormProps) {
           min={0}
           unit={t(`units.${item.unit}`)}
         />
+        <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
+          {t("newStock")}:{" "}
+          {t("quantityWithUnit", {
+            quantity: newQuantity,
+            unit: t(`units.${item.unit}`),
+          })}
+        </ThemedText>
       </View>
 
       <TextInput
+        bottomSheet
+        variant="outlined"
         label={t("reasonOptional")}
         value={note}
         onChangeText={setNote}
         placeholder={t("reasonPlaceholder")}
       />
 
-      <View style={tw`flex-row justify-end gap-2`}>
+      <View style={tw`flex-row justify-center gap-2`}>
         <Button
           label={t("cancel")}
           onPress={onClose}
           variant="text"
-          size="small"
           disabled={adjustStock.isPending}
+          style={tw`flex-1`}
         />
         <Button
           label={t("confirm")}
           onPress={handleSubmit}
-          size="small"
           loading={adjustStock.isPending}
           disabled={amount <= 0}
+          style={tw`flex-1`}
         />
       </View>
-    </View>
+    </>
   );
 }

@@ -86,7 +86,7 @@ export default function MenuInventoryItemDetailScreen() {
           </Pressable>
           <ThemedText
             type="h3"
-            style={{ fontFamily: typography.bold }}
+            style={{ fontFamily: typography.regular, flex: 1 }}
             numberOfLines={1}
           >
             {t("detail.title")}

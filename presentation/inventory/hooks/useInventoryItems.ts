@@ -66,9 +66,12 @@ export const useInventoryItems = () => {
     mutationFn: async (data) => {
       await InventoryService.adjust(data);
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       toast.success(t("adjustSuccess"));
       invalidate();
+      queryClient.invalidateQueries({
+        queryKey: ["inventory-movements", variables.inventoryItemId],
+      });
     },
     onError: (error) => {
       toast.error(error.message || t("adjustError"));

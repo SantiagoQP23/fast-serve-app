@@ -81,6 +81,7 @@
   "confirm": "Confirmar",
   "adjustStock": "Ajustar stock",
   "currentStock": "Stock actual",
+  "newStock": "Stock nuevo",
   "amount": "Cantidad",
   "reasonOptional": "Nota (opcional)",
   "reasonPlaceholder": "ej. Reabastecimiento semanal",
