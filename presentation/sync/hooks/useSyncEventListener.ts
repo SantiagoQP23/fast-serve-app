@@ -7,11 +7,13 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useTablesStore } from "@/presentation/tables/hooks/useTablesStore";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { useProductionAreasStore } from "@/presentation/production-areas/store/useProductionAreasStore";
-import { RestaurantMenuService } from "@/core/menu/services/restaurant-menu.service";
 import { ProductionAreasService } from "@/presentation/production-areas/services/production-areas.service";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Order } from "@/core/orders/models/order.model";
 import { Table } from "@/core/tables/models/table.model";
+import { Product } from "@/core/menu/models/product.model";
+import { Category } from "@/core/menu/models/category.model";
+import { Section } from "@/core/menu/models/section.model";
 import { useSyncStore } from "../store/useSyncStore";
 
 function applyOrderEvent(event: SyncEventDto) {
@@ -63,12 +65,45 @@ function applyTableEvent(event: SyncEventDto) {
   }
 }
 
-async function refetchMenu(restaurantId: string) {
-  try {
-    const menu = await RestaurantMenuService.getAllMenu(restaurantId);
-    useMenuStore.getState().setMenu(menu, restaurantId);
-  } catch (error) {
-    console.error("[useSyncEventListener] Failed to refetch menu", error);
+function applyProductEvent(event: SyncEventDto) {
+  const menuState = useMenuStore.getState();
+
+  switch (event.operation) {
+    case SyncOperation.CREATED:
+    case SyncOperation.UPDATED:
+      menuState.upsertProduct(event.data as Product);
+      break;
+    case SyncOperation.DELETED:
+      menuState.removeProduct(event.resourceId);
+      break;
+  }
+}
+
+function applyCategoryEvent(event: SyncEventDto) {
+  const menuState = useMenuStore.getState();
+
+  switch (event.operation) {
+    case SyncOperation.CREATED:
+    case SyncOperation.UPDATED:
+      menuState.upsertCategory(event.data as Category);
+      break;
+    case SyncOperation.DELETED:
+      menuState.removeCategory(event.resourceId);
+      break;
+  }
+}
+
+function applySectionEvent(event: SyncEventDto) {
+  const menuState = useMenuStore.getState();
+
+  switch (event.operation) {
+    case SyncOperation.CREATED:
+    case SyncOperation.UPDATED:
+      menuState.upsertSection(event.data as Section);
+      break;
+    case SyncOperation.DELETED:
+      menuState.removeSection(event.resourceId);
+      break;
   }
 }
 
@@ -108,9 +143,13 @@ export const useSyncEventListener = () => {
           applyTableEvent(event);
           break;
         case SyncResourceType.PRODUCT:
+          applyProductEvent(event);
+          break;
         case SyncResourceType.CATEGORY:
+          applyCategoryEvent(event);
+          break;
         case SyncResourceType.SECTION:
-          void refetchMenu(restaurantId);
+          applySectionEvent(event);
           break;
         case SyncResourceType.PRODUCTION_AREA:
           void refetchProductionAreas(restaurantId);
