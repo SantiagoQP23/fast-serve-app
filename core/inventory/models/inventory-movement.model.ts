@@ -1,6 +1,10 @@
 export enum InventoryMovementType {
+  // Kept for historical movements only — consumption now happens at order
+  // creation (see ORDER_CREATED), not at delivery.
   ORDER_DELIVERED = "ORDER_DELIVERED",
   ORDER_DELIVERY_REVERSED = "ORDER_DELIVERY_REVERSED",
+  ORDER_CREATED = "ORDER_CREATED",
+  ORDER_CREATED_REVERSED = "ORDER_CREATED_REVERSED",
   SALE_DIRECT = "SALE_DIRECT",
   SALE_DIRECT_CANCELLED = "SALE_DIRECT_CANCELLED",
   MANUAL_RESTOCK = "MANUAL_RESTOCK",

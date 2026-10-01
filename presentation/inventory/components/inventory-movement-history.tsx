@@ -44,6 +44,16 @@ const MOVEMENT_VISUALS: Record<
     iconColor: "emerald-500",
     textColor: "text-emerald-600",
   },
+  [InventoryMovementType.ORDER_CREATED]: {
+    icon: "trending-down-outline",
+    iconColor: "blue-500",
+    textColor: "text-blue-600",
+  },
+  [InventoryMovementType.ORDER_CREATED_REVERSED]: {
+    icon: "arrow-undo-outline",
+    iconColor: "emerald-500",
+    textColor: "text-emerald-600",
+  },
   [InventoryMovementType.SALE_DIRECT]: {
     icon: "trending-down-outline",
     iconColor: "blue-500",
@@ -61,8 +71,21 @@ const MOVEMENT_VISUALS: Record<
 const INCREASE_TYPES = new Set<InventoryMovementType>([
   InventoryMovementType.MANUAL_RESTOCK,
   InventoryMovementType.ORDER_DELIVERY_REVERSED,
+  InventoryMovementType.ORDER_CREATED_REVERSED,
   InventoryMovementType.SALE_DIRECT_CANCELLED,
 ]);
+
+// Fallback for a movement type the frontend doesn't recognize (e.g. a type
+// the backend added that this map hasn't been updated for yet).
+const DEFAULT_VISUAL: {
+  icon: keyof typeof Ionicons.glyphMap;
+  iconColor: string;
+  textColor: string;
+} = {
+  icon: "swap-horizontal-outline",
+  iconColor: "gray-500",
+  textColor: "text-gray-600",
+};
 
 export default function InventoryMovementHistory({
   movements,
@@ -87,8 +110,12 @@ export default function InventoryMovementHistory({
           data={movements}
           keyExtractor={(movement) => movement.id}
           renderItem={(movement) => {
-            const visual = MOVEMENT_VISUALS[movement.type];
-            const isIncrease = INCREASE_TYPES.has(movement.type);
+            const visual = MOVEMENT_VISUALS[movement.type] ?? DEFAULT_VISUAL;
+            const isIncrease = INCREASE_TYPES.has(movement.type)
+              ? true
+              : MOVEMENT_VISUALS[movement.type]
+                ? false
+                : movement.quantity >= 0;
 
             return (
               <ThemedView
@@ -111,7 +138,9 @@ export default function InventoryMovementHistory({
                       type="body2"
                       style={{ fontFamily: typography.medium }}
                     >
-                      {t(`movementTypes.${movement.type}`)}
+                      {t(`movementTypes.${movement.type}`, {
+                        defaultValue: movement.type,
+                      })}
                     </ThemedText>
                     <ThemedText
                       type="small"
@@ -131,7 +160,7 @@ export default function InventoryMovementHistory({
                   ]}
                 >
                   {isIncrease ? "+" : "-"}
-                  {Math.abs(movement.quantity)}
+                  {Math.abs(movement.quantity)} {unit}
                 </ThemedText>
               </ThemedView>
             );

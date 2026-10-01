@@ -45,6 +45,8 @@
     "MANUAL_ADJUSTMENT": "Ajuste manual",
     "ORDER_DELIVERED": "Consumo por pedido",
     "ORDER_DELIVERY_REVERSED": "Reversión de pedido",
+    "ORDER_CREATED": "Consumo por pedido",
+    "ORDER_CREATED_REVERSED": "Reversión de pedido",
     "SALE_DIRECT": "Venta directa",
     "SALE_DIRECT_CANCELLED": "Venta cancelada"
   },
