@@ -1,9 +1,11 @@
 import { restaurantApi } from "@/core/api/restaurantApi";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
 import type { InventoryMovement } from "@/core/inventory/models/inventory-movement.model";
+import type { ProductOptionInventoryItem } from "@/core/inventory/models/inventory-recipe.model";
 import type { CreateInventoryItemDto } from "../interfaces/dto/create-inventory-item.dto";
 import type { UpdateInventoryItemDto } from "../interfaces/dto/update-inventory-item.dto";
 import type { AdjustInventoryDto } from "../interfaces/dto/adjust-inventory.dto";
+import type { LinkProductOptionDto } from "../interfaces/dto/link-product-option.dto";
 
 export class InventoryService {
   static async getAll(): Promise<InventoryItem[]> {
@@ -37,6 +39,17 @@ export class InventoryService {
 
   static async remove(id: string): Promise<void> {
     await restaurantApi.delete(`/inventory/items/${id}`);
+  }
+
+  static async linkProductOption(
+    itemId: string,
+    data: LinkProductOptionDto,
+  ): Promise<ProductOptionInventoryItem> {
+    const resp = await restaurantApi.post<ProductOptionInventoryItem>(
+      `/inventory/items/${itemId}/recipe-lines`,
+      data,
+    );
+    return resp.data;
   }
 
   static async adjust(data: AdjustInventoryDto): Promise<InventoryMovement> {

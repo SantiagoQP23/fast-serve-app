@@ -1,4 +1,5 @@
 import type { InventoryItemCategory } from "./inventory-item-category.model";
+import type { ProductOptionInventoryItem } from "./inventory-recipe.model";
 
 export enum InventoryUnit {
   UNIT = "UNIT",
@@ -17,6 +18,8 @@ export interface InventoryItem {
   isActive: boolean;
   category?: InventoryItemCategory | null;
   restaurant?: { id: string; name: string };
+  /** Product options (recipe lines) that consume this item. */
+  productOptions?: ProductOptionInventoryItem[];
   createdAt?: string;
   updatedAt?: string;
   deletedAt?: string | null;

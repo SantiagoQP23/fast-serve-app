@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ScrollView, RefreshControl, Pressable } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -17,6 +17,11 @@ import type { Product } from "@/core/menu/models/product.model";
 
 export default function NewInventoryItemSelectProductScreen() {
   const { t } = useTranslation("inventory");
+  const params = useLocalSearchParams<{
+    inventoryItemId?: string;
+    itemName?: string;
+    unit?: string;
+  }>();
   const { categories: allCategories, products: allProducts, menuQuery } =
     useMenu();
   const [search, setSearch] = useState("");
@@ -63,7 +68,13 @@ export default function NewInventoryItemSelectProductScreen() {
   const handleSelectProduct = (product: Product) => {
     router.push({
       pathname: "/(profile)/menu-inventory-item-new-option",
-      params: { productId: product.id, productName: product.name },
+      params: {
+        productId: product.id,
+        productName: product.name,
+        inventoryItemId: params.inventoryItemId ?? "",
+        itemName: params.itemName ?? "",
+        unit: params.unit ?? "",
+      },
     });
   };
 

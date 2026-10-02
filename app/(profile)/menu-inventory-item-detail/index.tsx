@@ -22,6 +22,7 @@ import { useInventoryItemDetail } from "@/presentation/inventory/hooks/useInvent
 import AdjustStockModal from "@/presentation/inventory/components/adjust-stock-modal";
 import InventoryDetailSummaryCard from "@/presentation/inventory/components/inventory-detail-summary-card";
 import InventoryMovementHistory from "@/presentation/inventory/components/inventory-movement-history";
+import LinkedProductsList from "@/presentation/inventory/components/linked-products-list";
 
 export default function MenuInventoryItemDetailScreen() {
   const { t } = useTranslation("inventory");
@@ -65,6 +66,19 @@ export default function MenuInventoryItemDetailScreen() {
           item.minimumQuantity != null ? String(item.minimumQuantity) : "",
         isActive: String(item.isActive),
         categoryId: item.category?.id ?? "",
+      },
+    });
+  };
+
+  const handleLinkToProduct = () => {
+    if (!item) return;
+    optionsSheetRef.current?.dismiss();
+    router.push({
+      pathname: "/(profile)/menu-inventory-item-new-product",
+      params: {
+        inventoryItemId: item.id,
+        itemName: item.name,
+        unit: item.unit,
       },
     });
   };
@@ -171,6 +185,11 @@ export default function MenuInventoryItemDetailScreen() {
               </ThemedView>
             )}
 
+            <LinkedProductsList
+              lines={item.productOptions ?? []}
+              unit={t(`units.${item.unit}`)}
+            />
+
             <InventoryMovementHistory
               movements={movements}
               unit={t(`units.${item.unit}`)}
@@ -212,6 +231,11 @@ export default function MenuInventoryItemDetailScreen() {
                 icon: "create-outline",
                 label: t("editItem"),
                 onPress: handleEditItem,
+              },
+              {
+                icon: "link-outline",
+                label: t("detail.linkToProduct"),
+                onPress: handleLinkToProduct,
               },
               {
                 icon: "power-outline",

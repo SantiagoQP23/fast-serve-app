@@ -38,7 +38,11 @@
     "movementHistory": "Historial de movimientos",
     "noMovements": "Aún no hay movimientos registrados",
     "loadError": "No se pudo cargar el detalle del insumo",
-    "movementsLoadError": "No se pudo cargar el historial de movimientos"
+    "movementsLoadError": "No se pudo cargar el historial de movimientos",
+    "linkToProduct": "Vincular a un producto",
+    "linkedProducts": "Productos vinculados",
+    "noLinkedProducts": "Aún no está vinculado a ningún producto",
+    "unknownProduct": "Producto desconocido"
   },
   "movementTypes": {
     "MANUAL_RESTOCK": "Entrada manual",
@@ -72,6 +76,8 @@
   "deleteError": "No se pudo eliminar el artículo de inventario",
   "adjustSuccess": "Stock ajustado exitosamente",
   "adjustError": "No se pudo ajustar el stock",
+  "linkProductSuccess": "Vinculado a la variante del producto",
+  "linkProductError": "No se pudo vincular este insumo a la variante del producto",
   "deleteTitle": "Eliminar artículo de inventario",
   "deleteMessage": "¿Estás seguro de que deseas eliminar este artículo de inventario?",
   "createItem": "Nuevo artículo",

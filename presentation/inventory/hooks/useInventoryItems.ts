@@ -3,10 +3,12 @@ import { toast } from "sonner-native";
 import { queryClient } from "@/app/_layout";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
+import type { ProductOptionInventoryItem } from "@/core/inventory/models/inventory-recipe.model";
 import { InventoryService } from "../services/inventory.service";
 import type { CreateInventoryItemDto } from "../interfaces/dto/create-inventory-item.dto";
 import type { UpdateInventoryItemDto } from "../interfaces/dto/update-inventory-item.dto";
 import type { AdjustInventoryDto } from "../interfaces/dto/adjust-inventory.dto";
+import type { LinkProductOptionDto } from "../interfaces/dto/link-product-option.dto";
 
 const inventoryItemsQueryKey = ["inventory-items"];
 
@@ -62,6 +64,24 @@ export const useInventoryItems = () => {
     },
   });
 
+  const linkProductOption = useMutation<
+    ProductOptionInventoryItem,
+    Error,
+    { itemId: string; data: LinkProductOptionDto }
+  >({
+    mutationFn: ({ itemId, data }) =>
+      InventoryService.linkProductOption(itemId, data),
+    onSuccess: (_data, variables) => {
+      toast.success(t("linkProductSuccess"));
+      queryClient.invalidateQueries({
+        queryKey: ["inventory-items", variables.itemId],
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message || t("linkProductError"));
+    },
+  });
+
   const adjustStock = useMutation<void, Error, AdjustInventoryDto>({
     mutationFn: async (data) => {
       await InventoryService.adjust(data);
@@ -84,6 +104,7 @@ export const useInventoryItems = () => {
     createItem,
     updateItem,
     deleteItem,
+    linkProductOption,
     adjustStock,
   };
 };

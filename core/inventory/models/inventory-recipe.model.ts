@@ -8,5 +8,9 @@ export interface ProductOptionInventoryItem {
   createdAt?: string;
   updatedAt?: string;
   inventoryItem?: InventoryItem;
-  productOption?: { id: number; name: string };
+  productOption?: {
+    id: number;
+    name: string;
+    product?: { id: string; name: string };
+  };
 }

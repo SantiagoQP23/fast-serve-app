@@ -204,24 +204,14 @@ export default function SalesContent() {
   return (
     <>
       {/* Header */}
-      <ThemedView style={tw`px-4 mb-4 gap-3`}>
-        <ThemedView style={tw`flex-row items-center justify-between`}>
-          <ThemedText type="h2">{t("common:navigation.sales")}</ThemedText>
-          <Pressable
-            onPress={handleOpenFilters}
-            style={tw`p-2 rounded-lg ${hasActiveFilters ? "bg-light-surface" : "bg-transparent"}`}
-          >
-            <Ionicons
-              name="filter"
-              size={20}
-              color={hasActiveFilters ? tw.color("") : tw.color("gray-600")}
-            />
-          </Pressable>
-        </ThemedView>
-      </ThemedView>
+      {/* <ThemedView style={tw`px-4 mb-4 gap-3`}> */}
+      {/*   <ThemedView style={tw`flex-row items-center justify-between`}> */}
+      {/*     <ThemedText type="h2">{t("common:navigation.sales")}</ThemedText> */}
+      {/*   </ThemedView> */}
+      {/* </ThemedView> */}
 
       {/* Date Picker */}
-      <ThemedView style={tw`px-4 mb-4`}>
+      <ThemedView style={tw`px-4 mb-4 pt-4`}>
         <DatePicker
           value={selectedDate}
           onChange={handleDateChange}
@@ -229,28 +219,18 @@ export default function SalesContent() {
         />
       </ThemedView>
 
-      <ThemedView style={tw` p-4 mb-4 items-center`}>
-        <ThemedView style={tw`flex-row items-center gap-2 mb-1`}>
-          <ThemedText type="h1" style={tw``}>
-            {displayedTotalSales}
-          </ThemedText>
-          <Pressable
-            onPress={() => setShowTotalSales((prev) => !prev)}
-            hitSlop={8}
-          >
-            <Ionicons
-              name={showTotalSales ? "eye-off-outline" : "eye-outline"}
-              size={18}
-              color={tw.color("gray-500")}
-            />
-          </Pressable>
-        </ThemedView>
-        <ThemedText type="small" style={tw`text-gray-400`}>
-          {t("bills:list.salesCount", { count })}
-        </ThemedText>
-      </ThemedView>
-
       <ThemedView style={tw`flex-row gap-2 pb-4 px-4 justify-items-stretch`}>
+        <Pressable
+          onPress={handleOpenFilters}
+          style={tw`p-2 rounded-lg ${hasActiveFilters ? "bg-light-surface" : "bg-transparent"}`}
+        >
+          <Ionicons
+            name="filter"
+            size={20}
+            color={hasActiveFilters ? tw.color("") : tw.color("gray-600")}
+          />
+        </Pressable>
+
         <Chip
           label={t("bills:filters.all")}
           selected={filters.status === undefined}
@@ -292,6 +272,27 @@ export default function SalesContent() {
             }))
           }
         />
+      </ThemedView>
+
+      <ThemedView style={tw` p-4 mb-4 items-center`}>
+        <ThemedView style={tw`flex-row items-center gap-2 mb-1`}>
+          <ThemedText type="h1" style={tw``}>
+            {displayedTotalSales}
+          </ThemedText>
+          <Pressable
+            onPress={() => setShowTotalSales((prev) => !prev)}
+            hitSlop={8}
+          >
+            <Ionicons
+              name={showTotalSales ? "eye-off-outline" : "eye-outline"}
+              size={18}
+              color={tw.color("gray-500")}
+            />
+          </Pressable>
+        </ThemedView>
+        <ThemedText type="small" style={tw`text-gray-400`}>
+          {t("bills:list.salesCount", { count })}
+        </ThemedText>
       </ThemedView>
 
       {/* Bills list */}
