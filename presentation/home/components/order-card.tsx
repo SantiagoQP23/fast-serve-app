@@ -70,16 +70,19 @@ export default function OrderCard({ order }: OrderCardProps) {
                 />
               )}
             </ThemedView>
-            <ThemedView style={tw`flex-row items-center  gap-1`}>
-              <Ionicons
-                name="time-outline"
-                size={14}
-                color={tw.color("gray-500")}
-              />
-              <ThemedText type="small">
-                {dayjs(order.deliveryTime).format("HH:mm")}
-              </ThemedText>
-            </ThemedView>
+            <Label
+              leftIcon="time"
+              text={dayjs(order.deliveryTime).format("HH:mm")}
+              color="default"
+              variant="solid"
+              size="small"
+            />
+            {/* <ThemedView style={tw`flex-row items-center  gap-1`}> */}
+            {/*   <Ionicons name="time" size={14} color={tw.color("gray-500")} /> */}
+            {/*   <ThemedText type="small"> */}
+            {/*     {dayjs(order.deliveryTime).format("HH:mm")} */}
+            {/*   </ThemedText> */}
+            {/* </ThemedView> */}
           </ThemedView>
           <ThemedView style={tw`gap-2 bg-transparent`}>
             <ThemedView

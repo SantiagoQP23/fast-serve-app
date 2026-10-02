@@ -11,8 +11,8 @@ import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";
 import { useTranslation } from "react-i18next";
 import { getRelativeTime } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
-import dayjs from "dayjs";
 import OrderDetailCard from "@/presentation/orders/components/order-detail-card";
+import OrderDeliveryTimeLabel from "@/presentation/orders/components/order-delivery-time-label";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
@@ -106,19 +106,9 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
                 />
               )}
             </ThemedView>
-            <ThemedView style={tw`flex-row items-center  gap-1`}>
-              <Ionicons
-                name="time-outline"
-                size={14}
-                color={tw.color("gray-500")}
-              />
-              <ThemedText type="small">
-                {dayjs(order.deliveryTime).format("HH:mm")}
-              </ThemedText>
-            </ThemedView>
           </ThemedView>
           <ThemedView
-            style={tw`flex-row items-center  bg-transparent mt-4 gap-4`}
+            style={tw`flex-row items-center justify-between bg-transparent mt-4 gap-4`}
           >
             <ThemedView style={tw` gap-2`}>
               <ThemedText type="h4" style={{ fontFamily: typography.semibold }}>
@@ -131,6 +121,7 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
                 {getUserDisplayName(order.user, t("common:labels.deletedUser"))}
               </ThemedText>
             </ThemedView>
+            <OrderDeliveryTimeLabel deliveryTime={order.deliveryTime} />
           </ThemedView>
         </ThemedView>
         <ThemedView style={tw`gap-6`}>
