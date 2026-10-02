@@ -36,7 +36,7 @@ import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOrder } from "@/presentation/orders/hooks/useOrder";
-import { useOrderElapsedTime } from "@/presentation/orders/hooks/useOrderElapsedTime";
+import OrderElapsedTimeLabel from "@/presentation/orders/components/order-elapsed-time-label";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
@@ -114,10 +114,6 @@ export default function OrderScreen() {
   const [activeTab, setActiveTab] = useState<"products" | "bills" | "tickets">(
     "products",
   );
-  const { elapsedLabel, elapsedColor } = useOrderElapsedTime(
-    order?.deliveryTime || new Date(),
-  );
-
   // Call all hooks before any conditional returns
   const {
     statusText,
@@ -556,12 +552,7 @@ export default function OrderScreen() {
 
               {order.status !== OrderStatus.DELIVERED &&
                 order.status !== OrderStatus.CANCELLED && (
-                  <Label
-                    leftIcon="timer-outline"
-                    text={elapsedLabel}
-                    color={elapsedColor}
-                    variant="solid"
-                  />
+                  <OrderElapsedTimeLabel since={order.deliveryTime} />
                 )}
             </ThemedView>
           </ThemedView>
