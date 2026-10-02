@@ -45,6 +45,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     null,
   );
   const optionsSheetRef = useRef<BottomSheetMethods>(null);
+  const belongsToProductSheetRef = useRef<BottomSheetMethods>(null);
 
   const filteredItems = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -57,7 +58,17 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   }, [items, search, selectedCategoryId]);
 
   const handleCreateItem = () => {
+    belongsToProductSheetRef.current?.present();
+  };
+
+  const handleCreateStandaloneItem = () => {
+    belongsToProductSheetRef.current?.dismiss();
     router.push({ pathname: "/(profile)/menu-inventory-item-form" });
+  };
+
+  const handleCreateLinkedItem = () => {
+    belongsToProductSheetRef.current?.dismiss();
+    router.push({ pathname: "/(profile)/menu-inventory-item-new-product" });
   };
 
   const handleEditItem = (item: InventoryItem) => {
@@ -111,6 +122,8 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
           {onBack && (
             <Pressable
               onPress={onBack}
+              accessibilityRole="button"
+              accessibilityLabel={t("common:actions.goBack")}
               style={({ pressed }) => tw.style(pressed && "opacity-70")}
             >
               <Ionicons name="arrow-back-outline" size={24} />
@@ -292,6 +305,28 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
         item={itemToAdjust}
         onClose={() => setItemToAdjust(null)}
       />
+
+      <ThemedBottomSheetModal
+        ref={belongsToProductSheetRef}
+        enablePanDownToClose
+      >
+        <ActionsBottomSheet
+          title={t("linkedItem.belongsToProductTitle")}
+          subtitle={t("linkedItem.belongsToProductMessage")}
+          items={[
+            {
+              icon: "fast-food-outline",
+              label: t("linkedItem.belongsToProductYes"),
+              onPress: handleCreateLinkedItem,
+            },
+            {
+              icon: "cube-outline",
+              label: t("linkedItem.belongsToProductNo"),
+              onPress: handleCreateStandaloneItem,
+            },
+          ]}
+        />
+      </ThemedBottomSheetModal>
 
       <ThemedBottomSheetModal ref={optionsSheetRef} enablePanDownToClose>
         {itemForOptions && (

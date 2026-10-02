@@ -176,5 +176,22 @@
       "quantity": "0",
       "newItemName": "e.g. Ground beef"
     }
+  },
+  "linkedItem": {
+    "belongsToProductTitle": "New inventory item",
+    "belongsToProductMessage": "Does this item belong to a specific product on your menu?",
+    "belongsToProductYes": "Yes, link to a product",
+    "belongsToProductNo": "No, standalone item",
+    "selectProductTitle": "Select a product",
+    "searchProductsPlaceholder": "Search products...",
+    "noProducts": "No products found",
+    "noProductsDescription": "Load or create products in your menu first.",
+    "selectOptionTitle": "Select a variant",
+    "noOptions": "This product has no variants",
+    "forProduct": "For {{product}}",
+    "next": "Next",
+    "quantityTitle": "Quantity used",
+    "quantityDescription": "How much \"{{item}}\" is used for each unit delivered?",
+    "finish": "Finish"
   }
 }

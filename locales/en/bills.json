@@ -17,7 +17,8 @@
     "showingBills": "Showing {{count}} bills",
     "remaining": "Amount to pay",
     "remainingDescription": "Still pending from the order",
-    "salesCount": "{{count}} sales"
+    "salesCount": "{{count}} sales",
+    "newSale": "New Sale"
   },
   "print": {
     "title": "Print Bill",

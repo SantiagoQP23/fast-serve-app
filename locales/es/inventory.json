@@ -176,5 +176,22 @@
       "quantity": "0",
       "newItemName": "ej. Carne molida"
     }
+  },
+  "linkedItem": {
+    "belongsToProductTitle": "Nuevo artículo de inventario",
+    "belongsToProductMessage": "¿Este artículo pertenece a un producto específico de tu menú?",
+    "belongsToProductYes": "Sí, vincular a un producto",
+    "belongsToProductNo": "No, artículo independiente",
+    "selectProductTitle": "Selecciona un producto",
+    "searchProductsPlaceholder": "Buscar productos...",
+    "noProducts": "No se encontraron productos",
+    "noProductsDescription": "Carga o crea productos en tu menú primero.",
+    "selectOptionTitle": "Selecciona una variante",
+    "noOptions": "Este producto no tiene variantes",
+    "forProduct": "Para {{product}}",
+    "next": "Siguiente",
+    "quantityTitle": "Cantidad utilizada",
+    "quantityDescription": "¿Cuánto se usa de \"{{item}}\" por cada unidad entregada?",
+    "finish": "Finalizar"
   }
 }

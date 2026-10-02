@@ -68,7 +68,8 @@
     "deliver": "Entregar",
     "remove": "Eliminar",
     "close": "Cerrar",
-    "updateOrder": "Actualizar Pedido"
+    "updateOrder": "Actualizar Pedido",
+    "newOrder": "Nuevo Pedido"
   },
   "form": {
     "people": "Personas",

@@ -44,13 +44,27 @@ export default function MenuInventoryItemFormScreen() {
     minimumQuantity?: string;
     isActive?: string;
     categoryId?: string;
+    productOptionId?: string;
+    productOptionName?: string;
+    productName?: string;
   }>();
 
   const isEditing = !!params.itemId;
+  const isLinkedFlow = !isEditing && !!params.productOptionId;
   const { createItem, updateItem } = useInventoryItems();
   const { categories } = useInventoryItemCategories();
 
   const schema = buildItemSchema(t);
+
+  const linkedItemDefaultName = [params.productName, params.productOptionName]
+    .filter(Boolean)
+    .join(" ");
+  const linkedItemProductLabel = [
+    params.productName,
+    params.productOptionName,
+  ]
+    .filter(Boolean)
+    .join(" - ");
 
   const {
     control,
@@ -59,7 +73,7 @@ export default function MenuInventoryItemFormScreen() {
   } = useForm<ItemFormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: params.name || "",
+      name: params.name || (isLinkedFlow ? linkedItemDefaultName : ""),
       unit: (params.unit as InventoryUnit) || InventoryUnit.UNIT,
       quantity: params.quantity || "",
       minimumQuantity: params.minimumQuantity || "",
@@ -95,10 +109,31 @@ export default function MenuInventoryItemFormScreen() {
 
     if (isEditing) {
       await updateItem.mutateAsync({ ...payload, id: params.itemId! });
-    } else {
-      await createItem.mutateAsync(payload);
+      router.back();
+      return;
     }
 
+    if (isLinkedFlow) {
+      router.push({
+        pathname: "/(profile)/menu-inventory-item-new-quantity",
+        params: {
+          productOptionId: params.productOptionId!,
+          productOptionName: params.productOptionName ?? "",
+          productName: params.productName ?? "",
+          name: payload.name,
+          unit: payload.unit,
+          quantity: payload.quantity != null ? String(payload.quantity) : "",
+          minimumQuantity:
+            payload.minimumQuantity != null
+              ? String(payload.minimumQuantity)
+              : "",
+          categoryId: payload.categoryId ?? "",
+        },
+      });
+      return;
+    }
+
+    await createItem.mutateAsync(payload);
     router.back();
   };
 
@@ -113,19 +148,44 @@ export default function MenuInventoryItemFormScreen() {
           contentContainerStyle={tw`pb-8`}
         >
           <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
-            <ThemedView style={tw`items-center gap-4 flex-row`}>
+            <ThemedView style={tw`items-center gap-4 flex-row flex-1`}>
               <Pressable
                 onPress={() => router.back()}
+                accessibilityRole="button"
+                accessibilityLabel={t("common:actions.goBack")}
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
                 <Ionicons name="arrow-back-outline" size={24} />
               </Pressable>
-              <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
-                {isEditing ? t("editItem") : t("createItem")}
-              </ThemedText>
+              <ThemedView style={tw`flex-1`}>
+                <ThemedText
+                  type="h3"
+                  style={{ fontFamily: typography.regular }}
+                  numberOfLines={1}
+                >
+                  {isEditing ? t("editItem") : t("createItem")}
+                </ThemedText>
+                {isLinkedFlow && (
+                  <ThemedText
+                    type="small"
+                    style={tw`text-gray-500`}
+                    numberOfLines={1}
+                  >
+                    {t("linkedItem.forProduct", {
+                      product: linkedItemProductLabel,
+                    })}
+                  </ThemedText>
+                )}
+              </ThemedView>
             </ThemedView>
             <Button
-              label={isEditing ? t("save") : t("create")}
+              label={
+                isEditing
+                  ? t("save")
+                  : isLinkedFlow
+                    ? t("linkedItem.next")
+                    : t("create")
+              }
               size="small"
               onPress={handleSubmit(onSubmit)}
               loading={

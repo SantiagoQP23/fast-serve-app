@@ -1,4 +1,10 @@
-import { ScrollView, RefreshControl, Alert } from "react-native";
+import {
+  ScrollView,
+  RefreshControl,
+  Alert,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+} from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -67,6 +73,23 @@ export default function MyOrdersScreen() {
   const { isLoading: isLoadingOrders, refetchOrders } = useActiveOrders();
 
   const { setTable, setOrderType } = useNewOrderStore();
+
+  const [fabExpanded, setFabExpanded] = useState(true);
+  const lastScrollY = useRef(0);
+
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const currentY = event.nativeEvent.contentOffset.y;
+      const diff = currentY - lastScrollY.current;
+      const SCROLL_THRESHOLD = 10;
+
+      if (Math.abs(diff) > SCROLL_THRESHOLD) {
+        setFabExpanded(diff < 0 || currentY <= 0);
+        lastScrollY.current = currentY;
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     registerOpenViewPopover((anchor) => {
@@ -192,6 +215,8 @@ export default function MyOrdersScreen() {
               <ScrollView
                 contentContainerStyle={tw`pb-20 gap-4 pt-4 `}
                 showsVerticalScrollIndicator={false}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
                 refreshControl={
                   <RefreshControl
                     refreshing={refreshing}
@@ -235,6 +260,8 @@ export default function MyOrdersScreen() {
               <ScrollView
                 contentContainerStyle={tw`pb-20 gap-4 pt-4`}
                 showsVerticalScrollIndicator={false}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
                 refreshControl={
                   <RefreshControl
                     refreshing={refreshing}
@@ -307,7 +334,12 @@ export default function MyOrdersScreen() {
               },
             ]}
           />
-          <Fab icon="add-outline" onPress={handlePresentModalPress} />
+          <Fab
+            icon="add-outline"
+            label={t("orders:actions.newOrder")}
+            expanded={fabExpanded}
+            onPress={handlePresentModalPress}
+          />
         </>
       )}
     </ThemedView>

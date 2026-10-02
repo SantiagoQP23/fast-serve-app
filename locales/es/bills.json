@@ -17,7 +17,8 @@
     "showingBills": "Mostrando {{count}} cuentas",
     "remaining": "Monto por pagar",
     "remainingDescription": "Pendiente del pedido",
-    "salesCount": "{{count}} ventas"
+    "salesCount": "{{count}} ventas",
+    "newSale": "Nueva Venta"
   },
   "print": {
     "title": "Imprimir Cuenta",

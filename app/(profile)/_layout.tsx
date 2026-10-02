@@ -196,6 +196,27 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="menu-inventory-item-new-product/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="menu-inventory-item-new-option/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="menu-inventory-item-new-quantity/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
           name="menu-inventory-items/index"
           options={{
             headerShown: false,

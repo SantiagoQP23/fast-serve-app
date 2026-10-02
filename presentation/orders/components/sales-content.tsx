@@ -5,7 +5,14 @@ import React, {
   useRef,
   useEffect,
 } from "react";
-import { ScrollView, RefreshControl, Alert, Pressable } from "react-native";
+import {
+  ScrollView,
+  RefreshControl,
+  Alert,
+  Pressable,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+} from "react-native";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -48,6 +55,8 @@ export default function SalesContent() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [filters, setFilters] = useState<BillListFiltersDto>({});
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
+  const [fabExpanded, setFabExpanded] = useState(true);
+  const lastScrollY = useRef(0);
   const { setCartType: setType } = useNewOrderStore();
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const { currentRestaurant, user } = useAuthStore();
@@ -172,6 +181,20 @@ export default function SalesContent() {
       .sort((a, b) => a.fullName.localeCompare(b.fullName));
   }, [users, user, isAdmin]);
 
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const currentY = event.nativeEvent.contentOffset.y;
+      const diff = currentY - lastScrollY.current;
+      const SCROLL_THRESHOLD = 10;
+
+      if (Math.abs(diff) > SCROLL_THRESHOLD) {
+        setFabExpanded(diff < 0 || currentY <= 0);
+        lastScrollY.current = currentY;
+      }
+    },
+    [],
+  );
+
   const onNewSale = () => {
     setActiveOrder(null);
     router.push("/(new-order)/restaurant-menu");
@@ -276,6 +299,8 @@ export default function SalesContent() {
         style={tw`flex-1`}
         contentContainerStyle={tw`pb-20`}
         showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -330,7 +355,12 @@ export default function SalesContent() {
           </ThemedView>
         )}
       </ScrollView>
-      <Fab icon="add-outline" onPress={onNewSale} />
+      <Fab
+        icon="add-outline"
+        label={t("bills:list.newSale")}
+        expanded={fabExpanded}
+        onPress={onNewSale}
+      />
 
       {/* Filter Bottom Sheet */}
       <ThemedBottomSheetModal
