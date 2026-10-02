@@ -22,6 +22,7 @@ import Popover, {
 import OrderListByStatus from "@/presentation/orders/molecules/order-list-by-status";
 import OrderCardSkeleton from "@/presentation/home/components/order-card-skeleton";
 import TabBar from "@/presentation/theme/components/tab-bar";
+import SegmentedControl from "@/presentation/theme/components/segmented-control";
 import TablesView from "@/presentation/tables/components/tables-view";
 import { Table } from "@/core/tables/models/table.model";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
@@ -31,6 +32,7 @@ import { MyOrdersHeaderRight } from "../_layout";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { useSyncStore } from "@/presentation/sync/store/useSyncStore";
+import SalesContent from "@/presentation/orders/components/sales-content";
 
 export default function MyOrdersScreen() {
   const { t } = useTranslation(["common", "orders", "errors", "tables"]);
@@ -46,6 +48,9 @@ export default function MyOrdersScreen() {
   const orders = allOrders.filter((order) => order.user?.id === user?.id);
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
+  const [activeModule, setActiveModule] = useState<"orders" | "sales">(
+    "orders",
+  );
   const [activeTab, setActiveTab] = useState<
     "my-orders" | "all-orders" | "tables"
   >("my-orders");
@@ -118,6 +123,19 @@ export default function MyOrdersScreen() {
     }
   };
 
+  const moduleTabs = [
+    {
+      label: t("common:navigation.orders"),
+      value: "orders" as const,
+      icon: "list-outline" as const,
+    },
+    {
+      label: t("common:navigation.sales"),
+      value: "sales" as const,
+      icon: "pricetag-outline" as const,
+    },
+  ];
+
   const tabs = [
     {
       label: t("orders:drawer.myOrders"),
@@ -140,140 +158,157 @@ export default function MyOrdersScreen() {
 
   return (
     <ThemedView style={tw`flex-1 bg-light-background`}>
-      {/* Fixed header with greeting and tabs */}
+      {/* Fixed header with module toggle */}
       <ThemedView style={tw`px-4  `}>
-        <ThemedView style={tw`flex-row items-center justify-between pt-8 `}>
-          <ThemedView>
-            <ThemedText type="body1">{t("common:greetings.hello")},</ThemedText>
-            <ThemedText type="h2" style={tw`mt-1`}>
-              {user?.person?.firstName}!
-            </ThemedText>
+        <ThemedView style={tw`flex-row items-center justify-between pt-8 mb-2`}>
+          <ThemedView style={tw`flex-1 mr-3`}>
+            <SegmentedControl
+              items={moduleTabs}
+              value={activeModule}
+              onChange={setActiveModule}
+            />
           </ThemedView>
           <MyOrdersHeaderRight />
         </ThemedView>
-        <ThemedView style={tw`mt-4 mb-2`}>
-          <TabBar tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
-        </ThemedView>
+        {activeModule === "orders" && (
+          <ThemedView style={tw`mt-4 `}>
+            <TabBar tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
+          </ThemedView>
+        )}
       </ThemedView>
+
+      {activeModule === "sales" && (
+        <ThemedView style={tw`flex-1`}>
+          <SalesContent />
+        </ThemedView>
+      )}
 
       {/* Tab content */}
-      <ThemedView style={tw`flex-1`}>
-        {activeTab === "my-orders" && (
-          <ScrollView
-            contentContainerStyle={tw`pb-20 gap-4 pt-4`}
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                tintColor={primaryColor}
-                colors={[primaryColor]}
-              />
-            }
-          >
-            {isLoadingOrders ? (
-              <ThemedView style={tw`px-4 gap-3`}>
-                <OrderCardSkeleton />
-                <OrderCardSkeleton />
-                <OrderCardSkeleton />
-              </ThemedView>
-            ) : orders.length === 0 ? (
-              <ThemedView
-                style={tw` items-center justify-center flex-1 gap-4 mt-20`}
+      {activeModule === "orders" && (
+        <>
+          <ThemedView style={tw`flex-1`}>
+            {activeTab === "my-orders" && (
+              <ScrollView
+                contentContainerStyle={tw`pb-20 gap-4 pt-4 `}
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    tintColor={primaryColor}
+                    colors={[primaryColor]}
+                  />
+                }
               >
-                <Ionicons
-                  name="document-text-outline"
-                  size={80}
-                  color={tw.color("gray-500")}
-                />
-                <ThemedText type="h3">{t("orders:list.noOrders")}</ThemedText>
-                <ThemedText type="body2" style={tw`text-center max-w-xs`}>
-                  {t("orders:list.noOrdersDescription")}
-                </ThemedText>
-              </ThemedView>
-            ) : (
-              <ThemedView style={tw`gap-6`}>
-                <OrderListByStatus orders={orders} showProducts />
-              </ThemedView>
+                {isLoadingOrders ? (
+                  <ThemedView style={tw`px-4 gap-3`}>
+                    <OrderCardSkeleton />
+                    <OrderCardSkeleton />
+                    <OrderCardSkeleton />
+                  </ThemedView>
+                ) : orders.length === 0 ? (
+                  <ThemedView
+                    style={tw` items-center justify-center flex-1 gap-4 mt-20`}
+                  >
+                    <Ionicons
+                      name="document-text-outline"
+                      size={80}
+                      color={tw.color("gray-500")}
+                    />
+                    <ThemedText type="h3">
+                      {t("orders:list.noOrders")}
+                    </ThemedText>
+                    <ThemedText type="body2" style={tw`text-center max-w-xs`}>
+                      {t("orders:list.noOrdersDescription")}
+                    </ThemedText>
+                  </ThemedView>
+                ) : (
+                  <ThemedView style={tw`gap-6`}>
+                    <OrderListByStatus orders={orders} showProducts />
+                  </ThemedView>
+                )}
+              </ScrollView>
             )}
-          </ScrollView>
-        )}
 
-        {activeTab === "all-orders" && (
-          <ScrollView
-            contentContainerStyle={tw`pb-20 gap-4 pt-4`}
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                tintColor={primaryColor}
-                colors={[primaryColor]}
-              />
-            }
-          >
-            {isLoadingOrders ? (
-              <ThemedView style={tw`px-4 gap-3`}>
-                <OrderCardSkeleton />
-                <OrderCardSkeleton />
-                <OrderCardSkeleton />
-              </ThemedView>
-            ) : allOrders.length === 0 ? (
-              <ThemedView
-                style={tw`items-center justify-center flex-1 gap-4 mt-20`}
+            {activeTab === "all-orders" && (
+              <ScrollView
+                contentContainerStyle={tw`pb-20 gap-4 pt-4`}
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    tintColor={primaryColor}
+                    colors={[primaryColor]}
+                  />
+                }
               >
-                <Ionicons
-                  name="document-text-outline"
-                  size={80}
-                  color={tw.color("gray-500")}
-                />
-                <ThemedText type="h3">{t("orders:list.noOrders")}</ThemedText>
-                <ThemedText type="body2" style={tw`text-center max-w-xs`}>
-                  {t("orders:list.noOrdersDescription")}
-                </ThemedText>
-              </ThemedView>
-            ) : (
-              <ThemedView style={tw`gap-6`}>
-                <OrderListByStatus orders={allOrders} showProducts />
-              </ThemedView>
+                {isLoadingOrders ? (
+                  <ThemedView style={tw`px-4 gap-3`}>
+                    <OrderCardSkeleton />
+                    <OrderCardSkeleton />
+                    <OrderCardSkeleton />
+                  </ThemedView>
+                ) : allOrders.length === 0 ? (
+                  <ThemedView
+                    style={tw`items-center justify-center flex-1 gap-4 mt-20`}
+                  >
+                    <Ionicons
+                      name="document-text-outline"
+                      size={80}
+                      color={tw.color("gray-500")}
+                    />
+                    <ThemedText type="h3">
+                      {t("orders:list.noOrders")}
+                    </ThemedText>
+                    <ThemedText type="body2" style={tw`text-center max-w-xs`}>
+                      {t("orders:list.noOrdersDescription")}
+                    </ThemedText>
+                  </ThemedView>
+                ) : (
+                  <ThemedView style={tw`gap-6`}>
+                    <OrderListByStatus orders={allOrders} showProducts />
+                  </ThemedView>
+                )}
+              </ScrollView>
             )}
-          </ScrollView>
-        )}
 
-        {activeTab === "tables" && (
-          <TablesView onTablePress={handleTablePress} style={tw`flex-1`} />
-        )}
-      </ThemedView>
+            {activeTab === "tables" && (
+              <TablesView onTablePress={handleTablePress} style={tw`flex-1`} />
+            )}
+          </ThemedView>
 
-      <ThemedBottomSheetModal
-        ref={bottomSheetModalRef}
-        onChange={handleSheetChanges}
-        enablePanDownToClose
-      >
-        <NewOrderBottomSheet onCreateOrder={handleNavigate} />
-      </ThemedBottomSheetModal>
-      <Popover
-        visible={popoverVisible}
-        onClose={() => setPopoverVisible(false)}
-        anchor={popoverAnchor}
-        title={t("orders:views.title")}
-        selectedValue={selectedView}
-        items={[
-          {
-            label: t("orders:views.products"),
-            value: "pending-products",
-            icon: "grid-outline",
-            onPress: () => setSelectedView("pending-products"),
-          },
-          {
-            label: t("orders:views.orders"),
-            value: "order-lists",
-            icon: "list-outline",
-            onPress: () => setSelectedView("order-lists"),
-          },
-        ]}
-      />
-      <Fab icon="add-outline" onPress={handlePresentModalPress} />
+          <ThemedBottomSheetModal
+            ref={bottomSheetModalRef}
+            onChange={handleSheetChanges}
+            enablePanDownToClose
+          >
+            <NewOrderBottomSheet onCreateOrder={handleNavigate} />
+          </ThemedBottomSheetModal>
+          <Popover
+            visible={popoverVisible}
+            onClose={() => setPopoverVisible(false)}
+            anchor={popoverAnchor}
+            title={t("orders:views.title")}
+            selectedValue={selectedView}
+            items={[
+              {
+                label: t("orders:views.products"),
+                value: "pending-products",
+                icon: "grid-outline",
+                onPress: () => setSelectedView("pending-products"),
+              },
+              {
+                label: t("orders:views.orders"),
+                value: "order-lists",
+                icon: "list-outline",
+                onPress: () => setSelectedView("order-lists"),
+              },
+            ]}
+          />
+          <Fab icon="add-outline" onPress={handlePresentModalPress} />
+        </>
+      )}
     </ThemedView>
   );
 }

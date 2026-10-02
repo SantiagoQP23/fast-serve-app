@@ -1,0 +1,351 @@
+import React, {
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+  useEffect,
+} from "react";
+import { ScrollView, RefreshControl, Alert, Pressable } from "react-native";
+import { ThemedView } from "@/presentation/theme/components/themed-view";
+import { ThemedText } from "@/presentation/theme/components/themed-text";
+import tw from "@/presentation/theme/lib/tailwind";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { useBillsList } from "@/presentation/orders/hooks/useBillsList";
+import { useUsers } from "@/presentation/users/hooks/useUsers";
+import { useRouter } from "expo-router";
+import * as Haptics from "expo-haptics";
+import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { isAdminLevelRole } from "@/core/auth/models/user.model";
+import { Ionicons } from "@expo/vector-icons";
+
+import BillsFilterBottomSheet from "@/presentation/orders/components/bills-filter-bottom-sheet";
+import {
+  BillListFiltersDto,
+  BillStatusFilter,
+} from "@/core/orders/dto/bill-list-filters.dto";
+import { formatCurrency } from "@/core/i18n/utils";
+import Button from "@/presentation/theme/components/button";
+import DatePicker from "@/presentation/theme/components/date-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import dayjs from "dayjs";
+import BillCard from "@/presentation/orders/components/bill-card";
+import Chip from "@/presentation/theme/components/chip";
+import Fab from "@/presentation/theme/components/fab";
+import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
+import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+
+const STORAGE_KEY = "sales_selected_date";
+
+export default function SalesContent() {
+  const { t } = useTranslation(["bills", "common", "errors"]);
+  const router = useRouter();
+  const primaryColor = useThemeColor({}, "primary");
+  const [refreshing, setRefreshing] = useState(false);
+  const [showTotalSales, setShowTotalSales] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [filters, setFilters] = useState<BillListFiltersDto>({});
+  const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
+  const { setCartType: setType } = useNewOrderStore();
+  const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
+  const { currentRestaurant, user } = useAuthStore();
+
+  // Load persisted date on mount
+  useEffect(() => {
+    const loadPersistedDate = async () => {
+      try {
+        const savedDate = await AsyncStorage.getItem(STORAGE_KEY);
+        if (savedDate) {
+          setSelectedDate(new Date(savedDate));
+        }
+      } catch {
+        // Silently fail, keep default date
+      }
+    };
+    loadPersistedDate();
+  }, []);
+
+  // Persist date whenever it changes
+  const handleDateChange = useCallback(async (date: Date) => {
+    setSelectedDate(date);
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, date.toISOString());
+    } catch {
+      // Silently fail
+    }
+  }, []);
+
+  // Convert date to string format for API
+  const dateFilter = dayjs(selectedDate).format("YYYY-MM-DD");
+
+  const {
+    bills,
+    count,
+    isLoading,
+    isLoadingMore,
+    data,
+    refetch,
+    loadMore,
+    hasMore,
+    reset,
+  } = useBillsList({ startDate: dateFilter, ...filters });
+
+  // Reset pagination when date or filters change
+  useEffect(() => {
+    reset();
+  }, [
+    dateFilter,
+    filters.status,
+    filters.paymentMethod,
+    filters.ownerId,
+    filters.source,
+    reset,
+  ]);
+
+  const onRefresh = useCallback(async () => {
+    try {
+      setRefreshing(true);
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      await refetch();
+    } catch {
+      Alert.alert(
+        t("errors:order.fetchError"),
+        t("errors:order.ordersFetchFailed"),
+      );
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch, t]);
+
+  const handleBillPress = useCallback(
+    (bill: any) => {
+      router.push(`/(bills)/${bill.id}`);
+    },
+    [router],
+  );
+
+  const handleOpenFilters = useCallback(() => {
+    bottomSheetModalRef.current?.present();
+  }, []);
+
+  const handleCloseFilters = useCallback(() => {
+    bottomSheetModalRef.current?.dismiss();
+  }, []);
+
+  const handleApplyFilters = useCallback(
+    (newFilters: BillListFiltersDto) => {
+      setFilters(newFilters);
+      reset();
+      bottomSheetModalRef.current?.dismiss();
+    },
+    [reset],
+  );
+
+  const handleResetFilters = useCallback(() => {
+    setFilters({});
+  }, []);
+
+  const hasActiveFilters =
+    filters.paymentMethod !== undefined ||
+    filters.status !== undefined ||
+    filters.ownerId !== undefined ||
+    filters.source !== undefined;
+  const formattedTotalSales = formatCurrency(data?.totalSales || 0);
+  const displayedTotalSales = showTotalSales
+    ? formattedTotalSales
+    : formattedTotalSales.replace(/\d/g, "*");
+
+  const { users } = useUsers();
+  const isAdmin = isAdminLevelRole(user?.role?.name);
+  const availableWaiters = useMemo(() => {
+    const filteredUsers = isAdmin
+      ? users.filter((u) => u.isActive)
+      : users.filter((u) => u.isActive && u.id === user?.id);
+
+    return filteredUsers
+      .map((u) => ({
+        id: u.id,
+        fullName: `${u.person.firstName} ${u.person.lastName}`,
+      }))
+      .sort((a, b) => a.fullName.localeCompare(b.fullName));
+  }, [users, user, isAdmin]);
+
+  const onNewSale = () => {
+    setActiveOrder(null);
+    router.push("/(new-order)/restaurant-menu");
+    setType("sale");
+  };
+
+  return (
+    <>
+      {/* Header */}
+      <ThemedView style={tw`px-4 mb-4 gap-3`}>
+        <ThemedView style={tw`flex-row items-center justify-between`}>
+          <ThemedText type="h2">{t("common:navigation.sales")}</ThemedText>
+          <Pressable
+            onPress={handleOpenFilters}
+            style={tw`p-2 rounded-lg ${hasActiveFilters ? "bg-light-surface" : "bg-transparent"}`}
+          >
+            <Ionicons
+              name="filter"
+              size={20}
+              color={hasActiveFilters ? tw.color("") : tw.color("gray-600")}
+            />
+          </Pressable>
+        </ThemedView>
+      </ThemedView>
+
+      {/* Date Picker */}
+      <ThemedView style={tw`px-4 mb-4`}>
+        <DatePicker
+          value={selectedDate}
+          onChange={handleDateChange}
+          showTodayButton={true}
+        />
+      </ThemedView>
+
+      <ThemedView style={tw` p-4 mb-4 items-center`}>
+        <ThemedView style={tw`flex-row items-center gap-2 mb-1`}>
+          <ThemedText type="h1" style={tw``}>
+            {displayedTotalSales}
+          </ThemedText>
+          <Pressable
+            onPress={() => setShowTotalSales((prev) => !prev)}
+            hitSlop={8}
+          >
+            <Ionicons
+              name={showTotalSales ? "eye-off-outline" : "eye-outline"}
+              size={18}
+              color={tw.color("gray-500")}
+            />
+          </Pressable>
+        </ThemedView>
+        <ThemedText type="small" style={tw`text-gray-400`}>
+          {t("bills:list.salesCount", { count })}
+        </ThemedText>
+      </ThemedView>
+
+      <ThemedView style={tw`flex-row gap-2 pb-4 px-4 justify-items-stretch`}>
+        <Chip
+          label={t("bills:filters.all")}
+          selected={filters.status === undefined}
+          onPress={() => setFilters((prev) => ({ ...prev, status: undefined }))}
+        />
+        <Chip
+          label={t("bills:filters.paidCount")}
+          rightContent={
+            <ThemedText type="small" style={tw`text-gray-500`}>
+              {data?.countPaid ?? 0}
+            </ThemedText>
+          }
+          selected={filters.status === BillStatusFilter.PAID}
+          onPress={() =>
+            setFilters((prev) => ({
+              ...prev,
+              status:
+                prev.status === BillStatusFilter.PAID
+                  ? undefined
+                  : BillStatusFilter.PAID,
+            }))
+          }
+        />
+        <Chip
+          label={t("bills:filters.unpaidCount")}
+          rightContent={
+            <ThemedText type="small" style={tw`text-gray-500`}>
+              {data?.countUnpaid ?? 0}
+            </ThemedText>
+          }
+          selected={filters.status === BillStatusFilter.UNPAID}
+          onPress={() =>
+            setFilters((prev) => ({
+              ...prev,
+              status:
+                prev.status === BillStatusFilter.UNPAID
+                  ? undefined
+                  : BillStatusFilter.UNPAID,
+            }))
+          }
+        />
+      </ThemedView>
+
+      {/* Bills list */}
+      <ScrollView
+        style={tw`flex-1`}
+        contentContainerStyle={tw`pb-20`}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={primaryColor}
+            colors={[primaryColor]}
+          />
+        }
+      >
+        {isLoading && !refreshing ? (
+          <ThemedView style={tw`py-20 items-center`}>
+            <ThemedText type="body2" style={tw`text-gray-400`}>
+              {t("common:status.loading")}
+            </ThemedText>
+          </ThemedView>
+        ) : count > 0 ? (
+          <ThemedView style={tw`px-4 gap-4`}>
+            <ThemedView style={tw` rounded-2xl py-2 gap-4 `}>
+              {bills.map((bill) => (
+                <BillCard
+                  key={bill.id}
+                  bill={bill}
+                  onPress={() => handleBillPress(bill)}
+                />
+              ))}
+            </ThemedView>
+            {hasMore && (
+              <Button
+                label={t("common:actions.loadMore")}
+                variant="outline"
+                loading={isLoadingMore}
+                onPress={loadMore}
+              />
+            )}
+          </ThemedView>
+        ) : (
+          <ThemedView style={tw`py-20 items-center px-4`}>
+            <Ionicons
+              name="receipt-outline"
+              size={64}
+              color={tw.color("gray-300")}
+            />
+            <ThemedText type="h4" style={tw`text-gray-500 mt-4 text-center`}>
+              {t("bills:list.noBillsToday")}
+            </ThemedText>
+            <ThemedText
+              type="body2"
+              style={tw`text-gray-400 mt-2 text-center max-w-xs`}
+            >
+              {t("bills:list.noBillsTodayDescription")}
+            </ThemedText>
+          </ThemedView>
+        )}
+      </ScrollView>
+      <Fab icon="add-outline" onPress={onNewSale} />
+
+      {/* Filter Bottom Sheet */}
+      <ThemedBottomSheetModal
+        ref={bottomSheetModalRef}
+        snapPoints={["60%"]}
+        enablePanDownToClose
+      >
+        <BillsFilterBottomSheet
+          onApply={handleApplyFilters}
+          onClose={handleCloseFilters}
+          initialFilters={filters}
+          availableWaiters={availableWaiters}
+          isAdmin={isAdmin}
+        />
+      </ThemedBottomSheetModal>
+    </>
+  );
+}
