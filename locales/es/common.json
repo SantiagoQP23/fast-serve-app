@@ -7,7 +7,8 @@
     "tables": "Mesas",
     "orders": "Pedidos",
     "manage": "Gestionar",
-    "analytics": "Análisis"
+    "analytics": "Análisis",
+    "inventory": "Inventario"
   },
   "actions": {
     "add": "Agregar",

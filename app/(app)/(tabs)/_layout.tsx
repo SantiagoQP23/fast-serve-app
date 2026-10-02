@@ -158,11 +158,11 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="sales"
+          name="inventory"
           options={{
             tabBarLabel: ({ color }) => (
               <ThemedText type="small" style={{ color, marginTop: 6 }}>
-                {t("navigation.sales")}
+                {t("navigation.inventory")}
               </ThemedText>
             ),
             tabBarIcon: ({ color, focused }) => (
@@ -171,7 +171,7 @@ export default function TabLayout() {
               >
                 <Ionicons
                   color={color}
-                  name={focused ? "pricetag" : "pricetag-outline"}
+                  name={focused ? "cube" : "cube-outline"}
                   size={24}
                 />
               </ThemedView>

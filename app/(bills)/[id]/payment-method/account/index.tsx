@@ -151,7 +151,10 @@ export default function AccountScreen() {
 
             // Navigate back to bill (whether upload succeeded or not)
             if (bill.source === "direct") {
-              router.replace("/(app)/(tabs)/sales");
+              router.replace({
+                pathname: "/(app)/(tabs)/(orders-module)/my-orders",
+                params: { module: "sales" },
+              });
             } else {
               router.back();
               router.back();

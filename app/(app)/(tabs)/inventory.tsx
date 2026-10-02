@@ -1,12 +1,11 @@
-import { router } from "expo-router";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import InventoryContent from "@/presentation/inventory/components/inventory-content";
 
-export default function MenuInventoryItemsScreen() {
+export default function InventoryScreen() {
   return (
     <ScreenLayout style={tw`flex-1`}>
-      <InventoryContent onBack={() => router.back()} />
+      <InventoryContent />
     </ScreenLayout>
   );
 }

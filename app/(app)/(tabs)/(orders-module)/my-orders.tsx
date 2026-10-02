@@ -7,7 +7,7 @@ import Fab from "@/presentation/theme/components/fab";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import useOrdersModuleContext from "./orders-module.context";
 import * as Haptics from "expo-haptics";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
@@ -47,9 +47,10 @@ export default function MyOrdersScreen() {
     .sort(byDeliveryTime);
   const orders = allOrders.filter((order) => order.user?.id === user?.id);
   const router = useRouter();
+  const params = useLocalSearchParams<{ module?: "orders" | "sales" }>();
   const [refreshing, setRefreshing] = useState(false);
   const [activeModule, setActiveModule] = useState<"orders" | "sales">(
-    "orders",
+    params.module === "sales" ? "sales" : "orders",
   );
   const [activeTab, setActiveTab] = useState<
     "my-orders" | "all-orders" | "tables"

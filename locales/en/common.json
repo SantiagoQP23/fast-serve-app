@@ -7,7 +7,8 @@
     "tables": "Tables",
     "orders": "Orders",
     "manage": "Manage",
-    "analytics": "Analytics"
+    "analytics": "Analytics",
+    "inventory": "Inventory"
   },
   "actions": {
     "add": "Add",
