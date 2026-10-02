@@ -2,13 +2,16 @@ import Label from "@/presentation/theme/components/label";
 import { useOrderElapsedTime } from "@/presentation/orders/hooks/useOrderElapsedTime";
 
 interface OrderElapsedTimeLabelProps {
-  since: Date | string;
+  deliveryTime: Date | string;
 }
 
 export default function OrderElapsedTimeLabel({
-  since,
+  deliveryTime,
 }: OrderElapsedTimeLabelProps) {
-  const { elapsedLabel, elapsedColor } = useOrderElapsedTime(since);
+  const { elapsedLabel, elapsedColor, shouldShow } =
+    useOrderElapsedTime(deliveryTime);
+
+  if (!shouldShow) return null;
 
   return (
     <Label

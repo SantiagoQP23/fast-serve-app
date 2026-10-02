@@ -552,7 +552,7 @@ export default function OrderScreen() {
 
               {order.status !== OrderStatus.DELIVERED &&
                 order.status !== OrderStatus.CANCELLED && (
-                  <OrderElapsedTimeLabel since={order.deliveryTime} />
+                  <OrderElapsedTimeLabel deliveryTime={order.deliveryTime} />
                 )}
             </ThemedView>
           </ThemedView>
