@@ -10,7 +10,7 @@ import {
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useNavigation } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
@@ -112,6 +112,12 @@ export default function OrderScreen() {
   const [activeTab, setActiveTab] = useState<"products" | "bills" | "tickets">(
     "products",
   );
+  const [now, setNow] = useState(() => dayjs());
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(dayjs()), 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Call all hooks before any conditional returns
   const {
@@ -228,6 +234,20 @@ export default function OrderScreen() {
   const createdAtLabel = `${createdAt.fromNow()} · ${createdAt.format(
     "MMM D, HH:mm",
   )}`;
+  const elapsedSeconds = Math.max(0, now.diff(createdAt, "second"));
+  const elapsedHours = Math.floor(elapsedSeconds / 3600);
+  const elapsedMinutes = Math.floor((elapsedSeconds % 3600) / 60);
+  const elapsedSecondsPart = elapsedSeconds % 60;
+  const elapsedLabel = `${String(elapsedHours).padStart(2, "0")}:${String(
+    elapsedMinutes,
+  ).padStart(2, "0")}:${String(elapsedSecondsPart).padStart(2, "0")}`;
+  const elapsedTotalMinutes = elapsedSeconds / 60;
+  const elapsedColor: "success" | "warning" | "error" =
+    elapsedTotalMinutes < 15
+      ? "success"
+      : elapsedTotalMinutes < 30
+        ? "warning"
+        : "error";
   const updatedAtLabel = `${updatedAt.fromNow()} · ${updatedAt.format(
     "MMM D, HH:mm",
   )}`;
@@ -517,26 +537,38 @@ export default function OrderScreen() {
             )}
 
             {/* Table/Location & People */}
-            <ThemedView style={tw`gap-2`}>
-              <ThemedText type="caption" style={tw`text-gray-500 text-sm`}>
-                {t("orders:details.orderNumber", { num: order.num })}
-              </ThemedText>
-              <ThemedView style={tw`flex-row items-center gap-2`}>
-                <Ionicons
-                  name={
-                    order.type === OrderType.IN_PLACE
-                      ? "restaurant-outline"
-                      : "bag-outline"
-                  }
-                  size={24}
-                  color={tw.color("primary-600")}
-                />
-                <ThemedText type="h2" style={tw``}>
-                  {order.type === OrderType.IN_PLACE
-                    ? `${t("common:labels.table")} ${order.table?.name}`
-                    : t("common:labels.takeAway")}
+            <ThemedView style={tw`flex-row items-center justify-between`}>
+              <ThemedView style={tw`gap-2`}>
+                <ThemedText type="caption" style={tw`text-gray-500 text-sm`}>
+                  {t("orders:details.orderNumber", { num: order.num })}
                 </ThemedText>
+                <ThemedView style={tw`flex-row items-center gap-2`}>
+                  <Ionicons
+                    name={
+                      order.type === OrderType.IN_PLACE
+                        ? "restaurant-outline"
+                        : "bag-outline"
+                    }
+                    size={24}
+                    color={tw.color("primary-600")}
+                  />
+                  <ThemedText type="h2" style={tw``}>
+                    {order.type === OrderType.IN_PLACE
+                      ? `${t("common:labels.table")} ${order.table?.name}`
+                      : t("common:labels.takeAway")}
+                  </ThemedText>
+                </ThemedView>
               </ThemedView>
+
+              {order.status !== OrderStatus.DELIVERED &&
+                order.status !== OrderStatus.CANCELLED && (
+                  <Label
+                    leftIcon="timer-outline"
+                    text={elapsedLabel}
+                    color={elapsedColor}
+                    variant="solid"
+                  />
+                )}
             </ThemedView>
           </ThemedView>
 

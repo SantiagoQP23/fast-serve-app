@@ -163,14 +163,16 @@ export default function MenuInventoryItemsScreen() {
                   }
                 />
               ))}
+              {canManage && (
+                <IconButton
+                  icon="add"
+                  variant="outlined"
+                  size={18}
+                  onPress={handleCreateCategory}
+                  style={tw`p-1.5`}
+                />
+              )}
             </ScrollView>
-            {canManage && (
-              <IconButton
-                icon="add"
-                variant="secondary"
-                onPress={handleCreateCategory}
-              />
-            )}
           </ThemedView>
         )}
       </ThemedView>

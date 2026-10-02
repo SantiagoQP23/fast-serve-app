@@ -107,6 +107,8 @@ function RecipeLineForm({
     InventoryUnit.UNIT,
   );
   const [newItemCategoryId, setNewItemCategoryId] = useState("");
+  const [newItemQuantity, setNewItemQuantity] = useState("");
+  const [newItemMinimumQuantity, setNewItemMinimumQuantity] = useState("");
   const [isCreateCategoryModalVisible, setIsCreateCategoryModalVisible] =
     useState(false);
   const unitTriggerRef = useRef<View>(null);
@@ -168,10 +170,19 @@ function RecipeLineForm({
         ? newItemCategoryId
         : null;
 
+      const parsedQuantity = Number(newItemQuantity.replace(",", "."));
+      const parsedMinimumQuantity = Number(
+        newItemMinimumQuantity.replace(",", "."),
+      );
+
       const newItem = await createItem.mutateAsync({
         name: trimmedName,
         unit: newItemUnit,
         categoryId: targetCategoryId,
+        quantity: Number.isFinite(parsedQuantity) ? parsedQuantity : 0,
+        minimumQuantity: Number.isFinite(parsedMinimumQuantity)
+          ? parsedMinimumQuantity
+          : 0,
       });
       targetInventoryItemId = newItem.id;
     }
@@ -258,6 +269,31 @@ function RecipeLineForm({
               onPress: () => setIsCreateCategoryModalVisible(true),
             }}
           />
+
+          <View style={tw`flex-row gap-2`}>
+            <View style={tw`flex-1`}>
+              <TextInput
+                bottomSheet
+                label={t("fields.quantity")}
+                value={newItemQuantity}
+                onChangeText={setNewItemQuantity}
+                placeholder={t("placeholders.quantity")}
+                keyboardType="decimal-pad"
+                variant="outlined"
+              />
+            </View>
+            <View style={tw`flex-1`}>
+              <TextInput
+                bottomSheet
+                label={t("fields.minimumQuantity")}
+                value={newItemMinimumQuantity}
+                onChangeText={setNewItemMinimumQuantity}
+                placeholder={t("placeholders.minimumQuantity")}
+                keyboardType="decimal-pad"
+                variant="outlined"
+              />
+            </View>
+          </View>
         </>
       )}
 
