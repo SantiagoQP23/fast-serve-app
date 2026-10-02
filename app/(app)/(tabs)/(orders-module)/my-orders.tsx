@@ -26,6 +26,7 @@ import TablesView from "@/presentation/tables/components/tables-view";
 import { Table } from "@/core/tables/models/table.model";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
+import { Order } from "@/core/orders/models/order.model";
 import { MyOrdersHeaderRight } from "../_layout";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
@@ -35,7 +36,13 @@ export default function MyOrdersScreen() {
   const { t } = useTranslation(["common", "orders", "errors", "tables"]);
   const { user } = useAuthStore();
   const lastSequence = useSyncStore((state) => state.lastSequence);
-  const allOrders = useOrdersStore((state) => state.orders);
+  const byDeliveryTime = (a: Order, b: Order) =>
+    (a.deliveryTime ? new Date(a.deliveryTime).getTime() : Infinity) -
+    (b.deliveryTime ? new Date(b.deliveryTime).getTime() : Infinity);
+
+  const allOrders = useOrdersStore((state) => state.orders)
+    .slice()
+    .sort(byDeliveryTime);
   const orders = allOrders.filter((order) => order.user?.id === user?.id);
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);

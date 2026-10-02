@@ -10,7 +10,7 @@ import {
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useRouter, useNavigation } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
@@ -36,6 +36,7 @@ import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
 import { useOrder } from "@/presentation/orders/hooks/useOrder";
+import { useOrderElapsedTime } from "@/presentation/orders/hooks/useOrderElapsedTime";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
@@ -109,15 +110,13 @@ export default function OrderScreen() {
   );
   const [isCancelledExpanded, setIsCancelledExpanded] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [pickerValue, setPickerValue] = useState<Date | null>(null);
   const [activeTab, setActiveTab] = useState<"products" | "bills" | "tickets">(
     "products",
   );
-  const [now, setNow] = useState(() => dayjs());
-
-  useEffect(() => {
-    const interval = setInterval(() => setNow(dayjs()), 1000);
-    return () => clearInterval(interval);
-  }, []);
+  const { elapsedLabel, elapsedColor } = useOrderElapsedTime(
+    order?.deliveryTime || new Date(),
+  );
 
   // Call all hooks before any conditional returns
   const {
@@ -229,25 +228,9 @@ export default function OrderScreen() {
   const date = createdAt.isSame(dayjs(), "day")
     ? `${t("common:time.today")}, ${createdAt.format("HH:mm")}`
     : createdAt.format("dddd, HH:mm");
-  const showDeliveryTime =
-    deliveryTime !== null && !deliveryTime.isSame(createdAt, "minute");
   const createdAtLabel = `${createdAt.fromNow()} · ${createdAt.format(
     "MMM D, HH:mm",
   )}`;
-  const elapsedSeconds = Math.max(0, now.diff(createdAt, "second"));
-  const elapsedHours = Math.floor(elapsedSeconds / 3600);
-  const elapsedMinutes = Math.floor((elapsedSeconds % 3600) / 60);
-  const elapsedSecondsPart = elapsedSeconds % 60;
-  const elapsedLabel = `${String(elapsedHours).padStart(2, "0")}:${String(
-    elapsedMinutes,
-  ).padStart(2, "0")}:${String(elapsedSecondsPart).padStart(2, "0")}`;
-  const elapsedTotalMinutes = elapsedSeconds / 60;
-  const elapsedColor: "success" | "warning" | "error" =
-    elapsedTotalMinutes < 15
-      ? "success"
-      : elapsedTotalMinutes < 30
-        ? "warning"
-        : "error";
   const updatedAtLabel = `${updatedAt.fromNow()} · ${updatedAt.format(
     "MMM D, HH:mm",
   )}`;
@@ -284,16 +267,13 @@ export default function OrderScreen() {
     openCloseModal();
   };
 
-  const openTimePicker = () => setShowTimePicker(true);
+  const openTimePicker = () => {
+    setPickerValue((deliveryTime ?? createdAt).toDate());
+    setShowTimePicker(true);
+  };
   const closeTimePicker = () => setShowTimePicker(false);
 
-  const handleTimeChange = (_: any, selectedDate?: Date) => {
-    if (Platform.OS === "android") {
-      setShowTimePicker(false);
-    }
-
-    if (!selectedDate) return;
-
+  const commitDeliveryTime = (selectedDate: Date) => {
     const baseTime = deliveryTime ?? createdAt;
     const nextTime = dayjs(selectedDate);
     const merged = baseTime
@@ -302,22 +282,34 @@ export default function OrderScreen() {
       .second(0)
       .millisecond(0);
 
-    if (deliveryTime && merged.isSame(deliveryTime, "minute")) {
-      if (Platform.OS === "ios") closeTimePicker();
-      return;
-    }
+    if (deliveryTime && merged.isSame(deliveryTime, "minute")) return;
 
-    updateOrder(
-      {
-        id: order.id,
-        deliveryTime: merged.toDate(),
-      },
-      {
-        onSuccess: () => {
-          if (Platform.OS === "ios") closeTimePicker();
-        },
-      },
-    );
+    updateOrder({
+      id: order.id,
+      deliveryTime: merged.toDate(),
+    });
+  };
+
+  // On iOS the spinner stays inline and fires onChange continuously as the
+  // user scrolls, so we only track the selection locally and commit it to
+  // the server once they press "Confirm" — committing (and closing) on every
+  // tick made the picker snap shut after the first notch, before the user
+  // could finish choosing a time. Android's native dialog is a single-shot
+  // pick, so it commits and closes immediately.
+  const handleTimeChange = (_: any, selectedDate?: Date) => {
+    if (!selectedDate) return;
+
+    setPickerValue(selectedDate);
+
+    if (Platform.OS === "android") {
+      setShowTimePicker(false);
+      commitDeliveryTime(selectedDate);
+    }
+  };
+
+  const handleConfirmTime = () => {
+    if (pickerValue) commitDeliveryTime(pickerValue);
+    closeTimePicker();
   };
 
   // Filter order details into pending and delivered
@@ -504,21 +496,23 @@ export default function OrderScreen() {
         <ScreenLayout style={tw`px-4 pt-6 flex-1`}>
           {/* Header Section */}
           <ThemedView style={tw`mb-4 gap-4`}>
-            {showDeliveryTime && showTimePicker && deliveryTime && (
+            {showTimePicker && (
               <ThemedView style={tw`mt-3`}>
                 {Platform.OS === "ios" && (
                   <ThemedView
                     style={tw`border border-gray-300 rounded-2xl overflow-hidden`}
                   >
                     <DateTimePicker
-                      value={deliveryTime.toDate()}
+                      value={
+                        pickerValue ?? (deliveryTime ?? createdAt).toDate()
+                      }
                       mode="time"
                       display="spinner"
-                      onChange={handleTimeChange}
+                      onValueChange={handleTimeChange}
                     />
                     <Button
                       label={t("common:actions.confirm")}
-                      onPress={closeTimePicker}
+                      onPress={handleConfirmTime}
                       variant="primary"
                       size="small"
                     />
@@ -526,11 +520,11 @@ export default function OrderScreen() {
                 )}
                 {Platform.OS === "android" && (
                   <DateTimePicker
-                    value={deliveryTime.toDate()}
+                    value={pickerValue ?? (deliveryTime ?? createdAt).toDate()}
                     mode="time"
                     is24Hour={true}
                     display="default"
-                    onChange={handleTimeChange}
+                    onValueChange={handleTimeChange}
                   />
                 )}
               </ThemedView>
@@ -592,14 +586,12 @@ export default function OrderScreen() {
                 <ThemedView
                   style={tw`flex-row items-center gap-2 flex-wrap mb-6 rounded-xl`}
                 >
-                  {showDeliveryTime && deliveryTime && (
-                    <Label
-                      leftIcon="hourglass-outline"
-                      text={deliveryTime.format("HH:mm")}
-                      color="default"
-                      onPress={openTimePicker}
-                    />
-                  )}
+                  <Label
+                    leftIcon="hourglass-outline"
+                    text={(deliveryTime ?? createdAt).format("HH:mm")}
+                    color="default"
+                    onPress={openTimePicker}
+                  />
                   <Label
                     text={String(order.people)}
                     leftIcon="people-outline"

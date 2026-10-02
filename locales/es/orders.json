@@ -144,7 +144,7 @@
     "goToPayments": "Ir a Pagos",
     "startOrder": "Iniciar Pedido",
     "pauseOrder": "Pausar Pedido",
-    "markDelivered": "Marcar Entregado",
+    "markDelivered": "Marcar entregado",
     "itemMarkedDelivered": "{{count}} producto marcado como entregado",
     "itemsMarkedDelivered": "{{count}} productos marcados como entregados",
     "markDeliveredError": "No se pudo marcar los productos como entregados",

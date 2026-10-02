@@ -36,8 +36,16 @@ export default function OrderListByStatus({
   ];
 
   const filteredOrders = useMemo(() => {
-    if (selectedStatus === "all") return orders;
-    return orders.filter((order) => order.status === selectedStatus);
+    const scoped =
+      selectedStatus === "all"
+        ? orders
+        : orders.filter((order) => order.status === selectedStatus);
+
+    return [...scoped].sort(
+      (a, b) =>
+        (a.deliveryTime ? new Date(a.deliveryTime).getTime() : Infinity) -
+        (b.deliveryTime ? new Date(b.deliveryTime).getTime() : Infinity),
+    );
   }, [orders, selectedStatus]);
 
   return (
