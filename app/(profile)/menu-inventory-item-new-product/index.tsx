@@ -18,6 +18,7 @@ import type { Product } from "@/core/menu/models/product.model";
 export default function NewInventoryItemSelectProductScreen() {
   const { t } = useTranslation("inventory");
   const params = useLocalSearchParams<{
+    mode?: string;
     inventoryItemId?: string;
     itemName?: string;
     unit?: string;
@@ -71,6 +72,7 @@ export default function NewInventoryItemSelectProductScreen() {
       params: {
         productId: product.id,
         productName: product.name,
+        mode: params.mode ?? "",
         inventoryItemId: params.inventoryItemId ?? "",
         itemName: params.itemName ?? "",
         unit: params.unit ?? "",

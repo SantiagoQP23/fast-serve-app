@@ -19,7 +19,8 @@ export default function NewInventoryItemSelectOptionScreen() {
   const params = useLocalSearchParams<{
     productId: string;
     productName?: string;
-    inventoryItemId: string;
+    mode?: string;
+    inventoryItemId?: string;
     itemName?: string;
     unit?: string;
   }>();
@@ -34,6 +35,18 @@ export default function NewInventoryItemSelectOptionScreen() {
 
   const handleSelectOption = (option: ProductOption) => {
     const productName = params.productName ?? product?.name ?? "";
+
+    if (params.mode === "track") {
+      router.push({
+        pathname: "/(profile)/menu-product-option-inventory",
+        params: {
+          productOptionId: String(option.id),
+          productOptionName: option.name,
+          productName,
+        },
+      });
+      return;
+    }
 
     router.push({
       pathname: "/(profile)/menu-inventory-item-new-quantity",

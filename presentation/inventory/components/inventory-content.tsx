@@ -45,6 +45,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     null,
   );
   const optionsSheetRef = useRef<BottomSheetMethods>(null);
+  const addSheetRef = useRef<BottomSheetMethods>(null);
 
   const filteredItems = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -56,8 +57,21 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     });
   }, [items, search, selectedCategoryId]);
 
+  const handleOpenAddSelector = () => {
+    addSheetRef.current?.present();
+  };
+
   const handleCreateItem = () => {
+    addSheetRef.current?.dismiss();
     router.push({ pathname: "/(profile)/menu-inventory-item-form" });
+  };
+
+  const handleTrackMenuProduct = () => {
+    addSheetRef.current?.dismiss();
+    router.push({
+      pathname: "/(profile)/menu-inventory-item-new-product",
+      params: { mode: "track" },
+    });
   };
 
   const handleEditItem = (item: InventoryItem) => {
@@ -275,7 +289,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
       </ScrollView>
 
       {canManage && (
-        <Fab icon="add" label={t("createItem")} onPress={handleCreateItem} />
+        <Fab icon="add" label={t("createItem")} onPress={handleOpenAddSelector} />
       )}
 
       <DialogModal
@@ -294,6 +308,24 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
         item={itemToAdjust}
         onClose={() => setItemToAdjust(null)}
       />
+
+      <ThemedBottomSheetModal ref={addSheetRef} enablePanDownToClose>
+        <ActionsBottomSheet
+          title={t("addToInventory.title")}
+          items={[
+            {
+              icon: "fast-food-outline",
+              label: t("addToInventory.menuProduct"),
+              onPress: handleTrackMenuProduct,
+            },
+            {
+              icon: "cube-outline",
+              label: t("addToInventory.inventoryItem"),
+              onPress: handleCreateItem,
+            },
+          ]}
+        />
+      </ThemedBottomSheetModal>
 
       <ThemedBottomSheetModal ref={optionsSheetRef} enablePanDownToClose>
         {itemForOptions && (

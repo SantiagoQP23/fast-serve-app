@@ -80,6 +80,11 @@
   "linkProductError": "No se pudo vincular este insumo a la variante del producto",
   "deleteTitle": "Eliminar artículo de inventario",
   "deleteMessage": "¿Estás seguro de que deseas eliminar este artículo de inventario?",
+  "addToInventory": {
+    "title": "Agregar al inventario",
+    "menuProduct": "Producto del menú",
+    "inventoryItem": "Artículo de inventario"
+  },
   "createItem": "Nuevo artículo",
   "editItem": "Editar artículo",
   "deleteItem": "Eliminar artículo",

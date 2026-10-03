@@ -80,6 +80,11 @@
   "linkProductError": "Could not link this item to the product variant",
   "deleteTitle": "Delete inventory item",
   "deleteMessage": "Are you sure you want to delete this inventory item?",
+  "addToInventory": {
+    "title": "Add to inventory",
+    "menuProduct": "Menu product",
+    "inventoryItem": "Inventory item"
+  },
   "createItem": "New item",
   "editItem": "Edit item",
   "deleteItem": "Delete item",
