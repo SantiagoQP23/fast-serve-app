@@ -2,8 +2,6 @@ import { Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
-import Button from "@/presentation/theme/components/button";
-import IconButton from "@/presentation/theme/components/icon-button";
 import Label from "@/presentation/theme/components/label";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
@@ -65,17 +63,16 @@ export const INVENTORY_STATUS_STYLES: Record<
 
 export default function InventoryItemCard({
   item,
-  canManage,
   onPress,
-  onOptionsPress,
-  onAdjustPress,
-  onReactivatePress,
 }: InventoryItemCardProps) {
   const { t } = useTranslation("inventory");
   const status = getInventoryStockStatus(item);
   const ratio = getInventoryStockRatio(item);
   const styles = INVENTORY_STATUS_STYLES[status];
   const isInactive = status === "inactive";
+  const showStatusLabel = status === "critical" || status === "low";
+  const showStockBar =
+    !isInactive && !!item.minimumQuantity && item.minimumQuantity > 0;
 
   return (
     <Pressable
@@ -107,17 +104,17 @@ export default function InventoryItemCard({
             </ThemedText>
           )}
         </ThemedView>
-        {status === "low" && (
+        {showStatusLabel && (
           <Label
             text={t(`status.${status}`)}
             variant="solid"
-            color="warning"
+            color={status === "critical" ? "error" : "warning"}
             size="small"
           />
         )}
       </ThemedView>
 
-      <ThemedView style={tw`  gap-2`}>
+      <ThemedView style={tw`gap-2`}>
         <ThemedView style={tw`flex-row items-baseline justify-between`}>
           <ThemedView style={tw`flex-row items-baseline gap-1 bg-transparent`}>
             <ThemedText
@@ -140,61 +137,22 @@ export default function InventoryItemCard({
               {t(`units.${item.unit}`)}
             </ThemedText>
           </ThemedView>
-        </ThemedView>
-        {/* <ProgressBar progress={ratio} /> */}
-      </ThemedView>
 
-      {/* {isInactive ? ( */}
-      {/*   <ThemedView */}
-      {/*     style={tw`flex-row items-center justify-between pt-1 bg-transparent`} */}
-      {/*   > */}
-      {/*     <Button */}
-      {/*       label={t("reactivateItem")} */}
-      {/*       variant="text" */}
-      {/*       size="small" */}
-      {/*       leftIcon="refresh-outline" */}
-      {/*       onPress={() => onReactivatePress(item)} */}
-      {/*     /> */}
-      {/*     <ThemedText type="small" style={tw`text-gray-500`}> */}
-      {/*       {t("noActiveOrders")} */}
-      {/*     </ThemedText> */}
-      {/*   </ThemedView> */}
-      {/* ) : ( */}
-      {/*   canManage && ( */}
-      {/*     <ThemedView */}
-      {/*       style={tw`flex-row items-center justify-end pt-1 bg-transparent`} */}
-      {/*     > */}
-      {/*       <Button */}
-      {/*         label={t("options")} */}
-      {/*         variant="text" */}
-      {/*         size="small" */}
-      {/*         leftIcon="ellipsis-horizontal-outline" */}
-      {/*         onPress={() => onOptionsPress(item)} */}
-      {/*       /> */}
-      {/*       <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}> */}
-      {/*         <IconButton */}
-      {/*           icon="remove-outline" */}
-      {/*           variant="secondary" */}
-      {/*           onPress={() => onAdjustPress(item)} */}
-      {/*         /> */}
-      {/*         {status === "critical" || item.quantity === 0 ? ( */}
-      {/*           <Button */}
-      {/*             label={t("registerEntry")} */}
-      {/*             size="small" */}
-      {/*             leftIcon="add-outline" */}
-      {/*             onPress={() => onAdjustPress(item)} */}
-      {/*           /> */}
-      {/*         ) : ( */}
-      {/*           <IconButton */}
-      {/*             icon="add-outline" */}
-      {/*             variant="secondary" */}
-      {/*             onPress={() => onAdjustPress(item)} */}
-      {/*           /> */}
-      {/*         )} */}
-      {/*       </ThemedView> */}
-      {/*     </ThemedView> */}
-      {/*   ) */}
-      {/* )} */}
+          {!!item.productOptionsCount && (
+            <ThemedText type="small" style={tw`text-gray-500`}>
+              {t("usedInCount", { count: item.productOptionsCount })}
+            </ThemedText>
+          )}
+        </ThemedView>
+        {/* {showStockBar && ( */}
+        {/*   <ProgressBar */}
+        {/*     progress={ratio} */}
+        {/*     height={2} */}
+        {/*     bgColor="bg-gray-100" */}
+        {/*     progressColor={`bg-${styles.color}`} */}
+        {/*   /> */}
+        {/* )} */}
+      </ThemedView>
     </Pressable>
   );
 }

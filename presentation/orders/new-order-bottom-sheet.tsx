@@ -116,7 +116,7 @@ const NewOrderBottomSheet = ({
               numberOfLines={5}
               multiline
               bottomSheet
-              placeholder="Add any special instructions or notes"
+              placeholder={t("newOrder.notesPlaceholder")}
               onChangeText={(value) => setNotes(value)}
               value={notes}
             />

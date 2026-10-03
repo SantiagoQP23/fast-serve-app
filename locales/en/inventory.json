@@ -6,6 +6,8 @@
   "empty": "No inventory items yet",
   "emptyDescription": "Add an item to start tracking stock for your ingredients.",
   "stockCount": "{{count}} in stock",
+  "usedInCount": "Used in {{count}} product",
+  "usedInCount_plural": "Used in {{count}} products",
   "tracked": "Active",
   "notTracked": "Not tracked",
   "restock": "Restock",
@@ -40,7 +42,7 @@
     "loadError": "Could not load the item detail",
     "movementsLoadError": "Could not load the movement history",
     "linkToProduct": "Link to a product",
-    "linkedProducts": "Linked products",
+    "linkedProducts": "Used in",
     "noLinkedProducts": "Not linked to any product yet",
     "unknownProduct": "Unknown product"
   },

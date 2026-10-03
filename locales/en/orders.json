@@ -85,7 +85,8 @@
     "selectProducts": "Select products",
     "orderType": "Order type",
     "inPlace": "In Place",
-    "takeAway": "Take Away"
+    "takeAway": "Take Away",
+    "notesPlaceholder": "Add any special instructions or notes"
   },
   "dialogs": {
     "removeTitle": "Remove Order",

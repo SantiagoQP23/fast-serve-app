@@ -66,7 +66,7 @@ export default function LinkedProductsList({
               line.productOption?.name,
             ]
               .filter(Boolean)
-              .join(" - ");
+              .join(" ");
 
             return (
               <ThemedView

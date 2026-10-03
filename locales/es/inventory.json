@@ -6,6 +6,8 @@
   "empty": "Aún no hay artículos de inventario",
   "emptyDescription": "Agrega un artículo para empezar a controlar el stock de tus ingredientes.",
   "stockCount": "{{count}} en stock",
+  "usedInCount": "Usado en {{count}} producto",
+  "usedInCount_plural": "Usado en {{count}} productos",
   "tracked": "Activo",
   "notTracked": "No controlado",
   "restock": "Reabastecer",
@@ -40,7 +42,7 @@
     "loadError": "No se pudo cargar el detalle del insumo",
     "movementsLoadError": "No se pudo cargar el historial de movimientos",
     "linkToProduct": "Vincular a un producto",
-    "linkedProducts": "Productos vinculados",
+    "linkedProducts": "Usado en",
     "noLinkedProducts": "Aún no está vinculado a ningún producto",
     "unknownProduct": "Producto desconocido"
   },

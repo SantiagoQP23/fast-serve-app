@@ -85,7 +85,8 @@
     "selectProducts": "Seleccionar productos",
     "orderType": "Tipo de pedido",
     "inPlace": "En el Lugar",
-    "takeAway": "Para Llevar"
+    "takeAway": "Para Llevar",
+    "notesPlaceholder": "Agregue instrucciones especiales o notas"
   },
   "dialogs": {
     "removeTitle": "Eliminar Pedido",

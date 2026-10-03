@@ -18,6 +18,7 @@ export interface InventoryItem {
   isActive: boolean;
   category?: InventoryItemCategory | null;
   restaurant?: { id: string; name: string };
+  productOptionsCount?: number;
   /** Product options (recipe lines) that consume this item. */
   productOptions?: ProductOptionInventoryItem[];
   createdAt?: string;
