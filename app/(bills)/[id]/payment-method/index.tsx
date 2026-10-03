@@ -112,6 +112,8 @@ export default function PaymentMethodScreen() {
   const [transferNote, setTransferNote] = useState("");
   const [selectedProofImage, setSelectedProofImage] =
     useState<ImagePicker.ImagePickerAsset | null>(null);
+  const [pendingNavigationMethod, setPendingNavigationMethod] =
+    useState<PaymentMethod | null>(null);
 
   const baseAmount = bill ? bill.total : 0;
   const [payAmount, setPayAmount] = useState("");
@@ -186,9 +188,18 @@ export default function PaymentMethodScreen() {
 
   const navigateToAccount = (method: PaymentMethod) => {
     setSelectedPaymentMethod(method);
-    setTimeout(() => {
-      router.push(`/(bills)/${bill.id}/payment-method/account`);
-    }, 100);
+    router.push(`/(bills)/${bill.id}/payment-method/account`);
+  };
+
+  // Fires once a bottom sheet's native dismiss animation has actually completed.
+  // Navigating only here (instead of right after calling `dismiss()`) avoids tearing
+  // down the native sheet view while its `hide()` call is still in flight, which
+  // raises an unhandled "No handler registered for AsyncFunction 'hide'" rejection.
+  const handleSheetDismissed = () => {
+    if (!pendingNavigationMethod) return;
+    const method = pendingNavigationMethod;
+    setPendingNavigationMethod(null);
+    navigateToAccount(method);
   };
 
   const handleContinueCash = () => {
@@ -198,14 +209,14 @@ export default function PaymentMethodScreen() {
       return;
     }
     setBillReceivedAmount(receivedAmount);
+    setPendingNavigationMethod(selectedMethod);
     cashBottomSheetRef.current?.dismiss();
-    navigateToAccount(selectedMethod);
   };
 
   const handleContinueCard = () => {
     if (!selectedMethod) return;
+    setPendingNavigationMethod(selectedMethod);
     cardBottomSheetRef.current?.dismiss();
-    navigateToAccount(selectedMethod);
   };
 
   const pickProofImage = async (source: "camera" | "gallery") => {
@@ -253,8 +264,8 @@ export default function PaymentMethodScreen() {
         mimeType: selectedProofImage.mimeType || "image/jpeg",
       });
     }
+    setPendingNavigationMethod(selectedMethod);
     transferBottomSheetRef.current?.dismiss();
-    navigateToAccount(selectedMethod);
   };
 
   const validateAmount = () => {
@@ -308,6 +319,7 @@ export default function PaymentMethodScreen() {
         ref={transferBottomSheetRef}
         index={0}
         enablePanDownToClose
+        onDismiss={handleSheetDismissed}
       >
         <BottomSheetView style={tw`p-6 gap-4 bg-light-background`}>
           <ThemedView style={tw`gap-1`}>
@@ -415,6 +427,7 @@ export default function PaymentMethodScreen() {
         ref={cardBottomSheetRef}
         index={0}
         enablePanDownToClose
+        onDismiss={handleSheetDismissed}
       >
         <BottomSheetView style={tw`p-6 gap-4 bg-light-background`}>
           <ThemedView style={tw`gap-1 items-center`}>
@@ -449,6 +462,7 @@ export default function PaymentMethodScreen() {
         ref={cashBottomSheetRef}
         index={0}
         enablePanDownToClose
+        onDismiss={handleSheetDismissed}
       >
         <BottomSheetView style={tw`p-4 gap-4 mb-8 bg-light-background`}>
           <ThemedView style={tw`gap-1`}>
