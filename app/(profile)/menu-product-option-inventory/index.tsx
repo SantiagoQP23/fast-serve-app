@@ -38,6 +38,17 @@ export default function MenuProductOptionInventoryScreen() {
       : null;
   const isIngredientsMode = recipes.length > 0 && !wholeProductLine;
 
+  const headerTitle = wholeProductLine
+    ? t("trackMode.wholeProduct.label")
+    : isIngredientsMode
+      ? t("trackMode.ingredients.label")
+      : t("trackMode.title");
+  const headerSubtitle = wholeProductLine
+    ? t("trackMode.wholeProduct.description")
+    : isIngredientsMode
+      ? t("trackMode.ingredients.description")
+      : t("trackMode.question");
+
   const navigateToRecipeScreen = () => {
     router.push({
       pathname: "/(profile)/menu-product-option-recipe",
@@ -67,9 +78,9 @@ export default function MenuProductOptionInventoryScreen() {
         contentContainerStyle={tw`gap-4 pb-8`}
       >
         <ThemedView style={tw`gap-1`}>
-          <ThemedText type="h2">{t("trackMode.title")}</ThemedText>
+          <ThemedText type="h2">{headerTitle}</ThemedText>
           <ThemedText type="body2" style={tw`text-gray-500`}>
-            {t("trackMode.question")}
+            {headerSubtitle}
           </ThemedText>
         </ThemedView>
 
@@ -139,17 +150,15 @@ export default function MenuProductOptionInventoryScreen() {
         )}
 
         {isIngredientsMode && (
-          <ThemedView
-            style={tw`rounded-3xl border border-light-border overflow-hidden bg-light-surface`}
-          >
+          <ThemedView>
             {recipes.map((line, index) => {
               const isLast = index === recipes.length - 1;
               return (
                 <ThemedView
                   key={line.id}
                   style={[
-                    tw`flex-row items-center justify-between px-4 py-4`,
-                    !isLast && tw`border-b border-light-border`,
+                    tw`flex-row items-center justify-between py-4`,
+                    !isLast && tw`border-b border-light-divider`,
                   ]}
                 >
                   <ThemedText type="body1">
