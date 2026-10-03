@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,6 +10,7 @@ import {
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -16,6 +18,8 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Select from "@/presentation/theme/components/select";
+import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
@@ -44,27 +48,19 @@ export default function MenuInventoryItemFormScreen() {
     minimumQuantity?: string;
     isActive?: string;
     categoryId?: string;
-    productOptionId?: string;
-    productOptionName?: string;
-    productName?: string;
   }>();
 
   const isEditing = !!params.itemId;
-  const isLinkedFlow = !isEditing && !!params.productOptionId;
   const { createItem, updateItem } = useInventoryItems();
   const { categories } = useInventoryItemCategories();
+  const linkProductSheetRef = useRef<BottomSheetMethods>(null);
+  const [createdItem, setCreatedItem] = useState<{
+    id: string;
+    name: string;
+    unit: InventoryUnit;
+  } | null>(null);
 
   const schema = buildItemSchema(t);
-
-  const linkedItemDefaultName = [params.productName, params.productOptionName]
-    .filter(Boolean)
-    .join(" ");
-  const linkedItemProductLabel = [
-    params.productName,
-    params.productOptionName,
-  ]
-    .filter(Boolean)
-    .join(" - ");
 
   const {
     control,
@@ -73,7 +69,7 @@ export default function MenuInventoryItemFormScreen() {
   } = useForm<ItemFormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: params.name || (isLinkedFlow ? linkedItemDefaultName : ""),
+      name: params.name || "",
       unit: (params.unit as InventoryUnit) || InventoryUnit.UNIT,
       quantity: params.quantity || "",
       minimumQuantity: params.minimumQuantity || "",
@@ -113,27 +109,26 @@ export default function MenuInventoryItemFormScreen() {
       return;
     }
 
-    if (isLinkedFlow) {
-      router.push({
-        pathname: "/(profile)/menu-inventory-item-new-quantity",
-        params: {
-          productOptionId: params.productOptionId!,
-          productOptionName: params.productOptionName ?? "",
-          productName: params.productName ?? "",
-          name: payload.name,
-          unit: payload.unit,
-          quantity: payload.quantity != null ? String(payload.quantity) : "",
-          minimumQuantity:
-            payload.minimumQuantity != null
-              ? String(payload.minimumQuantity)
-              : "",
-          categoryId: payload.categoryId ?? "",
-        },
-      });
-      return;
-    }
+    const created = await createItem.mutateAsync(payload);
+    setCreatedItem({ id: created.id, name: created.name, unit: created.unit });
+    linkProductSheetRef.current?.present();
+  };
 
-    await createItem.mutateAsync(payload);
+  const handleLinkCreatedItem = () => {
+    if (!createdItem) return;
+    linkProductSheetRef.current?.dismiss();
+    router.replace({
+      pathname: "/(profile)/menu-inventory-item-new-product",
+      params: {
+        inventoryItemId: createdItem.id,
+        itemName: createdItem.name,
+        unit: createdItem.unit,
+      },
+    });
+  };
+
+  const handleSkipLinkCreatedItem = () => {
+    linkProductSheetRef.current?.dismiss();
     router.back();
   };
 
@@ -165,27 +160,10 @@ export default function MenuInventoryItemFormScreen() {
                 >
                   {isEditing ? t("editItem") : t("createItem")}
                 </ThemedText>
-                {isLinkedFlow && (
-                  <ThemedText
-                    type="small"
-                    style={tw`text-gray-500`}
-                    numberOfLines={1}
-                  >
-                    {t("linkedItem.forProduct", {
-                      product: linkedItemProductLabel,
-                    })}
-                  </ThemedText>
-                )}
               </ThemedView>
             </ThemedView>
             <Button
-              label={
-                isEditing
-                  ? t("save")
-                  : isLinkedFlow
-                    ? t("linkedItem.next")
-                    : t("create")
-              }
+              label={isEditing ? t("save") : t("create")}
               size="small"
               onPress={handleSubmit(onSubmit)}
               loading={
@@ -295,6 +273,25 @@ export default function MenuInventoryItemFormScreen() {
           </ThemedView>
         </ScrollView>
       </ScreenLayout>
+
+      <ThemedBottomSheetModal ref={linkProductSheetRef} enablePanDownToClose>
+        <ActionsBottomSheet
+          title={t("linkedItem.belongsToProductTitle")}
+          subtitle={t("linkedItem.belongsToProductMessage")}
+          items={[
+            {
+              icon: "fast-food-outline",
+              label: t("linkedItem.belongsToProductYes"),
+              onPress: handleLinkCreatedItem,
+            },
+            {
+              icon: "cube-outline",
+              label: t("linkedItem.belongsToProductNo"),
+              onPress: handleSkipLinkCreatedItem,
+            },
+          ]}
+        />
+      </ThemedBottomSheetModal>
     </KeyboardAvoidingView>
   );
 }

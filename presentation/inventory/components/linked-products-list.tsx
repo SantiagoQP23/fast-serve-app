@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { GroupedList } from "@/presentation/theme/components/grouped-list";
+import IconButton from "@/presentation/theme/components/icon-button";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -11,20 +12,33 @@ import type { ProductOptionInventoryItem } from "@/core/inventory/models/invento
 interface LinkedProductsListProps {
   lines: ProductOptionInventoryItem[];
   unit: string;
+  onAddPress?: () => void;
 }
 
 export default function LinkedProductsList({
   lines,
   unit,
+  onAddPress,
 }: LinkedProductsListProps) {
   const { t } = useTranslation("inventory");
 
   return (
     <ThemedView style={tw`gap-3 bg-transparent mt-4`}>
-      <ThemedText type="body1" style={tw`px-1`}>
-        {t("detail.linkedProducts")}
-      </ThemedText>
-      {/* <ThemedText>{JSON.stringify(lines)}</ThemedText> */}
+      <ThemedView
+        style={tw`flex-row items-center justify-between bg-transparent px-1`}
+      >
+        <ThemedText type="body1">{t("detail.linkedProducts")}</ThemedText>
+        {onAddPress && (
+          <IconButton
+            icon="add-outline"
+            variant="secondary"
+            size={20}
+            onPress={onAddPress}
+            style={tw`-mr-2 p-2`}
+            accessibilityLabel={t("detail.linkToProduct")}
+          />
+        )}
+      </ThemedView>
 
       {lines.length === 0 ? (
         <ThemedView style={tw`bg-white rounded-3xl p-6 shadow-xs`}>

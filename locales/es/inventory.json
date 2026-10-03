@@ -152,6 +152,26 @@
       "nameMinLength": "El nombre debe tener al menos 2 caracteres"
     }
   },
+  "trackMode": {
+    "title": "Configurar inventario",
+    "question": "¿Cómo quieres controlar este producto?",
+    "wholeProduct": {
+      "label": "Producto completo",
+      "description": "Cada venta descuenta una unidad."
+    },
+    "ingredients": {
+      "label": "Ingredientes",
+      "description": "Cada venta descuenta cantidades de uno o más inventarios."
+    }
+  },
+  "wholeProduct": {
+    "configureTitle": "Configurar inventario",
+    "editTitle": "Editar inventario",
+    "fields": {
+      "currentQuantity": "Cantidad actual",
+      "minimumQuantityInfo": "Cantidad mínima que quieres mantener disponible. Teikio te avisará cuando el stock llegue a este nivel."
+    }
+  },
   "recipe": {
     "title": "Receta",
     "manageRecipe": "Gestionar receta",
@@ -194,8 +214,6 @@
     "noProductsDescription": "Carga o crea productos en tu menú primero.",
     "selectOptionTitle": "Selecciona una variante",
     "noOptions": "Este producto no tiene variantes",
-    "forProduct": "Para {{product}}",
-    "next": "Siguiente",
     "quantityTitle": "Cantidad utilizada",
     "quantityDescription": "¿Cuánto se usa de \"{{item}}\" por cada unidad entregada?",
     "finish": "Finalizar"

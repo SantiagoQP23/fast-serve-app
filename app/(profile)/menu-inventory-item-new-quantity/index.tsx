@@ -19,28 +19,21 @@ export default function NewInventoryItemQuantityScreen() {
     productOptionId: string;
     productOptionName?: string;
     productName?: string;
-    inventoryItemId?: string;
+    inventoryItemId: string;
     itemName?: string;
-    name?: string;
     unit: string;
-    quantity?: string;
-    minimumQuantity?: string;
-    categoryId?: string;
   }>();
 
-  const isLinkingExistingItem = !!params.inventoryItemId;
-  const itemName = isLinkingExistingItem ? params.itemName : params.name;
+  const itemName = params.itemName;
 
   const productOptionId = Number(params.productOptionId);
   const unit = (params.unit as InventoryUnit) || InventoryUnit.UNIT;
   const quantityStep = unit !== InventoryUnit.UNIT ? 0.1 : 1;
 
-  const { createItem, linkProductOption } = useInventoryItems();
+  const { linkProductOption } = useInventoryItems();
   const [quantityUsed, setQuantityUsed] = useState(0);
 
-  const isPending = isLinkingExistingItem
-    ? linkProductOption.isPending
-    : createItem.isPending;
+  const isPending = linkProductOption.isPending;
 
   const productLabel = [params.productName, params.productOptionName]
     .filter(Boolean)
@@ -49,30 +42,14 @@ export default function NewInventoryItemQuantityScreen() {
   const handleConfirm = async () => {
     if (quantityUsed < 0.001) return;
 
-    if (isLinkingExistingItem) {
-      await linkProductOption.mutateAsync({
-        itemId: params.inventoryItemId!,
-        data: { productOptionId, quantity: quantityUsed },
-      });
-      router.dismissTo({
-        pathname: "/(profile)/menu-inventory-item-detail",
-        params: { itemId: params.inventoryItemId! },
-      });
-      return;
-    }
-
-    await createItem.mutateAsync({
-      name: params.name!,
-      unit,
-      quantity: params.quantity ? Number(params.quantity) : undefined,
-      minimumQuantity: params.minimumQuantity
-        ? Number(params.minimumQuantity)
-        : undefined,
-      categoryId: params.categoryId ? params.categoryId : null,
-      recipeLines: [{ productOptionId, quantity: quantityUsed }],
+    await linkProductOption.mutateAsync({
+      itemId: params.inventoryItemId,
+      data: { productOptionId, quantity: quantityUsed },
     });
-
-    router.dismissTo("/(app)/(tabs)/inventory");
+    router.dismissTo({
+      pathname: "/(profile)/menu-inventory-item-detail",
+      params: { itemId: params.inventoryItemId },
+    });
   };
 
   return (

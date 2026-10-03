@@ -41,8 +41,9 @@ export default function SegmentedControl<T extends string>({
             onPress={() => onChange(item.value)}
             style={({ pressed }) =>
               tw.style(
-                "flex-1 flex-row items-center justify-center gap-2 py-2.5 rounded-3xl bg-white shadow-md",
+                "flex-1 flex-row items-center justify-center gap-2 py-2.5 rounded-3xl bg-white ",
                 pressed && "opacity-80",
+                isActive && "shadow-sm",
               )
             }
           >

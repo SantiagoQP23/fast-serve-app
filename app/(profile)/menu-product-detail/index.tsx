@@ -32,6 +32,9 @@ import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-b
 import { formatCurrency } from "@/core/i18n/utils";
 import type { ProductOption } from "@/core/menu/models/product-optionl.model";
 import { typography } from "@/constants/theme";
+import { InventoryUnit } from "@/core/inventory/models/inventory-item.model";
+import type { ProductOptionInventoryItem } from "@/core/inventory/models/inventory-recipe.model";
+import WholeProductInventoryModal from "@/presentation/inventory/components/whole-product-inventory-modal";
 
 export default function MenuProductDetailScreen() {
   const { t } = useTranslation("menuManagement");
@@ -71,6 +74,10 @@ export default function MenuProductDetailScreen() {
   const [optionToDelete, setOptionToDelete] = useState<ProductOption | null>(
     null,
   );
+  const trackModeSheetRef = useRef<BottomSheetMethods>(null);
+  const [showWholeProductModal, setShowWholeProductModal] = useState(false);
+  const [wholeProductLine, setWholeProductLine] =
+    useState<ProductOptionInventoryItem | null>(null);
 
   const product = products.find((p) => p.id === params.productId);
 
@@ -236,6 +243,66 @@ export default function MenuProductDetailScreen() {
         onSuccess: () => editOptionSheetRef.current?.dismiss(),
       },
     );
+  };
+
+  const getWholeProductLine = (option: ProductOption) => {
+    const lines = option.inventoryItems ?? [];
+    if (lines.length !== 1) return null;
+    const [line] = lines;
+    return line.quantity === 1 && line.inventoryItem?.unit === InventoryUnit.UNIT
+      ? line
+      : null;
+  };
+
+  const navigateToIngredientsScreen = (option: ProductOption) => {
+    if (!product) return;
+    router.push({
+      pathname: "/(profile)/menu-product-option-inventory",
+      params: {
+        productOptionId: String(option.id),
+        productOptionName: option.name,
+        productName: product.name,
+      },
+    });
+  };
+
+  const handleOpenInventoryConfig = () => {
+    if (!selectedOption) return;
+    closeOptionActions();
+    const lines = selectedOption.inventoryItems ?? [];
+
+    if (lines.length === 0) {
+      trackModeSheetRef.current?.present();
+      return;
+    }
+
+    const wholeLine = getWholeProductLine(selectedOption);
+    if (wholeLine) {
+      setWholeProductLine(wholeLine);
+      setShowWholeProductModal(true);
+      return;
+    }
+
+    navigateToIngredientsScreen(selectedOption);
+  };
+
+  const closeTrackModeSheet = () => trackModeSheetRef.current?.dismiss();
+
+  const handleSelectIngredientsMode = () => {
+    closeTrackModeSheet();
+    if (!selectedOption) return;
+    navigateToIngredientsScreen(selectedOption);
+  };
+
+  const handleSelectWholeProductMode = () => {
+    closeTrackModeSheet();
+    setWholeProductLine(null);
+    setShowWholeProductModal(true);
+  };
+
+  const closeWholeProductModal = () => {
+    setShowWholeProductModal(false);
+    setWholeProductLine(null);
   };
 
   const handleRequestDeleteOption = () => {
@@ -649,9 +716,61 @@ export default function MenuProductDetailScreen() {
                 onPress={handleOpenEditOption}
               />
             </ThemedView>
+            <Button
+              label={
+                (selectedOption.inventoryItems?.length ?? 0) > 0
+                  ? t("products.variants.editInventory")
+                  : t("products.variants.configureInventory")
+              }
+              leftIcon="cube-outline"
+              variant="secondary"
+              onPress={handleOpenInventoryConfig}
+            />
           </ThemedView>
         )}
       </ThemedBottomSheetModal>
+
+      <ThemedBottomSheetModal ref={trackModeSheetRef} enablePanDownToClose>
+        <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
+          <ThemedView style={tw`gap-1`}>
+            <ThemedText type="h3" style={{ fontFamily: typography.medium }}>
+              {t("inventory:trackMode.title")}
+            </ThemedText>
+            <ThemedText type="body2" style={tw`text-gray-500`}>
+              {t("inventory:trackMode.question")}
+            </ThemedText>
+          </ThemedView>
+
+          <Card onPress={handleSelectWholeProductMode} style={tw`gap-1`}>
+            <ThemedText type="body1" style={{ fontFamily: typography.medium }}>
+              {t("inventory:trackMode.wholeProduct.label")}
+            </ThemedText>
+            <ThemedText type="small" style={tw`text-gray-500`}>
+              {t("inventory:trackMode.wholeProduct.description")}
+            </ThemedText>
+          </Card>
+
+          <Card onPress={handleSelectIngredientsMode} style={tw`gap-1`}>
+            <ThemedText type="body1" style={{ fontFamily: typography.medium }}>
+              {t("inventory:trackMode.ingredients.label")}
+            </ThemedText>
+            <ThemedText type="small" style={tw`text-gray-500`}>
+              {t("inventory:trackMode.ingredients.description")}
+            </ThemedText>
+          </Card>
+        </BottomSheetView>
+      </ThemedBottomSheetModal>
+
+      {selectedOption && (
+        <WholeProductInventoryModal
+          visible={showWholeProductModal || !!wholeProductLine}
+          productOptionId={selectedOption.id}
+          productName={product.name}
+          productOptionName={selectedOption.name}
+          line={wholeProductLine}
+          onClose={closeWholeProductModal}
+        />
+      )}
 
       <ThemedBottomSheetModal ref={editOptionSheetRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>

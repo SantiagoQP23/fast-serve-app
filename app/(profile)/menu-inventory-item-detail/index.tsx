@@ -188,6 +188,7 @@ export default function MenuInventoryItemDetailScreen() {
             <LinkedProductsList
               lines={item.productOptions ?? []}
               unit={t(`units.${item.unit}`)}
+              onAddPress={canManage ? handleLinkToProduct : undefined}
             />
 
             <InventoryMovementHistory

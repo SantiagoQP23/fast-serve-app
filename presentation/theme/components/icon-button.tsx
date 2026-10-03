@@ -21,6 +21,7 @@ interface IconButtonProps {
   backgroundColor?: string;
   disabled?: boolean;
   variant?: "filled" | "secondary" | "outlined" | "text" | "destructive";
+  accessibilityLabel?: string;
 }
 
 export default function IconButton({
@@ -30,6 +31,7 @@ export default function IconButton({
   disabled = false,
   style,
   variant = "text",
+  accessibilityLabel,
 }: IconButtonProps) {
   const variants = {
     filled: "bg-light-primary",
@@ -55,6 +57,8 @@ export default function IconButton({
         style,
       ]}
       disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
     >
       <Ionicons name={icon} size={size} color={variantStyles[variant]} />
     </Pressable>

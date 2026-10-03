@@ -169,7 +169,9 @@
       "deleteSuccess": "Variante eliminada exitosamente",
       "deleteError": "No se pudo eliminar la variante",
       "deleteTitle": "Eliminar variante",
-      "deleteMessage": "¿Estás seguro de que deseas eliminar esta variante?"
+      "deleteMessage": "¿Estás seguro de que deseas eliminar esta variante?",
+      "configureInventory": "Configurar inventario",
+      "editInventory": "Editar inventario"
     }
   },
   "loading": "Cargando...",

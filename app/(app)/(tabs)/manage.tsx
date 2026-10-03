@@ -83,12 +83,14 @@ export default function ManageScreen() {
     //   label: t("manage.menu.products"),
     //   onPress: () => router.push("/(profile)/menu-products"),
     // },
-    {
-      key: "inventory",
-      icon: "cube-outline",
-      label: t("manage.menu.inventory"),
-      onPress: () => router.push("/(profile)/menu-inventory-items"),
-    },
+    // Hidden for now — route is still registered and reachable, just not
+    // linked from here.
+    // {
+    //   key: "inventory",
+    //   icon: "cube-outline",
+    //   label: t("manage.menu.inventory"),
+    //   onPress: () => router.push("/(profile)/menu-inventory-items"),
+    // },
   ];
 
   const subscriptionOptions: ManageOption[] = [
