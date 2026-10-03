@@ -23,6 +23,7 @@ import { useBills } from "@/presentation/orders/hooks/useBills";
 import { mapStoreToCreateSaleDto } from "@/presentation/orders/mappers/createBill.mapper";
 import Label from "@/presentation/theme/components/label";
 import { usePrintersStore } from "@/presentation/printers/store/usePrintersStore";
+import { usePrintComanda } from "@/presentation/orders/hooks/usePrintComanda";
 
 export default function CartScreen() {
   const { t } = useTranslation(["common", "menu"]);
@@ -42,10 +43,10 @@ export default function CartScreen() {
 
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
-  const hasActivePrinters = usePrintersStore((state) =>
-    state.printers.some((printer) => printer.isActive),
-  );
+  const printers = usePrintersStore((state) => state.printers);
+  const hasActivePrinters = printers.some((printer) => printer.isActive);
   const canPrintOnCreate = cartType === "order" && hasActivePrinters;
+  const { printComanda } = usePrintComanda();
 
   const [total, setTotal] = useState(0);
   const [printOnCreate, setPrintOnCreate] = useState(false);
@@ -80,17 +81,20 @@ export default function CartScreen() {
       const data = mapStoreToCreateOrderDto(newOrder);
 
       createOrder(data, {
-        onSuccess: (resp) => {
+        onSuccess: async (resp) => {
           resetNewOrder();
           if (!resp.data) return;
           setActiveOrder(resp.data);
-          if (print) {
-            router.replace(`/(order)/${resp.data.id}/print`);
-          } else {
-            router.replace("/(new-order)/order-confirmation", {
-              withAnchor: true,
-            });
+
+          if (print && resp.data.tickets) {
+            for (const ticket of resp.data.tickets) {
+              await printComanda(resp.data, ticket);
+            }
           }
+
+          router.replace("/(new-order)/order-confirmation", {
+            withAnchor: true,
+          });
         },
       });
     }

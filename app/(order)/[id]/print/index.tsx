@@ -22,7 +22,7 @@ export default function OrderPrintScreen() {
 
   const { getAll } = usePrinters();
   const { data: printers } = getAll;
-  const { printOrderReceipt } = usePrintOrderReceipt(order ?? null);
+  const { printOrderReceipt } = usePrintOrderReceipt();
 
   const [selectedPrinterId, setSelectedPrinterId] = useState<string>();
   const [isPrinting, setIsPrinting] = useState(false);
@@ -50,11 +50,11 @@ export default function OrderPrintScreen() {
 
   const handlePrint = async () => {
     const printer = activePrinters.find((p) => p.id === selectedPrinterId);
-    if (!printer) return;
+    if (!printer || !order) return;
 
     setIsPrinting(true);
     try {
-      await printOrderReceipt(printer);
+      await printOrderReceipt(printer, order);
       router.back();
     } finally {
       setIsPrinting(false);

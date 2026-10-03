@@ -29,11 +29,6 @@ export const useOrders = () => {
         const order = resp.data;
         if (order) {
           setActiveOrder(order);
-          if (order.tickets) {
-            for (const ticket of order?.tickets) {
-              printComanda(order, ticket);
-            }
-          }
         }
       },
       onError: (resp) => {

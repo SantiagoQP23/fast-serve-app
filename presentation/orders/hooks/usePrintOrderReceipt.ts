@@ -8,12 +8,11 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 const toCamelCase = (str: string) =>
   str.toLowerCase().replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
 
-export const usePrintOrderReceipt = (order: Order | null) => {
+export const usePrintOrderReceipt = () => {
   const { t } = useTranslation(["common", "orders", "bills"]);
 
   const printOrderReceipt = useCallback(
-    async (printer: Printer) => {
-      if (!order) return;
+    async (printer: Printer, order: Order) => {
       const toastId = toast.loading(t("orders:options.printingOrder"));
       try {
         const orderStatusLabel = t(`common:status.${toCamelCase(order.status)}`);
@@ -51,7 +50,7 @@ export const usePrintOrderReceipt = (order: Order | null) => {
         toast.error(t("orders:options.printError"), { id: toastId });
       }
     },
-    [order, t],
+    [t],
   );
 
   return { printOrderReceipt };
