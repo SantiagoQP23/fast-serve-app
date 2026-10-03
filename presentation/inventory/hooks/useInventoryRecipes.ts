@@ -30,41 +30,45 @@ export const useInventoryRecipes = (productOptionId?: number) => {
   const createRecipe = useMutation<
     ProductOptionInventoryItem,
     Error,
-    CreateRecipeDto
+    CreateRecipeDto & { silent?: boolean }
   >({
-    mutationFn: (data) => InventoryRecipeService.create(data),
-    onSuccess: () => {
-      toast.success(t("recipe.createSuccess"));
+    mutationFn: ({ silent, ...data }) => InventoryRecipeService.create(data),
+    onSuccess: (_data, variables) => {
+      if (!variables.silent) toast.success(t("recipe.createSuccess"));
       invalidate();
     },
-    onError: (error) => {
-      toast.error(error.message || t("recipe.createError"));
+    onError: (error, variables) => {
+      if (!variables.silent) toast.error(error.message || t("recipe.createError"));
     },
   });
 
   const updateRecipe = useMutation<
     ProductOptionInventoryItem,
     Error,
-    UpdateRecipeDto
+    UpdateRecipeDto & { silent?: boolean }
   >({
-    mutationFn: (data) => InventoryRecipeService.update(data),
-    onSuccess: () => {
-      toast.success(t("recipe.updateSuccess"));
+    mutationFn: ({ silent, ...data }) => InventoryRecipeService.update(data),
+    onSuccess: (_data, variables) => {
+      if (!variables.silent) toast.success(t("recipe.updateSuccess"));
       invalidate();
     },
-    onError: (error) => {
-      toast.error(error.message || t("recipe.updateError"));
+    onError: (error, variables) => {
+      if (!variables.silent) toast.error(error.message || t("recipe.updateError"));
     },
   });
 
-  const deleteRecipe = useMutation<void, Error, string>({
-    mutationFn: (id) => InventoryRecipeService.remove(id),
-    onSuccess: () => {
-      toast.success(t("recipe.deleteSuccess"));
+  const deleteRecipe = useMutation<
+    void,
+    Error,
+    { id: string; silent?: boolean }
+  >({
+    mutationFn: ({ id }) => InventoryRecipeService.remove(id),
+    onSuccess: (_data, variables) => {
+      if (!variables.silent) toast.success(t("recipe.deleteSuccess"));
       invalidate();
     },
-    onError: (error) => {
-      toast.error(error.message || t("recipe.deleteError"));
+    onError: (error, variables) => {
+      if (!variables.silent) toast.error(error.message || t("recipe.deleteError"));
     },
   });
 

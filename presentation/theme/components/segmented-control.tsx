@@ -22,7 +22,7 @@ export default function SegmentedControl<T extends string>({
   onChange,
 }: SegmentedControlProps<T>) {
   return (
-    <View style={tw`flex-row  rounded-3xl  gap-4`}>
+    <View style={tw`flex-row  rounded-3xl  gap-1`}>
       {items.map((item) => {
         const isActive = value === item.value;
         const iconColor = isActive
@@ -41,9 +41,9 @@ export default function SegmentedControl<T extends string>({
             onPress={() => onChange(item.value)}
             style={({ pressed }) =>
               tw.style(
-                "flex-1 flex-row items-center justify-center gap-2 py-2.5 rounded-3xl bg-white ",
+                "flex-1 flex-row items-center justify-center gap-2 py-2.5 rounded-md bg-white ",
                 pressed && "opacity-80",
-                isActive && "shadow-sm",
+                isActive && " shadow-sm rounded-3xl",
               )
             }
           >

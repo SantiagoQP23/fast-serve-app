@@ -114,28 +114,14 @@ const BottomSheetPicker = forwardRef<
       <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
         <BottomSheetView style={tw` px-4 `}>
           {/* Header */}
-          <ThemedView style={tw`flex-row items-center justify-between mb-4 `}>
-            <ThemedText type="h3" style={tw`ml-3 flex-1`} numberOfLines={1}>
+          <ThemedView style={tw`mb-4`}>
+            <ThemedText
+              type="h2"
+              style={[tw`ml-3`, { fontFamily: typography.regular }]}
+              numberOfLines={1}
+            >
               {title || "Select an option"}
             </ThemedText>
-            {headerAction && (
-              <Pressable
-                onPress={handleHeaderAction}
-                hitSlop={8}
-                style={tw`shrink-0 ml-2`}
-              >
-                <ThemedText
-                  type="body2"
-                  numberOfLines={1}
-                  style={[
-                    tw`text-light-primary`,
-                    { fontFamily: typography.medium },
-                  ]}
-                >
-                  {headerAction.label}
-                </ThemedText>
-              </Pressable>
-            )}
           </ThemedView>
 
           {/* Search Input */}
@@ -156,6 +142,19 @@ const BottomSheetPicker = forwardRef<
                 }
               />
             </View>
+          )}
+
+          {headerAction && (
+            <ThemedView style={tw`flex-row mb-2`}>
+              <Button
+                leftIcon="add"
+                label={headerAction.label}
+                variant={
+                  value !== undefined && value !== "" ? "outline" : "secondary"
+                }
+                onPress={handleHeaderAction}
+              />
+            </ThemedView>
           )}
 
           {/* Options List */}

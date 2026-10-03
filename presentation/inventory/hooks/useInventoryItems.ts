@@ -26,15 +26,15 @@ export const useInventoryItems = () => {
   const createItem = useMutation<
     InventoryItem,
     Error,
-    CreateInventoryItemDto
+    CreateInventoryItemDto & { silent?: boolean }
   >({
-    mutationFn: (data) => InventoryService.create(data),
-    onSuccess: () => {
-      toast.success(t("createSuccess"));
+    mutationFn: ({ silent, ...data }) => InventoryService.create(data),
+    onSuccess: (_data, variables) => {
+      if (!variables.silent) toast.success(t("createSuccess"));
       invalidate();
     },
-    onError: (error) => {
-      toast.error(error.message || t("createError"));
+    onError: (error, variables) => {
+      if (!variables.silent) toast.error(error.message || t("createError"));
     },
   });
 

@@ -25,7 +25,7 @@ export default function OptionStockSummary({
 
   const handleManageRecipe = () => {
     router.push({
-      pathname: "/(profile)/menu-product-option-inventory",
+      pathname: "/(profile)/menu-product-option-recipe",
       params: {
         productOptionId: String(productOptionId),
         productOptionName,
