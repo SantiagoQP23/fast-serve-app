@@ -6,10 +6,21 @@ import type { CreateInventoryItemDto } from "../interfaces/dto/create-inventory-
 import type { UpdateInventoryItemDto } from "../interfaces/dto/update-inventory-item.dto";
 import type { AdjustInventoryDto } from "../interfaces/dto/adjust-inventory.dto";
 import type { LinkProductOptionDto } from "../interfaces/dto/link-product-option.dto";
+import type { FindAllInventoryItemsDto } from "../interfaces/dto/find-all-inventory-items.dto";
+
+export interface InventoryItemsPage {
+  items: InventoryItem[];
+  count: number;
+}
 
 export class InventoryService {
-  static async getAll(): Promise<InventoryItem[]> {
-    const resp = await restaurantApi.get<InventoryItem[]>("/inventory/items");
+  static async getAll(
+    filters: FindAllInventoryItemsDto = {},
+  ): Promise<InventoryItemsPage> {
+    const resp = await restaurantApi.get<InventoryItemsPage>(
+      "/inventory/items",
+      { params: filters },
+    );
     return resp.data;
   }
 

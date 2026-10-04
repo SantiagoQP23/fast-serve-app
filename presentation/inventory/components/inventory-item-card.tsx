@@ -13,6 +13,7 @@ import {
   type InventoryStockStatus,
 } from "@/core/inventory/models/inventory-item.model";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
+import Card from "@/presentation/theme/components/card";
 
 interface InventoryItemCardProps {
   item: InventoryItem;
@@ -75,12 +76,13 @@ export default function InventoryItemCard({
     !isInactive && !!item.minimumQuantity && item.minimumQuantity > 0;
 
   return (
-    <Pressable
+    <Card
+      variant="outline"
       disabled={!onPress}
       onPress={() => onPress?.(item)}
       style={({ pressed }) =>
         tw.style(
-          "bg-light-surface rounded-3xl p-5 gap-3 shadow-xs",
+          " gap-3 ",
           isInactive && "opacity-50 border border-dashed border-light-border",
           pressed && onPress && "opacity-80",
         )
@@ -153,6 +155,6 @@ export default function InventoryItemCard({
         {/*   /> */}
         {/* )} */}
       </ThemedView>
-    </Pressable>
+    </Card>
   );
 }

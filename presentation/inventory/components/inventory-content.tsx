@@ -19,11 +19,13 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
+import { useInventoryItemsBrowser } from "@/presentation/inventory/hooks/useInventoryItemsBrowser";
 import { useInventoryItemCategories } from "@/presentation/inventory/hooks/useInventoryItemCategories";
 import AdjustStockModal from "@/presentation/inventory/components/adjust-stock-modal";
 import InventoryItemCard from "@/presentation/inventory/components/inventory-item-card";
 import InventoryStockSummary from "@/presentation/inventory/components/inventory-stock-summary";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
+import { InventoryItemStockStatusFilter } from "@/presentation/inventory/interfaces/dto/find-all-inventory-items.dto";
 
 interface InventoryContentProps {
   onBack?: () => void;
@@ -33,7 +35,12 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   const { t } = useTranslation("inventory");
   const { user } = useAuthStore();
   const canManage = isAdminLevelRole(user?.role?.name);
-  const { items, itemsQuery, deleteItem, updateItem } = useInventoryItems();
+  const {
+    items: catalogItems,
+    itemsQuery: catalogQuery,
+    deleteItem,
+    updateItem,
+  } = useInventoryItems();
   const { categories } = useInventoryItemCategories();
   const [itemToDelete, setItemToDelete] = useState<InventoryItem | null>(null);
   const [itemToAdjust, setItemToAdjust] = useState<InventoryItem | null>(null);
@@ -44,18 +51,31 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
   );
+  const [selectedStatus, setSelectedStatus] =
+    useState<InventoryItemStockStatusFilter | null>(null);
   const optionsSheetRef = useRef<BottomSheetMethods>(null);
   const addSheetRef = useRef<BottomSheetMethods>(null);
 
+  const {
+    items: browsedItems,
+    itemsQuery: browserQuery,
+    hasMore,
+    isLoadingMore,
+    loadMore,
+  } = useInventoryItemsBrowser({
+    categoryId: selectedCategoryId,
+    status: selectedStatus,
+  });
+
+  // Category/status are filtered server-side; the search box only narrows
+  // what has already been loaded onto the screen.
   const filteredItems = useMemo(() => {
     const query = search.trim().toLowerCase();
-    return items.filter((item) => {
-      const matchesQuery = !query || item.name.toLowerCase().includes(query);
-      const matchesCategory =
-        !selectedCategoryId || item.category?.id === selectedCategoryId;
-      return matchesQuery && matchesCategory;
-    });
-  }, [items, search, selectedCategoryId]);
+    if (!query) return browsedItems;
+    return browsedItems.filter((item) =>
+      item.name.toLowerCase().includes(query),
+    );
+  }, [browsedItems, search]);
 
   const handleOpenAddSelector = () => {
     addSheetRef.current?.present();
@@ -203,14 +223,14 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
         contentContainerStyle={tw`px-4 gap-6 pb-8 pt-6`}
         refreshControl={
           <RefreshControl
-            refreshing={itemsQuery.isFetching}
-            onRefresh={itemsQuery.refetch}
+            refreshing={browserQuery.isFetching}
+            onRefresh={browserQuery.refetch}
             tintColor={tw.color("blue-500")}
             colors={[tw.color("blue-500") || "#3b82f6"]}
           />
         }
       >
-        {itemsQuery.isLoading && (
+        {browserQuery.isLoading && !isLoadingMore && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
             <ThemedText type="body1" style={tw`text-gray-500`}>
               {t("loading")}
@@ -218,7 +238,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
           </ThemedView>
         )}
 
-        {itemsQuery.isError && (
+        {browserQuery.isError && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
             <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
             <ThemedText type="body1" style={tw`text-red-500`}>
@@ -226,31 +246,42 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
             </ThemedText>
             <Button
               label={t("retry")}
-              onPress={() => itemsQuery.refetch()}
+              onPress={() => browserQuery.refetch()}
               variant="outline"
             />
           </ThemedView>
         )}
 
-        {!itemsQuery.isLoading && !itemsQuery.isError && items.length === 0 && (
-          <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="cube-outline" size={48} color="#999" />
-            <ThemedText type="body1" style={tw`font-semibold`}>
-              {t("empty")}
-            </ThemedText>
-            <ThemedText type="body2" style={tw`text-center text-gray-500 px-4`}>
-              {t("emptyDescription")}
-            </ThemedText>
-          </ThemedView>
-        )}
+        {!browserQuery.isLoading &&
+          !browserQuery.isError &&
+          catalogItems.length === 0 && (
+            <ThemedView style={tw`items-center py-8 gap-3`}>
+              <Ionicons name="cube-outline" size={48} color="#999" />
+              <ThemedText type="body1" style={tw`font-semibold`}>
+                {t("empty")}
+              </ThemedText>
+              <ThemedText
+                type="body2"
+                style={tw`text-center text-gray-500 px-4`}
+              >
+                {t("emptyDescription")}
+              </ThemedText>
+            </ThemedView>
+          )}
 
-        {!itemsQuery.isLoading && !itemsQuery.isError && items.length > 0 && (
-          <InventoryStockSummary items={items} />
-        )}
+        {!catalogQuery.isLoading &&
+          !catalogQuery.isError &&
+          catalogItems.length > 0 && (
+            <InventoryStockSummary
+              items={catalogItems}
+              selectedStatus={selectedStatus}
+              onSelectStatus={setSelectedStatus}
+            />
+          )}
 
-        {!itemsQuery.isLoading &&
-          !itemsQuery.isError &&
-          items.length > 0 &&
+        {!browserQuery.isLoading &&
+          !browserQuery.isError &&
+          catalogItems.length > 0 &&
           filteredItems.length === 0 && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
               <Ionicons name="search-outline" size={40} color="#999" />
@@ -266,7 +297,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
             </ThemedView>
           )}
 
-        {filteredItems.length > 0 && (
+        {browsedItems.length > 0 && (
           <ThemedView style={tw`gap-3.5 bg-transparent`}>
             {filteredItems.map((item) => (
               <InventoryItemCard
@@ -284,6 +315,14 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                 onReactivatePress={handleReactivate}
               />
             ))}
+            {hasMore && (
+              <Button
+                label={t("common:actions.loadMore")}
+                variant="outline"
+                loading={isLoadingMore}
+                onPress={loadMore}
+              />
+            )}
           </ThemedView>
         )}
       </ScrollView>

@@ -18,6 +18,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Select from "@/presentation/theme/components/select";
+import InfoTooltip from "@/presentation/theme/components/info-tooltip";
 import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -83,13 +84,10 @@ export default function MenuInventoryItemFormScreen() {
     value: unit,
   }));
 
-  const categoryOptions = [
-    { label: t("categories.none"), value: "" },
-    ...categories.map((category) => ({
-      label: category.name,
-      value: category.id,
-    })),
-  ];
+  const categoryOptions = categories.map((category) => ({
+    label: category.name,
+    value: category.id,
+  }));
 
   const onSubmit = async (data: ItemFormData) => {
     const payload = {
@@ -178,35 +176,40 @@ export default function MenuInventoryItemFormScreen() {
           <ThemedView style={tw`my-6`} />
 
           <ThemedView style={tw`gap-4`}>
-            <Controller
-              control={control}
-              name="name"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label={t("fields.name")}
-                  icon="cube"
-                  placeholder={t("placeholders.name")}
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onChange}
-                  error={errors.name?.message}
+            <ThemedView style={tw`flex-row gap-3`}>
+              <ThemedView style={{ flex: 0.6 }}>
+                <Controller
+                  control={control}
+                  name="name"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      label={t("fields.name")}
+                      icon="cube"
+                      placeholder={t("placeholders.name")}
+                      onBlur={onBlur}
+                      value={value}
+                      onChangeText={onChange}
+                      error={errors.name?.message}
+                    />
+                  )}
                 />
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="unit"
-              render={({ field: { value, onChange } }) => (
-                <Select
-                  label={t("fields.unit")}
-                  options={unitOptions}
-                  value={value}
-                  onChange={(v) => onChange(v as InventoryUnit)}
-                  placeholder={t("placeholders.unit")}
+              </ThemedView>
+              <ThemedView style={{ flex: 0.4 }}>
+                <Controller
+                  control={control}
+                  name="unit"
+                  render={({ field: { value, onChange } }) => (
+                    <Select
+                      label={t("fields.unit")}
+                      options={unitOptions}
+                      value={value}
+                      onChange={(v) => onChange(v as InventoryUnit)}
+                      placeholder={t("placeholders.unit")}
+                    />
+                  )}
                 />
-              )}
-            />
+              </ThemedView>
+            </ThemedView>
 
             <ThemedView style={tw`gap-2`}>
               <Controller
@@ -218,7 +221,6 @@ export default function MenuInventoryItemFormScreen() {
                     options={categoryOptions}
                     value={value || ""}
                     onChange={(v) => onChange(String(v))}
-                    placeholder={t("placeholders.category")}
                   />
                 )}
               />
@@ -243,7 +245,7 @@ export default function MenuInventoryItemFormScreen() {
                   name="quantity"
                   render={({ field: { onChange, onBlur, value } }) => (
                     <TextInput
-                      label={t("fields.quantity")}
+                      label={t("wholeProduct.fields.currentQuantity")}
                       placeholder={t("placeholders.quantity")}
                       onBlur={onBlur}
                       value={value}
@@ -265,6 +267,11 @@ export default function MenuInventoryItemFormScreen() {
                       value={value}
                       onChangeText={onChange}
                       keyboardType="decimal-pad"
+                      trailingIcon={
+                        <InfoTooltip
+                          text={t("wholeProduct.fields.minimumQuantityInfo")}
+                        />
+                      }
                     />
                   )}
                 />

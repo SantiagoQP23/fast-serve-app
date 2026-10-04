@@ -101,9 +101,9 @@ export const useOrdersStore = create<OrdersState>()(
       updateProductInOrders: (product: Product) =>
         set((state) => {
           const replaceInDetails = (details: OrderDetail[]) =>
-            details.some((d) => d.product.id === product.id)
+            details.some((d) => d.product?.id === product.id)
               ? details.map((d) =>
-                  d.product.id === product.id ? { ...d, product } : d,
+                  d.product?.id === product.id ? { ...d, product } : d,
                 )
               : details;
 
@@ -119,7 +119,7 @@ export const useOrdersStore = create<OrdersState>()(
                 }
               : state.activeOrder,
             activeOrderDetail:
-              state.activeOrderDetail?.product.id === product.id
+              state.activeOrderDetail?.product?.id === product.id
                 ? { ...state.activeOrderDetail, product }
                 : state.activeOrderDetail,
           };

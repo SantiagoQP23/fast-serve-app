@@ -1,3 +1,4 @@
+import { Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -8,13 +9,18 @@ import {
   getInventoryStockStatus,
   type InventoryItem,
 } from "@/core/inventory/models/inventory-item.model";
+import { InventoryItemStockStatusFilter } from "@/presentation/inventory/interfaces/dto/find-all-inventory-items.dto";
 
 interface InventoryStockSummaryProps {
   items: InventoryItem[];
+  selectedStatus: InventoryItemStockStatusFilter | null;
+  onSelectStatus: (status: InventoryItemStockStatusFilter | null) => void;
 }
 
 export default function InventoryStockSummary({
   items,
+  selectedStatus,
+  onSelectStatus,
 }: InventoryStockSummaryProps) {
   const { t } = useTranslation("inventory");
 
@@ -31,7 +37,7 @@ export default function InventoryStockSummary({
 
   const tiles = [
     {
-      key: "critical",
+      key: InventoryItemStockStatusFilter.CRITICAL,
       count: counts.critical,
       label: t("summary.critical"),
       description: t("summary.criticalDescription"),
@@ -39,7 +45,7 @@ export default function InventoryStockSummary({
       color: "red-500",
     },
     {
-      key: "low",
+      key: InventoryItemStockStatusFilter.LOW,
       count: counts.low,
       label: t("summary.low"),
       description: t("summary.lowDescription"),
@@ -47,7 +53,7 @@ export default function InventoryStockSummary({
       color: "orange-500",
     },
     {
-      key: "optimal",
+      key: InventoryItemStockStatusFilter.OPTIMAL,
       count: counts.optimal,
       label: t("summary.optimal"),
       description: t("summary.optimalDescription"),
@@ -58,36 +64,56 @@ export default function InventoryStockSummary({
 
   return (
     <ThemedView style={tw`flex-row gap-2.5`}>
-      {tiles.map((tile) => (
-        <ThemedView
-          key={tile.key}
-          style={[tw`flex-1 bg-light-surface rounded-3xl p-3.5 gap-2 `]}
-        >
-          <ThemedView
-            style={tw`flex-row items-center justify-between bg-transparent`}
+      {tiles.map((tile) => {
+        const isSelected = selectedStatus === tile.key;
+        return (
+          <Pressable
+            key={tile.key}
+            onPress={() => onSelectStatus(isSelected ? null : tile.key)}
+            style={({ pressed }) => tw.style("flex-1", pressed && "opacity-70")}
+            accessibilityRole="button"
+            accessibilityLabel={tile.label}
           >
-            <ThemedText type="small" style={tw`text-gray-500`}>
-              {tile.label}
-            </ThemedText>
-            <Ionicons name={tile.icon} size={16} color={tw.color(tile.color)} />
-          </ThemedView>
-          <ThemedView style={tw`bg-transparent`}>
-            <ThemedText type="h3" style={{ fontFamily: typography.bold }}>
-              {tile.count}
-            </ThemedText>
-            <ThemedText
-              type="small"
-              numberOfLines={1}
+            <ThemedView
               style={[
-                { color: tw.color(tile.color) },
-                { fontFamily: typography.semibold },
+                tw`bg-light-surface rounded-3xl p-3.5 gap-2`,
+                isSelected && {
+                  borderWidth: 2,
+                  borderColor: tw.color(tile.color),
+                },
               ]}
             >
-              {tile.description}
-            </ThemedText>
-          </ThemedView>
-        </ThemedView>
-      ))}
+              <ThemedView
+                style={tw`flex-row items-center justify-between bg-transparent`}
+              >
+                <ThemedText type="small" style={tw`text-gray-500`}>
+                  {tile.label}
+                </ThemedText>
+                <Ionicons
+                  name={tile.icon}
+                  size={16}
+                  color={tw.color(tile.color)}
+                />
+              </ThemedView>
+              <ThemedView style={tw`bg-transparent`}>
+                <ThemedText type="h3" style={{ fontFamily: typography.bold }}>
+                  {tile.count}
+                </ThemedText>
+                <ThemedText
+                  type="small"
+                  numberOfLines={1}
+                  style={[
+                    { color: tw.color(tile.color) },
+                    { fontFamily: typography.semibold },
+                  ]}
+                >
+                  {tile.description}
+                </ThemedText>
+              </ThemedView>
+            </ThemedView>
+          </Pressable>
+        );
+      })}
     </ThemedView>
   );
 }

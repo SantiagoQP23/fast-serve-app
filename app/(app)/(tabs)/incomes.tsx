@@ -399,9 +399,29 @@ export default function IncomesScreen() {
                     const displayedAccountIncome = showAccounts
                       ? formattedAccountIncome
                       : formattedAccountIncome.replace(/\d/g, "*");
+                    const isSelected =
+                      filters.accountId === account.accountId;
 
                     return (
-                      <Card key={account.accountId} style={tw`w-36 `}>
+                      <Card
+                        key={account.accountId}
+                        variant={isSelected ? "outline" : "default"}
+                        style={[
+                          tw`w-36`,
+                          isSelected && {
+                            borderColor: primaryColor,
+                            borderWidth: 2,
+                          },
+                        ]}
+                        onPress={() =>
+                          handleFiltersChange({
+                            ...filters,
+                            accountId: isSelected
+                              ? undefined
+                              : account.accountId,
+                          })
+                        }
+                      >
                         <ThemedText
                           type="small"
                           style={tw`text-gray-500 mb-3`}
@@ -409,7 +429,13 @@ export default function IncomesScreen() {
                         >
                           {account.accountName}
                         </ThemedText>
-                        <ThemedText type="h3" style={tw`font-semibold`}>
+                        <ThemedText
+                          type="h3"
+                          style={[
+                            tw`font-semibold`,
+                            isSelected && { color: primaryColor },
+                          ]}
+                        >
                           {displayedAccountIncome}
                         </ThemedText>
                       </Card>

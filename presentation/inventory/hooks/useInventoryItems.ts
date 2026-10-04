@@ -10,14 +10,19 @@ import type { UpdateInventoryItemDto } from "../interfaces/dto/update-inventory-
 import type { AdjustInventoryDto } from "../interfaces/dto/adjust-inventory.dto";
 import type { LinkProductOptionDto } from "../interfaces/dto/link-product-option.dto";
 
-const inventoryItemsQueryKey = ["inventory-items"];
+export const inventoryItemsQueryKey = ["inventory-items"];
+
+// Pickers (recipe lines) and the stock summary need the whole catalog, not
+// just one page — restaurant inventories are small enough that fetching
+// them in one shot is cheaper than reconciling a paginated subset.
+const ALL_ITEMS_LIMIT = 1000;
 
 export const useInventoryItems = () => {
   const { t } = useTranslation("inventory");
 
   const itemsQuery = useQuery({
-    queryKey: inventoryItemsQueryKey,
-    queryFn: () => InventoryService.getAll(),
+    queryKey: [...inventoryItemsQueryKey, "all"],
+    queryFn: () => InventoryService.getAll({ limit: ALL_ITEMS_LIMIT }),
   });
 
   const invalidate = () =>
@@ -100,7 +105,7 @@ export const useInventoryItems = () => {
 
   return {
     itemsQuery,
-    items: itemsQuery.data ?? [],
+    items: itemsQuery.data?.items ?? [],
     createItem,
     updateItem,
     deleteItem,
