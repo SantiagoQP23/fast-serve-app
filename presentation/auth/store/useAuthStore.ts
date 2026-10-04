@@ -22,6 +22,7 @@ import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore"
 import { useTablesStore } from "@/presentation/tables/hooks/useTablesStore";
 import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
 import { usePrintersStore } from "@/presentation/printers/store/usePrintersStore";
+import { useProductionAreasStore } from "@/presentation/production-areas/store/useProductionAreasStore";
 
 export type AuthStatus = "authenticated" | "unauthenticated" | "checking";
 export type BootstrapStatus = "idle" | "loading" | "success" | "error";
@@ -120,16 +121,40 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     }
 
     try {
-      const data = await bootstrapRestaurantData(currentRestaurant.id);
+      const restaurantId = currentRestaurant.id;
 
-      useMenuStore.getState().setMenu(data.menu, currentRestaurant.id);
-      usePaymentMethodsStore
-        .getState()
-        .setPaymentMethods(data.paymentMethods, currentRestaurant.id);
-      usePrintersStore
-        .getState()
-        .setPrinters(data.printers, currentRestaurant.id);
-      useTablesStore.getState().setTables(data.tables, currentRestaurant.id);
+      // Drop data cached for a different restaurant so screens never show
+      // the previous restaurant's payment methods or production areas.
+      if (usePaymentMethodsStore.getState().restaurantId !== restaurantId) {
+        usePaymentMethodsStore.getState().clearPaymentMethods();
+      }
+      if (useProductionAreasStore.getState().restaurantId !== restaurantId) {
+        useProductionAreasStore.getState().clearProductionAreas();
+      }
+
+      const data = await bootstrapRestaurantData(restaurantId);
+
+      if (data.menu) useMenuStore.getState().setMenu(data.menu, restaurantId);
+      if (data.paymentMethods) {
+        usePaymentMethodsStore
+          .getState()
+          .setPaymentMethods(data.paymentMethods, restaurantId);
+      }
+      if (data.productionAreas) {
+        useProductionAreasStore
+          .getState()
+          .setProductionAreas(data.productionAreas, restaurantId);
+      }
+      if (data.printers) {
+        usePrintersStore.getState().setPrinters(data.printers, restaurantId);
+      }
+      if (data.tables) {
+        useTablesStore.getState().setTables(data.tables, restaurantId);
+      }
+
+      if (data.errors.length > 0) {
+        throw data.errors[0];
+      }
 
       set({ bootstrapStatus: "success", bootstrapError: null });
       return true;
@@ -276,6 +301,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
     useMenuStore.getState().clearMenu();
     usePaymentMethodsStore.getState().clearPaymentMethods();
+    useProductionAreasStore.getState().clearProductionAreas();
     usePrintersStore.getState().clearPrinters();
     useTablesStore.getState().clearTables();
 
@@ -299,6 +325,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
     useMenuStore.getState().clearMenu();
     usePaymentMethodsStore.getState().clearPaymentMethods();
+    useProductionAreasStore.getState().clearProductionAreas();
     usePrintersStore.getState().clearPrinters();
     useTablesStore.getState().clearTables();
 
