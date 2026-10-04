@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { ScrollView, RefreshControl, Pressable } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -47,7 +47,6 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   const [itemForOptions, setItemForOptions] = useState<InventoryItem | null>(
     null,
   );
-  const [search, setSearch] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
   );
@@ -67,15 +66,9 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     status: selectedStatus,
   });
 
-  // Category/status are filtered server-side; the search box only narrows
-  // what has already been loaded onto the screen.
-  const filteredItems = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    if (!query) return browsedItems;
-    return browsedItems.filter((item) =>
-      item.name.toLowerCase().includes(query),
-    );
-  }, [browsedItems, search]);
+  const handleOpenSearch = () => {
+    router.push({ pathname: "/(profile)/menu-inventory-search" });
+  };
 
   const handleOpenAddSelector = () => {
     addSheetRef.current?.present();
@@ -171,13 +164,18 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
           )}
         </ThemedView>
 
-        <TextInput
-          placeholder={t("searchPlaceholder")}
-          icon="search-outline"
-          value={search}
-          onChangeText={setSearch}
-          returnKeyType="search"
-        />
+        <Pressable
+          onPress={handleOpenSearch}
+          accessibilityRole="button"
+          accessibilityLabel={t("searchPlaceholder")}
+        >
+          <TextInput
+            placeholder={t("searchPlaceholder")}
+            icon="search-outline"
+            editable={false}
+            pointerEvents="none"
+          />
+        </Pressable>
 
         {(categories.length > 0 || canManage) && (
           <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}>
@@ -282,7 +280,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
         {!browserQuery.isLoading &&
           !browserQuery.isError &&
           catalogItems.length > 0 &&
-          filteredItems.length === 0 && (
+          browsedItems.length === 0 && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
               <Ionicons name="search-outline" size={40} color="#999" />
               <ThemedText type="body1" style={tw`font-semibold`}>
@@ -299,7 +297,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
 
         {browsedItems.length > 0 && (
           <ThemedView style={tw`gap-3.5 bg-transparent`}>
-            {filteredItems.map((item) => (
+            {browsedItems.map((item) => (
               <InventoryItemCard
                 key={item.id}
                 item={item}

@@ -102,10 +102,7 @@ export default function InventoryStockSummary({
                 <ThemedText
                   type="small"
                   numberOfLines={1}
-                  style={[
-                    { color: tw.color(tile.color) },
-                    { fontFamily: typography.semibold },
-                  ]}
+                  style={[{ fontFamily: typography.semibold }]}
                 >
                   {tile.description}
                 </ThemedText>

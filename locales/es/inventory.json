@@ -17,6 +17,7 @@
   "unitRemaining": "restantes",
   "quantityWithUnit": "{{quantity}} {{unit}}",
   "searchPlaceholder": "Buscar insumos por nombre...",
+  "searchHint": "Escribe para buscar insumos",
   "noResults": "No se encontraron insumos",
   "noResultsDescription": "Intenta con otro término de búsqueda.",
   "options": "Opciones",

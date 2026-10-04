@@ -17,6 +17,7 @@
   "unitRemaining": "left",
   "quantityWithUnit": "{{quantity}} {{unit}}",
   "searchPlaceholder": "Search items by name...",
+  "searchHint": "Type to search inventory items",
   "noResults": "No items found",
   "noResultsDescription": "Try a different search term.",
   "options": "Options",
