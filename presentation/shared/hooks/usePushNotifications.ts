@@ -105,6 +105,9 @@ async function registerForPushNotificationsAsync() {
 export const usePushNotifications = () => {
   const [pendingChatId, setPendingChatId] = useState<string | null>("");
   const [pendingPaymentId, setPendingPaymentId] = useState<string | null>("");
+  const [pendingInventoryItemId, setPendingInventoryItemId] = useState<
+    string | null
+  >("");
   const rootNavigationState = useRootNavigationState();
 
   const authStatus = useAuthStore((state) => state.status);
@@ -169,6 +172,11 @@ export const usePushNotifications = () => {
               // router.push(`/payments/${notification.payload.paymentId}`);
               setPendingPaymentId(notification.payload.paymentId as string);
               break;
+            case PushNotificationType.LOW_STOCK:
+              setPendingInventoryItemId(
+                notification.payload.inventoryItemId as string,
+              );
+              break;
           }
         }
       });
@@ -188,6 +196,11 @@ export const usePushNotifications = () => {
           case PushNotificationType.NEW_PAYMENT:
             // router.push(`/payments/${notification.payload.paymentId}`);
             setPendingPaymentId(notification.payload.paymentId as string);
+            break;
+          case PushNotificationType.LOW_STOCK:
+            setPendingInventoryItemId(
+              notification.payload.inventoryItemId as string,
+            );
             break;
 
           // case PushNotificationType.NEW_ORDER:
@@ -220,6 +233,17 @@ export const usePushNotifications = () => {
     router.push(`/transaction/${pendingPaymentId}`);
     setPendingPaymentId(null);
   }, [pendingPaymentId, rootNavigationState?.key]);
+
+  useEffect(() => {
+    if (!rootNavigationState.key) return;
+    if (!pendingInventoryItemId) return;
+
+    router.push({
+      pathname: "/(profile)/menu-inventory-item-detail",
+      params: { itemId: pendingInventoryItemId },
+    });
+    setPendingInventoryItemId(null);
+  }, [pendingInventoryItemId, rootNavigationState?.key]);
 
   return {
     // Props
