@@ -62,7 +62,7 @@ export const usePrintComanda = () => {
         detailTakeAway: t("orders:comanda.detailTakeAway"),
         deletedUser: t("common:labels.deletedUser"),
         itemAction: (action: TicketItemAction) =>
-          t(`orders:comanda.itemAction.${action}`),
+          t(`orders:comanda.itemActionPrefix.${action}`),
       };
 
       let printedAny = false;
