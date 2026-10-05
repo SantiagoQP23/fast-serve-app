@@ -1,9 +1,9 @@
 import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
+import { Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
-import { GroupedList } from "@/presentation/theme/components/grouped-list";
 
 export interface ActionsBottomSheetItem {
   icon: keyof typeof Ionicons.glyphMap;
@@ -25,7 +25,7 @@ export default function ActionsBottomSheet({
   items,
 }: ActionsBottomSheetProps) {
   return (
-    <BottomSheetView style={tw`px-4 pb-6`}>
+    <BottomSheetView style={tw`px-8 pb-6`}>
       {(title || subtitle) && (
         <ThemedView style={tw`mb-4`}>
           {title && <ThemedText type="h3">{title}</ThemedText>}
@@ -37,16 +37,19 @@ export default function ActionsBottomSheet({
         </ThemedView>
       )}
 
-      <GroupedList
-        data={items}
-        keyExtractor={(item, index) => `${item.label}-${index}`}
-        onItemPress={(item) => !item.disabled && item.onPress()}
-        renderItem={(item) => (
-          <ThemedView
-            style={tw.style(
-              "flex-row items-center gap-3",
-              item.disabled && "opacity-40",
-            )}
+      <ThemedView>
+        {items.map((item, index) => (
+          <Pressable
+            key={`${item.label}-${index}`}
+            disabled={item.disabled}
+            onPress={item.onPress}
+            style={(state) =>
+              tw.style(
+                "flex-row items-center gap-3 py-3",
+                state.pressed && "opacity-60",
+                item.disabled && "opacity-40",
+              )
+            }
           >
             <Ionicons
               name={item.icon}
@@ -63,16 +66,16 @@ export default function ActionsBottomSheet({
             >
               {item.label}
             </ThemedText>
-            {!item.disabled && (
-              <Ionicons
-                name="chevron-forward"
-                size={18}
-                color={tw.color("gray-400")}
-              />
-            )}
-          </ThemedView>
-        )}
-      />
+            {/* {!item.disabled && ( */}
+            {/*   <Ionicons */}
+            {/*     name="chevron-forward" */}
+            {/*     size={18} */}
+            {/*     color={tw.color("gray-400")} */}
+            {/*   /> */}
+            {/* )} */}
+          </Pressable>
+        ))}
+      </ThemedView>
     </BottomSheetView>
   );
 }

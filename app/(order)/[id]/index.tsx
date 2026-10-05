@@ -54,7 +54,7 @@ import Checkbox from "@/presentation/theme/components/checkbox";
 import { useMarkOrderDelivered } from "@/presentation/orders/hooks/useMarkOrderDelivered";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useBills } from "@/presentation/orders/hooks/useBills";
-import { GroupedList } from "@/presentation/theme/components/grouped-list";
+import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import OrderBillsTab from "@/presentation/orders/components/order-bills-tab";
 import OrderTicketsTab from "@/presentation/orders/components/order-tickets-tab";
 import { typography } from "@/constants/theme";
@@ -543,10 +543,7 @@ export default function OrderScreen() {
                     size={24}
                     color={tw.color("primary-600")}
                   />
-                  <ThemedText
-                    type="h2"
-                    style={{ fontFamily: typography.semibold }}
-                  >
+                  <ThemedText type="h2">
                     {order.type === OrderType.IN_PLACE
                       ? `${t("common:labels.table")} ${order.table?.name}`
                       : t("common:labels.takeAway")}
@@ -1009,50 +1006,15 @@ export default function OrderScreen() {
 
       {/* More Options Bottom Sheet */}
       <ThemedBottomSheetModal ref={moreOptionsSheetRef} enablePanDownToClose>
-        <ThemedView style={tw`p-4 gap-4`}>
-          {/* <ThemedText type="h3" style={tw`text-center`}> */}
-          {/*   {t("orders:details.moreOptions")} */}
-          {/* </ThemedText> */}
-
-          <GroupedList
-            data={moreOptions}
-            keyExtractor={(item) => item.label}
-            onItemPress={(item) => !item.disabled && item.onPress()}
-            renderItem={(item) => (
-              <ThemedView style={tw`flex-row items-center gap-3`}>
-                <Ionicons
-                  name={item.icon}
-                  size={22}
-                  color={tw.color("gray-600")}
-                />
-                <ThemedText type="body1">{item.label}</ThemedText>
-              </ThemedView>
-            )}
-          />
-
-          <GroupedList
-            data={dangerOptions}
-            keyExtractor={(item) => item.label}
-            onItemPress={(item) => !item.disabled && item.onPress()}
-            renderItem={(item) => (
-              <ThemedView
-                style={tw.style(
-                  "flex-row items-center gap-3",
-                  item.disabled && "opacity-40",
-                )}
-              >
-                <Ionicons
-                  name={item.icon}
-                  size={22}
-                  color={tw.color("red-500")}
-                />
-                <ThemedText type="body1" style={tw`text-red-500`}>
-                  {item.label}
-                </ThemedText>
-              </ThemedView>
-            )}
-          />
-        </ThemedView>
+        <ActionsBottomSheet
+          items={[
+            ...moreOptions,
+            ...dangerOptions.map((option) => ({
+              ...option,
+              color: "text-red-500",
+            })),
+          ]}
+        />
       </ThemedBottomSheetModal>
     </>
   );
