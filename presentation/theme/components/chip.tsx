@@ -52,6 +52,11 @@ export default function Chip({
       ? ASSIST_ICON_COLOR
       : DEFAULT_ICON_COLOR;
 
+  // When filled and nothing else occupies the leading slot, show the M3
+  // selected-state checkmark. An explicit `icon` always wins (e.g. a "close"
+  // icon on an applied-filter chip means remove, not re-confirm selection).
+  const resolvedIcon = icon ?? (filled && !leftContent ? "checkmark" : undefined);
+
   const trailingContent =
     rightContent ??
     (variant === "input" && onRemove ? (
@@ -75,7 +80,9 @@ export default function Chip({
       ]}
     >
       {leftContent}
-      {icon && <Ionicons name={icon} size={16} color={iconColor} />}
+      {resolvedIcon && (
+        <Ionicons name={resolvedIcon} size={16} color={iconColor} />
+      )}
       <ThemedText
         type="body2"
         style={[

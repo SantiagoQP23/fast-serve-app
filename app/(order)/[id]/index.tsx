@@ -575,21 +575,10 @@ export default function OrderScreen() {
                 }
               >
                 {/* Status & Payment Labels */}
+
                 <ThemedView
-                  style={tw`flex-row items-center gap-2 flex-wrap mb-6 rounded-xl`}
+                  style={tw`flex-row items-center gap-2 flex-wrap mb-4 rounded-xl`}
                 >
-                  <Label
-                    leftIcon="hourglass-outline"
-                    text={(deliveryTime ?? createdAt).format("HH:mm")}
-                    color="default"
-                    onPress={openTimePicker}
-                    size="small"
-                  />
-                  <Label
-                    text={String(order.people)}
-                    leftIcon="people-outline"
-                    size="small"
-                  />
                   <Label
                     text={statusText}
                     color={labelColor}
@@ -613,6 +602,22 @@ export default function OrderScreen() {
                       size="small"
                     />
                   )}
+                </ThemedView>
+                <ThemedView
+                  style={tw`flex-row items-center gap-2 flex-wrap mb-6 rounded-xl`}
+                >
+                  <Label
+                    leftIcon="hourglass-outline"
+                    text={(deliveryTime ?? createdAt).format("HH:mm")}
+                    color="default"
+                    onPress={openTimePicker}
+                    size="small"
+                  />
+                  <Label
+                    text={String(order.people)}
+                    leftIcon="people-outline"
+                    size="small"
+                  />
 
                   <Label
                     leftIcon="person-outline"
