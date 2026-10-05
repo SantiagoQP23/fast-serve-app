@@ -112,6 +112,15 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     });
   };
 
+  const handleOpenPurchases = () => {
+    router.push({ pathname: "/(profile)/menu-inventory-purchases" });
+  };
+
+  const handleRegisterPurchase = () => {
+    addSheetRef.current?.dismiss();
+    router.push({ pathname: "/(profile)/menu-inventory-purchase-items" });
+  };
+
   const handleManageCategories = () => {
     router.push({ pathname: "/(profile)/menu-inventory-categories" });
   };
@@ -161,6 +170,16 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
           >
             {t("title")}
           </ThemedText>
+          {canManage && (
+            <Pressable
+              onPress={handleOpenPurchases}
+              style={({ pressed }) => tw.style(pressed && "opacity-70")}
+              accessibilityLabel={t("purchases.history")}
+              accessibilityRole="button"
+            >
+              <Ionicons name="receipt-outline" size={22} />
+            </Pressable>
+          )}
           {canManage && (
             <Pressable
               onPress={handleManageCategories}
@@ -409,6 +428,29 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                   </ThemedText>
                   <ThemedText type="small" style={tw`text-gray-500`}>
                     {t("addToInventory.inventoryItemDescription")}
+                  </ThemedText>
+                </ThemedView>
+              </ThemedView>
+            </Card>
+
+            <Card onPress={handleRegisterPurchase}>
+              <ThemedView
+                style={tw`flex-row items-center gap-3 bg-transparent`}
+              >
+                <Ionicons
+                  name="cart-outline"
+                  size={26}
+                  color={tw.color("text-light-on-surface-variant")}
+                />
+                <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+                  <ThemedText
+                    type="body1"
+                    style={{ fontFamily: typography.medium }}
+                  >
+                    {t("purchases.register")}
+                  </ThemedText>
+                  <ThemedText type="small" style={tw`text-gray-500`}>
+                    {t("purchases.registerDescription")}
                   </ThemedText>
                 </ThemedView>
               </ThemedView>

@@ -64,6 +64,16 @@ const MOVEMENT_VISUALS: Record<
     iconColor: "emerald-500",
     textColor: "text-emerald-600",
   },
+  [InventoryMovementType.PURCHASE]: {
+    icon: "cart-outline",
+    iconColor: "emerald-500",
+    textColor: "text-emerald-600",
+  },
+  [InventoryMovementType.PURCHASE_REVERSED]: {
+    icon: "arrow-undo-outline",
+    iconColor: "red-500",
+    textColor: "text-red-600",
+  },
 };
 
 // Movement direction is a property of the type, not the sign the backend
@@ -73,6 +83,7 @@ const INCREASE_TYPES = new Set<InventoryMovementType>([
   InventoryMovementType.ORDER_DELIVERY_REVERSED,
   InventoryMovementType.ORDER_CREATED_REVERSED,
   InventoryMovementType.SALE_DIRECT_CANCELLED,
+  InventoryMovementType.PURCHASE,
 ]);
 
 // Fallback for a movement type the frontend doesn't recognize (e.g. a type

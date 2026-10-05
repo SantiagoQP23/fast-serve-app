@@ -245,6 +245,34 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="menu-inventory-purchases/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="menu-inventory-purchase-items/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="menu-inventory-purchase-cart/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="menu-inventory-purchase-detail/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
           name="tables-settings/index"
           options={{
             headerShown: true,

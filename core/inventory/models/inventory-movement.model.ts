@@ -9,12 +9,15 @@ export enum InventoryMovementType {
   SALE_DIRECT_CANCELLED = "SALE_DIRECT_CANCELLED",
   MANUAL_RESTOCK = "MANUAL_RESTOCK",
   MANUAL_ADJUSTMENT = "MANUAL_ADJUSTMENT",
+  PURCHASE = "PURCHASE",
+  PURCHASE_REVERSED = "PURCHASE_REVERSED",
 }
 
 export enum InventoryMovementSourceType {
   ORDER_DETAIL = "ORDER_DETAIL",
   BILL_DETAIL = "BILL_DETAIL",
   MANUAL = "MANUAL",
+  PURCHASE = "PURCHASE",
 }
 
 export interface InventoryMovement {

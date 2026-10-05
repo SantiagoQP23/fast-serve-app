@@ -55,7 +55,9 @@
     "ORDER_CREATED": "Consumo por pedido",
     "ORDER_CREATED_REVERSED": "Reversión de pedido",
     "SALE_DIRECT": "Venta directa",
-    "SALE_DIRECT_CANCELLED": "Venta cancelada"
+    "SALE_DIRECT_CANCELLED": "Venta cancelada",
+    "PURCHASE": "Compra",
+    "PURCHASE_REVERSED": "Corrección de compra"
   },
   "summary": {
     "critical": "Crítico",
@@ -235,5 +237,41 @@
     "quantityTitle": "Cantidad utilizada",
     "quantityDescription": "¿Cuánto se usa de \"{{item}}\" por cada unidad entregada?",
     "finish": "Finalizar"
+  },
+  "purchases": {
+    "title": "Compras",
+    "register": "Registrar compra",
+    "registerDescription": "Suma stock a varios artículos a la vez",
+    "history": "Historial de compras",
+    "empty": "Aún no hay compras",
+    "emptyDescription": "Registra una compra para sumar stock a varios artículos a la vez.",
+    "loadError": "Error al cargar las compras",
+    "selectItems": "Selecciona los productos",
+    "selectItemsHint": "Toca un artículo para indicar la cantidad comprada.",
+    "noItems": "No hay artículos de inventario para comprar",
+    "viewSummary": "Ver resumen ({{count}})",
+    "summaryTitle": "Resumen de compra",
+    "productsCount_one": "{{count}} producto",
+    "productsCount_other": "{{count}} productos",
+    "addProduct": "Agregar producto",
+    "noteOptional": "Nota (opcional)",
+    "notePlaceholder": "Ej. compra en el mercado",
+    "confirm": "Registrar compra",
+    "emptyCart": "Agrega productos para registrar la compra",
+    "quantityReceived": "Cantidad comprada",
+    "stockChange": "Stock: {{before}} → {{after}} {{unit}}",
+    "detailTitle": "Detalle de compra",
+    "registeredBy": "Registrada por {{name}}",
+    "editHint": "Toca un producto para editar la cantidad o deslízalo para eliminarlo. El stock se ajusta automáticamente.",
+    "removeItemTitle": "Eliminar producto",
+    "removeItemMessage": "Se restará {{quantity}} {{unit}} de {{name}} del stock.",
+    "lastItemError": "Una compra debe tener al menos un producto",
+    "notFound": "No se encontró la compra",
+    "createSuccess": "Compra registrada",
+    "createError": "No se pudo registrar la compra",
+    "updateItemSuccess": "Cantidad actualizada",
+    "updateItemError": "No se pudo actualizar la cantidad",
+    "removeItemSuccess": "Producto eliminado de la compra",
+    "removeItemError": "No se pudo eliminar el producto"
   }
 }
