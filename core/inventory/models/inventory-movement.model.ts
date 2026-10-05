@@ -11,6 +11,8 @@ export enum InventoryMovementType {
   MANUAL_ADJUSTMENT = "MANUAL_ADJUSTMENT",
   PURCHASE = "PURCHASE",
   PURCHASE_REVERSED = "PURCHASE_REVERSED",
+  INVENTORY_COUNT_INCREASE = "INVENTORY_COUNT_INCREASE",
+  INVENTORY_COUNT_DECREASE = "INVENTORY_COUNT_DECREASE",
 }
 
 export enum InventoryMovementSourceType {
@@ -18,6 +20,7 @@ export enum InventoryMovementSourceType {
   BILL_DETAIL = "BILL_DETAIL",
   MANUAL = "MANUAL",
   PURCHASE = "PURCHASE",
+  INVENTORY_COUNT = "INVENTORY_COUNT",
 }
 
 export interface InventoryMovement {
