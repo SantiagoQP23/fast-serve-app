@@ -51,7 +51,7 @@ export default function OrderCard({ order }: OrderCardProps) {
 
   return (
     <ThemedView style={tw`mb-8    `}>
-      <Card onPress={openOrder} style={tw` `}>
+      <Card onPress={openOrder} style={tw` `} variant="outline">
         <ThemedView style={tw`gap-4 `}>
           {/* Header Section - Table Name */}
           <ThemedView style={tw`flex-row justify-between items-center`}>

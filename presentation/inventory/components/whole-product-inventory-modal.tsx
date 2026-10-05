@@ -13,7 +13,6 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { queryClient } from "@/app/_layout";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
-import { useInventoryRecipes } from "@/presentation/inventory/hooks/useInventoryRecipes";
 import { InventoryUnit } from "@/core/inventory/models/inventory-item.model";
 import type { ProductOptionInventoryItem } from "@/core/inventory/models/inventory-recipe.model";
 
@@ -84,7 +83,6 @@ function WholeProductInventoryForm({
   const { t } = useTranslation("inventory");
   const isEditing = !!line;
   const { createItem, updateItem } = useInventoryItems();
-  const { createRecipe } = useInventoryRecipes(productOptionId);
 
   const [quantity, setQuantity] = useState(
     line?.inventoryItem?.quantity != null ? String(line.inventoryItem.quantity) : "",
@@ -96,7 +94,7 @@ function WholeProductInventoryForm({
   );
 
   const isPending =
-    createItem.isPending || createRecipe.isPending || updateItem.isPending;
+    createItem.isPending || updateItem.isPending;
 
   const handleSubmit = async () => {
     const parsedQuantity = Number(quantity.replace(",", "."));
@@ -118,19 +116,21 @@ function WholeProductInventoryForm({
         .join(" ")
         .trim();
 
-      const newItem = await createItem.mutateAsync({
+      // The backend links the option and files the item under an inventory
+      // category named after the product's category, creating it if needed.
+      await createItem.mutateAsync({
         name: trimmedName,
         unit: InventoryUnit.UNIT,
         quantity: safeQuantity,
         minimumQuantity: safeMinimumQuantity,
-        categoryId: null,
+        recipeLines: [{ productOptionId, quantity: 1 }],
+        useProductCategory: true,
       });
 
-      await createRecipe.mutateAsync({
-        productOptionId,
-        inventoryItemId: newItem.id,
-        quantity: 1,
+      queryClient.invalidateQueries({
+        queryKey: ["inventory-recipes", productOptionId],
       });
+      queryClient.invalidateQueries({ queryKey: ["inventory-categories"] });
     }
 
     queryClient.invalidateQueries({ queryKey: ["menu"] });
