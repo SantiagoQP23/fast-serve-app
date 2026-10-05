@@ -176,10 +176,7 @@ export default function InventoryMovementHistory({
                   </ThemedText>
                   {movement.quantityAfter != null && (
                     <ThemedText type="small" style={tw`text-gray-500`}>
-                      {t("detail.quantityLeft", {
-                        quantity: movement.quantityAfter,
-                        unit,
-                      })}
+                      {movement.quantityAfter} {unit}
                     </ThemedText>
                   )}
                 </ThemedView>
