@@ -88,7 +88,10 @@
   "addToInventory": {
     "title": "Add to inventory",
     "menuProduct": "Menu product",
-    "inventoryItem": "Inventory item"
+    "menuProductDescription": "Track stock for a product that's already on your menu, e.g. {{product}}.",
+    "menuProductExampleFallback": "a Burger",
+    "inventoryItem": "Inventory item",
+    "inventoryItemDescription": "Create a new supply or ingredient that isn't sold directly."
   },
   "createItem": "New item",
   "editItem": "Edit item",
@@ -167,11 +170,11 @@
     "question": "How do you want to control this product?",
     "wholeProduct": {
       "label": "Whole product",
-      "description": "Each sale deducts one unit."
+      "description": "Each sale deducts one unit, e.g. a Coca-Cola."
     },
     "ingredients": {
       "label": "Ingredients",
-      "description": "Each sale deducts quantities from one or more inventory items."
+      "description": "Each sale deducts quantities from one or more inventory items, e.g. a Seafood Rice uses 200 g rice, 150 g shrimp and 100 g squid."
     }
   },
   "wholeProduct": {
@@ -238,6 +241,7 @@
   "purchases": {
     "title": "Purchases",
     "register": "Register purchase",
+    "registerDescription": "Add stock to several items at once",
     "history": "Purchase history",
     "empty": "No purchases yet",
     "emptyDescription": "Register a purchase to add stock to several items at once.",

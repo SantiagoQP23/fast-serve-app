@@ -88,7 +88,10 @@
   "addToInventory": {
     "title": "Agregar al inventario",
     "menuProduct": "Producto del menú",
-    "inventoryItem": "Artículo de inventario"
+    "menuProductDescription": "Controla el stock de un producto que ya está en tu menú, ej. {{product}}.",
+    "menuProductExampleFallback": "una Hamburguesa",
+    "inventoryItem": "Artículo de inventario",
+    "inventoryItemDescription": "Crea un nuevo insumo o ingrediente que no se vende directamente."
   },
   "createItem": "Nuevo artículo",
   "editItem": "Editar artículo",
@@ -167,11 +170,11 @@
     "question": "¿Cómo quieres controlar este producto?",
     "wholeProduct": {
       "label": "Producto completo",
-      "description": "Cada venta descuenta una unidad."
+      "description": "Cada venta descuenta una unidad, ej. una Coca-Cola."
     },
     "ingredients": {
       "label": "Ingredientes",
-      "description": "Cada venta descuenta cantidades de uno o más inventarios."
+      "description": "Cada venta descuenta cantidades de uno o más inventarios, ej. un Arroz con Mariscos usa 200 g de arroz, 150 g de camarón y 100 g de calamar."
     }
   },
   "wholeProduct": {
@@ -238,6 +241,7 @@
   "purchases": {
     "title": "Compras",
     "register": "Registrar compra",
+    "registerDescription": "Suma stock a varios artículos a la vez",
     "history": "Historial de compras",
     "empty": "Aún no hay compras",
     "emptyDescription": "Registra una compra para sumar stock a varios artículos a la vez.",

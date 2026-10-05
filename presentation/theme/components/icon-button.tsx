@@ -45,7 +45,7 @@ export default function IconButton({
     filled: "#ffffff",
     secondary: Colors.light.onSecondary,
     outlined: Colors.light.onSurfaceVariant,
-    text: Colors.light.primary,
+    text: Colors.light.onSurfaceVariant,
     destructive: tw.color("red-600") as string,
   };
 

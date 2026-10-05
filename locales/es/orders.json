@@ -226,6 +226,11 @@
       "ADD": "AGREGADO",
       "REMOVE": "ELIMINADO",
       "MODIFY": "MODIFICADO"
+    },
+    "itemActionPrefix": {
+      "ADD": "Agregar",
+      "REMOVE": "Eliminar",
+      "MODIFY": "Modificar"
     }
   }
 }

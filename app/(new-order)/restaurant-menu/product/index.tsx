@@ -271,7 +271,7 @@ export default function ProductScreen() {
                     ? "restaurant-outline"
                     : "bag-outline"
                 }
-                color="default"
+                color="outline"
                 onPress={() => typePickerRef.current?.present()}
               />
             </ThemedView>
@@ -285,13 +285,11 @@ export default function ProductScreen() {
                 {activeOptions.map((option) => {
                   const isSelected = selectedOption?.id === option.id;
                   return (
-                    <ThemedView
-                      key={option.id}
-                      style={tw`min-w-36 rounded-3xl border-2 ${isSelected ? "border-light-primary" : "border-transparent"}`}
-                    >
+                    <ThemedView key={option.id}>
                       <Card
                         onPress={() => onChangeSelectedOption(option)}
-                        style={tw`p-4 justify-between gap-2`}
+                        variant="outline"
+                        style={tw`min-w-36 p-4 gap-2 rounded-3xl border-2 ${isSelected ? "border-light-primary" : "border-transparent"}`}
                       >
                         <ThemedView
                           style={tw`flex-row items-center justify-between gap-2`}
@@ -357,7 +355,6 @@ export default function ProductScreen() {
                 multiline
                 value={notes}
                 onChangeText={setNotes}
-                editable={false}
                 placeholder={t("orders:newOrder.addNote")}
                 pointerEvents="none"
               />
@@ -368,7 +365,7 @@ export default function ProductScreen() {
             >
               {!notes.trim() && (
                 <Button
-                  variant="surface"
+                  variant="outline"
                   label={t("orders:newOrder.addNote")}
                   leftIcon="document-text-outline"
                   style={tw`h-full flex-1`}

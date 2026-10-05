@@ -23,7 +23,8 @@ export const switchRestaurantMutation = () => {
       console.log(`[switchRestaurant] Switching to restaurant: ${data.currentRestaurant?.name} (${data.currentRestaurant?.id})`);
 
       // Update auth state with new restaurant. This also triggers bootstrap to
-      // load menu, payment methods, printers, and tables for the new restaurant.
+      // load menu, payment methods, production areas, printers, and tables for
+      // the new restaurant.
       await changeStatus(data.token, data.user, data.currentRestaurant || undefined);
       console.log("[switchRestaurant] Auth state updated and bootstrap completed");
 

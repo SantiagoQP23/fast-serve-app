@@ -114,6 +114,7 @@ export default function NewInventoryItemSelectProductScreen() {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={tw`gap-2 items-center`}
+            style={tw`flex-none`}
           >
             <Chip
               label={t("categories.all")}
@@ -136,6 +137,7 @@ export default function NewInventoryItemSelectProductScreen() {
         )}
 
         <ScrollView
+          style={tw`flex-1`}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`gap-3 pb-8`}
           refreshControl={

@@ -2,13 +2,17 @@ import { useRef, useState } from "react";
 import { ScrollView, RefreshControl, Pressable } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import {
+  BottomSheetMethods,
+  BottomSheetView,
+} from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import Button from "@/presentation/theme/components/button";
 import Fab from "@/presentation/theme/components/fab";
@@ -16,6 +20,7 @@ import DialogModal from "@/presentation/theme/components/dialog-modal";
 import TextInput from "@/presentation/theme/components/text-input";
 import Chip from "@/presentation/theme/components/chip";
 import IconButton from "@/presentation/theme/components/icon-button";
+import Card from "@/presentation/theme/components/card";
 import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
@@ -42,6 +47,10 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     updateItem,
   } = useInventoryItems();
   const { categories } = useInventoryItemCategories();
+  const menuProducts = useMenuStore((state) => state.products);
+  const exampleMenuProductName =
+    menuProducts.find((product) => product.isActive)?.name ||
+    t("addToInventory.menuProductExampleFallback");
   const [itemToDelete, setItemToDelete] = useState<InventoryItem | null>(null);
   const [itemToAdjust, setItemToAdjust] = useState<InventoryItem | null>(null);
   const [itemForOptions, setItemForOptions] = useState<InventoryItem | null>(
@@ -345,7 +354,11 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
       </ScrollView>
 
       {canManage && (
-        <Fab icon="add" label={t("createItem")} onPress={handleOpenAddSelector} />
+        <Fab
+          icon="add"
+          label={t("createItem")}
+          onPress={handleOpenAddSelector}
+        />
       )}
 
       <DialogModal
@@ -366,26 +379,84 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
       />
 
       <ThemedBottomSheetModal ref={addSheetRef} enablePanDownToClose>
-        <ActionsBottomSheet
-          title={t("addToInventory.title")}
-          items={[
-            {
-              icon: "fast-food-outline",
-              label: t("addToInventory.menuProduct"),
-              onPress: handleTrackMenuProduct,
-            },
-            {
-              icon: "cube-outline",
-              label: t("addToInventory.inventoryItem"),
-              onPress: handleCreateItem,
-            },
-            {
-              icon: "cart-outline",
-              label: t("purchases.register"),
-              onPress: handleRegisterPurchase,
-            },
-          ]}
-        />
+        <BottomSheetView style={tw`px-4 pb-6`}>
+          <ThemedView style={tw`mb-8 mt-4`}>
+            <ThemedText type="h3">{t("addToInventory.title")}</ThemedText>
+          </ThemedView>
+
+          <ThemedView style={tw`gap-4 `}>
+            <Card onPress={handleTrackMenuProduct}>
+              <ThemedView
+                style={tw`flex-row items-center gap-3 bg-transparent`}
+              >
+                <Ionicons
+                  name="fast-food-outline"
+                  size={26}
+                  color={tw.color("text-light-on-surface-variant")}
+                />
+                <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+                  <ThemedText
+                    type="body1"
+                    style={{ fontFamily: typography.medium }}
+                  >
+                    {t("addToInventory.menuProduct")}
+                  </ThemedText>
+                  <ThemedText type="small" style={tw`text-gray-500`}>
+                    {t("addToInventory.menuProductDescription", {
+                      product: exampleMenuProductName,
+                    })}
+                  </ThemedText>
+                </ThemedView>
+              </ThemedView>
+            </Card>
+
+            <Card onPress={handleCreateItem}>
+              <ThemedView
+                style={tw`flex-row items-center gap-3 bg-transparent`}
+              >
+                <Ionicons
+                  name="cube-outline"
+                  size={26}
+                  color={tw.color("text-light-on-surface-variant")}
+                />
+                <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+                  <ThemedText
+                    type="body1"
+                    style={{ fontFamily: typography.medium }}
+                  >
+                    {t("addToInventory.inventoryItem")}
+                  </ThemedText>
+                  <ThemedText type="small" style={tw`text-gray-500`}>
+                    {t("addToInventory.inventoryItemDescription")}
+                  </ThemedText>
+                </ThemedView>
+              </ThemedView>
+            </Card>
+
+            <Card onPress={handleRegisterPurchase}>
+              <ThemedView
+                style={tw`flex-row items-center gap-3 bg-transparent`}
+              >
+                <Ionicons
+                  name="cart-outline"
+                  size={26}
+                  color={tw.color("text-light-on-surface-variant")}
+                />
+                <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+                  <ThemedText
+                    type="body1"
+                    style={{ fontFamily: typography.medium }}
+                  >
+                    {t("purchases.register")}
+                  </ThemedText>
+                  <ThemedText type="small" style={tw`text-gray-500`}>
+                    {t("purchases.registerDescription")}
+                  </ThemedText>
+                </ThemedView>
+              </ThemedView>
+            </Card>
+          </ThemedView>
+        </BottomSheetView>
       </ThemedBottomSheetModal>
 
       <ThemedBottomSheetModal ref={optionsSheetRef} enablePanDownToClose>
