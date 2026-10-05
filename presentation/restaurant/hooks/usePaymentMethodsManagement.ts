@@ -20,7 +20,6 @@ export const usePaymentMethodsManagement = () => {
     mutationFn: (data) => PaymentMethodsService.create(data),
     onSuccess: (paymentMethod) => {
       upsertPaymentMethod(paymentMethod);
-      toast.success(t("methods.createSuccess"));
     },
     onError: (error) => {
       toast.error(error.message || t("methods.createError"));
@@ -35,7 +34,6 @@ export const usePaymentMethodsManagement = () => {
     mutationFn: ({ id, data }) => PaymentMethodsService.update(id, data),
     onSuccess: (paymentMethod) => {
       upsertPaymentMethod(paymentMethod);
-      toast.success(t("methods.updateSuccess"));
     },
     onError: (error) => {
       toast.error(error.message || t("methods.updateError"));
@@ -62,7 +60,6 @@ export const usePaymentMethodsManagement = () => {
       PaymentMethodsService.linkAccount(id, accountId),
     onSuccess: (paymentMethod) => {
       upsertPaymentMethod(paymentMethod);
-      toast.success(t("methods.updateSuccess"));
     },
     onError: (error) => {
       toast.error(error.message || t("methods.updateError"));
@@ -78,7 +75,6 @@ export const usePaymentMethodsManagement = () => {
       PaymentMethodsService.unlinkAccount(id, accountId),
     onSuccess: (paymentMethod) => {
       upsertPaymentMethod(paymentMethod);
-      toast.success(t("methods.updateSuccess"));
     },
     onError: (error) => {
       toast.error(error.message || t("methods.updateError"));
@@ -94,7 +90,6 @@ export const usePaymentMethodsManagement = () => {
       PaymentMethodsService.setDefaultAccount(id, accountId),
     onSuccess: (paymentMethod) => {
       upsertPaymentMethod(paymentMethod);
-      toast.success(t("methods.updateSuccess"));
     },
     onError: (error) => {
       toast.error(error.message || t("methods.updateError"));

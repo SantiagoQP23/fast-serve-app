@@ -19,7 +19,6 @@ export const useTablesManagement = () => {
     mutationFn: (data) => TablesService.createTable(data),
     onSuccess: (table) => {
       addTable(table);
-      toast.success(t("settings.createSuccess"));
     },
     onError: (error) => {
       toast.error(error.message || t("settings.createError"));
@@ -30,7 +29,6 @@ export const useTablesManagement = () => {
     mutationFn: (data) => TablesService.updateTable(data),
     onSuccess: (table) => {
       updateTableCache(table);
-      toast.success(t("settings.updateSuccess"));
     },
     onError: (error) => {
       toast.error(error.message || t("settings.updateError"));

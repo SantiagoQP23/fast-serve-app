@@ -15,7 +15,6 @@ export const useAccountsManagement = () => {
     mutationFn: (data) => AccountsService.create(data),
     onSuccess: (account) => {
       upsertAccount(account);
-      toast.success(t("accounts.createSuccess"));
     },
     onError: (error) => {
       toast.error(error.message || t("accounts.createError"));
@@ -30,7 +29,6 @@ export const useAccountsManagement = () => {
     mutationFn: ({ id, data }) => AccountsService.update(id, data),
     onSuccess: (account) => {
       upsertAccount(account);
-      toast.success(t("accounts.updateSuccess"));
     },
     onError: (error) => {
       toast.error(error.message || t("accounts.updateError"));
