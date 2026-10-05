@@ -40,6 +40,7 @@
     "totalLabel": "Total: {{total}}",
     "movementHistory": "Movement history",
     "noMovements": "No movements recorded yet",
+    "quantityLeft": "Left: {{quantity}} {{unit}}",
     "loadError": "Could not load the item detail",
     "movementsLoadError": "Could not load the movement history",
     "linkToProduct": "Link to a product",
