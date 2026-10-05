@@ -234,9 +234,6 @@ export class ThermalPrinterService {
         if (item.description) {
           extra += `[L]  *** ${item.description} ***\n`;
         }
-        if (isUpdate) {
-          extra += `[L]  [${translations.itemAction(item.action)}]\n`;
-        }
         if (item.orderDetail && item.orderDetail.typeOrderDetail !== order.type) {
           const typeLabel =
             item.orderDetail.typeOrderDetail === OrderType.TAKE_AWAY
@@ -245,7 +242,11 @@ export class ThermalPrinterService {
           extra += `[L]  [${typeLabel}]\n`;
         }
 
-        return `[L]${qtyPrefix}${item.quantity} - ${item.productName}${extra}`;
+        const actionPrefix = isUpdate
+          ? `${translations.itemAction(item.action)} `
+          : "";
+
+        return `[L]${actionPrefix}${qtyPrefix}${item.quantity} - ${item.productName}${extra}`;
       })
       .join("");
 
