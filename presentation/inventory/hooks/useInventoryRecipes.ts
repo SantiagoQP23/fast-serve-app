@@ -33,8 +33,7 @@ export const useInventoryRecipes = (productOptionId?: number) => {
     CreateRecipeDto & { silent?: boolean }
   >({
     mutationFn: ({ silent, ...data }) => InventoryRecipeService.create(data),
-    onSuccess: (_data, variables) => {
-      if (!variables.silent) toast.success(t("recipe.createSuccess"));
+    onSuccess: () => {
       invalidate();
     },
     onError: (error, variables) => {
@@ -48,8 +47,7 @@ export const useInventoryRecipes = (productOptionId?: number) => {
     UpdateRecipeDto & { silent?: boolean }
   >({
     mutationFn: ({ silent, ...data }) => InventoryRecipeService.update(data),
-    onSuccess: (_data, variables) => {
-      if (!variables.silent) toast.success(t("recipe.updateSuccess"));
+    onSuccess: () => {
       invalidate();
     },
     onError: (error, variables) => {

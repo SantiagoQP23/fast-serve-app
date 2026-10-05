@@ -34,8 +34,7 @@ export const useInventoryItems = () => {
     CreateInventoryItemDto & { silent?: boolean }
   >({
     mutationFn: ({ silent, ...data }) => InventoryService.create(data),
-    onSuccess: (_data, variables) => {
-      if (!variables.silent) toast.success(t("createSuccess"));
+    onSuccess: () => {
       invalidate();
     },
     onError: (error, variables) => {
@@ -50,7 +49,6 @@ export const useInventoryItems = () => {
   >({
     mutationFn: (data) => InventoryService.update(data),
     onSuccess: () => {
-      toast.success(t("updateSuccess"));
       invalidate();
     },
     onError: (error) => {
@@ -77,7 +75,6 @@ export const useInventoryItems = () => {
     mutationFn: ({ itemId, data }) =>
       InventoryService.linkProductOption(itemId, data),
     onSuccess: (_data, variables) => {
-      toast.success(t("linkProductSuccess"));
       queryClient.invalidateQueries({
         queryKey: ["inventory-items", variables.itemId],
       });
@@ -92,7 +89,6 @@ export const useInventoryItems = () => {
       await InventoryService.adjust(data);
     },
     onSuccess: (_data, variables) => {
-      toast.success(t("adjustSuccess"));
       invalidate();
       queryClient.invalidateQueries({
         queryKey: ["inventory-movements", variables.inventoryItemId],

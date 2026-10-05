@@ -30,7 +30,6 @@ export const useInventoryItemCategories = () => {
   >({
     mutationFn: (data) => InventoryItemCategoryService.create(data),
     onSuccess: () => {
-      toast.success(t("categories.createSuccess"));
       invalidate();
     },
     onError: (error) => {
@@ -45,7 +44,6 @@ export const useInventoryItemCategories = () => {
   >({
     mutationFn: (data) => InventoryItemCategoryService.update(data),
     onSuccess: () => {
-      toast.success(t("categories.updateSuccess"));
       invalidate();
     },
     onError: (error) => {

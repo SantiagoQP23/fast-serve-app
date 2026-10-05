@@ -56,7 +56,6 @@ export const usePrinters = () => {
   const createPrinter = useMutation<Printer, Error, CreatePrinterDto>({
     mutationFn: (data: CreatePrinterDto) => PrintersService.create(data),
     onSuccess: () => {
-      toast.success(t("createSuccess"));
       getAllQuery.refetch();
     },
     onError: (error) => {
@@ -68,7 +67,6 @@ export const usePrinters = () => {
   const updatePrinter = useMutation<Printer, Error, UpdatePrinterDto>({
     mutationFn: (data: UpdatePrinterDto) => PrintersService.update(data),
     onSuccess: () => {
-      toast.success(t("updateSuccess"));
       getAllQuery.refetch();
     },
     onError: (error) => {

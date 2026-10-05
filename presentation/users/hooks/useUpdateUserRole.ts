@@ -12,7 +12,6 @@ export const useUpdateUserRole = () => {
     mutationFn: (dto: UpdateUserRoleDto) => updateUserRole(dto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
-      toast.success(t("staff.changeRole.success"));
     },
     onError: () => {
       toast.error(t("staff.changeRole.error"));

@@ -39,7 +39,6 @@ export const useMenuManagement = () => {
     mutationFn: (data) => SectionsService.create(data),
     onSuccess: (section) => {
       upsertSection(section);
-      toast.success(t("sections.createSuccess"));
     },
     onError: (error) => {
       toast.error(error.message || t("sections.createError"));
@@ -50,7 +49,6 @@ export const useMenuManagement = () => {
     mutationFn: (data) => SectionsService.update(data),
     onSuccess: (section) => {
       upsertSection(section);
-      toast.success(t("sections.updateSuccess"));
     },
     onError: (error) => {
       toast.error(error.message || t("sections.updateError"));
@@ -72,7 +70,6 @@ export const useMenuManagement = () => {
     mutationFn: (data) => CategoriesService.create(data),
     onSuccess: (category) => {
       upsertCategory(category);
-      toast.success(t("categories.createSuccess"));
     },
     onError: (error) => {
       toast.error(error.message || t("categories.createError"));
@@ -83,7 +80,6 @@ export const useMenuManagement = () => {
     mutationFn: (data) => CategoriesService.update(data),
     onSuccess: (category) => {
       upsertCategory(category);
-      toast.success(t("categories.updateSuccess"));
     },
     onError: (error) => {
       toast.error(error.message || t("categories.updateError"));
@@ -105,7 +101,6 @@ export const useMenuManagement = () => {
     mutationFn: (data) => ProductsService.create(data),
     onSuccess: (product) => {
       upsertProduct(product);
-      toast.success(t("products.createSuccess"));
     },
     onError: (error) => {
       toast.error(error.message || t("products.createError"));
@@ -116,7 +111,6 @@ export const useMenuManagement = () => {
     mutationFn: (data) => ProductsService.update(data),
     onSuccess: (product) => {
       upsertProduct(product);
-      toast.success(t("products.updateSuccess"));
     },
     onError: (error) => {
       toast.error(error.message || t("products.updateError"));
@@ -138,7 +132,6 @@ export const useMenuManagement = () => {
     mutationFn: (id) => ProductsService.duplicate(id),
     onSuccess: (product) => {
       upsertProduct(product);
-      toast.success(t("products.duplicateSuccess"));
     },
     onError: (error) => {
       toast.error(error.message || t("products.duplicateError"));
@@ -163,7 +156,6 @@ export const useMenuManagement = () => {
         trackStock: option.trackStock,
         quantity: option.quantity,
       });
-      toast.success(t("products.variants.createSuccess"));
     },
     onError: (error) => {
       toast.error(error.message || t("products.variants.createError"));
@@ -189,7 +181,6 @@ export const useMenuManagement = () => {
         trackStock: option.trackStock,
         quantity: option.quantity,
       });
-      toast.success(t("products.variants.updateSuccess"));
     },
     onError: (error) => {
       toast.error(error.message || t("products.variants.updateError"));
@@ -223,7 +214,6 @@ export const useMenuManagement = () => {
       ProductsService.setDefaultVariant(productId, variantId),
     onSuccess: (product) => {
       upsertProduct(product);
-      toast.success(t("products.variants.updateSuccess"));
     },
     onError: (error) => {
       toast.error(error.message || t("products.variants.updateError"));

@@ -58,7 +58,6 @@ export const useProductionAreas = () => {
     mutationFn: (data: CreateProductionAreaDto) =>
       ProductionAreasService.create(data),
     onSuccess: () => {
-      toast.success(t("createSuccess"));
       queryClient.invalidateQueries({
         queryKey: getProductionAreasQueryKey(restaurantId),
       });
@@ -77,7 +76,6 @@ export const useProductionAreas = () => {
     mutationFn: (data: UpdateProductionAreaDto) =>
       ProductionAreasService.update(data),
     onSuccess: () => {
-      // toast.success(t("updateSuccess"));
       queryClient.invalidateQueries({
         queryKey: getProductionAreasQueryKey(restaurantId),
       });

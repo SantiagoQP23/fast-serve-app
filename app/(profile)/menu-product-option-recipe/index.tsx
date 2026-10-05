@@ -199,7 +199,6 @@ export default function MenuProductOptionRecipeScreen() {
       ]);
 
       queryClient.invalidateQueries({ queryKey: ["menu"] });
-      toast.success(t("recipe.saveSuccess"));
       router.back();
     } catch (error) {
       toast.error(
