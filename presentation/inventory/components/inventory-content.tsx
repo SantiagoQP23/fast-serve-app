@@ -103,6 +103,15 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     });
   };
 
+  const handleOpenPurchases = () => {
+    router.push({ pathname: "/(profile)/menu-inventory-purchases" });
+  };
+
+  const handleRegisterPurchase = () => {
+    addSheetRef.current?.dismiss();
+    router.push({ pathname: "/(profile)/menu-inventory-purchase-items" });
+  };
+
   const handleManageCategories = () => {
     router.push({ pathname: "/(profile)/menu-inventory-categories" });
   };
@@ -152,6 +161,16 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
           >
             {t("title")}
           </ThemedText>
+          {canManage && (
+            <Pressable
+              onPress={handleOpenPurchases}
+              style={({ pressed }) => tw.style(pressed && "opacity-70")}
+              accessibilityLabel={t("purchases.history")}
+              accessibilityRole="button"
+            >
+              <Ionicons name="receipt-outline" size={22} />
+            </Pressable>
+          )}
           {canManage && (
             <Pressable
               onPress={handleManageCategories}
@@ -359,6 +378,11 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
               icon: "cube-outline",
               label: t("addToInventory.inventoryItem"),
               onPress: handleCreateItem,
+            },
+            {
+              icon: "cart-outline",
+              label: t("purchases.register"),
+              onPress: handleRegisterPurchase,
             },
           ]}
         />

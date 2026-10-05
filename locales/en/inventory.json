@@ -55,7 +55,9 @@
     "ORDER_CREATED": "Order consumption",
     "ORDER_CREATED_REVERSED": "Order reversal",
     "SALE_DIRECT": "Direct sale",
-    "SALE_DIRECT_CANCELLED": "Sale cancelled"
+    "SALE_DIRECT_CANCELLED": "Sale cancelled",
+    "PURCHASE": "Purchase",
+    "PURCHASE_REVERSED": "Purchase correction"
   },
   "summary": {
     "critical": "Critical",
@@ -232,5 +234,40 @@
     "quantityTitle": "Quantity used",
     "quantityDescription": "How much \"{{item}}\" is used for each unit delivered?",
     "finish": "Finish"
+  },
+  "purchases": {
+    "title": "Purchases",
+    "register": "Register purchase",
+    "history": "Purchase history",
+    "empty": "No purchases yet",
+    "emptyDescription": "Register a purchase to add stock to several items at once.",
+    "loadError": "Failed to load purchases",
+    "selectItems": "Select products",
+    "selectItemsHint": "Tap an item to enter the purchased quantity.",
+    "noItems": "There are no inventory items to purchase",
+    "viewSummary": "View summary ({{count}})",
+    "summaryTitle": "Purchase summary",
+    "productsCount_one": "{{count}} product",
+    "productsCount_other": "{{count}} products",
+    "addProduct": "Add product",
+    "noteOptional": "Note (optional)",
+    "notePlaceholder": "e.g. market run",
+    "confirm": "Register purchase",
+    "emptyCart": "Add products to register the purchase",
+    "quantityReceived": "Purchased quantity",
+    "stockChange": "Stock: {{before}} → {{after}} {{unit}}",
+    "detailTitle": "Purchase detail",
+    "registeredBy": "Registered by {{name}}",
+    "editHint": "Tap a product to edit its quantity or swipe it to remove it. Stock is adjusted automatically.",
+    "removeItemTitle": "Remove product",
+    "removeItemMessage": "{{quantity}} {{unit}} of {{name}} will be subtracted from stock.",
+    "lastItemError": "A purchase must keep at least one product",
+    "notFound": "Purchase not found",
+    "createSuccess": "Purchase registered",
+    "createError": "Could not register the purchase",
+    "updateItemSuccess": "Quantity updated",
+    "updateItemError": "Could not update the quantity",
+    "removeItemSuccess": "Product removed from the purchase",
+    "removeItemError": "Could not remove the product"
   }
 }
