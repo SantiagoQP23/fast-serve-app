@@ -150,10 +150,6 @@ export default function TransactionDetailScreen() {
         selectedImage.mimeType || "image/jpeg",
       );
       setSelectedImage(null);
-      Alert.alert(
-        t("common:status.success"),
-        t("bills:proofUpload.uploadSuccess"),
-      );
       refetch();
       refetchProofs();
     } catch (error: any) {
@@ -170,11 +166,7 @@ export default function TransactionDetailScreen() {
 
   const handleTransactionApproved = useCallback(() => {
     refetch();
-    Alert.alert(
-      t("common:status.success"),
-      t("common:transactions.status.completed"),
-    );
-  }, [refetch, t]);
+  }, [refetch]);
 
   const handleRejectTransaction = useCallback(() => {
     if (!rejectReason.trim()) {
@@ -197,10 +189,6 @@ export default function TransactionDetailScreen() {
                   setRejectReason("");
                   setShowRejectInput(false);
                   refetch();
-                  Alert.alert(
-                    t("common:status.success"),
-                    t("common:transactions.status.rejected"),
-                  );
                 },
               },
             );
