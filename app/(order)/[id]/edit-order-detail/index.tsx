@@ -38,6 +38,7 @@ import dayjs from "dayjs";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
 import Card from "@/presentation/theme/components/card";
+import Chip from "@/presentation/theme/components/chip";
 
 export default function EditOrderDetailScreen() {
   const { t } = useTranslation(["common", "orders", "menu", "inventory"]);
@@ -361,28 +362,28 @@ export default function EditOrderDetailScreen() {
                 />
               </ThemedView>
             </ThemedView>
-            <ThemedView style={tw`flex-row items-center gap-4 justify-between`}>
-              <Label
-                text={
+            <ThemedView style={tw`flex-row items-center gap-2 `}>
+              <Chip
+                label={
                   orderDetail.typeOrderDetail === OrderType.IN_PLACE
                     ? t("common:orderType.inPlace")
                     : t("common:orderType.takeAway")
                 }
-                leftIcon={
+                icon={
                   orderDetail.typeOrderDetail === OrderType.IN_PLACE
                     ? "restaurant-outline"
                     : "bag-outline"
                 }
+                variant="filter"
                 onPress={() => typePickerRef.current?.present()}
               />
 
               {!notes.trim() && (
-                <Button
-                  variant="surface"
+                <Chip
+                  variant="assist"
                   label={t("orders:newOrder.addNote")}
-                  leftIcon="document-text-outline"
+                  icon="document-text-outline"
                   onPress={openNoteBottomSheet}
-                  size="extra-small"
                 />
               )}
             </ThemedView>

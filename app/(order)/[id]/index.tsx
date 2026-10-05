@@ -44,6 +44,9 @@ import { useOrderPrint } from "@/presentation/orders/hooks/useOrderPrint";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bottom-sheet";
 import ReassignOrderBottomSheet from "@/presentation/orders/components/reassign-order-bottom-sheet";
+import EditPeopleBottomSheet from "@/presentation/orders/components/edit-people-bottom-sheet";
+import TableSelectorBottomSheet from "@/presentation/orders/components/table-selector-bottom-sheet";
+import EditNoteBottomSheet from "@/presentation/orders/components/edit-note-bottom-sheet";
 import CloseOrderModal from "@/presentation/orders/components/close-order-modal";
 
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -58,6 +61,7 @@ import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-s
 import OrderBillsTab from "@/presentation/orders/components/order-bills-tab";
 import OrderTicketsTab from "@/presentation/orders/components/order-tickets-tab";
 import { typography } from "@/constants/theme";
+import Chip from "@/presentation/theme/components/chip";
 
 dayjs.extend(relativeTime);
 
@@ -128,6 +132,9 @@ export default function OrderScreen() {
 
   const editBottomSheetRef = useRef<BottomSheetMethods>(null);
   const reassignBottomSheetRef = useRef<BottomSheetMethods>(null);
+  const editPeopleBottomSheetRef = useRef<BottomSheetMethods>(null);
+  const tableSelectorBottomSheetRef = useRef<BottomSheetMethods>(null);
+  const editNoteBottomSheetRef = useRef<BottomSheetMethods>(null);
   const moreOptionsSheetRef = useRef<BottomSheetMethods>(null);
 
   const closeEditBottomSheet = () => {
@@ -144,6 +151,30 @@ export default function OrderScreen() {
 
   const handlePresentReassignModal = useCallback(() => {
     reassignBottomSheetRef.current?.present();
+  }, []);
+
+  const closeEditPeopleBottomSheet = () => {
+    editPeopleBottomSheetRef.current?.close();
+  };
+
+  const handlePresentEditPeopleModal = useCallback(() => {
+    editPeopleBottomSheetRef.current?.present();
+  }, []);
+
+  const closeTableSelectorBottomSheet = () => {
+    tableSelectorBottomSheetRef.current?.close();
+  };
+
+  const handlePresentTableSelector = useCallback(() => {
+    tableSelectorBottomSheetRef.current?.present();
+  }, []);
+
+  const closeEditNoteBottomSheet = () => {
+    editNoteBottomSheetRef.current?.close();
+  };
+
+  const handlePresentEditNoteModal = useCallback(() => {
+    editNoteBottomSheetRef.current?.present();
   }, []);
 
   const handleOpenMoreOptions = useCallback(() => {
@@ -364,6 +395,31 @@ export default function OrderScreen() {
     handlePresentEditModal();
   };
 
+  const handleChangeTypeFromMenu = () => {
+    moreOptionsSheetRef.current?.dismiss();
+
+    const nextType =
+      order.type === OrderType.IN_PLACE
+        ? OrderType.TAKE_AWAY
+        : OrderType.IN_PLACE;
+
+    updateOrder({
+      id: order.id,
+      typeOrder: nextType,
+      tableId: nextType === OrderType.IN_PLACE ? order.table?.id : undefined,
+    });
+  };
+
+  const handleChangeTableFromMenu = () => {
+    moreOptionsSheetRef.current?.dismiss();
+    handlePresentTableSelector();
+  };
+
+  const handleAddNoteFromMenu = () => {
+    moreOptionsSheetRef.current?.dismiss();
+    handlePresentEditNoteModal();
+  };
+
   const handlePrintFromMenu = () => {
     moreOptionsSheetRef.current?.dismiss();
     router.push(`/(order)/${order.id}/print`);
@@ -398,16 +454,48 @@ export default function OrderScreen() {
     setVisible(true);
   };
 
-  const moreOptions: MoreOptionItem[] = [
-    ...(!isClosed
-      ? [
-          {
-            icon: "create-outline" as const,
-            label: t("common:actions.edit"),
-            onPress: handleEditFromMenu,
-          },
-        ]
-      : []),
+  const otherOrderType =
+    order.type === OrderType.IN_PLACE
+      ? OrderType.TAKE_AWAY
+      : OrderType.IN_PLACE;
+  const otherOrderTypeLabel = t(
+    otherOrderType === OrderType.IN_PLACE
+      ? "common:orderType.inPlace"
+      : "common:orderType.takeAway",
+  );
+
+  const editOptions: MoreOptionItem[] = !isClosed
+    ? [
+        {
+          icon: "create-outline",
+          label: t("common:actions.edit"),
+          onPress: handleEditFromMenu,
+        },
+        {
+          icon: "swap-horizontal-outline",
+          label: t("orders:options.changeType", {
+            type: otherOrderTypeLabel,
+          }),
+          onPress: handleChangeTypeFromMenu,
+        },
+        ...(order.type === OrderType.IN_PLACE
+          ? [
+              {
+                icon: "grid-outline" as const,
+                label: t("orders:options.changeTable"),
+                onPress: handleChangeTableFromMenu,
+              },
+            ]
+          : []),
+        {
+          icon: "document-text-outline",
+          label: t("orders:form.addNote"),
+          onPress: handleAddNoteFromMenu,
+        },
+      ]
+    : [];
+
+  const generalOptions: MoreOptionItem[] = [
     {
       icon: "print-outline",
       label: t("common:actions.print"),
@@ -606,24 +694,23 @@ export default function OrderScreen() {
                 <ThemedView
                   style={tw`flex-row items-center gap-2 flex-wrap mb-6 rounded-xl`}
                 >
-                  <Label
-                    leftIcon="hourglass-outline"
-                    text={(deliveryTime ?? createdAt).format("HH:mm")}
-                    color="default"
+                  <Chip
+                    icon="hourglass-outline"
+                    label={(deliveryTime ?? createdAt).format("HH:mm")}
                     onPress={openTimePicker}
-                    size="small"
                   />
-                  <Label
-                    text={String(order.people)}
-                    leftIcon="people-outline"
-                    size="small"
+                  <Chip
+                    label={String(order.people)}
+                    icon="people-outline"
+                    onPress={
+                      !isClosed ? handlePresentEditPeopleModal : undefined
+                    }
                   />
 
-                  <Label
-                    leftIcon="person-outline"
-                    text={`${order.user?.person.firstName} ${order.user?.person.lastName}`}
+                  <Chip
+                    icon="person-outline"
+                    label={`${order.user?.person.firstName} ${order.user?.person.lastName}`}
                     onPress={!isClosed ? handlePresentReassignModal : undefined}
-                    size="small"
                   />
                 </ThemedView>
 
@@ -1009,15 +1096,51 @@ export default function OrderScreen() {
         )}
       </ThemedBottomSheetModal>
 
+      <ThemedBottomSheetModal
+        ref={editPeopleBottomSheetRef}
+        enablePanDownToClose
+      >
+        {order && (
+          <EditPeopleBottomSheet
+            order={order}
+            onClose={closeEditPeopleBottomSheet}
+          />
+        )}
+      </ThemedBottomSheetModal>
+
+      <ThemedBottomSheetModal
+        ref={tableSelectorBottomSheetRef}
+        enablePanDownToClose
+      >
+        {order && (
+          <TableSelectorBottomSheet
+            order={order}
+            onClose={closeTableSelectorBottomSheet}
+          />
+        )}
+      </ThemedBottomSheetModal>
+
+      <ThemedBottomSheetModal ref={editNoteBottomSheetRef} enablePanDownToClose>
+        {order && (
+          <EditNoteBottomSheet
+            order={order}
+            onClose={closeEditNoteBottomSheet}
+          />
+        )}
+      </ThemedBottomSheetModal>
+
       {/* More Options Bottom Sheet */}
       <ThemedBottomSheetModal ref={moreOptionsSheetRef} enablePanDownToClose>
         <ActionsBottomSheet
-          items={[
-            ...moreOptions,
-            ...dangerOptions.map((option) => ({
-              ...option,
-              color: "text-red-500",
-            })),
+          sections={[
+            { items: editOptions },
+            { items: generalOptions },
+            {
+              items: dangerOptions.map((option) => ({
+                ...option,
+                color: "text-red-500",
+              })),
+            },
           ]}
         />
       </ThemedBottomSheetModal>

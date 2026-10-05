@@ -68,7 +68,7 @@ export default function OrdersLayout() {
                       leftIcon="checkmark-done-outline"
                       label={t("orders:options.markDelivered")}
                       onPress={() => order && markDelivered(order)}
-                      variant="secondary"
+                      variant="outline"
                       size="small"
                     ></Button>
                   )}
@@ -77,7 +77,7 @@ export default function OrdersLayout() {
                       leftIcon="lock-closed-outline"
                       label={t("orders:options.closeOrder")}
                       onPress={openCloseModal}
-                      variant="secondary"
+                      variant="outline"
                       size="small"
                     ></Button>
                   )}

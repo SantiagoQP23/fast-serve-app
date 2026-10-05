@@ -55,7 +55,8 @@ export default function Chip({
   // When filled and nothing else occupies the leading slot, show the M3
   // selected-state checkmark. An explicit `icon` always wins (e.g. a "close"
   // icon on an applied-filter chip means remove, not re-confirm selection).
-  const resolvedIcon = icon ?? (filled && !leftContent ? "checkmark" : undefined);
+  const resolvedIcon =
+    icon ?? (filled && !leftContent ? "checkmark" : undefined);
 
   const trailingContent =
     rightContent ??
@@ -69,12 +70,12 @@ export default function Chip({
     <Pressable
       onPress={() => !disabled && onPress && onPress()}
       style={({ pressed }) => [
-        tw`flex-row items-center px-4 py-2 rounded-full gap-2`,
+        tw`flex-row items-center px-4 py-[6px] rounded-full gap-2`,
         filled
           ? tw`bg-light-secondary`
           : variant === "input"
-            ? tw`bg-light-surface-container-low border border-gray-200`
-            : tw`border border-gray-200`,
+            ? tw`bg-light-surface-container-low border border-light-border`
+            : tw`border border-light-border`,
         pressed && tw`opacity-75`,
         disabled && tw`opacity-50`,
       ]}
@@ -86,7 +87,11 @@ export default function Chip({
       <ThemedText
         type="body2"
         style={[
-          filled ? tw`text-light-on-secondary` : tw``,
+          filled
+            ? tw`text-light-on-secondary`
+            : variant === "assist"
+              ? tw`text-light-text`
+              : tw`text-light-on-surface-variant`,
           { fontFamily: typography.medium },
         ]}
       >

@@ -13,17 +13,28 @@ export interface ActionsBottomSheetItem {
   disabled?: boolean;
 }
 
+export interface ActionsBottomSheetSection {
+  title?: string;
+  items: ActionsBottomSheetItem[];
+}
+
 interface ActionsBottomSheetProps {
   title?: string;
   subtitle?: string;
-  items: ActionsBottomSheetItem[];
+  items?: ActionsBottomSheetItem[];
+  sections?: ActionsBottomSheetSection[];
 }
 
 export default function ActionsBottomSheet({
   title,
   subtitle,
   items,
+  sections,
 }: ActionsBottomSheetProps) {
+  const resolvedSections = (sections ?? [{ items: items ?? [] }]).filter(
+    (section) => section.items.length > 0,
+  );
+
   return (
     <BottomSheetView style={tw`px-8 pb-6`}>
       {(title || subtitle) && (
@@ -38,42 +49,52 @@ export default function ActionsBottomSheet({
       )}
 
       <ThemedView>
-        {items.map((item, index) => (
-          <Pressable
-            key={`${item.label}-${index}`}
-            disabled={item.disabled}
-            onPress={item.onPress}
-            style={(state) =>
-              tw.style(
-                "flex-row items-center gap-3 py-3",
-                state.pressed && "opacity-60",
-                item.disabled && "opacity-40",
-              )
-            }
+        {resolvedSections.map((section, sectionIndex) => (
+          <ThemedView
+            key={section.title ?? `section-${sectionIndex}`}
+            style={tw.style(
+              sectionIndex > 0 && "pt-3 mt-3 border-t border-light-border",
+            )}
           >
-            <Ionicons
-              name={item.icon}
-              size={22}
-              color={
-                item.color
-                  ? tw.color(item.color.replace("text-", ""))
-                  : tw.color("gray-700")
-              }
-            />
-            <ThemedText
-              type="body1"
-              style={tw.style("flex-1", item.color && item.color)}
-            >
-              {item.label}
-            </ThemedText>
-            {/* {!item.disabled && ( */}
-            {/*   <Ionicons */}
-            {/*     name="chevron-forward" */}
-            {/*     size={18} */}
-            {/*     color={tw.color("gray-400")} */}
-            {/*   /> */}
-            {/* )} */}
-          </Pressable>
+            {section.title && (
+              <ThemedText
+                type="caption"
+                style={tw`text-gray-500 font-semibold mb-1`}
+              >
+                {section.title}
+              </ThemedText>
+            )}
+            {section.items.map((item, index) => (
+              <Pressable
+                key={`${item.label}-${index}`}
+                disabled={item.disabled}
+                onPress={item.onPress}
+                style={(state) =>
+                  tw.style(
+                    "flex-row items-center gap-3 py-3",
+                    state.pressed && "opacity-60",
+                    item.disabled && "opacity-40",
+                  )
+                }
+              >
+                <Ionicons
+                  name={item.icon}
+                  size={22}
+                  color={
+                    item.color
+                      ? tw.color(item.color.replace("text-", ""))
+                      : tw.color("gray-700")
+                  }
+                />
+                <ThemedText
+                  type="body1"
+                  style={tw.style("flex-1", item.color && item.color)}
+                >
+                  {item.label}
+                </ThemedText>
+              </Pressable>
+            ))}
+          </ThemedView>
         ))}
       </ThemedView>
     </BottomSheetView>
