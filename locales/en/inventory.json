@@ -86,7 +86,9 @@
   "addToInventory": {
     "title": "Add to inventory",
     "menuProduct": "Menu product",
-    "inventoryItem": "Inventory item"
+    "menuProductDescription": "Track stock for a product that's already on your menu.",
+    "inventoryItem": "Inventory item",
+    "inventoryItemDescription": "Create a new supply or ingredient that isn't sold directly."
   },
   "createItem": "New item",
   "editItem": "Edit item",

@@ -114,11 +114,7 @@ export default function EditOrderDetailScreen() {
     navigation.setOptions({
       headerRight: () =>
         isAdmin ? (
-          <IconButton
-            icon="create-outline"
-            onPress={openCustomBottomSheet}
-            variant="secondary"
-          />
+          <IconButton icon="create-outline" onPress={openCustomBottomSheet} />
         ) : null,
     });
   }, [navigation, openCustomBottomSheet, isAdmin]);
@@ -255,13 +251,11 @@ export default function EditOrderDetailScreen() {
                   {product.options.map((option) => {
                     const isSelected = selectedOption?.id === option.id;
                     return (
-                      <ThemedView
-                        key={option.id}
-                        style={tw`min-w-36 rounded-3xl border-2 ${isSelected ? "border-light-primary bg-transparent" : "border-transparent"}`}
-                      >
+                      <ThemedView key={option.id}>
                         <Card
                           onPress={() => onChangeSelectedOption(option)}
-                          style={tw`p-4  justify-between gap-2`}
+                          variant="outline"
+                          style={tw`min-w-36 gap-2 p-4 rounded-3xl border-2 ${isSelected ? "border-light-primary bg-transparent" : "border-transparent"}`}
                         >
                           <ThemedView
                             style={tw`flex-row items-center justify-between gap-2`}

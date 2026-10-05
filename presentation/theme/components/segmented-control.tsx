@@ -26,7 +26,7 @@ export default function SegmentedControl<T extends string>({
       {items.map((item) => {
         const isActive = value === item.value;
         const iconColor = isActive
-          ? tw.color("light-primary")
+          ? tw.color("light-on-surface-variant")
           : tw.color("light-on-surface-variant");
         const iconName =
           isActive && item.icon?.endsWith("-outline")
@@ -41,9 +41,9 @@ export default function SegmentedControl<T extends string>({
             onPress={() => onChange(item.value)}
             style={({ pressed }) =>
               tw.style(
-                "flex-1 flex-row items-center justify-center gap-2 py-2.5 rounded-md bg-white ",
+                "flex-1 flex-row items-center justify-center gap-2 py-2.5 rounded-md bg-light-surface",
                 pressed && "opacity-80",
-                isActive && " shadow-sm rounded-3xl",
+                isActive && " shadow-sm rounded-3xl bg-light-primary-container",
               )
             }
           >
@@ -55,7 +55,7 @@ export default function SegmentedControl<T extends string>({
               style={[
                 tw.style(
                   isActive
-                    ? "text-light-primary"
+                    ? "text-light-on-surface-variant"
                     : "text-light-on-surface-variant",
                 ),
                 { fontFamily: typography.medium },

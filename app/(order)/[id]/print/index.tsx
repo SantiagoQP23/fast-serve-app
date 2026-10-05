@@ -68,7 +68,7 @@ export default function OrderPrintScreen() {
   return (
     <ScreenLayout style={tw`flex-1`}>
       <ThemedView style={tw`flex-1 px-4 pt-6 gap-4`}>
-        <ThemedText type="h3">{t("orders:print.title")}</ThemedText>
+        {/* <ThemedText type="h2">{t("orders:print.title")}</ThemedText> */}
 
         <ScrollView
           style={tw`flex-1`}
@@ -159,13 +159,15 @@ export default function OrderPrintScreen() {
             />
           )}
 
-          <Button
-            label={t("orders:print.printButton")}
-            leftIcon="print-outline"
-            onPress={handlePrint}
-            loading={isPrinting}
-            disabled={isPrinting || !selectedPrinterId}
-          />
+          <ThemedView style={tw`flex-row justify-center`}>
+            <Button
+              size="large"
+              leftIcon="print-outline"
+              onPress={handlePrint}
+              loading={isPrinting}
+              disabled={isPrinting || !selectedPrinterId}
+            />
+          </ThemedView>
         </ThemedView>
       </ThemedView>
     </ScreenLayout>

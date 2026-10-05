@@ -86,7 +86,9 @@
   "addToInventory": {
     "title": "Agregar al inventario",
     "menuProduct": "Producto del menú",
-    "inventoryItem": "Artículo de inventario"
+    "menuProductDescription": "Controla el stock de un producto que ya está en tu menú.",
+    "inventoryItem": "Artículo de inventario",
+    "inventoryItemDescription": "Crea un nuevo insumo o ingrediente que no se vende directamente."
   },
   "createItem": "Nuevo artículo",
   "editItem": "Editar artículo",

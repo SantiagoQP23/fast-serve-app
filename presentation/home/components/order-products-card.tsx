@@ -83,7 +83,7 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
 
   return (
     <ThemedView style={tw`mb-8  `}>
-      <Card style={tw``} onPress={() => openOrder()}>
+      <Card style={tw``} onPress={() => openOrder()} variant="outline">
         <ThemedView style={tw`mb-6 `}>
           <ThemedView style={tw`flex-row justify-between items-center`}>
             <ThemedView style={tw`flex-row items-center bg-transparent gap-2`}>

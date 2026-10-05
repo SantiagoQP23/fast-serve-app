@@ -57,6 +57,7 @@ import { useBills } from "@/presentation/orders/hooks/useBills";
 import { GroupedList } from "@/presentation/theme/components/grouped-list";
 import OrderBillsTab from "@/presentation/orders/components/order-bills-tab";
 import OrderTicketsTab from "@/presentation/orders/components/order-tickets-tab";
+import { typography } from "@/constants/theme";
 
 dayjs.extend(relativeTime);
 
@@ -542,7 +543,10 @@ export default function OrderScreen() {
                     size={24}
                     color={tw.color("primary-600")}
                   />
-                  <ThemedText type="h2" style={tw``}>
+                  <ThemedText
+                    type="h2"
+                    style={{ fontFamily: typography.semibold }}
+                  >
                     {order.type === OrderType.IN_PLACE
                       ? `${t("common:labels.table")} ${order.table?.name}`
                       : t("common:labels.takeAway")}
@@ -582,20 +586,24 @@ export default function OrderScreen() {
                     text={(deliveryTime ?? createdAt).format("HH:mm")}
                     color="default"
                     onPress={openTimePicker}
+                    size="small"
                   />
                   <Label
                     text={String(order.people)}
                     leftIcon="people-outline"
+                    size="small"
                   />
                   <Label
                     text={statusText}
                     color={labelColor}
                     leftIcon={statusIcon}
+                    size="small"
                   />
 
                   <Label
                     text={paymentStatus.text}
                     color={paymentStatus.color}
+                    size="small"
                   />
                   {isClosed && (
                     <Label
@@ -605,6 +613,7 @@ export default function OrderScreen() {
                           : t("orders:details.open")
                       }
                       color={isClosed ? "default" : "success"}
+                      size="small"
                     />
                   )}
 
@@ -612,6 +621,7 @@ export default function OrderScreen() {
                     leftIcon="person-outline"
                     text={`${order.user?.person.firstName} ${order.user?.person.lastName}`}
                     onPress={!isClosed ? handlePresentReassignModal : undefined}
+                    size="small"
                   />
                 </ThemedView>
 
@@ -1000,9 +1010,9 @@ export default function OrderScreen() {
       {/* More Options Bottom Sheet */}
       <ThemedBottomSheetModal ref={moreOptionsSheetRef} enablePanDownToClose>
         <ThemedView style={tw`p-4 gap-4`}>
-          <ThemedText type="h3" style={tw`text-center`}>
-            {t("orders:details.moreOptions")}
-          </ThemedText>
+          {/* <ThemedText type="h3" style={tw`text-center`}> */}
+          {/*   {t("orders:details.moreOptions")} */}
+          {/* </ThemedText> */}
 
           <GroupedList
             data={moreOptions}
