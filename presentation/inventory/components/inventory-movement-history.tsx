@@ -163,16 +163,26 @@ export default function InventoryMovementHistory({
                     </ThemedText>
                   </ThemedView>
                 </ThemedView>
-                <ThemedText
-                  type="body2"
-                  style={[
-                    { fontFamily: typography.semibold },
-                    tw.style(visual.textColor),
-                  ]}
-                >
-                  {isIncrease ? "+" : "-"}
-                  {Math.abs(movement.quantity)} {unit}
-                </ThemedText>
+                <ThemedView style={tw`items-end gap-0.5 bg-transparent`}>
+                  <ThemedText
+                    type="body2"
+                    style={[
+                      { fontFamily: typography.semibold },
+                      tw.style(visual.textColor),
+                    ]}
+                  >
+                    {isIncrease ? "+" : "-"}
+                    {Math.abs(movement.quantity)} {unit}
+                  </ThemedText>
+                  {movement.quantityAfter != null && (
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {t("detail.quantityLeft", {
+                        quantity: movement.quantityAfter,
+                        unit,
+                      })}
+                    </ThemedText>
+                  )}
+                </ThemedView>
               </ThemedView>
             );
           }}

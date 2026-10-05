@@ -40,6 +40,7 @@
     "totalLabel": "Total: {{total}}",
     "movementHistory": "Historial de movimientos",
     "noMovements": "Aún no hay movimientos registrados",
+    "quantityLeft": "Quedan: {{quantity}} {{unit}}",
     "loadError": "No se pudo cargar el detalle del insumo",
     "movementsLoadError": "No se pudo cargar el historial de movimientos",
     "linkToProduct": "Vincular a un producto",
