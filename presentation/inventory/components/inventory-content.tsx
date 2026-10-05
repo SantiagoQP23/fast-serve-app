@@ -12,6 +12,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import Button from "@/presentation/theme/components/button";
 import Fab from "@/presentation/theme/components/fab";
@@ -46,6 +47,10 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     updateItem,
   } = useInventoryItems();
   const { categories } = useInventoryItemCategories();
+  const menuProducts = useMenuStore((state) => state.products);
+  const exampleMenuProductName =
+    menuProducts.find((product) => product.isActive)?.name ||
+    t("addToInventory.menuProductExampleFallback");
   const [itemToDelete, setItemToDelete] = useState<InventoryItem | null>(null);
   const [itemToAdjust, setItemToAdjust] = useState<InventoryItem | null>(null);
   const [itemForOptions, setItemForOptions] = useState<InventoryItem | null>(
@@ -378,7 +383,9 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                     {t("addToInventory.menuProduct")}
                   </ThemedText>
                   <ThemedText type="small" style={tw`text-gray-500`}>
-                    {t("addToInventory.menuProductDescription")}
+                    {t("addToInventory.menuProductDescription", {
+                      product: exampleMenuProductName,
+                    })}
                   </ThemedText>
                 </ThemedView>
               </ThemedView>
