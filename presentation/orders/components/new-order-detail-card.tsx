@@ -135,10 +135,10 @@ export default function NewOrderDetailCard({
               <IconButton
                 icon="remove-outline"
                 onPress={decrement}
-                variant="secondary"
+                variant="outlined"
               />
               <ThemedText>{counter}</ThemedText>
-              <IconButton icon="add" onPress={increment} variant="secondary" />
+              <IconButton icon="add" onPress={increment} variant="outlined" />
             </ThemedView>
           </ThemedView>
         </ThemedView>
