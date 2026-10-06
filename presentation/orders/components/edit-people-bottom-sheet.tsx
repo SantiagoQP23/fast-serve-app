@@ -43,17 +43,20 @@ const EditPeopleBottomSheet = ({
       style={tw`p-4 bg-light-background dark:bg-dark-background`}
     >
       <ThemedView style={tw`w-full gap-6`}>
-        <ThemedText type="h3" style={tw`text-center`}>
+        <ThemedText type="h3" style={tw``}>
           {t("orders:options.editPeople")}
         </ThemedText>
 
         <PeopleSelector value={people} onChange={setPeople} />
 
-        <Button
-          label={t("common:actions.confirm")}
-          onPress={handleConfirm}
-          loading={isLoading}
-        />
+        <ThemedView style={tw`flex-row justify-end gap-2`}>
+          <Button
+            leftIcon="save-outline"
+            label={t("common:actions.confirm")}
+            onPress={handleConfirm}
+            loading={isLoading}
+          />
+        </ThemedView>
       </ThemedView>
     </BottomSheetView>
   );

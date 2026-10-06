@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import dayjs from "dayjs";
 import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -6,6 +7,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import Button from "@/presentation/theme/components/button";
 import DatePicker from "@/presentation/theme/components/date-picker";
+import Switch from "@/presentation/theme/components/switch";
 
 interface CustomDateRangeBottomSheetProps {
   onClose: () => void;
@@ -13,6 +15,9 @@ interface CustomDateRangeBottomSheetProps {
   initialStartDate?: Date;
   initialEndDate?: Date;
 }
+
+const hasDistinctEndDate = (start: Date, end: Date) =>
+  !dayjs(start).isSame(end, "day");
 
 export default function CustomDateRangeBottomSheet({
   onClose,
@@ -24,14 +29,37 @@ export default function CustomDateRangeBottomSheet({
 
   const [startDate, setStartDate] = useState(initialStartDate ?? new Date());
   const [endDate, setEndDate] = useState(initialEndDate ?? new Date());
+  const [showEndDate, setShowEndDate] = useState(
+    hasDistinctEndDate(
+      initialStartDate ?? new Date(),
+      initialEndDate ?? new Date(),
+    ),
+  );
 
   useEffect(() => {
-    setStartDate(initialStartDate ?? new Date());
-    setEndDate(initialEndDate ?? new Date());
+    const start = initialStartDate ?? new Date();
+    const end = initialEndDate ?? new Date();
+    setStartDate(start);
+    setEndDate(end);
+    setShowEndDate(hasDistinctEndDate(start, end));
   }, [initialStartDate, initialEndDate]);
 
+  const handleStartDateChange = (date: Date) => {
+    setStartDate(date);
+    if (!showEndDate) {
+      setEndDate(date);
+    }
+  };
+
+  const handleToggleEndDate = (value: boolean) => {
+    setShowEndDate(value);
+    if (!value) {
+      setEndDate(startDate);
+    }
+  };
+
   const handleApply = () => {
-    onApply({ startDate, endDate });
+    onApply({ startDate, endDate: showEndDate ? endDate : startDate });
     onClose();
   };
 
@@ -42,24 +70,40 @@ export default function CustomDateRangeBottomSheet({
           {t("common:stats.dateRange.custom")}
         </ThemedText>
 
-        <DatePicker
-          label={t("common:stats.dateRange.startDate")}
-          value={startDate}
-          onChange={setStartDate}
-          maxDate={endDate}
-        />
+        <ThemedView style={tw`flex-row gap-3`}>
+          <ThemedView style={tw`flex-1`}>
+            <DatePicker
+              label={t("common:stats.dateRange.startDate")}
+              value={startDate}
+              onChange={handleStartDateChange}
+              maxDate={showEndDate ? endDate : new Date()}
+            />
+          </ThemedView>
 
-        <DatePicker
+          {showEndDate && (
+            <ThemedView style={tw`flex-1`}>
+              <DatePicker
+                label={t("common:stats.dateRange.endDate")}
+                value={endDate}
+                onChange={setEndDate}
+                minDate={startDate}
+                maxDate={new Date()}
+              />
+            </ThemedView>
+          )}
+        </ThemedView>
+        <Switch
           label={t("common:stats.dateRange.endDate")}
-          value={endDate}
-          onChange={setEndDate}
-          minDate={startDate}
-          maxDate={new Date()}
+          value={showEndDate}
+          onValueChange={handleToggleEndDate}
         />
 
         <ThemedView style={tw`flex-row gap-3`}>
           <ThemedView style={tw`flex-1`}>
-            <Button label={t("common:stats.dateRange.apply")} onPress={handleApply} />
+            <Button
+              label={t("common:stats.dateRange.apply")}
+              onPress={handleApply}
+            />
           </ThemedView>
         </ThemedView>
       </ThemedView>

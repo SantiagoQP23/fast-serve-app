@@ -53,6 +53,7 @@ export default function DatePicker({
 
   const isToday = dayjs(value).isSame(dayjs(), "day");
   const displayText = getRelativeDate(value);
+  const showDateCaption = !isToday && displayText !== formatDate(value);
 
   return (
     <View style={tw`w-full`}>
@@ -67,21 +68,20 @@ export default function DatePicker({
         style={tw`dark:border-gray-700  dark:bg-gray-800 border border-light-border rounded-2xl px-4 py-3 flex-row justify-between items-center`}
       >
         <View style={tw`flex-row items-center gap-2`}>
-          <Ionicons
-            name="calendar-outline"
-            size={20}
-            color={tw.color("light-primary")}
-          />
           <ThemedText type="body1" style={tw`font-medium`}>
             {displayText}
           </ThemedText>
-          {!isToday && (
+          {showDateCaption && (
             <ThemedText type="caption" style={tw`text-gray-500`}>
               ({formatDate(value)})
             </ThemedText>
           )}
         </View>
-        <Ionicons name="chevron-down" size={20} color="#9ca3af" />
+        <Ionicons
+          name="calendar-outline"
+          size={20}
+          color={tw.color("light-on-surface-variant")}
+        />
       </Pressable>
 
       {/* iOS renders inline picker */}

@@ -26,7 +26,7 @@ export default function ButtonGroup({
 
   return (
     <View
-      style={tw`${isHorizontal ? "flex-row" : "flex-wrap"} bg-light-surface-high dark:bg-darksurface p-1 rounded-3xl`}
+      style={tw`${isHorizontal ? "flex-row" : "flex-wrap"} bg-light-surface-high dark:bg-darksurface  rounded-3xl`}
     >
       {options.map((option, index) => {
         const isActive = selected === option.value;
@@ -37,7 +37,7 @@ export default function ButtonGroup({
             onPress={() => onChange(option.value)}
             style={({ pressed }) =>
               tw.style(
-                "flex-1 py-2 rounded-3xl",
+                "flex-1 py-3 rounded-3xl",
                 isActive ? "bg-light-secondary" : "bg-transparent",
                 pressed && "opacity-80",
               )
