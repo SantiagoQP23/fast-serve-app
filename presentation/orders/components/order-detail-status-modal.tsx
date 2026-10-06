@@ -49,7 +49,7 @@ const STATUS_OPTIONS: StatusOption[] = [
   },
   {
     status: OrderDetailStatus.DELIVERED,
-    icon: "checkmark-done-circle",
+    icon: "checkmark-done-circle-outline",
     labelKey: "common:status.delivered",
     iconColor: "green-600",
   },
@@ -118,7 +118,7 @@ const OrderDetailStatusModal = ({
                     color={
                       option.disabled
                         ? tw.color("gray-400")
-                        : tw.color("light-on-surface-variant")
+                        : tw.color(option.iconColor)
                     }
                   />
                   <ThemedText type="body1" style={tw`flex-1 `}>
