@@ -10,12 +10,14 @@ export interface ToolbarItem {
   onPress: () => void;
   active?: boolean;
   disabled?: boolean;
+  accessibilityLabel?: string;
 }
 
 interface FloatingToolbarProps {
   items: ToolbarItem[];
   orientation?: "horizontal" | "vertical";
   activeBgColor?: string;
+  size?: number;
   style?: ViewStyle;
 }
 
@@ -23,6 +25,7 @@ export default function FloatingToolbar({
   items,
   orientation = "horizontal",
   activeBgColor = tw.color("gray-200"),
+  size = 48,
   style,
 }: FloatingToolbarProps) {
   const isHorizontal = orientation === "horizontal";
@@ -43,8 +46,11 @@ export default function FloatingToolbar({
           key={index}
           onPress={item.onPress}
           disabled={item.disabled}
+          accessibilityRole="button"
+          accessibilityLabel={item.accessibilityLabel}
           style={({ pressed }) => [
-            tw`w-12 h-12 rounded-full items-center justify-center `,
+            tw`rounded-full items-center justify-center`,
+            { width: size, height: size },
             item.active && tw`bg-light-secondary`,
             pressed && !item.disabled && tw`opacity-70`,
             item.disabled && tw`opacity-40`,
@@ -52,7 +58,7 @@ export default function FloatingToolbar({
         >
           <Ionicons
             name={item.icon}
-            size={22}
+            size={Math.round(size * 0.46)}
             color={
               item.icon
                 ? Colors.light.onSecondary

@@ -96,6 +96,7 @@
     "inventoryItem": "Artículo de inventario",
     "inventoryItemDescription": "Crea un nuevo insumo o ingrediente que no se vende directamente."
   },
+  "inventoryControl": "Control de inventario",
   "createItem": "Nuevo artículo",
   "editItem": "Editar artículo",
   "deleteItem": "Eliminar artículo",

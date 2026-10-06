@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ScrollView, RefreshControl, Pressable } from "react-native";
+import { ScrollView, RefreshControl, Pressable, View } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -15,13 +15,15 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import Button from "@/presentation/theme/components/button";
-import Fab from "@/presentation/theme/components/fab";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import TextInput from "@/presentation/theme/components/text-input";
 import Chip from "@/presentation/theme/components/chip";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Card from "@/presentation/theme/components/card";
 import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
+import FloatingToolbar, {
+  ToolbarItem,
+} from "@/presentation/theme/components/floating-toolbar";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 import { useInventoryItemsBrowser } from "@/presentation/inventory/hooks/useInventoryItemsBrowser";
@@ -29,8 +31,12 @@ import { useInventoryItemCategories } from "@/presentation/inventory/hooks/useIn
 import AdjustStockModal from "@/presentation/inventory/components/adjust-stock-modal";
 import InventoryItemCard from "@/presentation/inventory/components/inventory-item-card";
 import InventoryStockSummary from "@/presentation/inventory/components/inventory-stock-summary";
+import InventoryCountsTab from "@/presentation/inventory/components/inventory-counts-tab";
+import InventoryPurchasesTab from "@/presentation/inventory/components/inventory-purchases-tab";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
 import { InventoryItemStockStatusFilter } from "@/presentation/inventory/interfaces/dto/find-all-inventory-items.dto";
+
+type InventoryTab = "inventory" | "counts" | "purchases";
 
 interface InventoryContentProps {
   onBack?: () => void;
@@ -63,6 +69,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     useState<InventoryItemStockStatusFilter | null>(null);
   const optionsSheetRef = useRef<BottomSheetMethods>(null);
   const addSheetRef = useRef<BottomSheetMethods>(null);
+  const [activeTab, setActiveTab] = useState<InventoryTab>("inventory");
 
   const {
     items: browsedItems,
@@ -112,14 +119,6 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     });
   };
 
-  const handleOpenPurchases = () => {
-    router.push({ pathname: "/(profile)/menu-inventory-purchases" });
-  };
-
-  const handleOpenCounts = () => {
-    router.push({ pathname: "/(profile)/menu-inventory-counts" });
-  };
-
   const handleNewCount = () => {
     addSheetRef.current?.dismiss();
     router.push({ pathname: "/(profile)/menu-inventory-count-items" });
@@ -158,6 +157,38 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     updateItem.mutate({ id: item.id, isActive: true });
   };
 
+  const toolbarItems: ToolbarItem[] = [
+    {
+      icon: "home-outline",
+      onPress: () => setActiveTab("inventory"),
+      active: activeTab === "inventory",
+      accessibilityLabel: t("title"),
+    },
+    {
+      icon: "clipboard-outline",
+      onPress: () => setActiveTab("counts"),
+      active: activeTab === "counts",
+      accessibilityLabel: t("counts.history"),
+    },
+    ...(canManage
+      ? [
+          {
+            icon: "receipt-outline" as const,
+            onPress: () => setActiveTab("purchases"),
+            active: activeTab === "purchases",
+            accessibilityLabel: t("purchases.history"),
+          },
+        ]
+      : []),
+  ];
+
+  const screenTitle =
+    activeTab === "counts"
+      ? t("counts.title")
+      : activeTab === "purchases"
+        ? t("purchases.title")
+        : t("title");
+
   return (
     <>
       <ThemedView style={tw`px-4 pt-8 gap-4 bg-transparent`}>
@@ -177,27 +208,9 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
             style={{ fontFamily: typography.medium, flex: 1 }}
             numberOfLines={1}
           >
-            {t("title")}
+            {screenTitle}
           </ThemedText>
-          <Pressable
-            onPress={handleOpenCounts}
-            style={({ pressed }) => tw.style(pressed && "opacity-70")}
-            accessibilityLabel={t("counts.history")}
-            accessibilityRole="button"
-          >
-            <Ionicons name="clipboard-outline" size={22} />
-          </Pressable>
-          {canManage && (
-            <Pressable
-              onPress={handleOpenPurchases}
-              style={({ pressed }) => tw.style(pressed && "opacity-70")}
-              accessibilityLabel={t("purchases.history")}
-              accessibilityRole="button"
-            >
-              <Ionicons name="receipt-outline" size={22} />
-            </Pressable>
-          )}
-          {canManage && (
+          {canManage && activeTab === "inventory" && (
             <Pressable
               onPress={handleManageCategories}
               style={({ pressed }) => tw.style(pressed && "opacity-70")}
@@ -209,174 +222,197 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
           )}
         </ThemedView>
 
-        <Pressable
-          onPress={handleOpenSearch}
-          accessibilityRole="button"
-          accessibilityLabel={t("searchPlaceholder")}
-        >
-          <TextInput
-            placeholder={t("searchPlaceholder")}
-            icon="search-outline"
-            editable={false}
-            pointerEvents="none"
-          />
-        </Pressable>
-
-        {(categories.length > 0 || canManage) && (
-          <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={tw`gap-2 items-center`}
-              style={tw`flex-1`}
+        {activeTab === "inventory" && (
+          <>
+            <Pressable
+              onPress={handleOpenSearch}
+              accessibilityRole="button"
+              accessibilityLabel={t("searchPlaceholder")}
             >
-              <Chip
-                label={t("categories.all")}
-                selected={selectedCategoryId === null}
-                onPress={() => setSelectedCategoryId(null)}
+              <TextInput
+                placeholder={t("searchPlaceholder")}
+                icon="search-outline"
+                editable={false}
+                pointerEvents="none"
               />
-              {categories.map((category) => (
-                <Chip
-                  key={category.id}
-                  label={category.name}
-                  selected={selectedCategoryId === category.id}
-                  onPress={() =>
-                    setSelectedCategoryId((current) =>
-                      current === category.id ? null : category.id,
-                    )
-                  }
-                />
-              ))}
-              {canManage && (
-                <IconButton
-                  icon="add"
-                  variant="outlined"
-                  size={18}
-                  onPress={handleCreateCategory}
-                  style={tw`p-1.5`}
-                />
-              )}
-            </ScrollView>
-          </ThemedView>
+            </Pressable>
+
+            {(categories.length > 0 || canManage) && (
+              <ThemedView
+                style={tw`flex-row items-center gap-2 bg-transparent`}
+              >
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={tw`gap-2 items-center`}
+                  style={tw`flex-1`}
+                >
+                  <Chip
+                    label={t("categories.all")}
+                    selected={selectedCategoryId === null}
+                    onPress={() => setSelectedCategoryId(null)}
+                  />
+                  {categories.map((category) => (
+                    <Chip
+                      key={category.id}
+                      label={category.name}
+                      selected={selectedCategoryId === category.id}
+                      onPress={() =>
+                        setSelectedCategoryId((current) =>
+                          current === category.id ? null : category.id,
+                        )
+                      }
+                    />
+                  ))}
+                  {canManage && (
+                    <IconButton
+                      icon="add"
+                      variant="outlined"
+                      size={18}
+                      onPress={handleCreateCategory}
+                      style={tw`p-1.5`}
+                    />
+                  )}
+                </ScrollView>
+              </ThemedView>
+            )}
+          </>
         )}
       </ThemedView>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`px-4 gap-6 pb-8 pt-6`}
-        refreshControl={
-          <RefreshControl
-            refreshing={browserQuery.isFetching}
-            onRefresh={browserQuery.refetch}
-            tintColor={tw.color("blue-500")}
-            colors={[tw.color("blue-500") || "#3b82f6"]}
-          />
-        }
-      >
-        {browserQuery.isLoading && !isLoadingMore && (
-          <ThemedView style={tw`items-center py-8 gap-3`}>
-            <ThemedText type="body1" style={tw`text-gray-500`}>
-              {t("loading")}
-            </ThemedText>
-          </ThemedView>
-        )}
-
-        {browserQuery.isError && (
-          <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
-            <ThemedText type="body1" style={tw`text-red-500`}>
-              {t("loadError")}
-            </ThemedText>
-            <Button
-              label={t("retry")}
-              onPress={() => browserQuery.refetch()}
-              variant="outline"
+      {activeTab === "inventory" && (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={tw`px-4 gap-6 pb-8 pt-6`}
+          refreshControl={
+            <RefreshControl
+              refreshing={browserQuery.isFetching}
+              onRefresh={browserQuery.refetch}
+              tintColor={tw.color("blue-500")}
+              colors={[tw.color("blue-500") || "#3b82f6"]}
             />
-          </ThemedView>
-        )}
-
-        {!browserQuery.isLoading &&
-          !browserQuery.isError &&
-          catalogItems.length === 0 && (
+          }
+        >
+          {browserQuery.isLoading && !isLoadingMore && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Ionicons name="cube-outline" size={48} color="#999" />
-              <ThemedText type="body1" style={tw`font-semibold`}>
-                {t("empty")}
-              </ThemedText>
-              <ThemedText
-                type="body2"
-                style={tw`text-center text-gray-500 px-4`}
-              >
-                {t("emptyDescription")}
+              <ThemedText type="body1" style={tw`text-gray-500`}>
+                {t("loading")}
               </ThemedText>
             </ThemedView>
           )}
 
-        {!catalogQuery.isLoading &&
-          !catalogQuery.isError &&
-          catalogItems.length > 0 && (
-            <InventoryStockSummary
-              items={catalogItems}
-              selectedStatus={selectedStatus}
-              onSelectStatus={setSelectedStatus}
-            />
-          )}
-
-        {!browserQuery.isLoading &&
-          !browserQuery.isError &&
-          catalogItems.length > 0 &&
-          browsedItems.length === 0 && (
+          {browserQuery.isError && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Ionicons name="search-outline" size={40} color="#999" />
-              <ThemedText type="body1" style={tw`font-semibold`}>
-                {t("noResults")}
-              </ThemedText>
-              <ThemedText
-                type="body2"
-                style={tw`text-center text-gray-500 px-4`}
-              >
-                {t("noResultsDescription")}
-              </ThemedText>
-            </ThemedView>
-          )}
-
-        {browsedItems.length > 0 && (
-          <ThemedView style={tw`gap-3.5 bg-transparent`}>
-            {browsedItems.map((item) => (
-              <InventoryItemCard
-                key={item.id}
-                item={item}
-                canManage={canManage}
-                onPress={(pressedItem) =>
-                  router.push({
-                    pathname: "/(profile)/menu-inventory-item-detail",
-                    params: { itemId: pressedItem.id },
-                  })
-                }
-                onOptionsPress={handleOpenOptions}
-                onAdjustPress={setItemToAdjust}
-                onReactivatePress={handleReactivate}
+              <Ionicons
+                name="alert-circle-outline"
+                size={48}
+                color="#ef4444"
               />
-            ))}
-            {hasMore && (
+              <ThemedText type="body1" style={tw`text-red-500`}>
+                {t("loadError")}
+              </ThemedText>
               <Button
-                label={t("common:actions.loadMore")}
+                label={t("retry")}
+                onPress={() => browserQuery.refetch()}
                 variant="outline"
-                loading={isLoadingMore}
-                onPress={loadMore}
+              />
+            </ThemedView>
+          )}
+
+          {!browserQuery.isLoading &&
+            !browserQuery.isError &&
+            catalogItems.length === 0 && (
+              <ThemedView style={tw`items-center py-8 gap-3`}>
+                <Ionicons name="cube-outline" size={48} color="#999" />
+                <ThemedText type="body1" style={tw`font-semibold`}>
+                  {t("empty")}
+                </ThemedText>
+                <ThemedText
+                  type="body2"
+                  style={tw`text-center text-gray-500 px-4`}
+                >
+                  {t("emptyDescription")}
+                </ThemedText>
+              </ThemedView>
+            )}
+
+          {!catalogQuery.isLoading &&
+            !catalogQuery.isError &&
+            catalogItems.length > 0 && (
+              <InventoryStockSummary
+                items={catalogItems}
+                selectedStatus={selectedStatus}
+                onSelectStatus={setSelectedStatus}
               />
             )}
-          </ThemedView>
-        )}
-      </ScrollView>
 
-      {canManage && (
-        <Fab
-          icon="add"
-          label={t("createItem")}
-          onPress={handleOpenAddSelector}
-        />
+          {!browserQuery.isLoading &&
+            !browserQuery.isError &&
+            catalogItems.length > 0 &&
+            browsedItems.length === 0 && (
+              <ThemedView style={tw`items-center py-8 gap-3`}>
+                <Ionicons name="search-outline" size={40} color="#999" />
+                <ThemedText type="body1" style={tw`font-semibold`}>
+                  {t("noResults")}
+                </ThemedText>
+                <ThemedText
+                  type="body2"
+                  style={tw`text-center text-gray-500 px-4`}
+                >
+                  {t("noResultsDescription")}
+                </ThemedText>
+              </ThemedView>
+            )}
+
+          {browsedItems.length > 0 && (
+            <ThemedView style={tw`gap-3.5 bg-transparent`}>
+              {browsedItems.map((item) => (
+                <InventoryItemCard
+                  key={item.id}
+                  item={item}
+                  canManage={canManage}
+                  onPress={(pressedItem) =>
+                    router.push({
+                      pathname: "/(profile)/menu-inventory-item-detail",
+                      params: { itemId: pressedItem.id },
+                    })
+                  }
+                  onOptionsPress={handleOpenOptions}
+                  onAdjustPress={setItemToAdjust}
+                  onReactivatePress={handleReactivate}
+                />
+              ))}
+              {hasMore && (
+                <Button
+                  label={t("common:actions.loadMore")}
+                  variant="outline"
+                  loading={isLoadingMore}
+                  onPress={loadMore}
+                />
+              )}
+            </ThemedView>
+          )}
+        </ScrollView>
       )}
+
+      {activeTab === "counts" && <InventoryCountsTab />}
+
+      {activeTab === "purchases" && canManage && <InventoryPurchasesTab />}
+
+      <View style={tw`absolute bottom-6 left-0 right-0 items-center`}>
+        <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
+          <FloatingToolbar items={toolbarItems} />
+          {canManage && (
+            <IconButton
+              icon="add"
+              size={30}
+              variant="filled"
+              onPress={handleOpenAddSelector}
+              accessibilityLabel={t("createItem")}
+            />
+          )}
+        </ThemedView>
+      </View>
 
       <DialogModal
         visible={!!itemToDelete}
@@ -397,11 +433,13 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
 
       <ThemedBottomSheetModal ref={addSheetRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6`}>
-          <ThemedView style={tw`mb-8 mt-4`}>
-            <ThemedText type="h3">{t("addToInventory.title")}</ThemedText>
-          </ThemedView>
-
-          <ThemedView style={tw`gap-4 `}>
+          <ThemedView style={tw`gap-3 mt-4`}>
+            <ThemedText
+              type="caption"
+              style={tw`text-gray-500 font-semibold`}
+            >
+              {t("addToInventory.title")}
+            </ThemedText>
             <Card onPress={handleTrackMenuProduct}>
               <ThemedView
                 style={tw`flex-row items-center gap-3 bg-transparent`}
@@ -449,7 +487,15 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                 </ThemedView>
               </ThemedView>
             </Card>
+          </ThemedView>
 
+          <ThemedView style={tw`gap-3 mt-6`}>
+            <ThemedText
+              type="caption"
+              style={tw`text-gray-500 font-semibold`}
+            >
+              {t("inventoryControl")}
+            </ThemedText>
             <Card onPress={handleRegisterPurchase}>
               <ThemedView
                 style={tw`flex-row items-center gap-3 bg-transparent`}
