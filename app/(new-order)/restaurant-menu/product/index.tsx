@@ -289,7 +289,7 @@ export default function ProductScreen() {
                       <Card
                         onPress={() => onChangeSelectedOption(option)}
                         variant="outline"
-                        style={tw`min-w-36 p-4 gap-2 rounded-3xl border-2 ${isSelected ? "border-light-primary" : "border-transparent"}`}
+                        style={tw`min-w-36 p-4 gap-2 rounded-3xl ${isSelected ? "border-light-primary" : "border-none"}`}
                       >
                         <ThemedView
                           style={tw`flex-row items-center justify-between gap-2`}
@@ -416,11 +416,7 @@ export default function ProductScreen() {
         onChange={(value) => setTypeOrderDetail(value as OrderType)}
       />
 
-      <ThemedBottomSheetModal
-        ref={bottomSheetModalRef}
-        snapPoints={["55%"]}
-        enablePanDownToClose
-      >
+      <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
           <TextInput
             label={t("orders:newOrder.customPrice")}
