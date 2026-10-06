@@ -12,7 +12,6 @@ import ProgressBar from "@/presentation/theme/components/progress-bar";
 import { useOrders } from "../hooks/useOrders";
 import { useOrdersStore } from "../store/useOrdersStore";
 import Button from "@/presentation/theme/components/button";
-import Checkbox from "@/presentation/theme/components/checkbox";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import {
   BottomSheetView,
@@ -22,6 +21,8 @@ import BottomSheetPicker, {
   BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
 import OrderDetailActionsBottomSheet from "./order-detail-actions-bottom-sheet";
+import OrderDetailStatusModal from "./order-detail-status-modal";
+import { Ionicons } from "@expo/vector-icons";
 import { formatCurrency } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
@@ -49,6 +50,7 @@ export default function OrderDetailCard({
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
   const deliveredSheetRef = useRef<BottomSheetMethods>(null);
   const typePickerRef = useRef<BottomSheetPickerRef>(null);
+  const [statusModalVisible, setStatusModalVisible] = useState(false);
   const [deliveredDraft, setDeliveredDraft] = useState(detail.qtyDelivered);
 
   const createdBy = detail.createdBy;
@@ -63,9 +65,6 @@ export default function OrderDetailCard({
   const { statusText, statusIcon, labelColor, statusIconColor } =
     useOrderDetailStatus(detail.status);
   const isCancelled = detail.status === OrderDetailStatus.CANCELLED;
-
-  // Derive checkbox state directly from props (no local state needed)
-  const isChecked = detail.quantity === detail.qtyDelivered;
 
   const handleOpenBottomSheet = () => {
     if (isCancelled) return;
@@ -121,20 +120,31 @@ export default function OrderDetailCard({
     }
   };
 
-  const onCheckedChange = (newValue: boolean) => {
+  const handleOpenStatusModal = () => {
+    if (isCancelled) return;
+    setStatusModalVisible(true);
+  };
+
+  const handleCloseStatusModal = () => {
+    setStatusModalVisible(false);
+  };
+
+  const onSelectStatus = (status: OrderDetailStatus) => {
     const currentOrderId = orderId || order?.id;
     if (!currentOrderId) return;
 
-    const newQtyDelivered = newValue ? detail.quantity : 0;
     updateOrderDetail(
       {
         id: detail.id,
-        quantity: detail.quantity,
         orderId: currentOrderId,
-        qtyDelivered: newQtyDelivered,
+        status,
+        qtyDelivered:
+          status === OrderDetailStatus.DELIVERED ? detail.quantity : 0,
       },
       {
-        onSuccess: () => {},
+        onSuccess: () => {
+          handleCloseStatusModal();
+        },
       },
     );
   };
@@ -254,6 +264,13 @@ export default function OrderDetailCard({
         </BottomSheetView>
       </ThemedBottomSheetModal>
 
+      <OrderDetailStatusModal
+        visible={statusModalVisible}
+        detail={detail}
+        onSelectStatus={onSelectStatus}
+        onClose={handleCloseStatusModal}
+      />
+
       <ThemedView style={tw``}>
         <Swipeable
           renderRightActions={
@@ -274,9 +291,24 @@ export default function OrderDetailCard({
             onPress={isCancelled ? undefined : onPress}
             onLongPress={isCancelled ? undefined : handleOpenBottomSheet}
           >
-            <ThemedView style={tw`flex-row items-center gap-4`}>
+            <ThemedView style={tw`flex-row  gap-4`}>
               {!isCancelled && (
-                <Checkbox value={isChecked} onValueChange={onCheckedChange} />
+                <Pressable
+                  onPress={handleOpenStatusModal}
+                  hitSlop={8}
+                  style={tw`mt-1`}
+                >
+                  <Ionicons
+                    name={statusIcon}
+                    size={20}
+                    color={tw.color(statusIconColor)}
+                  />
+                  {/* <Ionicons */}
+                  {/*   name={statusIcon} */}
+                  {/*   size={18} */}
+                  {/*   color={tw.color("light-on-surface-variant")} */}
+                  {/* /> */}
+                </Pressable>
               )}
               <ThemedView style={tw` bg-transparent gap-2  flex-1`}>
                 <ThemedView
@@ -290,12 +322,6 @@ export default function OrderDetailCard({
                         <ThemedView
                           style={tw`flex-row justify-between bg-transparent gap-2 items-center whitespace-normal`}
                         >
-                          {/* <Ionicons */}
-                          {/*   name={statusIcon} */}
-                          {/*   size={16} */}
-                          {/*   color={tw.color(statusIconColor)} */}
-                          {/*   weight="bold" */}
-                          {/* /> */}
                           <ThemedText type="body1" style={tw`whitespace-wrap`}>
                             {detail.product.name}{" "}
                             {showProductOptionName &&
@@ -347,13 +373,13 @@ export default function OrderDetailCard({
                   </ThemedView>
                 </ThemedView>
                 <ThemedView style={tw`flex-row gap-2 flex-wrap gap-y-2`}>
-                  <Label
-                    text={statusText}
-                    color={labelColor}
-                    leftIcon={statusIcon}
-                    size="small"
-                    onPress={isCancelled ? undefined : handleOpenDeliveredSheet}
-                  />
+                  {/* <Label */}
+                  {/*   text={statusText} */}
+                  {/*   color={labelColor} */}
+                  {/*   leftIcon={statusIcon} */}
+                  {/*   size="small" */}
+                  {/*   onPress={isCancelled ? undefined : handleOpenDeliveredSheet} */}
+                  {/* /> */}
                   {detail.typeOrderDetail !== (orderType ?? order?.type) && (
                     <Label
                       text={
