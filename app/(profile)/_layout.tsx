@@ -273,6 +273,34 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="menu-inventory-counts/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="menu-inventory-count-items/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="menu-inventory-count-run/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="menu-inventory-count-detail/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
           name="tables-settings/index"
           options={{
             headerShown: true,

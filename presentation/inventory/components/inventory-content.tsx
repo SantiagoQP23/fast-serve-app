@@ -116,6 +116,15 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     router.push({ pathname: "/(profile)/menu-inventory-purchases" });
   };
 
+  const handleOpenCounts = () => {
+    router.push({ pathname: "/(profile)/menu-inventory-counts" });
+  };
+
+  const handleNewCount = () => {
+    addSheetRef.current?.dismiss();
+    router.push({ pathname: "/(profile)/menu-inventory-count-items" });
+  };
+
   const handleRegisterPurchase = () => {
     addSheetRef.current?.dismiss();
     router.push({ pathname: "/(profile)/menu-inventory-purchase-items" });
@@ -170,6 +179,14 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
           >
             {t("title")}
           </ThemedText>
+          <Pressable
+            onPress={handleOpenCounts}
+            style={({ pressed }) => tw.style(pressed && "opacity-70")}
+            accessibilityLabel={t("counts.history")}
+            accessibilityRole="button"
+          >
+            <Ionicons name="clipboard-outline" size={22} />
+          </Pressable>
           {canManage && (
             <Pressable
               onPress={handleOpenPurchases}
@@ -451,6 +468,29 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                   </ThemedText>
                   <ThemedText type="small" style={tw`text-gray-500`}>
                     {t("purchases.registerDescription")}
+                  </ThemedText>
+                </ThemedView>
+              </ThemedView>
+            </Card>
+
+            <Card onPress={handleNewCount}>
+              <ThemedView
+                style={tw`flex-row items-center gap-3 bg-transparent`}
+              >
+                <Ionicons
+                  name="clipboard-outline"
+                  size={26}
+                  color={tw.color("text-light-on-surface-variant")}
+                />
+                <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+                  <ThemedText
+                    type="body1"
+                    style={{ fontFamily: typography.medium }}
+                  >
+                    {t("counts.new")}
+                  </ThemedText>
+                  <ThemedText type="small" style={tw`text-gray-500`}>
+                    {t("counts.newDescription")}
                   </ThemedText>
                 </ThemedView>
               </ThemedView>
