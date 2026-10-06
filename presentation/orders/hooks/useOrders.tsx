@@ -8,6 +8,7 @@ import {
   AddOrderDetailToOrderDto,
   AddOrderDetailsDto,
   DeleteOrderDetailDto,
+  ReplaceOrderDetailDto,
   UpdateOrderResp,
   UpdateOrderDetailsDto,
   UpdateOrderDetailDto,
@@ -136,6 +137,28 @@ export const useOrders = () => {
     },
   });
 
+  const replaceOrderDetailEmitter = useWebsocketEventEmitter<
+    UpdateOrderResp,
+    ReplaceOrderDetailDto
+  >(OrderSocketEvent.replaceOrderDetail, {
+    onSuccess: async (resp) => {
+      const data = resp.data;
+      if (data?.order) {
+        setActiveOrder(data.order);
+        updateOrder(data.order);
+      }
+      if (data?.order && data?.tickets?.length) {
+        // One after the other so the CANCEL comanda prints before the ADD.
+        for (const ticket of data.tickets) {
+          await printComanda(data.order, ticket);
+        }
+      }
+    },
+    onError: (resp) => {
+      Alert.alert("Error", resp.msg);
+    },
+  });
+
   return {
     createOrder: createOrderEmitter,
     updateOrderDetail: updateOrderDetailEmitter,
@@ -144,6 +167,7 @@ export const useOrders = () => {
     updateOrder: updateOrderEmitter,
     updateOrderDetails: updateOrderDetailsEmitter,
     removeOrderDetail: removeOrderDetailEmitter,
+    replaceOrderDetail: replaceOrderDetailEmitter,
     deleteOrder: deleteOrderEmitter,
   };
 };

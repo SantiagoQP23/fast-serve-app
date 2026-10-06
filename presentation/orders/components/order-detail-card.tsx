@@ -11,6 +11,8 @@ import { OrderType } from "@/core/orders/enums/order-type.enum";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
 import { useOrders } from "../hooks/useOrders";
 import { useOrdersStore } from "../store/useOrdersStore";
+import { useReplaceOrderDetailStore } from "../store/replaceOrderDetailStore";
+import { router } from "expo-router";
 import Button from "@/presentation/theme/components/button";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -115,6 +117,16 @@ export default function OrderDetailCard({
     );
   };
 
+  const startReplace = useReplaceOrderDetailStore((state) => state.start);
+
+  const handleReplace = () => {
+    const currentOrderId = orderId || order?.id;
+    if (!currentOrderId) return;
+
+    startReplace(currentOrderId, detail);
+    router.push("/(new-order)/restaurant-menu");
+  };
+
   const handleEditQuantity = () => {
     if (onPress) {
       onPress({} as any);
@@ -211,6 +223,7 @@ export default function OrderDetailCard({
         <OrderDetailActionsBottomSheet
           detail={detail}
           onEditQuantity={handleEditQuantity}
+          onReplace={handleReplace}
           onDelete={onRemoveDetail}
           onClose={handleCloseBottomSheet}
         />

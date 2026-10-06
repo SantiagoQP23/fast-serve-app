@@ -150,6 +150,7 @@
     "add-order-detail": "Agregando producto...",
     "add-order-details": "Agregando productos...",
     "delete-order-detail": "Eliminando producto...",
+    "replace-order-detail": "Reemplazando producto...",
     "update-qty-delivered-detail": "Actualizando cantidad entregada...",
     "delete-order": "Eliminando pedido...",
     "pay-order": "Procesando pago...",

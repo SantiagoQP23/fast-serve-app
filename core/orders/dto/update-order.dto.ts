@@ -47,9 +47,18 @@ export interface DeleteOrderDetailDto {
   orderId: string;
 }
 
+export interface ReplaceOrderDetailDto {
+  orderId: string;
+  detailId: string;
+  newDetail: Omit<AddOrderDetailToOrderDto, "orderId">;
+}
+
 export interface UpdateOrderResp {
   order?: Order;
   ticket?: Ticket;
+  // Set when one action produces several tickets (replacing an item gives
+  // CANCEL for the old one, then ADD for the new one), in print order.
+  tickets?: Ticket[];
 }
 
 export interface OrderDetailBatchItemDto {
