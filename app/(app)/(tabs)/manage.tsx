@@ -127,6 +127,12 @@ export default function ManageScreen() {
       label: t("manage.productionAreas"),
       onPress: () => router.push("/(profile)/production-areas"),
     },
+    {
+      key: "restaurantSettings",
+      icon: "options-outline",
+      label: t("manage.restaurantSettings"),
+      onPress: () => router.push("/(profile)/restaurant-settings"),
+    },
     ...(isAdmin
       ? [
           {

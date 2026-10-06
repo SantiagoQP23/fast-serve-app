@@ -97,6 +97,15 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="restaurant-settings"
+          options={{
+            headerShown: true,
+            title: t("manage.restaurantSettings"),
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
           name="production-area-form/index"
           options={{
             headerShown: false,
