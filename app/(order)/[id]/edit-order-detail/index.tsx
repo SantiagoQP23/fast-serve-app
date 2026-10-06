@@ -32,13 +32,13 @@ import { useOrderDetailStatus } from "@/presentation/orders/hooks/useOrderDetail
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { KeyboardAvoidingView, ScrollView } from "react-native";
-import ProgressBar from "@/presentation/theme/components/progress-bar";
 import OrderDetailActivityBottomSheet from "@/presentation/orders/components/order-detail-activity-bottom-sheet";
 import dayjs from "dayjs";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
 import Card from "@/presentation/theme/components/card";
 import Chip from "@/presentation/theme/components/chip";
+import Slider from "@/presentation/theme/components/slider";
 
 export default function EditOrderDetailScreen() {
   const { t } = useTranslation(["common", "orders", "menu", "inventory"]);
@@ -68,6 +68,7 @@ export default function EditOrderDetailScreen() {
     counter: qtyDelivered,
     increment: incrementDelivered,
     decrement: decrementDelivered,
+    setCounter: setQtyDelivered,
   } = useCounter(orderDetail?.qtyDelivered, 1, orderDetail?.quantity, 0);
 
   const router = useRouter();
@@ -213,10 +214,23 @@ export default function EditOrderDetailScreen() {
               )}
             </ThemedView>
             {orderDetail.quantity > 1 && (
-              <ThemedView>
-                <ProgressBar
-                  progress={orderDetail.qtyDelivered / orderDetail.quantity}
-                  height={1.5}
+              <ThemedView style={tw`gap-1`}>
+                <ThemedView style={tw`flex-row items-center justify-between`}>
+                  <ThemedText type="body2" style={tw`text-gray-500`}>
+                    {t("common:status.delivered")}
+                  </ThemedText>
+                  <ThemedText type="body2" style={tw`text-gray-500`}>
+                    {qtyDelivered} / {orderDetail.quantity}
+                  </ThemedText>
+                </ThemedView>
+                <Slider
+                  value={qtyDelivered}
+                  minimumValue={0}
+                  maximumValue={orderDetail.quantity}
+                  step={1}
+                  height={12}
+                  onValueChange={setQtyDelivered}
+                  onSlidingComplete={setQtyDelivered}
                 />
               </ThemedView>
             )}
