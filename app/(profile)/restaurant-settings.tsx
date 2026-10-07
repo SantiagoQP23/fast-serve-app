@@ -78,7 +78,9 @@ export default function RestaurantSettingsScreen() {
               <ThemedText type="small" style={tw`text-gray-500`}>
                 {t("restaurantSettings.ordersGroup")}
               </ThemedText>
-              <Card style={tw`gap-3 p-4 rounded-3xl flex-row items-center`}>
+              <Card
+                style={tw`gap-3 p-4 rounded-3xl flex-row items-center justify-between`}
+              >
                 <ThemedText type="body1">
                   {t("restaurantSettings.orderPrepTime.title")}
                 </ThemedText>

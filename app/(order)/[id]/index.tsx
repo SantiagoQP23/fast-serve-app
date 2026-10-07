@@ -45,7 +45,9 @@ import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bottom-sheet";
 import ReassignOrderBottomSheet from "@/presentation/orders/components/reassign-order-bottom-sheet";
 import EditPeopleBottomSheet from "@/presentation/orders/components/edit-people-bottom-sheet";
-import TableSelectorBottomSheet from "@/presentation/orders/components/table-selector-bottom-sheet";
+import TableSelectorBottomSheet, {
+  type TableSelectorBottomSheetRef,
+} from "@/presentation/orders/components/table-selector-bottom-sheet";
 import EditNoteBottomSheet from "@/presentation/orders/components/edit-note-bottom-sheet";
 import CloseOrderModal from "@/presentation/orders/components/close-order-modal";
 
@@ -133,7 +135,7 @@ export default function OrderScreen() {
   const editBottomSheetRef = useRef<BottomSheetMethods>(null);
   const reassignBottomSheetRef = useRef<BottomSheetMethods>(null);
   const editPeopleBottomSheetRef = useRef<BottomSheetMethods>(null);
-  const tableSelectorBottomSheetRef = useRef<BottomSheetMethods>(null);
+  const tableSelectorBottomSheetRef = useRef<TableSelectorBottomSheetRef>(null);
   const editNoteBottomSheetRef = useRef<BottomSheetMethods>(null);
   const moreOptionsSheetRef = useRef<BottomSheetMethods>(null);
 
@@ -160,10 +162,6 @@ export default function OrderScreen() {
   const handlePresentEditPeopleModal = useCallback(() => {
     editPeopleBottomSheetRef.current?.present();
   }, []);
-
-  const closeTableSelectorBottomSheet = () => {
-    tableSelectorBottomSheetRef.current?.close();
-  };
 
   const handlePresentTableSelector = useCallback(() => {
     tableSelectorBottomSheetRef.current?.present();
@@ -1108,17 +1106,14 @@ export default function OrderScreen() {
         )}
       </ThemedBottomSheetModal>
 
-      <ThemedBottomSheetModal
+      <TableSelectorBottomSheet
         ref={tableSelectorBottomSheetRef}
-        enablePanDownToClose
-      >
-        {order && (
-          <TableSelectorBottomSheet
-            order={order}
-            onClose={closeTableSelectorBottomSheet}
-          />
-        )}
-      </ThemedBottomSheetModal>
+        selectedTableId={order.table?.id}
+        onSelectTable={(selected) => {
+          if (selected.id === order.table?.id) return;
+          updateOrder({ id: order.id, tableId: selected.id });
+        }}
+      />
 
       <ThemedBottomSheetModal ref={editNoteBottomSheetRef} enablePanDownToClose>
         {order && (

@@ -32,7 +32,9 @@ import SubscriptionPaywallBottomSheet from "@/presentation/subscriptions/compone
 import Chip from "@/presentation/theme/components/chip";
 import TextInput from "@/presentation/theme/components/text-input";
 import NewOrderPeopleBottomSheet from "@/presentation/orders/components/new-order-people-bottom-sheet";
-import NewOrderTableSelectorBottomSheet from "@/presentation/orders/components/new-order-table-selector-bottom-sheet";
+import TableSelectorBottomSheet, {
+  type TableSelectorBottomSheetRef,
+} from "@/presentation/orders/components/table-selector-bottom-sheet";
 
 export default function CartScreen() {
   const { t } = useTranslation(["common", "menu"]);
@@ -40,6 +42,7 @@ export default function CartScreen() {
   const cartType = useNewOrderStore((state) => state.cartType);
   const orderType = useNewOrderStore((state) => state.orderType);
   const table = useNewOrderStore((state) => state.table);
+  const setTable = useNewOrderStore((state) => state.setTable);
   const notes = useNewOrderStore((state) => state.notes);
   const setNotes = useNewOrderStore((state) => state.setNotes);
   const details = useNewOrderStore((state) => state.details);
@@ -72,8 +75,7 @@ export default function CartScreen() {
   const handlePresentPeopleSelector = () =>
     peopleSelectorSheetRef.current?.present();
 
-  const tableSelectorSheetRef = useRef<BottomSheetMethods>(null);
-  const closeTableSelector = () => tableSelectorSheetRef.current?.close();
+  const tableSelectorSheetRef = useRef<TableSelectorBottomSheetRef>(null);
   const handlePresentTableSelector = () =>
     tableSelectorSheetRef.current?.present();
 
@@ -431,9 +433,11 @@ export default function CartScreen() {
         <NewOrderPeopleBottomSheet onClose={closePeopleSelector} />
       </ThemedBottomSheetModal>
 
-      <ThemedBottomSheetModal ref={tableSelectorSheetRef} enablePanDownToClose>
-        <NewOrderTableSelectorBottomSheet onClose={closeTableSelector} />
-      </ThemedBottomSheetModal>
+      <TableSelectorBottomSheet
+        ref={tableSelectorSheetRef}
+        selectedTableId={table?.id}
+        onSelectTable={(selected) => setTable(selected)}
+      />
     </>
   );
 }
