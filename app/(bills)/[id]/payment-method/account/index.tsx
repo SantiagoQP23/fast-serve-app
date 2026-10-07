@@ -22,6 +22,7 @@ import { Transaction } from "@/core/transactions/models/transaction.model";
 import { PaymentProofsService } from "@/core/transactions/services/payment-proofs.service";
 import { usePaymentStore } from "@/presentation/payment/store/usePaymentStore";
 import { generateIdempotencyKey } from "@/helpers/idempotency";
+import { getErrorMessage } from "@/core/api/get-error-message";
 
 export default function AccountScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
@@ -140,9 +141,7 @@ export default function AccountScreen() {
                 toast.success(t("bills:proofUpload.uploadSuccess"));
               } catch (error: any) {
                 toast.error(
-                  error?.response?.data?.message ||
-                    error?.message ||
-                    t("errors:general.unknownError"),
+                  getErrorMessage(error, { fallbackToServerMessage: true }),
                 );
               } finally {
                 setIsUploadingProof(false);

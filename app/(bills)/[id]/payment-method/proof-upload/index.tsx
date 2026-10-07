@@ -14,6 +14,7 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import * as ImagePicker from "expo-image-picker";
 import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.model";
 import { PaymentProofStatus } from "@/core/transactions/models/payment-proof.model";
+import { getErrorMessage } from "@/core/api/get-error-message";
 
 export default function ProofUploadScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
@@ -106,9 +107,7 @@ export default function ProofUploadScreen() {
         onError: (error: any) => {
           Alert.alert(
             t("errors:general.error"),
-            error?.response?.data?.message ||
-              error?.message ||
-              t("errors:general.unknownError"),
+            getErrorMessage(error, { fallbackToServerMessage: true }),
           );
         },
       },

@@ -37,6 +37,7 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import dayjs from "dayjs";
 import { useModal } from "@/presentation/shared/hooks/useModal";
 import ApproveTransactionModal from "@/presentation/transactions/components/approve-transaction-modal";
+import { getErrorMessage } from "@/core/api/get-error-message";
 import BottomSheetPicker, {
   type BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
@@ -155,9 +156,7 @@ export default function TransactionDetailScreen() {
     } catch (error: any) {
       Alert.alert(
         t("errors:general.error"),
-        error?.response?.data?.message ||
-          error?.message ||
-          t("errors:general.unknownError"),
+        getErrorMessage(error, { fallbackToServerMessage: true }),
       );
     } finally {
       setIsUploading(false);

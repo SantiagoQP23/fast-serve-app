@@ -1,4 +1,4 @@
-import { AxiosError } from "axios";
+import { getApiError } from "@/core/api/api-response";
 import { restaurantApi } from "@/core/api/restaurantApi";
 import { PushNotificationsService } from "@/core/push-notifications/services/push-notifications.service";
 import { SecureStorageAdapter } from "@/helpers/adapters/secure-storage.adapter";
@@ -123,17 +123,9 @@ export const authRegister = async (
       currentRestaurant: result.currentRestaurant,
     };
   } catch (error) {
-    const axiosError = error as AxiosError<{
-      error?: { code?: string; message?: string };
-    }>;
-    const errorCode = axiosError.response?.data?.error?.code;
-    const message = axiosError.response?.data?.error?.message;
-    console.log(
-      "Register error",
-      errorCode,
-      message,
-      axiosError.response?.data,
-    );
+    const apiError = getApiError(error);
+    const errorCode = apiError.fromServer ? apiError.code : undefined;
+    console.log("Register error", errorCode, apiError.message);
     return { user: null, token: null, currentRestaurant: null, errorCode };
   }
 };
@@ -154,11 +146,9 @@ export const authUpdateProfile = async (
 
     return { user: data };
   } catch (error) {
-    const axiosError = error as AxiosError<{
-      error?: { code?: string; message?: string };
-    }>;
-    const errorCode = axiosError.response?.data?.error?.code;
-    console.log("Update profile error", errorCode, axiosError.response?.data);
+    const apiError = getApiError(error);
+    const errorCode = apiError.fromServer ? apiError.code : undefined;
+    console.log("Update profile error", errorCode, apiError.message);
     return { user: null, errorCode };
   }
 };
@@ -171,11 +161,9 @@ export const authDeleteAccount = async (): Promise<{
     await restaurantApi.delete("/users/me");
     return { success: true };
   } catch (error) {
-    const axiosError = error as AxiosError<{
-      error?: { code?: string; message?: string };
-    }>;
-    const errorCode = axiosError.response?.data?.error?.code;
-    console.log("Delete account error", errorCode, axiosError.response?.data);
+    const apiError = getApiError(error);
+    const errorCode = apiError.fromServer ? apiError.code : undefined;
+    console.log("Delete account error", errorCode, apiError.message);
     return { success: false, errorCode };
   }
 };
@@ -191,11 +179,9 @@ export const authChangePassword = async (
     });
     return { success: true };
   } catch (error) {
-    const axiosError = error as AxiosError<{
-      error?: { code?: string; message?: string };
-    }>;
-    const errorCode = axiosError.response?.data?.error?.code;
-    console.log("Change password error", errorCode, axiosError.response?.data);
+    const apiError = getApiError(error);
+    const errorCode = apiError.fromServer ? apiError.code : undefined;
+    console.log("Change password error", errorCode, apiError.message);
     return { success: false, errorCode };
   }
 };
@@ -212,15 +198,9 @@ export const authSetCredentials = async (
 
     return { user: data };
   } catch (error) {
-    const axiosError = error as AxiosError<{
-      error?: { code?: string; message?: string };
-    }>;
-    const errorCode = axiosError.response?.data?.error?.code;
-    console.log(
-      "Set credentials error",
-      errorCode,
-      axiosError.response?.data,
-    );
+    const apiError = getApiError(error);
+    const errorCode = apiError.fromServer ? apiError.code : undefined;
+    console.log("Set credentials error", errorCode, apiError.message);
     return { user: null, errorCode };
   }
 };
@@ -239,11 +219,9 @@ export const authChangeEmail = async (
 
     return { success: true };
   } catch (error) {
-    const axiosError = error as AxiosError<{
-      error?: { code?: string; message?: string };
-    }>;
-    const errorCode = axiosError.response?.data?.error?.code;
-    console.log("Change email error", errorCode, axiosError.response?.data);
+    const apiError = getApiError(error);
+    const errorCode = apiError.fromServer ? apiError.code : undefined;
+    console.log("Change email error", errorCode, apiError.message);
     return { success: false, errorCode };
   }
 };

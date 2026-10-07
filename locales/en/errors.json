@@ -32,5 +32,23 @@
   "validation": {
     "amountMustBeGreaterThanZero": "The amount to pay must be greater than 0.",
     "amountExceeds": "The amount cannot exceed {{amount}}"
+  },
+  "codes": {
+    "BAD_REQUEST": "The request is not valid",
+    "UNAUTHORIZED": "Your session expired. Please log in again",
+    "FORBIDDEN": "You don't have permission to do this",
+    "NOT_FOUND": "We couldn't find what you're looking for",
+    "CONFLICT": "This conflicts with existing data",
+    "UNPROCESSABLE_ENTITY": "The request could not be processed",
+    "INTERNAL_SERVER_ERROR": "Server error. Please try again",
+    "VALIDATION_ERROR": "Please check the information you entered",
+    "UNKNOWN_ERROR": "Unknown error",
+    "NETWORK_ERROR": "Can't reach the server. Check your internet connection",
+    "EMAIL_ALREADY_REGISTERED": "This email is already registered",
+    "RESTAURANT_NOT_FOUND": "Restaurant not found",
+    "RESTAURANT_INVALID_ID": "The restaurant is not valid",
+    "RESTAURANT_DUPLICATE_NAME": "A restaurant with that name already exists",
+    "RESTAURANT_LOGO_UPLOAD_FAILED": "The logo could not be uploaded. Make sure the file is an image",
+    "PLAN_NO_ACTIVE_PLAN": "The restaurant has no active plan"
   }
 }

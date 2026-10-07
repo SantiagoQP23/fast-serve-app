@@ -32,5 +32,23 @@
   "validation": {
     "amountMustBeGreaterThanZero": "El monto a pagar debe ser mayor a 0.",
     "amountExceeds": "El monto no puede exceder {{amount}}"
+  },
+  "codes": {
+    "BAD_REQUEST": "La solicitud no es válida",
+    "UNAUTHORIZED": "Tu sesión expiró. Inicia sesión nuevamente",
+    "FORBIDDEN": "No tienes permiso para realizar esta acción",
+    "NOT_FOUND": "No se encontró lo que buscas",
+    "CONFLICT": "La operación entra en conflicto con datos existentes",
+    "UNPROCESSABLE_ENTITY": "No se pudo procesar la solicitud",
+    "INTERNAL_SERVER_ERROR": "Error del servidor. Por favor intente nuevamente",
+    "VALIDATION_ERROR": "Revisa los datos ingresados",
+    "UNKNOWN_ERROR": "Error desconocido",
+    "NETWORK_ERROR": "Sin conexión con el servidor. Revisa tu internet",
+    "EMAIL_ALREADY_REGISTERED": "El correo ya está registrado",
+    "RESTAURANT_NOT_FOUND": "No se encontró el restaurante",
+    "RESTAURANT_INVALID_ID": "El restaurante no es válido",
+    "RESTAURANT_DUPLICATE_NAME": "Ya existe un restaurante con ese nombre",
+    "RESTAURANT_LOGO_UPLOAD_FAILED": "No se pudo subir el logo. Asegúrate de que el archivo sea una imagen",
+    "PLAN_NO_ACTIVE_PLAN": "El restaurante no tiene un plan activo"
   }
 }
