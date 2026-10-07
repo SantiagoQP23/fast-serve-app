@@ -27,6 +27,7 @@ import FloatingToolbar, {
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 import { useInventoryItemsBrowser } from "@/presentation/inventory/hooks/useInventoryItemsBrowser";
+import { useInventoryItemsSummary } from "@/presentation/inventory/hooks/useInventoryItemsSummary";
 import { useInventoryItemCategories } from "@/presentation/inventory/hooks/useInventoryItemCategories";
 import AdjustStockModal from "@/presentation/inventory/components/adjust-stock-modal";
 import InventoryItemCard from "@/presentation/inventory/components/inventory-item-card";
@@ -85,6 +86,12 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   const addSheetRef = useRef<BottomSheetMethods>(null);
   const [activeTab, setActiveTab] = useState<InventoryTab>("inventory");
 
+  const categoryFilter =
+    selectedCategoryId && selectedCategoryId !== UNCATEGORIZED_FILTER
+      ? selectedCategoryId
+      : null;
+  const isUncategorizedFilter = selectedCategoryId === UNCATEGORIZED_FILTER;
+
   const {
     items: browsedItems,
     itemsQuery: browserQuery,
@@ -92,12 +99,18 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     isLoadingMore,
     loadMore,
   } = useInventoryItemsBrowser({
-    categoryId:
-      selectedCategoryId && selectedCategoryId !== UNCATEGORIZED_FILTER
-        ? selectedCategoryId
-        : null,
-    uncategorized: selectedCategoryId === UNCATEGORIZED_FILTER,
+    categoryId: categoryFilter,
+    uncategorized: isUncategorizedFilter,
     status: selectedStatus,
+  });
+
+  // The summary tiles count by status, independent of selectedStatus, so
+  // they're fetched separately scoped by category only. Computed by the
+  // backend over all matching rows — the browse list above is paginated,
+  // so it can't be summed client-side for an accurate total.
+  const { counts: summaryCounts } = useInventoryItemsSummary({
+    categoryId: categoryFilter,
+    uncategorized: isUncategorizedFilter,
   });
 
   const handleOpenSearch = () => {
@@ -177,7 +190,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
 
   const toolbarItems: ToolbarItem[] = [
     {
-      icon: "home-outline",
+      icon: "reader-outline",
       onPress: () => setActiveTab("inventory"),
       active: activeTab === "inventory",
       accessibilityLabel: t("title"),
@@ -313,7 +326,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
       {activeTab === "inventory" && (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={tw`px-4 gap-6 pb-8 pt-6`}
+          contentContainerStyle={tw`px-4 gap-6 pb-28 pt-6`}
           refreshControl={
             <RefreshControl
               refreshing={browserQuery.isFetching}
@@ -366,7 +379,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
             !catalogQuery.isError &&
             catalogItems.length > 0 && (
               <InventoryStockSummary
-                items={catalogItems}
+                counts={summaryCounts}
                 selectedStatus={selectedStatus}
                 onSelectStatus={setSelectedStatus}
               />

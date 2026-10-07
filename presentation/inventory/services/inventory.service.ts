@@ -13,12 +13,31 @@ export interface InventoryItemsPage {
   count: number;
 }
 
+export interface InventoryStockSummaryCounts {
+  critical: number;
+  low: number;
+  optimal: number;
+}
+
 export class InventoryService {
   static async getAll(
     filters: FindAllInventoryItemsDto = {},
   ): Promise<InventoryItemsPage> {
     const resp = await restaurantApi.get<InventoryItemsPage>(
       "/inventory/items",
+      { params: filters },
+    );
+    return resp.data;
+  }
+
+  static async getStockSummary(
+    filters: Pick<
+      FindAllInventoryItemsDto,
+      "categoryId" | "uncategorized"
+    > = {},
+  ): Promise<InventoryStockSummaryCounts> {
+    const resp = await restaurantApi.get<InventoryStockSummaryCounts>(
+      "/inventory/items/summary",
       { params: filters },
     );
     return resp.data;

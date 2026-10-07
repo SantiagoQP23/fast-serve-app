@@ -5,35 +5,21 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import {
-  getInventoryStockStatus,
-  type InventoryItem,
-} from "@/core/inventory/models/inventory-item.model";
+import type { InventoryStockSummaryCounts } from "@/presentation/inventory/services/inventory.service";
 import { InventoryItemStockStatusFilter } from "@/presentation/inventory/interfaces/dto/find-all-inventory-items.dto";
 
 interface InventoryStockSummaryProps {
-  items: InventoryItem[];
+  counts: InventoryStockSummaryCounts;
   selectedStatus: InventoryItemStockStatusFilter | null;
   onSelectStatus: (status: InventoryItemStockStatusFilter | null) => void;
 }
 
 export default function InventoryStockSummary({
-  items,
+  counts,
   selectedStatus,
   onSelectStatus,
 }: InventoryStockSummaryProps) {
   const { t } = useTranslation("inventory");
-
-  const counts = items.reduce(
-    (acc, item) => {
-      const status = getInventoryStockStatus(item);
-      if (status === "critical") acc.critical += 1;
-      else if (status === "low") acc.low += 1;
-      else if (status === "optimal") acc.optimal += 1;
-      return acc;
-    },
-    { critical: 0, low: 0, optimal: 0 },
-  );
 
   const tiles = [
     {
