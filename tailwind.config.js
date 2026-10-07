@@ -8,6 +8,8 @@ module.exports = {
         light: {
           primary: Colors.light.primary,
           secondary: Colors.light.secondary,
+          "secondary-container": Colors.light.secondaryContainer,
+          "on-secondary-container": Colors.light.onSecondaryContainer,
           "on-primary": Colors.light.onPrimary,
           "on-secondary": Colors.light.onSecondary,
           "primary-container": Colors.light.primaryContainer,
