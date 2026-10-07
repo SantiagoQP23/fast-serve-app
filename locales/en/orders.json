@@ -177,7 +177,8 @@
     "title": "Order Detail Actions",
     "editQuantity": "Edit Quantity",
     "replaceItem": "Replace Item",
-    "deleteItem": "Delete Item"
+    "deleteItem": "Delete Item",
+    "statusTitle": "Status"
   },
   "waiterSummary": {
     "title": "Waiters Overview",

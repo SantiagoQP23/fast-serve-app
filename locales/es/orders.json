@@ -177,7 +177,8 @@
     "title": "Acciones del Producto",
     "editQuantity": "Editar Cantidad",
     "replaceItem": "Reemplazar Producto",
-    "deleteItem": "Eliminar Producto"
+    "deleteItem": "Eliminar Producto",
+    "statusTitle": "Estado"
   },
   "waiterSummary": {
     "title": "Resumen de Meseros",

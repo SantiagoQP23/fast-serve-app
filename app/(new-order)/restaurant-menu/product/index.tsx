@@ -37,6 +37,7 @@ import { KeyboardAvoidingView, ScrollView } from "react-native";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
 import Card from "@/presentation/theme/components/card";
+import Chip from "@/presentation/theme/components/chip";
 
 export default function ProductScreen() {
   const { t } = useTranslation(["menu", "orders", "inventory"]);
@@ -298,28 +299,27 @@ export default function ProductScreen() {
               )}
             </ThemedView>
 
-            <ThemedView style={tw`flex-row items-center gap-2 flex-wrap my-2 `}>
-              {isUnavailable && (
+            {notes.trim() && (
+              <TextInput
+                numberOfLines={4}
+                multiline
+                value={notes}
+                onChangeText={setNotes}
+                placeholder={t("orders:newOrder.addNote")}
+                pointerEvents="none"
+              />
+            )}
+
+            {isUnavailable && (
+              <ThemedView
+                style={tw`flex-row items-center gap-2 flex-wrap my-2 `}
+              >
                 <Label
                   text={t(`menu:product.status.${activeProduct.status}`)}
                   color={statusLabelColor}
                 />
-              )}
-              <Label
-                text={
-                  typeOrderDetail === OrderType.IN_PLACE
-                    ? t("common:orderType.inPlace")
-                    : t("common:orderType.takeAway")
-                }
-                leftIcon={
-                  typeOrderDetail === OrderType.IN_PLACE
-                    ? "restaurant-outline"
-                    : "bag-outline"
-                }
-                color="outline"
-                onPress={() => typePickerRef.current?.present()}
-              />
-            </ThemedView>
+              </ThemedView>
+            )}
 
             {activeOptions.length > 0 && (
               <ScrollView
@@ -334,7 +334,7 @@ export default function ProductScreen() {
                       <Card
                         onPress={() => onChangeSelectedOption(option)}
                         variant="outline"
-                        style={tw`min-w-36 p-4 gap-2 rounded-3xl border-2 ${isSelected ? "border-light-primary" : "border-transparent"}`}
+                        style={tw`min-w-36 p-4 gap-2 rounded-3xl ${isSelected ? "border-light-primary" : "border-none"}`}
                       >
                         <ThemedView
                           style={tw`flex-row items-center justify-between gap-2`}
@@ -346,11 +346,6 @@ export default function ProductScreen() {
                             <ThemedView
                               style={tw`flex-row items-center gap-1 bg-transparent`}
                             >
-                              <Ionicons
-                                name="cube-outline"
-                                size={14}
-                                color={tw.color("text-gray-500")}
-                              />
                               <ThemedText
                                 type="small"
                                 style={tw`text-gray-500`}
@@ -394,29 +389,7 @@ export default function ProductScreen() {
           </ThemedView>
 
           <ThemedView style={tw`gap-8`}>
-            {notes.trim() && (
-              <TextInput
-                numberOfLines={4}
-                multiline
-                value={notes}
-                onChangeText={setNotes}
-                placeholder={t("orders:newOrder.addNote")}
-                pointerEvents="none"
-              />
-            )}
-
-            <ThemedView
-              style={tw`flex-row  items-center gap-4 w-full ${!notes.trim() ? "justify-between" : "justify-center"}`}
-            >
-              {!notes.trim() && (
-                <Button
-                  variant="outline"
-                  label={t("orders:newOrder.addNote")}
-                  leftIcon="document-text-outline"
-                  style={tw`h-full flex-1`}
-                  onPress={openNoteBottomSheet}
-                />
-              )}
+            <ThemedView style={tw`flex-row  justify-center gap-4 w-full `}>
               <ThemedView style={tw`flex-row items-center gap-6`}>
                 <IconButton
                   icon="remove-outline"
@@ -432,6 +405,32 @@ export default function ProductScreen() {
                   size={40}
                 />
               </ThemedView>
+            </ThemedView>
+
+            <ThemedView style={tw`flex-row items-center gap-2 `}>
+              <Chip
+                label={
+                  typeOrderDetail === OrderType.IN_PLACE
+                    ? t("common:orderType.inPlace")
+                    : t("common:orderType.takeAway")
+                }
+                icon={
+                  typeOrderDetail === OrderType.IN_PLACE
+                    ? "restaurant-outline"
+                    : "bag-outline"
+                }
+                variant="filter"
+                onPress={() => typePickerRef.current?.present()}
+              />
+
+              {!notes.trim() && (
+                <Chip
+                  variant="assist"
+                  label={t("orders:newOrder.addNote")}
+                  icon="document-text-outline"
+                  onPress={openNoteBottomSheet}
+                />
+              )}
             </ThemedView>
 
             <ThemedView style={tw`flex-row gap-5  mb-4`}>
@@ -468,11 +467,7 @@ export default function ProductScreen() {
         onChange={(value) => setTypeOrderDetail(value as OrderType)}
       />
 
-      <ThemedBottomSheetModal
-        ref={bottomSheetModalRef}
-        snapPoints={["55%"]}
-        enablePanDownToClose
-      >
+      <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
           <TextInput
             label={t("orders:newOrder.customPrice")}

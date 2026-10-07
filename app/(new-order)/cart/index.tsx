@@ -3,10 +3,11 @@ import { FlatList } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "expo-router";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { Ionicons } from "@expo/vector-icons";
+import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
 import NewOrderDetailCard from "@/presentation/orders/components/new-order-detail-card";
@@ -24,6 +25,10 @@ import { mapStoreToCreateSaleDto } from "@/presentation/orders/mappers/createBil
 import Label from "@/presentation/theme/components/label";
 import { usePrintersStore } from "@/presentation/printers/store/usePrintersStore";
 import { usePrintComanda } from "@/presentation/orders/hooks/usePrintComanda";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { hasActiveSubscription } from "@/core/common/models/restaurant.model";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import SubscriptionPaywallBottomSheet from "@/presentation/subscriptions/components/subscription-paywall-bottom-sheet";
 
 export default function CartScreen() {
   const { t } = useTranslation(["common", "menu"]);
@@ -52,6 +57,10 @@ export default function CartScreen() {
   const [printOnCreate, setPrintOnCreate] = useState(false);
   const router = useRouter();
 
+  const currentRestaurant = useAuthStore((state) => state.currentRestaurant);
+  const paywallSheetRef = useRef<BottomSheetMethods>(null);
+  const closePaywall = () => paywallSheetRef.current?.close();
+
   const editOrderId = useEditOrderCartStore((state) => state.orderId);
   const newItems = useEditOrderCartStore((state) => state.newItems);
   const resetEditCart = useEditOrderCartStore((state) => state.reset);
@@ -67,6 +76,11 @@ export default function CartScreen() {
   };
 
   const onCreateOrder = (print: boolean) => {
+    if (!hasActiveSubscription(currentRestaurant?.subscription)) {
+      paywallSheetRef.current?.present();
+      return;
+    }
+
     setPrintOnCreate(print);
 
     if (cartType === "sale") {
@@ -359,6 +373,14 @@ export default function CartScreen() {
           </ThemedView>
         </ThemedView>
       </ScreenLayout>
+
+      <ThemedBottomSheetModal
+        ref={paywallSheetRef}
+        enablePanDownToClose
+        snapPoints={["90%"]}
+      >
+        <SubscriptionPaywallBottomSheet onDismiss={closePaywall} />
+      </ThemedBottomSheetModal>
     </>
   );
 }

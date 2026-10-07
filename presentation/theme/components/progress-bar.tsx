@@ -7,13 +7,35 @@ export default function ProgressBar({
   bgColor = "bg-light-secondary",
   progressColor = "bg-light-primary",
   style = "",
+  variant = "default", // "default" | "segmented"
+  segments = 5,
+  segmentWidth = 5,
 }) {
+  const clampedProgress = Math.min(Math.max(progress, 0), 1);
+
+  if (variant === "segmented") {
+    const filledCount = Math.round(clampedProgress * segments);
+
+    return (
+      <View style={tw`flex-row self-start gap-1 ${style}`}>
+        {Array.from({ length: segments }).map((_, index) => (
+          <View
+            key={index}
+            style={tw`w-${segmentWidth} h-${height} rounded-full ${
+              index < filledCount ? progressColor : bgColor
+            }`}
+          />
+        ))}
+      </View>
+    );
+  }
+
   return (
     <View style={tw`${bgColor} w-full rounded-full overflow-hidden ${style}`}>
       <View
         style={[
           tw`${progressColor} h-${height}`,
-          { width: `${Math.min(Math.max(progress, 0), 1) * 100}%` },
+          { width: `${clampedProgress * 100}%` },
         ]}
       />
     </View>

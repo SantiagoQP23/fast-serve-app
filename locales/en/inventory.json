@@ -58,7 +58,9 @@
     "SALE_DIRECT": "Direct sale",
     "SALE_DIRECT_CANCELLED": "Sale cancelled",
     "PURCHASE": "Purchase",
-    "PURCHASE_REVERSED": "Purchase correction"
+    "PURCHASE_REVERSED": "Purchase correction",
+    "INVENTORY_COUNT_INCREASE": "Count (surplus)",
+    "INVENTORY_COUNT_DECREASE": "Count (shortage)"
   },
   "summary": {
     "critical": "Critical",
@@ -94,6 +96,7 @@
     "inventoryItem": "Inventory item",
     "inventoryItemDescription": "Create a new supply or ingredient that isn't sold directly."
   },
+  "inventoryControl": "Inventory control",
   "createItem": "New item",
   "editItem": "Edit item",
   "deleteItem": "Delete item",
@@ -274,5 +277,63 @@
     "updateItemError": "Could not update the quantity",
     "removeItemSuccess": "Product removed from the purchase",
     "removeItemError": "Could not remove the product"
+  },
+  "counts": {
+    "title": "Inventory counts",
+    "history": "Count history",
+    "new": "New count",
+    "newDescription": "Check several items and fix differences",
+    "empty": "No counts yet",
+    "emptyDescription": "Run a count to check the real stock of several items and fix differences.",
+    "loadError": "Error loading counts",
+    "notFound": "Count not found",
+    "selectItemsHint": "Tap the items you're going to count.",
+    "selectAll": "Select all",
+    "unselectAll": "Clear all",
+    "noItems": "There are no inventory items to count",
+    "alreadyInCount": "Already in count",
+    "start": "Start ({{count}})",
+    "addSelected": "Add ({{count}})",
+    "addProducts": "Add products",
+    "runTitle": "Count",
+    "progress": "Product {{current}} of {{total}} · {{done}} checked",
+    "systemSays": "The system says",
+    "correct": "Correct",
+    "updateQuantity": "Update quantity",
+    "previous": "Previous",
+    "next": "Next",
+    "skip": "Skip",
+    "quantityFound": "Counted quantity",
+    "systemQuantity": "System: {{quantity}} {{unit}}",
+    "difference": "Difference: {{difference}} {{unit}}",
+    "saveQuantity": "Save",
+    "adjustedBy": "Adjusted {{difference}} {{unit}}",
+    "detailTitle": "Count detail",
+    "summaryLine": "{{products}} products · {{adjusted}} adjusted · {{unanswered}} not counted",
+    "startedBy": "Started by {{name}}",
+    "finishedBy": "Finished by {{name}} on {{date}}",
+    "finishedAt": "Finished on {{date}}",
+    "continue": "Continue count",
+    "finish": "Finish",
+    "summaryHint": "Tap a product to count it or change its answer.",
+    "finishTitle": "Finish count",
+    "finishMessage_one": "{{count}} product hasn't been counted; it will be marked as skipped. Adjustments already made are kept.",
+    "finishMessage_other": "{{count}} products haven't been counted; they will be marked as skipped. Adjustments already made are kept.",
+    "lineQuantities": "System {{expected}} → counted {{counted}} {{unit}}",
+    "notCounted": "Not counted",
+    "status": {
+      "PENDING": "Pending",
+      "MATCHED": "Correct",
+      "ADJUSTED": "Adjusted",
+      "SKIPPED": "Skipped"
+    },
+    "countStatus": {
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Finished"
+    },
+    "createError": "Couldn't start the count",
+    "answerError": "Couldn't save the product's count",
+    "addItemsError": "Couldn't add the products",
+    "completeError": "Couldn't finish the count"
   }
 }

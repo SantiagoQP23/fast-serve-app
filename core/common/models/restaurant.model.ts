@@ -52,3 +52,15 @@ export interface Restaurant {
   email: string;
   subscription?: Subscription;
 }
+
+const INACTIVE_SUBSCRIPTION_STATUSES: Subscription["status"][] = [
+  "EXPIRED",
+  "CANCELLED",
+  "PAUSED",
+  "ON_HOLD",
+];
+
+export function hasActiveSubscription(subscription?: Subscription): boolean {
+  if (!subscription) return false;
+  return !INACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status);
+}

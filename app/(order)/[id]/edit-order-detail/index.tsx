@@ -32,13 +32,14 @@ import { useOrderDetailStatus } from "@/presentation/orders/hooks/useOrderDetail
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { KeyboardAvoidingView, ScrollView } from "react-native";
-import ProgressBar from "@/presentation/theme/components/progress-bar";
 import OrderDetailActivityBottomSheet from "@/presentation/orders/components/order-detail-activity-bottom-sheet";
 import dayjs from "dayjs";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
 import Card from "@/presentation/theme/components/card";
 import Chip from "@/presentation/theme/components/chip";
+import Slider from "@/presentation/theme/components/slider";
+import OrderDetailStatusModal from "@/presentation/orders/components/order-detail-status-modal";
 
 export default function EditOrderDetailScreen() {
   const { t } = useTranslation(["common", "orders", "menu", "inventory"]);
@@ -59,15 +60,13 @@ export default function EditOrderDetailScreen() {
     orderDetail?.qtyDelivered || 1,
   );
 
-  const deliveredSheetRef = useRef<BottomSheetMethods>(null);
-  const [deliveredDraft, setDeliveredDraft] = useState(
-    orderDetail?.qtyDelivered || 0,
-  );
+  const [statusModalVisible, setStatusModalVisible] = useState(false);
 
   const {
     counter: qtyDelivered,
     increment: incrementDelivered,
     decrement: decrementDelivered,
+    setCounter: setQtyDelivered,
   } = useCounter(orderDetail?.qtyDelivered, 1, orderDetail?.quantity, 0);
 
   const router = useRouter();
@@ -137,15 +136,6 @@ export default function EditOrderDetailScreen() {
     closeNoteBottomSheet();
   };
 
-  const openDeliveredBottomSheet = () => {
-    setDeliveredDraft(orderDetail?.qtyDelivered || 0);
-    deliveredSheetRef.current?.present();
-  };
-
-  const closeDeliveredBottomSheet = () => {
-    deliveredSheetRef.current?.dismiss();
-  };
-
   if (!orderDetail || !product) {
     return (
       <ThemedView style={tw`flex-1 justify-center items-center`}>
@@ -191,12 +181,65 @@ export default function EditOrderDetailScreen() {
     activitySheetRef.current?.present();
   };
 
+  const openStatusModal = () => {
+    setStatusModalVisible(true);
+  };
+
+  const closeStatusModal = () => {
+    setStatusModalVisible(false);
+  };
+
+  const onSelectStatus = (status: OrderDetailStatus) => {
+    const newQtyDelivered =
+      status === OrderDetailStatus.DELIVERED ? orderDetail.quantity : 0;
+
+    updateOrderDetail(
+      {
+        id: orderDetail.id,
+        orderId: order!.id,
+        status,
+        qtyDelivered: newQtyDelivered,
+      },
+      {
+        onSuccess: () => {
+          setQtyDelivered(newQtyDelivered);
+          setActiveOrderDetail({
+            ...orderDetail,
+            status,
+            qtyDelivered: newQtyDelivered,
+          });
+          closeStatusModal();
+        },
+      },
+    );
+  };
+
   return (
     <>
       <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
         <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
           <ThemedView style={tw`flex-1`} />
           <ThemedView style={tw` text-center mb-4 gap-4`}>
+            <ThemedView style={tw`flex-row items-center gap-2 flex-wrap my-2 `}>
+              <Label
+                text={statusText}
+                color={labelColor}
+                leftIcon={statusIcon}
+                onPress={openStatusModal}
+                size="small"
+              />
+              <Label
+                leftIcon="notifications-outline"
+                text={String(orderDetail.readyQuantity)}
+                size="small"
+              />
+              {/* <Label */}
+              {/*   leftIcon="time-outline" */}
+              {/*   text={createdAtLabel} */}
+              {/*   onPress={openActivityBottomSheet} */}
+              {/* /> */}
+            </ThemedView>
+
             <ThemedView style={tw`gap-2`}>
               <ThemedView
                 style={tw`flex-row items-center justify-between gap-2`}
@@ -213,31 +256,26 @@ export default function EditOrderDetailScreen() {
               )}
             </ThemedView>
             {orderDetail.quantity > 1 && (
-              <ThemedView>
-                <ProgressBar
-                  progress={orderDetail.qtyDelivered / orderDetail.quantity}
-                  height={1.5}
+              <ThemedView style={tw`gap-1`}>
+                <ThemedView style={tw`flex-row items-center justify-between`}>
+                  <ThemedText type="body2" style={tw`text-gray-500`}>
+                    {t("common:status.delivered")}
+                  </ThemedText>
+                  <ThemedText type="body2" style={tw`text-gray-500`}>
+                    {qtyDelivered} / {orderDetail.quantity}
+                  </ThemedText>
+                </ThemedView>
+                <Slider
+                  value={qtyDelivered}
+                  minimumValue={0}
+                  maximumValue={orderDetail.quantity}
+                  step={1}
+                  height={12}
+                  onValueChange={setQtyDelivered}
+                  onSlidingComplete={setQtyDelivered}
                 />
               </ThemedView>
             )}
-
-            <ThemedView style={tw`flex-row items-center gap-2 flex-wrap my-2 `}>
-              <Label
-                text={statusText}
-                color={labelColor}
-                leftIcon={statusIcon}
-                onPress={openDeliveredBottomSheet}
-              />
-              <Label
-                leftIcon="notifications-outline"
-                text={String(orderDetail.readyQuantity)}
-              />
-              <Label
-                leftIcon="time-outline"
-                text={createdAtLabel}
-                onPress={openActivityBottomSheet}
-              />
-            </ThemedView>
 
             <ThemedView>
               {/* <ThemedText style={tw`text-gray-500 mb-2`}> */}
@@ -428,62 +466,12 @@ export default function EditOrderDetailScreen() {
           placeholder={t("orders:newOrder.addNote")}
         />
 
-        <ThemedBottomSheetModal ref={deliveredSheetRef} enablePanDownToClose>
-          <BottomSheetView style={tw`px-4 pb-6`}>
-            <ThemedView style={tw`mb-4`}>
-              <ThemedText type="h3">{t("common:status.delivered")}</ThemedText>
-              <ThemedText type="body2" style={tw`text-gray-500 mt-1`}>
-                {product.name}
-              </ThemedText>
-            </ThemedView>
-            <ThemedView style={tw`flex-row items-center justify-between mb-4`}>
-              <IconButton
-                icon="remove-outline"
-                onPress={() =>
-                  setDeliveredDraft((current) => Math.max(0, current - 1))
-                }
-                variant="outlined"
-                disabled={deliveredDraft <= 0}
-              />
-              <ThemedText type="h3">
-                {deliveredDraft} / {orderDetail.quantity}
-              </ThemedText>
-              <IconButton
-                icon="add"
-                onPress={() =>
-                  setDeliveredDraft((current) =>
-                    Math.min(orderDetail.quantity, current + 1),
-                  )
-                }
-                variant="outlined"
-                disabled={deliveredDraft >= orderDetail.quantity}
-              />
-            </ThemedView>
-            <Button
-              label={t("common:actions.save")}
-              onPress={() => {
-                updateOrderDetail(
-                  {
-                    id: orderDetail.id,
-                    quantity: counter,
-                    qtyDelivered: deliveredDraft,
-                    description: notes,
-                    price: effectivePrice,
-                    orderId: order!.id,
-                    tagIds: selectedTagIds,
-                    productOptionId: selectedOption?.id,
-                  },
-                  {
-                    onSuccess: () => {
-                      closeDeliveredBottomSheet();
-                      router.back();
-                    },
-                  },
-                );
-              }}
-            />
-          </BottomSheetView>
-        </ThemedBottomSheetModal>
+        <OrderDetailStatusModal
+          visible={statusModalVisible}
+          detail={orderDetail}
+          onSelectStatus={onSelectStatus}
+          onClose={closeStatusModal}
+        />
 
         <OrderDetailActivityBottomSheet
           detail={orderDetail}
