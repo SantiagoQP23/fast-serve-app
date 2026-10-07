@@ -93,8 +93,10 @@ const TableSelectorBottomSheet = ({
         <BottomSheetFlatList
           data={tables}
           keyExtractor={(item: Table) => item.id}
+          style={tw`max-h-[60vh]`}
           contentContainerStyle={tw`gap-1 pb-30`}
           renderItem={renderTable}
+          showsHorizontalScrollIndicator={false}
         />
       )}
     </BottomSheetView>

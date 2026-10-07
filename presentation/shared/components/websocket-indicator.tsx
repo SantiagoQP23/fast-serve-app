@@ -41,7 +41,7 @@ export function WebSocketIndicator() {
       };
     } else if (wasOffline.current) {
       wasOffline.current = false;
-      toast.success(t("common:connection.reconnected"));
+      // toast.success(t("common:connection.reconnected"));
     }
   }, [online, pulseAnim, t]);
 

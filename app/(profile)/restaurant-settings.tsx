@@ -17,7 +17,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
-import TextInput from "@/presentation/theme/components/text-input";
+import TimeSelector from "@/presentation/theme/components/time-selector";
 import tw from "@/presentation/theme/lib/tailwind";
 
 const MAX_ORDER_PREP_TIME = 600;
@@ -31,33 +31,12 @@ export default function RestaurantSettingsScreen() {
 
   const savedPrepTime = settings?.ORDER_PREP_TIME ?? DEFAULT_ORDER_PREP_TIME;
   // null until the user edits the field, so it follows the loaded value
-  const [draftPrepTime, setDraftPrepTime] = useState<string | null>(null);
-  const prepTime = draftPrepTime ?? String(savedPrepTime);
-  const [error, setError] = useState<string>();
-
-  const parsedPrepTime = Number(prepTime);
-  const hasChanges = prepTime.trim() !== "" && parsedPrepTime !== savedPrepTime;
-
-  const handleChangePrepTime = (value: string) => {
-    setDraftPrepTime(value.replace(/[^0-9]/g, ""));
-    setError(undefined);
-  };
+  const [draftPrepTime, setDraftPrepTime] = useState<number | null>(null);
+  const prepTime = draftPrepTime ?? savedPrepTime;
+  const hasChanges = prepTime !== savedPrepTime;
 
   const handleSave = async () => {
-    if (
-      !Number.isInteger(parsedPrepTime) ||
-      parsedPrepTime < 1 ||
-      parsedPrepTime > MAX_ORDER_PREP_TIME
-    ) {
-      setError(
-        t("restaurantSettings.orderPrepTime.invalid", {
-          max: MAX_ORDER_PREP_TIME,
-        }),
-      );
-      return;
-    }
-
-    await updateSettings.mutateAsync({ ORDER_PREP_TIME: parsedPrepTime });
+    await updateSettings.mutateAsync({ ORDER_PREP_TIME: prepTime });
     router.back();
   };
 
@@ -111,15 +90,15 @@ export default function RestaurantSettingsScreen() {
                     {t("restaurantSettings.orderPrepTime.description")}
                   </ThemedText>
                 </ThemedView>
-                <TextInput
-                  label={t("restaurantSettings.orderPrepTime.label")}
-                  icon="time-outline"
+                <TimeSelector
+                  pickerTitle={t("restaurantSettings.orderPrepTime.pickerTitle")}
+                  doneLabel={t("restaurantSettings.orderPrepTime.done")}
+                  hoursUnit={t("restaurantSettings.orderPrepTime.hoursUnit")}
+                  minutesUnit={t("restaurantSettings.orderPrepTime.minutesUnit")}
                   value={prepTime}
-                  onChangeText={handleChangePrepTime}
-                  keyboardType="number-pad"
-                  maxLength={3}
+                  onChange={setDraftPrepTime}
+                  maxMinutes={MAX_ORDER_PREP_TIME}
                   editable={canEdit}
-                  error={error}
                 />
               </Card>
 

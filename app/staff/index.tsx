@@ -113,15 +113,10 @@ export default function StaffScreen() {
                 >
                   {getRoleName(staffMember) || ""}
                 </ThemedText>
-                <ThemedText type="small" style={tw`text-gray-500`}>
-                  {staffMember.email}
-                </ThemedText>
+                {/* <ThemedText type="small" style={tw`text-gray-500`}> */}
+                {/*   {staffMember.email} */}
+                {/* </ThemedText> */}
               </ThemedView>
-              <Ionicons
-                name="chevron-forward-outline"
-                size={20}
-                color={tw.color("gray-400")}
-              />
             </Card>
           ))}
         </ThemedView>
