@@ -6,6 +6,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import Button from "@/presentation/theme/components/button";
 import Select from "@/presentation/theme/components/select";
+import Chip from "@/presentation/theme/components/chip";
 import { PaymentMethod } from "@/core/orders/enums/payment-method";
 import { translatePaymentMethod } from "@/core/i18n/utils";
 import { BillListFiltersDto } from "@/core/orders/dto/bill-list-filters.dto";
@@ -104,16 +105,6 @@ export default function BillsFilterBottomSheet({
     [availableWaiters, t],
   );
 
-  // Source options
-  const sourceOptions = useMemo(
-    () => [
-      { label: t("bills:filters.allSources"), value: "all" },
-      { label: t("bills:filters.order"), value: BillSource.ORDER },
-      { label: t("bills:filters.direct"), value: BillSource.DIRECT },
-    ],
-    [t],
-  );
-
   return (
     <BottomSheetView style={tw`p-4`}>
       <ThemedView style={tw`w-full gap-6`}>
@@ -133,14 +124,29 @@ export default function BillsFilterBottomSheet({
           />
         )}
 
-        {/* Source Select */}
-        <Select
-          label={t("bills:filters.source")}
-          placeholder={t("bills:filters.allSources")}
-          options={sourceOptions}
-          value={source}
-          onChange={(value) => setSource(value as BillSource | "all")}
-        />
+        {/* Source Filter */}
+        <ThemedView style={tw`gap-2`}>
+          <ThemedText type="small" style={tw`text-gray-500`}>
+            {t("bills:filters.source")}
+          </ThemedText>
+          <ThemedView style={tw`flex-row gap-2`}>
+            <Chip
+              label={t("bills:filters.allSources")}
+              selected={source === "all"}
+              onPress={() => setSource("all")}
+            />
+            <Chip
+              label={t("bills:filters.order")}
+              selected={source === BillSource.ORDER}
+              onPress={() => setSource(BillSource.ORDER)}
+            />
+            <Chip
+              label={t("bills:filters.direct")}
+              selected={source === BillSource.DIRECT}
+              onPress={() => setSource(BillSource.DIRECT)}
+            />
+          </ThemedView>
+        </ThemedView>
 
         {/* Action Buttons */}
         <ThemedView style={tw`flex-row gap-3`}>

@@ -48,7 +48,7 @@ export default function SegmentedControl<T extends string>({
               )
             }
           >
-            {iconName && (
+            {iconName && isActive && (
               <Ionicons name={iconName} size={18} color={iconColor} />
             )}
             <ThemedText

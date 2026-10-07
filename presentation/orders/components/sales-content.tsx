@@ -364,11 +364,7 @@ export default function SalesContent() {
       />
 
       {/* Filter Bottom Sheet */}
-      <ThemedBottomSheetModal
-        ref={bottomSheetModalRef}
-        snapPoints={["60%"]}
-        enablePanDownToClose
-      >
+      <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
         <BillsFilterBottomSheet
           onApply={handleApplyFilters}
           onClose={handleCloseFilters}

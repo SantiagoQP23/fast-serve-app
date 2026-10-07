@@ -6,6 +6,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import Button from "@/presentation/theme/components/button";
 import Select from "@/presentation/theme/components/select";
+import Chip from "@/presentation/theme/components/chip";
 import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
 import { FilterTransactionsDto } from "@/core/transactions/dto/filter-transactions.dto";
 
@@ -144,24 +145,42 @@ export default function TransactionsFilterBottomSheet({
           {t("common:actions.filter")}
         </ThemedText>
 
-        {/* Payment Method Select */}
-        <Select
-          label={t("bills:details.paymentMethod")}
-          placeholder={t("common:filters.all")}
-          options={paymentMethodOptions}
-          value={paymentMethodId}
-          onChange={(value) => setPaymentMethodId(value as number | "all")}
-        />
+        {/* Payment Method Filter */}
+        <ThemedView style={tw`gap-2`}>
+          <ThemedText type="small" style={tw`text-gray-500`}>
+            {t("bills:details.paymentMethod")}
+          </ThemedText>
+          <ThemedView style={tw`flex-row flex-wrap gap-2`}>
+            {paymentMethodOptions.map((option) => (
+              <Chip
+                key={option.value}
+                label={option.label}
+                selected={paymentMethodId === option.value}
+                onPress={() =>
+                  setPaymentMethodId(option.value as number | "all")
+                }
+              />
+            ))}
+          </ThemedView>
+        </ThemedView>
 
-        {/* Account Select - Only show if payment method is selected */}
+        {/* Account Filter - Only show if payment method is selected */}
         {paymentMethodId !== "all" && accountOptions.length > 0 && (
-          <Select
-            label="Account"
-            placeholder={t("common:filters.all")}
-            options={accountOptions}
-            value={accountId}
-            onChange={(value) => setAccountId(value as number | "all")}
-          />
+          <ThemedView style={tw`gap-2`}>
+            <ThemedText type="small" style={tw`text-gray-500`}>
+              Account
+            </ThemedText>
+            <ThemedView style={tw`flex-row flex-wrap gap-2`}>
+              {accountOptions.map((option) => (
+                <Chip
+                  key={option.value}
+                  label={option.label}
+                  selected={accountId === option.value}
+                  onPress={() => setAccountId(option.value as number | "all")}
+                />
+              ))}
+            </ThemedView>
+          </ThemedView>
         )}
 
         {/* User Select - Only show for admin users */}
