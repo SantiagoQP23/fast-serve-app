@@ -1,7 +1,10 @@
 import { Colors, typography } from "@/constants/theme";
 import { Stack } from "expo-router";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 export default function BillsLayout() {
+  const { t } = useTranslation(["bills"]);
+
   return (
     <Stack
       screenOptions={{
@@ -30,7 +33,7 @@ export default function BillsLayout() {
         name="[id]/payment-method/index"
         options={{
           headerShown: true,
-          title: "Payment Method",
+          title: t("bills:details.paymentMethod"),
           headerShadowVisible: false,
         }}
       />
@@ -38,7 +41,7 @@ export default function BillsLayout() {
         name="[id]/payment-method/account/index"
         options={{
           headerShown: true,
-          title: "Select Account",
+          title: t("bills:account.selectAccountTitle"),
           headerShadowVisible: false,
         }}
       />

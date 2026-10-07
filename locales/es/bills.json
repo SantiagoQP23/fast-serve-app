@@ -52,7 +52,8 @@
     "totalToPay": "Total a pagar",
     "transferNote": "Nota de transferencia",
     "transferNotePlaceholder": "Agrega referencia o información de confirmación",
-    "transferProofNote": "Deberás subir un comprobante de pago después de confirmar."
+    "transferProofNote": "Deberás subir un comprobante de pago después de confirmar.",
+    "payments": "Pagos"
   },
   "paymentMethods": {
     "cash": "Efectivo",

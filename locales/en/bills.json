@@ -52,7 +52,8 @@
     "totalToPay": "Total to pay",
     "transferNote": "Transfer note",
     "transferNotePlaceholder": "Add reference or confirmation info",
-    "transferProofNote": "You will need to upload a payment proof after confirming."
+    "transferProofNote": "You will need to upload a payment proof after confirming.",
+    "payments": "Payments"
   },
   "paymentMethods": {
     "cash": "Cash",

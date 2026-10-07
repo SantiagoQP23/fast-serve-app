@@ -23,6 +23,7 @@ import { PaymentProofsService } from "@/core/transactions/services/payment-proof
 import { usePaymentStore } from "@/presentation/payment/store/usePaymentStore";
 import { generateIdempotencyKey } from "@/helpers/idempotency";
 import { getErrorMessage } from "@/core/api/get-error-message";
+import Card from "@/presentation/theme/components/card";
 
 export default function AccountScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
@@ -244,14 +245,15 @@ export default function AccountScreen() {
             {accounts.map((account) => {
               const isSelected = account.id === selectedAccountId;
               return (
-                <Pressable
+                <Card
                   key={account.id}
                   onPress={() => setSelectedAccountId(account.id)}
                   style={({ pressed }) => [
-                    tw`flex-row items-center px-4 py-4 rounded-2xl border border-gray-200`,
+                    tw`flex-row items-center `,
                     pressed && tw`opacity-80`,
-                    isSelected && tw`border-light-primary `,
+                    isSelected && tw`border-light-primary border-2`,
                   ]}
+                  variant={isSelected ? "default" : "outline"}
                 >
                   <ThemedView
                     style={tw`w-10 h-10 rounded-full bg-gray-100 items-center justify-center`}
@@ -293,7 +295,7 @@ export default function AccountScreen() {
                       style={tw`ml-2`}
                     />
                   )}
-                </Pressable>
+                </Card>
               );
             })}
           </ThemedView>
