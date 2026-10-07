@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { Pressable, View } from "react-native";
+import { useRef, useState } from "react";
+import { View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import {
   BottomSheetView,
@@ -11,9 +11,11 @@ import { ThemedText } from "./themed-text";
 import Button from "./button";
 import TimeWheelPicker from "./time-wheel-picker";
 
-const CONTAINER_HEIGHT = 56;
-
-function defaultFormat(totalMinutes: number, hoursUnit: string, minutesUnit: string) {
+function defaultFormat(
+  totalMinutes: number,
+  hoursUnit: string,
+  minutesUnit: string,
+) {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
   if (hours === 0) return `${minutes} ${minutesUnit}`;
@@ -24,9 +26,11 @@ function defaultFormat(totalMinutes: number, hoursUnit: string, minutesUnit: str
 export type TimeSelectorProps = {
   label?: string;
   pickerTitle?: string;
+  pickerDescription?: string;
   doneLabel?: string;
   value: number;
   onChange: (minutes: number) => void;
+  onDone?: (minutes: number) => void | Promise<void>;
   minMinutes?: number;
   maxMinutes: number;
   icon?: keyof typeof Ionicons.glyphMap;
@@ -39,9 +43,11 @@ export type TimeSelectorProps = {
 export default function TimeSelector({
   label,
   pickerTitle,
+  pickerDescription,
   doneLabel = "Done",
   value,
   onChange,
+  onDone,
   minMinutes = 1,
   maxMinutes,
   icon = "time-outline",
@@ -51,10 +57,23 @@ export default function TimeSelector({
   formatValue,
 }: TimeSelectorProps) {
   const sheetRef = useRef<BottomSheetMethods>(null);
+  const [saving, setSaving] = useState(false);
 
   const handleOpen = () => {
     if (!editable) return;
     sheetRef.current?.present();
+  };
+
+  const handleDone = async () => {
+    if (onDone) {
+      setSaving(true);
+      try {
+        await onDone(value);
+      } finally {
+        setSaving(false);
+      }
+    }
+    sheetRef.current?.dismiss();
   };
 
   const display = formatValue
@@ -63,43 +82,26 @@ export default function TimeSelector({
 
   return (
     <View>
-      <Pressable
+      <Button
+        variant="text"
+        label={display}
+        leftIcon={icon}
+        rightIcon="chevron-down"
         onPress={handleOpen}
         disabled={!editable}
-        style={tw.style(
-          "flex-row items-center rounded-3xl px-3 bg-light-surface-high",
-          !editable && "opacity-50",
-        )}
-      >
-        <Ionicons
-          name={icon}
-          size={18}
-          style={{ marginRight: 10, marginLeft: 4 }}
-          color={tw.color("light-on-surface-variant")}
-        />
-        <View style={{ flex: 1, minHeight: CONTAINER_HEIGHT, justifyContent: "center" }}>
-          {label && (
-            <ThemedText type="small" style={tw`text-light-on-surface-variant mb-0.5`}>
-              {label}
-            </ThemedText>
-          )}
-          <ThemedText type="body1">{display}</ThemedText>
-        </View>
-        {editable && (
-          <Ionicons
-            name="chevron-down"
-            size={18}
-            style={{ marginRight: 4 }}
-            color={tw.color("light-on-surface-variant")}
-          />
-        )}
-      </Pressable>
+        size="small"
+      />
 
       <ThemedBottomSheetModal ref={sheetRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6`}>
-          <ThemedText type="h3" style={tw`mb-4`}>
+          <ThemedText type="h3" style={pickerDescription ? tw`mb-1` : tw`mb-4`}>
             {pickerTitle ?? label}
           </ThemedText>
+          {pickerDescription && (
+            <ThemedText type="small" style={tw`text-gray-500 mb-4`}>
+              {pickerDescription}
+            </ThemedText>
+          )}
           <TimeWheelPicker
             value={value}
             onChange={onChange}
@@ -111,7 +113,12 @@ export default function TimeSelector({
             minutesAccessibilityLabel={minutesUnit}
           />
           <View style={tw`mt-6`}>
-            <Button label={doneLabel} onPress={() => sheetRef.current?.dismiss()} />
+            <Button
+              label={doneLabel}
+              onPress={handleDone}
+              loading={saving}
+              disabled={saving}
+            />
           </View>
         </BottomSheetView>
       </ThemedBottomSheetModal>

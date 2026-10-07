@@ -5,7 +5,6 @@ import {
   RefreshControl,
   ScrollView,
 } from "react-native";
-import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
@@ -33,11 +32,9 @@ export default function RestaurantSettingsScreen() {
   // null until the user edits the field, so it follows the loaded value
   const [draftPrepTime, setDraftPrepTime] = useState<number | null>(null);
   const prepTime = draftPrepTime ?? savedPrepTime;
-  const hasChanges = prepTime !== savedPrepTime;
 
-  const handleSave = async () => {
-    await updateSettings.mutateAsync({ ORDER_PREP_TIME: prepTime });
-    router.back();
+  const handleDonePrepTime = async (value: number) => {
+    await updateSettings.mutateAsync({ ORDER_PREP_TIME: value });
   };
 
   return (
@@ -81,35 +78,29 @@ export default function RestaurantSettingsScreen() {
               <ThemedText type="small" style={tw`text-gray-500`}>
                 {t("restaurantSettings.ordersGroup")}
               </ThemedText>
-              <Card style={tw`gap-3 p-4 rounded-3xl`}>
-                <ThemedView style={tw`gap-1`}>
-                  <ThemedText type="body1">
-                    {t("restaurantSettings.orderPrepTime.title")}
-                  </ThemedText>
-                  <ThemedText type="small" style={tw`text-gray-500`}>
-                    {t("restaurantSettings.orderPrepTime.description")}
-                  </ThemedText>
-                </ThemedView>
+              <Card style={tw`gap-3 p-4 rounded-3xl flex-row items-center`}>
+                <ThemedText type="body1">
+                  {t("restaurantSettings.orderPrepTime.title")}
+                </ThemedText>
                 <TimeSelector
-                  pickerTitle={t("restaurantSettings.orderPrepTime.pickerTitle")}
+                  pickerTitle={t(
+                    "restaurantSettings.orderPrepTime.pickerTitle",
+                  )}
+                  pickerDescription={t(
+                    "restaurantSettings.orderPrepTime.description",
+                  )}
                   doneLabel={t("restaurantSettings.orderPrepTime.done")}
                   hoursUnit={t("restaurantSettings.orderPrepTime.hoursUnit")}
-                  minutesUnit={t("restaurantSettings.orderPrepTime.minutesUnit")}
+                  minutesUnit={t(
+                    "restaurantSettings.orderPrepTime.minutesUnit",
+                  )}
                   value={prepTime}
                   onChange={setDraftPrepTime}
+                  onDone={handleDonePrepTime}
                   maxMinutes={MAX_ORDER_PREP_TIME}
                   editable={canEdit}
                 />
               </Card>
-
-              {canEdit && (
-                <Button
-                  label={t("restaurantSettings.save")}
-                  onPress={handleSave}
-                  loading={updateSettings.isPending}
-                  disabled={!hasChanges || updateSettings.isPending}
-                />
-              )}
             </ThemedView>
           )}
         </ScrollView>
