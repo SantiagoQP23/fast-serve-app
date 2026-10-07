@@ -43,7 +43,8 @@ export default function SegmentedControl<T extends string>({
               tw.style(
                 "flex-1 flex-row items-center justify-center gap-2 py-2.5 rounded-lg bg-light-surface",
                 pressed && "opacity-80",
-                isActive && " shadow-sm rounded-3xl bg-light-primary",
+                isActive &&
+                  " shadow-sm rounded-3xl bg-light-secondary-container",
               )
             }
           >

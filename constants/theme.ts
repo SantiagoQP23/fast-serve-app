@@ -17,6 +17,8 @@ export const Colors = {
     primaryContainer: "#D2E4FF",
     onPrimaryContainer: "#1C4975",
     secondary: "#D7E3F8",
+    secondaryContainer: "#535F70",
+    onSecondaryContainer: "#FFFFFF",
     onSecondary: "#3C4858",
     outlineVariant: "#C3C6CF",
 
