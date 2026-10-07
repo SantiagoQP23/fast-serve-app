@@ -56,6 +56,8 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     itemsQuery: catalogQuery,
     deleteItem,
     updateItem,
+    bulkDeleteItems,
+    bulkMoveItemsToCategory,
   } = useInventoryItems();
   const { categories } = useInventoryItemCategories();
   const menuProducts = useMenuStore((state) => state.products);
@@ -84,7 +86,13 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     useState<InventoryItemStockStatusFilter | null>(null);
   const optionsSheetRef = useRef<BottomSheetMethods>(null);
   const addSheetRef = useRef<BottomSheetMethods>(null);
+  const moveCategorySheetRef = useRef<BottomSheetMethods>(null);
   const [activeTab, setActiveTab] = useState<InventoryTab>("inventory");
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedItemIds, setSelectedItemIds] = useState<Set<string>>(
+    new Set(),
+  );
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
 
   const categoryFilter =
     selectedCategoryId && selectedCategoryId !== UNCATEGORIZED_FILTER
@@ -186,6 +194,48 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
 
   const handleReactivate = (item: InventoryItem) => {
     updateItem.mutate({ id: item.id, isActive: true });
+  };
+
+  const handleEnterSelectionMode = (item: InventoryItem) => {
+    if (isSelectionMode) return;
+    setIsSelectionMode(true);
+    setSelectedItemIds(new Set([item.id]));
+  };
+
+  const handleToggleSelectItem = (item: InventoryItem) => {
+    setSelectedItemIds((current) => {
+      const next = new Set(current);
+      if (next.has(item.id)) {
+        next.delete(item.id);
+      } else {
+        next.add(item.id);
+      }
+      return next;
+    });
+  };
+
+  const handleCancelSelectionMode = () => {
+    setIsSelectionMode(false);
+    setSelectedItemIds(new Set());
+  };
+
+  const handleOpenMoveCategorySheet = () => {
+    moveCategorySheetRef.current?.present();
+  };
+
+  const handleConfirmBulkMove = async (categoryId: string | null) => {
+    moveCategorySheetRef.current?.dismiss();
+    await bulkMoveItemsToCategory.mutateAsync({
+      ids: Array.from(selectedItemIds),
+      categoryId,
+    });
+    handleCancelSelectionMode();
+  };
+
+  const handleConfirmBulkDelete = async () => {
+    await bulkDeleteItems.mutateAsync(Array.from(selectedItemIds));
+    setShowBulkDeleteConfirm(false);
+    handleCancelSelectionMode();
   };
 
   const toolbarItems: ToolbarItem[] = [
@@ -419,6 +469,10 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                   onOptionsPress={handleOpenOptions}
                   onAdjustPress={setItemToAdjust}
                   onReactivatePress={handleReactivate}
+                  selectionMode={isSelectionMode}
+                  selected={selectedItemIds.has(item.id)}
+                  onLongPress={handleEnterSelectionMode}
+                  onToggleSelect={handleToggleSelectItem}
                 />
               ))}
               {hasMore && (
@@ -439,18 +493,51 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
       {activeTab === "purchases" && canManage && <InventoryPurchasesTab />}
 
       <View style={tw`absolute bottom-6 left-0 right-0 items-center`}>
-        <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
-          <FloatingToolbar items={toolbarItems} />
-          {canManage && (
+        {isSelectionMode ? (
+          <ThemedView
+            style={tw`flex-row items-center gap-3 bg-light-surface rounded-full shadow-sm px-3 py-2`}
+          >
             <IconButton
-              icon="add"
-              size={40}
-              variant="filled"
-              onPress={handleOpenAddSelector}
-              accessibilityLabel={t("createItem")}
+              icon="close"
+              variant="text"
+              onPress={handleCancelSelectionMode}
+              accessibilityLabel={t("selection.cancel")}
             />
-          )}
-        </ThemedView>
+            <ThemedText
+              type="body1"
+              style={{ fontFamily: typography.medium }}
+            >
+              {t("selection.count", { count: selectedItemIds.size })}
+            </ThemedText>
+            <IconButton
+              icon="folder-outline"
+              variant="secondary"
+              onPress={handleOpenMoveCategorySheet}
+              disabled={selectedItemIds.size === 0}
+              accessibilityLabel={t("selection.move")}
+            />
+            <IconButton
+              icon="trash-outline"
+              variant="destructive"
+              onPress={() => setShowBulkDeleteConfirm(true)}
+              disabled={selectedItemIds.size === 0}
+              accessibilityLabel={t("selection.delete")}
+            />
+          </ThemedView>
+        ) : (
+          <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
+            <FloatingToolbar items={toolbarItems} />
+            {canManage && (
+              <IconButton
+                icon="add"
+                size={40}
+                variant="filled"
+                onPress={handleOpenAddSelector}
+                accessibilityLabel={t("createItem")}
+              />
+            )}
+          </ThemedView>
+        )}
       </View>
 
       <DialogModal
@@ -463,6 +550,20 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
         loading={deleteItem.isPending}
         onConfirm={handleConfirmDelete}
         onCancel={() => setItemToDelete(null)}
+      />
+
+      <DialogModal
+        visible={showBulkDeleteConfirm}
+        title={t("selection.deleteTitle")}
+        message={t("selection.deleteMessage", {
+          count: selectedItemIds.size,
+        })}
+        confirmLabel={t("confirm")}
+        cancelLabel={t("cancel")}
+        confirmVariant="destructive"
+        loading={bulkDeleteItems.isPending}
+        onConfirm={handleConfirmBulkDelete}
+        onCancel={() => setShowBulkDeleteConfirm(false)}
       />
 
       <AdjustStockModal
@@ -611,6 +712,25 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
             ]}
           />
         )}
+      </ThemedBottomSheetModal>
+
+      <ThemedBottomSheetModal ref={moveCategorySheetRef} enablePanDownToClose>
+        <ActionsBottomSheet
+          title={t("selection.moveTitle")}
+          subtitle={t("selection.count", { count: selectedItemIds.size })}
+          items={[
+            ...categories.map((category) => ({
+              icon: "folder-outline" as const,
+              label: category.name,
+              onPress: () => handleConfirmBulkMove(category.id),
+            })),
+            {
+              icon: "folder-open-outline" as const,
+              label: t("categories.none"),
+              onPress: () => handleConfirmBulkMove(null),
+            },
+          ]}
+        />
       </ThemedBottomSheetModal>
     </>
   );

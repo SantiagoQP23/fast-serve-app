@@ -71,6 +71,20 @@ export class InventoryService {
     await restaurantApi.delete(`/inventory/items/${id}`);
   }
 
+  static async bulkRemove(ids: string[]): Promise<void> {
+    await restaurantApi.post("/inventory/items/bulk-delete", { ids });
+  }
+
+  static async bulkMoveCategory(
+    ids: string[],
+    categoryId: string | null,
+  ): Promise<void> {
+    await restaurantApi.post("/inventory/items/bulk-move-category", {
+      ids,
+      categoryId,
+    });
+  }
+
   static async linkProductOption(
     itemId: string,
     data: LinkProductOptionDto,

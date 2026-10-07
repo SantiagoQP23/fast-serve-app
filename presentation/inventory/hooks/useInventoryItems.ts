@@ -67,6 +67,33 @@ export const useInventoryItems = () => {
     },
   });
 
+  const bulkDeleteItems = useMutation<void, Error, string[]>({
+    mutationFn: (ids) => InventoryService.bulkRemove(ids),
+    onSuccess: () => {
+      toast.success(t("bulkDeleteSuccess"));
+      invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message || t("bulkDeleteError"));
+    },
+  });
+
+  const bulkMoveItemsToCategory = useMutation<
+    void,
+    Error,
+    { ids: string[]; categoryId: string | null }
+  >({
+    mutationFn: ({ ids, categoryId }) =>
+      InventoryService.bulkMoveCategory(ids, categoryId),
+    onSuccess: () => {
+      toast.success(t("bulkMoveSuccess"));
+      invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message || t("bulkMoveError"));
+    },
+  });
+
   const linkProductOption = useMutation<
     ProductOptionInventoryItem,
     Error,
@@ -105,6 +132,8 @@ export const useInventoryItems = () => {
     createItem,
     updateItem,
     deleteItem,
+    bulkDeleteItems,
+    bulkMoveItemsToCategory,
     linkProductOption,
     adjustStock,
   };

@@ -22,6 +22,10 @@ interface InventoryItemCardProps {
   onOptionsPress: (item: InventoryItem) => void;
   onAdjustPress: (item: InventoryItem) => void;
   onReactivatePress: (item: InventoryItem) => void;
+  selectionMode?: boolean;
+  selected?: boolean;
+  onLongPress?: (item: InventoryItem) => void;
+  onToggleSelect?: (item: InventoryItem) => void;
 }
 
 export const INVENTORY_STATUS_STYLES: Record<
@@ -73,6 +77,10 @@ const QUANTITY_LABEL_COLOR: Record<InventoryStockStatus, LabelProps["color"]> =
 export default function InventoryItemCard({
   item,
   onPress,
+  selectionMode,
+  selected,
+  onLongPress,
+  onToggleSelect,
 }: InventoryItemCardProps) {
   const { t } = useTranslation("inventory");
   const status = getInventoryStockStatus(item);
@@ -87,17 +95,26 @@ export default function InventoryItemCard({
   return (
     <Card
       variant="outline"
-      disabled={!onPress}
-      onPress={() => onPress?.(item)}
+      disabled={!onPress && !selectionMode}
+      onPress={() => (selectionMode ? onToggleSelect?.(item) : onPress?.(item))}
+      onLongPress={() => onLongPress?.(item)}
       style={({ pressed }) =>
         tw.style(
           " gap-3 p-4",
           isInactive && "opacity-50 border border-dashed border-light-border",
-          pressed && onPress && "opacity-80",
+          selected && "border border-blue-500 bg-blue-50",
+          pressed && (onPress || selectionMode) && "opacity-80",
         )
       }
     >
       <ThemedView style={tw`flex-row items-start justify-between gap-3`}>
+        {selectionMode && (
+          <Ionicons
+            name={selected ? "checkmark-circle" : "ellipse-outline"}
+            size={22}
+            color={selected ? tw.color("blue-500") : tw.color("gray-400")}
+          />
+        )}
         <ThemedView style={tw`flex-1 gap-1`}>
           <ThemedText
             type="body1"
