@@ -141,17 +141,14 @@ export const useOrders = () => {
     UpdateOrderResp,
     ReplaceOrderDetailDto
   >(OrderSocketEvent.replaceOrderDetail, {
-    onSuccess: async (resp) => {
+    onSuccess: (resp) => {
       const data = resp.data;
       if (data?.order) {
         setActiveOrder(data.order);
         updateOrder(data.order);
       }
-      if (data?.order && data?.tickets?.length) {
-        // One after the other so the CANCEL comanda prints before the ADD.
-        for (const ticket of data.tickets) {
-          await printComanda(data.order, ticket);
-        }
+      if (data?.order && data?.ticket) {
+        printComanda(data.order, data.ticket);
       }
     },
     onError: (resp) => {
