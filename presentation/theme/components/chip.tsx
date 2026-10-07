@@ -70,7 +70,7 @@ export default function Chip({
     <Pressable
       onPress={() => !disabled && onPress && onPress()}
       style={({ pressed }) => [
-        tw`flex-row items-center px-4 py-[6px] rounded-full gap-2`,
+        tw`flex-row items-center px-4 py-[6px] rounded-md gap-2`,
         filled
           ? tw`bg-light-secondary`
           : variant === "input"

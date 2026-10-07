@@ -689,8 +689,10 @@ export default function OrderScreen() {
                     />
                   )}
                 </ThemedView>
-                <ThemedView
-                  style={tw`flex-row items-center gap-2 flex-wrap mb-6 rounded-xl`}
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={tw`gap-2 mb-6`}
                 >
                   <Chip
                     icon="hourglass-outline"
@@ -710,7 +712,7 @@ export default function OrderScreen() {
                     label={`${order.user?.person.firstName} ${order.user?.person.lastName}`}
                     onPress={!isClosed ? handlePresentReassignModal : undefined}
                   />
-                </ThemedView>
+                </ScrollView>
 
                 {/* Notes Section */}
                 {order.notes && (

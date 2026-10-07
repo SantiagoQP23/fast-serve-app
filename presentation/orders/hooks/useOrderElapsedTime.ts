@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
+import { useRestaurantSettings } from "@/presentation/restaurant/hooks/useRestaurantSettings";
+import { DEFAULT_ORDER_PREP_TIME } from "@/core/restaurant/models/restaurant-settings.model";
 
 export type ElapsedTimeColor = "success" | "warning" | "error";
 
-const VISIBLE_MINUTES_LEFT = 15;
 const OVERDUE_WARNING_MINUTES = 15;
 
 export const useOrderElapsedTime = (deliveryTime: Date | string) => {
   const [now, setNow] = useState(() => dayjs());
+  const { settings } = useRestaurantSettings();
+  const visibleMinutesLeft = settings?.ORDER_PREP_TIME ?? DEFAULT_ORDER_PREP_TIME;
 
   useEffect(() => {
     const interval = setInterval(() => setNow(dayjs()), 1000);
@@ -34,7 +37,7 @@ export const useOrderElapsedTime = (deliveryTime: Date | string) => {
       ? "warning"
       : "error";
 
-  const shouldShow = remainingMinutes <= VISIBLE_MINUTES_LEFT;
+  const shouldShow = remainingMinutes <= visibleMinutesLeft;
 
   return { elapsedLabel, elapsedColor, isOverdue, shouldShow };
 };
