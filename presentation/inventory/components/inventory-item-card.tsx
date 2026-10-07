@@ -2,7 +2,7 @@ import { Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
-import Label from "@/presentation/theme/components/label";
+import Label, { LabelProps } from "@/presentation/theme/components/label";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -62,6 +62,14 @@ export const INVENTORY_STATUS_STYLES: Record<
   },
 };
 
+const QUANTITY_LABEL_COLOR: Record<InventoryStockStatus, LabelProps["color"]> =
+  {
+    critical: "error",
+    low: "warning",
+    optimal: "success",
+    inactive: "default",
+  };
+
 export default function InventoryItemCard({
   item,
   onPress,
@@ -71,9 +79,10 @@ export default function InventoryItemCard({
   const ratio = getInventoryStockRatio(item);
   const styles = INVENTORY_STATUS_STYLES[status];
   const isInactive = status === "inactive";
-  const showStatusLabel = status === "critical" || status === "low";
   const showStockBar =
     !isInactive && !!item.minimumQuantity && item.minimumQuantity > 0;
+  const quantityLabelColor: LabelProps["color"] =
+    item.quantity <= 0 ? "error" : QUANTITY_LABEL_COLOR[status];
 
   return (
     <Card
@@ -82,7 +91,7 @@ export default function InventoryItemCard({
       onPress={() => onPress?.(item)}
       style={({ pressed }) =>
         tw.style(
-          " gap-3 ",
+          " gap-3 p-4",
           isInactive && "opacity-50 border border-dashed border-light-border",
           pressed && onPress && "opacity-80",
         )
@@ -106,45 +115,25 @@ export default function InventoryItemCard({
             </ThemedText>
           )}
         </ThemedView>
-        {showStatusLabel && (
-          <Label
-            text={t(`status.${status}`)}
-            variant="solid"
-            color={status === "critical" ? "error" : "warning"}
-            size="small"
-          />
-        )}
       </ThemedView>
 
       <ThemedView style={tw`gap-2`}>
         <ThemedView style={tw`flex-row items-baseline justify-between`}>
-          <ThemedView style={tw`flex-row items-baseline gap-1 bg-transparent`}>
-            <ThemedText
-              type="h3"
-              style={[
-                { fontFamily: typography.semibold },
-                styles.numberColor ? tw.style(styles.numberColor) : undefined,
-                tw`text-light-on-surface-variant`,
-              ]}
-            >
-              {item.quantity}
-            </ThemedText>
-            <ThemedText
-              type="body2"
-              style={[
-                { fontFamily: typography.regular },
-                tw`text-light-on-surface-variant`,
-              ]}
-            >
-              {t(`units.${item.unit}`)}
-            </ThemedText>
-          </ThemedView>
-
-          {!!item.productOptionsCount && (
+          {!!item.productOptionsCount ? (
             <ThemedText type="small" style={tw`text-gray-500`}>
               {t("usedInCount", { count: item.productOptionsCount })}
             </ThemedText>
+          ) : (
+            <ThemedView></ThemedView>
           )}
+          <Label
+            text={t("quantityWithUnit", {
+              quantity: item.quantity,
+              unit: t(`units.${item.unit}`),
+            })}
+            variant="solid"
+            color={quantityLabelColor}
+          />
         </ThemedView>
         {/* {showStockBar && ( */}
         {/*   <ProgressBar */}

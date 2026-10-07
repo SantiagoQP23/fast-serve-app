@@ -6,6 +6,7 @@ export enum InventoryItemStockStatusFilter {
 
 export interface FindAllInventoryItemsDto {
   categoryId?: string;
+  uncategorized?: boolean;
   status?: InventoryItemStockStatusFilter;
   search?: string;
   limit?: number;

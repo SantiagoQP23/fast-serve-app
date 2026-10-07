@@ -9,6 +9,7 @@ const PAGE_SIZE = 20;
 
 interface InventoryItemsBrowserFilters {
   categoryId?: string | null;
+  uncategorized?: boolean;
   status?: InventoryItemStockStatusFilter | null;
 }
 
@@ -21,16 +22,24 @@ interface InventoryItemsBrowserFilters {
 export const useInventoryItemsBrowser = (
   filters: InventoryItemsBrowserFilters = {},
 ) => {
-  const { categoryId, status } = filters;
+  const { categoryId, uncategorized, status } = filters;
   const [page, setPage] = useState(0);
   const [allItems, setAllItems] = useState<InventoryItem[]>([]);
 
   // Reset pagination during render when filters change, rather than in an
   // effect — see https://react.dev/learn/you-might-not-need-an-effect
   // ("Resetting all state when a prop changes").
-  const [prevFilters, setPrevFilters] = useState({ categoryId, status });
-  if (prevFilters.categoryId !== categoryId || prevFilters.status !== status) {
-    setPrevFilters({ categoryId, status });
+  const [prevFilters, setPrevFilters] = useState({
+    categoryId,
+    uncategorized,
+    status,
+  });
+  if (
+    prevFilters.categoryId !== categoryId ||
+    prevFilters.uncategorized !== uncategorized ||
+    prevFilters.status !== status
+  ) {
+    setPrevFilters({ categoryId, uncategorized, status });
     setPage(0);
     setAllItems([]);
   }
@@ -40,12 +49,14 @@ export const useInventoryItemsBrowser = (
       ...inventoryItemsQueryKey,
       "list",
       categoryId ?? null,
+      uncategorized ?? false,
       status ?? null,
       page,
     ],
     queryFn: () =>
       InventoryService.getAll({
         categoryId: categoryId ?? undefined,
+        uncategorized: uncategorized ?? undefined,
         status: status ?? undefined,
         limit: PAGE_SIZE,
         offset: page * PAGE_SIZE,

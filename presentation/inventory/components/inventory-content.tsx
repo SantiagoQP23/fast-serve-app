@@ -38,6 +38,10 @@ import { InventoryItemStockStatusFilter } from "@/presentation/inventory/interfa
 
 type InventoryTab = "inventory" | "counts" | "purchases";
 
+// Sentinel for the "No category" chip — category ids are UUIDs, so this
+// never collides with a real category.
+const UNCATEGORIZED_FILTER = "uncategorized";
+
 interface InventoryContentProps {
   onBack?: () => void;
 }
@@ -65,6 +69,16 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
   );
+  // Default to the first category once categories load, rather than in an
+  // effect — see https://react.dev/learn/you-might-not-need-an-effect
+  // ("Resetting all state when a prop changes"). Only applies once, so it
+  // never overrides an explicit "All" selection made afterward.
+  const [hasAppliedDefaultCategory, setHasAppliedDefaultCategory] =
+    useState(false);
+  if (!hasAppliedDefaultCategory && categories.length > 0) {
+    setHasAppliedDefaultCategory(true);
+    setSelectedCategoryId(categories[0].id);
+  }
   const [selectedStatus, setSelectedStatus] =
     useState<InventoryItemStockStatusFilter | null>(null);
   const optionsSheetRef = useRef<BottomSheetMethods>(null);
@@ -78,7 +92,11 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     isLoadingMore,
     loadMore,
   } = useInventoryItemsBrowser({
-    categoryId: selectedCategoryId,
+    categoryId:
+      selectedCategoryId && selectedCategoryId !== UNCATEGORIZED_FILTER
+        ? selectedCategoryId
+        : null,
+    uncategorized: selectedCategoryId === UNCATEGORIZED_FILTER,
     status: selectedStatus,
   });
 
@@ -247,11 +265,11 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                   contentContainerStyle={tw`gap-2 items-center`}
                   style={tw`flex-1`}
                 >
-                  <Chip
-                    label={t("categories.all")}
-                    selected={selectedCategoryId === null}
-                    onPress={() => setSelectedCategoryId(null)}
-                  />
+                  {/* <Chip */}
+                  {/*   label={t("categories.all")} */}
+                  {/*   selected={selectedCategoryId === null} */}
+                  {/*   onPress={() => setSelectedCategoryId(null)} */}
+                  {/* /> */}
                   {categories.map((category) => (
                     <Chip
                       key={category.id}
@@ -264,6 +282,18 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                       }
                     />
                   ))}
+                  <Chip
+                    label={t("categories.none")}
+                    selected={selectedCategoryId === UNCATEGORIZED_FILTER}
+                    onPress={() =>
+                      setSelectedCategoryId((current) =>
+                        current === UNCATEGORIZED_FILTER
+                          ? null
+                          : UNCATEGORIZED_FILTER,
+                      )
+                    }
+                  />
+
                   {canManage && (
                     <IconButton
                       icon="add"
@@ -303,11 +333,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
 
           {browserQuery.isError && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Ionicons
-                name="alert-circle-outline"
-                size={48}
-                color="#ef4444"
-              />
+              <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
               <ThemedText type="body1" style={tw`text-red-500`}>
                 {t("loadError")}
               </ThemedText>
@@ -405,7 +431,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
           {canManage && (
             <IconButton
               icon="add"
-              size={30}
+              size={40}
               variant="filled"
               onPress={handleOpenAddSelector}
               accessibilityLabel={t("createItem")}
@@ -434,10 +460,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
       <ThemedBottomSheetModal ref={addSheetRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6`}>
           <ThemedView style={tw`gap-3 mt-4`}>
-            <ThemedText
-              type="caption"
-              style={tw`text-gray-500 font-semibold`}
-            >
+            <ThemedText type="caption" style={tw`text-gray-500 font-semibold`}>
               {t("addToInventory.title")}
             </ThemedText>
             <Card onPress={handleTrackMenuProduct}>
@@ -490,10 +513,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
           </ThemedView>
 
           <ThemedView style={tw`gap-3 mt-6`}>
-            <ThemedText
-              type="caption"
-              style={tw`text-gray-500 font-semibold`}
-            >
+            <ThemedText type="caption" style={tw`text-gray-500 font-semibold`}>
               {t("inventoryControl")}
             </ThemedText>
             <Card onPress={handleRegisterPurchase}>
