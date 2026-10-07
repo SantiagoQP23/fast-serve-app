@@ -10,6 +10,7 @@ export enum OrderSocketEvent {
   addOrderDetail = "add-order-detail",
   addOrderDetails = "add-order-details",
   deleteOrderDetail = "delete-order-detail",
+  replaceOrderDetail = "replace-order-detail",
   updateqtyDeliveredDetail = "update-qty-delivered-detail",
   deleteOrder = "delete-order",
   payOrder = "pay-order",

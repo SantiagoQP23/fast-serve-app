@@ -12,6 +12,7 @@ import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore"
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
+import { useReplaceOrderDetailStore } from "@/presentation/orders/store/replaceOrderDetailStore";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
@@ -45,8 +46,15 @@ export default function ProductScreen() {
   const typePickerRef = useRef<BottomSheetPickerRef>(null);
   const activeOrderDetail = useNewOrderStore((state) => state.activeDetail);
   const orderType = useNewOrderStore((state) => state.orderType);
+  const order = useOrdersStore((state) => state.activeOrder);
+  const replaceOrderId = useReplaceOrderDetailStore((state) => state.orderId);
+  const replacingDetail = useReplaceOrderDetailStore((state) => state.detail);
+  const resetReplace = useReplaceOrderDetailStore((state) => state.reset);
+  const isReplaceMode =
+    !!order && !!replacingDetail && replaceOrderId === order.id;
   const { counter, increment, decrement } = useCounter(
-    activeOrderDetail?.quantity,
+    activeOrderDetail?.quantity ??
+      (isReplaceMode ? replacingDetail.quantity : undefined),
     1,
     20,
     1,
@@ -72,7 +80,6 @@ export default function ProductScreen() {
     String(activeOrderDetail ? activeOrderDetail.price : selectedOption?.price),
   );
 
-  const order = useOrdersStore((state) => state.activeOrder);
   const navigation = useNavigation();
   const { user } = useAuthStore();
   const isAdmin = isAdminLevelRole(user?.role?.name);
@@ -80,7 +87,9 @@ export default function ProductScreen() {
   const [typeOrderDetail, setTypeOrderDetail] = useState<OrderType>(
     activeOrderDetail
       ? activeOrderDetail.typeOrderDetail
-      : order
+      : isReplaceMode
+        ? replacingDetail.typeOrderDetail
+        : order
         ? order.type
         : orderType,
   );
@@ -104,6 +113,8 @@ export default function ProductScreen() {
     isOnline,
     mutate: addOrderDetailToOrder,
   } = useOrders().addOrderDetailToOrder;
+  const { isLoading: isReplacing, mutate: replaceOrderDetail } =
+    useOrders().replaceOrderDetail;
 
   const goToMenu = () => {
     setActiveProduct(null);
@@ -196,7 +207,41 @@ export default function ProductScreen() {
     }
   };
 
+  const replaceProductInOrder = () => {
+    if (!order || !replacingDetail) return;
+
+    replaceOrderDetail(
+      {
+        orderId: order.id,
+        detailId: replacingDetail.id,
+        newDetail: {
+          productId: activeProduct!.id,
+          quantity: counter,
+          price: effectivePrice,
+          description: notes,
+          tagIds: selectedTagIds,
+          productOptionId: selectedOption?.id,
+          typeOrderDetail: typeOrderDetail || order.type,
+        },
+      },
+      {
+        onSuccess: () => {
+          setActiveProduct(null);
+          setActiveDetail(null);
+          resetReplace();
+          // Close the whole menu flow and land back on the order.
+          navigation.getParent()?.goBack();
+        },
+      },
+    );
+  };
+
   const onAddProduct = () => {
+    if (isReplaceMode) {
+      replaceProductInOrder();
+      return;
+    }
+
     if (isEditMode) {
       if (activeOrderDetail?.id) {
         updateEditItem(activeOrderDetail.id, {
@@ -390,14 +435,20 @@ export default function ProductScreen() {
 
             <ThemedView style={tw`flex-row gap-5  mb-4`}>
               <Button
-                label={t("menu:product.addToOrderOrCart", {
-                  type: order
-                    ? t("menu:product.order")
-                    : t("menu:product.cart"),
-                })}
+                label={
+                  isReplaceMode
+                    ? t("orders:replaceItem.confirm")
+                    : t("menu:product.addToOrderOrCart", {
+                        type: order
+                          ? t("menu:product.order")
+                          : t("menu:product.cart"),
+                      })
+                }
                 onPress={onAddProduct}
-                leftIcon="cart-outline"
-                disabled={isUnavailable}
+                leftIcon={
+                  isReplaceMode ? "swap-horizontal-outline" : "cart-outline"
+                }
+                disabled={isUnavailable || isReplacing}
                 style={tw`flex-1`}
               />
             </ThemedView>

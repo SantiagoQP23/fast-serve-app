@@ -1,6 +1,9 @@
 import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
 import { Alert, Pressable } from "react-native";
-import { OrderDetail } from "@/core/orders/models/order-detail.model";
+import {
+  OrderDetail,
+  canReplaceOrderDetail,
+} from "@/core/orders/models/order-detail.model";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -10,6 +13,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 interface OrderDetailActionsBottomSheetProps {
   detail: OrderDetail;
   onEditQuantity?: () => void;
+  onReplace?: () => void;
   onDelete?: () => void;
   onClose?: () => void;
 }
@@ -25,6 +29,7 @@ interface OptionItem {
 const OrderDetailActionsBottomSheet = ({
   detail,
   onEditQuantity,
+  onReplace,
   onDelete,
   onClose,
 }: OrderDetailActionsBottomSheetProps) => {
@@ -52,6 +57,18 @@ const OrderDetailActionsBottomSheet = ({
       label: t("orders:detailActions.editQuantity"),
       onPress: handleEditQuantity,
     },
+    ...(onReplace && canReplaceOrderDetail(detail)
+      ? [
+          {
+            icon: "swap-horizontal-outline" as const,
+            label: t("orders:detailActions.replaceItem"),
+            onPress: () => {
+              onClose?.();
+              onReplace();
+            },
+          },
+        ]
+      : []),
     {
       icon: "trash-outline",
       label: t("orders:detailActions.deleteItem"),

@@ -44,3 +44,14 @@ export interface OrderDetail {
   // typeOrderDetail: TypeOrder;
   productOption?: ProductOption;
 }
+
+/**
+ * An item can be swapped for another product only while the kitchen
+ * hasn't touched it and nobody has paid for it. The backend enforces the
+ * same rule.
+ */
+export const canReplaceOrderDetail = (detail: OrderDetail): boolean =>
+  detail.status === OrderDetailStatus.PENDING &&
+  detail.qtyDelivered === 0 &&
+  detail.readyQuantity === 0 &&
+  detail.qtyPaid === 0;

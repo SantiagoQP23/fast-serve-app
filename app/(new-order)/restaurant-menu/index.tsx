@@ -17,13 +17,14 @@ import Button from "@/presentation/theme/components/button";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
+import { useReplaceOrderDetailStore } from "@/presentation/orders/store/replaceOrderDetailStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { Ionicons } from "@expo/vector-icons";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 
 export default function RestaurantMenuScreen() {
-  const { t } = useTranslation(["menu"]);
+  const { t } = useTranslation(["menu", "orders"]);
   const primaryColor = useThemeColor({}, "primary");
   const [section, setSection] = useState("");
   const [category, setCategory] = useState("");
@@ -61,6 +62,15 @@ export default function RestaurantMenuScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const isEditMode = !!order && editOrderId === order.id;
+
+  const replaceOrderId = useReplaceOrderDetailStore((state) => state.orderId);
+  const replacingDetail = useReplaceOrderDetailStore((state) => state.detail);
+  const resetReplace = useReplaceOrderDetailStore((state) => state.reset);
+  const isReplaceMode =
+    !!order && !!replacingDetail && replaceOrderId === order.id;
+
+  // Leaving the menu ends replace mode, however the user leaves it.
+  useEffect(() => resetReplace, [resetReplace]);
 
   useEffect(() => {
     if (order && !editOrderId) {
@@ -200,6 +210,23 @@ export default function RestaurantMenuScreen() {
 
   return (
     <ScreenLayout style={tw`px-4 pt-2 flex-1 gap-4`}>
+      {isReplaceMode && (
+        <ThemedView
+          style={tw`flex-row items-center gap-3 p-3 rounded-xl bg-gray-100`}
+        >
+          <Ionicons
+            name="swap-horizontal-outline"
+            size={20}
+            color={tw.color("gray-700")}
+          />
+          <ThemedText type="body2" style={tw`flex-1`}>
+            {t("orders:replaceItem.banner", {
+              quantity: replacingDetail.quantity,
+              product: replacingDetail.product.name,
+            })}
+          </ThemedText>
+        </ThemedView>
+      )}
       <TextInput
         value={search}
         placeholder={t("menu:searchPlaceholder")}
@@ -287,7 +314,7 @@ export default function RestaurantMenuScreen() {
         </ThemedView>
       )}
 
-      {isEditMode && newItemCount > 0 && (
+      {isEditMode && !isReplaceMode && newItemCount > 0 && (
         <ThemedView style={tw`absolute bottom-4 left-4 right-4 bg-transparent`}>
           <ThemedView
             style={tw`flex-row justify-end items-center bg-transparent gap-2`}

@@ -47,6 +47,12 @@ export interface DeleteOrderDetailDto {
   orderId: string;
 }
 
+export interface ReplaceOrderDetailDto {
+  orderId: string;
+  detailId: string;
+  newDetail: Omit<AddOrderDetailToOrderDto, "orderId">;
+}
+
 export interface UpdateOrderResp {
   order?: Order;
   ticket?: Ticket;

@@ -169,9 +169,14 @@
   "molecule": {
     "count": "Cantidad:"
   },
+  "replaceItem": {
+    "banner": "Reemplazando {{quantity}} × {{product}}. Elige el nuevo producto.",
+    "confirm": "Reemplazar"
+  },
   "detailActions": {
     "title": "Acciones del Producto",
     "editQuantity": "Editar Cantidad",
+    "replaceItem": "Reemplazar Producto",
     "deleteItem": "Eliminar Producto",
     "statusTitle": "Estado"
   },
