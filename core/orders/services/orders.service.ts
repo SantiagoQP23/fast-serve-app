@@ -1,4 +1,8 @@
 import { restaurantApi } from "@/core/api/restaurantApi";
+import {
+  SalesByProductionAreaFiltersDto,
+  SalesByProductionAreaResponseDto,
+} from "../dto/sales-by-production-area.dto";
 import { Order } from "../models/order.model";
 import { DashboardStatsDto } from "../dto/dashboard-stats.dto";
 import { DailyReportResponseDto } from "../dto/daily-report-response.dto";
@@ -98,6 +102,18 @@ export class OrdersService {
   ): Promise<BestSellingCategoriesResponseDto> {
     const resp = await restaurantApi.get<BestSellingCategoriesResponseDto>(
       "/orders/best-selling-categories",
+      {
+        params: { ...filters, period: "custom" },
+      },
+    );
+    return resp.data;
+  }
+
+  static async getSalesByProductionArea(
+    filters?: SalesByProductionAreaFiltersDto,
+  ): Promise<SalesByProductionAreaResponseDto> {
+    const resp = await restaurantApi.get<SalesByProductionAreaResponseDto>(
+      "/orders/sales-by-production-area",
       {
         params: { ...filters, period: "custom" },
       },

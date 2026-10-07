@@ -82,5 +82,9 @@
       "title": "Best Selling Categories",
       "empty": "No categories sold in this period"
     }
+  },
+  "salesByProductionArea": {
+    "title": "Sales by Production Area",
+    "noArea": "No area"
   }
 }

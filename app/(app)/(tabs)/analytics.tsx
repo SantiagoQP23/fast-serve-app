@@ -36,6 +36,7 @@ import { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import CustomDateRangeBottomSheet from "@/presentation/orders/components/custom-date-range-bottom-sheet";
 import BestSellingProductsCard from "@/presentation/home/components/best-selling-products-card";
 import BestSellingCategoriesCard from "@/presentation/home/components/best-selling-categories-card";
+import SalesByProductionAreaCard from "@/presentation/home/components/sales-by-production-area-card";
 import Button from "@/presentation/theme/components/button";
 import Label from "@/presentation/theme/components/label";
 
@@ -132,6 +133,7 @@ export default function AnalyticsScreen() {
       await Promise.all([
         refetchStats(),
         queryClient.invalidateQueries({ queryKey: ["dailyReport"] }),
+        queryClient.invalidateQueries({ queryKey: ["salesByProductionArea"] }),
       ]);
     } catch {
       Alert.alert(
@@ -305,6 +307,12 @@ export default function AnalyticsScreen() {
               dateRange={dateRange}
               userId={statsUserId}
             />
+            {isAdmin && (
+              <SalesByProductionAreaCard
+                dateRange={dateRange}
+                userId={statsUserId}
+              />
+            )}
           </ThemedView>
         )}
 
