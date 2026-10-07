@@ -90,8 +90,8 @@ export default function ProductScreen() {
       : isReplaceMode
         ? replacingDetail.typeOrderDetail
         : order
-        ? order.type
-        : orderType,
+          ? order.type
+          : orderType,
   );
 
   const toggleTag = (id: string) => {
@@ -133,7 +133,7 @@ export default function ProductScreen() {
           <IconButton
             icon="create-outline"
             onPress={openCustomBottomSheet}
-            variant="secondary"
+            size={24}
           />
         ) : null,
     });
@@ -207,8 +207,11 @@ export default function ProductScreen() {
     }
   };
 
+  const requiresOptionSelection =
+    isReplaceMode && activeOptions.length > 0 && !selectedOption;
+
   const replaceProductInOrder = () => {
-    if (!order || !replacingDetail) return;
+    if (!order || !replacingDetail || requiresOptionSelection) return;
 
     replaceOrderDetail(
       {
@@ -334,7 +337,7 @@ export default function ProductScreen() {
                       <Card
                         onPress={() => onChangeSelectedOption(option)}
                         variant="outline"
-                        style={tw`min-w-36 p-4 gap-2 rounded-3xl ${isSelected ? "border-light-primary" : "border-none"}`}
+                        style={tw`min-w-36 p-4 gap-2 rounded-3xl ${isSelected ? "border-2 border-light-primary" : "border-none"}`}
                       >
                         <ThemedView
                           style={tw`flex-row items-center justify-between gap-2`}
@@ -407,7 +410,7 @@ export default function ProductScreen() {
               </ThemedView>
             </ThemedView>
 
-            <ThemedView style={tw`flex-row items-center gap-2 `}>
+            <ThemedView style={tw`flex-row items-center justify-center gap-2 `}>
               <Chip
                 label={
                   typeOrderDetail === OrderType.IN_PLACE
@@ -448,7 +451,9 @@ export default function ProductScreen() {
                 leftIcon={
                   isReplaceMode ? "swap-horizontal-outline" : "cart-outline"
                 }
-                disabled={isUnavailable || isReplacing}
+                disabled={
+                  isUnavailable || isReplacing || requiresOptionSelection
+                }
                 style={tw`flex-1`}
               />
             </ThemedView>
