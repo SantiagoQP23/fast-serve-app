@@ -225,11 +225,7 @@ export default function OrderDetailCard({
         </View>
       </Modal>
 
-      <ThemedBottomSheetModal
-        ref={bottomSheetModalRef}
-        snapPoints={["30%"]}
-        enablePanDownToClose
-      >
+      <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
         <OrderDetailActionsBottomSheet
           detail={detail}
           onEditQuantity={handleEditQuantity}

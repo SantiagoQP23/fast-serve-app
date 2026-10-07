@@ -80,13 +80,6 @@ const OrderDetailActionsBottomSheet = ({
 
   return (
     <BottomSheetView style={tw`px-4 pb-6`}>
-      <ThemedView style={tw`mb-4`}>
-        <ThemedText type="h3">{t("orders:detailActions.title")}</ThemedText>
-        <ThemedText type="body2" style={tw`text-gray-500 mt-1`}>
-          {detail.product.name}
-        </ThemedText>
-      </ThemedView>
-
       <ThemedView style={tw`gap-2`}>
         {options.map((option, index) => (
           <ThemedView key={index}>
@@ -121,13 +114,6 @@ const OrderDetailActionsBottomSheet = ({
               >
                 {option.label}
               </ThemedText>
-              {!option.disabled && (
-                <Ionicons
-                  name="chevron-forward"
-                  size={18}
-                  color={tw.color("gray-400")}
-                />
-              )}
             </Pressable>
           </ThemedView>
         ))}
