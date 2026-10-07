@@ -12,8 +12,6 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import ButtonGroup from "@/presentation/theme/components/button-group";
 import Select from "@/presentation/theme/components/select";
-import TextInput from "@/presentation/theme/components/text-input";
-import Switch from "@/presentation/theme/components/switch";
 import Button, { ButtonProps } from "@/presentation/theme/components/button";
 import { useOrders } from "../hooks/useOrders";
 import { UpdateOrderDto } from "@/core/orders/dto/update-order.dto";
@@ -59,8 +57,6 @@ const EditOrderBottomSheet = ({
   });
 
   const [showTimePicker, setShowTimePicker] = useState(false);
-
-  const [withNotes, setWithNotes] = useState<boolean>(!!order.notes);
 
   const { tables } = useTables();
   const { mutate: updateOrder, isOnline, isLoading } = useOrders().updateOrder;
@@ -160,22 +156,6 @@ const EditOrderBottomSheet = ({
             value={form.people}
             onChange={(value) => setForm({ ...form, people: value })}
           />
-        </ThemedView>
-        <ThemedView>
-          <Switch
-            label={t("orders:form.addNote")}
-            value={withNotes}
-            onValueChange={setWithNotes}
-          />
-          {withNotes && (
-            <TextInput
-              numberOfLines={5}
-              multiline
-              bottomSheet
-              onChangeText={(value) => setForm({ ...form, notes: value })}
-              value={form.notes}
-            />
-          )}
         </ThemedView>
 
         {/* <ThemedView style={tw`gap-2`}> */}

@@ -3,13 +3,10 @@ import { ThemedView } from "../theme/components/themed-view";
 import ButtonGroup from "../theme/components/button-group";
 import Select from "../theme/components/select";
 import tw from "../theme/lib/tailwind";
-import { useState } from "react";
 import { useNewOrderStore } from "./store/newOrderStore";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button, { ButtonProps } from "../theme/components/button";
 import { ThemedText } from "../theme/components/themed-text";
-import Switch from "../theme/components/switch";
-import TextInput from "../theme/components/text-input";
 import { useTables } from "../tables/hooks/useTables";
 import { useOrdersStore } from "./store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -29,17 +26,8 @@ const NewOrderBottomSheet = ({
 }: NewOrderBottomSheetProps) => {
   const { t } = useTranslation("orders");
   const orderTypes = useOrderTypes();
-  const {
-    orderType,
-    setOrderType,
-    table,
-    setTable,
-    people,
-    setPeople,
-    setNotes,
-    notes,
-  } = useNewOrderStore();
-  const [withNotes, setWithNotes] = useState<boolean>(!!notes);
+  const { orderType, setOrderType, table, setTable, people, setPeople } =
+    useNewOrderStore();
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const setCartType = useNewOrderStore((state) => state.setCartType);
   const { tables } = useTables();
@@ -104,23 +92,6 @@ const NewOrderBottomSheet = ({
             {t("newOrder.people")}
           </ThemedText>
           <PeopleSelector value={people} onChange={setPeople} />
-        </ThemedView>
-        <ThemedView>
-          <Switch
-            label={t("newOrder.addNote")}
-            value={withNotes}
-            onValueChange={setWithNotes}
-          />
-          {withNotes && (
-            <TextInput
-              numberOfLines={5}
-              multiline
-              bottomSheet
-              placeholder={t("newOrder.notesPlaceholder")}
-              onChangeText={(value) => setNotes(value)}
-              value={notes}
-            />
-          )}
         </ThemedView>
 
         <ThemedView style={tw`w-full `}>

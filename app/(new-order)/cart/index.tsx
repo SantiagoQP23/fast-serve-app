@@ -1,4 +1,4 @@
-import { FlatList } from "react-native";
+import { FlatList, ScrollView } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -29,6 +29,10 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { hasActiveSubscription } from "@/core/common/models/restaurant.model";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import SubscriptionPaywallBottomSheet from "@/presentation/subscriptions/components/subscription-paywall-bottom-sheet";
+import Chip from "@/presentation/theme/components/chip";
+import TextInput from "@/presentation/theme/components/text-input";
+import NewOrderPeopleBottomSheet from "@/presentation/orders/components/new-order-people-bottom-sheet";
+import NewOrderTableSelectorBottomSheet from "@/presentation/orders/components/new-order-table-selector-bottom-sheet";
 
 export default function CartScreen() {
   const { t } = useTranslation(["common", "menu"]);
@@ -37,6 +41,7 @@ export default function CartScreen() {
   const orderType = useNewOrderStore((state) => state.orderType);
   const table = useNewOrderStore((state) => state.table);
   const notes = useNewOrderStore((state) => state.notes);
+  const setNotes = useNewOrderStore((state) => state.setNotes);
   const details = useNewOrderStore((state) => state.details);
   const resetNewOrder = useNewOrderStore((state) => state.reset);
   const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
@@ -55,11 +60,22 @@ export default function CartScreen() {
 
   const [total, setTotal] = useState(0);
   const [printOnCreate, setPrintOnCreate] = useState(false);
+  const [withNotes, setWithNotes] = useState<boolean>(!!notes);
   const router = useRouter();
 
   const currentRestaurant = useAuthStore((state) => state.currentRestaurant);
   const paywallSheetRef = useRef<BottomSheetMethods>(null);
   const closePaywall = () => paywallSheetRef.current?.close();
+
+  const peopleSelectorSheetRef = useRef<BottomSheetMethods>(null);
+  const closePeopleSelector = () => peopleSelectorSheetRef.current?.close();
+  const handlePresentPeopleSelector = () =>
+    peopleSelectorSheetRef.current?.present();
+
+  const tableSelectorSheetRef = useRef<BottomSheetMethods>(null);
+  const closeTableSelector = () => tableSelectorSheetRef.current?.close();
+  const handlePresentTableSelector = () =>
+    tableSelectorSheetRef.current?.present();
 
   const editOrderId = useEditOrderCartStore((state) => state.orderId);
   const newItems = useEditOrderCartStore((state) => state.newItems);
@@ -261,37 +277,66 @@ export default function CartScreen() {
           </ThemedView>
         </ThemedView>
 
-        {cartType === "order" && (
-          <ThemedView style={tw`gap-2 flex-row`}>
-            <Label
-              text={
-                orderType === OrderType.IN_PLACE
-                  ? `${t("common:labels.table")} ${table?.name}`
-                  : t("common:labels.takeAway")
-              }
-              color="default"
-              size="small"
-            />
-            <Label
-              text={String(people)}
-              leftIcon="people-outline"
-              size="small"
-            />
-          </ThemedView>
-        )}
-        {notes && (
-          <ThemedView style={tw`gap-2`}>
-            <ThemedText type="caption">{t("common:labels.notes")}</ThemedText>
-            <ThemedText type="body2">{notes}</ThemedText>
-          </ThemedView>
-        )}
-
         <FlatList
           style={tw`flex-1`}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`gap-4 pb-4`}
           data={details}
           keyExtractor={(_, index) => `${index}`}
+          ListHeaderComponent={
+            cartType === "order" ? (
+              <ThemedView style={tw`gap-4`}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={tw`gap-2`}
+                >
+                  <Chip
+                    icon={
+                      orderType === OrderType.IN_PLACE
+                        ? "restaurant-outline"
+                        : "bag-outline"
+                    }
+                    label={
+                      orderType === OrderType.IN_PLACE
+                        ? `${t("common:labels.table")} ${table?.name}`
+                        : t("common:labels.takeAway")
+                    }
+                    onPress={
+                      orderType === OrderType.IN_PLACE
+                        ? handlePresentTableSelector
+                        : undefined
+                    }
+                  />
+                  <Chip
+                    icon="people-outline"
+                    label={String(people)}
+                    onPress={handlePresentPeopleSelector}
+                  />
+                  {!withNotes && (
+                    <Chip
+                      variant="assist"
+                      icon="document-text-outline"
+                      label={t("orders:form.addNote")}
+                      onPress={() => setWithNotes(true)}
+                    />
+                  )}
+                </ScrollView>
+                {withNotes && (
+                  <TextInput
+                    numberOfLines={5}
+                    multiline
+                    scrollEnabled
+                    style={tw`max-h-32`}
+                    placeholder={t("orders:newOrder.notesPlaceholder")}
+                    onChangeText={setNotes}
+                    value={notes}
+                    variant="outlined"
+                  />
+                )}
+              </ThemedView>
+            ) : undefined
+          }
           renderItem={({ item }) => (
             <NewOrderDetailCard
               orderType={orderType}
@@ -303,7 +348,7 @@ export default function CartScreen() {
             <Button
               leftIcon="add-outline"
               label={t("menu:cart.addProduct")}
-              variant="secondary"
+              variant="text"
               onPress={() => router.push("/(new-order)/restaurant-menu")}
             />
           }
@@ -325,8 +370,8 @@ export default function CartScreen() {
         {/* </ScrollView> */}
         <ThemedView style={tw`gap-4 pb-2 `}>
           <ThemedView style={tw`flex-row justify-between items-center`}>
-            <ThemedText type="h3">{t("common:labels.total")}</ThemedText>
-            <ThemedText type="h2">{formatCurrency(total)}</ThemedText>
+            <ThemedText type="h4">{t("common:labels.total")}</ThemedText>
+            <ThemedText type="h3">{formatCurrency(total)}</ThemedText>
           </ThemedView>
           <ThemedView
             style={[
@@ -380,6 +425,14 @@ export default function CartScreen() {
         snapPoints={["90%"]}
       >
         <SubscriptionPaywallBottomSheet onDismiss={closePaywall} />
+      </ThemedBottomSheetModal>
+
+      <ThemedBottomSheetModal ref={peopleSelectorSheetRef} enablePanDownToClose>
+        <NewOrderPeopleBottomSheet onClose={closePeopleSelector} />
+      </ThemedBottomSheetModal>
+
+      <ThemedBottomSheetModal ref={tableSelectorSheetRef} enablePanDownToClose>
+        <NewOrderTableSelectorBottomSheet onClose={closeTableSelector} />
       </ThemedBottomSheetModal>
     </>
   );

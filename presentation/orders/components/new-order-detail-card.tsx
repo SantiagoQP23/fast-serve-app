@@ -16,6 +16,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Card from "@/presentation/theme/components/card";
+import { typography } from "@/constants/theme";
 
 interface NewOrderDetailCardProps extends PressableProps {
   detail: NewOrderDetail;
@@ -65,13 +66,13 @@ export default function NewOrderDetailCard({
           <IconButton
             icon="trash-outline"
             onPress={onRemoveDetail}
-            variant="secondary"
+            variant="destructive"
             size={26}
           />
         </ThemedView>
       )}
     >
-      <Card onPress={onPress}>
+      <Card onPress={onPress} style={tw`p-4`}>
         <ThemedView style={tw`flex-col  gap-4`}>
           {/* <ThemedView */}
           {/*   style={tw`absolute  rounded-full items-center justify-center  z-10 right-0 top-0`} */}
@@ -80,20 +81,16 @@ export default function NewOrderDetailCard({
             style={tw`flex-row bg-transparent justify-between items-start gap-2`}
           >
             <ThemedView>
-              <ThemedText type="h4" style={tw``}>
+              <ThemedText type="body1" style={{}}>
                 {detail.product.name}{" "}
                 {showProductOptionName && detail.productOption.name}
               </ThemedText>
               {detail.description && (
-                <ThemedText type="small">{detail.description}</ThemedText>
+                <ThemedText type="body2" style={tw`mt-2`}>
+                  {detail.description}
+                </ThemedText>
               )}
             </ThemedView>
-            {/* <IconButton */}
-            {/*   icon="close-outline" */}
-            {/*   style={tw`bg-gray-100`} */}
-            {/*   size={18} */}
-            {/*   onPress={onRemoveDetail} */}
-            {/* /> */}
           </ThemedView>
           {detail.tagIds && detail.tagIds.length > 0 && (
             <ThemedView style={tw`flex-row flex-wrap gap-2 bg-transparent`}>
@@ -122,13 +119,8 @@ export default function NewOrderDetailCard({
               />
             </ThemedView>
           )}
-          <ThemedView
-            style={tw`flex-row bg-transparent justify-between gap-4 items-center`}
-          >
-            <ThemedText
-              type="body1"
-              style={tw`text-light-primary font-semibold`}
-            >
+          <ThemedView style={tw`flex-row justify-between gap-4 items-center`}>
+            <ThemedText type="body1" style={tw`text-gray-500`}>
               ${(detail.price ?? detail.product.price) * counter}
             </ThemedText>
             <ThemedView style={tw`flex-row items-center gap-4 bg-transparent`}>
@@ -136,9 +128,15 @@ export default function NewOrderDetailCard({
                 icon="remove-outline"
                 onPress={decrement}
                 variant="outlined"
+                style={tw`p-2`}
               />
               <ThemedText>{counter}</ThemedText>
-              <IconButton icon="add" onPress={increment} variant="outlined" />
+              <IconButton
+                icon="add"
+                onPress={increment}
+                variant="outlined"
+                style={tw`p-2`}
+              />
             </ThemedView>
           </ThemedView>
         </ThemedView>
