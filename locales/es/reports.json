@@ -82,5 +82,9 @@
       "title": "Categorías Más Vendidas",
       "empty": "No se vendieron categorías en este período"
     }
+  },
+  "salesByProductionArea": {
+    "title": "Ventas por Área de Producción",
+    "noArea": "Sin área"
   }
 }
