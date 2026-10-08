@@ -70,31 +70,34 @@ export default function CreateRestaurantScreen() {
     },
   });
 
-  const onSubmit = async (data: CreateRestaurantFormData) => {
-    try {
-      const response = await createRestaurantMutation.mutateAsync(data);
-      console.log("Create restaurant response:", response);
+  const onSubmit = (data: CreateRestaurantFormData) => {
+    createRestaurantMutation
+      .mutateAsync(data)
+      .then(async (response) => {
+        console.log("Create restaurant response:", response);
 
-      if (response?.token && response?.user) {
-        await changeStatus(
-          response.token,
-          response.user,
-          response.currentRestaurant ?? undefined,
-        );
+        if (response?.token && response?.user) {
+          await changeStatus(
+            response.token,
+            response.user,
+            response.currentRestaurant ?? undefined,
+          );
 
-        if (useAuthStore.getState().bootstrapStatus === "error") {
-          toast.error(t("validations.bootstrapError"));
-          return;
+          if (useAuthStore.getState().bootstrapStatus === "error") {
+            toast.error(t("validations.bootstrapError"));
+            return;
+          }
+
+          // toast.success(t("createRestaurant.successMessage"));
+          router.replace("/(app)/(tabs)/(orders-module)/my-orders");
+        } else {
+          toast.error(t("createRestaurant.errorMessage"));
         }
-
-        // toast.success(t("createRestaurant.successMessage"));
-        router.replace("/(app)/(tabs)/(orders-module)/my-orders");
-      } else {
+      })
+      .catch((e) => {
+        console.error("Error creating restaurant:", e);
         toast.error(t("createRestaurant.errorMessage"));
-      }
-    } catch {
-      toast.error(t("createRestaurant.errorMessage"));
-    }
+      });
   };
 
   return (
