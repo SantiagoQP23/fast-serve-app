@@ -22,6 +22,7 @@ import { i18nAlert } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { toast } from "sonner-native";
 import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
+import { translateErrorCode } from "@/core/api/get-error-message";
 
 const loginSchema = z.object({
   username: z.string({ message: "Username is required" }),
@@ -54,7 +55,7 @@ const LoginScreen = () => {
   const onSubmit = async (data: LoginFormData) => {
     setIsSubmitting(true);
     console.log(data);
-    const wasSuccessful = await login(
+    const { success: wasSuccessful, errorCode } = await login(
       data.username.trim(),
       data.password.trim(),
     );
@@ -78,13 +79,15 @@ const LoginScreen = () => {
       }
     }
 
-    toast.error(t("validations.invalidCredentials"));
+    toast.error(
+      translateErrorCode(errorCode, t("validations.invalidCredentials")),
+    );
   };
 
   // Function to handle Google sign in
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    const wasSuccessful = await loginWithGoogle();
+    const { success: wasSuccessful, errorCode } = await loginWithGoogle();
     const currentUser = useAuthStore.getState().user;
 
     setIsGoogleLoading(false);
@@ -104,7 +107,9 @@ const LoginScreen = () => {
       }
     }
 
-    toast.error(t("validations.invalidCredentials"));
+    toast.error(
+      translateErrorCode(errorCode, t("validations.invalidCredentials")),
+    );
   };
 
   // Function to handle sign up redirect

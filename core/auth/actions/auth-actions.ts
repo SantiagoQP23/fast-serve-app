@@ -1,4 +1,4 @@
-import { AxiosError } from "axios";
+import { getApiError } from "@/core/api/api-response";
 import { restaurantApi } from "@/core/api/restaurantApi";
 import { PushNotificationsService } from "@/core/push-notifications/services/push-notifications.service";
 import { SecureStorageAdapter } from "@/helpers/adapters/secure-storage.adapter";
@@ -31,7 +31,23 @@ const returnUserToken = (
   };
 };
 
-export const authLogin = async (username: string, password: string) => {
+/** Resultado de login/registro con Google: datos de sesión o el código de error. */
+export interface AuthResult {
+  user?: User;
+  token?: string;
+  currentRestaurant?: Restaurant;
+  errorCode?: string;
+}
+
+const authFailure = (error: unknown): AuthResult => {
+  const apiError = getApiError(error);
+  return { errorCode: apiError.fromServer ? apiError.code : undefined };
+};
+
+export const authLogin = async (
+  username: string,
+  password: string,
+): Promise<AuthResult> => {
   try {
     const { data } = await restaurantApi.post<AuthResponse>("/auth/login", {
       username,
@@ -41,8 +57,7 @@ export const authLogin = async (username: string, password: string) => {
     return returnUserToken(data);
   } catch (error) {
     console.log("Auth error", error);
-    // throw new Error('User and/or password not valid');
-    return null;
+    return authFailure(error);
   }
 };
 
@@ -56,7 +71,9 @@ export const authCheckStatus = async () => {
   }
 };
 
-export const authGoogleSignIn = async (idToken: string) => {
+export const authGoogleSignIn = async (
+  idToken: string,
+): Promise<AuthResult> => {
   try {
     const { data } = await restaurantApi.post<AuthResponse>(
       "/auth/google-signin",
@@ -68,11 +85,13 @@ export const authGoogleSignIn = async (idToken: string) => {
     return returnUserToken(data);
   } catch (error) {
     console.log("Google auth error", error);
-    return null;
+    return authFailure(error);
   }
 };
 
-export const authLinkGoogleAccount = async (idToken: string) => {
+export const authLinkGoogleAccount = async (
+  idToken: string,
+): Promise<AuthResult> => {
   try {
     const { data } = await restaurantApi.post<AuthResponse>(
       "/auth/link-google",
@@ -84,7 +103,7 @@ export const authLinkGoogleAccount = async (idToken: string) => {
     return returnUserToken(data);
   } catch (error) {
     console.log("Link Google account error", error);
-    return null;
+    return authFailure(error);
   }
 };
 
@@ -123,17 +142,9 @@ export const authRegister = async (
       currentRestaurant: result.currentRestaurant,
     };
   } catch (error) {
-    const axiosError = error as AxiosError<{
-      error?: { code?: string; message?: string };
-    }>;
-    const errorCode = axiosError.response?.data?.error?.code;
-    const message = axiosError.response?.data?.error?.message;
-    console.log(
-      "Register error",
-      errorCode,
-      message,
-      axiosError.response?.data,
-    );
+    const apiError = getApiError(error);
+    const errorCode = apiError.fromServer ? apiError.code : undefined;
+    console.log("Register error", errorCode, apiError.message);
     return { user: null, token: null, currentRestaurant: null, errorCode };
   }
 };
@@ -154,11 +165,9 @@ export const authUpdateProfile = async (
 
     return { user: data };
   } catch (error) {
-    const axiosError = error as AxiosError<{
-      error?: { code?: string; message?: string };
-    }>;
-    const errorCode = axiosError.response?.data?.error?.code;
-    console.log("Update profile error", errorCode, axiosError.response?.data);
+    const apiError = getApiError(error);
+    const errorCode = apiError.fromServer ? apiError.code : undefined;
+    console.log("Update profile error", errorCode, apiError.message);
     return { user: null, errorCode };
   }
 };
@@ -171,11 +180,9 @@ export const authDeleteAccount = async (): Promise<{
     await restaurantApi.delete("/users/me");
     return { success: true };
   } catch (error) {
-    const axiosError = error as AxiosError<{
-      error?: { code?: string; message?: string };
-    }>;
-    const errorCode = axiosError.response?.data?.error?.code;
-    console.log("Delete account error", errorCode, axiosError.response?.data);
+    const apiError = getApiError(error);
+    const errorCode = apiError.fromServer ? apiError.code : undefined;
+    console.log("Delete account error", errorCode, apiError.message);
     return { success: false, errorCode };
   }
 };
@@ -191,11 +198,9 @@ export const authChangePassword = async (
     });
     return { success: true };
   } catch (error) {
-    const axiosError = error as AxiosError<{
-      error?: { code?: string; message?: string };
-    }>;
-    const errorCode = axiosError.response?.data?.error?.code;
-    console.log("Change password error", errorCode, axiosError.response?.data);
+    const apiError = getApiError(error);
+    const errorCode = apiError.fromServer ? apiError.code : undefined;
+    console.log("Change password error", errorCode, apiError.message);
     return { success: false, errorCode };
   }
 };
@@ -212,15 +217,9 @@ export const authSetCredentials = async (
 
     return { user: data };
   } catch (error) {
-    const axiosError = error as AxiosError<{
-      error?: { code?: string; message?: string };
-    }>;
-    const errorCode = axiosError.response?.data?.error?.code;
-    console.log(
-      "Set credentials error",
-      errorCode,
-      axiosError.response?.data,
-    );
+    const apiError = getApiError(error);
+    const errorCode = apiError.fromServer ? apiError.code : undefined;
+    console.log("Set credentials error", errorCode, apiError.message);
     return { user: null, errorCode };
   }
 };
@@ -239,11 +238,9 @@ export const authChangeEmail = async (
 
     return { success: true };
   } catch (error) {
-    const axiosError = error as AxiosError<{
-      error?: { code?: string; message?: string };
-    }>;
-    const errorCode = axiosError.response?.data?.error?.code;
-    console.log("Change email error", errorCode, axiosError.response?.data);
+    const apiError = getApiError(error);
+    const errorCode = apiError.fromServer ? apiError.code : undefined;
+    console.log("Change email error", errorCode, apiError.message);
     return { success: false, errorCode };
   }
 };

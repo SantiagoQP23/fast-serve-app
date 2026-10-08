@@ -15,6 +15,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner-native";
 import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
+import { translateErrorCode } from "@/core/api/get-error-message";
 
 const profileSchema = z.object({
   firstName: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
@@ -65,7 +66,9 @@ export default function EditProfileScreen() {
       if (result.errorCode === "EMAIL_ALREADY_REGISTERED") {
         toast.error(t("errors:auth.emailAlreadyRegistered"));
       } else {
-        toast.error("Error al actualizar el perfil");
+        toast.error(
+          translateErrorCode(result.errorCode, "Error al actualizar el perfil"),
+        );
       }
     }
   };
@@ -73,12 +76,14 @@ export default function EditProfileScreen() {
   const hasGoogleLinked = user?.authProvider?.includes("google");
 
   const handleLinkGoogle = async () => {
-    const wasSuccessful = await linkGoogleAccount();
+    const { success, errorCode } = await linkGoogleAccount();
 
-    if (wasSuccessful) {
+    if (success) {
       toast.success("Cuenta de Google vinculada correctamente");
     } else {
-      toast.error("Error al vincular cuenta de Google");
+      toast.error(
+        translateErrorCode(errorCode, "Error al vincular cuenta de Google"),
+      );
     }
   };
 

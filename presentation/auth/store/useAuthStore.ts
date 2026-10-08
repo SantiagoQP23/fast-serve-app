@@ -35,9 +35,12 @@ export interface AuthState {
   bootstrapStatus: BootstrapStatus;
   bootstrapError: Error | null;
 
-  login: (email: string, password: string) => Promise<boolean>;
-  loginWithGoogle: () => Promise<boolean>;
-  linkGoogleAccount: () => Promise<boolean>;
+  login: (
+    email: string,
+    password: string,
+  ) => Promise<{ success: boolean; errorCode?: string }>;
+  loginWithGoogle: () => Promise<{ success: boolean; errorCode?: string }>;
+  linkGoogleAccount: () => Promise<{ success: boolean; errorCode?: string }>;
   register: (
     firstName: string,
     lastName: string,
@@ -171,8 +174,14 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
   login: async (email: string, password: string) => {
     const resp = await authLogin(email, password);
+    if (resp.errorCode) return { success: false, errorCode: resp.errorCode };
 
-    return get().changeStatus(resp?.token, resp?.user, resp?.currentRestaurant);
+    const success = await get().changeStatus(
+      resp.token,
+      resp.user,
+      resp.currentRestaurant,
+    );
+    return { success };
   },
 
   register: async (
@@ -210,26 +219,29 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       const response = await GoogleSignin.signIn();
 
       if (response.type === "cancelled") {
-        return false;
+        return { success: false };
       }
 
       const idToken = response.data?.idToken;
 
       if (!idToken) {
         console.log("Google signin failed: no idToken");
-        return false;
+        return { success: false };
       }
 
       const resp = await authGoogleSignIn(idToken);
-      return get().changeStatus(
-        resp?.token,
-        resp?.user,
-        resp?.currentRestaurant,
+      if (resp.errorCode) return { success: false, errorCode: resp.errorCode };
+
+      const success = await get().changeStatus(
+        resp.token,
+        resp.user,
+        resp.currentRestaurant,
       );
+      return { success };
     } catch (error: any) {
       console.log("Google signin error", error);
       Alert.alert("Google Sign-In Error", JSON.stringify(error, null, 2));
-      return false;
+      return { success: false };
     }
   },
 
@@ -262,19 +274,20 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       const response = await GoogleSignin.signIn();
 
       if (response.type === "cancelled") {
-        return false;
+        return { success: false };
       }
 
       const idToken = response.data?.idToken;
 
       if (!idToken) {
         console.log("Google signin failed: no idToken");
-        return false;
+        return { success: false };
       }
 
       const resp = await authLinkGoogleAccount(idToken);
 
-      if (!resp) return false;
+      if (!resp.token || !resp.user)
+        return { success: false, errorCode: resp.errorCode };
 
       set({
         user: resp.user,
@@ -283,11 +296,11 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
       await SecureStorageAdapter.setItem("token", resp.token);
 
-      return true;
+      return { success: true };
     } catch (error: any) {
       console.log("Link Google account error", error);
       Alert.alert("Google Sign-In Error", JSON.stringify(error, null, 2));
-      return false;
+      return { success: false };
     }
   },
 
