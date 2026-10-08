@@ -27,6 +27,7 @@ export const mapStoreToCreateOrderDto = (
     typeOrder: state.orderType,
   };
 
+  if (state.deliveryTime) order.deliveryTime = state.deliveryTime;
   if (state.orderType === OrderType.TAKE_AWAY) delete order.tableId;
 
   return order;

@@ -8,7 +8,7 @@ export interface CreateOrderDto {
   people: number;
   typeOrder: OrderType;
   notes?: string;
-  // deliveryTime?: Date;
+  deliveryTime?: Date;
 }
 
 export interface CreateOrderDetailDto {

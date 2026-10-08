@@ -49,7 +49,7 @@ const initialState: NewOrderState = {
   orderType: OrderType.IN_PLACE,
   totalProducts: 0,
   notes: "",
-  deliveryTime: new Date(),
+  deliveryTime: null,
   activeDetail: null,
   idempotencyKey: generateIdempotencyKey(),
 };

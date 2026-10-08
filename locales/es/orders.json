@@ -74,7 +74,8 @@
   "form": {
     "people": "Personas",
     "addNote": "Agregar nota",
-    "deliveryTime": "Hora de entrega"
+    "deliveryTime": "Hora de entrega",
+    "addDeliveryTime": "Agregar hora de entrega"
   },
   "newOrder": {
     "title": "Nuevo Pedido",

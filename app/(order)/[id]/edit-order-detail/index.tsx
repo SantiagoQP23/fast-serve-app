@@ -300,6 +300,19 @@ export default function EditOrderDetailScreen() {
                 </ThemedText>
               )}
             </ThemedView>
+            {notes.trim() && (
+              <TextInput
+                numberOfLines={4}
+                multiline
+                value={notes}
+                onChangeText={setNotes}
+                placeholder={t("orders:newOrder.addNote")}
+                pointerEvents="none"
+                style={tw`bg-transparent`}
+                containerStyle={tw`bg-transparent border-0 p-0`}
+              />
+            )}
+
             {orderDetail.quantity > 1 && (
               <Card style={tw`gap-1`}>
                 <ThemedView style={tw`flex-row items-center justify-between`}>
@@ -358,17 +371,6 @@ export default function EditOrderDetailScreen() {
             {/*     /> */}
             {/*   </ThemedView> */}
             {/* </ThemedView> */}
-            {notes.trim() && (
-              <TextInput
-                numberOfLines={4}
-                multiline
-                value={notes}
-                onChangeText={setNotes}
-                editable={false}
-                placeholder={t("orders:newOrder.addNote")}
-                pointerEvents="none"
-              />
-            )}
 
             <ThemedView style={tw`flex-row  justify-center gap-4 w-full `}>
               <ThemedView style={tw`flex-row items-center gap-6`}>

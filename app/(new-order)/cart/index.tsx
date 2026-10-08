@@ -1,4 +1,5 @@
 import { FlatList, ScrollView } from "react-native";
+import dayjs from "dayjs";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -32,6 +33,7 @@ import SubscriptionPaywallBottomSheet from "@/presentation/subscriptions/compone
 import Chip from "@/presentation/theme/components/chip";
 import TextInput from "@/presentation/theme/components/text-input";
 import NewOrderPeopleBottomSheet from "@/presentation/orders/components/new-order-people-bottom-sheet";
+import NewOrderDeliveryTimeBottomSheet from "@/presentation/orders/components/new-order-delivery-time-bottom-sheet";
 import TableSelectorBottomSheet, {
   type TableSelectorBottomSheetRef,
 } from "@/presentation/orders/components/table-selector-bottom-sheet";
@@ -45,6 +47,7 @@ export default function CartScreen() {
   const setTable = useNewOrderStore((state) => state.setTable);
   const notes = useNewOrderStore((state) => state.notes);
   const setNotes = useNewOrderStore((state) => state.setNotes);
+  const deliveryTime = useNewOrderStore((state) => state.deliveryTime);
   const details = useNewOrderStore((state) => state.details);
   const resetNewOrder = useNewOrderStore((state) => state.reset);
   const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
@@ -78,6 +81,11 @@ export default function CartScreen() {
   const tableSelectorSheetRef = useRef<TableSelectorBottomSheetRef>(null);
   const handlePresentTableSelector = () =>
     tableSelectorSheetRef.current?.present();
+
+  const deliveryTimeSheetRef = useRef<BottomSheetMethods>(null);
+  const closeDeliveryTimeSheet = () => deliveryTimeSheetRef.current?.close();
+  const handlePresentDeliveryTimeSheet = () =>
+    deliveryTimeSheetRef.current?.present();
 
   const editOrderId = useEditOrderCartStore((state) => state.orderId);
   const newItems = useEditOrderCartStore((state) => state.newItems);

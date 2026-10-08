@@ -60,6 +60,7 @@ function NoteBottomSheet(
           onChangeText={setDraft}
           placeholder={placeholder ?? t("orders:newOrder.addNote")}
           error={error}
+          containerStyle={tw`bg-transparent border-0 p-0`}
         />
 
         <Button
