@@ -17,6 +17,11 @@ interface GetErrorMessageOptions {
    * específica. Útil mientras un módulo del backend aún no envía códigos.
    */
   fallbackToServerMessage?: boolean;
+  /**
+   * Texto propio de la pantalla (p. ej. "Error al crear el restaurante")
+   * cuando el código no tiene traducción específica.
+   */
+  fallback?: string;
 }
 
 const translateCode = (code: string | undefined) =>
@@ -26,12 +31,13 @@ const translateCode = (code: string | undefined) =>
 
 /**
  * Mensaje para mostrar al usuario en su idioma a partir de cualquier error.
- * Orden: traducción del código > (opcional) mensaje del servidor >
+ * Orden: traducción del código > (opcional) `fallback` de la pantalla >
+ * (opcional) mensaje del servidor >
  * traducción genérica por status > "Algo salió mal".
  */
 export const getErrorMessage = (
   error: unknown,
-  { fallbackToServerMessage = false }: GetErrorMessageOptions = {},
+  { fallbackToServerMessage = false, fallback }: GetErrorMessageOptions = {},
 ): string => {
   const apiError: AppApiError = getApiError(error);
   const isGenericCode = apiError.status
@@ -42,6 +48,8 @@ export const getErrorMessage = (
     const specific = translateCode(apiError.code);
     if (specific) return specific;
   }
+
+  if (fallback) return fallback;
 
   if (fallbackToServerMessage && apiError.status && apiError.message) {
     return apiError.message;

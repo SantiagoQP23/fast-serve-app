@@ -11,6 +11,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { RestaurantService } from "@/core/restaurant/services/restaurant.service";
+import { getErrorMessage } from "@/core/api/get-error-message";
 
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
@@ -96,7 +97,9 @@ export default function CreateRestaurantScreen() {
       })
       .catch((e) => {
         console.error("Error creating restaurant:", e);
-        toast.error(t("createRestaurant.errorMessage"));
+        toast.error(
+          getErrorMessage(e, { fallback: t("createRestaurant.errorMessage") }),
+        );
       });
   };
 
