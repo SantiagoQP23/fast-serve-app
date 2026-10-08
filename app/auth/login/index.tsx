@@ -54,7 +54,6 @@ const LoginScreen = () => {
   // Function to handle form submission
   const onSubmit = async (data: LoginFormData) => {
     setIsSubmitting(true);
-    console.log(data);
     const { success: wasSuccessful, errorCode } = await login(
       data.username.trim(),
       data.password.trim(),
