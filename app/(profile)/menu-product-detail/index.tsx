@@ -353,7 +353,7 @@ export default function MenuProductDetailScreen() {
             {/*   color={product.isPublic ? "info" : "default"} */}
             {/* /> */}
             <Chip
-              variant="assist"
+              variant="filter"
               label={product.category?.name ?? t("products.fields.category")}
               icon="grid-outline"
               onPress={
@@ -363,7 +363,7 @@ export default function MenuProductDetailScreen() {
               }
             />
             <Chip
-              variant="assist"
+              variant="filter"
               label={
                 product.productionArea?.name ??
                 t("products.placeholders.productionArea")
