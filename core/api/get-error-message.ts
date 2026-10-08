@@ -55,3 +55,12 @@ export const getErrorMessage = (
     i18n.t("errors:general.somethingWrong")
   );
 };
+
+/**
+ * Traduce un código que ya se extrajo del error (p. ej. el `errorCode` que
+ * devuelven las acciones de auth). Si no hay traducción, usa `fallback`.
+ */
+export const translateErrorCode = (
+  code: string | undefined,
+  fallback: string,
+): string => translateCode(code) ?? fallback;

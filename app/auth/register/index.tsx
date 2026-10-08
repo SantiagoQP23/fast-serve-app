@@ -20,6 +20,7 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { toast } from "sonner-native";
+import { translateErrorCode } from "@/core/api/get-error-message";
 
 const signupSchema = z
   .object({
@@ -116,7 +117,9 @@ const SignupScreen = () => {
     if (result.errorCode === "EMAIL_ALREADY_REGISTERED") {
       toast.error(t("errors:auth.emailAlreadyRegistered"));
     } else {
-      toast.error(t("auth:signup.errorMessage"));
+      toast.error(
+        translateErrorCode(result.errorCode, t("auth:signup.errorMessage")),
+      );
     }
   };
 

@@ -21,6 +21,7 @@ import TextInput from "@/presentation/theme/components/text-input";
 import PasswordVisibilityToggle from "@/presentation/auth/components/password-visibility-toggle";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
+import { translateErrorCode } from "@/core/api/get-error-message";
 
 const PASSWORD_PATTERN =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
@@ -90,7 +91,9 @@ export default function SetCredentialsScreen() {
       return;
     }
 
-    toast.error(t("account.setCredentialsError"));
+    toast.error(
+      translateErrorCode(errorCode, t("account.setCredentialsError")),
+    );
   };
 
   return (

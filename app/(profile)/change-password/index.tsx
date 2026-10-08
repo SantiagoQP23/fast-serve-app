@@ -21,6 +21,7 @@ import TextInput from "@/presentation/theme/components/text-input";
 import PasswordVisibilityToggle from "@/presentation/auth/components/password-visibility-toggle";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
+import { translateErrorCode } from "@/core/api/get-error-message";
 
 const PASSWORD_PATTERN =
   /(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/;
@@ -92,7 +93,9 @@ export default function ChangePasswordScreen() {
       return;
     }
 
-    toast.error(t("account.changePasswordError"));
+    toast.error(
+      translateErrorCode(errorCode, t("account.changePasswordError")),
+    );
   };
 
   return (

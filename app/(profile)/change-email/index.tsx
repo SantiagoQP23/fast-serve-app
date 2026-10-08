@@ -21,6 +21,7 @@ import TextInput from "@/presentation/theme/components/text-input";
 import PasswordVisibilityToggle from "@/presentation/auth/components/password-visibility-toggle";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
+import { translateErrorCode } from "@/core/api/get-error-message";
 
 const buildChangeEmailSchema = (
   t: (key: string) => string,
@@ -85,7 +86,7 @@ export default function ChangeEmailScreen() {
       return;
     }
 
-    toast.error(t("account.changeEmailError"));
+    toast.error(translateErrorCode(errorCode, t("account.changeEmailError")));
   };
 
   return (
