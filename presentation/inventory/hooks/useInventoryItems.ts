@@ -9,6 +9,7 @@ import type { CreateInventoryItemDto } from "../interfaces/dto/create-inventory-
 import type { UpdateInventoryItemDto } from "../interfaces/dto/update-inventory-item.dto";
 import type { AdjustInventoryDto } from "../interfaces/dto/adjust-inventory.dto";
 import type { LinkProductOptionDto } from "../interfaces/dto/link-product-option.dto";
+import { getErrorMessage } from "@/core/api/get-error-message";
 
 export const inventoryItemsQueryKey = ["inventory-items"];
 
@@ -38,21 +39,18 @@ export const useInventoryItems = () => {
       invalidate();
     },
     onError: (error, variables) => {
-      if (!variables.silent) toast.error(error.message || t("createError"));
+      if (!variables.silent)
+        toast.error(getErrorMessage(error, { fallback: t("createError") }));
     },
   });
 
-  const updateItem = useMutation<
-    InventoryItem,
-    Error,
-    UpdateInventoryItemDto
-  >({
+  const updateItem = useMutation<InventoryItem, Error, UpdateInventoryItemDto>({
     mutationFn: (data) => InventoryService.update(data),
     onSuccess: () => {
       invalidate();
     },
     onError: (error) => {
-      toast.error(error.message || t("updateError"));
+      toast.error(getErrorMessage(error, { fallback: t("updateError") }));
     },
   });
 
@@ -63,7 +61,7 @@ export const useInventoryItems = () => {
       invalidate();
     },
     onError: (error) => {
-      toast.error(error.message || t("deleteError"));
+      toast.error(getErrorMessage(error, { fallback: t("deleteError") }));
     },
   });
 
@@ -74,7 +72,7 @@ export const useInventoryItems = () => {
       invalidate();
     },
     onError: (error) => {
-      toast.error(error.message || t("bulkDeleteError"));
+      toast.error(getErrorMessage(error, { fallback: t("bulkDeleteError") }));
     },
   });
 
@@ -90,7 +88,7 @@ export const useInventoryItems = () => {
       invalidate();
     },
     onError: (error) => {
-      toast.error(error.message || t("bulkMoveError"));
+      toast.error(getErrorMessage(error, { fallback: t("bulkMoveError") }));
     },
   });
 
@@ -107,7 +105,7 @@ export const useInventoryItems = () => {
       });
     },
     onError: (error) => {
-      toast.error(error.message || t("linkProductError"));
+      toast.error(getErrorMessage(error, { fallback: t("linkProductError") }));
     },
   });
 
@@ -122,7 +120,7 @@ export const useInventoryItems = () => {
       });
     },
     onError: (error) => {
-      toast.error(error.message || t("adjustError"));
+      toast.error(getErrorMessage(error, { fallback: t("adjustError") }));
     },
   });
 

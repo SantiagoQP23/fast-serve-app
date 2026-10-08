@@ -6,6 +6,7 @@ import type { InventoryItemCategory } from "@/core/inventory/models/inventory-it
 import { InventoryItemCategoryService } from "../services/inventory-item-category.service";
 import type { CreateInventoryItemCategoryDto } from "../interfaces/dto/create-inventory-item-category.dto";
 import type { UpdateInventoryItemCategoryDto } from "../interfaces/dto/update-inventory-item-category.dto";
+import { getErrorMessage } from "@/core/api/get-error-message";
 
 const inventoryCategoriesQueryKey = ["inventory-categories"];
 const inventoryItemsQueryKey = ["inventory-items"];
@@ -33,7 +34,9 @@ export const useInventoryItemCategories = () => {
       invalidate();
     },
     onError: (error) => {
-      toast.error(error.message || t("categories.createError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("categories.createError") }),
+      );
     },
   });
 
@@ -47,7 +50,9 @@ export const useInventoryItemCategories = () => {
       invalidate();
     },
     onError: (error) => {
-      toast.error(error.message || t("categories.updateError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("categories.updateError") }),
+      );
     },
   });
 
@@ -58,7 +63,9 @@ export const useInventoryItemCategories = () => {
       invalidate();
     },
     onError: (error) => {
-      toast.error(error.message || t("categories.deleteError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("categories.deleteError") }),
+      );
     },
   });
 

@@ -6,11 +6,11 @@ import type { PaymentMethod } from "@/core/restaurant/models/payment-method.mode
 import { usePaymentMethodsStore } from "../store/usePaymentMethodsStore";
 import type { CreatePaymentMethodDto } from "../interfaces/dto/create-payment-method.dto";
 import type { UpdatePaymentMethodDto } from "../interfaces/dto/update-payment-method.dto";
+import { getErrorMessage } from "@/core/api/get-error-message";
 
 export const usePaymentMethodsManagement = () => {
   const { t } = useTranslation("paymentMethods");
-  const { upsertPaymentMethod, removePaymentMethod } =
-    usePaymentMethodsStore();
+  const { upsertPaymentMethod, removePaymentMethod } = usePaymentMethodsStore();
 
   const createPaymentMethod = useMutation<
     PaymentMethod,
@@ -22,7 +22,9 @@ export const usePaymentMethodsManagement = () => {
       upsertPaymentMethod(paymentMethod);
     },
     onError: (error) => {
-      toast.error(error.message || t("methods.createError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("methods.createError") }),
+      );
     },
   });
 
@@ -36,7 +38,9 @@ export const usePaymentMethodsManagement = () => {
       upsertPaymentMethod(paymentMethod);
     },
     onError: (error) => {
-      toast.error(error.message || t("methods.updateError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("methods.updateError") }),
+      );
     },
   });
 
@@ -47,7 +51,9 @@ export const usePaymentMethodsManagement = () => {
       toast.success(t("methods.deleteSuccess"));
     },
     onError: (error) => {
-      toast.error(error.message || t("methods.deleteError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("methods.deleteError") }),
+      );
     },
   });
 
@@ -62,7 +68,9 @@ export const usePaymentMethodsManagement = () => {
       upsertPaymentMethod(paymentMethod);
     },
     onError: (error) => {
-      toast.error(error.message || t("methods.updateError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("methods.updateError") }),
+      );
     },
   });
 
@@ -77,7 +85,9 @@ export const usePaymentMethodsManagement = () => {
       upsertPaymentMethod(paymentMethod);
     },
     onError: (error) => {
-      toast.error(error.message || t("methods.updateError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("methods.updateError") }),
+      );
     },
   });
 
@@ -92,7 +102,9 @@ export const usePaymentMethodsManagement = () => {
       upsertPaymentMethod(paymentMethod);
     },
     onError: (error) => {
-      toast.error(error.message || t("methods.updateError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("methods.updateError") }),
+      );
     },
   });
 

@@ -6,6 +6,7 @@ import type { Table } from "@/core/tables/models/table.model";
 import { useTablesStore } from "./useTablesStore";
 import type { CreateTableDto } from "../interfaces/dto/create-table.dto";
 import type { UpdateTableDto } from "../interfaces/dto/update-table.dto";
+import { getErrorMessage } from "@/core/api/get-error-message";
 
 export const useTablesManagement = () => {
   const { t } = useTranslation("tables");
@@ -21,7 +22,9 @@ export const useTablesManagement = () => {
       addTable(table);
     },
     onError: (error) => {
-      toast.error(error.message || t("settings.createError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("settings.createError") }),
+      );
     },
   });
 
@@ -31,7 +34,9 @@ export const useTablesManagement = () => {
       updateTableCache(table);
     },
     onError: (error) => {
-      toast.error(error.message || t("settings.updateError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("settings.updateError") }),
+      );
     },
   });
 
@@ -42,7 +47,9 @@ export const useTablesManagement = () => {
       toast.success(t("settings.deleteSuccess"));
     },
     onError: (error) => {
-      toast.error(error.message || t("settings.deleteError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("settings.deleteError") }),
+      );
     },
   });
 

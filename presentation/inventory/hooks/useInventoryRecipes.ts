@@ -6,6 +6,7 @@ import type { ProductOptionInventoryItem } from "@/core/inventory/models/invento
 import { InventoryRecipeService } from "../services/inventory-recipe.service";
 import type { CreateRecipeDto } from "../interfaces/dto/create-recipe.dto";
 import type { UpdateRecipeDto } from "../interfaces/dto/update-recipe.dto";
+import { getErrorMessage } from "@/core/api/get-error-message";
 
 const getRecipesQueryKey = (productOptionId?: number) => [
   "inventory-recipes",
@@ -17,8 +18,7 @@ export const useInventoryRecipes = (productOptionId?: number) => {
 
   const recipesQuery = useQuery({
     queryKey: getRecipesQueryKey(productOptionId),
-    queryFn: () =>
-      InventoryRecipeService.getByProductOption(productOptionId!),
+    queryFn: () => InventoryRecipeService.getByProductOption(productOptionId!),
     enabled: !!productOptionId,
   });
 
@@ -37,7 +37,10 @@ export const useInventoryRecipes = (productOptionId?: number) => {
       invalidate();
     },
     onError: (error, variables) => {
-      if (!variables.silent) toast.error(error.message || t("recipe.createError"));
+      if (!variables.silent)
+        toast.error(
+          getErrorMessage(error, { fallback: t("recipe.createError") }),
+        );
     },
   });
 
@@ -51,7 +54,10 @@ export const useInventoryRecipes = (productOptionId?: number) => {
       invalidate();
     },
     onError: (error, variables) => {
-      if (!variables.silent) toast.error(error.message || t("recipe.updateError"));
+      if (!variables.silent)
+        toast.error(
+          getErrorMessage(error, { fallback: t("recipe.updateError") }),
+        );
     },
   });
 
@@ -66,7 +72,10 @@ export const useInventoryRecipes = (productOptionId?: number) => {
       invalidate();
     },
     onError: (error, variables) => {
-      if (!variables.silent) toast.error(error.message || t("recipe.deleteError"));
+      if (!variables.silent)
+        toast.error(
+          getErrorMessage(error, { fallback: t("recipe.deleteError") }),
+        );
     },
   });
 

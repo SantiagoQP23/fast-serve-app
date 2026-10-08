@@ -7,6 +7,7 @@ import type { InventoryPurchase } from "@/core/inventory/models/inventory-purcha
 import { InventoryPurchaseService } from "../services/inventory-purchase.service";
 import type { CreateInventoryPurchaseDto } from "../interfaces/dto/create-inventory-purchase.dto";
 import { inventoryItemsQueryKey } from "./useInventoryItems";
+import { getErrorMessage } from "@/core/api/get-error-message";
 
 export const inventoryPurchasesQueryKey = ["inventory-purchases"];
 
@@ -79,7 +80,9 @@ export const useInventoryPurchase = (purchaseId?: string) => {
       invalidateAfterStockChange();
     },
     onError: (error) => {
-      toast.error(error.message || t("purchases.updateItemError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("purchases.updateItemError") }),
+      );
     },
   });
 
@@ -92,7 +95,9 @@ export const useInventoryPurchase = (purchaseId?: string) => {
       invalidateAfterStockChange();
     },
     onError: (error) => {
-      toast.error(error.message || t("purchases.removeItemError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("purchases.removeItemError") }),
+      );
     },
   });
 
@@ -118,7 +123,9 @@ export const useCreateInventoryPurchase = () => {
       invalidateAfterStockChange();
     },
     onError: (error) => {
-      toast.error(error.message || t("purchases.createError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("purchases.createError") }),
+      );
     },
   });
 };

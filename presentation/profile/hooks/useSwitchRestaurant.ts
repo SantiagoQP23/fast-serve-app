@@ -8,25 +8,36 @@ import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore"
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useContext } from "react";
 import { SocketContext } from "@/presentation/shared/context/SocketContext";
+import { getErrorMessage } from "@/core/api/get-error-message";
+import i18n from "@/core/i18n/i18n.config";
 
 export const switchRestaurantMutation = () => {
   const { changeStatus } = useAuthStore();
   const resetOrders = useOrdersStore((state) => state.reset);
   const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
   const resetNewOrder = useNewOrderStore((state) => state.reset);
-  const { socket, desconectarSocket, conectarSocket } = useContext(SocketContext);
+  const { socket, desconectarSocket, conectarSocket } =
+    useContext(SocketContext);
 
   return useMutation<LoginResponseDto, unknown, string>({
     mutationFn: (restaurantId: string) =>
       RestaurantService.switchRestaurant(restaurantId),
     onSuccess: async (data) => {
-      console.log(`[switchRestaurant] Switching to restaurant: ${data.currentRestaurant?.name} (${data.currentRestaurant?.id})`);
+      console.log(
+        `[switchRestaurant] Switching to restaurant: ${data.currentRestaurant?.name} (${data.currentRestaurant?.id})`,
+      );
 
       // Update auth state with new restaurant. This also triggers bootstrap to
       // load menu, payment methods, production areas, printers, and tables for
       // the new restaurant.
-      await changeStatus(data.token, data.user, data.currentRestaurant || undefined);
-      console.log("[switchRestaurant] Auth state updated and bootstrap completed");
+      await changeStatus(
+        data.token,
+        data.user,
+        data.currentRestaurant || undefined,
+      );
+      console.log(
+        "[switchRestaurant] Auth state updated and bootstrap completed",
+      );
 
       // Reset UI-only state from the previous restaurant
       resetOrders();
@@ -43,8 +54,13 @@ export const switchRestaurantMutation = () => {
       }
       console.log("[switchRestaurant] Socket reconnection initiated");
     },
-    onError: () => {
-      Alert.alert("Error", "Could not switch restaurant. Please try again.");
+    onError: (error) => {
+      Alert.alert(
+        i18n.t("errors:general.error"),
+        getErrorMessage(error, {
+          fallback: i18n.t("errors:restaurant.couldNotSwitch"),
+        }),
+      );
     },
   });
 };

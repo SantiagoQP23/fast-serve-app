@@ -8,6 +8,7 @@ import type {
   RestaurantSettings,
   RestaurantSettingValue,
 } from "@/core/restaurant/models/restaurant-settings.model";
+import { getErrorMessage } from "@/core/api/get-error-message";
 
 const getRestaurantSettingsQueryKey = (restaurantId?: string) => [
   "restaurant-settings",
@@ -39,7 +40,11 @@ export const useRestaurantSettings = () => {
     },
     onError: (error) => {
       console.log("Error updating restaurant settings", error);
-      toast.error(error.message || t("restaurantSettings.updateError"));
+      toast.error(
+        getErrorMessage(error, {
+          fallback: t("restaurantSettings.updateError"),
+        }),
+      );
     },
   });
 

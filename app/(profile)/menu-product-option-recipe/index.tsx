@@ -21,6 +21,7 @@ import BottomSheetPicker, {
   type BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
+import { getErrorMessage } from "@/core/api/get-error-message";
 
 type DraftLine =
   | {
@@ -201,9 +202,7 @@ export default function MenuProductOptionRecipeScreen() {
       queryClient.invalidateQueries({ queryKey: ["menu"] });
       router.back();
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : t("recipe.saveError"),
-      );
+      toast.error(getErrorMessage(error, { fallback: t("recipe.saveError") }));
     } finally {
       setIsSaving(false);
     }
