@@ -96,6 +96,10 @@ export default function TabLayout() {
     return <Redirect href={ROUTES.AUTH.LOGIN} />;
   }
 
+  if (!user?.role) {
+    return <Redirect href={ROUTES.NO_RESTAURANT} />;
+  }
+
   // activeOrdersQuery.refetch();
 
   return (

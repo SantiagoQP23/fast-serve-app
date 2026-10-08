@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { KeyboardAvoidingView, ScrollView, Platform } from "react-native";
 import { router } from "expo-router";
 import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -29,7 +29,11 @@ type CreateRestaurantFormData = {
 export default function CreateRestaurantScreen() {
   const { t } = useTranslation("auth");
   const { changeStatus } = useAuthStore();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const createRestaurantMutation = useMutation({
+    mutationFn: (data: CreateRestaurantFormData) =>
+      RestaurantService.create(data),
+  });
 
   const createRestaurantSchema = z.object({
     name: z.string().min(1, t("createRestaurant.validations.nameRequired")),
@@ -67,9 +71,9 @@ export default function CreateRestaurantScreen() {
   });
 
   const onSubmit = async (data: CreateRestaurantFormData) => {
-    setIsSubmitting(true);
     try {
-      const response = await RestaurantService.create(data);
+      const response = await createRestaurantMutation.mutateAsync(data);
+      console.log("Create restaurant response:", response);
 
       if (response?.token && response?.user) {
         await changeStatus(
@@ -83,15 +87,13 @@ export default function CreateRestaurantScreen() {
           return;
         }
 
-        toast.success(t("createRestaurant.successMessage"));
+        // toast.success(t("createRestaurant.successMessage"));
         router.replace("/(app)/(tabs)/(orders-module)/my-orders");
       } else {
         toast.error(t("createRestaurant.errorMessage"));
       }
     } catch {
       toast.error(t("createRestaurant.errorMessage"));
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -222,8 +224,8 @@ export default function CreateRestaurantScreen() {
           <Button
             label={t("createRestaurant.submitButton")}
             onPress={handleSubmit(onSubmit)}
-            loading={isSubmitting}
-            disabled={isSubmitting}
+            loading={createRestaurantMutation.isPending}
+            disabled={createRestaurantMutation.isPending}
           />
         </ThemedView>
       </ScreenLayout>
