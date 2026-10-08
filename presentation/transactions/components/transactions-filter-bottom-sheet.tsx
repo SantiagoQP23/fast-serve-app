@@ -58,8 +58,9 @@ export default function TransactionsFilterBottomSheet({
     } else {
       // If current account is not in the new payment method's allowed accounts, reset
       const allowedAccountIds =
-        selectedPaymentMethod?.allowedDestinationAccounts.map((acc) => acc.id) ||
-        [];
+        selectedPaymentMethod?.allowedDestinationAccounts.map(
+          (acc) => acc.id,
+        ) || [];
       if (
         accountId !== "all" &&
         !allowedAccountIds.includes(accountId as number)
@@ -191,6 +192,7 @@ export default function TransactionsFilterBottomSheet({
             options={userOptions}
             value={createdById}
             onChange={(value) => setCreatedById(value as string)}
+            variant="outlined"
           />
         )}
 

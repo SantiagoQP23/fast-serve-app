@@ -19,6 +19,7 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import Checkbox from "@/presentation/theme/components/checkbox";
+import Chip from "@/presentation/theme/components/chip";
 import IconButton from "@/presentation/theme/components/icon-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import Label from "@/presentation/theme/components/label";
@@ -324,6 +325,12 @@ export default function MenuProductDetailScreen() {
           contentContainerStyle={tw`gap-4 pb-8`}
         >
           <ThemedView style={tw`gap-1`}>
+            <ThemedView style={tw`flex-row items-center gap-2`}>
+              <Label
+                text={product.isActive ? t("active") : t("inactive")}
+                color={product.isActive ? "success" : "default"}
+              />
+            </ThemedView>
             <ThemedText type="h1">{product.name}</ThemedText>
             {/* <ThemedText */}
             {/*   type="body1" */}
@@ -337,10 +344,6 @@ export default function MenuProductDetailScreen() {
           </ThemedView>
 
           <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
-            <Label
-              text={product.isActive ? t("active") : t("inactive")}
-              color={product.isActive ? "success" : "default"}
-            />
             {/* <Label */}
             {/*   text={ */}
             {/*     product.isPublic */}
@@ -349,21 +352,23 @@ export default function MenuProductDetailScreen() {
             {/*   } */}
             {/*   color={product.isPublic ? "info" : "default"} */}
             {/* /> */}
-            <Label
-              text={product.category?.name ?? t("products.fields.category")}
-              leftIcon="grid-outline"
+            <Chip
+              variant="assist"
+              label={product.category?.name ?? t("products.fields.category")}
+              icon="grid-outline"
               onPress={
                 canManage
                   ? () => categoryPickerRef.current?.present()
                   : undefined
               }
             />
-            <Label
-              text={
+            <Chip
+              variant="assist"
+              label={
                 product.productionArea?.name ??
                 t("products.placeholders.productionArea")
               }
-              leftIcon="construct-outline"
+              icon="construct-outline"
               onPress={
                 canManage
                   ? () => productionAreaPickerRef.current?.present()

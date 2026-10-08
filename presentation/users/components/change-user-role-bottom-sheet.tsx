@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Alert } from "react-native";
 import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
 
 import tw from "@/presentation/theme/lib/tailwind";
@@ -14,26 +13,24 @@ import Button from "@/presentation/theme/components/button";
 
 import { useRoles } from "@/presentation/auth/hooks/useRoles";
 import { useUpdateUserRole } from "@/presentation/users/hooks/useUpdateUserRole";
-import { useRemoveUser } from "@/presentation/users/hooks/useRemoveUser";
 
 interface ChangeUserRoleBottomSheetProps {
   user: User | null;
   onClose?: () => void;
   onRoleChanged?: () => void;
-  onRemoved?: () => void;
+  onRequestRemove?: (user: User) => void;
 }
 
 const ChangeUserRoleBottomSheet = ({
   user,
   onClose,
   onRoleChanged,
-  onRemoved,
+  onRequestRemove,
 }: ChangeUserRoleBottomSheetProps) => {
   const { t } = useTranslation("auth");
   const { currentRestaurant } = useAuthStore();
   const { roles } = useRoles();
   const { updateRole } = useUpdateUserRole();
-  const { removeUser } = useRemoveUser();
 
   const currentRoleId = user?.restaurantRoles.find(
     (resRole) => resRole.restaurant.id === currentRestaurant?.id,
@@ -66,27 +63,7 @@ const ChangeUserRoleBottomSheet = ({
   };
 
   const handleRemove = () => {
-    Alert.alert(
-      t("staff.removeUser.confirmTitle"),
-      t("staff.removeUser.confirmMessage", {
-        name: `${user.person?.firstName} ${user.person?.lastName}`,
-      }),
-      [
-        { text: t("staff.removeUser.cancel"), style: "cancel" },
-        {
-          text: t("staff.removeUser.confirm"),
-          style: "destructive",
-          onPress: () => {
-            removeUser.mutate(user.id, {
-              onSuccess: () => {
-                onRemoved?.();
-                onClose?.();
-              },
-            });
-          },
-        },
-      ],
-    );
+    onRequestRemove?.(user);
   };
 
   return (
@@ -123,8 +100,6 @@ const ChangeUserRoleBottomSheet = ({
         onPress={handleRemove}
         variant="destructive"
         leftIcon="trash-outline"
-        disabled={removeUser.isPending}
-        loading={removeUser.isPending}
       />
     </BottomSheetView>
   );

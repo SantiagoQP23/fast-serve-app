@@ -173,6 +173,11 @@ const LoginScreen = () => {
               <TextInput
                 label={t("login.password")}
                 autoCapitalize="none"
+                autoCorrect={false}
+                spellCheck={false}
+                autoComplete="off"
+                textContentType="none"
+                importantForAutofill="no"
                 secureTextEntry={!showPassword}
                 icon="lock-closed-outline"
                 onBlur={onBlur}

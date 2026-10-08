@@ -399,8 +399,7 @@ export default function IncomesScreen() {
                     const displayedAccountIncome = showAccounts
                       ? formattedAccountIncome
                       : formattedAccountIncome.replace(/\d/g, "*");
-                    const isSelected =
-                      filters.accountId === account.accountId;
+                    const isSelected = filters.accountId === account.accountId;
 
                     return (
                       <Card
@@ -522,11 +521,7 @@ export default function IncomesScreen() {
       </ScrollView>
 
       {/* Filter Bottom Sheet */}
-      <ThemedBottomSheetModal
-        ref={bottomSheetModalRef}
-        snapPoints={["75%"]}
-        enablePanDownToClose
-      >
+      <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
         <TransactionsFilterBottomSheet
           initialFilters={filters}
           onApply={(newFilters: FilterTransactionsDto) => {

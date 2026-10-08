@@ -216,7 +216,10 @@ export default function ManageScreen() {
               </ThemedView>
             </ThemedView>
             {subscription.status === "TRIAL" && subscription.trialEndsAt && (
-              <ThemedText type="small" style={tw`text-gray-500`}>
+              <ThemedText
+                type="small"
+                style={tw`text-gray-500 self-center mt-1`}
+              >
                 {t("manage.subscription.trialEnds", {
                   date: new Date(subscription.trialEndsAt).toLocaleDateString(),
                 })}

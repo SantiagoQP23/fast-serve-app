@@ -17,20 +17,24 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Card from "@/presentation/theme/components/card";
 import { typography } from "@/constants/theme";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
 import InviteStaffBottomSheet from "@/presentation/users/components/invite-staff-bottom-sheet";
 import ChangeUserRoleBottomSheet from "@/presentation/users/components/change-user-role-bottom-sheet";
+import { useRemoveUser } from "@/presentation/users/hooks/useRemoveUser";
 import { User } from "@/core/auth/models/user.model";
 
 export default function StaffScreen() {
   const { t } = useTranslation("auth");
   const { user: currentUser, currentRestaurant } = useAuthStore();
   const { users, isLoading, refetch } = useUsers();
+  const { removeUser } = useRemoveUser();
 
   const inviteBottomSheetRef = useRef<BottomSheetMethods>(null);
   const changeRoleBottomSheetRef = useRef<BottomSheetMethods>(null);
   const [selectedStaffMember, setSelectedStaffMember] = useState<User | null>(
     null,
   );
+  const [userToRemove, setUserToRemove] = useState<User | null>(null);
 
   const staffMembers = users.filter((u) => u.id !== currentUser?.id);
 
@@ -49,6 +53,26 @@ export default function StaffScreen() {
 
   const closeChangeRoleBottomSheet = () => {
     changeRoleBottomSheetRef.current?.close();
+  };
+
+  const handleRequestRemove = (staffMember: User) => {
+    closeChangeRoleBottomSheet();
+    setUserToRemove(staffMember);
+  };
+
+  const handleCancelRemove = () => {
+    setUserToRemove(null);
+  };
+
+  const handleConfirmRemove = () => {
+    if (!userToRemove) return;
+
+    removeUser.mutate(userToRemove.id, {
+      onSuccess: () => {
+        setUserToRemove(null);
+        refetch();
+      },
+    });
   };
 
   const getRoleName = (staffMember: (typeof staffMembers)[number]) => {
@@ -146,9 +170,25 @@ export default function StaffScreen() {
           user={selectedStaffMember}
           onClose={closeChangeRoleBottomSheet}
           onRoleChanged={refetch}
-          onRemoved={refetch}
+          onRequestRemove={handleRequestRemove}
         />
       </ThemedBottomSheetModal>
+
+      <DialogModal
+        visible={!!userToRemove}
+        title={t("staff.removeUser.confirmTitle")}
+        message={t("staff.removeUser.confirmMessage", {
+          name: `${userToRemove?.person?.firstName ?? ""} ${
+            userToRemove?.person?.lastName ?? ""
+          }`,
+        })}
+        onConfirm={handleConfirmRemove}
+        onCancel={handleCancelRemove}
+        confirmLabel={t("staff.removeUser.confirm")}
+        cancelLabel={t("staff.removeUser.cancel")}
+        confirmVariant="destructive"
+        loading={removeUser.isPending}
+      />
     </ScreenLayout>
   );
 }
