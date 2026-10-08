@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner-native";
 import { removeUserFromRestaurant } from "@/core/users/actions/user-actions";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { getErrorMessage } from "@/core/api/get-error-message";
 
 export const useRemoveUser = () => {
   const { t } = useTranslation("auth");
@@ -13,8 +14,10 @@ export const useRemoveUser = () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       toast.success(t("staff.removeUser.success"));
     },
-    onError: () => {
-      toast.error(t("staff.removeUser.error"));
+    onError: (error) => {
+      toast.error(
+        getErrorMessage(error, { fallback: t("staff.removeUser.error") }),
+      );
     },
   });
 

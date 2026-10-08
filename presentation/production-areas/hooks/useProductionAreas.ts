@@ -9,6 +9,7 @@ import { useProductionAreasStore } from "../store/useProductionAreasStore";
 import type { ProductionArea } from "@/core/menu/models/producion-area.model";
 import type { CreateProductionAreaDto } from "../interfaces/dto/create-production-area.dto";
 import type { UpdateProductionAreaDto } from "../interfaces/dto/update-production-area.dto";
+import { getErrorMessage } from "@/core/api/get-error-message";
 
 const getProductionAreasQueryKey = (restaurantId?: string) => [
   "production-areas",
@@ -64,7 +65,7 @@ export const useProductionAreas = () => {
     },
     onError: (error) => {
       console.log("Error creating production area", error);
-      toast.error(error.message || t("createError"));
+      toast.error(getErrorMessage(error, { fallback: t("createError") }));
     },
   });
 
@@ -82,7 +83,7 @@ export const useProductionAreas = () => {
     },
     onError: (error) => {
       console.log("Error updating production area", error);
-      toast.error(error.message || t("updateError"));
+      toast.error(getErrorMessage(error, { fallback: t("updateError") }));
     },
   });
 
@@ -96,7 +97,7 @@ export const useProductionAreas = () => {
     },
     onError: (error) => {
       console.log("Error deleting production area", error);
-      toast.error(error.message || t("deleteError"));
+      toast.error(getErrorMessage(error, { fallback: t("deleteError") }));
     },
   });
 

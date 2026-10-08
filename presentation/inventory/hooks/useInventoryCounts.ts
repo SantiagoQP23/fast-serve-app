@@ -9,6 +9,7 @@ import type {
 } from "@/core/inventory/models/inventory-count.model";
 import { InventoryCountService } from "../services/inventory-count.service";
 import { inventoryItemsQueryKey } from "./useInventoryItems";
+import { getErrorMessage } from "@/core/api/get-error-message";
 
 export const inventoryCountsQueryKey = ["inventory-counts"];
 
@@ -84,7 +85,9 @@ export const useInventoryCount = (countId?: string) => {
       invalidateAfterStockChange();
     },
     onError: (error) => {
-      toast.error(error.message || t("counts.answerError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("counts.answerError") }),
+      );
     },
   });
 
@@ -96,7 +99,9 @@ export const useInventoryCount = (countId?: string) => {
       invalidateCountList();
     },
     onError: (error) => {
-      toast.error(error.message || t("counts.addItemsError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("counts.addItemsError") }),
+      );
     },
   });
 
@@ -107,7 +112,9 @@ export const useInventoryCount = (countId?: string) => {
       invalidateCountList();
     },
     onError: (error) => {
-      toast.error(error.message || t("counts.completeError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("counts.completeError") }),
+      );
     },
   });
 
@@ -134,7 +141,9 @@ export const useCreateInventoryCount = () => {
       invalidateCountList();
     },
     onError: (error) => {
-      toast.error(error.message || t("counts.createError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("counts.createError") }),
+      );
     },
   });
 };

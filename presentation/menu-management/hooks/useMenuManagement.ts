@@ -20,6 +20,7 @@ import type { CreateProductDto } from "../interfaces/dto/create-product.dto";
 import type { UpdateProductDto } from "../interfaces/dto/update-product.dto";
 import type { CreateProductOptionDto } from "../interfaces/dto/create-product-option.dto";
 import type { UpdateProductOptionDto } from "../interfaces/dto/update-product-option.dto";
+import { getErrorMessage } from "@/core/api/get-error-message";
 
 export const useMenuManagement = () => {
   const { t } = useTranslation("menuManagement");
@@ -41,7 +42,9 @@ export const useMenuManagement = () => {
       upsertSection(section);
     },
     onError: (error) => {
-      toast.error(error.message || t("sections.createError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("sections.createError") }),
+      );
     },
   });
 
@@ -51,7 +54,9 @@ export const useMenuManagement = () => {
       upsertSection(section);
     },
     onError: (error) => {
-      toast.error(error.message || t("sections.updateError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("sections.updateError") }),
+      );
     },
   });
 
@@ -62,7 +67,9 @@ export const useMenuManagement = () => {
       toast.success(t("sections.deleteSuccess"));
     },
     onError: (error) => {
-      toast.error(error.message || t("sections.deleteError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("sections.deleteError") }),
+      );
     },
   });
 
@@ -72,7 +79,9 @@ export const useMenuManagement = () => {
       upsertCategory(category);
     },
     onError: (error) => {
-      toast.error(error.message || t("categories.createError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("categories.createError") }),
+      );
     },
   });
 
@@ -82,7 +91,9 @@ export const useMenuManagement = () => {
       upsertCategory(category);
     },
     onError: (error) => {
-      toast.error(error.message || t("categories.updateError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("categories.updateError") }),
+      );
     },
   });
 
@@ -93,7 +104,9 @@ export const useMenuManagement = () => {
       toast.success(t("categories.deleteSuccess"));
     },
     onError: (error) => {
-      toast.error(error.message || t("categories.deleteError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("categories.deleteError") }),
+      );
     },
   });
 
@@ -103,7 +116,9 @@ export const useMenuManagement = () => {
       upsertProduct(product);
     },
     onError: (error) => {
-      toast.error(error.message || t("products.createError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("products.createError") }),
+      );
     },
   });
 
@@ -113,7 +128,9 @@ export const useMenuManagement = () => {
       upsertProduct(product);
     },
     onError: (error) => {
-      toast.error(error.message || t("products.updateError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("products.updateError") }),
+      );
     },
   });
 
@@ -124,7 +141,9 @@ export const useMenuManagement = () => {
       toast.success(t("products.deleteSuccess"));
     },
     onError: (error) => {
-      toast.error(error.message || t("products.deleteError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("products.deleteError") }),
+      );
     },
   });
 
@@ -134,7 +153,9 @@ export const useMenuManagement = () => {
       upsertProduct(product);
     },
     onError: (error) => {
-      toast.error(error.message || t("products.duplicateError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("products.duplicateError") }),
+      );
     },
   });
 
@@ -158,7 +179,11 @@ export const useMenuManagement = () => {
       });
     },
     onError: (error) => {
-      toast.error(error.message || t("products.variants.createError"));
+      toast.error(
+        getErrorMessage(error, {
+          fallback: t("products.variants.createError"),
+        }),
+      );
     },
   });
 
@@ -183,7 +208,11 @@ export const useMenuManagement = () => {
       });
     },
     onError: (error) => {
-      toast.error(error.message || t("products.variants.updateError"));
+      toast.error(
+        getErrorMessage(error, {
+          fallback: t("products.variants.updateError"),
+        }),
+      );
     },
   });
 
@@ -198,7 +227,11 @@ export const useMenuManagement = () => {
       toast.success(t("products.variants.deleteSuccess"));
     },
     onError: (error) => {
-      toast.error(error.message || t("products.variants.deleteError"));
+      toast.error(
+        getErrorMessage(error, {
+          fallback: t("products.variants.deleteError"),
+        }),
+      );
     },
   });
 
@@ -216,7 +249,11 @@ export const useMenuManagement = () => {
       upsertProduct(product);
     },
     onError: (error) => {
-      toast.error(error.message || t("products.variants.updateError"));
+      toast.error(
+        getErrorMessage(error, {
+          fallback: t("products.variants.updateError"),
+        }),
+      );
     },
   });
 

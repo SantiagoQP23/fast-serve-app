@@ -1,5 +1,5 @@
 import i18n from "@/core/i18n/i18n.config";
-import { AppApiError, getApiError } from "./api-response";
+import { AppApiError, GenericErrorCodes, getApiError } from "./api-response";
 
 const STATUS_CODES: Record<number, string> = {
   400: "BAD_REQUEST",
@@ -17,6 +17,11 @@ interface GetErrorMessageOptions {
    * específica. Útil mientras un módulo del backend aún no envía códigos.
    */
   fallbackToServerMessage?: boolean;
+  /**
+   * Texto propio de la pantalla (p. ej. "Error al crear el restaurante")
+   * cuando el código no tiene traducción específica.
+   */
+  fallback?: string;
 }
 
 const translateCode = (code: string | undefined) =>
@@ -26,22 +31,28 @@ const translateCode = (code: string | undefined) =>
 
 /**
  * Mensaje para mostrar al usuario en su idioma a partir de cualquier error.
- * Orden: traducción del código > (opcional) mensaje del servidor >
+ * Orden: traducción del código específico del backend (o NETWORK_ERROR) >
+ * (opcional) `fallback` de la pantalla > (opcional) mensaje del servidor >
  * traducción genérica por status > "Algo salió mal".
  */
 export const getErrorMessage = (
   error: unknown,
-  { fallbackToServerMessage = false }: GetErrorMessageOptions = {},
+  { fallbackToServerMessage = false, fallback }: GetErrorMessageOptions = {},
 ): string => {
   const apiError: AppApiError = getApiError(error);
   const isGenericCode = apiError.status
     ? STATUS_CODES[apiError.status] === apiError.code
     : false;
 
-  if (!isGenericCode) {
+  if (
+    (apiError.fromServer && !isGenericCode) ||
+    apiError.code === GenericErrorCodes.NETWORK_ERROR
+  ) {
     const specific = translateCode(apiError.code);
     if (specific) return specific;
   }
+
+  if (fallback) return fallback;
 
   if (fallbackToServerMessage && apiError.status && apiError.message) {
     return apiError.message;
@@ -50,9 +61,7 @@ export const getErrorMessage = (
   return (
     translateCode(
       apiError.status ? STATUS_CODES[apiError.status] : undefined,
-    ) ??
-    translateCode(apiError.code) ??
-    i18n.t("errors:general.somethingWrong")
+    ) ?? i18n.t("errors:general.somethingWrong")
   );
 };
 

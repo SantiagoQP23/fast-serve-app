@@ -6,6 +6,7 @@ import type { Account } from "@/core/restaurant/models/account.model";
 import { useAccountsStore } from "../store/useAccountsStore";
 import type { CreateAccountDto } from "../interfaces/dto/create-account.dto";
 import type { UpdateAccountDto } from "../interfaces/dto/update-account.dto";
+import { getErrorMessage } from "@/core/api/get-error-message";
 
 export const useAccountsManagement = () => {
   const { t } = useTranslation("paymentMethods");
@@ -17,7 +18,9 @@ export const useAccountsManagement = () => {
       upsertAccount(account);
     },
     onError: (error) => {
-      toast.error(error.message || t("accounts.createError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("accounts.createError") }),
+      );
     },
   });
 
@@ -31,7 +34,9 @@ export const useAccountsManagement = () => {
       upsertAccount(account);
     },
     onError: (error) => {
-      toast.error(error.message || t("accounts.updateError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("accounts.updateError") }),
+      );
     },
   });
 
@@ -42,7 +47,9 @@ export const useAccountsManagement = () => {
       toast.success(t("accounts.deleteSuccess"));
     },
     onError: (error) => {
-      toast.error(error.message || t("accounts.deleteError"));
+      toast.error(
+        getErrorMessage(error, { fallback: t("accounts.deleteError") }),
+      );
     },
   });
 

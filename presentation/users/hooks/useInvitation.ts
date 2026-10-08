@@ -3,6 +3,7 @@ import { toast } from "sonner-native";
 import { inviteUser } from "@/core/users/actions/user-actions";
 import { InviteUserDto } from "@/core/users/dto/invite-user.dto";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { getErrorMessage } from "@/core/api/get-error-message";
 
 export const useInvitation = () => {
   const { t } = useTranslation("auth");
@@ -14,8 +15,10 @@ export const useInvitation = () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       toast.success(t("staff.invite.success"));
     },
-    onError: () => {
-      toast.error(t("staff.invite.error"));
+    onError: (error) => {
+      toast.error(
+        getErrorMessage(error, { fallback: t("staff.invite.error") }),
+      );
     },
   });
 

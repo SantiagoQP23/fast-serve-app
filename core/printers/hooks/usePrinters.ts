@@ -8,6 +8,7 @@ import type { Printer } from "@/core/common/models/printer.model";
 import type { CreatePrinterDto } from "../interfaces/dto/create-printer.dto";
 import type { UpdatePrinterDto } from "../interfaces/dto/update-printer.dto";
 import { useEffect } from "react";
+import { getErrorMessage } from "@/core/api/get-error-message";
 
 const getPrintersQueryKey = (restaurantId?: string) => [
   "printers",
@@ -51,7 +52,7 @@ export const usePrinters = () => {
   }, [getAllQuery.data, currentRestaurant?.id, setPrinters]);
 
   const printers =
-    cachedPrinters.length > 0 ? cachedPrinters : getAllQuery.data ?? [];
+    cachedPrinters.length > 0 ? cachedPrinters : (getAllQuery.data ?? []);
 
   const createPrinter = useMutation<Printer, Error, CreatePrinterDto>({
     mutationFn: (data: CreatePrinterDto) => PrintersService.create(data),
@@ -60,7 +61,7 @@ export const usePrinters = () => {
     },
     onError: (error) => {
       console.log("Error creating printer", error);
-      toast.error(error.message || t("createError"));
+      toast.error(getErrorMessage(error, { fallback: t("createError") }));
     },
   });
 
@@ -71,7 +72,7 @@ export const usePrinters = () => {
     },
     onError: (error) => {
       console.log("Error updating printer", error);
-      toast.error(error.message || t("updateError"));
+      toast.error(getErrorMessage(error, { fallback: t("updateError") }));
     },
   });
 
@@ -83,7 +84,7 @@ export const usePrinters = () => {
     },
     onError: (error) => {
       console.log("Error deleting printer", error);
-      toast.error(error.message || t("deleteError"));
+      toast.error(getErrorMessage(error, { fallback: t("deleteError") }));
     },
   });
 
