@@ -1,4 +1,5 @@
 import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
+import { Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -13,7 +14,7 @@ import {
 } from "@/core/menu/models/product-optionl.model";
 import {
   OrderDetail,
-  canReplaceOrderDetail,
+  getReplaceBlockReason,
 } from "@/core/orders/models/order-detail.model";
 
 interface OrderDetailVariantBottomSheetProps {
@@ -41,11 +42,19 @@ const OrderDetailVariantBottomSheet = ({
   };
 
   const handleReplace = () => {
+    const reason = getReplaceBlockReason(detail);
+    if (reason) {
+      Alert.alert(
+        t("orders:replaceItem.cannotReplaceTitle"),
+        t(`orders:replaceItem.reasons.${reason}`),
+      );
+      return;
+    }
     onClose?.();
     onReplace?.();
   };
 
-  const showReplace = onReplace && canReplaceOrderDetail(detail);
+  const showReplace = !!onReplace;
 
   return (
     <BottomSheetView style={tw`px-4 pb-6 gap-4`}>

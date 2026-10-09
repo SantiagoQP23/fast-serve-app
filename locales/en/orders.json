@@ -176,7 +176,14 @@
   },
   "replaceItem": {
     "banner": "Replacing {{quantity}} × {{product}}. Choose the new product.",
-    "confirm": "Replace"
+    "confirm": "Replace",
+    "cannotReplaceTitle": "Cannot Replace Item",
+    "reasons": {
+      "PAID": "This item has already been paid for and cannot be replaced.",
+      "DELIVERED": "This item has already been delivered and cannot be replaced.",
+      "READY": "This item is already marked as ready and cannot be replaced.",
+      "NOT_PENDING": "Only pending items can be replaced."
+    }
   },
   "detailActions": {
     "title": "Order Detail Actions",
