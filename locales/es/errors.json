@@ -162,6 +162,7 @@
     "RESTAURANT_INVITATION_TOKEN_INVALID": "La invitación no es válida o expiró",
     "RESTAURANT_QR_TOKEN_INVALID": "El código QR no es válido o expiró",
     "RESTAURANT_USER_ALREADY_MEMBER": "Este usuario ya pertenece al restaurante",
+    "SETTING_INVALID_VALUE": "El valor no es válido para esta configuración",
     "SETTING_UNKNOWN_KEY": "La configuración no existe",
     "SIMULATION_DATE_NOT_FOUND": "No se encontró la fecha de simulación",
     "SIMULATION_HOLIDAY_NOT_FOUND": "No se encontró el feriado",

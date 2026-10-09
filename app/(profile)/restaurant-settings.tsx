@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   RefreshControl,
   ScrollView,
 } from "react-native";
@@ -10,16 +11,29 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useRestaurantSettings } from "@/presentation/restaurant/hooks/useRestaurantSettings";
-import { DEFAULT_ORDER_PREP_TIME } from "@/core/restaurant/models/restaurant-settings.model";
+import {
+  DEFAULT_LOW_STOCK_EMAIL_HOUR,
+  DEFAULT_ORDER_PREP_TIME,
+} from "@/core/restaurant/models/restaurant-settings.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import TimeSelector from "@/presentation/theme/components/time-selector";
+import BottomSheetPicker, {
+  BottomSheetPickerRef,
+} from "@/presentation/theme/components/bottom-sheet-picker";
 import tw from "@/presentation/theme/lib/tailwind";
 
 const MAX_ORDER_PREP_TIME = 600;
+
+const formatHour = (hour: number) => `${String(hour).padStart(2, "0")}:00`;
+
+const HOUR_OPTIONS = Array.from({ length: 24 }, (_, hour) => ({
+  label: formatHour(hour),
+  value: hour,
+}));
 
 export default function RestaurantSettingsScreen() {
   const { t } = useTranslation("auth");
@@ -35,6 +49,16 @@ export default function RestaurantSettingsScreen() {
 
   const handleDonePrepTime = async (value: number) => {
     await updateSettings.mutateAsync({ ORDER_PREP_TIME: value });
+  };
+
+  const lowStockHourPickerRef = useRef<BottomSheetPickerRef>(null);
+  const lowStockEmailHour =
+    settings?.LOW_STOCK_EMAIL_HOUR ?? DEFAULT_LOW_STOCK_EMAIL_HOUR;
+
+  const handleChangeLowStockEmailHour = (value: string | number) => {
+    const hour = Number(value);
+    if (hour === lowStockEmailHour) return;
+    updateSettings.mutate({ LOW_STOCK_EMAIL_HOUR: hour });
   };
 
   return (
@@ -103,10 +127,47 @@ export default function RestaurantSettingsScreen() {
                   editable={canEdit}
                 />
               </Card>
+
+              <ThemedText type="small" style={tw`text-gray-500`}>
+                {t("restaurantSettings.inventoryGroup")}
+              </ThemedText>
+              <Card
+                style={tw`gap-3 p-4 rounded-3xl flex-row items-center justify-between`}
+              >
+                <ThemedView style={tw`flex-1 gap-1`}>
+                  <ThemedText type="body1">
+                    {t("restaurantSettings.lowStockEmailHour.title")}
+                  </ThemedText>
+                  <ThemedText type="small" style={tw`text-gray-500`}>
+                    {t("restaurantSettings.lowStockEmailHour.description")}
+                  </ThemedText>
+                </ThemedView>
+                <Pressable
+                  onPress={() => lowStockHourPickerRef.current?.present()}
+                  disabled={!canEdit}
+                  style={tw`flex-row items-center gap-1`}
+                >
+                  <ThemedText type="body1">
+                    {formatHour(lowStockEmailHour)}
+                  </ThemedText>
+                  {canEdit && (
+                    <Ionicons name="chevron-down" size={16} color="#999" />
+                  )}
+                </Pressable>
+              </Card>
             </ThemedView>
           )}
         </ScrollView>
       </ScreenLayout>
+
+      <BottomSheetPicker
+        ref={lowStockHourPickerRef}
+        title={t("restaurantSettings.lowStockEmailHour.pickerTitle")}
+        options={HOUR_OPTIONS}
+        value={lowStockEmailHour}
+        onChange={handleChangeLowStockEmailHour}
+        searchable={false}
+      />
     </KeyboardAvoidingView>
   );
 }
