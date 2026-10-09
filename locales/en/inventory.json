@@ -350,5 +350,10 @@
     "answerError": "Couldn't save the product's count",
     "addItemsError": "Couldn't add the products",
     "completeError": "Couldn't finish the count"
+  },
+  "tabs": {
+    "inventory": "Items",
+    "counts": "Counts",
+    "purchases": "Purchases"
   }
 }

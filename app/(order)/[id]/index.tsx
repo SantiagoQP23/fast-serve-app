@@ -1041,16 +1041,19 @@ export default function OrderScreen() {
               items={[
                 {
                   icon: "fast-food-outline",
+                  label: t("orders:details.tabs.products"),
                   onPress: () => setActiveTab("products"),
                   active: activeTab === "products",
                 },
                 {
                   icon: "cash-outline",
+                  label: t("orders:details.tabs.bills"),
                   onPress: () => setActiveTab("bills"),
                   active: activeTab === "bills",
                 },
                 {
                   icon: "receipt-outline",
+                  label: t("orders:details.tabs.tickets"),
                   onPress: () => setActiveTab("tickets"),
                   active: activeTab === "tickets",
                 },

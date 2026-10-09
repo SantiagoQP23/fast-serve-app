@@ -241,12 +241,14 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   const toolbarItems: ToolbarItem[] = [
     {
       icon: "reader-outline",
+      label: t("tabs.inventory"),
       onPress: () => setActiveTab("inventory"),
       active: activeTab === "inventory",
       accessibilityLabel: t("title"),
     },
     {
       icon: "clipboard-outline",
+      label: t("tabs.counts"),
       onPress: () => setActiveTab("counts"),
       active: activeTab === "counts",
       accessibilityLabel: t("counts.history"),
@@ -255,6 +257,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
       ? [
           {
             icon: "receipt-outline" as const,
+            label: t("tabs.purchases"),
             onPress: () => setActiveTab("purchases"),
             active: activeTab === "purchases",
             accessibilityLabel: t("purchases.history"),

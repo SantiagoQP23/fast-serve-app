@@ -350,5 +350,10 @@
     "answerError": "No se pudo guardar el conteo del producto",
     "addItemsError": "No se pudieron añadir los productos",
     "completeError": "No se pudo finalizar el conteo"
+  },
+  "tabs": {
+    "inventory": "Insumos",
+    "counts": "Conteos",
+    "purchases": "Compras"
   }
 }
