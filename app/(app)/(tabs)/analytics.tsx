@@ -282,6 +282,16 @@ export default function AnalyticsScreen() {
               />
             </ThemedView>
 
+            {/* Average Order Amount */}
+            <ThemedView style={tw`flex-row gap-4`}>
+              <StatsCard
+                title={t("common:stats.averageOrderAmount")}
+                value={formatCurrency(dashboardStats?.averageOrderAmount ?? 0)}
+                icon="calculator-outline"
+                loading={isLoadingStats}
+              />
+            </ThemedView>
+
             {/* Sales Cards Row */}
             <ThemedView style={tw`flex-row gap-4`}>
               <StatsCard
@@ -345,6 +355,9 @@ export default function AnalyticsScreen() {
                           {waiter.totalOrders} {t("reports:waiterStats.orders")}
                           {" · "}
                           {formatCurrency(waiter.totalIncome)}
+                          {" · "}
+                          {t("reports:waiterStats.average")}{" "}
+                          {formatCurrency(waiter.averageOrderAmount ?? 0)}
                         </ThemedText>
                       </ThemedView>
 

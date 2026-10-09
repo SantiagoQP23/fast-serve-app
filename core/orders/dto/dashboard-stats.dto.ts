@@ -6,4 +6,7 @@ export interface DashboardStatsDto {
   totalSales: number;
   totalAmount: number;
   totalIncome: number;
+  // Orders only (no direct sales). Optional until the backend ships it.
+  ordersAmount?: number;
+  averageOrderAmount?: number;
 }
