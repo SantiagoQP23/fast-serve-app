@@ -12,7 +12,6 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import Button from "@/presentation/theme/components/button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
@@ -30,6 +29,7 @@ import { useInventoryItemsBrowser } from "@/presentation/inventory/hooks/useInve
 import { useInventoryItemsSummary } from "@/presentation/inventory/hooks/useInventoryItemsSummary";
 import { useInventoryItemCategories } from "@/presentation/inventory/hooks/useInventoryItemCategories";
 import AdjustStockModal from "@/presentation/inventory/components/adjust-stock-modal";
+import AddToInventoryOptions from "@/presentation/inventory/components/add-to-inventory-options";
 import InventoryItemCard from "@/presentation/inventory/components/inventory-item-card";
 import InventoryStockSummary from "@/presentation/inventory/components/inventory-stock-summary";
 import InventoryCountsTab from "@/presentation/inventory/components/inventory-counts-tab";
@@ -60,10 +60,6 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     bulkMoveItemsToCategory,
   } = useInventoryItems();
   const { categories } = useInventoryItemCategories();
-  const menuProducts = useMenuStore((state) => state.products);
-  const exampleMenuProductName =
-    menuProducts.find((product) => product.isActive)?.name ||
-    t("addToInventory.menuProductExampleFallback");
   const [itemToDelete, setItemToDelete] = useState<InventoryItem | null>(null);
   const [itemToAdjust, setItemToAdjust] = useState<InventoryItem | null>(null);
   const [itemForOptions, setItemForOptions] = useState<InventoryItem | null>(
@@ -622,16 +618,21 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
 
       <ThemedBottomSheetModal ref={addSheetRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6`}>
-          <ThemedView style={tw`gap-3 mt-4`}>
+          <AddToInventoryOptions
+            onTrackMenuProduct={handleTrackMenuProduct}
+            onCreateItem={handleCreateItem}
+          />
+
+          <ThemedView style={tw`gap-3 mt-6`}>
             <ThemedText type="caption" style={tw`text-gray-500 font-semibold`}>
-              {t("addToInventory.title")}
+              {t("inventoryControl")}
             </ThemedText>
-            <Card onPress={handleTrackMenuProduct}>
+            <Card onPress={handleRegisterPurchase}>
               <ThemedView
                 style={tw`flex-row items-center gap-3 bg-transparent`}
               >
                 <Ionicons
-                  name="fast-food-outline"
+                  name="cart-outline"
                   size={26}
                   color={tw.color("text-light-on-surface-variant")}
                 />
@@ -640,23 +641,21 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                     type="body1"
                     style={{ fontFamily: typography.medium }}
                   >
-                    {t("addToInventory.menuProduct")}
+                    {t("purchases.register")}
                   </ThemedText>
                   <ThemedText type="small" style={tw`text-gray-500`}>
-                    {t("addToInventory.menuProductDescription", {
-                      product: exampleMenuProductName,
-                    })}
+                    {t("purchases.registerDescription")}
                   </ThemedText>
                 </ThemedView>
               </ThemedView>
             </Card>
 
-            <Card onPress={handleCreateItem}>
+            <Card onPress={handleNewCount}>
               <ThemedView
                 style={tw`flex-row items-center gap-3 bg-transparent`}
               >
                 <Ionicons
-                  name="cube-outline"
+                  name="clipboard-outline"
                   size={26}
                   color={tw.color("text-light-on-surface-variant")}
                 />
@@ -665,10 +664,10 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                     type="body1"
                     style={{ fontFamily: typography.medium }}
                   >
-                    {t("addToInventory.inventoryItem")}
+                    {t("counts.new")}
                   </ThemedText>
                   <ThemedText type="small" style={tw`text-gray-500`}>
-                    {t("addToInventory.inventoryItemDescription")}
+                    {t("counts.newDescription")}
                   </ThemedText>
                 </ThemedView>
               </ThemedView>
