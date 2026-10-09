@@ -2,7 +2,7 @@ import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
 import { Alert, Pressable } from "react-native";
 import {
   OrderDetail,
-  canReplaceOrderDetail,
+  getReplaceBlockReason,
 } from "@/core/orders/models/order-detail.model";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -51,21 +51,31 @@ const OrderDetailActionsBottomSheet = ({
     onClose?.();
   };
 
+  const handleReplace = () => {
+    const reason = getReplaceBlockReason(detail);
+    if (reason) {
+      Alert.alert(
+        t("orders:replaceItem.cannotReplaceTitle"),
+        t(`orders:replaceItem.reasons.${reason}`),
+      );
+      return;
+    }
+    onClose?.();
+    onReplace?.();
+  };
+
   const options: OptionItem[] = [
     {
       icon: "create-outline",
       label: t("orders:detailActions.editQuantity"),
       onPress: handleEditQuantity,
     },
-    ...(onReplace && canReplaceOrderDetail(detail)
+    ...(onReplace
       ? [
           {
             icon: "swap-horizontal-outline" as const,
             label: t("orders:detailActions.replaceItem"),
-            onPress: () => {
-              onClose?.();
-              onReplace();
-            },
+            onPress: handleReplace,
           },
         ]
       : []),

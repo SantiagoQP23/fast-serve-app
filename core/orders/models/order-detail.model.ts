@@ -45,13 +45,28 @@ export interface OrderDetail {
   productOption?: ProductOption;
 }
 
+export enum ReplaceBlockReason {
+  PAID = "PAID",
+  DELIVERED = "DELIVERED",
+  READY = "READY",
+  NOT_PENDING = "NOT_PENDING",
+}
+
 /**
  * An item can be swapped for another product only while the kitchen
  * hasn't touched it and nobody has paid for it. The backend enforces the
- * same rule.
+ * same rule. Returns the reason it can't be replaced, or null when it can.
  */
+export const getReplaceBlockReason = (
+  detail: OrderDetail,
+): ReplaceBlockReason | null => {
+  if (detail.qtyPaid > 0) return ReplaceBlockReason.PAID;
+  if (detail.qtyDelivered > 0) return ReplaceBlockReason.DELIVERED;
+  if (detail.readyQuantity > 0) return ReplaceBlockReason.READY;
+  if (detail.status !== OrderDetailStatus.PENDING)
+    return ReplaceBlockReason.NOT_PENDING;
+  return null;
+};
+
 export const canReplaceOrderDetail = (detail: OrderDetail): boolean =>
-  detail.status === OrderDetailStatus.PENDING &&
-  detail.qtyDelivered === 0 &&
-  detail.readyQuantity === 0 &&
-  detail.qtyPaid === 0;
+  getReplaceBlockReason(detail) === null;

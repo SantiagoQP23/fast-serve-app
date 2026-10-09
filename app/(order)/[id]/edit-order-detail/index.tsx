@@ -26,10 +26,7 @@ import BottomSheetPicker, {
   BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
 import { useOrderDetailStatus } from "@/presentation/orders/hooks/useOrderDetailStatus";
-import {
-  OrderDetailStatus,
-  canReplaceOrderDetail,
-} from "@/core/orders/models/order-detail.model";
+import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { KeyboardAvoidingView } from "react-native";
 import OrderDetailActivityBottomSheet from "@/presentation/orders/components/order-detail-activity-bottom-sheet";
@@ -125,8 +122,6 @@ export default function EditOrderDetailScreen() {
     variantSheetRef.current?.dismiss();
   };
 
-  const canChangeVariant = !!orderDetail && canReplaceOrderDetail(orderDetail);
-
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -135,7 +130,6 @@ export default function EditOrderDetailScreen() {
             icon="repeat-outline"
             onPress={openVariantBottomSheet}
             size={24}
-            disabled={!canChangeVariant}
           />
           {isAdmin && (
             <IconButton
@@ -147,13 +141,7 @@ export default function EditOrderDetailScreen() {
         </ThemedView>
       ),
     });
-  }, [
-    navigation,
-    openCustomBottomSheet,
-    openVariantBottomSheet,
-    isAdmin,
-    canChangeVariant,
-  ]);
+  }, [navigation, openCustomBottomSheet, openVariantBottomSheet, isAdmin]);
 
   const openNoteBottomSheet = () => {
     noteSheetRef.current?.present();
