@@ -47,16 +47,13 @@ export default function RestaurantSettingsScreen() {
   };
 
   const lowStockHourSheetRef = useRef<HourWheelBottomSheetRef>(null);
-  const savedLowStockHour =
+  // No draft here on purpose: the row must keep showing the saved hour
+  // while the sheet is open and only move once the mutation succeeds.
+  const lowStockEmailHour =
     settings?.LOW_STOCK_EMAIL_HOUR ?? DEFAULT_LOW_STOCK_EMAIL_HOUR;
-  // null until the user edits the field, so it follows the loaded value
-  const [draftLowStockHour, setDraftLowStockHour] = useState<number | null>(
-    null,
-  );
-  const lowStockEmailHour = draftLowStockHour ?? savedLowStockHour;
 
   const handleDoneLowStockHour = async (hour: number) => {
-    if (hour === savedLowStockHour) return;
+    if (hour === lowStockEmailHour) return;
     await updateSettings.mutateAsync({ LOW_STOCK_EMAIL_HOUR: hour });
   };
 
@@ -164,7 +161,6 @@ export default function RestaurantSettingsScreen() {
         title={t("restaurantSettings.lowStockEmailHour.pickerTitle")}
         doneLabel={t("restaurantSettings.lowStockEmailHour.done")}
         value={lowStockEmailHour}
-        onChange={setDraftLowStockHour}
         onDone={handleDoneLowStockHour}
         accessibilityLabel={t("restaurantSettings.lowStockEmailHour.title")}
       />

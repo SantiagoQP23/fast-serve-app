@@ -19,7 +19,6 @@ export type HourWheelBottomSheetProps = {
   title?: string;
   doneLabel?: string;
   value: number;
-  onChange: (hour: number) => void;
   onDone?: (hour: number) => void | Promise<void>;
   formatLabel?: (hour: number) => string;
   accessibilityLabel?: string;
@@ -30,22 +29,21 @@ const HourWheelBottomSheet = forwardRef<
   HourWheelBottomSheetProps
 >(
   (
-    {
-      title,
-      doneLabel = "Done",
-      value,
-      onChange,
-      onDone,
-      formatLabel,
-      accessibilityLabel,
-    },
+    { title, doneLabel = "Done", value, onDone, formatLabel, accessibilityLabel },
     ref,
   ) => {
     const sheetRef = useRef<BottomSheetMethods>(null);
     const [saving, setSaving] = useState(false);
+    // Scrolling the wheel only updates this local, in-sheet value — the
+    // screen behind the sheet keeps showing the saved hour until Done
+    // succeeds, not whatever the wheel is currently resting on.
+    const [pendingHour, setPendingHour] = useState(value);
 
     useImperativeHandle(ref, () => ({
-      present: () => sheetRef.current?.present(),
+      present: () => {
+        setPendingHour(value);
+        sheetRef.current?.present();
+      },
       dismiss: () => sheetRef.current?.dismiss(),
     }));
 
@@ -53,7 +51,7 @@ const HourWheelBottomSheet = forwardRef<
       if (onDone) {
         setSaving(true);
         try {
-          await onDone(value);
+          await onDone(pendingHour);
         } finally {
           setSaving(false);
         }
@@ -70,8 +68,8 @@ const HourWheelBottomSheet = forwardRef<
             </ThemedText>
           )}
           <HourWheelPicker
-            value={value}
-            onChange={onChange}
+            value={pendingHour}
+            onChange={setPendingHour}
             formatLabel={formatLabel}
             accessibilityLabel={accessibilityLabel}
           />
