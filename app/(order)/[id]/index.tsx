@@ -43,7 +43,9 @@ import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enu
 import { useOrderPrint } from "@/presentation/orders/hooks/useOrderPrint";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bottom-sheet";
-import ReassignOrderBottomSheet from "@/presentation/orders/components/reassign-order-bottom-sheet";
+import ReassignOrderBottomSheet, {
+  type ReassignOrderBottomSheetRef,
+} from "@/presentation/orders/components/reassign-order-bottom-sheet";
 import EditPeopleBottomSheet from "@/presentation/orders/components/edit-people-bottom-sheet";
 import TableSelectorBottomSheet, {
   type TableSelectorBottomSheetRef,
@@ -133,7 +135,7 @@ export default function OrderScreen() {
   const { handleShareOrder } = useOrderPrint(order);
 
   const editBottomSheetRef = useRef<BottomSheetMethods>(null);
-  const reassignBottomSheetRef = useRef<BottomSheetMethods>(null);
+  const reassignBottomSheetRef = useRef<ReassignOrderBottomSheetRef>(null);
   const editPeopleBottomSheetRef = useRef<BottomSheetMethods>(null);
   const tableSelectorBottomSheetRef = useRef<TableSelectorBottomSheetRef>(null);
   const editNoteBottomSheetRef = useRef<BottomSheetMethods>(null);
@@ -146,10 +148,6 @@ export default function OrderScreen() {
   const handlePresentEditModal = useCallback(() => {
     editBottomSheetRef.current?.present();
   }, []);
-
-  const closeReassignBottomSheet = () => {
-    reassignBottomSheetRef.current?.close();
-  };
 
   const handlePresentReassignModal = useCallback(() => {
     reassignBottomSheetRef.current?.present();
@@ -1087,14 +1085,14 @@ export default function OrderScreen() {
         )}
       </ThemedBottomSheetModal>
 
-      <ThemedBottomSheetModal ref={reassignBottomSheetRef} enablePanDownToClose>
-        {order && (
-          <ReassignOrderBottomSheet
-            order={order}
-            onClose={closeReassignBottomSheet}
-          />
-        )}
-      </ThemedBottomSheetModal>
+      <ReassignOrderBottomSheet
+        ref={reassignBottomSheetRef}
+        selectedUserId={order.user?.id}
+        onSelectUser={(selected) => {
+          if (selected.id === order.user?.id) return;
+          updateOrder({ id: order.id, userId: selected.id });
+        }}
+      />
 
       <ThemedBottomSheetModal
         ref={editPeopleBottomSheetRef}
