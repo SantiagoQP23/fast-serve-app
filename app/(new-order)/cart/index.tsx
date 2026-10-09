@@ -1,5 +1,6 @@
-import { FlatList, ScrollView } from "react-native";
+import { FlatList, Platform, Pressable, ScrollView } from "react-native";
 import dayjs from "dayjs";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -33,7 +34,6 @@ import SubscriptionPaywallBottomSheet from "@/presentation/subscriptions/compone
 import Chip from "@/presentation/theme/components/chip";
 import TextInput from "@/presentation/theme/components/text-input";
 import NewOrderPeopleBottomSheet from "@/presentation/orders/components/new-order-people-bottom-sheet";
-import NewOrderDeliveryTimeBottomSheet from "@/presentation/orders/components/new-order-delivery-time-bottom-sheet";
 import TableSelectorBottomSheet, {
   type TableSelectorBottomSheetRef,
 } from "@/presentation/orders/components/table-selector-bottom-sheet";
@@ -48,6 +48,7 @@ export default function CartScreen() {
   const notes = useNewOrderStore((state) => state.notes);
   const setNotes = useNewOrderStore((state) => state.setNotes);
   const deliveryTime = useNewOrderStore((state) => state.deliveryTime);
+  const setDeliveryTime = useNewOrderStore((state) => state.setDeliveryTime);
   const details = useNewOrderStore((state) => state.details);
   const resetNewOrder = useNewOrderStore((state) => state.reset);
   const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
@@ -82,10 +83,34 @@ export default function CartScreen() {
   const handlePresentTableSelector = () =>
     tableSelectorSheetRef.current?.present();
 
-  const deliveryTimeSheetRef = useRef<BottomSheetMethods>(null);
-  const closeDeliveryTimeSheet = () => deliveryTimeSheetRef.current?.close();
-  const handlePresentDeliveryTimeSheet = () =>
-    deliveryTimeSheetRef.current?.present();
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [pickerValue, setPickerValue] = useState(new Date());
+
+  const openTimePicker = () => {
+    setPickerValue(deliveryTime ?? new Date());
+    setShowTimePicker(true);
+  };
+  const closeTimePicker = () => setShowTimePicker(false);
+
+  // On iOS the spinner stays inline and fires onChange continuously as the
+  // user scrolls, so we only track the selection locally and commit it on
+  // "Confirm". Android's native dialog is a single-shot pick that commits
+  // and closes immediately.
+  const handleTimeChange = (_: unknown, selectedDate?: Date) => {
+    if (!selectedDate) return;
+
+    setPickerValue(selectedDate);
+
+    if (Platform.OS === "android") {
+      setShowTimePicker(false);
+      setDeliveryTime(selectedDate);
+    }
+  };
+
+  const handleConfirmTime = () => {
+    setDeliveryTime(pickerValue);
+    closeTimePicker();
+  };
 
   const editOrderId = useEditOrderCartStore((state) => state.orderId);
   const newItems = useEditOrderCartStore((state) => state.newItems);
@@ -296,6 +321,37 @@ export default function CartScreen() {
           ListHeaderComponent={
             cartType === "order" ? (
               <ThemedView style={tw`gap-4`}>
+                {showTimePicker && (
+                  <ThemedView>
+                    {Platform.OS === "ios" && (
+                      <ThemedView
+                        style={tw`border border-gray-300 rounded-2xl overflow-hidden`}
+                      >
+                        <DateTimePicker
+                          value={pickerValue}
+                          mode="time"
+                          display="spinner"
+                          onChange={handleTimeChange}
+                        />
+                        <Button
+                          label={t("common:actions.confirm")}
+                          onPress={handleConfirmTime}
+                          variant="primary"
+                          size="small"
+                        />
+                      </ThemedView>
+                    )}
+                    {Platform.OS === "android" && (
+                      <DateTimePicker
+                        value={pickerValue}
+                        mode="time"
+                        is24Hour
+                        display="default"
+                        onChange={handleTimeChange}
+                      />
+                    )}
+                  </ThemedView>
+                )}
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -323,6 +379,32 @@ export default function CartScreen() {
                     label={String(people)}
                     onPress={handlePresentPeopleSelector}
                   />
+                  {deliveryTime ? (
+                    <Chip
+                      icon="time-outline"
+                      label={dayjs(deliveryTime).format("HH:mm")}
+                      onPress={openTimePicker}
+                      rightContent={
+                        <Pressable
+                          onPress={() => setDeliveryTime(null)}
+                          hitSlop={8}
+                        >
+                          <Ionicons
+                            name="close"
+                            size={16}
+                            color={tw.color("gray-600")}
+                          />
+                        </Pressable>
+                      }
+                    />
+                  ) : (
+                    <Chip
+                      variant="assist"
+                      icon="time-outline"
+                      label={t("orders:form.addDeliveryTime")}
+                      onPress={openTimePicker}
+                    />
+                  )}
                   {!withNotes && (
                     <Chip
                       variant="assist"
@@ -342,6 +424,7 @@ export default function CartScreen() {
                     onChangeText={setNotes}
                     value={notes}
                     variant="outlined"
+                    containerStyle={tw`bg-transparent border-0 p-0`}
                   />
                 )}
               </ThemedView>

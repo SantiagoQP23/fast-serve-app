@@ -9,6 +9,7 @@ import TextInput from "@/presentation/theme/components/text-input";
 import Button from "@/presentation/theme/components/button";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { ThemedView } from "@/presentation/theme/components/themed-view";
 
 interface NoteBottomSheetProps {
   initialValue: string;
@@ -63,10 +64,13 @@ function NoteBottomSheet(
           containerStyle={tw`bg-transparent border-0 p-0`}
         />
 
-        <Button
-          label={t("common:actions.save")}
-          onPress={() => onSave(draft)}
-        />
+        <ThemedView style={tw`flex-row justify-end gap-2`}>
+          <Button
+            leftIcon="checkmark"
+            onPress={() => onSave(draft)}
+            variant="secondary"
+          />
+        </ThemedView>
       </BottomSheetView>
     </ThemedBottomSheetModal>
   );

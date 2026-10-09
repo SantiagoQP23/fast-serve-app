@@ -87,11 +87,14 @@
     "orderType": "Tipo de pedido",
     "inPlace": "En el Lugar",
     "takeAway": "Para Llevar",
-    "notesPlaceholder": "Agregue instrucciones especiales o notas"
+    "notesPlaceholder": "Agregue instrucciones especiales o notas",
+    "resetCart": "Limpiar"
   },
   "dialogs": {
     "removeTitle": "Eliminar Pedido",
     "removeMessage": "¿Está seguro que desea eliminar este pedido? Esta acción no se puede deshacer.",
+    "resetCartTitle": "Limpiar Carrito",
+    "resetCartMessage": "¿Está seguro que desea limpiar el carrito? Se eliminarán todos los productos y datos del pedido. Esta acción no se puede deshacer.",
     "closeTitle": "Cerrar Pedido",
     "closeMessage": "¿Está seguro que desea cerrar este pedido? Los pedidos cerrados no se pueden modificar.",
     "removeItemTitle": "Eliminar Producto",

@@ -4,12 +4,15 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import IconButton from "@/presentation/theme/components/icon-button";
+import Button from "@/presentation/theme/components/button";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
 import NotificationBadge from "@/presentation/theme/components/notification-badge";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
+import { ROUTES } from "@/constants/routes";
 
 import { router, Stack } from "expo-router";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
@@ -23,8 +26,18 @@ export default function NewOrderLayout() {
   const cartType = useNewOrderStore((state) => state.cartType);
   const order = useOrdersStore((state) => state.activeOrder);
   const { details } = useNewOrderStore();
+  const resetNewOrder = useNewOrderStore((state) => state.reset);
   const editOrderId = useEditOrderCartStore((state) => state.orderId);
   const isEditMode = !!editOrderId && editOrderId === order?.id;
+
+  const [resetCartDialogVisible, setResetCartDialogVisible] = useState(false);
+  const openResetCartDialog = () => setResetCartDialogVisible(true);
+  const closeResetCartDialog = () => setResetCartDialogVisible(false);
+  const handleResetCart = () => {
+    resetNewOrder();
+    closeResetCartDialog();
+    router.replace(ROUTES.APP.MY_ORDERS);
+  };
 
   const closeBottomSheet = () => {
     bottomSheetModalRef.current?.close(); // Close sheet before navigating
@@ -92,15 +105,36 @@ export default function NewOrderLayout() {
             title: "",
             headerShadowVisible: false,
             headerRight: () =>
-              cartType === "order" && !isEditMode && (
-                <IconButton
-                  icon="create-outline"
-                  onPress={handlePresentModalPress}
-                ></IconButton>
+              cartType === "order" &&
+              !isEditMode && (
+                <ThemedView style={tw`flex-row items-center gap-2`}>
+                  <Button
+                    variant="surface"
+                    leftIcon="trash-outline"
+                    size="extra-small"
+                    label={t("orders:newOrder.resetCart")}
+                    onPress={openResetCartDialog}
+                    disabled={details.length === 0}
+                  />
+                  <IconButton
+                    icon="create-outline"
+                    onPress={handlePresentModalPress}
+                  ></IconButton>
+                </ThemedView>
               ),
           }}
         />
       </Stack>
+
+      <DialogModal
+        visible={resetCartDialogVisible}
+        title={t("orders:dialogs.resetCartTitle")}
+        message={t("orders:dialogs.resetCartMessage")}
+        onConfirm={handleResetCart}
+        onCancel={closeResetCartDialog}
+        confirmLabel={t("common:actions.clear")}
+        confirmVariant="destructive"
+      />
 
       <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
         <NewOrderBottomSheet

@@ -87,11 +87,14 @@
     "orderType": "Order type",
     "inPlace": "In Place",
     "takeAway": "Take Away",
-    "notesPlaceholder": "Add any special instructions or notes"
+    "notesPlaceholder": "Add any special instructions or notes",
+    "resetCart": "Clear"
   },
   "dialogs": {
     "removeTitle": "Remove Order",
     "removeMessage": "Are you sure you want to remove this order? This action cannot be undone.",
+    "resetCartTitle": "Clear Cart",
+    "resetCartMessage": "Are you sure you want to clear the cart? All products and order details will be removed. This action cannot be undone.",
     "closeTitle": "Close Order",
     "closeMessage": "Are you sure you want to close this order? The closed orders can't be modified.",
     "removeItemTitle": "Remove Item",
