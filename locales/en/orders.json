@@ -177,7 +177,6 @@
   "replaceItem": {
     "banner": "Replacing {{quantity}} × {{product}}. Choose the new product.",
     "confirm": "Replace",
-    "cannotReplaceTitle": "Cannot Replace Item",
     "reasons": {
       "PAID": "This item has already been paid for and cannot be replaced.",
       "DELIVERED": "This item has already been delivered and cannot be replaced.",

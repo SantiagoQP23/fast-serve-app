@@ -1,5 +1,4 @@
 import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
-import { Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -41,15 +40,10 @@ const OrderDetailVariantBottomSheet = ({
     onSelectOption(option);
   };
 
+  const replaceBlockReason = getReplaceBlockReason(detail);
+
   const handleReplace = () => {
-    const reason = getReplaceBlockReason(detail);
-    if (reason) {
-      Alert.alert(
-        t("orders:replaceItem.cannotReplaceTitle"),
-        t(`orders:replaceItem.reasons.${reason}`),
-      );
-      return;
-    }
+    if (replaceBlockReason) return;
     onClose?.();
     onReplace?.();
   };
@@ -106,12 +100,26 @@ const OrderDetailVariantBottomSheet = ({
       )}
 
       {showReplace && (
-        <Button
-          label={t("orders:detailActions.replaceItem")}
-          onPress={handleReplace}
-          variant="outline"
-          leftIcon="swap-horizontal-outline"
-        />
+        <ThemedView style={tw`gap-2`}>
+          {replaceBlockReason && (
+            <ThemedView style={tw`flex-row items-start gap-2 px-1`}>
+              <Ionicons
+                name="information-circle-outline"
+                size={16}
+                color={tw.color("gray-500")}
+              />
+              <ThemedText type="small" style={tw`flex-1 text-gray-500`}>
+                {t(`orders:replaceItem.reasons.${replaceBlockReason}`)}
+              </ThemedText>
+            </ThemedView>
+          )}
+          <Button
+            label={t("orders:detailActions.replaceItem")}
+            onPress={handleReplace}
+            variant="outline"
+            leftIcon="swap-horizontal-outline"
+          />
+        </ThemedView>
       )}
     </BottomSheetView>
   );
