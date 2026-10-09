@@ -14,6 +14,7 @@ import {
 import {
   OrderDetail,
   getReplaceBlockReason,
+  canChangeVariant,
 } from "@/core/orders/models/order-detail.model";
 
 interface OrderDetailVariantBottomSheetProps {
@@ -35,6 +36,8 @@ const OrderDetailVariantBottomSheet = ({
 }: OrderDetailVariantBottomSheetProps) => {
   const { t } = useTranslation(["common", "orders", "menu", "inventory"]);
 
+  const variantChangeAllowed = canChangeVariant(detail);
+
   const handleSelectOption = (option: ProductOption) => {
     onClose?.();
     onSelectOption(option);
@@ -49,10 +52,13 @@ const OrderDetailVariantBottomSheet = ({
   };
 
   const showReplace = !!onReplace;
+  const showVariantOptions = options.length > 1 && variantChangeAllowed;
+  const showVariantBlockedMessage =
+    options.length > 1 && !variantChangeAllowed && !showReplace;
 
   return (
     <BottomSheetView style={tw`px-4 pb-6 gap-4`}>
-      {options.length > 1 && (
+      {showVariantOptions && (
         <ThemedView style={tw`gap-2`}>
           <ThemedText type="body2" style={tw`text-gray-500`}>
             {t("menu:variants")}
@@ -99,26 +105,40 @@ const OrderDetailVariantBottomSheet = ({
         </ThemedView>
       )}
 
+      {showVariantBlockedMessage && (
+        <ThemedView style={tw`flex-row items-center gap-4 px-1`}>
+          <Ionicons
+            name="information-circle-outline"
+            size={16}
+            color={tw.color("gray-500")}
+          />
+          <ThemedText type="body1" style={tw`flex-1 text-gray-500`}>
+            {t("orders:variantChange.blocked")}
+          </ThemedText>
+        </ThemedView>
+      )}
+
       {showReplace && (
         <ThemedView style={tw`gap-2`}>
-          {replaceBlockReason && (
-            <ThemedView style={tw`flex-row items-start gap-2 px-1`}>
+          {replaceBlockReason ? (
+            <ThemedView style={tw`flex-row items-center gap-4 px-1`}>
               <Ionicons
                 name="information-circle-outline"
                 size={16}
                 color={tw.color("gray-500")}
               />
-              <ThemedText type="small" style={tw`flex-1 text-gray-500`}>
+              <ThemedText type="body1" style={tw`flex-1 text-gray-500`}>
                 {t(`orders:replaceItem.reasons.${replaceBlockReason}`)}
               </ThemedText>
             </ThemedView>
+          ) : (
+            <Button
+              label={t("orders:detailActions.replaceItem")}
+              onPress={handleReplace}
+              variant="outline"
+              leftIcon="swap-horizontal-outline"
+            />
           )}
-          <Button
-            label={t("orders:detailActions.replaceItem")}
-            onPress={handleReplace}
-            variant="outline"
-            leftIcon="swap-horizontal-outline"
-          />
         </ThemedView>
       )}
     </BottomSheetView>

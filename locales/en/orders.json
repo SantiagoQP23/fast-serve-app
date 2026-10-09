@@ -184,6 +184,9 @@
       "NOT_PENDING": "Only pending items can be replaced."
     }
   },
+  "variantChange": {
+    "blocked": "This item has already been delivered and its variant can't be changed."
+  },
   "detailActions": {
     "title": "Order Detail Actions",
     "editQuantity": "Edit Quantity",

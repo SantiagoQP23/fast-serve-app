@@ -70,3 +70,10 @@ export const getReplaceBlockReason = (
 
 export const canReplaceOrderDetail = (detail: OrderDetail): boolean =>
   getReplaceBlockReason(detail) === null;
+
+/**
+ * Once any unit of an item has been delivered, its variant/option is locked —
+ * changing it would misrepresent what was already handed to the customer.
+ */
+export const canChangeVariant = (detail: OrderDetail): boolean =>
+  detail.qtyDelivered === 0;

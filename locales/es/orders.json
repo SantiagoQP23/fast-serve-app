@@ -184,6 +184,9 @@
       "NOT_PENDING": "Solo los productos pendientes se pueden reemplazar."
     }
   },
+  "variantChange": {
+    "blocked": "Este producto ya ha sido entregado y su variante no se puede cambiar."
+  },
   "detailActions": {
     "title": "Acciones del Producto",
     "editQuantity": "Editar Cantidad",
