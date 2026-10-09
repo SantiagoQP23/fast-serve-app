@@ -68,10 +68,11 @@ const OrderDetailStatusModal = ({
       visible={visible}
       animationType="fade"
       onRequestClose={onClose}
-      transparent
+      statusBarTranslucent
+      style={tw` shadow-xl`}
     >
       <Pressable
-        style={tw`flex-1 bg-black/50 items-center justify-center`}
+        style={tw`flex-1  items-center justify-center `}
         onPress={onClose}
       >
         <Pressable
