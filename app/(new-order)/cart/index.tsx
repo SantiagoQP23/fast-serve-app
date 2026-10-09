@@ -1,13 +1,19 @@
-import { FlatList, Platform, Pressable, ScrollView } from "react-native";
+import { Platform, Pressable, ScrollView } from "react-native";
+import Animated from "react-native-reanimated";
 import dayjs from "dayjs";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { toast } from "sonner-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
+import {
+  CollapsibleHeaderTitle,
+  CollapsibleLargeTitle,
+  useCollapsibleHeaderScroll,
+} from "@/presentation/theme/components/collapsible-header-title";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { Ionicons } from "@expo/vector-icons";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
@@ -38,6 +44,12 @@ import NewOrderPeopleBottomSheet from "@/presentation/orders/components/new-orde
 import TableSelectorBottomSheet, {
   type TableSelectorBottomSheetRef,
 } from "@/presentation/orders/components/table-selector-bottom-sheet";
+
+type CartRow =
+  | { kind: "title" }
+  | { kind: "chips" }
+  | { kind: "extras" }
+  | { kind: "item"; detail: NewOrderDetail; key: string };
 
 export default function CartScreen() {
   const { t } = useTranslation(["common", "menu"]);
@@ -70,6 +82,8 @@ export default function CartScreen() {
   const [printOnCreate, setPrintOnCreate] = useState(false);
   const [withNotes, setWithNotes] = useState<boolean>(!!notes);
   const router = useRouter();
+  const navigation = useNavigation();
+  const { scrollY, scrollHandler } = useCollapsibleHeaderScroll();
 
   const currentRestaurant = useAuthStore((state) => state.currentRestaurant);
   const paywallSheetRef = useRef<BottomSheetMethods>(null);
@@ -128,6 +142,22 @@ export default function CartScreen() {
   const isEditMode = !!editOrderId && editOrderId === activeOrder?.id;
   const { isLoading: isAddingDetails, mutate: addOrderDetails } =
     useOrders().addOrderDetails;
+
+  useEffect(() => {
+    const subtitle = isEditMode
+      ? `${t("orders:editCart.newItems")} ${newItems.length}`
+      : `${t("menu:cart.products")} ${details.length}`;
+
+    navigation.setOptions({
+      headerTitle: () => (
+        <CollapsibleHeaderTitle
+          scrollY={scrollY}
+          title={t("menu:cart.title")}
+          subtitle={subtitle}
+        />
+      ),
+    });
+  }, [navigation, scrollY, t, isEditMode, newItems.length, details.length]);
 
   const openProduct = (orderDetail: NewOrderDetail) => {
     setActiveDetail(orderDetail);
@@ -217,39 +247,45 @@ export default function CartScreen() {
     return (
       <>
         <ScreenLayout style={tw`px-4 pt-4 flex-1 gap-4`}>
-          <ThemedView style={tw`flex-row justify-between items-center`}>
-            <ThemedView style={tw`gap-2`}>
-              <ThemedText type="h1">{t("menu:cart.title")}</ThemedText>
-              <ThemedText type="small">
-                {t("orders:editCart.newItems")} {newItems.length}
-              </ThemedText>
-            </ThemedView>
-          </ThemedView>
-
-          <ThemedView style={tw`gap-2 flex-row`}>
-            <Label
-              text={
-                activeOrder?.table
-                  ? `${t("common:labels.table")} ${activeOrder.table.name}`
-                  : t("common:labels.takeAway")
-              }
-              color="default"
-              size="small"
-            />
-            <Label
-              text={String(activeOrder?.people || 0)}
-              leftIcon="people-outline"
-              size="small"
-            />
-          </ThemedView>
-
-          <FlatList
+          <Animated.FlatList
             style={tw`flex-1`}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={tw`gap-4 pb-4`}
+            onScroll={scrollHandler}
+            scrollEventThrottle={16}
             data={newItems}
             keyExtractor={(itm) =>
               itm.id || `${itm.product.id}-${Math.random()}`
+            }
+            ListHeaderComponent={
+              <ThemedView style={tw`gap-4`}>
+                <CollapsibleLargeTitle
+                  scrollY={scrollY}
+                  title={t("menu:cart.title")}
+                  subtitle={
+                    <ThemedText type="small">
+                      {t("orders:editCart.newItems")} {newItems.length}
+                    </ThemedText>
+                  }
+                />
+
+                <ThemedView style={tw`gap-2 flex-row`}>
+                  <Label
+                    text={
+                      activeOrder?.table
+                        ? `${t("common:labels.table")} ${activeOrder.table.name}`
+                        : t("common:labels.takeAway")
+                    }
+                    color="default"
+                    size="small"
+                  />
+                  <Label
+                    text={String(activeOrder?.people || 0)}
+                    leftIcon="people-outline"
+                    size="small"
+                  />
+                </ThemedView>
+              </ThemedView>
             }
             renderItem={({ item }) => (
               <NewOrderDetailCard
@@ -309,143 +345,177 @@ export default function CartScreen() {
     );
   }
 
+  const hasExtras = showTimePicker || withNotes;
+  const detailRows: CartRow[] = details.map((detail, index) => ({
+    kind: "item",
+    detail,
+    key: `${index}`,
+  }));
+  const cartListData: CartRow[] =
+    cartType === "order"
+      ? [
+          { kind: "title" },
+          { kind: "chips" },
+          ...(hasExtras ? [{ kind: "extras" } as const] : []),
+          ...detailRows,
+        ]
+      : [{ kind: "title" }, ...detailRows];
+
   return (
     <>
       <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
-        <ThemedView style={tw`flex-row justify-between items-center`}>
-          <ThemedView style={tw`gap-2`}>
-            <ThemedText type="h1">{t("menu:cart.title")}</ThemedText>
-            <ThemedText type="small">
-              {t("menu:cart.products")} {details.length}
-            </ThemedText>
-          </ThemedView>
-        </ThemedView>
-
-        <FlatList
+        <Animated.FlatList
           style={tw`flex-1`}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`gap-4 pb-4`}
-          data={details}
-          keyExtractor={(_, index) => `${index}`}
-          ListHeaderComponent={
-            cartType === "order" ? (
-              <ThemedView style={tw`gap-4`}>
-                {showTimePicker && (
-                  <ThemedView>
-                    {Platform.OS === "ios" && (
-                      <ThemedView
-                        style={tw`border border-gray-300 rounded-2xl overflow-hidden`}
-                      >
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
+          stickyHeaderIndices={cartType === "order" ? [1] : []}
+          data={cartListData}
+          keyExtractor={(row) => (row.kind === "item" ? row.key : row.kind)}
+          renderItem={({ item: row }) => {
+            if (row.kind === "title") {
+              return (
+                <CollapsibleLargeTitle
+                  scrollY={scrollY}
+                  title={t("menu:cart.title")}
+                  subtitle={
+                    <ThemedText type="small">
+                      {t("menu:cart.products")} {details.length}
+                    </ThemedText>
+                  }
+                />
+              );
+            }
+
+            if (row.kind === "chips") {
+              return (
+                <ThemedView style={tw`bg-light-background py-1`}>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={tw`gap-2`}
+                  >
+                    <Chip
+                      icon={
+                        orderType === OrderType.IN_PLACE
+                          ? "restaurant-outline"
+                          : "bag-outline"
+                      }
+                      label={
+                        orderType === OrderType.IN_PLACE
+                          ? `${t("common:labels.table")} ${table?.name}`
+                          : t("common:labels.takeAway")
+                      }
+                      onPress={
+                        orderType === OrderType.IN_PLACE
+                          ? handlePresentTableSelector
+                          : undefined
+                      }
+                    />
+                    <Chip
+                      icon="people-outline"
+                      label={String(people)}
+                      onPress={handlePresentPeopleSelector}
+                    />
+                    {deliveryTime ? (
+                      <Chip
+                        icon="time-outline"
+                        label={dayjs(deliveryTime).format("HH:mm")}
+                        onPress={openTimePicker}
+                        rightContent={
+                          <Pressable
+                            onPress={() => setDeliveryTime(null)}
+                            hitSlop={8}
+                          >
+                            <Ionicons
+                              name="close"
+                              size={16}
+                              color={tw.color("gray-600")}
+                            />
+                          </Pressable>
+                        }
+                      />
+                    ) : (
+                      <Chip
+                        variant="assist"
+                        icon="time-outline"
+                        label={t("orders:form.addDeliveryTime")}
+                        onPress={openTimePicker}
+                      />
+                    )}
+                    {!withNotes && (
+                      <Chip
+                        variant="assist"
+                        icon="document-text-outline"
+                        label={t("orders:form.addNote")}
+                        onPress={() => setWithNotes(true)}
+                      />
+                    )}
+                  </ScrollView>
+                </ThemedView>
+              );
+            }
+
+            if (row.kind === "extras") {
+              return (
+                <ThemedView style={tw`gap-4`}>
+                  {showTimePicker && (
+                    <ThemedView>
+                      {Platform.OS === "ios" && (
+                        <ThemedView
+                          style={tw`border border-gray-300 rounded-2xl overflow-hidden`}
+                        >
+                          <DateTimePicker
+                            value={pickerValue}
+                            mode="time"
+                            display="spinner"
+                            onChange={handleTimeChange}
+                          />
+                          <Button
+                            label={t("common:actions.confirm")}
+                            onPress={handleConfirmTime}
+                            variant="primary"
+                            size="small"
+                          />
+                        </ThemedView>
+                      )}
+                      {Platform.OS === "android" && (
                         <DateTimePicker
                           value={pickerValue}
                           mode="time"
-                          display="spinner"
+                          is24Hour
+                          display="default"
                           onChange={handleTimeChange}
                         />
-                        <Button
-                          label={t("common:actions.confirm")}
-                          onPress={handleConfirmTime}
-                          variant="primary"
-                          size="small"
-                        />
-                      </ThemedView>
-                    )}
-                    {Platform.OS === "android" && (
-                      <DateTimePicker
-                        value={pickerValue}
-                        mode="time"
-                        is24Hour
-                        display="default"
-                        onChange={handleTimeChange}
-                      />
-                    )}
-                  </ThemedView>
-                )}
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={tw`gap-2`}
-                >
-                  <Chip
-                    icon={
-                      orderType === OrderType.IN_PLACE
-                        ? "restaurant-outline"
-                        : "bag-outline"
-                    }
-                    label={
-                      orderType === OrderType.IN_PLACE
-                        ? `${t("common:labels.table")} ${table?.name}`
-                        : t("common:labels.takeAway")
-                    }
-                    onPress={
-                      orderType === OrderType.IN_PLACE
-                        ? handlePresentTableSelector
-                        : undefined
-                    }
-                  />
-                  <Chip
-                    icon="people-outline"
-                    label={String(people)}
-                    onPress={handlePresentPeopleSelector}
-                  />
-                  {deliveryTime ? (
-                    <Chip
-                      icon="time-outline"
-                      label={dayjs(deliveryTime).format("HH:mm")}
-                      onPress={openTimePicker}
-                      rightContent={
-                        <Pressable
-                          onPress={() => setDeliveryTime(null)}
-                          hitSlop={8}
-                        >
-                          <Ionicons
-                            name="close"
-                            size={16}
-                            color={tw.color("gray-600")}
-                          />
-                        </Pressable>
-                      }
-                    />
-                  ) : (
-                    <Chip
-                      variant="assist"
-                      icon="time-outline"
-                      label={t("orders:form.addDeliveryTime")}
-                      onPress={openTimePicker}
+                      )}
+                    </ThemedView>
+                  )}
+                  {withNotes && (
+                    <TextInput
+                      numberOfLines={5}
+                      multiline
+                      scrollEnabled
+                      style={tw`max-h-32`}
+                      placeholder={t("orders:newOrder.notesPlaceholder")}
+                      onChangeText={setNotes}
+                      value={notes}
+                      variant="outlined"
+                      containerStyle={tw`bg-transparent border-0 p-0`}
                     />
                   )}
-                  {!withNotes && (
-                    <Chip
-                      variant="assist"
-                      icon="document-text-outline"
-                      label={t("orders:form.addNote")}
-                      onPress={() => setWithNotes(true)}
-                    />
-                  )}
-                </ScrollView>
-                {withNotes && (
-                  <TextInput
-                    numberOfLines={5}
-                    multiline
-                    scrollEnabled
-                    style={tw`max-h-32`}
-                    placeholder={t("orders:newOrder.notesPlaceholder")}
-                    onChangeText={setNotes}
-                    value={notes}
-                    variant="outlined"
-                    containerStyle={tw`bg-transparent border-0 p-0`}
-                  />
-                )}
-              </ThemedView>
-            ) : undefined
-          }
-          renderItem={({ item }) => (
-            <NewOrderDetailCard
-              orderType={orderType}
-              detail={item}
-              onPress={() => openProduct(item)}
-            />
-          )}
+                </ThemedView>
+              );
+            }
+
+            return (
+              <NewOrderDetailCard
+                orderType={orderType}
+                detail={row.detail}
+                onPress={() => openProduct(row.detail)}
+              />
+            );
+          }}
           ListFooterComponent={
             <Button
               leftIcon="add-outline"
