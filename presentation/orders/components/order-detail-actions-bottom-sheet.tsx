@@ -21,6 +21,7 @@ interface OrderDetailActionsBottomSheetProps {
 interface OptionItem {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
+  hint?: string;
   color?: string;
   onPress: () => void;
   disabled?: boolean;
@@ -51,15 +52,10 @@ const OrderDetailActionsBottomSheet = ({
     onClose?.();
   };
 
+  const replaceBlockReason = getReplaceBlockReason(detail);
+
   const handleReplace = () => {
-    const reason = getReplaceBlockReason(detail);
-    if (reason) {
-      Alert.alert(
-        t("orders:replaceItem.cannotReplaceTitle"),
-        t(`orders:replaceItem.reasons.${reason}`),
-      );
-      return;
-    }
+    if (replaceBlockReason) return;
     onClose?.();
     onReplace?.();
   };
@@ -75,6 +71,9 @@ const OrderDetailActionsBottomSheet = ({
           {
             icon: "swap-horizontal-outline" as const,
             label: t("orders:detailActions.replaceItem"),
+            hint: replaceBlockReason
+              ? t(`orders:replaceItem.reasons.${replaceBlockReason}`)
+              : undefined,
             onPress: handleReplace,
           },
         ]
@@ -115,15 +114,21 @@ const OrderDetailActionsBottomSheet = ({
                       : tw.color("gray-700")
                 }
               />
-              <ThemedText
-                type="body1"
-                style={tw.style(
-                  "flex-1",
-                  option.color && !option.disabled && option.color,
+              <ThemedView style={tw`flex-1`}>
+                <ThemedText
+                  type="body1"
+                  style={tw.style(
+                    option.color && !option.disabled && option.color,
+                  )}
+                >
+                  {option.label}
+                </ThemedText>
+                {option.hint && (
+                  <ThemedText type="small" style={tw`text-gray-500 mt-0.5`}>
+                    {option.hint}
+                  </ThemedText>
                 )}
-              >
-                {option.label}
-              </ThemedText>
+              </ThemedView>
             </Pressable>
           </ThemedView>
         ))}
