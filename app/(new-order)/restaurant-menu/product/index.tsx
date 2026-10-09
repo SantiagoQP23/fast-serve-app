@@ -295,6 +295,11 @@ export default function ProductScreen() {
                   {formatCurrency(counter * effectivePrice)}
                 </ThemedText>
               </ThemedView>
+              {activeOptions.length === 1 && selectedOption && (
+                <ThemedText type="body2" style={tw`text-gray-500`}>
+                  {selectedOption.name} · {formatCurrency(selectedOption.price)}
+                </ThemedText>
+              )}
               {activeProduct.description && (
                 <ThemedText type="body1" style={tw`text-gray-600`}>
                   {activeProduct.description}
@@ -324,7 +329,7 @@ export default function ProductScreen() {
               </ThemedView>
             )}
 
-            {activeOptions.length > 0 && (
+            {activeOptions.length > 1 && (
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}

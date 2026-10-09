@@ -21,19 +21,14 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import TimeSelector from "@/presentation/theme/components/time-selector";
-import BottomSheetPicker, {
-  BottomSheetPickerRef,
-} from "@/presentation/theme/components/bottom-sheet-picker";
+import HourWheelBottomSheet, {
+  HourWheelBottomSheetRef,
+} from "@/presentation/theme/components/hour-wheel-bottom-sheet";
 import tw from "@/presentation/theme/lib/tailwind";
 
 const MAX_ORDER_PREP_TIME = 600;
 
 const formatHour = (hour: number) => `${String(hour).padStart(2, "0")}:00`;
-
-const HOUR_OPTIONS = Array.from({ length: 24 }, (_, hour) => ({
-  label: formatHour(hour),
-  value: hour,
-}));
 
 export default function RestaurantSettingsScreen() {
   const { t } = useTranslation("auth");
@@ -51,14 +46,18 @@ export default function RestaurantSettingsScreen() {
     await updateSettings.mutateAsync({ ORDER_PREP_TIME: value });
   };
 
-  const lowStockHourPickerRef = useRef<BottomSheetPickerRef>(null);
-  const lowStockEmailHour =
+  const lowStockHourSheetRef = useRef<HourWheelBottomSheetRef>(null);
+  const savedLowStockHour =
     settings?.LOW_STOCK_EMAIL_HOUR ?? DEFAULT_LOW_STOCK_EMAIL_HOUR;
+  // null until the user edits the field, so it follows the loaded value
+  const [draftLowStockHour, setDraftLowStockHour] = useState<number | null>(
+    null,
+  );
+  const lowStockEmailHour = draftLowStockHour ?? savedLowStockHour;
 
-  const handleChangeLowStockEmailHour = (value: string | number) => {
-    const hour = Number(value);
-    if (hour === lowStockEmailHour) return;
-    updateSettings.mutate({ LOW_STOCK_EMAIL_HOUR: hour });
+  const handleDoneLowStockHour = async (hour: number) => {
+    if (hour === savedLowStockHour) return;
+    await updateSettings.mutateAsync({ LOW_STOCK_EMAIL_HOUR: hour });
   };
 
   return (
@@ -143,7 +142,7 @@ export default function RestaurantSettingsScreen() {
                   </ThemedText>
                 </ThemedView>
                 <Pressable
-                  onPress={() => lowStockHourPickerRef.current?.present()}
+                  onPress={() => lowStockHourSheetRef.current?.present()}
                   disabled={!canEdit}
                   style={tw`flex-row items-center gap-1`}
                 >
@@ -160,13 +159,14 @@ export default function RestaurantSettingsScreen() {
         </ScrollView>
       </ScreenLayout>
 
-      <BottomSheetPicker
-        ref={lowStockHourPickerRef}
+      <HourWheelBottomSheet
+        ref={lowStockHourSheetRef}
         title={t("restaurantSettings.lowStockEmailHour.pickerTitle")}
-        options={HOUR_OPTIONS}
+        doneLabel={t("restaurantSettings.lowStockEmailHour.done")}
         value={lowStockEmailHour}
-        onChange={handleChangeLowStockEmailHour}
-        searchable={false}
+        onChange={setDraftLowStockHour}
+        onDone={handleDoneLowStockHour}
+        accessibilityLabel={t("restaurantSettings.lowStockEmailHour.title")}
       />
     </KeyboardAvoidingView>
   );

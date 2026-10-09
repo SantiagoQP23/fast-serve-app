@@ -216,7 +216,7 @@ export default function CartScreen() {
   if (isEditMode) {
     return (
       <>
-        <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
+        <ScreenLayout style={tw`px-4 pt-4 flex-1 gap-4`}>
           <ThemedView style={tw`flex-row justify-between items-center`}>
             <ThemedView style={tw`gap-2`}>
               <ThemedText type="h1">{t("menu:cart.title")}</ThemedText>

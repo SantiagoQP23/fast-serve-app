@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-25T00:00:00Z",
+  "generatedAt": "2026-10-09T00:00:00Z",
   "title": "Design System: Teikio",
   "extensions": {
     "colorMeta": {
@@ -29,47 +29,116 @@
     },
     "typographyMeta": {
       "display": { "displayName": "Display / h1", "purpose": "The one or two screen titles that need this weight." },
-      "headline": { "displayName": "Headline / h2", "purpose": "Empty-state and rare top-level headings." },
-      "title": { "displayName": "Subtitle / h4", "purpose": "Card headings and list item primary text." },
+      "headline": { "displayName": "Headline / h2", "purpose": "Empty-state and rare top-level headings — regular weight despite the larger size, the one place a bigger size pairs with a lighter rather than heavier weight." },
+      "title": { "displayName": "Title / h3", "purpose": "Screen/section headers, typically paired with a back button." },
       "body": { "displayName": "Body / body1", "purpose": "Default text style for form values and primary row text (medium weight, not regular)." },
       "label": { "displayName": "Label / small", "purpose": "Field labels, metadata, counts — always neutral gray, never full-strength ink." }
     },
     "shadows": [
-      { "name": "resting", "value": "shadow-xs (near-invisible boundary shadow)", "purpose": "Cards and GroupedList rows sitting in the content flow." },
+      { "name": "resting", "value": "shadow-xs (near-invisible boundary shadow)", "purpose": "GroupedList rows only. Card's default and outline variants carry no shadow at all — their depth comes from a fill or a hairline border instead." },
       { "name": "floating", "value": "shadow-lg", "purpose": "The FAB and DialogModal — elements that float above the page." },
-      { "name": "popover", "value": "offset 0/4px, opacity 0.12, radius 12px, Android elevation 8", "purpose": "The one hand-tuned shadow in the system, used for the anchored options popover." }
+      { "name": "popover", "value": "offset 0/4px, opacity 0.12, radius 12px, Android elevation 8", "purpose": "The one hand-tuned shadow in the system, used for the anchored options popover." },
+      { "name": "card-elevated-unused", "value": "shadow-sm", "purpose": "Card's elevated variant carries this shadow, a weight between the resting and floating tiers. No call sites anywhere in the app today — a latent exception to the two-tier system, not a precedent." }
     ]
   },
-  "components": [],
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The default call-to-action button: Steel Harbor Blue fill, white label, 24px radius.",
+      "html": "<button class=\"ds-btn-primary\">Save changes</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 12px; background: #38608F; color: #FFFFFF; border: none; border-radius: 24px; padding: 16px 24px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 500; font-size: 16px; line-height: 24px; transition: opacity 0.15s ease; } .ds-btn-primary:hover { opacity: 0.9; } .ds-btn-primary:active { opacity: 0.8; } .ds-btn-primary:focus-visible { outline: 2px solid #1C4975; outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Lower-emphasis button: transparent fill, hairline border, on-surface-variant text.",
+      "html": "<button class=\"ds-btn-outline\">Cancel</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; gap: 12px; background: transparent; color: #43474E; border: 1px solid #C3C6CF; border-radius: 24px; padding: 16px 24px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 500; font-size: 16px; line-height: 24px; transition: opacity 0.15s ease, background 0.15s ease; } .ds-btn-outline:hover { background: rgba(56,96,143,0.06); } .ds-btn-outline:active { opacity: 0.8; } .ds-btn-outline:focus-visible { outline: 2px solid #38608F; outline-offset: 2px; }"
+    },
+    {
+      "name": "Chip — Selected",
+      "kind": "chip",
+      "refersTo": "chip-selected",
+      "description": "A filter chip in its selected state: Pale Sky Blue fill, on-secondary text, leading checkmark. 6px radius, not a pill.",
+      "html": "<button class=\"ds-chip ds-chip--selected\"><svg class=\"ds-chip__icon\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"4 12 9 17 20 6\"></polyline></svg>Delivered</button>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 6px; border: 1px solid transparent; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 500; font-size: 14px; line-height: 20px; background: none; cursor: pointer; } .ds-chip--selected { background: #D7E3F8; color: #3C4858; } .ds-chip__icon { color: #3C4858; } .ds-chip--selected:hover { background: #C2D2EE; } .ds-chip--selected:focus-visible { outline: 2px solid #38608F; outline-offset: 2px; }"
+    },
+    {
+      "name": "Chip — Unselected",
+      "kind": "chip",
+      "refersTo": "chip-unselected",
+      "description": "A filter chip at rest: transparent fill, hairline border, on-surface-variant text.",
+      "html": "<button class=\"ds-chip ds-chip--unselected\">Pending</button>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 6px; border: 1px solid transparent; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 500; font-size: 14px; line-height: 20px; background: none; cursor: pointer; } .ds-chip--unselected { background: transparent; color: #43474E; border-color: #C3C6CF; } .ds-chip--unselected:hover { background: rgba(67,71,78,0.06); } .ds-chip--unselected:focus-visible { outline: 2px solid #38608F; outline-offset: 2px; }"
+    },
+    {
+      "name": "Card (outline)",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "The bordered card variant used for stacked list rows (orders, bills, inventory items) — transparent fill, hairline border, no shadow.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card__row\"><span class=\"ds-card__title\">Table 4 — Order #128</span><span class=\"ds-card__meta\">2 items · $18.50</span></div></div>",
+      "css": ".ds-card { border: 1px solid #C3C6CF; border-radius: 24px; padding: 24px; background: transparent; transition: border-color 0.15s ease; } .ds-card:hover { border-color: #43474E; } .ds-card__row { display: flex; flex-direction: column; gap: 4px; } .ds-card__title { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 500; font-size: 18px; line-height: 24px; color: #191C20; } .ds-card__meta { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 400; font-size: 14px; line-height: 20px; color: #43474E; }"
+    },
+    {
+      "name": "Text Input (filled)",
+      "kind": "input",
+      "refersTo": "text-input",
+      "description": "The default filled field: Cloud Surface High fill, no border at any state, floating label.",
+      "html": "<div class=\"ds-input\"><label class=\"ds-input__label\" for=\"ds-input-demo\">Email time</label><input class=\"ds-input__field\" id=\"ds-input-demo\" type=\"text\" value=\"08:00\" /></div>",
+      "css": ".ds-input { position: relative; display: flex; flex-direction: column; justify-content: center; min-height: 56px; background: #E7E8EE; border-radius: 24px; padding: 4px 12px; } .ds-input__label { position: absolute; left: 16px; top: 9px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 500; font-size: 11px; color: #38608F; } .ds-input__field { border: none; background: transparent; outline: none; margin-top: 25px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 500; font-size: 16px; color: #43474E; padding: 0 4px; width: 100%; box-sizing: border-box; }"
+    },
+    {
+      "name": "Label — Solid Status",
+      "kind": "custom",
+      "refersTo": "label-status",
+      "description": "The solid status Label variant: a pastel fill with a leading dot, for a status that needs to read at a glance.",
+      "html": "<span class=\"ds-label ds-label--success\"><span class=\"ds-label__dot\"></span>In stock</span>",
+      "css": ".ds-label { display: inline-flex; align-items: center; gap: 6px; padding: 4px 16px; border-radius: 9999px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 700; font-size: 14px; line-height: 20px; } .ds-label--success { background: #D1FAE5; color: #065F46; } .ds-label__dot { width: 6px; height: 6px; border-radius: 9999px; background: #10B981; }"
+    },
+    {
+      "name": "Wheel Picker",
+      "kind": "custom",
+      "refersTo": "wheel-picker",
+      "description": "Signature scrollable value picker: a Pale Sky Blue band fixes the selected row at center, with items fading and shrinking away from it.",
+      "html": "<div class=\"ds-wheel\"><div class=\"ds-wheel__band\"></div><div class=\"ds-wheel__col\"><div class=\"ds-wheel__item ds-wheel__item--far\">06</div><div class=\"ds-wheel__item ds-wheel__item--near\">07</div><div class=\"ds-wheel__item ds-wheel__item--active\">08:00</div><div class=\"ds-wheel__item ds-wheel__item--near\">09</div><div class=\"ds-wheel__item ds-wheel__item--far\">10</div></div></div>",
+      "css": ".ds-wheel { position: relative; width: 160px; height: 240px; background: #ECEEF4; border-radius: 24px; padding: 16px; box-sizing: border-box; overflow: hidden; } .ds-wheel__band { position: absolute; left: 16px; right: 16px; top: 96px; height: 48px; background: #D7E3F8; border-radius: 24px; } .ds-wheel__col { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; } .ds-wheel__item { height: 48px; display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 500; font-size: 18px; color: #191C20; width: 100%; } .ds-wheel__item--active { opacity: 1; transform: scale(1); } .ds-wheel__item--near { opacity: 0.45; transform: scale(0.88); } .ds-wheel__item--far { opacity: 0.2; transform: scale(0.78); }"
+    }
+  ],
   "narrative": {
     "northStar": "The Steady Hand",
     "overview": "Teikio is used tableside, mid-service, often one-handed, by someone who cannot afford to fumble the screen. The system reads as calm and efficient: steel-blue surfaces, soft 24px-rounded cards and controls, and a single medium-weight sans carrying every size from page titles down to status pills. Nothing decorative competes with the task — no gradients, no display face, no ornamental icons — because the interface's job is to disappear into the order, the table, the ticket in front of the user.\n\nThe Material-shaped color roles (primary / onPrimary / primaryContainer / secondary / surface / onSurfaceVariant) already speak Android's language even though the components themselves are hand-built rather than native Material widgets — a deliberate middle ground the system should keep leaning into as it moves toward fuller Android conformance, rather than abandoning for something more decorative.",
     "keyCharacteristics": [
       "One typeface (Plus Jakarta Sans), one accent hue, no display/body pairing.",
-      "A single dominant radius (24px) unifies cards, buttons, inputs, and pickers; only pills (chips, status labels) and a couple of floating elements (FAB, dialogs) break from it.",
+      "A single dominant radius (24px) unifies cards, buttons, inputs, and pickers; status Label pills and a couple of floating elements (FAB, dialogs) break from it — chips now sit at the system's small 6px radius instead of the pill shape they used to have.",
       "Outline-weight Ionicons throughout — no filled icon set, no mixed families.",
-      "Two-tier elevation: content surfaces sit nearly flat, overlays lift with real shadow."
+      "Two-tier elevation: content surfaces sit nearly flat (most carry no shadow at all), overlays lift with real shadow."
     ],
     "rules": [
       { "name": "The One Accent Rule", "body": "Steel Harbor Blue is the only brand color in the system. Selection state is Pale Sky Blue, not a tint of the primary. Status is the semantic four, never the primary.", "section": "colors" },
       { "name": "Dark mode is incomplete", "body": "Colors.dark currently defines only primary / secondary / tertiary / text / background / tint / icon — none of the surface, container, or on-color roles the light palette has. Treat dark mode as a real gap to close deliberately, not a place to invent values ad hoc per screen.", "section": "colors" },
-      { "name": "The Medium-Body Rule", "body": "Default body text is medium weight (500), not regular. Only secondary/supporting text (body2) drops to regular.", "section": "typography" },
-      { "name": "The Two-Tier Rule", "body": "A surface is either resting (near-flat, shadow-xs) or floating (pronounced, shadow-lg or the tuned popover shadow). Nothing sits in between.", "section": "elevation" },
-      { "name": "The 24px Rule", "body": "Any new primary surface — a card, a button, an input, a picker trigger — takes the 24px radius by default. Reach for 16px only for a floating element not already covered (FAB/dialog), and for a pill only when the element is a selection or status chip.", "section": "shapes" }
+      { "name": "The Medium-Body Rule", "body": "Default body text is medium weight (500), not regular. Only secondary/supporting text (body2) and the h2 headline drop to regular.", "section": "typography" },
+      { "name": "The Two-Tier Rule", "body": "A surface is either resting (no shadow, or the near-flat shadow-xs on a GroupedList row) or floating (pronounced, shadow-lg or the tuned popover shadow). Nothing sits in between. Card's elevated variant uses shadow-sm, a weight between the two tiers, but has no call sites anywhere in the app today — a latent exception to resolve, not a precedent.", "section": "elevation" },
+      { "name": "The 24px Rule", "body": "Any new primary surface — a card, a button, an input, a picker trigger — takes the 24px radius by default. Reach for 16px only for a floating element not already covered (FAB/dialog), 6px for interior/secondary chrome (a GroupedList interior row, any chip), and a pill only for a status Label or the vertical icon+label button layout — never for a content container, and not for a chip.", "section": "shapes" },
+      { "name": "The Always-Enabled Rule", "body": "A blockable action stays visually enabled and tappable everywhere it appears. Its specific reason surfaces inline the moment its sheet or card opens — never as a disabled state and never via an Alert fired on tap. Confirmed independently across two flows (order-detail item replacement, variant editing).", "section": "components" }
     ],
     "dos": [
       "Do use 24px radius (rounded-3xl) as the default for any new card, button, input, or picker trigger.",
       "Do use Pale Sky Blue (#D7E3F8) for selected/active chip and filter state — never a tint of the primary blue.",
+      "Do use the 6px chip radius (rounded-md) for any new chip — the pill shape belongs to status Labels now, not chips.",
       "Do render an inactive record as its card at 50% opacity, not a separate badge-only treatment.",
       "Do put \"more options\" (edit/activate/delete) behind a single bottom sheet or popover with Edit → Activate/Deactivate → Delete in that order, delete in red.",
+      "Do keep a blockable action enabled and show its specific reason inline when the relevant sheet/card opens, rather than disabling it or explaining the block through an Alert.",
       "Do use outline-weight Ionicons exclusively, sized 18–28px depending on context.",
-      "Do keep body text at medium weight (500); drop to regular only for explicitly secondary text."
+      "Do keep body text at medium weight (500); drop to regular only for explicitly secondary text (and the h2 headline)."
     ],
     "donts": [
       "Don't introduce a second accent color. Steel Harbor Blue is the only brand hue; status uses the fixed semantic four (green/orange/red/blue).",
-      "Don't invent an intermediate shadow weight. A surface is resting (shadow-xs) or floating (shadow-lg/the tuned popover shadow) — nothing in between.",
+      "Don't invent an intermediate shadow weight. A surface is resting (no shadow, or shadow-xs on a GroupedList row) or floating (shadow-lg/the tuned popover shadow) — nothing in between.",
       "Don't default new body copy to regular weight; medium is the system default.",
-      "Don't reach for a full-screen Modal for anything beyond a short yes/no confirmation — everything else (options, pickers) is a bottom sheet.",
+      "Don't reach for a full-screen Modal for anything beyond a short yes/no confirmation — that's what DialogModal is for; everything else (options, pickers) is a bottom sheet.",
       "Don't invent dark-mode color values ad hoc per screen — the dark palette is a known, incomplete gap, not a green light to freelance."
     ]
   }

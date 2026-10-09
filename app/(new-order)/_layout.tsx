@@ -103,7 +103,11 @@ export default function NewOrderLayout() {
           options={{
             headerShown: true,
             title: "",
+            // headerLargeTitle: true,
+            // headerTitle: "cart",
+            // headerBlurEffect: "systemChromeMaterialLight",
             headerShadowVisible: false,
+            // headerLargeTitleShadowVisible: true,
             headerRight: () =>
               cartType === "order" &&
               !isEditMode && (
