@@ -104,7 +104,8 @@
   },
   "alerts": {
     "selectTable": "Por favor seleccione una mesa",
-    "inputPeople": "Por favor ingrese el número de personas"
+    "inputPeople": "Por favor ingrese el número de personas",
+    "deliveryTimeInPast": "Por favor seleccione una hora posterior a la hora actual."
   },
   "confirmation": {
     "title": "Pedido Confirmado",

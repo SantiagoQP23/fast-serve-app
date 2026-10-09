@@ -104,7 +104,8 @@
   },
   "alerts": {
     "selectTable": "Please select a table",
-    "inputPeople": "Please enter the number of people"
+    "inputPeople": "Please enter the number of people",
+    "deliveryTimeInPast": "Please select a time after the current time."
   },
   "confirmation": {
     "title": "Order Confirmed",

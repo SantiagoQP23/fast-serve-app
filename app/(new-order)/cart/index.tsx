@@ -1,6 +1,7 @@
 import { FlatList, Platform, Pressable, ScrollView } from "react-native";
 import dayjs from "dayjs";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { toast } from "sonner-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -92,6 +93,15 @@ export default function CartScreen() {
   };
   const closeTimePicker = () => setShowTimePicker(false);
 
+  const commitDeliveryTime = (selectedDate: Date) => {
+    if (!dayjs(selectedDate).isAfter(dayjs())) {
+      toast.error(t("orders:alerts.deliveryTimeInPast"));
+      return;
+    }
+    setDeliveryTime(selectedDate);
+    closeTimePicker();
+  };
+
   // On iOS the spinner stays inline and fires onChange continuously as the
   // user scrolls, so we only track the selection locally and commit it on
   // "Confirm". Android's native dialog is a single-shot pick that commits
@@ -103,13 +113,12 @@ export default function CartScreen() {
 
     if (Platform.OS === "android") {
       setShowTimePicker(false);
-      setDeliveryTime(selectedDate);
+      commitDeliveryTime(selectedDate);
     }
   };
 
   const handleConfirmTime = () => {
-    setDeliveryTime(pickerValue);
-    closeTimePicker();
+    commitDeliveryTime(pickerValue);
   };
 
   const editOrderId = useEditOrderCartStore((state) => state.orderId);

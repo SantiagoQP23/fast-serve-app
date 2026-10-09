@@ -119,6 +119,8 @@ export default function NewOrderLayout() {
                   <IconButton
                     icon="create-outline"
                     onPress={handlePresentModalPress}
+                    size={18}
+                    style={tw`bg-light-surface p-2`}
                   ></IconButton>
                 </ThemedView>
               ),
