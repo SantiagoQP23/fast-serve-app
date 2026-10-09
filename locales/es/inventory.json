@@ -11,7 +11,7 @@
   "tracked": "Activo",
   "notTracked": "No controlado",
   "restock": "Reabastecer",
-  "waste": "Merma",
+  "decrease": "Disminuir",
   "minStock": "Mín",
   "minimumLabel": "Mínimo",
   "unitRemaining": "restantes",

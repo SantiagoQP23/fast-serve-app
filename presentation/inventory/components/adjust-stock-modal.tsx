@@ -21,7 +21,7 @@ import {
 
 interface AdjustStockModalProps {
   item: InventoryItem | null;
-  initialMode?: "restock" | "waste";
+  initialMode?: "restock" | "decrease";
   onClose: () => void;
 }
 
@@ -63,7 +63,7 @@ export default function AdjustStockModal({
 
 interface AdjustStockFormProps {
   item: InventoryItem;
-  mode: "restock" | "waste";
+  mode: "restock" | "decrease";
   onClose: () => void;
 }
 

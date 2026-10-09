@@ -11,7 +11,7 @@
   "tracked": "Active",
   "notTracked": "Not tracked",
   "restock": "Restock",
-  "waste": "Waste",
+  "decrease": "Decrease",
   "minStock": "Min",
   "minimumLabel": "Minimum",
   "unitRemaining": "left",

@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { ScrollView, Pressable, RefreshControl } from "react-native";
+import { ScrollView, Pressable, RefreshControl, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
@@ -13,7 +13,6 @@ import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
-import QuickActionButton from "@/presentation/orders/components/quick-action-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
@@ -37,7 +36,7 @@ export default function MenuInventoryItemDetailScreen() {
   const { deleteItem, updateItem } = useInventoryItems();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [adjustMode, setAdjustMode] = useState<"restock" | "waste" | null>(
+  const [adjustMode, setAdjustMode] = useState<"restock" | "decrease" | null>(
     null,
   );
   const [refreshing, setRefreshing] = useState(false);
@@ -132,7 +131,10 @@ export default function MenuInventoryItemDetailScreen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`px-4 gap-4 pb-8 pt-2`}
+        contentContainerStyle={tw.style(
+          "px-4 gap-4 pt-2",
+          canManage ? "pb-28" : "pb-8",
+        )}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -168,23 +170,6 @@ export default function MenuInventoryItemDetailScreen() {
           <>
             <InventoryDetailSummaryCard item={item} />
 
-            {canManage && (
-              <ThemedView
-                style={tw`flex-row justify-center gap-8 bg-transparent`}
-              >
-                <QuickActionButton
-                  icon="add-outline"
-                  label={t("restock")}
-                  onPress={() => setAdjustMode("restock")}
-                />
-                <QuickActionButton
-                  icon="remove-outline"
-                  label={t("waste")}
-                  onPress={() => setAdjustMode("waste")}
-                />
-              </ThemedView>
-            )}
-
             <LinkedProductsList
               lines={item.productOptions ?? []}
               unit={t(`units.${item.unit}`)}
@@ -203,6 +188,30 @@ export default function MenuInventoryItemDetailScreen() {
           </>
         )}
       </ScrollView>
+
+      {/* Floating Actions */}
+      {canManage && item && (
+        <View style={tw`absolute bottom-6 left-4 right-4`}>
+          <ThemedView
+            style={tw`flex-row gap-3 bg-light-surface rounded-3xl p-2 shadow-sm`}
+          >
+            <Button
+              label={t("decrease")}
+              leftIcon="remove-outline"
+              variant="secondary"
+              onPress={() => setAdjustMode("decrease")}
+              style={tw`flex-1`}
+            />
+            <Button
+              label={t("restock")}
+              leftIcon="add-outline"
+              variant="primary"
+              onPress={() => setAdjustMode("restock")}
+              style={tw`flex-1`}
+            />
+          </ThemedView>
+        </View>
+      )}
 
       <AdjustStockModal
         item={adjustMode ? (item ?? null) : null}
