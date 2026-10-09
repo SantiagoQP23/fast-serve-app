@@ -115,6 +115,7 @@
     "totalAmount": "Monto Total",
     "collectionRate": "Ingresos",
     "totalIncome": "Total Cobrado",
+    "averageOrderAmount": "Promedio por pedido",
     "ordersPendingPayment": "Por cobrar",
     "myStats": "Mis Estadísticas",
     "analytics": "Análisis",

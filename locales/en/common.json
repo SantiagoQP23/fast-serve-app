@@ -115,6 +115,7 @@
     "totalAmount": "Total Amount",
     "collectionRate": "Collection Rate",
     "totalIncome": "Total Income",
+    "averageOrderAmount": "Average order",
     "ordersPendingPayment": "Orders Pending Payment",
     "myStats": "My Stats",
     "analytics": "Analytics",

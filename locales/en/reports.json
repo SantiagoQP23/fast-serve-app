@@ -23,6 +23,7 @@
     "income": "Income",
     "amount": "Amount",
     "orders": "Orders",
+    "average": "Avg.",
     "bills": "Bills",
     "collectionRate": "Collection Rate",
     "viewOrders": "View Orders"

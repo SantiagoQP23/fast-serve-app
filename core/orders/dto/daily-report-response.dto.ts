@@ -51,6 +51,7 @@ export interface WaiterStatsDto {
   totalAmount: number;
   totalIncome: number;
   totalBills: number;
+  averageOrderAmount?: number;
   orders: WaiterOrderDto[];
 }
 
@@ -61,6 +62,7 @@ export interface DailySummaryDto {
   totalBills: number;
   totalWaiters: number;
   totalAmount: number;
+  averageOrderAmount?: number;
 }
 
 export interface DailyReportResponseDto {

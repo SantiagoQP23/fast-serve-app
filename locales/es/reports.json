@@ -23,6 +23,7 @@
     "income": "Ingresos",
     "amount": "Monto",
     "orders": "Órdenes",
+    "average": "Prom.",
     "bills": "Cuentas",
     "collectionRate": "Porcentaje de Cobro",
     "viewOrders": "Ver Órdenes"
