@@ -219,7 +219,15 @@
     "printed": "Impreso",
     "ticketSingular": "ticket",
     "ticketPlural": "tickets",
-    "noTickets": "Aún no hay tickets"
+    "noTickets": "Aún no hay tickets",
+    "skip": "Omitir",
+    "skipped": "Omitido"
+  },
+  "unprintedTickets": {
+    "title": "Tickets por imprimir",
+    "empty": "No hay tickets pendientes de imprimir",
+    "skipError": "No se pudo omitir el ticket",
+    "orderHeader": "Pedido #{{num}} · {{place}}"
   },
   "editCart": {
     "reviewChanges": "Revisar Cambios",

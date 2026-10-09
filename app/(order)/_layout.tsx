@@ -117,6 +117,14 @@ export default function OrdersLayout() {
             headerShadowVisible: false,
           }}
         />
+        <Stack.Screen
+          name="unprinted-tickets/index"
+          options={{
+            headerShown: true,
+            title: t("orders:unprintedTickets.title"),
+            headerShadowVisible: false,
+          }}
+        />
       </Stack>
 
       <CloseOrderModal

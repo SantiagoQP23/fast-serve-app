@@ -15,4 +15,11 @@ export const TicketsService = {
     );
     return data;
   },
+
+  skipTicket: async (ticketId: string): Promise<Ticket> => {
+    const { data } = await restaurantApi.patch<Ticket>(
+      `/tickets/${ticketId}/skip`,
+    );
+    return data;
+  },
 };

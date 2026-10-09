@@ -27,6 +27,9 @@ import { PaymentMethod } from "@/core/restaurant/models/payment-method.model";
 import { Account } from "@/core/restaurant/models/account.model";
 import { Printer } from "@/core/common/models/printer.model";
 import { useSyncStore } from "../store/useSyncStore";
+import { applyTicketEvent } from "../apply-ticket-event";
+import { useUnprintedTicketsStore } from "@/presentation/orders/store/useUnprintedTicketsStore";
+import { Ticket } from "@/core/tickets/models/ticket.model";
 import { useAppForeground } from "@/presentation/shared/hooks/useAppForeground";
 
 const INCREMENTAL_SYNC_LIMIT = 1000;
@@ -44,6 +47,7 @@ function applySnapshot(
   const paymentMethods = (snapshot.paymentMethods ?? []) as PaymentMethod[];
   const accounts = (snapshot.accounts ?? []) as Account[];
   const printers = (snapshot.printers ?? []) as Printer[];
+  const unprintedTickets = (snapshot.unprintedTickets ?? []) as Ticket[];
 
   useOrdersStore.getState().setOrders(orders);
   useTablesStore.getState().setTables(tables, restaurantId);
@@ -58,6 +62,7 @@ function applySnapshot(
     .setPaymentMethods(paymentMethods, restaurantId);
   useAccountsStore.getState().setAccounts(accounts, restaurantId);
   usePrintersStore.getState().setPrinters(printers, restaurantId);
+  useUnprintedTicketsStore.getState().setTickets(unprintedTickets);
 }
 
 async function applyIncremental(response: IncrementalSyncResponseDto) {
@@ -105,6 +110,9 @@ function applyEvent(event: SyncEventDto) {
       break;
     case SyncResourceType.PRINTER:
       applyPrinterEvent(event);
+      break;
+    case SyncResourceType.TICKET:
+      applyTicketEvent(event);
       break;
     case SyncResourceType.RESTAURANT:
     case SyncResourceType.SETTINGS:

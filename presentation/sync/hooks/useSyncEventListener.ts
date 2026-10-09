@@ -15,6 +15,7 @@ import { Product } from "@/core/menu/models/product.model";
 import { Category } from "@/core/menu/models/category.model";
 import { Section } from "@/core/menu/models/section.model";
 import { useSyncStore } from "../store/useSyncStore";
+import { applyTicketEvent } from "../apply-ticket-event";
 
 function applyOrderEvent(event: SyncEventDto) {
   const order = event.data as Order;
@@ -155,6 +156,9 @@ export const useSyncEventListener = () => {
           break;
         case SyncResourceType.PRODUCTION_AREA:
           void refetchProductionAreas(restaurantId);
+          break;
+        case SyncResourceType.TICKET:
+          applyTicketEvent(event);
           break;
         case SyncResourceType.BILL:
         case SyncResourceType.RESTAURANT:
