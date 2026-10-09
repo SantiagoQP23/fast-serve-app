@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ScrollView, RefreshControl, Pressable, View } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -112,6 +112,23 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     status: selectedStatus,
   });
 
+  // The backend returns items ordered by name ASC, so consecutive items
+  // sharing a first letter are already adjacent — this just segments that
+  // existing order into groups rather than re-sorting.
+  const groupedItems = useMemo(() => {
+    const groups: { letter: string; items: InventoryItem[] }[] = [];
+    for (const item of browsedItems) {
+      const letter = item.name.trim().charAt(0).toUpperCase() || "#";
+      const lastGroup = groups[groups.length - 1];
+      if (lastGroup?.letter === letter) {
+        lastGroup.items.push(item);
+      } else {
+        groups.push({ letter, items: [item] });
+      }
+    }
+    return groups;
+  }, [browsedItems]);
+
   // The summary tiles count by status, independent of selectedStatus, so
   // they're fetched separately scoped by category only. Computed by the
   // backend over all matching rows — the browse list above is paginated,
@@ -126,6 +143,14 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   };
 
   const handleOpenAddSelector = () => {
+    if (activeTab === "counts") {
+      handleNewCount();
+      return;
+    }
+    if (activeTab === "purchases") {
+      handleRegisterPurchase();
+      return;
+    }
     addSheetRef.current?.present();
   };
 
@@ -457,26 +482,41 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
             )}
 
           {browsedItems.length > 0 && (
-            <ThemedView style={tw`gap-3.5 bg-transparent`}>
-              {browsedItems.map((item) => (
-                <InventoryItemCard
-                  key={item.id}
-                  item={item}
-                  canManage={canManage}
-                  onPress={(pressedItem) =>
-                    router.push({
-                      pathname: "/(profile)/menu-inventory-item-detail",
-                      params: { itemId: pressedItem.id },
-                    })
-                  }
-                  onOptionsPress={handleOpenOptions}
-                  onAdjustPress={setItemToAdjust}
-                  onReactivatePress={handleReactivate}
-                  selectionMode={isSelectionMode}
-                  selected={selectedItemIds.has(item.id)}
-                  onLongPress={handleEnterSelectionMode}
-                  onToggleSelect={handleToggleSelectItem}
-                />
+            <ThemedView style={tw`gap-6 bg-transparent`}>
+              {groupedItems.map((group) => (
+                <ThemedView
+                  key={group.letter}
+                  style={tw`gap-3 bg-transparent`}
+                >
+                  <ThemedText
+                    type="caption"
+                    style={tw`text-gray-500 font-semibold`}
+                  >
+                    {group.letter}
+                  </ThemedText>
+                  <ThemedView style={tw`gap-3.5 bg-transparent`}>
+                    {group.items.map((item) => (
+                      <InventoryItemCard
+                        key={item.id}
+                        item={item}
+                        canManage={canManage}
+                        onPress={(pressedItem) =>
+                          router.push({
+                            pathname: "/(profile)/menu-inventory-item-detail",
+                            params: { itemId: pressedItem.id },
+                          })
+                        }
+                        onOptionsPress={handleOpenOptions}
+                        onAdjustPress={setItemToAdjust}
+                        onReactivatePress={handleReactivate}
+                        selectionMode={isSelectionMode}
+                        selected={selectedItemIds.has(item.id)}
+                        onLongPress={handleEnterSelectionMode}
+                        onToggleSelect={handleToggleSelectItem}
+                      />
+                    ))}
+                  </ThemedView>
+                </ThemedView>
               ))}
               {hasMore && (
                 <Button
@@ -536,7 +576,13 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                 size={40}
                 variant="filled"
                 onPress={handleOpenAddSelector}
-                accessibilityLabel={t("createItem")}
+                accessibilityLabel={
+                  activeTab === "counts"
+                    ? t("counts.new")
+                    : activeTab === "purchases"
+                      ? t("purchases.register")
+                      : t("createItem")
+                }
               />
             )}
           </ThemedView>
@@ -623,57 +669,6 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                   </ThemedText>
                   <ThemedText type="small" style={tw`text-gray-500`}>
                     {t("addToInventory.inventoryItemDescription")}
-                  </ThemedText>
-                </ThemedView>
-              </ThemedView>
-            </Card>
-          </ThemedView>
-
-          <ThemedView style={tw`gap-3 mt-6`}>
-            <ThemedText type="caption" style={tw`text-gray-500 font-semibold`}>
-              {t("inventoryControl")}
-            </ThemedText>
-            <Card onPress={handleRegisterPurchase}>
-              <ThemedView
-                style={tw`flex-row items-center gap-3 bg-transparent`}
-              >
-                <Ionicons
-                  name="cart-outline"
-                  size={26}
-                  color={tw.color("text-light-on-surface-variant")}
-                />
-                <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-                  <ThemedText
-                    type="body1"
-                    style={{ fontFamily: typography.medium }}
-                  >
-                    {t("purchases.register")}
-                  </ThemedText>
-                  <ThemedText type="small" style={tw`text-gray-500`}>
-                    {t("purchases.registerDescription")}
-                  </ThemedText>
-                </ThemedView>
-              </ThemedView>
-            </Card>
-
-            <Card onPress={handleNewCount}>
-              <ThemedView
-                style={tw`flex-row items-center gap-3 bg-transparent`}
-              >
-                <Ionicons
-                  name="clipboard-outline"
-                  size={26}
-                  color={tw.color("text-light-on-surface-variant")}
-                />
-                <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-                  <ThemedText
-                    type="body1"
-                    style={{ fontFamily: typography.medium }}
-                  >
-                    {t("counts.new")}
-                  </ThemedText>
-                  <ThemedText type="small" style={tw`text-gray-500`}>
-                    {t("counts.newDescription")}
                   </ThemedText>
                 </ThemedView>
               </ThemedView>
