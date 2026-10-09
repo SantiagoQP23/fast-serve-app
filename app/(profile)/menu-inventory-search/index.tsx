@@ -8,6 +8,7 @@ import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import TextInput from "@/presentation/theme/components/text-input";
+import Button from "@/presentation/theme/components/button";
 import { useInventoryItemsSearch } from "@/presentation/inventory/hooks/useInventoryItemsSearch";
 import InventoryItemCard from "@/presentation/inventory/components/inventory-item-card";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
@@ -22,6 +23,10 @@ export default function MenuInventorySearchScreen() {
       pathname: "/(profile)/menu-inventory-item-detail",
       params: { itemId: item.id },
     });
+  };
+
+  const handleCreateItem = () => {
+    router.push({ pathname: "/(profile)/menu-inventory-item-form" });
   };
 
   return (
@@ -98,6 +103,13 @@ export default function MenuInventorySearchScreen() {
               >
                 {t("noResultsDescription")}
               </ThemedText>
+              <Button
+                label={t("createItem")}
+                leftIcon="add"
+                size="small"
+                onPress={handleCreateItem}
+                style={tw`mt-2`}
+              />
             </ThemedView>
           )}
 
