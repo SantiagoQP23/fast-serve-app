@@ -67,6 +67,37 @@ export default function NewInventoryItemSelectProductScreen() {
   }, [products, search, categoryId]);
 
   const handleSelectProduct = (product: Product) => {
+    const activeOptions = product.options.filter((option) => option.isActive);
+
+    if (activeOptions.length === 1) {
+      const option = activeOptions[0];
+
+      if (params.mode === "track") {
+        router.push({
+          pathname: "/(profile)/menu-product-option-inventory",
+          params: {
+            productOptionId: String(option.id),
+            productOptionName: option.name,
+            productName: product.name,
+          },
+        });
+        return;
+      }
+
+      router.push({
+        pathname: "/(profile)/menu-inventory-item-new-quantity",
+        params: {
+          productOptionId: String(option.id),
+          productOptionName: option.name,
+          productName: product.name,
+          inventoryItemId: params.inventoryItemId ?? "",
+          itemName: params.itemName ?? "",
+          unit: params.unit ?? "",
+        },
+      });
+      return;
+    }
+
     router.push({
       pathname: "/(profile)/menu-inventory-item-new-option",
       params: {
