@@ -24,11 +24,13 @@ import useOrdersModuleContext from "./(orders-module)/orders-module.context";
 import NotificationBadge from "@/presentation/theme/components/notification-badge";
 import { ROUTES } from "@/constants/routes";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
+import { useUnprintedTickets } from "@/presentation/orders/hooks/useUnprintedTickets";
 
 export function MyOrdersHeaderRight() {
   const router = useRouter();
   const details = useNewOrderStore((state) => state.details);
   const haveAnOpenOrder = details.length > 0;
+  const unprintedTicketsCount = useUnprintedTickets().length;
   const { openViewPopover } = useOrdersModuleContext();
   const moreButtonRef = useRef<View>(null);
 
@@ -40,6 +42,13 @@ export function MyOrdersHeaderRight() {
 
   return (
     <View style={tw`flex-row items-center gap-4 mr-2`}>
+      <ThemedView style={tw``}>
+        <IconButton
+          icon="print-outline"
+          onPress={() => router.push("/(order)/unprinted-tickets")}
+        />
+        <NotificationBadge value={unprintedTicketsCount} />
+      </ThemedView>
       {haveAnOpenOrder && (
         <ThemedView style={tw``}>
           <IconButton

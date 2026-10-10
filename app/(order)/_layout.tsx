@@ -1,10 +1,12 @@
 import { Colors, typography } from "@/constants/theme";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 import { Stack } from "expo-router";
 import { useEffect } from "react";
 
 export default function OrdersLayout() {
+  const { t } = useTranslation(["orders"]);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
   useEffect(() => {
@@ -58,6 +60,14 @@ export default function OrdersLayout() {
         options={{
           headerShown: true,
           title: "Order tickets",
+          headerShadowVisible: false,
+        }}
+      />
+      <Stack.Screen
+        name="unprinted-tickets/index"
+        options={{
+          headerShown: true,
+          title: t("orders:unprintedTickets.title"),
           headerShadowVisible: false,
         }}
       />

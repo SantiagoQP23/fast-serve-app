@@ -32,6 +32,7 @@ export interface SnapshotSyncResponseDto {
   paymentMethods?: unknown[];
   accounts?: unknown[];
   printers?: unknown[];
+  unprintedTickets?: unknown[];
   settings: Record<string, string | number | boolean>;
 }
 

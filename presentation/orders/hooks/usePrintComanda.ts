@@ -8,6 +8,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useProductionAreasStore } from "@/presentation/production-areas/store/useProductionAreasStore";
 import { TicketsService } from "@/core/tickets/services/tickets.service";
 import { Order } from "@/core/orders/models/order.model";
+import { useUnprintedTicketsStore } from "@/presentation/orders/store/useUnprintedTicketsStore";
 
 export const usePrintComanda = () => {
   const { t } = useTranslation(["common", "orders"]);
@@ -97,6 +98,9 @@ export const usePrintComanda = () => {
         // Mark ticket as printed via REST
         try {
           await TicketsService.markTicketPrinted(ticket.id);
+          useUnprintedTicketsStore
+            .getState()
+            .applyTicket({ ...ticket, orderId: order.id, printed: true });
         } catch (e) {
           console.warn("Failed to mark ticket as printed:", e);
         }
