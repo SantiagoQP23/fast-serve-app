@@ -10,7 +10,7 @@ import {
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useNavigation } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
@@ -176,6 +176,60 @@ export default function OrderScreen() {
   const handleOpenMoreOptions = useCallback(() => {
     moreOptionsSheetRef.current?.present();
   }, []);
+
+  const canMarkDelivered =
+    order?.isClosed !== true &&
+    order?.status !== OrderStatus.DELIVERED &&
+    (order?.details ?? []).some(
+      (detail) =>
+        detail.status !== OrderDetailStatus.DELIVERED &&
+        detail.status !== OrderDetailStatus.CANCELLED,
+    );
+  const canCloseOrder =
+    order?.isClosed !== true &&
+    order?.status === OrderStatus.DELIVERED &&
+    order?.isPaid === true;
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}>
+          {canMarkDelivered && (
+            <Button
+              leftIcon="checkmark-done-outline"
+              label={t("orders:options.markDelivered")}
+              onPress={() => order && markDelivered(order)}
+              variant="outline"
+              size="small"
+            />
+          )}
+          {canCloseOrder && (
+            <Button
+              leftIcon="lock-closed-outline"
+              label={t("orders:options.closeOrder")}
+              onPress={openCloseModal}
+              variant="outline"
+              size="small"
+            />
+          )}
+          <IconButton
+            icon="ellipsis-vertical"
+            onPress={handleOpenMoreOptions}
+            size={24}
+          />
+        </ThemedView>
+      ),
+    });
+  }, [
+    navigation,
+    canMarkDelivered,
+    canCloseOrder,
+    order,
+    markDelivered,
+    openCloseModal,
+    handleOpenMoreOptions,
+    t,
+  ]);
 
   const onRefresh = useCallback(async () => {
     if (!order?.id) return;
@@ -1056,10 +1110,6 @@ export default function OrderScreen() {
                   label: t("orders:details.tabs.tickets"),
                   onPress: () => setActiveTab("tickets"),
                   active: activeTab === "tickets",
-                },
-                {
-                  icon: "ellipsis-horizontal-outline",
-                  onPress: handleOpenMoreOptions,
                 },
               ]}
             />
