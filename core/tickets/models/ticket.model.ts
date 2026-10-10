@@ -6,6 +6,7 @@ export interface Ticket {
   id: string;
   type: TicketType;
   printed: boolean;
+  skipped?: boolean;
   createdAt: Date;
   orderId: string;
   order?: Order;

@@ -11,4 +11,5 @@ export enum SyncResourceType {
   ACCOUNT = "account",
   PRINTER = "printer",
   SETTINGS = "settings",
+  TICKET = "ticket",
 }

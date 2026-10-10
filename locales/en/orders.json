@@ -219,7 +219,15 @@
     "printed": "Printed",
     "ticketSingular": "ticket",
     "ticketPlural": "tickets",
-    "noTickets": "No tickets yet"
+    "noTickets": "No tickets yet",
+    "skip": "Skip",
+    "skipped": "Skipped"
+  },
+  "unprintedTickets": {
+    "title": "Tickets to print",
+    "empty": "No tickets waiting to be printed",
+    "skipError": "Couldn't skip the ticket",
+    "orderHeader": "Order #{{num}} · {{place}}"
   },
   "editCart": {
     "reviewChanges": "Review Changes",
