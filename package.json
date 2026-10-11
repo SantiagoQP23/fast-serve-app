@@ -52,6 +52,7 @@
     "expo-symbols": "~56.0.7",
     "expo-system-ui": "~56.0.5",
     "expo-web-browser": "~56.0.6",
+    "fuse.js": "^7.5.0",
     "i18next": "^25.7.3",
     "jsqr": "^1.4.0",
     "react": "19.2.3",
