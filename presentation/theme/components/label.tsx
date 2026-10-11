@@ -50,8 +50,16 @@ export default function Label({
   };
 
   const solidStyles = {
-    success: { bg: "bg-emerald-100", text: "text-emerald-800", dot: "bg-emerald-500" },
-    warning: { bg: "bg-orange-100", text: "text-orange-800", dot: "bg-orange-500" },
+    success: {
+      bg: "bg-emerald-100",
+      text: "text-emerald-800",
+      dot: "bg-emerald-500",
+    },
+    warning: {
+      bg: "bg-orange-100",
+      text: "text-orange-800",
+      dot: "bg-orange-500",
+    },
     error: { bg: "bg-red-100", text: "text-red-700", dot: "bg-red-500" },
     info: { bg: "bg-blue-100", text: "text-blue-700", dot: "bg-blue-500" },
     default: { bg: "bg-gray-100", text: "text-gray-600", dot: "bg-gray-400" },
@@ -101,7 +109,6 @@ export default function Label({
   const isSmall = size === "small";
   const isSolid = variant === "solid" && !isOutline;
   const solid = solidStyles[color];
-  const showDot = isSolid && !icon;
 
   const containerBg = isOutline
     ? "border border-light-border"
@@ -120,9 +127,6 @@ export default function Label({
         ),
       ]}
     >
-      {showDot && (
-        <ThemedView style={tw.style("w-1.5 h-1.5 rounded-full", solid.dot)} />
-      )}
       {icon && (
         <Ionicons
           name={icon}
