@@ -6,11 +6,9 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { groupByDayAndHour } from "@/core/i18n/utils";
+import { groupByDay } from "@/core/i18n/utils";
 import Button from "@/presentation/theme/components/button";
-import DaySectionHeader, {
-  HourSectionHeader,
-} from "@/presentation/inventory/components/day-section-header";
+import DaySectionHeader from "@/presentation/inventory/components/day-section-header";
 import InventoryPurchaseCard from "@/presentation/inventory/components/inventory-purchase-card";
 import { useInventoryPurchases } from "@/presentation/inventory/hooks/useInventoryPurchases";
 import { type InventoryPurchase } from "@/core/inventory/models/inventory-purchase.model";
@@ -26,7 +24,7 @@ export default function InventoryPurchasesTab() {
     refresh,
   } = useInventoryPurchases();
   const days = useMemo(
-    () => groupByDayAndHour(purchases, (purchase) => purchase.createdAt),
+    () => groupByDay(purchases, (purchase) => purchase.createdAt),
     [purchases],
   );
 
@@ -81,20 +79,15 @@ export default function InventoryPurchasesTab() {
           </ThemedView>
         )}
 
-      {days.map(({ day, hours }) => (
-        <ThemedView key={day} style={tw`gap-4 bg-transparent`}>
+      {days.map(({ day, items }) => (
+        <ThemedView key={day} style={tw`gap-3 bg-transparent`}>
           <DaySectionHeader day={day} />
-          {hours.map(({ hour, items }) => (
-            <ThemedView key={hour} style={tw`gap-3 bg-transparent`}>
-              <HourSectionHeader hour={hour} />
-              {items.map((purchase) => (
-                <InventoryPurchaseCard
-                  key={purchase.id}
-                  purchase={purchase}
-                  onPress={openPurchase}
-                />
-              ))}
-            </ThemedView>
+          {items.map((purchase) => (
+            <InventoryPurchaseCard
+              key={purchase.id}
+              purchase={purchase}
+              onPress={openPurchase}
+            />
           ))}
         </ThemedView>
       ))}

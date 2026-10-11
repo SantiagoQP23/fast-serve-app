@@ -101,19 +101,14 @@ export const groupConsecutive = <T>(
   return groups;
 };
 
-/** Group items by calendar day (key: YYYY-MM-DD), then by hour (key: HH:00). */
-export const groupByDayAndHour = <T>(
+/** Group items by calendar day (key: YYYY-MM-DD). */
+export const groupByDay = <T>(
   items: T[],
   getDate: (item: T) => Date | string | dayjs.Dayjs,
 ) =>
   groupConsecutive(items, (item) =>
     dayjs(getDate(item)).format("YYYY-MM-DD"),
-  ).map(({ key, items: dayItems }) => ({
-    day: key,
-    hours: groupConsecutive(dayItems, (item) =>
-      dayjs(getDate(item)).format("HH:00"),
-    ).map(({ key: hour, items: hourItems }) => ({ hour, items: hourItems })),
-  }));
+  ).map(({ key, items: dayItems }) => ({ day: key, items: dayItems }));
 
 /**
  * Get relative time from now (e.g., "5m ago", "2h ago", "3d ago")
