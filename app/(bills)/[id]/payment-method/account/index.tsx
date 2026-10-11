@@ -24,6 +24,8 @@ import { usePaymentStore } from "@/presentation/payment/store/usePaymentStore";
 import { generateIdempotencyKey } from "@/helpers/idempotency";
 import { getErrorMessage } from "@/core/api/get-error-message";
 import Card from "@/presentation/theme/components/card";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { isAdminLevelRole } from "@/core/auth/models/user.model";
 
 export default function AccountScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
@@ -43,6 +45,11 @@ export default function AccountScreen() {
     (state) => state.billReceivedAmount,
   );
   const billTransferNote = useOrdersStore((state) => state.billTransferNote);
+  const billRequestApproval = useOrdersStore(
+    (state) => state.billRequestApproval,
+  );
+  const { user } = useAuthStore();
+  const isAdmin = isAdminLevelRole(user?.role?.name);
   const setSelectedAccount = useOrdersStore(
     (state) => state.setSelectedAccount,
   );
@@ -120,34 +127,40 @@ export default function AccountScreen() {
         ...(isTransfer && {
           description: billTransferNote || undefined,
         }),
+        ...(isTransfer &&
+          isAdmin &&
+          !billRequestApproval && { requestApproval: false }),
       },
       {
         onSuccess: async (resp) => {
           resetPaymentStore();
           const transaction = resp.data?.transaction;
 
+          const uploadPendingProof = async (transactionId: number) => {
+            if (!pendingProofImage) return;
+            setIsUploadingProof(true);
+            try {
+              await PaymentProofsService.uploadProof(
+                transactionId,
+                pendingProofImage.uri,
+                pendingProofImage.fileName,
+                pendingProofImage.mimeType,
+              );
+              setPendingProofImage(null);
+              toast.success(t("bills:proofUpload.uploadSuccess"));
+            } catch (error: any) {
+              toast.error(
+                getErrorMessage(error, { fallbackToServerMessage: true }),
+              );
+            } finally {
+              setIsUploadingProof(false);
+            }
+          };
+
           if (transaction?.status === TransactionStatus.PENDING_PROOF) {
             setActivePendingTransaction(transaction as Transaction);
 
-            if (pendingProofImage) {
-              setIsUploadingProof(true);
-              try {
-                await PaymentProofsService.uploadProof(
-                  transaction.id,
-                  pendingProofImage.uri,
-                  pendingProofImage.fileName,
-                  pendingProofImage.mimeType,
-                );
-                setPendingProofImage(null);
-                toast.success(t("bills:proofUpload.uploadSuccess"));
-              } catch (error: any) {
-                toast.error(
-                  getErrorMessage(error, { fallbackToServerMessage: true }),
-                );
-              } finally {
-                setIsUploadingProof(false);
-              }
-            }
+            await uploadPendingProof(transaction.id);
 
             // Navigate back to bill (whether upload succeeded or not)
             if (bill.source === "direct") {
@@ -161,6 +174,16 @@ export default function AccountScreen() {
               router.back();
             }
             return;
+          }
+
+          // Transfer an admin approved on the spot: attach the optional proof,
+          // then leave like any other completed payment.
+          if (
+            isTransfer &&
+            transaction?.status === TransactionStatus.COMPLETED
+          ) {
+            toast.success(t("bills:proofUpload.autoApproved"));
+            await uploadPendingProof(transaction.id);
           }
 
           // router.replace(`/(bills)/${bill.id}`);
