@@ -6,4 +6,6 @@ export interface PayBillTransactionDto {
   paymentMethodId: number;
   accountId: number;
   billId?: number;
+  /** Transfers only. `false` approves the payment right away (owner/admin). */
+  requestApproval?: boolean;
 }

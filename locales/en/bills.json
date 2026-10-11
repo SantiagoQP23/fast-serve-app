@@ -141,6 +141,9 @@
     "approvalNotes": "Notes",
     "uploadedBy": "Uploaded by",
     "rejectReasonPlaceholder": "Enter rejection reason",
-    "uploading": "Uploading proof..."
+    "uploading": "Uploading proof...",
+    "requestApproval": "Send approval request",
+    "autoApproveHint": "The payment will be approved automatically",
+    "autoApproved": "Transfer approved"
   }
 }

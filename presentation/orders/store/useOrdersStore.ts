@@ -24,6 +24,7 @@ interface OrdersState {
   billAmount: string;
   billReceivedAmount: string;
   billTransferNote: string;
+  billRequestApproval: boolean;
   selectedPaymentMethod: PaymentMethod | null;
   selectedAccount: Account | null;
   activePendingTransaction: Transaction | null;
@@ -36,6 +37,7 @@ interface OrdersState {
   setBillAmount: (amount: string) => void;
   setBillReceivedAmount: (amount: string) => void;
   setBillTransferNote: (note: string) => void;
+  setBillRequestApproval: (requestApproval: boolean) => void;
   setSelectedPaymentMethod: (method: PaymentMethod | null) => void;
   setSelectedAccount: (account: Account | null) => void;
   setActivePendingTransaction: (transaction: Transaction | null) => void;
@@ -56,6 +58,7 @@ const initialState = {
   billAmount: "",
   billReceivedAmount: "",
   billTransferNote: "",
+  billRequestApproval: true,
   selectedPaymentMethod: null,
   selectedAccount: null,
   activePendingTransaction: null,
@@ -86,6 +89,8 @@ export const useOrdersStore = create<OrdersState>()(
       setBillReceivedAmount: (amount: string) =>
         set({ billReceivedAmount: amount }),
       setBillTransferNote: (note: string) => set({ billTransferNote: note }),
+      setBillRequestApproval: (requestApproval: boolean) =>
+        set({ billRequestApproval: requestApproval }),
       setSelectedPaymentMethod: (method: PaymentMethod | null) =>
         set({ selectedPaymentMethod: method }),
       setSelectedAccount: (account: Account | null) =>

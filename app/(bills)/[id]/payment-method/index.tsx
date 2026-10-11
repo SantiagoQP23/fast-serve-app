@@ -39,6 +39,9 @@ import { usePaymentStore } from "@/presentation/payment/store/usePaymentStore";
 import { roundTo } from "@/core/common/utils/format.util";
 import * as ImagePicker from "expo-image-picker";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import Checkbox from "@/presentation/theme/components/checkbox";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { isAdminLevelRole } from "@/core/auth/models/user.model";
 
 const iconForType = (
   type: PaymentMethodCategory,
@@ -77,6 +80,9 @@ export default function PaymentMethodScreen() {
   const setBillTransferNote = useOrdersStore(
     (state) => state.setBillTransferNote,
   );
+  const setBillRequestApproval = useOrdersStore(
+    (state) => state.setBillRequestApproval,
+  );
   const setBillAmount = useOrdersStore((state) => state.setBillAmount);
   const setPendingProofImage = useOrdersStore(
     (state) => state.setPendingProofImage,
@@ -89,6 +95,8 @@ export default function PaymentMethodScreen() {
   const { refetch, isRefetching } = paymentMethodsQuery;
   const activePaymentMethods = paymentMethods.filter((m) => m.isActive);
   const { generateBillPaymentIdempotencyKey } = usePaymentStore();
+  const { user } = useAuthStore();
+  const isAdmin = isAdminLevelRole(user?.role?.name);
 
   useEffect(() => {
     navigation.setOptions({
@@ -110,6 +118,7 @@ export default function PaymentMethodScreen() {
   );
   const [receivedAmount, setReceivedAmount] = useState("");
   const [transferNote, setTransferNote] = useState("");
+  const [requestApproval, setRequestApproval] = useState(true);
   const [selectedProofImage, setSelectedProofImage] =
     useState<ImagePicker.ImagePickerAsset | null>(null);
   const [pendingNavigationMethod, setPendingNavigationMethod] =
@@ -257,6 +266,7 @@ export default function PaymentMethodScreen() {
   const handleContinueTransfer = () => {
     if (!selectedMethod) return;
     setBillTransferNote(transferNote);
+    setBillRequestApproval(isAdmin ? requestApproval : true);
     if (selectedProofImage) {
       setPendingProofImage({
         uri: selectedProofImage.uri,
@@ -276,6 +286,7 @@ export default function PaymentMethodScreen() {
     setSelectedMethod(method);
     setReceivedAmount("");
     setTransferNote("");
+    setRequestApproval(true);
 
     if (+payAmount <= 0) {
       toast.error(t("errors:validation.amountMustBeGreaterThanZero"));
@@ -402,6 +413,21 @@ export default function PaymentMethodScreen() {
               </ThemedView>
             )}
           </ThemedView>
+
+          {isAdmin && (
+            <ThemedView style={tw`gap-1`}>
+              <Checkbox
+                value={requestApproval}
+                onValueChange={setRequestApproval}
+                label={t("bills:proofUpload.requestApproval")}
+              />
+              {!requestApproval && (
+                <ThemedText type="small" style={tw`text-gray-500 ml-9`}>
+                  {t("bills:proofUpload.autoApproveHint")}
+                </ThemedText>
+              )}
+            </ThemedView>
+          )}
 
           {/* <ThemedView */}
           {/*   style={tw`flex-row items-center gap-2 p-3 rounded-xl bg-blue-50`} */}

@@ -141,6 +141,9 @@
     "approvalNotes": "Notas",
     "uploadedBy": "Subido por",
     "rejectReasonPlaceholder": "Ingresa el motivo del rechazo",
-    "uploading": "Subiendo comprobante..."
+    "uploading": "Subiendo comprobante...",
+    "requestApproval": "Enviar solicitud de aprobación",
+    "autoApproveHint": "El pago se aprobará automáticamente",
+    "autoApproved": "Transferencia aprobada"
   }
 }
