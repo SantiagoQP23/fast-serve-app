@@ -129,12 +129,16 @@ export const useMenuStore = create<MenuState & MenuActions>()(
             p.id === productId
               ? {
                   ...p,
+                  // The sync event may have already upserted this option,
+                  // so drop any existing copy before appending.
                   options: [
-                    ...p.options.map((existing) =>
-                      option.isDefault
-                        ? { ...existing, isDefault: false }
-                        : existing,
-                    ),
+                    ...p.options
+                      .filter((existing) => existing.id !== option.id)
+                      .map((existing) =>
+                        option.isDefault
+                          ? { ...existing, isDefault: false }
+                          : existing,
+                      ),
                     option,
                   ],
                 }
