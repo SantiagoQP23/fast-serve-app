@@ -24,6 +24,11 @@ interface TicketCardProps {
   /** When passed, the header shows the order number and table and opens it. */
   order?: Order;
   onOpenOrder?: (order: Order) => void;
+  /** Long press starts selection; while selecting, a tap toggles the card. */
+  onLongPress?: (ticket: Ticket) => void;
+  selectionMode?: boolean;
+  selected?: boolean;
+  onToggleSelect?: (ticket: Ticket) => void;
 }
 
 export default function TicketCard({
@@ -32,6 +37,10 @@ export default function TicketCard({
   onSkip,
   order,
   onOpenOrder,
+  onLongPress,
+  selectionMode = false,
+  selected = false,
+  onToggleSelect,
 }: TicketCardProps) {
   const { t } = useTranslation(["common", "orders"]);
   const { productionAreas } = useProductionAreasStore();
@@ -80,13 +89,32 @@ export default function TicketCard({
   };
 
   return (
-    <Card style={tw`p-4 bg-white`}>
+    <Card
+      disabled={!selectionMode && !onLongPress}
+      onPress={() => selectionMode && onToggleSelect?.(ticket)}
+      onLongPress={() => !selectionMode && onLongPress?.(ticket)}
+      style={tw.style("p-4 bg-white", selected && "border-2 border-blue-500")}
+    >
       {order && (
         <Pressable
-          onPress={() => onOpenOrder?.(order)}
+          onPress={() =>
+            selectionMode ? onToggleSelect?.(ticket) : onOpenOrder?.(order)
+          }
+          onLongPress={() => !selectionMode && onLongPress?.(ticket)}
           style={tw`flex-row items-center justify-between pb-3`}
         >
-          <ThemedText type="body1" style={{ fontFamily: typography.semibold }}>
+          {selectionMode && (
+            <Ionicons
+              name={selected ? "checkmark-circle" : "ellipse-outline"}
+              size={22}
+              color={selected ? tw.color("blue-500") : tw.color("gray-400")}
+              style={tw`mr-2`}
+            />
+          )}
+          <ThemedText
+            type="body1"
+            style={[tw`flex-1`, { fontFamily: typography.semibold }]}
+          >
             {t("orders:unprintedTickets.orderHeader", {
               num: order.num,
               place: order.table?.name
@@ -94,11 +122,13 @@ export default function TicketCard({
                 : t("orders:details.takeAway"),
             })}
           </ThemedText>
-          <Ionicons
-            name="chevron-forward"
-            size={18}
-            color={tw.color("gray-400")}
-          />
+          {!selectionMode && (
+            <Ionicons
+              name="chevron-forward"
+              size={18}
+              color={tw.color("gray-400")}
+            />
+          )}
         </Pressable>
       )}
 
@@ -200,30 +230,32 @@ export default function TicketCard({
         ))}
       </ThemedView>
 
-      <ThemedView style={tw`flex-row gap-2`}>
-        {onSkip && (
+      {!selectionMode && (
+        <ThemedView style={tw`flex-row gap-2`}>
+          {onSkip && (
+            <ThemedView style={tw`flex-1`}>
+              <Button
+                variant="text"
+                leftIcon="eye-off-outline"
+                label={t("orders:tickets.skip")}
+                onPress={() => onSkip(ticket)}
+              />
+            </ThemedView>
+          )}
           <ThemedView style={tw`flex-1`}>
             <Button
-              variant="text"
-              leftIcon="eye-off-outline"
-              label={t("orders:tickets.skip")}
-              onPress={() => onSkip(ticket)}
+              variant={ticket.printed ? "text" : "secondary"}
+              leftIcon="print-outline"
+              label={
+                ticket.printed
+                  ? t("orders:tickets.reprint")
+                  : t("orders:tickets.print")
+              }
+              onPress={() => onReprint(ticket)}
             />
           </ThemedView>
-        )}
-        <ThemedView style={tw`flex-1`}>
-          <Button
-            variant={ticket.printed ? "text" : "secondary"}
-            leftIcon="print-outline"
-            label={
-              ticket.printed
-                ? t("orders:tickets.reprint")
-                : t("orders:tickets.print")
-            }
-            onPress={() => onReprint(ticket)}
-          />
         </ThemedView>
-      </ThemedView>
+      )}
     </Card>
   );
 }

@@ -227,7 +227,14 @@
     "title": "Tickets por imprimir",
     "empty": "No hay tickets pendientes de imprimir",
     "skipError": "No se pudo omitir el ticket",
-    "orderHeader": "Pedido #{{num}} · {{place}}"
+    "orderHeader": "Pedido #{{num}} · {{place}}",
+    "selectAll": "Seleccionar todos",
+    "unselectAll": "Quitar selección",
+    "cancelSelection": "Cancelar selección",
+    "selectedCount_one": "{{count}} seleccionado",
+    "selectedCount_other": "{{count}} seleccionados",
+    "skipSelectedError_one": "No se pudo omitir {{count}} ticket",
+    "skipSelectedError_other": "No se pudieron omitir {{count}} tickets"
   },
   "editCart": {
     "reviewChanges": "Revisar Cambios",

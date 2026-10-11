@@ -1,4 +1,5 @@
-import { RefreshControl, ScrollView } from "react-native";
+import { useMemo, useState } from "react";
+import { RefreshControl, ScrollView, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { toast } from "sonner-native";
@@ -16,6 +17,9 @@ import { useUnprintedTicketsStore } from "@/presentation/orders/store/useUnprint
 import { TicketsService } from "@/core/tickets/services/tickets.service";
 import { Ticket } from "@/core/tickets/models/ticket.model";
 import { Order } from "@/core/orders/models/order.model";
+import IconButton from "@/presentation/theme/components/icon-button";
+import Button from "@/presentation/theme/components/button";
+import { typography } from "@/constants/theme";
 
 export default function UnprintedTicketsScreen() {
   const { t } = useTranslation(["common", "orders"]);
@@ -28,6 +32,72 @@ export default function UnprintedTicketsScreen() {
   const openOrder = (order: Order) => {
     setActiveOrder(order);
     router.push(`/(order)/${order.num}`);
+  };
+
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isSkippingSelected, setIsSkippingSelected] = useState(false);
+
+  // Tickets printed or skipped elsewhere leave the list, so only count the
+  // selected ones that are still visible.
+  const selectedTickets = useMemo(
+    () =>
+      tickets
+        .map(({ ticket }) => ticket)
+        .filter((ticket) => selectedIds.has(ticket.id)),
+    [tickets, selectedIds],
+  );
+  const allSelected =
+    tickets.length > 0 && selectedTickets.length === tickets.length;
+
+  const enterSelectionMode = (ticket: Ticket) => {
+    setIsSelectionMode(true);
+    setSelectedIds(new Set([ticket.id]));
+  };
+
+  const toggleSelect = (ticket: Ticket) => {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (next.has(ticket.id)) {
+        next.delete(ticket.id);
+      } else {
+        next.add(ticket.id);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    setSelectedIds(
+      allSelected ? new Set() : new Set(tickets.map(({ ticket }) => ticket.id)),
+    );
+  };
+
+  const cancelSelectionMode = () => {
+    setIsSelectionMode(false);
+    setSelectedIds(new Set());
+  };
+
+  const skipSelected = async () => {
+    setIsSkippingSelected(true);
+    const results = await Promise.allSettled(
+      selectedTickets.map(async (ticket) => {
+        await TicketsService.skipTicket(ticket.id);
+        useUnprintedTicketsStore
+          .getState()
+          .applyTicket({ ...ticket, skipped: true });
+      }),
+    );
+    setIsSkippingSelected(false);
+
+    const failed = results.filter((r) => r.status === "rejected").length;
+    if (failed > 0) {
+      console.error("Error skipping tickets:", results);
+      toast.error(
+        t("orders:unprintedTickets.skipSelectedError", { count: failed }),
+      );
+    }
+    cancelSelectionMode();
   };
 
   const skipTicket = async (ticket: Ticket) => {
@@ -76,10 +146,57 @@ export default function UnprintedTicketsScreen() {
             onOpenOrder={openOrder}
             onReprint={() => printComanda(order, ticket)}
             onSkip={skipTicket}
+            onLongPress={enterSelectionMode}
+            selectionMode={isSelectionMode}
+            selected={selectedIds.has(ticket.id)}
+            onToggleSelect={toggleSelect}
           />
         ))}
         <ThemedView style={tw`h-20`} />
       </ScrollView>
+
+      {isSelectionMode && (
+        <View style={tw`absolute bottom-6 left-4 right-4 items-center`}>
+          <ThemedView
+            style={tw`w-full flex-row items-center gap-1 bg-light-surface rounded-full shadow-sm px-2 py-2`}
+          >
+            <IconButton
+              icon="close"
+              variant="text"
+              onPress={cancelSelectionMode}
+              accessibilityLabel={t("orders:unprintedTickets.cancelSelection")}
+            />
+            <ThemedText
+              type="body1"
+              numberOfLines={1}
+              style={[tw`flex-1`, { fontFamily: typography.medium }]}
+            >
+              {t("orders:unprintedTickets.selectedCount", {
+                count: selectedTickets.length,
+              })}
+            </ThemedText>
+            <Button
+              variant="text"
+              size="small"
+              label={
+                allSelected
+                  ? t("orders:unprintedTickets.unselectAll")
+                  : t("orders:unprintedTickets.selectAll")
+              }
+              onPress={toggleSelectAll}
+            />
+            <Button
+              variant="secondary"
+              size="small"
+              leftIcon="eye-off-outline"
+              label={t("orders:tickets.skip")}
+              loading={isSkippingSelected}
+              disabled={selectedTickets.length === 0 || isSkippingSelected}
+              onPress={skipSelected}
+            />
+          </ThemedView>
+        </View>
+      )}
     </ScreenLayout>
   );
 }

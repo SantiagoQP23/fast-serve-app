@@ -227,7 +227,14 @@
     "title": "Tickets to print",
     "empty": "No tickets waiting to be printed",
     "skipError": "Couldn't skip the ticket",
-    "orderHeader": "Order #{{num}} · {{place}}"
+    "orderHeader": "Order #{{num}} · {{place}}",
+    "selectAll": "Select all",
+    "unselectAll": "Unselect all",
+    "cancelSelection": "Cancel selection",
+    "selectedCount_one": "{{count}} selected",
+    "selectedCount_other": "{{count}} selected",
+    "skipSelectedError_one": "Couldn't skip {{count}} ticket",
+    "skipSelectedError_other": "Couldn't skip {{count}} tickets"
   },
   "editCart": {
     "reviewChanges": "Review Changes",
