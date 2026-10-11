@@ -15,7 +15,14 @@ export const useAccounts = () => {
 
   const accountsQuery = useQuery({
     queryKey: ["accounts", currentRestaurant?.id],
-    queryFn: () => AccountsService.getAccounts(),
+    // Write to the store on every fetch rather than in an effect on `data`:
+    // a refetch returning identical data keeps the same reference, so the
+    // effect wouldn't fire and a stale/partial cache would never be fixed.
+    queryFn: async () => {
+      const data = await AccountsService.getAccounts();
+      if (currentRestaurant?.id) setAccounts(data, currentRestaurant.id);
+      return data;
+    },
     enabled: false,
   });
 
@@ -30,13 +37,6 @@ export const useAccounts = () => {
       accountsQuery.refetch();
     }
   }, [currentRestaurant?.id, cachedRestaurantId, clearAccounts, accountsQuery]);
-
-  // Sync React Query result → Zustand store
-  useEffect(() => {
-    if (accountsQuery.data && currentRestaurant?.id) {
-      setAccounts(accountsQuery.data, currentRestaurant.id);
-    }
-  }, [accountsQuery.data, currentRestaurant?.id, setAccounts]);
 
   const accounts =
     cachedAccounts.length > 0 ? cachedAccounts : accountsQuery.data ?? [];

@@ -44,9 +44,6 @@ function applySnapshot(
   const categories = (snapshot.categories ?? []) as Menu["categories"];
   const sections = (snapshot.sections ?? []) as Menu["sections"];
   const productionAreas = (snapshot.productionAreas ?? []) as ProductionArea[];
-  const paymentMethods = (snapshot.paymentMethods ?? []) as PaymentMethod[];
-  const accounts = (snapshot.accounts ?? []) as Account[];
-  const printers = (snapshot.printers ?? []) as Printer[];
   const unprintedTickets = (snapshot.unprintedTickets ?? []) as Ticket[];
 
   useOrdersStore.getState().setOrders(orders);
@@ -57,12 +54,27 @@ function applySnapshot(
   useProductionAreasStore
     .getState()
     .setProductionAreas(productionAreas, restaurantId);
-  usePaymentMethodsStore
-    .getState()
-    .setPaymentMethods(paymentMethods, restaurantId);
-  useAccountsStore.getState().setAccounts(accounts, restaurantId);
-  usePrintersStore.getState().setPrinters(printers, restaurantId);
   useUnprintedTicketsStore.getState().setTickets(unprintedTickets);
+
+  // The backend snapshot doesn't include payment methods, accounts or
+  // printers yet. Only replace those caches when the snapshot actually
+  // carries them; otherwise wiping them leaves screens that read the cache
+  // (e.g. the bank account picker) with missing data.
+  if (snapshot.paymentMethods) {
+    usePaymentMethodsStore
+      .getState()
+      .setPaymentMethods(snapshot.paymentMethods as PaymentMethod[], restaurantId);
+  }
+  if (snapshot.accounts) {
+    useAccountsStore
+      .getState()
+      .setAccounts(snapshot.accounts as Account[], restaurantId);
+  }
+  if (snapshot.printers) {
+    usePrintersStore
+      .getState()
+      .setPrinters(snapshot.printers as Printer[], restaurantId);
+  }
 }
 
 async function applyIncremental(response: IncrementalSyncResponseDto) {

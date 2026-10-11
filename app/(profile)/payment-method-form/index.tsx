@@ -76,12 +76,19 @@ const accountIcon = (type: AccountType) =>
 export default function PaymentMethodFormScreen() {
   const { t } = useTranslation("paymentMethods");
 
-  const { accounts } = useAccounts();
+  const { accounts, accountsQuery } = useAccounts();
   const { createAccount } = useAccountsManagement();
   const { paymentMethods } = usePaymentMethods();
   const { createPaymentMethod } = usePaymentMethodsManagement();
 
   const [step, setStep] = useState<1 | 2>(1);
+
+  // Refresh accounts so the eligible (cash/bank) list isn't limited to
+  // whatever happens to be in the local cache.
+  useEffect(() => {
+    accountsQuery.refetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [newAccountName, setNewAccountName] = useState("");
   const [newAccountType, setNewAccountType] = useState<AccountType>(

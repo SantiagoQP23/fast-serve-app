@@ -53,8 +53,10 @@ export default function PaymentMethodAccountSelectScreen() {
   const [newAccountError, setNewAccountError] = useState("");
   const newAccountSheetRef = useRef<BottomSheetMethods>(null);
 
+  // Always refresh: the cached list can be partial (e.g. only accounts
+  // upserted locally), which would hide eligible bank accounts.
   useEffect(() => {
-    if (accounts.length === 0) accountsQuery.refetch();
+    accountsQuery.refetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
