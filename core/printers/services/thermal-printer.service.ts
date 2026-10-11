@@ -7,6 +7,12 @@ import { TicketItem } from "@/core/tickets/models/ticket-item.model";
 import { TicketType } from "@/core/tickets/enums/ticket-type.enum";
 import { Bill, BillSource } from "@/core/orders/models/bill.model";
 
+const formatDateTime = (date: Date | string): string => {
+  const d = new Date(date);
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
 export class ThermalPrinterService {
   static printTest = async (
     printer: Printer,
@@ -162,14 +168,14 @@ export class ThermalPrinterService {
       `[C]<font size='big'>${order.table ? translations.table(order.table.name) : translations.takeAway}</font>\n` +
       `[C]\n` +
       `[L]${translations.waiter}: ${order.user?.person.firstName ?? translations.deletedUser} ${order.user?.person.lastName ?? ""}\n` +
-      `[L]${translations.date}: ${new Date(order.createdAt).toLocaleString()}\n` +
+      `[L]${translations.date}: ${formatDateTime(order.createdAt)}\n` +
       `[L]${translations.people}: ${order.people}\n` +
       `${order.notes ? `[C]-------------------------------------\n[L]${translations.notes}: ${order.notes}\n` : ""}` +
       `[C]\n` +
       `[C]----------------------------------------------\n` +
       `${detailsText}` +
       `[C]-----------------------------------------------\n` +
-      `[C]${new Date().toLocaleString()}\n` +
+      `[C]${formatDateTime(new Date())}\n` +
       `[C]\n` +
       `[C]\n` +
       `\x1B\x42\x03\x03 \n` +
@@ -259,14 +265,14 @@ export class ThermalPrinterService {
       `[C]<font size='big'>${order.table ? translations.table(order.table.name) : translations.takeAway}</font>\n` +
       `[C]\n` +
       `[L]${translations.waiter}: ${order.user?.person.firstName ?? translations.deletedUser} ${order.user?.person.lastName ?? ""}\n` +
-      `[L]${translations.date}: ${new Date(order.createdAt).toLocaleString()}\n` +
+      `[L]${translations.date}: ${formatDateTime(order.createdAt)}\n` +
       `[L]${translations.people}: ${order.people}\n` +
       `${order.notes ? `[C]-------------------------------------\n[L]${translations.notes}: ${order.notes}\n` : ""}` +
       `[C]\n` +
       `[C]----------------------------------------------\n` +
       `${detailsText}` +
       `[C]-----------------------------------------------\n` +
-      `[C]${new Date().toLocaleString()}\n` +
+      `[C]${formatDateTime(new Date())}\n` +
       `[C]\n` +
       `[C]\n` +
       `\x1B\x42\x03\x03 \n` +
