@@ -6,18 +6,16 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatTime, groupByDayAndHour } from "@/core/i18n/utils";
+import { groupByDayAndHour } from "@/core/i18n/utils";
 import Button from "@/presentation/theme/components/button";
-import Card from "@/presentation/theme/components/card";
 import Chip from "@/presentation/theme/components/chip";
-import Label from "@/presentation/theme/components/label";
 import DaySectionHeader, {
   HourSectionHeader,
 } from "@/presentation/inventory/components/day-section-header";
+import InventoryCountCard from "@/presentation/inventory/components/inventory-count-card";
 import { useInventoryCounts } from "@/presentation/inventory/hooks/useInventoryCounts";
 import {
   InventoryCountStatus,
-  getCountUserName,
   type InventoryCount,
 } from "@/core/inventory/models/inventory-count.model";
 
@@ -52,7 +50,7 @@ export default function InventoryCountsTab() {
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={tw`px-4 gap-3.5 pb-24 pt-6`}
+      contentContainerStyle={tw`px-4 gap-6 pb-28 pt-6`}
       refreshControl={
         <RefreshControl
           refreshing={countsQuery.isFetching && !isLoadingMore}
@@ -111,48 +109,18 @@ export default function InventoryCountsTab() {
         )}
 
       {days.map(({ day, hours }) => (
-        <ThemedView key={day} style={tw`gap-3.5 bg-transparent`}>
+        <ThemedView key={day} style={tw`gap-4 bg-transparent`}>
           <DaySectionHeader day={day} />
           {hours.map(({ hour, items }) => (
-            <ThemedView key={hour} style={tw`gap-2.5 bg-transparent`}>
+            <ThemedView key={hour} style={tw`gap-3 bg-transparent`}>
               <HourSectionHeader hour={hour} />
-              {items.map((count) => {
-                const creator = getCountUserName(count.createdBy);
-                const inProgress =
-                  count.status === InventoryCountStatus.IN_PROGRESS;
-                return (
-                  <Card key={count.id} onPress={() => openCount(count)}>
-                    <ThemedView style={tw`gap-2 bg-transparent`}>
-                      <ThemedView
-                        style={tw`flex-row justify-between items-center gap-2 bg-transparent`}
-                      >
-                        <ThemedText type="h4" style={tw`flex-1`}>
-                          {t("counts.productsCount", {
-                            count: count.itemsCount ?? 0,
-                          })}
-                        </ThemedText>
-                        <Label
-                          text={t(`counts.countStatus.${count.status}`)}
-                          color={inProgress ? "info" : "success"}
-                          size="small"
-                        />
-                      </ThemedView>
-                      <ThemedText type="small" style={tw`text-gray-500`}>
-                        {formatTime(count.createdAt)} ·{" "}
-                        {t("counts.progressLine", {
-                          adjusted: count.adjustedCount ?? 0,
-                          unanswered: count.pendingCount ?? 0,
-                        })}
-                      </ThemedText>
-                      {creator && (
-                        <ThemedText type="small" style={tw`text-gray-500`}>
-                          {t("counts.startedBy", { name: creator })}
-                        </ThemedText>
-                      )}
-                    </ThemedView>
-                  </Card>
-                );
-              })}
+              {items.map((count) => (
+                <InventoryCountCard
+                  key={count.id}
+                  count={count}
+                  onPress={openCount}
+                />
+              ))}
             </ThemedView>
           ))}
         </ThemedView>
