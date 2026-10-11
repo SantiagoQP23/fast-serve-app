@@ -210,7 +210,7 @@ export default function CartScreen() {
     const newDetailsPayload = newItems.map((item) => ({
       productId: item.product.id,
       quantity: item.quantity,
-      price: item.price ?? item.product.price,
+      price: item.price ?? item.productOption?.price,
       description: item.description,
       productOptionId: item.productOption?.id,
       typeOrderDetail: item.typeOrderDetail,
@@ -238,7 +238,7 @@ export default function CartScreen() {
 
   useEffect(() => {
     const total = details.reduce((acc, detail) => {
-      return acc + (detail.price ?? detail.product.price) * detail.quantity;
+      return acc + (detail.price ?? detail.productOption?.price ?? 0) * detail.quantity;
     }, 0);
     setTotal(total);
   }, [details]);

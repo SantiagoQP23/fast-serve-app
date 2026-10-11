@@ -32,6 +32,7 @@ import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { formatCurrency } from "@/core/i18n/utils";
 import type { ProductOption } from "@/core/menu/models/product-optionl.model";
+import { getProductDefaultOption } from "@/core/menu/models/product.model";
 import { typography } from "@/constants/theme";
 
 export default function MenuProductDetailScreen() {
@@ -93,7 +94,7 @@ export default function MenuProductDetailScreen() {
         productId: product.id,
         name: product.name,
         description: product.description || "",
-        price: String(product.price),
+        price: String(getProductDefaultOption(product)?.price ?? ""),
         categoryId: product.category.id,
         productionAreaId: product.productionArea?.id
           ? String(product.productionArea.id)

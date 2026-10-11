@@ -21,7 +21,10 @@ import SwipeableRow from "@/presentation/theme/components/swipeable-row";
 import Popover, {
   AnchorPosition,
 } from "@/presentation/theme/components/popover";
-import type { Product } from "@/core/menu/models/product.model";
+import {
+  getProductDefaultOption,
+  type Product,
+} from "@/core/menu/models/product.model";
 
 export default function MenuCategoryProductsScreen() {
   const { t } = useTranslation("menuManagement");
@@ -85,7 +88,7 @@ export default function MenuCategoryProductsScreen() {
         productId: product.id,
         name: product.name,
         description: product.description || "",
-        price: String(product.price),
+        price: String(getProductDefaultOption(product)?.price ?? ""),
         categoryId: product.category.id,
         productionAreaId: product.productionArea?.id
           ? String(product.productionArea.id)
@@ -248,7 +251,7 @@ export default function MenuCategoryProductsScreen() {
                       <ThemedView style={tw`flex-1 gap-2`}>
                         <ThemedText type="h4">{product.name}</ThemedText>
                         <ThemedText type="small" style={tw`text-gray-500`}>
-                          ${product.price?.toFixed(2)}
+                          ${(getProductDefaultOption(product)?.price ?? 0).toFixed(2)}
                         </ThemedText>
                       </ThemedView>
                     </ThemedView>

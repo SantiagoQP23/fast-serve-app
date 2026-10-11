@@ -17,7 +17,10 @@ import TextInput from "@/presentation/theme/components/text-input";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import SwipeableRow from "@/presentation/theme/components/swipeable-row";
 import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuManagement";
-import type { Product } from "@/core/menu/models/product.model";
+import {
+  getProductDefaultOption,
+  type Product,
+} from "@/core/menu/models/product.model";
 import { getProductOptionAvailableQuantity } from "@/core/menu/models/product-optionl.model";
 
 export default function MenuProductsScreen() {
@@ -56,7 +59,7 @@ export default function MenuProductsScreen() {
         productId: product.id,
         name: product.name,
         description: product.description || "",
-        price: String(product.price),
+        price: String(getProductDefaultOption(product)?.price ?? ""),
         categoryId: product.category.id,
         productionAreaId: product.productionArea?.id
           ? String(product.productionArea.id)
@@ -197,7 +200,7 @@ export default function MenuProductsScreen() {
                             •
                           </ThemedText>
                           <ThemedText type="small" style={tw`text-gray-500`}>
-                            ${product.price?.toFixed(2)}
+                            ${(getProductDefaultOption(product)?.price ?? 0).toFixed(2)}
                           </ThemedText>
                         </ThemedView>
                         {product.options?.some(

@@ -18,7 +18,10 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
-import { ProductStatus } from "@/core/menu/models/product.model";
+import {
+  getProductDefaultOption,
+  ProductStatus,
+} from "@/core/menu/models/product.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import {
   ProductOption,
@@ -163,7 +166,9 @@ export default function ProductScreen() {
   const parsedCustomPrice = parseFloat(price);
   const effectivePrice = Number.isFinite(parsedCustomPrice)
     ? parsedCustomPrice
-    : (selectedOption?.price ?? activeProduct.price);
+    : (selectedOption?.price ??
+      getProductDefaultOption(activeProduct)?.price ??
+      0);
 
   const addProductToOrder = () => {
     if (activeProduct && order)
