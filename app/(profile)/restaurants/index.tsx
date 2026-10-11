@@ -13,6 +13,7 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import { GroupedList } from "@/presentation/theme/components/grouped-list";
+import { ROUTES } from "@/constants/routes";
 
 export default function RestaurantsScreen() {
   const { t } = useTranslation("auth");
@@ -21,7 +22,13 @@ export default function RestaurantsScreen() {
   const isSwitching =
     switchRestaurant.isPending || bootstrapStatus === "loading";
   const onSwitchRestaurant = (restaurantId: string) => {
-    switchRestaurant.mutate(restaurantId);
+    switchRestaurant.mutate(restaurantId, {
+      onSuccess: () => {
+        // Clear the profile stack so back doesn't return here, then go home
+        if (router.canDismiss()) router.dismissAll();
+        router.replace(ROUTES.APP.MY_ORDERS);
+      },
+    });
   };
 
   const sortedRestaurantRoles = [...(user?.restaurantRoles ?? [])].sort(
