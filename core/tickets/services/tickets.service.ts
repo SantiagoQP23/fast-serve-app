@@ -16,6 +16,14 @@ export const TicketsService = {
     return data;
   },
 
+  /** Skips several tickets in one request; returns the ones skipped. */
+  skipTickets: async (ticketIds: string[]): Promise<Ticket[]> => {
+    const { data } = await restaurantApi.patch<Ticket[]>(`/tickets/skip`, {
+      ticketIds,
+    });
+    return data;
+  },
+
   skipTicket: async (ticketId: string): Promise<Ticket> => {
     const { data } = await restaurantApi.patch<Ticket>(
       `/tickets/${ticketId}/skip`,

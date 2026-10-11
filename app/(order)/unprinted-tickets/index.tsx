@@ -80,24 +80,27 @@ export default function UnprintedTicketsScreen() {
 
   const skipSelected = async () => {
     setIsSkippingSelected(true);
-    const results = await Promise.allSettled(
-      selectedTickets.map(async (ticket) => {
-        await TicketsService.skipTicket(ticket.id);
-        useUnprintedTicketsStore
-          .getState()
-          .applyTicket({ ...ticket, skipped: true });
-      }),
-    );
-    setIsSkippingSelected(false);
-
-    const failed = results.filter((r) => r.status === "rejected").length;
-    if (failed > 0) {
-      console.error("Error skipping tickets:", results);
-      toast.error(
-        t("orders:unprintedTickets.skipSelectedError", { count: failed }),
+    try {
+      const skipped = await TicketsService.skipTickets(
+        selectedTickets.map((ticket) => ticket.id),
       );
+      const skippedIds = new Set(skipped.map((ticket) => ticket.id));
+      const store = useUnprintedTicketsStore.getState();
+      selectedTickets
+        .filter((ticket) => skippedIds.has(ticket.id))
+        .forEach((ticket) => store.applyTicket({ ...ticket, skipped: true }));
+      cancelSelectionMode();
+    } catch (error) {
+      // Nothing was skipped (one transaction), so keep the selection to retry.
+      console.error("Error skipping tickets:", error);
+      toast.error(
+        t("orders:unprintedTickets.skipSelectedError", {
+          count: selectedTickets.length,
+        }),
+      );
+    } finally {
+      setIsSkippingSelected(false);
     }
-    cancelSelectionMode();
   };
 
   const skipTicket = async (ticket: Ticket) => {
