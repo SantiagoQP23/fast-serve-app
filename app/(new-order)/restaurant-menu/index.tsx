@@ -10,6 +10,7 @@ import { useRouter } from "expo-router";
 import TextInput from "@/presentation/theme/components/text-input";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
+import { useProductSearch } from "@/presentation/restaurant-menu/hooks/useProductSearch";
 import { Category } from "@/core/menu/models/category.model";
 import { Product } from "@/core/menu/models/product.model";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
@@ -29,7 +30,6 @@ export default function RestaurantMenuScreen() {
   const [section, setSection] = useState("");
   const [category, setCategory] = useState("");
   const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const router = useRouter();
   const [search, setSearch] = useState("");
   const {
@@ -49,6 +49,14 @@ export default function RestaurantMenuScreen() {
   const products = useMemo(
     () => allProducts.filter((p) => p.isActive),
     [allProducts],
+  );
+  const searchResults = useProductSearch(products, search);
+  const filteredProducts = useMemo(
+    () =>
+      search.trim()
+        ? searchResults
+        : products.filter((p) => p.category.id === category),
+    [search, searchResults, products, category],
   );
   const { setActiveProduct } = useMenuStore();
   const details = useNewOrderStore((state) => state.details);
@@ -103,13 +111,9 @@ export default function RestaurantMenuScreen() {
     router.push("/(new-order)/restaurant-menu/product");
   };
 
-  const onChangeCategory = useCallback(
-    (value: string) => {
-      setCategory(value);
-      setFilteredProducts(products.filter((p) => p.category.id === value));
-    },
-    [products],
-  );
+  const onChangeCategory = useCallback((value: string) => {
+    setCategory(value);
+  }, []);
 
   const onChangeSection = useCallback(
     (value: string) => {
@@ -122,22 +126,6 @@ export default function RestaurantMenuScreen() {
       });
     },
     [categories, onChangeCategory],
-  );
-
-  const onSearchChange = useCallback(
-    (value: string) => {
-      setSearch(value);
-      if (value) {
-        setFilteredProducts(
-          products.filter((p) =>
-            p.name.toLowerCase().includes(value.toLowerCase()),
-          ),
-        );
-      } else {
-        setFilteredProducts(products.filter((p) => p.category.id === category));
-      }
-    },
-    [products, category],
   );
 
   useEffect(() => {
@@ -156,18 +144,6 @@ export default function RestaurantMenuScreen() {
       onChangeCategory(filteredCategories[0].id);
     }
   }, [filteredCategories, category, onChangeCategory]);
-
-  useEffect(() => {
-    if (search) {
-      setFilteredProducts(
-        products.filter((p) =>
-          p.name.toLowerCase().includes(search.toLowerCase()),
-        ),
-      );
-      return;
-    }
-    setFilteredProducts(products.filter((p) => p.category.id === category));
-  }, [products, search, category]);
 
   // Check if menu is loaded
   const hasMenu =
@@ -230,13 +206,13 @@ export default function RestaurantMenuScreen() {
       <TextInput
         value={search}
         placeholder={t("menu:searchPlaceholder")}
-        onChangeText={(value) => onSearchChange(value)}
+        onChangeText={setSearch}
         icon="search-outline"
         trailingIcon={
           search && (
             <IconButton
               icon="close-circle-outline"
-              onPress={() => onSearchChange("")}
+              onPress={() => setSearch("")}
             ></IconButton>
           )
         }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ScrollView, RefreshControl, Pressable } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,6 +7,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
+import { useProductSearch } from "@/presentation/restaurant-menu/hooks/useProductSearch";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
@@ -40,13 +41,7 @@ export default function MenuProductsScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const filteredProducts = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-    if (!query) return products;
-    return products.filter((product) =>
-      product.name.toLowerCase().includes(query),
-    );
-  }, [products, searchQuery]);
+  const filteredProducts = useProductSearch(products, searchQuery);
 
   const handleCreateProduct = () => {
     router.push("/(profile)/menu-product-form");
