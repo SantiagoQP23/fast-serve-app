@@ -16,7 +16,7 @@ export const mapStoreToCreateOrderDto = (
         productId: detail.product.id,
         quantity: detail.quantity,
         description: detail.description,
-        price: detail.price ?? detail.product.price,
+        price: detail.price ?? detail.productOption.price,
         productOptionId: detail.productOption.id,
         typeOrderDetail: detail.typeOrderDetail || OrderType.IN_PLACE,
       };

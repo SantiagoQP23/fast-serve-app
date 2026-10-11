@@ -23,7 +23,10 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import type { Section } from "@/core/menu/models/section.model";
 import type { Category } from "@/core/menu/models/category.model";
-import type { Product } from "@/core/menu/models/product.model";
+import {
+  getProductDefaultOption,
+  type Product,
+} from "@/core/menu/models/product.model";
 import { typography } from "@/constants/theme";
 
 type SelectedEntity =
@@ -410,7 +413,7 @@ export default function MenuOverviewScreen() {
                   <ThemedView style={tw`flex-1 gap-2`}>
                     <ThemedText type="body1">{product.name}</ThemedText>
                     <ThemedText type="small" style={tw`text-gray-500`}>
-                      ${product.price?.toFixed(2)}
+                      ${(getProductDefaultOption(product)?.price ?? 0).toFixed(2)}
                     </ThemedText>
                   </ThemedView>
                 </ThemedView>

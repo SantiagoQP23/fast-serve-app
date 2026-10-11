@@ -13,7 +13,7 @@ export const mapStoreToCreateSaleDto = (
       const orderDetail: CreateSaleDetailDto = {
         productId: detail.product.id,
         quantity: detail.quantity,
-        price: detail.price ?? detail.product.price,
+        price: detail.price ?? detail.productOption.price,
         productOptionId: detail.productOption.id,
       };
       return orderDetail;
