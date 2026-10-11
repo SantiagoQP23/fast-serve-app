@@ -6,12 +6,10 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { groupByDayAndHour } from "@/core/i18n/utils";
+import { groupByDay } from "@/core/i18n/utils";
 import Button from "@/presentation/theme/components/button";
 import Chip from "@/presentation/theme/components/chip";
-import DaySectionHeader, {
-  HourSectionHeader,
-} from "@/presentation/inventory/components/day-section-header";
+import DaySectionHeader from "@/presentation/inventory/components/day-section-header";
 import InventoryCountCard from "@/presentation/inventory/components/inventory-count-card";
 import { useInventoryCounts } from "@/presentation/inventory/hooks/useInventoryCounts";
 import {
@@ -25,7 +23,7 @@ export default function InventoryCountsTab() {
   const { countsQuery, counts, hasMore, isLoadingMore, loadMore, refresh } =
     useInventoryCounts(status);
   const days = useMemo(
-    () => groupByDayAndHour(counts, (count) => count.createdAt),
+    () => groupByDay(counts, (count) => count.createdAt),
     [counts],
   );
 
@@ -108,20 +106,15 @@ export default function InventoryCountsTab() {
           </ThemedView>
         )}
 
-      {days.map(({ day, hours }) => (
-        <ThemedView key={day} style={tw`gap-4 bg-transparent`}>
+      {days.map(({ day, items }) => (
+        <ThemedView key={day} style={tw`gap-3 bg-transparent`}>
           <DaySectionHeader day={day} />
-          {hours.map(({ hour, items }) => (
-            <ThemedView key={hour} style={tw`gap-3 bg-transparent`}>
-              <HourSectionHeader hour={hour} />
-              {items.map((count) => (
-                <InventoryCountCard
-                  key={count.id}
-                  count={count}
-                  onPress={openCount}
-                />
-              ))}
-            </ThemedView>
+          {items.map((count) => (
+            <InventoryCountCard
+              key={count.id}
+              count={count}
+              onPress={openCount}
+            />
           ))}
         </ThemedView>
       ))}
