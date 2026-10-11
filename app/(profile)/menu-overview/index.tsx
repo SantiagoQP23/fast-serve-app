@@ -15,6 +15,7 @@ import Button from "@/presentation/theme/components/button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
+import { useProductSearch } from "@/presentation/restaurant-menu/hooks/useProductSearch";
 import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuManagement";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
@@ -87,15 +88,11 @@ export default function MenuOverviewScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sectionId, sectionCategories]);
 
+  const searchResults = useProductSearch(products, search);
   const filteredProducts = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    if (query) {
-      return products.filter((product) =>
-        product.name.toLowerCase().includes(query),
-      );
-    }
+    if (search.trim()) return searchResults;
     return products.filter((product) => product.category.id === categoryId);
-  }, [products, search, categoryId]);
+  }, [products, search, searchResults, categoryId]);
 
   const handleLoadMenu = async () => {
     setIsLoadingMenu(true);

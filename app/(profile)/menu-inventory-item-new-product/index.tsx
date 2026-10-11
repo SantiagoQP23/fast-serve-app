@@ -13,6 +13,7 @@ import Chip from "@/presentation/theme/components/chip";
 import Button from "@/presentation/theme/components/button";
 import ProductCard from "@/presentation/restaurant-menu/product-card";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
+import { useProductSearch } from "@/presentation/restaurant-menu/hooks/useProductSearch";
 import type { Product } from "@/core/menu/models/product.model";
 
 export default function NewInventoryItemSelectProductScreen() {
@@ -56,15 +57,14 @@ export default function NewInventoryItemSelectProductScreen() {
     }
   };
 
-  const filteredProducts = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    return products.filter((product) => {
-      const matchesQuery =
-        !query || product.name.toLowerCase().includes(query);
-      const matchesCategory = !categoryId || product.category.id === categoryId;
-      return matchesQuery && matchesCategory;
-    });
-  }, [products, search, categoryId]);
+  const categoryProducts = useMemo(
+    () =>
+      categoryId
+        ? products.filter((product) => product.category.id === categoryId)
+        : products,
+    [products, categoryId],
+  );
+  const filteredProducts = useProductSearch(categoryProducts, search);
 
   const handleSelectProduct = (product: Product) => {
     const activeOptions = product.options.filter((option) => option.isActive);
