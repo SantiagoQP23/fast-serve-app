@@ -84,6 +84,24 @@ export const getRelativeDate = (date: Date | string | dayjs.Dayjs): string => {
 };
 
 /**
+ * Group items by calendar day, keeping the incoming order (lists arrive
+ * newest first, so groups come out newest first too).
+ */
+export const groupByDay = <T>(
+  items: T[],
+  getDate: (item: T) => Date | string | dayjs.Dayjs,
+): { day: string; items: T[] }[] => {
+  const groups: { day: string; items: T[] }[] = [];
+  for (const item of items) {
+    const day = dayjs(getDate(item)).format("YYYY-MM-DD");
+    const last = groups[groups.length - 1];
+    if (last?.day === day) last.items.push(item);
+    else groups.push({ day, items: [item] });
+  }
+  return groups;
+};
+
+/**
  * Get relative time from now (e.g., "5m ago", "2h ago", "3d ago")
  */
 export const getRelativeTime = (date: Date | string | dayjs.Dayjs): string => {

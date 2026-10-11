@@ -299,6 +299,7 @@
     "new": "New count",
     "newDescription": "Check several items and fix differences",
     "empty": "No counts yet",
+    "emptyFiltered": "No counts with this status",
     "emptyDescription": "Run a count to check the real stock of several items and fix differences.",
     "loadError": "Error loading counts",
     "notFound": "Count not found",

@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { RefreshControl, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -5,10 +6,12 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatDateTime } from "@/core/i18n/utils";
+import { formatTime, groupByDay } from "@/core/i18n/utils";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
+import Chip from "@/presentation/theme/components/chip";
 import Label from "@/presentation/theme/components/label";
+import DaySectionHeader from "@/presentation/inventory/components/day-section-header";
 import { useInventoryCounts } from "@/presentation/inventory/hooks/useInventoryCounts";
 import {
   InventoryCountStatus,
@@ -18,8 +21,25 @@ import {
 
 export default function InventoryCountsTab() {
   const { t } = useTranslation("inventory");
+  const [status, setStatus] = useState<InventoryCountStatus | undefined>();
   const { countsQuery, counts, hasMore, isLoadingMore, loadMore, refresh } =
-    useInventoryCounts();
+    useInventoryCounts(status);
+  const days = useMemo(
+    () => groupByDay(counts, (count) => count.createdAt),
+    [counts],
+  );
+
+  const statusFilters: { label: string; value?: InventoryCountStatus }[] = [
+    { label: t("common:filters.all") },
+    {
+      label: t("counts.countStatus.IN_PROGRESS"),
+      value: InventoryCountStatus.IN_PROGRESS,
+    },
+    {
+      label: t("counts.countStatus.COMPLETED"),
+      value: InventoryCountStatus.COMPLETED,
+    },
+  ];
 
   const openCount = (count: InventoryCount) =>
     router.push({
@@ -38,6 +58,17 @@ export default function InventoryCountsTab() {
         />
       }
     >
+      <ThemedView style={tw`flex-row flex-wrap gap-2 bg-transparent`}>
+        {statusFilters.map((filter) => (
+          <Chip
+            key={filter.value ?? "all"}
+            label={filter.label}
+            selected={status === filter.value}
+            onPress={() => setStatus(filter.value)}
+          />
+        ))}
+      </ThemedView>
+
       {countsQuery.isLoading && !isLoadingMore && (
         <ThemedText type="body1" style={tw`text-gray-500 text-center py-8`}>
           {t("loading")}
@@ -58,52 +89,65 @@ export default function InventoryCountsTab() {
         </ThemedView>
       )}
 
-      {!countsQuery.isLoading && !countsQuery.isError && counts.length === 0 && (
-        <ThemedView style={tw`items-center py-8 gap-3`}>
-          <Ionicons name="clipboard-outline" size={48} color="#999" />
-          <ThemedText type="body1" style={tw`font-semibold`}>
-            {t("counts.empty")}
-          </ThemedText>
-          <ThemedText type="body2" style={tw`text-center text-gray-500 px-4`}>
-            {t("counts.emptyDescription")}
-          </ThemedText>
-        </ThemedView>
-      )}
-
-      {counts.map((count) => {
-        const creator = getCountUserName(count.createdBy);
-        const inProgress = count.status === InventoryCountStatus.IN_PROGRESS;
-        return (
-          <Card key={count.id} onPress={() => openCount(count)}>
-            <ThemedView style={tw`gap-2 bg-transparent`}>
-              <ThemedView
-                style={tw`flex-row justify-between items-center gap-2 bg-transparent`}
+      {!countsQuery.isLoading &&
+        !countsQuery.isError &&
+        counts.length === 0 && (
+          <ThemedView style={tw`items-center py-8 gap-3`}>
+            <Ionicons name="clipboard-outline" size={48} color="#999" />
+            <ThemedText type="body1" style={tw`font-semibold`}>
+              {status ? t("counts.emptyFiltered") : t("counts.empty")}
+            </ThemedText>
+            {!status && (
+              <ThemedText
+                type="body2"
+                style={tw`text-center text-gray-500 px-4`}
               >
-                <ThemedText type="h4" style={tw`flex-1`}>
-                  {formatDateTime(count.createdAt)}
-                </ThemedText>
-                <Label
-                  text={t(`counts.countStatus.${count.status}`)}
-                  color={inProgress ? "info" : "success"}
-                  size="small"
-                />
-              </ThemedView>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {t("counts.summaryLine", {
-                  products: count.itemsCount ?? 0,
-                  adjusted: count.adjustedCount ?? 0,
-                  unanswered: count.pendingCount ?? 0,
-                })}
+                {t("counts.emptyDescription")}
               </ThemedText>
-              {creator && (
-                <ThemedText type="small" style={tw`text-gray-500`}>
-                  {t("counts.startedBy", { name: creator })}
-                </ThemedText>
-              )}
-            </ThemedView>
-          </Card>
-        );
-      })}
+            )}
+          </ThemedView>
+        )}
+
+      {days.map(({ day, items }) => (
+        <ThemedView key={day} style={tw`gap-3.5 bg-transparent`}>
+          <DaySectionHeader day={day} />
+          {items.map((count) => {
+            const creator = getCountUserName(count.createdBy);
+            const inProgress =
+              count.status === InventoryCountStatus.IN_PROGRESS;
+            return (
+              <Card key={count.id} onPress={() => openCount(count)}>
+                <ThemedView style={tw`gap-2 bg-transparent`}>
+                  <ThemedView
+                    style={tw`flex-row justify-between items-center gap-2 bg-transparent`}
+                  >
+                    <ThemedText type="h4" style={tw`flex-1`}>
+                      {formatTime(count.createdAt)}
+                    </ThemedText>
+                    <Label
+                      text={t(`counts.countStatus.${count.status}`)}
+                      color={inProgress ? "info" : "success"}
+                      size="small"
+                    />
+                  </ThemedView>
+                  <ThemedText type="small" style={tw`text-gray-500`}>
+                    {t("counts.summaryLine", {
+                      products: count.itemsCount ?? 0,
+                      adjusted: count.adjustedCount ?? 0,
+                      unanswered: count.pendingCount ?? 0,
+                    })}
+                  </ThemedText>
+                  {creator && (
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {t("counts.startedBy", { name: creator })}
+                    </ThemedText>
+                  )}
+                </ThemedView>
+              </Card>
+            );
+          })}
+        </ThemedView>
+      ))}
 
       {hasMore && (
         <Button

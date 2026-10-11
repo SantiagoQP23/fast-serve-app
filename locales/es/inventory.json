@@ -299,6 +299,7 @@
     "new": "Nuevo conteo",
     "newDescription": "Revisa varios artículos y corrige las diferencias",
     "empty": "Aún no hay conteos",
+    "emptyFiltered": "No hay conteos con este estado",
     "emptyDescription": "Haz un conteo para revisar el stock real de varios artículos y corregir diferencias.",
     "loadError": "Error al cargar los conteos",
     "notFound": "No se encontró el conteo",
