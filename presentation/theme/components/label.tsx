@@ -27,6 +27,8 @@ export interface LabelProps extends PressableProps {
     | "primary";
   /** "soft" (default) is a tinted fill; "solid" is the pastel badge treatment with a leading status dot. */
   variant?: "soft" | "solid";
+  /** Show the leading status dot on the solid variant. Defaults to true. */
+  showDot?: boolean;
   size?: "medium" | "small";
   text: string;
 }
@@ -37,6 +39,7 @@ export default function Label({
   leftIcon: icon,
   color = "default",
   variant = "soft",
+  showDot: showDotProp = true,
   size = "medium",
   text,
   style,

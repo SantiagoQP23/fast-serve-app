@@ -18,7 +18,7 @@ import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
 import { typography } from "@/constants/theme";
 import { router } from "expo-router";
-import Label from "@/presentation/theme/components/label";
+import Label, { LabelProps } from "@/presentation/theme/components/label";
 
 interface TransactionCardProps extends PressableProps {
   transaction: Transaction;
@@ -61,18 +61,15 @@ export default function TransactionCard({
     new Date().getTime() - new Date(transaction.createdAt).getTime() <
       60 * 60 * 1000;
 
-  const getStatusDot = () => {
-    const color =
-      transaction.status === TransactionStatus.PENDING_PROOF
-        ? "bg-orange-500"
-        : transaction.status === TransactionStatus.PENDING_APPROVAL
-          ? "bg-yellow-500"
-          : transaction.status === TransactionStatus.REJECTED
-            ? "bg-red-500"
-            : null;
-    if (!color) return null;
-    return <ThemedView style={tw`w-2 h-2 rounded-full ${color}`} />;
-  };
+  const amountLabelColor: LabelProps["color"] =
+    transaction.status === TransactionStatus.COMPLETED
+      ? "success"
+      : transaction.status === TransactionStatus.PENDING_PROOF ||
+          transaction.status === TransactionStatus.PENDING_APPROVAL
+        ? "warning"
+        : transaction.status === TransactionStatus.REJECTED
+          ? "error"
+          : "default";
 
   const hasProofs = transaction.proofs && transaction.proofs.length > 0;
 
@@ -116,11 +113,9 @@ export default function TransactionCard({
                 {/*   numberOfLines={1} */}
                 {/* > */}
                 {/*   {transaction.name} {""} */}
-                {/*   {getStatusDot()} */}
                 {/* </ThemedText> */}
                 <ThemedText type="body1" style={tw``}>
                   {transaction.account.name}
-                  {getStatusDot()}
                 </ThemedText>
                 <ThemedText type="small" style={tw``}>
                   {getUserDisplayName(
@@ -134,15 +129,12 @@ export default function TransactionCard({
                   </ThemedText>
                 </ThemedView>
               </ThemedView>
-              <ThemedText
-                type="body1"
-                style={[
-                  tw`text-light-primary`,
-                  { fontFamily: typography.medium },
-                ]}
-              >
-                {formatCurrency(transaction.amount)}
-              </ThemedText>
+              <Label
+                variant="solid"
+                color={amountLabelColor}
+                showDot={false}
+                text={formatCurrency(transaction.amount)}
+              />
             </ThemedView>
           </ThemedView>
         </Pressable>
