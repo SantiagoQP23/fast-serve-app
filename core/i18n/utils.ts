@@ -84,22 +84,36 @@ export const getRelativeDate = (date: Date | string | dayjs.Dayjs): string => {
 };
 
 /**
- * Group items by calendar day, keeping the incoming order (lists arrive
- * newest first, so groups come out newest first too).
+ * Group consecutive items that share a key, keeping the incoming order
+ * (lists arrive newest first, so groups come out newest first too).
  */
-export const groupByDay = <T>(
+export const groupConsecutive = <T>(
   items: T[],
-  getDate: (item: T) => Date | string | dayjs.Dayjs,
-): { day: string; items: T[] }[] => {
-  const groups: { day: string; items: T[] }[] = [];
+  getKey: (item: T) => string,
+): { key: string; items: T[] }[] => {
+  const groups: { key: string; items: T[] }[] = [];
   for (const item of items) {
-    const day = dayjs(getDate(item)).format("YYYY-MM-DD");
+    const key = getKey(item);
     const last = groups[groups.length - 1];
-    if (last?.day === day) last.items.push(item);
-    else groups.push({ day, items: [item] });
+    if (last?.key === key) last.items.push(item);
+    else groups.push({ key, items: [item] });
   }
   return groups;
 };
+
+/** Group items by calendar day (key: YYYY-MM-DD), then by hour (key: HH:00). */
+export const groupByDayAndHour = <T>(
+  items: T[],
+  getDate: (item: T) => Date | string | dayjs.Dayjs,
+) =>
+  groupConsecutive(items, (item) =>
+    dayjs(getDate(item)).format("YYYY-MM-DD"),
+  ).map(({ key, items: dayItems }) => ({
+    day: key,
+    hours: groupConsecutive(dayItems, (item) =>
+      dayjs(getDate(item)).format("HH:00"),
+    ).map(({ key: hour, items: hourItems }) => ({ hour, items: hourItems })),
+  }));
 
 /**
  * Get relative time from now (e.g., "5m ago", "2h ago", "3d ago")
