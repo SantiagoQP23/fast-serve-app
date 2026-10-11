@@ -5,6 +5,7 @@ import {
   authGoogleSignIn,
   authLinkGoogleAccount,
   authUpdateProfile,
+  authUpdateLanguage,
   authRegister,
   authLogout,
   authDeleteAccount,
@@ -23,6 +24,11 @@ import { useTablesStore } from "@/presentation/tables/hooks/useTablesStore";
 import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
 import { usePrintersStore } from "@/presentation/printers/store/usePrintersStore";
 import { useProductionAreasStore } from "@/presentation/production-areas/store/useProductionAreasStore";
+import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
+import {
+  AVAILABLE_LANGUAGES,
+  type LanguageCode,
+} from "@/core/i18n/i18n.config";
 
 export type AuthStatus = "authenticated" | "unauthenticated" | "checking";
 export type BootstrapStatus = "idle" | "loading" | "success" | "error";
@@ -55,6 +61,9 @@ export interface AuthState {
     email?: string,
     numPhone?: string,
   ) => Promise<{ success: boolean; errorCode?: string }>;
+  updateLanguage: (
+    language: LanguageCode,
+  ) => Promise<{ success: boolean; errorCode?: string }>;
   deleteAccount: () => Promise<{ success: boolean; errorCode?: string }>;
   changePassword: (
     currentPassword: string,
@@ -78,6 +87,34 @@ export interface AuthState {
     currentRestaurant?: Restaurant,
   ) => Promise<boolean>;
 }
+
+/**
+ * The language saved on the account wins over the one on this device. Accounts
+ * that never saved one (created before this existed) take the device's.
+ */
+const syncUserLanguage = (user: User) => {
+  // The device language comes from AsyncStorage; don't read it before it loads.
+  if (!useGlobalStore.persist.hasHydrated()) {
+    const unsubscribe = useGlobalStore.persist.onFinishHydration(() => {
+      unsubscribe();
+      syncUserLanguage(user);
+    });
+    return;
+  }
+
+  const { language, setLanguage } = useGlobalStore.getState();
+
+  if (user.language && user.language in AVAILABLE_LANGUAGES) {
+    setLanguage(user.language);
+    return;
+  }
+
+  authUpdateLanguage(language).then(({ user: updatedUser }) => {
+    if (updatedUser && useAuthStore.getState().user?.id === updatedUser.id) {
+      useAuthStore.setState({ user: updatedUser });
+    }
+  });
+};
 
 export const useAuthStore = create<AuthState>()((set, get) => ({
   // Properties
@@ -118,6 +155,8 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     });
 
     await SecureStorageAdapter.setItem("token", token);
+
+    syncUserLanguage(user);
 
     if (!currentRestaurant) {
       return true;
@@ -265,6 +304,24 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       user: updatedUser,
     });
 
+    return { success: true };
+  },
+
+  updateLanguage: async (language: LanguageCode) => {
+    await useGlobalStore.getState().setLanguage(language);
+
+    const { user } = get();
+    if (!user || user.language === language) return { success: true };
+
+    const { user: updatedUser, errorCode } = await authUpdateLanguage(language);
+    if (!updatedUser) {
+      // Forget the server value so the next session start uploads this one
+      // instead of switching the app back.
+      set({ user: { ...user, language: null } });
+      return { success: false, errorCode };
+    }
+
+    set({ user: updatedUser });
     return { success: true };
   },
 

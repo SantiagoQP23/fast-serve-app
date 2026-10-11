@@ -1,3 +1,4 @@
+import type { LanguageCode } from "@/core/i18n/i18n.config";
 import { Person } from "@/core/common/models/person.model";
 import { Restaurant } from "@/core/common/models/restaurant.model";
 
@@ -45,4 +46,6 @@ export interface User {
   googleId?: string;
   email: string;
   emailVerifiedAt?: Date;
+  /** Language for push notifications; null until the app saves one. */
+  language?: LanguageCode | null;
 }
