@@ -2,6 +2,7 @@ import { restaurantApi } from "@/core/api/restaurantApi";
 import type {
   InventoryCount,
   InventoryCountAnswer,
+  InventoryCountStatus,
 } from "@/core/inventory/models/inventory-count.model";
 
 export interface InventoryCountsPage {
@@ -13,6 +14,7 @@ export class InventoryCountService {
   static async getAll(params: {
     limit?: number;
     offset?: number;
+    status?: InventoryCountStatus;
   }): Promise<InventoryCountsPage> {
     const resp = await restaurantApi.get<InventoryCountsPage>(
       "/inventory/counts",

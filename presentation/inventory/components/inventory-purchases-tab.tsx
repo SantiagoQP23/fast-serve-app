@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { RefreshControl, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -5,10 +6,12 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatDateTime } from "@/core/i18n/utils";
+import { formatTime, groupByDayAndHour } from "@/core/i18n/utils";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
-import Label from "@/presentation/theme/components/label";
+import DaySectionHeader, {
+  HourSectionHeader,
+} from "@/presentation/inventory/components/day-section-header";
 import { useInventoryPurchases } from "@/presentation/inventory/hooks/useInventoryPurchases";
 import {
   getPurchaseCreatorName,
@@ -25,6 +28,10 @@ export default function InventoryPurchasesTab() {
     loadMore,
     refresh,
   } = useInventoryPurchases();
+  const days = useMemo(
+    () => groupByDayAndHour(purchases, (purchase) => purchase.createdAt),
+    [purchases],
+  );
 
   const openPurchase = (purchase: InventoryPurchase) =>
     router.push({
@@ -71,47 +78,56 @@ export default function InventoryPurchasesTab() {
             <ThemedText type="body1" style={tw`font-semibold`}>
               {t("purchases.empty")}
             </ThemedText>
-            <ThemedText
-              type="body2"
-              style={tw`text-center text-gray-500 px-4`}
-            >
+            <ThemedText type="body2" style={tw`text-center text-gray-500 px-4`}>
               {t("purchases.emptyDescription")}
             </ThemedText>
           </ThemedView>
         )}
 
-      {purchases.map((purchase) => {
-        const creator = getPurchaseCreatorName(purchase);
-        return (
-          <Card key={purchase.id} onPress={() => openPurchase(purchase)}>
-            <ThemedView style={tw`gap-2 bg-transparent`}>
-              <ThemedView
-                style={tw`flex-row justify-between items-center gap-2 bg-transparent`}
-              >
-                <ThemedText type="h4" style={tw`flex-1`}>
-                  {formatDateTime(purchase.createdAt)}
-                </ThemedText>
-                <Label
-                  text={t("purchases.productsCount", {
-                    count: purchase.itemsCount ?? 0,
-                  })}
-                  size="small"
-                />
-              </ThemedView>
-              {creator && (
-                <ThemedText type="small" style={tw`text-gray-500`}>
-                  {t("purchases.registeredBy", { name: creator })}
-                </ThemedText>
-              )}
-              {purchase.note && (
-                <ThemedText type="body2" numberOfLines={2}>
-                  {purchase.note}
-                </ThemedText>
-              )}
+      {days.map(({ day, hours }) => (
+        <ThemedView key={day} style={tw`gap-3.5 bg-transparent`}>
+          <DaySectionHeader day={day} />
+          {hours.map(({ hour, items }) => (
+            <ThemedView key={hour} style={tw`gap-2.5 bg-transparent`}>
+              <HourSectionHeader hour={hour} />
+              {items.map((purchase) => {
+                const creator = getPurchaseCreatorName(purchase);
+                return (
+                  <Card
+                    key={purchase.id}
+                    onPress={() => openPurchase(purchase)}
+                  >
+                    <ThemedView style={tw`gap-2 bg-transparent`}>
+                      <ThemedView
+                        style={tw`flex-row justify-between items-center gap-2 bg-transparent`}
+                      >
+                        <ThemedText type="h4" style={tw`flex-1`}>
+                          {t("purchases.productsCount", {
+                            count: purchase.itemsCount ?? 0,
+                          })}
+                        </ThemedText>
+                        <ThemedText type="small" style={tw`text-gray-500`}>
+                          {formatTime(purchase.createdAt)}
+                        </ThemedText>
+                      </ThemedView>
+                      {creator && (
+                        <ThemedText type="small" style={tw`text-gray-500`}>
+                          {t("purchases.registeredBy", { name: creator })}
+                        </ThemedText>
+                      )}
+                      {purchase.note && (
+                        <ThemedText type="body2" numberOfLines={2}>
+                          {purchase.note}
+                        </ThemedText>
+                      )}
+                    </ThemedView>
+                  </Card>
+                );
+              })}
             </ThemedView>
-          </Card>
-        );
-      })}
+          ))}
+        </ThemedView>
+      ))}
 
       {hasMore && (
         <Button

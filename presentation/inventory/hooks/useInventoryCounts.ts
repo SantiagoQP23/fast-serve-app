@@ -6,6 +6,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import type {
   InventoryCount,
   InventoryCountAnswer,
+  InventoryCountStatus,
 } from "@/core/inventory/models/inventory-count.model";
 import { InventoryCountService } from "../services/inventory-count.service";
 import { inventoryItemsQueryKey } from "./useInventoryItems";
@@ -31,12 +32,19 @@ const invalidateAfterStockChange = () => {
   queryClient.invalidateQueries({ queryKey: ["inventory-movements"] });
 };
 
-/** Paginated count history, newest first, accumulated with load-more. */
-export const useInventoryCounts = () => {
+/**
+ * Paginated count history, newest first, accumulated with load-more.
+ * `status` filters on the server so pagination stays correct.
+ */
+export const useInventoryCounts = (status?: InventoryCountStatus) => {
   const query = useInfiniteQuery({
-    queryKey: [...inventoryCountsQueryKey, "list"],
+    queryKey: [...inventoryCountsQueryKey, "list", status ?? "all"],
     queryFn: ({ pageParam }) =>
-      InventoryCountService.getAll({ limit: PAGE_SIZE, offset: pageParam }),
+      InventoryCountService.getAll({
+        limit: PAGE_SIZE,
+        offset: pageParam,
+        status,
+      }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, pages) => {
       const loaded = pages.reduce((acc, page) => acc + page.counts.length, 0);
