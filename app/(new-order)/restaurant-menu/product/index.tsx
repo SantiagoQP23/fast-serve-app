@@ -25,7 +25,9 @@ import {
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import {
   ProductOption,
+  ProductOptionStockLevel,
   getProductOptionAvailableQuantity,
+  getProductOptionStockLevel,
 } from "@/core/menu/models/product-optionl.model";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -41,6 +43,21 @@ import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-b
 import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
 import Card from "@/presentation/theme/components/card";
 import Chip from "@/presentation/theme/components/chip";
+
+const STOCK_LABEL_COLOR: Record<
+  ProductOptionStockLevel,
+  "default" | "warning" | "error"
+> = {
+  ok: "default",
+  low: "warning",
+  out: "error",
+};
+
+const STOCK_TEXT_COLOR: Record<ProductOptionStockLevel, string> = {
+  ok: "text-gray-500",
+  low: "text-orange-700",
+  out: "text-red-700",
+};
 
 export default function ProductScreen() {
   const { t } = useTranslation(["menu", "orders", "inventory"]);
@@ -111,6 +128,35 @@ export default function ProductScreen() {
   const addEditItem = useEditOrderCartStore((state) => state.addNewItem);
   const updateEditItem = useEditOrderCartStore((state) => state.updateNewItem);
   const isEditMode = !!order && editOrderId === order.id;
+  const cartDetails = useNewOrderStore((state) => state.details);
+  const editNewItems = useEditOrderCartStore((state) => state.newItems);
+
+  // Units of each option already sitting in the cart (excluding the line
+  // being edited), so the stock shown is what's actually left to sell.
+  const quantityInCartByOption = useMemo(() => {
+    const lines = isEditMode ? editNewItems : order ? [] : cartDetails;
+    const totals = new Map<number, number>();
+    for (const line of lines) {
+      if (!line.productOption) continue;
+      if (activeOrderDetail?.id && line.id === activeOrderDetail.id) continue;
+      const id = line.productOption.id;
+      totals.set(id, (totals.get(id) ?? 0) + line.quantity);
+    }
+    return totals;
+  }, [isEditMode, editNewItems, order, cartDetails, activeOrderDetail]);
+
+  const getOptionStock = (option: ProductOption) => {
+    const available = getProductOptionAvailableQuantity(option);
+    if (available === null) return null;
+    const remaining = Math.max(
+      available - (quantityInCartByOption.get(option.id) ?? 0),
+      0,
+    );
+    return {
+      remaining,
+      level: getProductOptionStockLevel(option, remaining)!,
+    };
+  };
   const {
     isLoading,
     isOnline,
@@ -162,6 +208,9 @@ export default function ProductScreen() {
 
   const statusLabelColor =
     activeProduct.status === ProductStatus.OUT_OF_STOCK ? "error" : "warning";
+
+  const selectedStock = selectedOption ? getOptionStock(selectedOption) : null;
+  const exceedsStock = !!selectedStock && counter > selectedStock.remaining;
 
   const parsedCustomPrice = parseFloat(price);
   const effectivePrice = Number.isFinite(parsedCustomPrice)
@@ -300,10 +349,31 @@ export default function ProductScreen() {
                   {formatCurrency(counter * effectivePrice)}
                 </ThemedText>
               </ThemedView>
-              {activeOptions.length === 1 && selectedOption && (
-                <ThemedText type="body2" style={tw`text-gray-500`}>
-                  {selectedOption.name} · {formatCurrency(selectedOption.price)}
-                </ThemedText>
+              {((activeOptions.length === 1 && selectedOption) ||
+                selectedStock) && (
+                <ThemedView style={tw`flex-row items-center gap-3 flex-wrap`}>
+                  {activeOptions.length === 1 && selectedOption && (
+                    <ThemedText type="body2" style={tw`text-gray-500`}>
+                      {selectedOption.name} ·{" "}
+                      {formatCurrency(selectedOption.price)}
+                    </ThemedText>
+                  )}
+                  {selectedStock && (
+                    <Label
+                      variant="solid"
+                      size="small"
+                      leftIcon="cube-outline"
+                      color={STOCK_LABEL_COLOR[selectedStock.level]}
+                      text={
+                        selectedStock.level === "out"
+                          ? t("menu:product.stock.out")
+                          : t("menu:product.stock.left", {
+                              count: selectedStock.remaining,
+                            })
+                      }
+                    />
+                  )}
+                </ThemedView>
               )}
               {activeProduct.description && (
                 <ThemedText type="body1" style={tw`text-gray-600`}>
@@ -342,6 +412,7 @@ export default function ProductScreen() {
               >
                 {activeOptions.map((option) => {
                   const isSelected = selectedOption?.id === option.id;
+                  const optionStock = getOptionStock(option);
                   return (
                     <ThemedView key={option.id}>
                       <Card
@@ -355,21 +426,17 @@ export default function ProductScreen() {
                           <ThemedText type="body1" style={tw``}>
                             {option.name}
                           </ThemedText>
-                          {option.inventoryItems?.length ? (
-                            <ThemedView
-                              style={tw`flex-row items-center gap-1 bg-transparent`}
+                          {optionStock ? (
+                            <ThemedText
+                              type="small"
+                              style={tw`${STOCK_TEXT_COLOR[optionStock.level]}`}
                             >
-                              <ThemedText
-                                type="small"
-                                style={tw`text-gray-500`}
-                              >
-                                {t("inventory:stockCount", {
-                                  count:
-                                    getProductOptionAvailableQuantity(option) ??
-                                    0,
-                                })}
-                              </ThemedText>
-                            </ThemedView>
+                              {optionStock.level === "out"
+                                ? t("menu:product.stock.out")
+                                : t("menu:product.stock.left", {
+                                    count: optionStock.remaining,
+                                  })}
+                            </ThemedText>
                           ) : null}
                         </ThemedView>
                         <ThemedText type="body2" style={tw``}>
@@ -402,7 +469,7 @@ export default function ProductScreen() {
           </ThemedView>
 
           <ThemedView style={tw`gap-8`}>
-            <ThemedView style={tw`flex-row  justify-center gap-4 w-full `}>
+            <ThemedView style={tw`items-center gap-3 w-full`}>
               <ThemedView style={tw`flex-row items-center gap-6`}>
                 <IconButton
                   icon="remove-outline"
@@ -418,6 +485,22 @@ export default function ProductScreen() {
                   size={40}
                 />
               </ThemedView>
+              {exceedsStock && (
+                <ThemedView style={tw`flex-row items-center gap-1.5`}>
+                  <Ionicons
+                    name="alert-circle-outline"
+                    size={16}
+                    color={tw.color("orange-700")}
+                  />
+                  <ThemedText type="small" style={tw`text-orange-700`}>
+                    {selectedStock!.remaining === 0
+                      ? t("menu:product.stock.noneLeft")
+                      : t("menu:product.stock.exceeds", {
+                          count: selectedStock!.remaining,
+                        })}
+                  </ThemedText>
+                </ThemedView>
+              )}
             </ThemedView>
 
             <ThemedView style={tw`flex-row items-center justify-center gap-2 `}>
