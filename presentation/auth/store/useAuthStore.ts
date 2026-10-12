@@ -12,6 +12,7 @@ import {
   authChangePassword,
   authSetCredentials,
   authChangeEmail,
+  withCurrentRole,
 } from "@/core/auth/actions/auth-actions";
 import { SecureStorageAdapter } from "@/helpers/adapters/secure-storage.adapter";
 import { User } from "@/core/auth/models/user.model";
@@ -89,6 +90,15 @@ export interface AuthState {
 }
 
 /**
+ * Applies a User returned by the server without dropping the role the app
+ * derives for the current restaurant.
+ */
+const keepCurrentRole = (updatedUser: User): User => {
+  const { currentRestaurant, user } = useAuthStore.getState();
+  return withCurrentRole(updatedUser, currentRestaurant?.id, user?.role);
+};
+
+/**
  * The language saved on the account wins over the one on this device. Accounts
  * that never saved one (created before this existed) take the device's.
  */
@@ -111,7 +121,7 @@ const syncUserLanguage = (user: User) => {
 
   authUpdateLanguage(language).then(({ user: updatedUser }) => {
     if (updatedUser && useAuthStore.getState().user?.id === updatedUser.id) {
-      useAuthStore.setState({ user: updatedUser });
+      useAuthStore.setState({ user: keepCurrentRole(updatedUser) });
     }
   });
 };
@@ -301,7 +311,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     if (!updatedUser) return { success: false };
 
     set({
-      user: updatedUser,
+      user: keepCurrentRole(updatedUser),
     });
 
     return { success: true };
@@ -321,7 +331,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       return { success: false, errorCode };
     }
 
-    set({ user: updatedUser });
+    set({ user: keepCurrentRole(updatedUser) });
     return { success: true };
   },
 
@@ -347,7 +357,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         return { success: false, errorCode: resp.errorCode };
 
       set({
-        user: resp.user,
+        user: keepCurrentRole(resp.user),
         token: resp.token,
       });
 
@@ -424,7 +434,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     if (errorCode) return { success: false, errorCode };
     if (!updatedUser) return { success: false };
 
-    set({ user: updatedUser });
+    set({ user: keepCurrentRole(updatedUser) });
 
     return { success: true };
   },

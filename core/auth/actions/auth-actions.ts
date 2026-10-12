@@ -2,7 +2,7 @@ import { getApiError } from "@/core/api/api-response";
 import { restaurantApi } from "@/core/api/restaurantApi";
 import { PushNotificationsService } from "@/core/push-notifications/services/push-notifications.service";
 import { SecureStorageAdapter } from "@/helpers/adapters/secure-storage.adapter";
-import { User } from "../models/user.model";
+import { IRole, User } from "../models/user.model";
 import { Restaurant } from "@/core/common/models/restaurant.model";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import type { LanguageCode } from "@/core/i18n/i18n.config";
@@ -21,15 +21,29 @@ const returnUserToken = (
   currentRestaurant: Restaurant;
 } => {
   const { token, user, currentRestaurant } = data;
-  const currentRole = data.user.restaurantRoles.find(
-    (resRole) => resRole.restaurant.id === data.currentRestaurant?.id,
-  )?.role;
 
   return {
-    user: { ...user, role: currentRole },
+    user: withCurrentRole(user, currentRestaurant?.id),
     token,
     currentRestaurant,
   };
+};
+
+/**
+ * `role` isn't sent by the server; it's the user's role in the current
+ * restaurant. Endpoints returning a bare User (e.g. PATCH /auth/me) need it
+ * re-applied, or the app treats the user as having no restaurant.
+ */
+export const withCurrentRole = (
+  user: User,
+  restaurantId?: string,
+  fallbackRole?: IRole,
+): User => {
+  const currentRole = user.restaurantRoles?.find(
+    (resRole) => resRole.restaurant.id === restaurantId,
+  )?.role;
+
+  return { ...user, role: currentRole ?? fallbackRole };
 };
 
 /** Resultado de login/registro con Google: datos de sesión o el código de error. */
