@@ -193,13 +193,12 @@ export default function MyOrdersScreen() {
           <MyOrdersHeaderRight />
         </ThemedView>
         {activeModule === "orders" && (
-          <ThemedView style={tw`mt-4 flex-row items-center justify-between`}>
+          <ThemedView style={tw`mt-4 flex-row items-center justify-end gap-2 `}>
             <Button
               variant="surface"
               size="small"
               label={currentView.label}
               leftIcon={currentView.icon}
-              rightIcon="swap-horizontal-outline"
               onPress={() =>
                 setActiveView((view) =>
                   view === "tables" ? "take-away" : "tables",
@@ -208,7 +207,6 @@ export default function MyOrdersScreen() {
             />
             <IconButton
               icon="options-outline"
-              variant="outlined"
               accessibilityLabel={t("orders:homeOptions.title")}
               onPress={() => viewOptionsSheetRef.current?.present()}
             />
