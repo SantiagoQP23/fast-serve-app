@@ -39,13 +39,9 @@ export default function SegmentedControl<T extends string>({
               style={({ pressed }) => tw.style("py-1", pressed && "opacity-60")}
             >
               <ThemedText
-                type="body1"
+                type="h3"
                 style={[
-                  tw.style(
-                    isActive
-                      ? "text-light-text"
-                      : "text-light-on-surface-variant",
-                  ),
+                  tw.style(isActive ? "text-light-text" : "text-gray-500"),
                   {
                     fontFamily: isActive
                       ? typography.medium

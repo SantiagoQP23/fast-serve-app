@@ -192,7 +192,7 @@ export default function MyOrdersScreen() {
           <MyOrdersHeaderRight />
         </ThemedView>
         {activeModule === "orders" && (
-          <ThemedView style={tw`mt-4 flex-row items-center justify-end gap-2 `}>
+          <ThemedView style={tw` flex-row items-center justify-end gap-2 `}>
             <Button
               variant="surface"
               size="small"

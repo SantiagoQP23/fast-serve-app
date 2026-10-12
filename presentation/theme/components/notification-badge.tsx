@@ -15,7 +15,7 @@ export default function NotificationBadge({
   return (
     <View
       style={tw`
-        absolute -top-1 -right-1
+        absolute top-1 right-1
         bg-light-primary 
         rounded-full 
         h-4 w-4 
