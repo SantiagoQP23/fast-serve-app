@@ -349,15 +349,13 @@ export default function ProductScreen() {
                   {formatCurrency(counter * effectivePrice)}
                 </ThemedText>
               </ThemedView>
-              {((activeOptions.length === 1 && selectedOption) ||
-                selectedStock) && (
+              {activeOptions.length === 1 && selectedOption && (
                 <ThemedView style={tw`flex-row items-center gap-3 flex-wrap`}>
-                  {activeOptions.length === 1 && selectedOption && (
-                    <ThemedText type="body2" style={tw`text-gray-500`}>
-                      {selectedOption.name} ·{" "}
-                      {formatCurrency(selectedOption.price)}
-                    </ThemedText>
-                  )}
+                  <ThemedText type="body2" style={tw`text-gray-500`}>
+                    {selectedOption.name} ·{" "}
+                    {formatCurrency(selectedOption.price)}
+                  </ThemedText>
+                  {/* Products with variants show stock on each variant card instead. */}
                   {selectedStock && (
                     <Label
                       variant="solid"
