@@ -27,7 +27,7 @@ export default function TableCard({ table, onPress }: TableCardProps) {
       <Card
         onPress={onPress}
         style={[
-          tw`p-2`,
+          tw`p-2 `,
           hasOrders ? tw`border border-light-primary` : tw`bg-transparent`,
         ]}
         variant={hasOrders ? "default" : "outline"}
@@ -45,7 +45,7 @@ export default function TableCard({ table, onPress }: TableCardProps) {
               <OrderStatusDot key={order.id} order={order} />
             ))
           ) : (
-            <View style={tw`w-2 h-2 rounded-full border border-black-500`} />
+            <View style={tw`w-2 h-2 rounded-full bg-transparent`} />
           )}
         </ThemedView>
       </Card>
