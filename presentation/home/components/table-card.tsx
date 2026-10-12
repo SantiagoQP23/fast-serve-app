@@ -16,25 +16,26 @@ export default function TableCard({ table, onPress }: TableCardProps) {
   const { t } = useTranslation(["tables"]);
   const { hasOrders } = useTableOrders(table.id);
   return (
-    <ThemedView style={[tw`w-[48%]`]}>
+    <ThemedView style={[tw`w-[25%]`]}>
       <Card
         onPress={onPress}
         style={[
+          tw`p-2`,
           hasOrders ? tw`border-2 border-light-primary` : tw`bg-transparent`,
         ]}
       >
-        <ThemedView style={tw`mb-3 flex-row justify-end bg-transparent`}>
+        <ThemedView
+          style={tw`flex-row items-center bg-transparent justify-center`}
+        >
+          <ThemedText type="body1">{table.name}</ThemedText>
+        </ThemedView>
+        <ThemedView style={tw` flex-row justify-center bg-transparent mt-2`}>
           <View
             style={[
-              tw`w-3 h-3 rounded-full`,
+              tw`w-2 h-2 rounded-full`,
               !hasOrders ? tw`border border-black-500` : tw`bg-light-primary`,
             ]}
           />
-        </ThemedView>
-        <ThemedView style={tw`flex-row items-center bg-transparent`}>
-          <ThemedText type="h4">
-            {t("tables:card.table", { name: table.name })}{" "}
-          </ThemedText>
         </ThemedView>
       </Card>
     </ThemedView>
