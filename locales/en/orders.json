@@ -163,6 +163,7 @@
     "editPeople": "Edit People",
     "changeType": "Change to {{type}}",
     "changeTable": "Change Table",
+    "mergeOrder": "Merge Into Another Order",
     "goToPayments": "Go to Payments",
     "startOrder": "Start Order",
     "pauseOrder": "Pause Order",
@@ -283,5 +284,12 @@
       "REMOVE": "Remove",
       "MODIFY": "Modify"
     }
+  },
+  "merge": {
+    "title": "Merge Into Another Order",
+    "search": "Search by number or table",
+    "confirmTitle": "Merge orders",
+    "confirmMessage": "The items, tickets and payments of order #{{source}} will move to order #{{target}}, and #{{source}} will be closed.",
+    "confirm": "Merge"
   }
 }

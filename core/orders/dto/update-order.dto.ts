@@ -53,6 +53,18 @@ export interface ReplaceOrderDetailDto {
   newDetail: Omit<AddOrderDetailToOrderDto, "orderId">;
 }
 
+export interface MergeOrderDto {
+  /** The order whose items, tickets and payments move; it gets closed. */
+  sourceOrderId: string;
+  /** The order that receives everything. */
+  targetOrderId: string;
+}
+
+export interface MergeOrderResp {
+  order: Order;
+  mergedOrder: Order;
+}
+
 export interface UpdateOrderResp {
   order?: Order;
   ticket?: Ticket;

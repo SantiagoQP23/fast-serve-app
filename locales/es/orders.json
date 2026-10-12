@@ -163,6 +163,7 @@
     "editPeople": "Editar Personas",
     "changeType": "Cambiar a {{type}}",
     "changeTable": "Cambiar Mesa",
+    "mergeOrder": "Unir a Otro Pedido",
     "goToPayments": "Ir a Pagos",
     "startOrder": "Iniciar Pedido",
     "pauseOrder": "Pausar Pedido",
@@ -283,5 +284,12 @@
       "REMOVE": "Eliminar",
       "MODIFY": "Modificar"
     }
+  },
+  "merge": {
+    "title": "Unir a Otro Pedido",
+    "search": "Buscar por número o mesa",
+    "confirmTitle": "Unir pedidos",
+    "confirmMessage": "Los productos, tickets y pagos del pedido #{{source}} pasarán al pedido #{{target}} y el #{{source}} se cerrará.",
+    "confirm": "Unir"
   }
 }

@@ -8,6 +8,8 @@ import {
   AddOrderDetailToOrderDto,
   AddOrderDetailsDto,
   DeleteOrderDetailDto,
+  MergeOrderDto,
+  MergeOrderResp,
   ReplaceOrderDetailDto,
   UpdateOrderResp,
   UpdateOrderDetailsDto,
@@ -156,6 +158,24 @@ export const useOrders = () => {
     },
   });
 
+  const deleteOrderFromStore = useOrdersStore((state) => state.deleteOrder);
+
+  const mergeOrderEmitter = useWebsocketEventEmitter<
+    MergeOrderResp,
+    MergeOrderDto
+  >(OrderSocketEvent.mergeOrder, {
+    onSuccess: (resp) => {
+      const data = resp.data;
+      if (!data?.order) return;
+      if (data.mergedOrder?.id) deleteOrderFromStore(data.mergedOrder.id);
+      updateOrder(data.order);
+      setActiveOrder(data.order);
+    },
+    onError: (resp) => {
+      Alert.alert("Error", resp.msg);
+    },
+  });
+
   return {
     createOrder: createOrderEmitter,
     updateOrderDetail: updateOrderDetailEmitter,
@@ -166,6 +186,7 @@ export const useOrders = () => {
     removeOrderDetail: removeOrderDetailEmitter,
     replaceOrderDetail: replaceOrderDetailEmitter,
     deleteOrder: deleteOrderEmitter,
+    mergeOrder: mergeOrderEmitter,
   };
 };
 
