@@ -57,7 +57,6 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
-import Checkbox from "@/presentation/theme/components/checkbox";
 import { useMarkOrderDelivered } from "@/presentation/orders/hooks/useMarkOrderDelivered";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useBills } from "@/presentation/orders/hooks/useBills";
@@ -123,6 +122,10 @@ export default function OrderScreen() {
   const [activeTab, setActiveTab] = useState<"products" | "bills" | "tickets">(
     "products",
   );
+  const [selectionRequested, setSelectionRequested] = useState(false);
+  const [selectedDetailIds, setSelectedDetailIds] = useState<Set<string>>(
+    new Set(),
+  );
   // Call all hooks before any conditional returns
   const {
     statusText,
@@ -185,6 +188,19 @@ export default function OrderScreen() {
         detail.status !== OrderDetailStatus.DELIVERED &&
         detail.status !== OrderDetailStatus.CANCELLED,
     );
+  const hasPendingDetails = (order?.details ?? []).some(
+    (detail) =>
+      detail.status === OrderDetailStatus.PENDING ||
+      detail.status === OrderDetailStatus.IN_PROGRESS ||
+      detail.status === OrderDetailStatus.READY,
+  );
+  const canSelectDetails =
+    order?.isClosed !== true && hasPendingDetails && activeTab === "products";
+
+  // Selection mode ends on its own once there's nothing left to select
+  // (everything got delivered or the order was closed).
+  const isSelectionMode = selectionRequested && canSelectDetails;
+
   const canCloseOrder =
     order?.isClosed !== true &&
     order?.status === OrderStatus.DELIVERED &&
@@ -194,7 +210,7 @@ export default function OrderScreen() {
     navigation.setOptions({
       headerRight: () => (
         <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}>
-          {canMarkDelivered && (
+          {canMarkDelivered && !isSelectionMode && (
             <Button
               leftIcon="checkmark-done-outline"
               label={t("orders:options.markDelivered")}
@@ -223,6 +239,7 @@ export default function OrderScreen() {
   }, [
     navigation,
     canMarkDelivered,
+    isSelectionMode,
     canCloseOrder,
     order,
     markDelivered,
@@ -417,9 +434,49 @@ export default function OrderScreen() {
   const allDetails = hasDetails ? order.details : [];
   const hasItems = allDetails.length > 0;
 
-  const handleMarkAllDelivered = () => {
-    if (pendingDetails.length === 0) return;
-    markDelivered(order, pendingDetails);
+  // Details delivered or removed elsewhere drop out of the pending list, so
+  // only count the selected ones that are still pending.
+  const selectedDetails = pendingDetails.filter((detail) =>
+    selectedDetailIds.has(detail.id),
+  );
+  const allDetailsSelected =
+    pendingDetails.length > 0 &&
+    selectedDetails.length === pendingDetails.length;
+
+  const enterSelectionMode = () => {
+    setSelectionRequested(true);
+    setSelectedDetailIds(new Set());
+  };
+
+  const cancelSelectionMode = () => {
+    setSelectionRequested(false);
+    setSelectedDetailIds(new Set());
+  };
+
+  const toggleSelectDetail = (detail: OrderDetail) => {
+    setSelectedDetailIds((current) => {
+      const next = new Set(current);
+      if (next.has(detail.id)) {
+        next.delete(detail.id);
+      } else {
+        next.add(detail.id);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectAllDetails = () => {
+    setSelectedDetailIds(
+      allDetailsSelected
+        ? new Set()
+        : new Set(pendingDetails.map((detail) => detail.id)),
+    );
+  };
+
+  const deliverSelected = () => {
+    if (selectedDetails.length === 0) return;
+    markDelivered(order, selectedDetails);
+    cancelSelectionMode();
   };
 
   const toggleDeliveredSection = () => {
@@ -794,25 +851,30 @@ export default function OrderScreen() {
                     <ThemedView
                       style={tw`flex-row justify-between items-center mb-4`}
                     >
-                      <ThemedView style={tw`flex-row items-center gap-3`}>
-                        {/* <Checkbox */}
-                        {/*   value={false} */}
-                        {/*   onValueChange={handleMarkAllDelivered} */}
-                        {/* /> */}
+                      <ThemedView style={tw`flex-row items-center gap-2`}>
                         <ThemedText type="body2" style={tw`text-gray-500`}>
                           {t("orders:details.pendingItems")}
                         </ThemedText>
-                      </ThemedView>
-                      <ThemedView
-                        style={tw`bg-primary-50 px-2.5 py-1 rounded-full`}
-                      >
-                        <ThemedText
-                          type="small"
-                          style={tw`text-primary-700 font-semibold`}
+                        <ThemedView
+                          style={tw`bg-primary-50 px-2.5 py-1 rounded-full`}
                         >
-                          {pendingDetails.length}
-                        </ThemedText>
+                          <ThemedText
+                            type="small"
+                            style={tw`text-primary-700 font-semibold`}
+                          >
+                            {pendingDetails.length}
+                          </ThemedText>
+                        </ThemedView>
                       </ThemedView>
+                      {!isSelectionMode && (
+                        <Button
+                          variant="text"
+                          size="small"
+                          leftIcon="checkmark-circle-outline"
+                          label={t("common:actions.select")}
+                          onPress={enterSelectionMode}
+                        />
+                      )}
                     </ThemedView>
                     <ThemedView style={tw`gap-6`}>
                       {pendingDetails.map((detail) => (
@@ -822,6 +884,9 @@ export default function OrderScreen() {
                           onPress={() => openProduct(detail)}
                           orderUserId={order.user?.id || ""}
                           orderType={order.type}
+                          selectionMode={isSelectionMode}
+                          selected={selectedDetailIds.has(detail.id)}
+                          onToggleSelect={toggleSelectDetail}
                         />
                       ))}
                     </ThemedView>
@@ -1088,45 +1153,94 @@ export default function OrderScreen() {
           </ThemedView>
         </ThemedView>
 
-        {/* Floating Toolbar */}
-        <View style={tw`absolute bottom-20 left-0 right-0 items-center`}>
-          <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
-            <FloatingToolbar
-              items={[
-                {
-                  icon: "fast-food-outline",
-                  label: t("orders:details.tabs.products"),
-                  onPress: () => setActiveTab("products"),
-                  active: activeTab === "products",
-                },
-                {
-                  icon: "cash-outline",
-                  label: t("orders:details.tabs.bills"),
-                  onPress: () => setActiveTab("bills"),
-                  active: activeTab === "bills",
-                },
-                {
-                  icon: "receipt-outline",
-                  label: t("orders:details.tabs.tickets"),
-                  onPress: () => setActiveTab("tickets"),
-                  active: activeTab === "tickets",
-                },
-              ]}
-            />
-
-            {(activeTab === "products" ||
-              (activeTab === "bills" && remainingAmount > 0)) && (
+        {/* Selection Bar */}
+        {isSelectionMode && (
+          <View style={tw`absolute bottom-20 left-4 right-4 items-center`}>
+            <ThemedView
+              style={tw`w-full flex-row items-center gap-1 bg-light-surface rounded-full shadow-sm px-2 py-2`}
+            >
               <IconButton
-                onPress={
-                  activeTab === "products" ? handleAddProduct : handleAddBill
+                icon="close"
+                variant="text"
+                onPress={cancelSelectionMode}
+                accessibilityLabel={t(
+                  "orders:details.selection.cancelSelection",
+                )}
+              />
+              <ThemedText
+                type="body1"
+                numberOfLines={1}
+                style={[tw`flex-1`, { fontFamily: typography.medium }]}
+              >
+                {t("orders:details.selection.selectedCount", {
+                  count: selectedDetails.length,
+                })}
+              </ThemedText>
+              <Button
+                variant="text"
+                size="small"
+                label={
+                  allDetailsSelected
+                    ? t("orders:details.selection.unselectAll")
+                    : t("orders:details.selection.selectAll")
                 }
-                icon={activeTab === "products" ? "add-outline" : "card-outline"}
-                size={40}
+                onPress={toggleSelectAllDetails}
+              />
+              <Button
                 variant="secondary"
-              ></IconButton>
-            )}
-          </ThemedView>
-        </View>
+                size="small"
+                leftIcon="checkmark-done-outline"
+                label={t("orders:details.selection.deliver")}
+                disabled={selectedDetails.length === 0}
+                onPress={deliverSelected}
+              />
+            </ThemedView>
+          </View>
+        )}
+
+        {/* Floating Toolbar */}
+        {!isSelectionMode && (
+          <View style={tw`absolute bottom-20 left-0 right-0 items-center`}>
+            <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
+              <FloatingToolbar
+                items={[
+                  {
+                    icon: "fast-food-outline",
+                    label: t("orders:details.tabs.products"),
+                    onPress: () => setActiveTab("products"),
+                    active: activeTab === "products",
+                  },
+                  {
+                    icon: "cash-outline",
+                    label: t("orders:details.tabs.bills"),
+                    onPress: () => setActiveTab("bills"),
+                    active: activeTab === "bills",
+                  },
+                  {
+                    icon: "receipt-outline",
+                    label: t("orders:details.tabs.tickets"),
+                    onPress: () => setActiveTab("tickets"),
+                    active: activeTab === "tickets",
+                  },
+                ]}
+              />
+
+              {(activeTab === "products" ||
+                (activeTab === "bills" && remainingAmount > 0)) && (
+                <IconButton
+                  onPress={
+                    activeTab === "products" ? handleAddProduct : handleAddBill
+                  }
+                  icon={
+                    activeTab === "products" ? "add-outline" : "card-outline"
+                  }
+                  size={40}
+                  variant="secondary"
+                ></IconButton>
+              )}
+            </ThemedView>
+          </View>
+        )}
       </View>
 
       <ThemedBottomSheetModal ref={editBottomSheetRef} enablePanDownToClose>
