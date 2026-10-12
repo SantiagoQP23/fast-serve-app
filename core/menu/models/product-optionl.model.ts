@@ -33,3 +33,27 @@ export function getProductOptionAvailableQuantity(
     ),
   );
 }
+
+export type ProductOptionStockLevel = "out" | "low" | "ok";
+
+/**
+ * Stock level of this option given how many units are still available:
+ * "out" when none can be made, "low" when any linked inventory item is at or
+ * under its minimum, "ok" otherwise. Returns null when the option is not
+ * linked to inventory.
+ */
+export function getProductOptionStockLevel(
+  option: ProductOption,
+  available: number | null = getProductOptionAvailableQuantity(option),
+): ProductOptionStockLevel | null {
+  if (available === null) return null;
+  if (available <= 0) return "out";
+
+  const isLow = (option.inventoryItems ?? []).some(({ inventoryItem }) =>
+    inventoryItem?.minimumQuantity != null && inventoryItem.minimumQuantity > 0
+      ? inventoryItem.quantity <= inventoryItem.minimumQuantity
+      : false,
+  );
+
+  return isLow ? "low" : "ok";
+}

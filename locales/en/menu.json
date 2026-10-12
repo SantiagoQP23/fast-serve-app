@@ -24,6 +24,14 @@
     "status": {
       "OUT_OF_STOCK": "Out of Stock",
       "OUT_OF_SEASON": "Out of Season"
+    },
+    "stock": {
+      "left_one": "{{count}} left",
+      "left_other": "{{count}} left",
+      "out": "Out of stock",
+      "noneLeft": "No stock left for this item",
+      "exceeds_one": "Only {{count}} left in stock",
+      "exceeds_other": "Only {{count}} left in stock"
     }
   },
   "cart": {
