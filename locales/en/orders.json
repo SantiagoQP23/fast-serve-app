@@ -23,6 +23,10 @@
     "products": "Products",
     "orders": "Orders"
   },
+  "homeOptions": {
+    "title": "Customize view",
+    "ordersSection": "Orders"
+  },
   "drawer": {
     "myOrders": "My Orders",
     "allOrders": "All Orders",

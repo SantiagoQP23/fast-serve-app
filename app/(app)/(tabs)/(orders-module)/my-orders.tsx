@@ -27,7 +27,6 @@ import Popover, {
 } from "@/presentation/theme/components/popover";
 import OrderListByStatus from "@/presentation/orders/molecules/order-list-by-status";
 import OrderCardSkeleton from "@/presentation/home/components/order-card-skeleton";
-import TabBar from "@/presentation/theme/components/tab-bar";
 import SegmentedControl from "@/presentation/theme/components/segmented-control";
 import TablesView from "@/presentation/tables/components/tables-view";
 import { Table } from "@/core/tables/models/table.model";
@@ -39,6 +38,10 @@ import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-b
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { useSyncStore } from "@/presentation/sync/store/useSyncStore";
 import SalesContent from "@/presentation/orders/components/sales-content";
+import IconButton from "@/presentation/theme/components/icon-button";
+import HomeViewOptionsBottomSheet, {
+  OrdersScope,
+} from "@/presentation/orders/components/home-view-options-bottom-sheet";
 
 export default function MyOrdersScreen() {
   const { t } = useTranslation(["common", "orders", "errors", "tables"]);
@@ -51,16 +54,21 @@ export default function MyOrdersScreen() {
   const allOrders = useOrdersStore((state) => state.orders)
     .slice()
     .sort(byDeliveryTime);
-  const orders = allOrders.filter((order) => order.user?.id === user?.id);
   const router = useRouter();
   const params = useLocalSearchParams<{ module?: "orders" | "sales" }>();
   const [refreshing, setRefreshing] = useState(false);
   const [activeModule, setActiveModule] = useState<"orders" | "sales">(
     params.module === "sales" ? "sales" : "orders",
   );
-  const [activeTab, setActiveTab] = useState<
-    "my-orders" | "all-orders" | "tables"
-  >("my-orders");
+  const [activeView, setActiveView] = useState<"tables" | "take-away">(
+    "tables",
+  );
+  const [ordersScope, setOrdersScope] = useState<OrdersScope>("my-orders");
+  const takeAwayOrders = allOrders.filter(
+    (order) =>
+      order.type === OrderType.TAKE_AWAY &&
+      (ordersScope === "all-orders" || order.user?.id === user?.id),
+  );
   const [selectedView, setSelectedView] = useState<
     "pending-products" | "order-lists"
   >("pending-products");
@@ -100,6 +108,7 @@ export default function MyOrdersScreen() {
 
   // ref
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
+  const viewOptionsSheetRef = useRef<BottomSheetMethods>(null);
 
   const handleNavigate = () => {
     bottomSheetModalRef.current?.close();
@@ -160,23 +169,16 @@ export default function MyOrdersScreen() {
     },
   ];
 
-  const tabs = [
-    {
-      label: t("orders:drawer.myOrders"),
-      value: "my-orders" as const,
-      icon: "person-outline" as const,
-      count: orders.length,
-    },
-    {
-      label: t("orders:drawer.allOrders"),
-      value: "all-orders" as const,
-      icon: "people-outline" as const,
-      count: allOrders.length,
-    },
+  const viewTabs = [
     {
       label: t("tables:list.title"),
       value: "tables" as const,
       icon: "grid-outline" as const,
+    },
+    {
+      label: t("orders:details.takeAway"),
+      value: "take-away" as const,
+      icon: "bag-handle-outline" as const,
     },
   ];
 
@@ -195,8 +197,20 @@ export default function MyOrdersScreen() {
           <MyOrdersHeaderRight />
         </ThemedView>
         {activeModule === "orders" && (
-          <ThemedView style={tw`mt-4 `}>
-            <TabBar tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
+          <ThemedView style={tw`mt-4 flex-row items-center gap-2`}>
+            <ThemedView style={tw`flex-1`}>
+              <SegmentedControl
+                items={viewTabs}
+                value={activeView}
+                onChange={setActiveView}
+              />
+            </ThemedView>
+            <IconButton
+              icon="options-outline"
+              variant="outlined"
+              accessibilityLabel={t("orders:homeOptions.title")}
+              onPress={() => viewOptionsSheetRef.current?.present()}
+            />
           </ThemedView>
         )}
       </ThemedView>
@@ -211,52 +225,7 @@ export default function MyOrdersScreen() {
       {activeModule === "orders" && (
         <>
           <ThemedView style={tw`flex-1`}>
-            {activeTab === "my-orders" && (
-              <ScrollView
-                contentContainerStyle={tw`pb-20 gap-4 pt-4 `}
-                showsVerticalScrollIndicator={false}
-                onScroll={handleScroll}
-                scrollEventThrottle={16}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={onRefresh}
-                    tintColor={primaryColor}
-                    colors={[primaryColor]}
-                  />
-                }
-              >
-                {isLoadingOrders ? (
-                  <ThemedView style={tw`px-4 gap-3`}>
-                    <OrderCardSkeleton />
-                    <OrderCardSkeleton />
-                    <OrderCardSkeleton />
-                  </ThemedView>
-                ) : orders.length === 0 ? (
-                  <ThemedView
-                    style={tw` items-center justify-center flex-1 gap-4 mt-20`}
-                  >
-                    <Ionicons
-                      name="document-text-outline"
-                      size={80}
-                      color={tw.color("gray-500")}
-                    />
-                    <ThemedText type="h3">
-                      {t("orders:list.noOrders")}
-                    </ThemedText>
-                    <ThemedText type="body2" style={tw`text-center max-w-xs`}>
-                      {t("orders:list.noOrdersDescription")}
-                    </ThemedText>
-                  </ThemedView>
-                ) : (
-                  <ThemedView style={tw`gap-6`}>
-                    <OrderListByStatus orders={orders} showProducts />
-                  </ThemedView>
-                )}
-              </ScrollView>
-            )}
-
-            {activeTab === "all-orders" && (
+            {activeView === "take-away" && (
               <ScrollView
                 contentContainerStyle={tw`pb-20 gap-4 pt-4`}
                 showsVerticalScrollIndicator={false}
@@ -277,9 +246,9 @@ export default function MyOrdersScreen() {
                     <OrderCardSkeleton />
                     <OrderCardSkeleton />
                   </ThemedView>
-                ) : allOrders.length === 0 ? (
+                ) : takeAwayOrders.length === 0 ? (
                   <ThemedView
-                    style={tw`items-center justify-center flex-1 gap-4 mt-20`}
+                    style={tw` items-center justify-center flex-1 gap-4 mt-20`}
                   >
                     <Ionicons
                       name="document-text-outline"
@@ -295,13 +264,13 @@ export default function MyOrdersScreen() {
                   </ThemedView>
                 ) : (
                   <ThemedView style={tw`gap-6`}>
-                    <OrderListByStatus orders={allOrders} showProducts />
+                    <OrderListByStatus orders={takeAwayOrders} showProducts />
                   </ThemedView>
                 )}
               </ScrollView>
             )}
 
-            {activeTab === "tables" && (
+            {activeView === "tables" && (
               <TablesView onTablePress={handleTablePress} style={tw`flex-1`} />
             )}
           </ThemedView>
@@ -312,6 +281,15 @@ export default function MyOrdersScreen() {
             enablePanDownToClose
           >
             <NewOrderBottomSheet onCreateOrder={handleNavigate} />
+          </ThemedBottomSheetModal>
+          <ThemedBottomSheetModal
+            ref={viewOptionsSheetRef}
+            enablePanDownToClose
+          >
+            <HomeViewOptionsBottomSheet
+              ordersScope={ordersScope}
+              onOrdersScopeChange={setOrdersScope}
+            />
           </ThemedBottomSheetModal>
           <Popover
             visible={popoverVisible}
