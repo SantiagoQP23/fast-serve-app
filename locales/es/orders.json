@@ -252,6 +252,7 @@
     "date": "FECHA",
     "people": "PERSONAS",
     "notes": "NOTAS",
+    "deliveryTime": "HORA DE ENTREGA",
     "inPlace": "EN EL LUGAR",
     "detailTakeAway": "PARA LLEVAR",
     "ticketType": {

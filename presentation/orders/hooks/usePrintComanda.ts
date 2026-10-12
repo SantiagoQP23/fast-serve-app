@@ -62,6 +62,7 @@ export const usePrintComanda = () => {
         inPlace: t("orders:comanda.inPlace"),
         detailTakeAway: t("orders:comanda.detailTakeAway"),
         deletedUser: t("common:labels.deletedUser"),
+        deliveryTime: t("orders:comanda.deliveryTime"),
         itemAction: (action: TicketItemAction) =>
           t(`orders:comanda.itemActionPrefix.${action}`),
       };

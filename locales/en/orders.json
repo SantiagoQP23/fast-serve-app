@@ -252,6 +252,7 @@
     "date": "DATE",
     "people": "PEOPLE",
     "notes": "NOTES",
+    "deliveryTime": "DELIVERY TIME",
     "inPlace": "IN PLACE",
     "detailTakeAway": "TAKE AWAY",
     "ticketType": {

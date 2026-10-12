@@ -13,6 +13,23 @@ const formatDateTime = (date: Date | string): string => {
   return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
+const formatTime = (date: Date | string): string => {
+  const d = new Date(date);
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+// ESC B n t — printer buzzer: beeps `times` times, each lasting `duration` x 50ms (1-9).
+const buzzer = (times: number, duration: number): string =>
+  `\x1B\x42${String.fromCharCode(times)}${String.fromCharCode(duration)}`;
+
+const TICKET_BUZZER: Record<TicketType, string> = {
+  [TicketType.NEW]: buzzer(3, 3),
+  [TicketType.ADD]: buzzer(2, 2),
+  [TicketType.UPDATE]: buzzer(4, 1),
+  [TicketType.CANCEL]: buzzer(5, 6),
+};
+
 export class ThermalPrinterService {
   static printTest = async (
     printer: Printer,
@@ -218,6 +235,7 @@ export class ThermalPrinterService {
       inPlace: string;
       detailTakeAway: string;
       deletedUser: string;
+      deliveryTime: string;
       itemAction: (action: TicketItem["action"]) => string;
     },
   ): Promise<void> => {
@@ -267,6 +285,7 @@ export class ThermalPrinterService {
       `[L]${translations.waiter}: ${order.user?.person.firstName ?? translations.deletedUser} ${order.user?.person.lastName ?? ""}\n` +
       `[L]${translations.date}: ${formatDateTime(order.createdAt)}\n` +
       `[L]${translations.people}: ${order.people}\n` +
+      `${order.deliveryTime ? `[L]<b>${translations.deliveryTime}: ${formatTime(order.deliveryTime)}</b>\n` : ""}` +
       `${order.notes ? `[C]-------------------------------------\n[L]${translations.notes}: ${order.notes}\n` : ""}` +
       `[C]\n` +
       `[C]----------------------------------------------\n` +
@@ -275,7 +294,7 @@ export class ThermalPrinterService {
       `[C]${formatDateTime(new Date())}\n` +
       `[C]\n` +
       `[C]\n` +
-      `\x1B\x42\x03\x03 \n` +
+      `${TICKET_BUZZER[ticketType]} \n` +
       `[C]\n`;
 
     if (printer.connectionType === "TCP") {
