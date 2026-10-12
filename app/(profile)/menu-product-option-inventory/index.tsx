@@ -34,8 +34,7 @@ export default function MenuProductOptionInventoryScreen() {
   const product = products.find((p) =>
     p.options.some((option) => option.id === productOptionId),
   );
-  const hasSingleVariant =
-    !!product && product.options.filter((o) => o.isActive).length <= 1;
+  const hasSingleVariant = !!product && product.options.length === 1;
 
   const [showWholeProductModal, setShowWholeProductModal] = useState(false);
 
