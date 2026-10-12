@@ -1,15 +1,14 @@
-import { ScrollView, View } from "react-native";
+import Animated from "react-native-reanimated";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Fab from "@/presentation/theme/components/fab";
-import OrderList from "@/presentation/orders/molecules/order-list";
 import { useTableOrders } from "@/presentation/orders/hooks/useTableOrders";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -20,6 +19,11 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import OrderListByStatus from "@/presentation/orders/molecules/order-list-by-status";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import {
+  CollapsibleHeaderTitle,
+  CollapsibleLargeTitle,
+  useCollapsibleHeaderScroll,
+} from "@/presentation/theme/components/collapsible-header-title";
 
 export default function TableOrdersScreen() {
   const { t } = useTranslation(["common", "tables"]);
@@ -28,6 +32,8 @@ export default function TableOrdersScreen() {
     tableName: string;
   }>();
   const router = useRouter();
+  const navigation = useNavigation();
+  const { scrollY, scrollHandler } = useCollapsibleHeaderScroll();
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
 
   const { totalAmount, activeOrdersCount, hasOrders, orders } = useTableOrders(
@@ -35,6 +41,23 @@ export default function TableOrdersScreen() {
   );
 
   const { setTable, setOrderType } = useNewOrderStore();
+
+  const title = t("tables:details.table", { name: tableName });
+  const statusText = hasOrders
+    ? t("common:status.occupied")
+    : t("common:status.available");
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerTitle: () => (
+        <CollapsibleHeaderTitle
+          scrollY={scrollY}
+          title={title}
+          subtitle={statusText}
+        />
+      ),
+    });
+  }, [navigation, scrollY, title, statusText]);
 
   const handleNavigate = () => {
     bottomSheetModalRef.current?.close();
@@ -51,58 +74,56 @@ export default function TableOrdersScreen() {
   return (
     <>
       <ScreenLayout style={tw`flex-1`}>
-        <ThemedView
-          style={tw`mb-6 px-4 mt-2 flex-row items-center justify-between`}
+        <Animated.ScrollView
+          style={tw`flex-1`}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={tw`pb-20 gap-4 flex-grow`}
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
         >
-          <ThemedText type="h2">
-            {t("tables:details.table", { name: tableName })}
-          </ThemedText>
-          <ThemedView style={tw`flex-row items-center  gap-4`}>
-            <ThemedView style={tw`flex-row items-center gap-2`}>
-              <Label
-                text={
-                  hasOrders
-                    ? t("common:status.occupied")
-                    : t("common:status.available")
-                }
-                color={hasOrders ? "error" : "success"}
-              />
-            </ThemedView>
-          </ThemedView>
-        </ThemedView>
-        <ThemedView style={tw`px-4 mb-4 flex-row items-center gap-4`}>
-          <StatsCard
-            title={t("tables:totalOrders")}
-            value={activeOrdersCount}
-            icon="receipt-outline"
-          />
-          <StatsCard
-            title={t("tables:totalRevenue")}
-            value={formatCurrency(totalAmount)}
-            icon="cash-outline"
-          />
-        </ThemedView>
-
-        {!hasOrders ? (
-          <ThemedView style={tw`items-center justify-center flex-1 gap-4`}>
-            <Ionicons
-              name="restaurant-outline"
-              size={80}
-              color={tw.color("gray-500")}
+          <ThemedView style={tw`px-4 mt-2`}>
+            <CollapsibleLargeTitle
+              scrollY={scrollY}
+              title={title}
+              subtitle={
+                <ThemedView style={tw`flex-row`}>
+                  <Label
+                    text={statusText}
+                    color={hasOrders ? "error" : "success"}
+                  />
+                </ThemedView>
+              }
             />
-            <ThemedText type="h3">{t("tables:details.noOrders")}</ThemedText>
-            <ThemedText type="body2" style={tw`text-center max-w-xs`}>
-              {t("tables:details.noOrdersDescription")}
-            </ThemedText>
           </ThemedView>
-        ) : (
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={tw`pb-20 gap-4`}
-          >
+          <ThemedView style={tw`px-4 flex-row items-center gap-4`}>
+            <StatsCard
+              title={t("tables:totalOrders")}
+              value={activeOrdersCount}
+              icon="receipt-outline"
+            />
+            <StatsCard
+              title={t("tables:totalRevenue")}
+              value={formatCurrency(totalAmount)}
+              icon="cash-outline"
+            />
+          </ThemedView>
+
+          {!hasOrders ? (
+            <ThemedView style={tw`items-center justify-center flex-1 gap-4`}>
+              <Ionicons
+                name="restaurant-outline"
+                size={80}
+                color={tw.color("gray-500")}
+              />
+              <ThemedText type="h3">{t("tables:details.noOrders")}</ThemedText>
+              <ThemedText type="body2" style={tw`text-center max-w-xs`}>
+                {t("tables:details.noOrdersDescription")}
+              </ThemedText>
+            </ThemedView>
+          ) : (
             <OrderListByStatus orders={orders} showProducts />
-          </ScrollView>
-        )}
+          )}
+        </Animated.ScrollView>
 
         <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
           <NewOrderBottomSheet onCreateOrder={handleNavigate} />
