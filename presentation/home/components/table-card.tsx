@@ -7,14 +7,21 @@ import { View, PressableProps } from "react-native";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useTableOrders } from "@/presentation/orders/hooks/useTableOrders";
 import { Table } from "@/core/tables/models/table.model";
+import { Order } from "@/core/orders/models/order.model";
+import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";
 
 interface TableCardProps extends PressableProps {
   table: Table;
 }
 
+function OrderStatusDot({ order }: { order: Order }) {
+  const { bgColor } = useOrderStatus(order.status);
+  return <View style={tw`w-2 h-2 rounded-full ${bgColor}`} />;
+}
+
 export default function TableCard({ table, onPress }: TableCardProps) {
   const { t } = useTranslation(["tables"]);
-  const { hasOrders } = useTableOrders(table.id);
+  const { hasOrders, tableOrders } = useTableOrders(table.id);
   return (
     <ThemedView style={[tw`w-full`]}>
       <Card
@@ -29,13 +36,16 @@ export default function TableCard({ table, onPress }: TableCardProps) {
         >
           <ThemedText type="body1">{table.name}</ThemedText>
         </ThemedView>
-        <ThemedView style={tw` flex-row justify-center bg-transparent mt-2`}>
-          <View
-            style={[
-              tw`w-2 h-2 rounded-full`,
-              !hasOrders ? tw`border border-black-500` : tw`bg-light-primary`,
-            ]}
-          />
+        <ThemedView
+          style={tw`flex-row flex-wrap justify-center gap-1 bg-transparent mt-2`}
+        >
+          {hasOrders ? (
+            tableOrders.map((order) => (
+              <OrderStatusDot key={order.id} order={order} />
+            ))
+          ) : (
+            <View style={tw`w-2 h-2 rounded-full border border-black-500`} />
+          )}
         </ThemedView>
       </Card>
     </ThemedView>
