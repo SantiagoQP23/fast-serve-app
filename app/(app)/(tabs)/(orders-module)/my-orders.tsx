@@ -17,8 +17,6 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import useOrdersModuleContext from "./orders-module.context";
 import * as Haptics from "expo-haptics";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
-import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
@@ -40,21 +38,17 @@ import { useSyncStore } from "@/presentation/sync/store/useSyncStore";
 import SalesContent from "@/presentation/orders/components/sales-content";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Button from "@/presentation/theme/components/button";
-import HomeViewOptionsBottomSheet, {
-  OrdersScope,
-} from "@/presentation/orders/components/home-view-options-bottom-sheet";
+import HomeViewOptionsBottomSheet from "@/presentation/orders/components/home-view-options-bottom-sheet";
+import { useScopedOrders } from "@/presentation/orders/hooks/useScopedOrders";
 
 export default function MyOrdersScreen() {
   const { t } = useTranslation(["common", "orders", "errors", "tables"]);
-  const { user } = useAuthStore();
   const lastSequence = useSyncStore((state) => state.lastSequence);
   const byDeliveryTime = (a: Order, b: Order) =>
     (a.deliveryTime ? new Date(a.deliveryTime).getTime() : Infinity) -
     (b.deliveryTime ? new Date(b.deliveryTime).getTime() : Infinity);
 
-  const allOrders = useOrdersStore((state) => state.orders)
-    .slice()
-    .sort(byDeliveryTime);
+  const orders = useScopedOrders().slice().sort(byDeliveryTime);
   const router = useRouter();
   const params = useLocalSearchParams<{ module?: "orders" | "sales" }>();
   const [refreshing, setRefreshing] = useState(false);
@@ -64,11 +58,8 @@ export default function MyOrdersScreen() {
   const [activeView, setActiveView] = useState<"tables" | "take-away">(
     "tables",
   );
-  const [ordersScope, setOrdersScope] = useState<OrdersScope>("my-orders");
-  const takeAwayOrders = allOrders.filter(
-    (order) =>
-      order.type === OrderType.TAKE_AWAY &&
-      (ordersScope === "all-orders" || order.user?.id === user?.id),
+  const takeAwayOrders = orders.filter(
+    (order) => order.type === OrderType.TAKE_AWAY,
   );
   const [selectedView, setSelectedView] = useState<
     "pending-products" | "order-lists"
@@ -141,7 +132,7 @@ export default function MyOrdersScreen() {
   }, [refetchOrders, t]);
 
   const handleTablePress = (table: Table) => {
-    const tableHasOrders = allOrders.some(
+    const tableHasOrders = orders.some(
       (order) => order.table?.id === table.id,
     );
 
@@ -287,10 +278,7 @@ export default function MyOrdersScreen() {
             ref={viewOptionsSheetRef}
             enablePanDownToClose
           >
-            <HomeViewOptionsBottomSheet
-              ordersScope={ordersScope}
-              onOrdersScopeChange={setOrdersScope}
-            />
+            <HomeViewOptionsBottomSheet />
           </ThemedBottomSheetModal>
           <Popover
             visible={popoverVisible}

@@ -1,9 +1,9 @@
 import { useMemo } from "react";
-import { useOrdersStore } from "../store/useOrdersStore";
+import { useScopedOrders } from "./useScopedOrders";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 
 export const useTableOrders = (tableId: string) => {
-  const orders = useOrdersStore((state) => state.orders);
+  const orders = useScopedOrders();
 
   const tableOrders = useMemo(
     () => orders.filter((order) => order.table?.id === tableId),

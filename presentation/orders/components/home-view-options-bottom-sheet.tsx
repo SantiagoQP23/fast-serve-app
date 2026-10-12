@@ -4,21 +4,14 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Chip from "@/presentation/theme/components/chip";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-
-export type OrdersScope = "my-orders" | "all-orders";
-
-interface HomeViewOptionsBottomSheetProps {
-  ordersScope: OrdersScope;
-  onOrdersScopeChange: (scope: OrdersScope) => void;
-}
+import { useOrdersViewStore } from "@/presentation/orders/store/useOrdersViewStore";
 
 // Customization options for the home screen. Filters apply immediately on
-// tap; more sections will be added here over time.
-export default function HomeViewOptionsBottomSheet({
-  ordersScope,
-  onOrdersScopeChange,
-}: HomeViewOptionsBottomSheetProps) {
+// tap and persist via useOrdersViewStore; more sections will be added here
+// over time.
+export default function HomeViewOptionsBottomSheet() {
   const { t } = useTranslation(["orders"]);
+  const { ordersScope, setOrdersScope } = useOrdersViewStore();
 
   const scopeOptions = [
     { label: t("orders:drawer.myOrders"), value: "my-orders" as const },
@@ -42,7 +35,7 @@ export default function HomeViewOptionsBottomSheet({
                 key={option.value}
                 label={option.label}
                 selected={ordersScope === option.value}
-                onPress={() => onOrdersScopeChange(option.value)}
+                onPress={() => setOrdersScope(option.value)}
               />
             ))}
           </ThemedView>
