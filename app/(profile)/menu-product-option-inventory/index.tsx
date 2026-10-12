@@ -13,6 +13,7 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import { useInventoryRecipes } from "@/presentation/inventory/hooks/useInventoryRecipes";
+import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import WholeProductInventoryModal from "@/presentation/inventory/components/whole-product-inventory-modal";
 import { InventoryUnit } from "@/core/inventory/models/inventory-item.model";
 
@@ -27,6 +28,14 @@ export default function MenuProductOptionInventoryScreen() {
   const { user } = useAuthStore();
   const canManage = isAdminLevelRole(user?.role?.name);
   const { recipes, recipesQuery } = useInventoryRecipes(productOptionId);
+  const products = useMenuStore((state) => state.products);
+
+  // Single-variant products name the inventory item after the product alone.
+  const product = products.find((p) =>
+    p.options.some((option) => option.id === productOptionId),
+  );
+  const hasSingleVariant =
+    !!product && product.options.filter((o) => o.isActive).length <= 1;
 
   const [showWholeProductModal, setShowWholeProductModal] = useState(false);
 
@@ -192,7 +201,9 @@ export default function MenuProductOptionInventoryScreen() {
         visible={showWholeProductModal}
         productOptionId={productOptionId}
         productName={params.productName}
-        productOptionName={params.productOptionName}
+        productOptionName={
+          hasSingleVariant ? undefined : params.productOptionName
+        }
         line={wholeProductLine}
         onClose={closeWholeProductModal}
       />
