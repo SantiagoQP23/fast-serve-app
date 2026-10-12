@@ -161,12 +161,10 @@ export default function MyOrdersScreen() {
     {
       label: t("common:navigation.orders"),
       value: "orders" as const,
-      icon: "list-outline" as const,
     },
     {
       label: t("common:navigation.sales"),
       value: "sales" as const,
-      icon: "pricetag-outline" as const,
     },
   ];
 
@@ -185,6 +183,7 @@ export default function MyOrdersScreen() {
         <ThemedView style={tw`flex-row items-center justify-between pt-8 mb-2`}>
           <ThemedView style={tw`flex-1 mr-3`}>
             <SegmentedControl
+              variant="text"
               items={moduleTabs}
               value={activeModule}
               onChange={setActiveModule}
