@@ -14,13 +14,54 @@ interface SegmentedControlProps<T extends string> {
   items: SegmentedControlItem<T>[];
   value: T;
   onChange: (value: T) => void;
+  /** `pill` (default) fills a highlighted chip; `text` shows plain tab labels. */
+  variant?: "pill" | "text";
 }
 
 export default function SegmentedControl<T extends string>({
   items,
   value,
   onChange,
+  variant = "pill",
 }: SegmentedControlProps<T>) {
+  if (variant === "text") {
+    return (
+      <View style={tw`flex-row items-center gap-5`}>
+        {items.map((item) => {
+          const isActive = value === item.value;
+          return (
+            <Pressable
+              key={item.value}
+              onPress={() => onChange(item.value)}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: isActive }}
+              hitSlop={8}
+              style={({ pressed }) => tw.style("py-1", pressed && "opacity-60")}
+            >
+              <ThemedText
+                type="body1"
+                style={[
+                  tw.style(
+                    isActive
+                      ? "text-light-text"
+                      : "text-light-on-surface-variant",
+                  ),
+                  {
+                    fontFamily: isActive
+                      ? typography.medium
+                      : typography.regular,
+                  },
+                ]}
+              >
+                {item.label}
+              </ThemedText>
+            </Pressable>
+          );
+        })}
+      </View>
+    );
+  }
+
   return (
     <View style={tw`flex-row  rounded-3xl  gap-1`}>
       {items.map((item) => {
