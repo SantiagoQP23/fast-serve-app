@@ -1,9 +1,9 @@
 import { useMemo } from "react";
-import { useOrdersStore } from "../store/useOrdersStore";
+import { useScopedOrders } from "./useScopedOrders";
 import { Table } from "@/core/tables/models/table.model";
 
 export const useTableByStatus = (tables: Table[]) => {
-  const orders = useOrdersStore((state) => state.orders);
+  const orders = useScopedOrders();
 
   const occupiedTables = useMemo(() => {
     return tables.filter((table) =>
