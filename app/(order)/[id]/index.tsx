@@ -443,9 +443,10 @@ export default function OrderScreen() {
     pendingDetails.length > 0 &&
     selectedDetails.length === pendingDetails.length;
 
-  const enterSelectionMode = () => {
+  const enterSelectionMode = (detail: OrderDetail) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setSelectionRequested(true);
-    setSelectedDetailIds(new Set());
+    setSelectedDetailIds(new Set([detail.id]));
   };
 
   const cancelSelectionMode = () => {
@@ -866,15 +867,6 @@ export default function OrderScreen() {
                           </ThemedText>
                         </ThemedView>
                       </ThemedView>
-                      {!isSelectionMode && (
-                        <Button
-                          variant="text"
-                          size="small"
-                          leftIcon="checkmark-circle-outline"
-                          label={t("common:actions.select")}
-                          onPress={enterSelectionMode}
-                        />
-                      )}
                     </ThemedView>
                     <ThemedView style={tw`gap-6`}>
                       {pendingDetails.map((detail) => (
@@ -887,6 +879,7 @@ export default function OrderScreen() {
                           selectionMode={isSelectionMode}
                           selected={selectedDetailIds.has(detail.id)}
                           onToggleSelect={toggleSelectDetail}
+                          onStartSelection={enterSelectionMode}
                         />
                       ))}
                     </ThemedView>

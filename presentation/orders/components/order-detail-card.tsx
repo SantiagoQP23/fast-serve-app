@@ -40,6 +40,8 @@ interface OrderDetailCardProps extends PressableProps {
   selectionMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (detail: OrderDetail) => void;
+  // When set, long-press starts selection mode instead of opening the actions sheet.
+  onStartSelection?: (detail: OrderDetail) => void;
 }
 
 export default function OrderDetailCard({
@@ -51,6 +53,7 @@ export default function OrderDetailCard({
   selectionMode = false,
   selected = false,
   onToggleSelect,
+  onStartSelection,
 }: OrderDetailCardProps) {
   const { t } = useTranslation(["common", "orders"]);
   const order = useOrdersStore((state) => state.activeOrder);
@@ -312,7 +315,11 @@ export default function OrderDetailCard({
                   : onPress
             }
             onLongPress={
-              isCancelled || selectionMode ? undefined : handleOpenBottomSheet
+              isCancelled || selectionMode
+                ? undefined
+                : onStartSelection
+                  ? () => onStartSelection(detail)
+                  : handleOpenBottomSheet
             }
           >
             <ThemedView style={tw`flex-row  gap-4`}>
