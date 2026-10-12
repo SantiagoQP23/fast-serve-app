@@ -39,6 +39,7 @@ import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { useSyncStore } from "@/presentation/sync/store/useSyncStore";
 import SalesContent from "@/presentation/orders/components/sales-content";
 import IconButton from "@/presentation/theme/components/icon-button";
+import Button from "@/presentation/theme/components/button";
 import HomeViewOptionsBottomSheet, {
   OrdersScope,
 } from "@/presentation/orders/components/home-view-options-bottom-sheet";
@@ -169,18 +170,13 @@ export default function MyOrdersScreen() {
     },
   ];
 
-  const viewTabs = [
-    {
-      label: t("tables:list.title"),
-      value: "tables" as const,
-      icon: "grid-outline" as const,
-    },
-    {
-      label: t("orders:details.takeAway"),
-      value: "take-away" as const,
-      icon: "bag-handle-outline" as const,
-    },
-  ];
+  const currentView =
+    activeView === "tables"
+      ? { label: t("tables:list.title"), icon: "grid-outline" as const }
+      : {
+          label: t("orders:details.takeAway"),
+          icon: "bag-handle-outline" as const,
+        };
 
   return (
     <ThemedView style={tw`flex-1 bg-light-background`}>
@@ -197,14 +193,19 @@ export default function MyOrdersScreen() {
           <MyOrdersHeaderRight />
         </ThemedView>
         {activeModule === "orders" && (
-          <ThemedView style={tw`mt-4 flex-row items-center gap-2`}>
-            <ThemedView style={tw`flex-1`}>
-              <SegmentedControl
-                items={viewTabs}
-                value={activeView}
-                onChange={setActiveView}
-              />
-            </ThemedView>
+          <ThemedView style={tw`mt-4 flex-row items-center justify-between`}>
+            <Button
+              variant="surface"
+              size="small"
+              label={currentView.label}
+              leftIcon={currentView.icon}
+              rightIcon="swap-horizontal-outline"
+              onPress={() =>
+                setActiveView((view) =>
+                  view === "tables" ? "take-away" : "tables",
+                )
+              }
+            />
             <IconButton
               icon="options-outline"
               variant="outlined"
