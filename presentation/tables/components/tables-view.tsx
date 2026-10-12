@@ -1,4 +1,9 @@
-import { FlatList, RefreshControl } from "react-native";
+import {
+  FlatList,
+  RefreshControl,
+  View,
+  useWindowDimensions,
+} from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -17,6 +22,10 @@ import Button from "@/presentation/theme/components/button";
 import { useTableByStatus } from "@/presentation/orders/hooks/useTableByStatus";
 import { Table } from "@/core/tables/models/table.model";
 import { ViewStyle } from "react-native";
+
+const NUM_COLUMNS = 4;
+const HORIZONTAL_PADDING = 16;
+const COLUMN_GAP = 8;
 
 interface TablesViewProps {
   onTablePress: (table: Table) => void;
@@ -37,6 +46,10 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
   const primaryColor = useThemeColor({}, "primary");
   const [isLoadingTables, setIsLoadingTables] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const { width: screenWidth } = useWindowDimensions();
+  const itemWidth =
+    (screenWidth - HORIZONTAL_PADDING * 2 - COLUMN_GAP * (NUM_COLUMNS - 1)) /
+    NUM_COLUMNS;
 
   const tabs: { label: string; value: boolean | "all"; count: number }[] = [
     { label: t("list.filter.all"), value: "all", count: tables.length },
@@ -162,10 +175,16 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
         data={filteredTables}
         keyExtractor={(item) => item.name.toString()}
         renderItem={({ item }) => (
-          <TableCard table={item} onPress={() => onTablePress(item)} />
+          <View style={{ width: itemWidth }}>
+            <TableCard table={item} onPress={() => onTablePress(item)} />
+          </View>
         )}
-        numColumns={2}
-        columnWrapperStyle={tw`justify-between mb-4 px-4`}
+        numColumns={NUM_COLUMNS}
+        columnWrapperStyle={{
+          gap: COLUMN_GAP,
+          marginBottom: COLUMN_GAP,
+          paddingHorizontal: HORIZONTAL_PADDING,
+        }}
         contentContainerStyle={tw`pb-20`}
         showsVerticalScrollIndicator={false}
         refreshControl={
