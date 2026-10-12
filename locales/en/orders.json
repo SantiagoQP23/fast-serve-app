@@ -64,7 +64,15 @@
     },
     "activity": "Activity",
     "createdAt": "Created",
-    "updatedAt": "Updated"
+    "updatedAt": "Updated",
+    "selection": {
+      "selectAll": "Select all",
+      "unselectAll": "Unselect all",
+      "cancelSelection": "Cancel selection",
+      "selectedCount_one": "{{count}} selected",
+      "selectedCount_other": "{{count}} selected",
+      "deliver": "Deliver"
+    }
   },
   "actions": {
     "start": "Start",

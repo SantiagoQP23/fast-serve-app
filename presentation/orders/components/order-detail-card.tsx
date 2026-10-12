@@ -37,6 +37,11 @@ interface OrderDetailCardProps extends PressableProps {
   orderId?: string;
   orderUserId: string;
   orderType?: OrderType;
+  selectionMode?: boolean;
+  selected?: boolean;
+  onToggleSelect?: (detail: OrderDetail) => void;
+  // When set, long-press starts selection mode instead of opening the actions sheet.
+  onStartSelection?: (detail: OrderDetail) => void;
 }
 
 export default function OrderDetailCard({
@@ -45,6 +50,10 @@ export default function OrderDetailCard({
   orderId,
   orderUserId,
   orderType,
+  selectionMode = false,
+  selected = false,
+  onToggleSelect,
+  onStartSelection,
 }: OrderDetailCardProps) {
   const { t } = useTranslation(["common", "orders"]);
   const order = useOrdersStore((state) => state.activeOrder);
@@ -282,8 +291,9 @@ export default function OrderDetailCard({
 
       <ThemedView style={tw``}>
         <Swipeable
+          enabled={!selectionMode}
           renderRightActions={
-            isCancelled
+            isCancelled || selectionMode
               ? undefined
               : () => (
                   <ThemedView style={tw`justify-center  pl-2 `}>
@@ -297,11 +307,31 @@ export default function OrderDetailCard({
           }
         >
           <Pressable
-            onPress={isCancelled ? undefined : onPress}
-            onLongPress={isCancelled ? undefined : handleOpenBottomSheet}
+            onPress={
+              isCancelled
+                ? undefined
+                : selectionMode
+                  ? () => onToggleSelect?.(detail)
+                  : onPress
+            }
+            onLongPress={
+              isCancelled || selectionMode
+                ? undefined
+                : onStartSelection
+                  ? () => onStartSelection(detail)
+                  : handleOpenBottomSheet
+            }
           >
             <ThemedView style={tw`flex-row  gap-4`}>
-              {!isCancelled && (
+              {selectionMode && !isCancelled && (
+                <Ionicons
+                  name={selected ? "checkmark-circle" : "ellipse-outline"}
+                  size={20}
+                  color={selected ? tw.color("blue-500") : tw.color("gray-400")}
+                  style={tw`mt-1`}
+                />
+              )}
+              {!isCancelled && !selectionMode && (
                 <Pressable
                   onPress={handleOpenStatusModal}
                   hitSlop={8}

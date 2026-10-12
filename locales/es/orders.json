@@ -64,7 +64,15 @@
     },
     "activity": "Actividad",
     "createdAt": "Creado",
-    "updatedAt": "Actualizado"
+    "updatedAt": "Actualizado",
+    "selection": {
+      "selectAll": "Seleccionar todos",
+      "unselectAll": "Quitar selección",
+      "cancelSelection": "Cancelar selección",
+      "selectedCount_one": "{{count}} seleccionado",
+      "selectedCount_other": "{{count}} seleccionados",
+      "deliver": "Entregar"
+    }
   },
   "actions": {
     "start": "Iniciar",
