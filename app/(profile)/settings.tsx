@@ -16,6 +16,8 @@ import {
 } from "@/core/i18n/i18n.config";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { router } from "expo-router";
+import { toast } from "sonner-native";
+import { translateErrorCode } from "@/core/api/get-error-message";
 import Label from "@/presentation/theme/components/label";
 import Card from "@/presentation/theme/components/card";
 import BottomSheetPicker, {
@@ -25,13 +27,17 @@ import BottomSheetPicker, {
 export default function SettingsScreen() {
   const { t } = useTranslation("auth");
   const [visible, setVisible] = useState(false);
-  const { logout } = useAuthStore();
+  const { logout, updateLanguage } = useAuthStore();
   const language = useGlobalStore((state) => state.language);
-  const setLanguage = useGlobalStore((state) => state.setLanguage);
   const languagePickerRef = useRef<BottomSheetPickerRef>(null);
 
   const handleLanguageChange = async (value: string | number) => {
-    await setLanguage(value as LanguageCode);
+    const { success, errorCode } = await updateLanguage(value as LanguageCode);
+    if (!success) {
+      toast.error(
+        translateErrorCode(errorCode, t("settings.languageSaveError")),
+      );
+    }
   };
 
   const handleOpenLanguagePicker = useCallback(() => {

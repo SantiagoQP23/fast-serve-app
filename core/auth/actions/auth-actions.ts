@@ -5,6 +5,7 @@ import { SecureStorageAdapter } from "@/helpers/adapters/secure-storage.adapter"
 import { User } from "../models/user.model";
 import { Restaurant } from "@/core/common/models/restaurant.model";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import type { LanguageCode } from "@/core/i18n/i18n.config";
 
 export interface AuthResponse {
   token: string;
@@ -168,6 +169,21 @@ export const authUpdateProfile = async (
     const apiError = getApiError(error);
     const errorCode = apiError.fromServer ? apiError.code : undefined;
     console.log("Update profile error", errorCode, apiError.message);
+    return { user: null, errorCode };
+  }
+};
+
+export const authUpdateLanguage = async (
+  language: LanguageCode,
+): Promise<{ user: User | null; errorCode?: string }> => {
+  try {
+    const { data } = await restaurantApi.patch<User>("/auth/me", { language });
+
+    return { user: data };
+  } catch (error) {
+    const apiError = getApiError(error);
+    const errorCode = apiError.fromServer ? apiError.code : undefined;
+    console.log("Update language error", errorCode, apiError.message);
     return { user: null, errorCode };
   }
 };
