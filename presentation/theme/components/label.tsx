@@ -33,6 +33,35 @@ export interface LabelProps extends PressableProps {
   text: string;
 }
 
+export const labelSolidStyles: Record<
+  NonNullable<LabelProps["color"]>,
+  { bg: string; text: string; dot: string }
+> = {
+  success: {
+    bg: "bg-emerald-100",
+    text: "text-emerald-800",
+    dot: "bg-emerald-500",
+  },
+  warning: {
+    bg: "bg-orange-100",
+    text: "text-orange-800",
+    dot: "bg-orange-500",
+  },
+  error: { bg: "bg-red-100", text: "text-red-700", dot: "bg-red-500" },
+  info: { bg: "bg-blue-100", text: "text-blue-700", dot: "bg-blue-500" },
+  default: { bg: "bg-gray-100", text: "text-gray-600", dot: "bg-gray-400" },
+  outline: {
+    bg: "bg-transparent",
+    text: "text-light-on-surface-variant",
+    dot: "bg-gray-400",
+  },
+  primary: {
+    bg: "bg-light-primary-container",
+    text: "text-light-on-primary-container",
+    dot: "bg-light-primary",
+  },
+};
+
 export default function Label({
   onPress,
   disabled = false,
@@ -50,32 +79,6 @@ export default function Label({
     primary: "bg-light-primary",
     secondary: "bg-gray-100",
     outline: "border border-gray-200 bg-transparent",
-  };
-
-  const solidStyles = {
-    success: {
-      bg: "bg-emerald-100",
-      text: "text-emerald-800",
-      dot: "bg-emerald-500",
-    },
-    warning: {
-      bg: "bg-orange-100",
-      text: "text-orange-800",
-      dot: "bg-orange-500",
-    },
-    error: { bg: "bg-red-100", text: "text-red-700", dot: "bg-red-500" },
-    info: { bg: "bg-blue-100", text: "text-blue-700", dot: "bg-blue-500" },
-    default: { bg: "bg-gray-100", text: "text-gray-600", dot: "bg-gray-400" },
-    outline: {
-      bg: "bg-transparent",
-      text: "text-light-on-surface-variant",
-      dot: "bg-gray-400",
-    },
-    primary: {
-      bg: "bg-light-primary-container",
-      text: "text-light-on-primary-container",
-      dot: "bg-light-primary",
-    },
   };
 
   const bgColors = {
@@ -111,7 +114,7 @@ export default function Label({
   const isOutline = color === "outline";
   const isSmall = size === "small";
   const isSolid = variant === "solid" && !isOutline;
-  const solid = solidStyles[color];
+  const solid = labelSolidStyles[color];
 
   const containerBg = isOutline
     ? "border border-light-border"

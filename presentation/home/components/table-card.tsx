@@ -9,14 +9,19 @@ import { useTableOrders } from "@/presentation/orders/hooks/useTableOrders";
 import { Table } from "@/core/tables/models/table.model";
 import { Order } from "@/core/orders/models/order.model";
 import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";
+import { labelSolidStyles } from "@/presentation/theme/components/label";
 
 interface TableCardProps extends PressableProps {
   table: Table;
 }
 
 function OrderStatusDot({ order }: { order: Order }) {
-  const { bgColor } = useOrderStatus(order.status);
-  return <View style={tw`w-2 h-2 rounded-full ${bgColor}`} />;
+  const { labelColor = "default" } = useOrderStatus(order.status);
+  return (
+    <View
+      style={tw`w-2 h-2 rounded-full ${labelSolidStyles[labelColor].dot}`}
+    />
+  );
 }
 
 export default function TableCard({ table, onPress }: TableCardProps) {
