@@ -150,27 +150,27 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
 
   return (
     <ThemedView style={tw.style(`flex-1`, style)}>
-      <ThemedView style={tw`flex-row mb-4 gap-2 px-4 pt-4`}>
-        {tabs.map((tab) => {
-          const isActive = tab.value === selectedStatus;
-          return (
-            <Chip
-              key={tab.value.toString()}
-              onPress={() => onChangeStatus(tab.value)}
-              selected={isActive}
-              label={tab.label}
-              rightContent={
-                <ThemedText
-                  type="small"
-                  style={tw`${isActive ? "text-light-on-secondary" : ""}`}
-                >
-                  {tab.count}
-                </ThemedText>
-              }
-            />
-          );
-        })}
-      </ThemedView>
+      {/* <ThemedView style={tw`flex-row mb-4 gap-2 px-4 pt-4`}> */}
+      {/*   {tabs.map((tab) => { */}
+      {/*     const isActive = tab.value === selectedStatus; */}
+      {/*     return ( */}
+      {/*       <Chip */}
+      {/*         key={tab.value.toString()} */}
+      {/*         onPress={() => onChangeStatus(tab.value)} */}
+      {/*         selected={isActive} */}
+      {/*         label={tab.label} */}
+      {/*         rightContent={ */}
+      {/*           <ThemedText */}
+      {/*             type="small" */}
+      {/*             style={tw`${isActive ? "text-light-on-secondary" : ""}`} */}
+      {/*           > */}
+      {/*             {tab.count} */}
+      {/*           </ThemedText> */}
+      {/*         } */}
+      {/*       /> */}
+      {/*     ); */}
+      {/*   })} */}
+      {/* </ThemedView> */}
       <FlatList
         data={filteredTables}
         keyExtractor={(item) => item.name.toString()}
@@ -185,7 +185,7 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
           marginBottom: COLUMN_GAP,
           paddingHorizontal: HORIZONTAL_PADDING,
         }}
-        contentContainerStyle={tw`pb-20`}
+        contentContainerStyle={tw`pb-20 pt-4`}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
