@@ -373,7 +373,7 @@ export default function CartScreen() {
           stickyHeaderIndices={cartType === "order" ? [1] : []}
           data={cartListData}
           keyExtractor={(row) => (row.kind === "item" ? row.key : row.kind)}
-          renderItem={({ item: row }) => {
+          renderItem={({ item: row, index }) => {
             if (row.kind === "title") {
               return (
                 <CollapsibleLargeTitle
@@ -508,12 +508,17 @@ export default function CartScreen() {
               );
             }
 
+            // Extra spacing between consecutive products on top of the list gap
+            const followsItem = cartListData[index - 1]?.kind === "item";
+
             return (
-              <NewOrderDetailCard
-                orderType={orderType}
-                detail={row.detail}
-                onPress={() => openProduct(row.detail)}
-              />
+              <ThemedView style={tw.style(followsItem && "mt-4")}>
+                <NewOrderDetailCard
+                  orderType={orderType}
+                  detail={row.detail}
+                  onPress={() => openProduct(row.detail)}
+                />
+              </ThemedView>
             );
           }}
           ListFooterComponent={
