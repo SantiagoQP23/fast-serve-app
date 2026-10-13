@@ -12,6 +12,8 @@ type CheckboxProps = {
   disabled?: boolean;
   error?: string;
   size?: "small" | "medium" | "large";
+  // Tailwind color token (e.g. "green-500") overriding the primary border/fill.
+  color?: string;
 };
 
 export default function Checkbox({
@@ -21,6 +23,7 @@ export default function Checkbox({
   disabled = false,
   error,
   size = "medium",
+  color,
 }: CheckboxProps) {
   const sizeStyles = {
     small: { box: 18, icon: 14 },
@@ -44,6 +47,10 @@ export default function Checkbox({
           disabled && "opacity-50",
           error && !value && "border-red-500",
         ),
+        color && {
+          borderColor: tw.color(color),
+          backgroundColor: value ? tw.color(color) : undefined,
+        },
         {
           width: checkboxSize.box,
           height: checkboxSize.box,
