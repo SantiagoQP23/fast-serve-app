@@ -32,6 +32,7 @@ export default function RestaurantMenuScreen() {
   const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
   const router = useRouter();
   const [search, setSearch] = useState("");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const {
     categories: allCategories,
     sections: allSections,
@@ -262,9 +263,12 @@ export default function RestaurantMenuScreen() {
       <FloatingSearchBar
         value={search}
         onChangeText={setSearch}
+        onFocus={() => setIsSearchFocused(true)}
+        onBlur={() => setIsSearchFocused(false)}
         placeholder={t("menu:searchPlaceholder")}
       >
-        {!order && details.length > 0 && (
+        {/* Hidden while searching so it doesn't crowd the keyboard. */}
+        {!isSearchFocused && !order && details.length > 0 && (
           <ThemedView
             style={tw`flex-row justify-end items-center bg-transparent`}
           >
@@ -276,7 +280,7 @@ export default function RestaurantMenuScreen() {
           </ThemedView>
         )}
 
-        {isEditMode && !isReplaceMode && newItemCount > 0 && (
+        {!isSearchFocused && isEditMode && !isReplaceMode && newItemCount > 0 && (
           <ThemedView
             style={tw`flex-row justify-end items-center bg-transparent gap-2`}
           >

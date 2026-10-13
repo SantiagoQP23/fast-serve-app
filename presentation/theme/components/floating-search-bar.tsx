@@ -2,6 +2,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import {
   Keyboard,
   Platform,
+  TextInput as RNTextInput,
   View,
   type KeyboardEvent,
   type StyleProp,
@@ -53,6 +54,7 @@ export default function FloatingSearchBar({
   // Measured instead of the animated view so the bar's own lift never feeds
   // back into the measurement.
   const anchorRef = useRef<View>(null);
+  const inputRef = useRef<RNTextInput>(null);
   const lift = useSharedValue(0);
 
   useEffect(() => {
@@ -83,9 +85,12 @@ export default function FloatingSearchBar({
         ? [Keyboard.addListener("keyboardWillChangeFrame", onKeyboardShow)]
         : [
             Keyboard.addListener("keyboardDidShow", onKeyboardShow),
-            Keyboard.addListener("keyboardDidHide", () =>
-              moveTo(0, ANDROID_KEYBOARD_ANIMATION_MS),
-            ),
+            Keyboard.addListener("keyboardDidHide", () => {
+              moveTo(0, ANDROID_KEYBOARD_ANIMATION_MS);
+              // The back gesture closes the keyboard but leaves the field
+              // focused; blur it so onBlur reflects that editing has ended.
+              inputRef.current?.blur();
+            }),
           ];
 
     return () => subscriptions.forEach((subscription) => subscription.remove());
@@ -109,6 +114,7 @@ export default function FloatingSearchBar({
         {/* Elevation needs a filled background on the shadow-casting view. */}
         <View style={tw`rounded-3xl bg-light-surface-high shadow-md`}>
           <TextInput
+            ref={inputRef}
             value={value}
             onChangeText={onChangeText}
             icon="search-outline"
