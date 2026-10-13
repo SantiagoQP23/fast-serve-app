@@ -318,6 +318,7 @@ export default function OrderDetailCard({
                     value={isDelivered}
                     onValueChange={onCheckedChange}
                     color={checkboxColor}
+                    size="small"
                   />
                 </ThemedView>
               )}

@@ -39,8 +39,8 @@ const EditNoteBottomSheet = ({ order, onClose }: EditNoteBottomSheetProps) => {
     <BottomSheetView
       style={tw`p-4 bg-light-background dark:bg-dark-background`}
     >
-      <ThemedView style={tw`w-full gap-6`}>
-        <ThemedText type="h3" style={tw`text-center`}>
+      <ThemedView style={tw`w-full gap-2`}>
+        <ThemedText type="h3" style={tw``}>
           {t("common:labels.notes")}
         </ThemedText>
 
@@ -52,13 +52,16 @@ const EditNoteBottomSheet = ({ order, onClose }: EditNoteBottomSheetProps) => {
           placeholder={t("orders:newOrder.notesPlaceholder")}
           value={notes}
           onChangeText={setNotes}
+          containerStyle={tw`bg-transparent border-0 p-0`}
         />
 
-        <Button
-          label={t("common:actions.confirm")}
-          onPress={handleConfirm}
-          loading={isLoading}
-        />
+        <ThemedView style={tw`flex-row justify-end gap-2`}>
+          <Button
+            leftIcon="checkmark"
+            onPress={handleConfirm}
+            variant="secondary"
+          />
+        </ThemedView>
       </ThemedView>
     </BottomSheetView>
   );
