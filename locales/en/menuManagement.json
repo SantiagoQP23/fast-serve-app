@@ -145,6 +145,7 @@
     "variants": {
       "title": "Variants",
       "addVariant": "Add variant",
+      "addPlaceholder": "Add a variant...",
       "editVariant": "Edit variant",
       "makeDefault": "Make default",
       "empty": "No variants yet. Add one if this product has different options (sizes, flavors, etc.).",
