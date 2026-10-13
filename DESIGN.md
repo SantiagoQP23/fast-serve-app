@@ -171,7 +171,7 @@ Two tiers, correlated to whether an element sits in the content flow or floats a
 - **Popover** (`offset 0/4px, opacity 0.12, radius 12px, Android elevation 8`): the one place the system defines an exact, hand-tuned shadow rather than reaching for a preset — used for the anchored options popover.
 
 ### Named Rules
-**The Two-Tier Rule.** A surface is either resting (no shadow, or the near-flat `shadow-xs` on a `GroupedList` row) or floating (pronounced, `shadow-lg` or the tuned popover shadow). Nothing sits in between — don't invent an intermediate shadow weight for a "somewhat important" card. (`Card` does carry an `elevated` variant using `shadow-sm` — a weight between the two tiers — but it has no call sites anywhere in the app today. Treat it as a latent exception to resolve deliberately, not a precedent for reaching for more in-between weights.)
+**The Two-Tier Rule.** A surface is either resting (no shadow, or the near-flat `shadow-xs` on a `GroupedList` row) or floating (pronounced, `shadow-lg` or the tuned popover shadow). Nothing sits in between — don't invent an intermediate shadow weight for a "somewhat important" card. (`Card`'s `elevated` variant is the one sanctioned resting lift: an opaque Surface Container Low fill (`#F2F3FA`) with a hand-tuned Material level-1 shadow — offset 0/1px, opacity 0.12, radius 3px, Android elevation 2 — used for empty table cards on the home grid. The fill is mandatory: a transparent elevated surface renders no shadow or radius on Android. Don't reach for further in-between weights.)
 
 ## Shapes
 

@@ -1,5 +1,5 @@
 import tw from "@/presentation/theme/lib/tailwind";
-import { Pressable, PressableProps } from "react-native";
+import { Pressable, PressableProps, StyleSheet } from "react-native";
 import { ThemedView } from "./themed-view";
 
 type CardVariant = "default" | "outline" | "elevated";
@@ -11,7 +11,9 @@ type CardProps = PressableProps & {
 const containerVariantStyles: Record<CardVariant, string> = {
   default: " bg-light-surface rounded-3xl",
   outline: "border border-light-border rounded-3xl",
-  elevated: "shadow-sm bg-transparent rounded-3xl",
+  // Elevation needs an opaque fill: Android casts the shadow from the
+  // background outline, and iOS would otherwise shadow the children.
+  elevated: "bg-light-surface-container-low rounded-3xl",
 };
 
 export default function Card({
@@ -22,7 +24,12 @@ export default function Card({
   ...rest
 }: CardProps) {
   return (
-    <ThemedView style={tw`${containerVariantStyles[variant]}`}>
+    <ThemedView
+      style={[
+        tw`${containerVariantStyles[variant]}`,
+        variant === "elevated" && shadows.elevated,
+      ]}
+    >
       <Pressable
         {...rest}
         style={(state) =>
@@ -39,3 +46,15 @@ export default function Card({
     </ThemedView>
   );
 }
+
+const shadows = StyleSheet.create({
+  // Resting lift (Material 3 elevation level 1): soft offset shadow on iOS,
+  // native elevation on Android.
+  elevated: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+});
