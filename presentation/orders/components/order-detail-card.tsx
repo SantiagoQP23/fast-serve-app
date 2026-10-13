@@ -74,8 +74,9 @@ export default function OrderDetailCard({
   const { mutate: updateOrderDetail } = useOrders().updateOrderDetail;
 
   const { mutate: removeOrderDetail } = useOrders().removeOrderDetail;
-  const { statusText, labelColor, statusIconColor } =
-    useOrderDetailStatus(detail.status);
+  const { statusText, labelColor, statusIconColor } = useOrderDetailStatus(
+    detail.status,
+  );
   const isCancelled = detail.status === OrderDetailStatus.CANCELLED;
 
   const handleOpenBottomSheet = () => {
@@ -314,6 +315,7 @@ export default function OrderDetailCard({
                     value={detail.status === OrderDetailStatus.DELIVERED}
                     onValueChange={onCheckedChange}
                     color={statusIconColor}
+                    size="small"
                   />
                 </ThemedView>
               )}

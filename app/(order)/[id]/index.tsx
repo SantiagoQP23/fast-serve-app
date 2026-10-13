@@ -216,7 +216,7 @@ export default function OrderScreen() {
               label={t("orders:options.markDelivered")}
               onPress={() => order && markDelivered(order)}
               variant="outline"
-              size="small"
+              size="extra-small"
             />
           )}
           {canCloseOrder && (
@@ -225,7 +225,7 @@ export default function OrderScreen() {
               label={t("orders:options.closeOrder")}
               onPress={openCloseModal}
               variant="outline"
-              size="small"
+              size="extra-small"
             />
           )}
           <IconButton
@@ -782,11 +782,13 @@ export default function OrderScreen() {
                     size="small"
                   />
 
-                  <Label
-                    text={paymentStatus.text}
-                    color={paymentStatus.color}
-                    size="small"
-                  />
+                  {order.paymentStatus !== OrderPaymentStatus.UNPAID && (
+                    <Label
+                      text={paymentStatus.text}
+                      color={paymentStatus.color}
+                      size="small"
+                    />
+                  )}
                   {isClosed && (
                     <Label
                       text={
@@ -880,6 +882,7 @@ export default function OrderScreen() {
                           selected={selectedDetailIds.has(detail.id)}
                           onToggleSelect={toggleSelectDetail}
                           onStartSelection={enterSelectionMode}
+                          showAmount={false}
                         />
                       ))}
                     </ThemedView>
@@ -929,6 +932,7 @@ export default function OrderScreen() {
                             onPress={() => openProduct(detail)}
                             orderUserId={order.user?.id || ""}
                             orderType={order.type}
+                            showAmount={false}
                           />
                         ))}
                       </ThemedView>
