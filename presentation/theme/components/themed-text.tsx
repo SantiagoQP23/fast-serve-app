@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     lineHeight: 40,
     height: 40,
-    fontFamily: typography.semibold,
+    fontFamily: typography.medium,
   },
   h2: {
     fontSize: 28,

@@ -389,7 +389,9 @@ export default function MenuProductDetailScreen() {
 
           {(canManage || product.options.length > 0) && (
             <ThemedView style={tw`gap-3 mt-4`}>
-              <ThemedText type="h4">{t("products.variants.title")}</ThemedText>
+              <ThemedText type="caption">
+                {t("products.variants.title")}
+              </ThemedText>
 
               {product.options.length === 0 ? (
                 <ThemedView
@@ -615,20 +617,12 @@ export default function MenuProductDetailScreen() {
                     </ThemedView>
                   )}
                 </ThemedView>
-                {selectedOption.isDefault ? (
+                {selectedOption.isDefault && (
                   <Label
                     text={t("products.variants.fields.isDefault")}
                     leftIcon="star"
                     color="primary"
                     size="small"
-                  />
-                ) : (
-                  <Button
-                    label={t("products.variants.makeDefault")}
-                    leftIcon="star-outline"
-                    variant="text"
-                    size="small"
-                    onPress={handleMakeOptionDefault}
                   />
                 )}
               </ThemedView>
@@ -640,6 +634,17 @@ export default function MenuProductDetailScreen() {
                 onPress={handleToggleOptionActive}
               />
             </ThemedView>
+            {!selectedOption.isDefault && (
+              <ThemedView style={tw` w-full`}>
+                <Button
+                  label={t("products.variants.makeDefault")}
+                  leftIcon="star-outline"
+                  variant="outline"
+                  size="small"
+                  onPress={handleMakeOptionDefault}
+                />
+              </ThemedView>
+            )}
             <ThemedView style={tw`flex-row gap-4 items-center`}>
               <Button
                 label={t("delete")}

@@ -27,22 +27,19 @@ import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { Ionicons } from "@expo/vector-icons";
 
 import BillsFilterBottomSheet from "@/presentation/orders/components/bills-filter-bottom-sheet";
-import {
-  BillListFiltersDto,
-  BillStatusFilter,
-} from "@/core/orders/dto/bill-list-filters.dto";
+import { BillListFiltersDto } from "@/core/orders/dto/bill-list-filters.dto";
 import { formatCurrency } from "@/core/i18n/utils";
 import Button from "@/presentation/theme/components/button";
 import DatePicker from "@/presentation/theme/components/date-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import dayjs from "dayjs";
 import BillCard from "@/presentation/orders/components/bill-card";
-import Chip from "@/presentation/theme/components/chip";
 import Fab from "@/presentation/theme/components/fab";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import { typography } from "@/constants/theme";
 
 const STORAGE_KEY = "sales_selected_date";
 
@@ -210,19 +207,19 @@ export default function SalesContent() {
       {/*   </ThemedView> */}
       {/* </ThemedView> */}
 
-      {/* Date Picker */}
-      <ThemedView style={tw`px-4 mb-4 pt-4`}>
-        <DatePicker
-          value={selectedDate}
-          onChange={handleDateChange}
-          showTodayButton={true}
-        />
-      </ThemedView>
-
-      <ThemedView style={tw`flex-row gap-2 pb-4 px-4 justify-items-stretch`}>
+      {/* Date Picker + Filters */}
+      <ThemedView style={tw`flex-row items-center gap-2 px-4 mb-4 pt-4`}>
+        <ThemedView style={tw`flex-1`}>
+          <DatePicker
+            value={selectedDate}
+            onChange={handleDateChange}
+            showTodayButton={true}
+          />
+        </ThemedView>
         <Pressable
           onPress={handleOpenFilters}
-          style={tw`p-2 rounded-lg ${hasActiveFilters ? "bg-light-surface" : "bg-transparent"}`}
+          accessibilityLabel={t("bills:filters.title")}
+          style={tw`p-3 rounded-2xl ${hasActiveFilters ? "bg-light-surface" : "bg-transparent"}`}
         >
           <Ionicons
             name="filter"
@@ -230,53 +227,14 @@ export default function SalesContent() {
             color={hasActiveFilters ? tw.color("") : tw.color("gray-600")}
           />
         </Pressable>
-
-        <Chip
-          label={t("bills:filters.all")}
-          selected={filters.status === undefined}
-          onPress={() => setFilters((prev) => ({ ...prev, status: undefined }))}
-        />
-        <Chip
-          label={t("bills:filters.paidCount")}
-          rightContent={
-            <ThemedText type="small" style={tw`text-gray-500`}>
-              {data?.countPaid ?? 0}
-            </ThemedText>
-          }
-          selected={filters.status === BillStatusFilter.PAID}
-          onPress={() =>
-            setFilters((prev) => ({
-              ...prev,
-              status:
-                prev.status === BillStatusFilter.PAID
-                  ? undefined
-                  : BillStatusFilter.PAID,
-            }))
-          }
-        />
-        <Chip
-          label={t("bills:filters.unpaidCount")}
-          rightContent={
-            <ThemedText type="small" style={tw`text-gray-500`}>
-              {data?.countUnpaid ?? 0}
-            </ThemedText>
-          }
-          selected={filters.status === BillStatusFilter.UNPAID}
-          onPress={() =>
-            setFilters((prev) => ({
-              ...prev,
-              status:
-                prev.status === BillStatusFilter.UNPAID
-                  ? undefined
-                  : BillStatusFilter.UNPAID,
-            }))
-          }
-        />
       </ThemedView>
 
       <ThemedView style={tw` p-4 mb-4 items-center`}>
         <ThemedView style={tw`flex-row items-center gap-2 mb-1`}>
-          <ThemedText type="h1" style={tw``}>
+          <ThemedText
+            type="h1"
+            style={[tw`text-4xl `, { fontFamily: typography.regular }]}
+          >
             {displayedTotalSales}
           </ThemedText>
           <Pressable
@@ -371,6 +329,10 @@ export default function SalesContent() {
           initialFilters={filters}
           availableWaiters={availableWaiters}
           isAdmin={isAdmin}
+          statusCounts={{
+            paid: data?.countPaid ?? 0,
+            unpaid: data?.countUnpaid ?? 0,
+          }}
         />
       </ThemedBottomSheetModal>
     </>

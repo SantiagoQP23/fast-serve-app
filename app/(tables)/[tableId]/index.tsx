@@ -90,23 +90,24 @@ export default function TableOrdersScreen() {
                   <Label
                     text={statusText}
                     color={hasOrders ? "error" : "success"}
+                    variant="soft"
                   />
                 </ThemedView>
               }
             />
           </ThemedView>
-          <ThemedView style={tw`px-4 flex-row items-center gap-4`}>
-            <StatsCard
-              title={t("tables:totalOrders")}
-              value={activeOrdersCount}
-              icon="receipt-outline"
-            />
-            <StatsCard
-              title={t("tables:totalRevenue")}
-              value={formatCurrency(totalAmount)}
-              icon="cash-outline"
-            />
-          </ThemedView>
+          {/* <ThemedView style={tw`px-4 flex-row items-center gap-4`}> */}
+          {/*   <StatsCard */}
+          {/*     title={t("tables:totalOrders")} */}
+          {/*     value={activeOrdersCount} */}
+          {/*     icon="receipt-outline" */}
+          {/*   /> */}
+          {/*   <StatsCard */}
+          {/*     title={t("tables:totalRevenue")} */}
+          {/*     value={formatCurrency(totalAmount)} */}
+          {/*     icon="cash-outline" */}
+          {/*   /> */}
+          {/* </ThemedView> */}
 
           {!hasOrders ? (
             <ThemedView style={tw`items-center justify-center flex-1 gap-4`}>

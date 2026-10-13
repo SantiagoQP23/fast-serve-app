@@ -139,11 +139,11 @@ export default function NewOrderDetailCard({
             />
           </ThemedView>
         )}
-        <ThemedView style={tw`flex-row justify-between gap-4 items-center`}>
-          <ThemedText type="body1" style={tw`text-gray-500`}>
-            ${(detail.price ?? detail.productOption?.price ?? 0) * counter}
-          </ThemedText>
-        </ThemedView>
+        {/* <ThemedView style={tw`flex-row justify-between gap-4 items-center`}> */}
+        {/*   <ThemedText type="body1" style={tw`text-gray-500`}> */}
+        {/*     ${(detail.price ?? detail.productOption?.price ?? 0) * counter} */}
+        {/*   </ThemedText> */}
+        {/* </ThemedView> */}
       </Pressable>
     </Swipeable>
   );

@@ -61,6 +61,7 @@ export default function ProductCard({ product, onPress }: ProductCardProps) {
         pressed && tw`opacity-80`,
       ]}
       onPress={onPress}
+      variant="outline"
     >
       <ThemedView style={tw` bg-transparent gap-2 `}>
         <ThemedText type="body1" style={[tw``, {}]}>

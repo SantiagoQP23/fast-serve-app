@@ -5,11 +5,13 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import Button from "@/presentation/theme/components/button";
-import Select from "@/presentation/theme/components/select";
 import Chip from "@/presentation/theme/components/chip";
 import { PaymentMethod } from "@/core/orders/enums/payment-method";
 import { translatePaymentMethod } from "@/core/i18n/utils";
-import { BillListFiltersDto } from "@/core/orders/dto/bill-list-filters.dto";
+import {
+  BillListFiltersDto,
+  BillStatusFilter,
+} from "@/core/orders/dto/bill-list-filters.dto";
 import { BillSource } from "@/core/orders/models/bill.model";
 
 interface BillsFilterBottomSheetProps {
@@ -18,6 +20,8 @@ interface BillsFilterBottomSheetProps {
   initialFilters?: BillListFiltersDto;
   availableWaiters: Array<{ id: string; fullName: string }>;
   isAdmin?: boolean;
+  /** Optional per-status counts shown next to the status chips. */
+  statusCounts?: { paid: number; unpaid: number };
 }
 
 export default function BillsFilterBottomSheet({
@@ -26,9 +30,13 @@ export default function BillsFilterBottomSheet({
   initialFilters,
   availableWaiters,
   isAdmin = true,
+  statusCounts,
 }: BillsFilterBottomSheetProps) {
   const { t } = useTranslation(["bills", "common"]);
 
+  const [status, setStatus] = useState<BillStatusFilter | "all">(
+    initialFilters?.status || "all",
+  );
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "all">(
     initialFilters?.paymentMethod || "all",
   );
@@ -41,12 +49,14 @@ export default function BillsFilterBottomSheet({
 
   // Sync internal state with initialFilters when they change
   useEffect(() => {
+    setStatus(initialFilters?.status || "all");
     setPaymentMethod(initialFilters?.paymentMethod || "all");
     setOwnerId(initialFilters?.ownerId || "all");
     setSource(initialFilters?.source || "all");
   }, [initialFilters]);
 
   const handleReset = () => {
+    setStatus("all");
     setPaymentMethod("all");
     setOwnerId("all");
     setSource("all");
@@ -56,6 +66,10 @@ export default function BillsFilterBottomSheet({
 
   const handleApply = () => {
     const filters: BillListFiltersDto = {};
+
+    if (status !== "all") {
+      filters.status = status;
+    }
 
     if (paymentMethod !== "all") {
       filters.paymentMethod = paymentMethod as PaymentMethod;
@@ -93,18 +107,6 @@ export default function BillsFilterBottomSheet({
     [t],
   );
 
-  // Waiter options
-  const waiterOptions = useMemo(
-    () => [
-      { label: t("bills:filters.allWaiters"), value: "all" },
-      ...availableWaiters.map((waiter) => ({
-        label: waiter.fullName,
-        value: waiter.id,
-      })),
-    ],
-    [availableWaiters, t],
-  );
-
   return (
     <BottomSheetView style={tw`p-4`}>
       <ThemedView style={tw`w-full gap-6`}>
@@ -113,15 +115,66 @@ export default function BillsFilterBottomSheet({
           {t("bills:filters.title")}
         </ThemedText>
 
+        {/* Status Filter */}
+        <ThemedView style={tw`gap-2`}>
+          <ThemedText type="small" style={tw`text-gray-500`}>
+            {t("bills:filters.paymentStatus")}
+          </ThemedText>
+          <ThemedView style={tw`flex-row gap-2`}>
+            <Chip
+              label={t("bills:filters.all")}
+              selected={status === "all"}
+              onPress={() => setStatus("all")}
+            />
+            <Chip
+              label={t("bills:filters.paidCount")}
+              rightContent={
+                statusCounts && (
+                  <ThemedText type="small" style={tw`text-gray-500`}>
+                    {statusCounts.paid}
+                  </ThemedText>
+                )
+              }
+              selected={status === BillStatusFilter.PAID}
+              onPress={() => setStatus(BillStatusFilter.PAID)}
+            />
+            <Chip
+              label={t("bills:filters.unpaidCount")}
+              rightContent={
+                statusCounts && (
+                  <ThemedText type="small" style={tw`text-gray-500`}>
+                    {statusCounts.unpaid}
+                  </ThemedText>
+                )
+              }
+              selected={status === BillStatusFilter.UNPAID}
+              onPress={() => setStatus(BillStatusFilter.UNPAID)}
+            />
+          </ThemedView>
+        </ThemedView>
+
         {/* Waiter Select - Only show for admin users */}
         {isAdmin && (
-          <Select
-            label={t("bills:filters.waiter")}
-            placeholder={t("bills:filters.allWaiters")}
-            options={waiterOptions}
-            value={ownerId}
-            onChange={(value) => setOwnerId(value as string)}
-          />
+          <ThemedView style={tw`gap-2`}>
+            <ThemedText type="small" style={tw`text-gray-500`}>
+              {t("bills:filters.waiter")}
+            </ThemedText>
+            <ThemedView style={tw`flex-row flex-wrap gap-2`}>
+              <Chip
+                label={t("bills:filters.allWaiters")}
+                selected={ownerId === "all"}
+                onPress={() => setOwnerId("all")}
+              />
+              {availableWaiters.map((waiter) => (
+                <Chip
+                  key={waiter.id}
+                  label={waiter.fullName}
+                  selected={ownerId === waiter.id}
+                  onPress={() => setOwnerId(waiter.id)}
+                />
+              ))}
+            </ThemedView>
+          </ThemedView>
         )}
 
         {/* Source Filter */}

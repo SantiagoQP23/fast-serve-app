@@ -1,7 +1,7 @@
 import { Pressable, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "../lib/tailwind";
-import { ThemedText } from "./themed-text";
+import { ThemedText, type ThemedTextProps } from "./themed-text";
 import { typography } from "@/constants/theme";
 
 export interface SegmentedControlItem<T extends string> {
@@ -16,6 +16,8 @@ interface SegmentedControlProps<T extends string> {
   onChange: (value: T) => void;
   /** `pill` (default) fills a highlighted chip; `text` shows plain tab labels. */
   variant?: "pill" | "text";
+  /** Label text size for the `text` variant. Defaults to `h3`. */
+  textType?: ThemedTextProps["type"];
 }
 
 export default function SegmentedControl<T extends string>({
@@ -23,6 +25,7 @@ export default function SegmentedControl<T extends string>({
   value,
   onChange,
   variant = "pill",
+  textType = "h3",
 }: SegmentedControlProps<T>) {
   if (variant === "text") {
     return (
@@ -39,7 +42,7 @@ export default function SegmentedControl<T extends string>({
               style={({ pressed }) => tw.style("py-1", pressed && "opacity-60")}
             >
               <ThemedText
-                type="h3"
+                type={textType}
                 style={[
                   tw.style(isActive ? "text-light-text" : "text-gray-500"),
                   {
