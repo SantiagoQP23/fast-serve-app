@@ -1,4 +1,4 @@
-import { RefreshControl, ScrollView } from "react-native";
+import { Keyboard, RefreshControl, ScrollView } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -8,8 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Chip from "@/presentation/theme/components/chip";
 import SegmentedControl from "@/presentation/theme/components/segmented-control";
 import { useRouter } from "expo-router";
-import TextInput from "@/presentation/theme/components/text-input";
-import IconButton from "@/presentation/theme/components/icon-button";
+import FloatingSearchBar from "@/presentation/theme/components/floating-search-bar";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
 import { useProductSearch } from "@/presentation/restaurant-menu/hooks/useProductSearch";
 import { Category } from "@/core/menu/models/category.model";
@@ -108,6 +107,7 @@ export default function RestaurantMenuScreen() {
   }, [menuQuery]);
 
   const openProduct = (product: Product) => {
+    Keyboard.dismiss();
     setActiveProduct(product);
     router.push("/(new-order)/restaurant-menu/product");
   };
@@ -204,20 +204,6 @@ export default function RestaurantMenuScreen() {
           </ThemedText>
         </ThemedView>
       )}
-      <TextInput
-        value={search}
-        placeholder={t("menu:searchPlaceholder")}
-        onChangeText={setSearch}
-        icon="search-outline"
-        trailingIcon={
-          search && (
-            <IconButton
-              icon="close-circle-outline"
-              onPress={() => setSearch("")}
-            ></IconButton>
-          )
-        }
-      />
       {!search && (
         <ThemedView>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -251,6 +237,8 @@ export default function RestaurantMenuScreen() {
         <ScrollView
           style={tw`${search ? "flex-1" : "w-[70%] flex-shrink-0"}`}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
           contentContainerStyle={tw`gap-3 pb-40`}
           refreshControl={
             <RefreshControl
@@ -271,8 +259,12 @@ export default function RestaurantMenuScreen() {
         </ScrollView>
       </ThemedView>
 
-      {!order && details.length > 0 && (
-        <ThemedView style={tw`absolute bottom-4 left-4 right-4 bg-transparent`}>
+      <FloatingSearchBar
+        value={search}
+        onChangeText={setSearch}
+        placeholder={t("menu:searchPlaceholder")}
+      >
+        {!order && details.length > 0 && (
           <ThemedView
             style={tw`flex-row justify-end items-center bg-transparent`}
           >
@@ -282,11 +274,9 @@ export default function RestaurantMenuScreen() {
               onPress={() => router.push("/(new-order)/cart")}
             />
           </ThemedView>
-        </ThemedView>
-      )}
+        )}
 
-      {isEditMode && !isReplaceMode && newItemCount > 0 && (
-        <ThemedView style={tw`absolute bottom-4 left-4 right-4 bg-transparent`}>
+        {isEditMode && !isReplaceMode && newItemCount > 0 && (
           <ThemedView
             style={tw`flex-row justify-end items-center bg-transparent gap-2`}
           >
@@ -303,8 +293,8 @@ export default function RestaurantMenuScreen() {
               onPress={() => router.push("/(new-order)/cart")}
             />
           </ThemedView>
-        </ThemedView>
-      )}
+        )}
+      </FloatingSearchBar>
     </ScreenLayout>
   );
 }
