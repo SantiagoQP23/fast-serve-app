@@ -14,6 +14,7 @@ import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import { useInventoryRecipes } from "@/presentation/inventory/hooks/useInventoryRecipes";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
+import InventoryLineRow from "@/presentation/inventory/components/inventory-line-row";
 import WholeProductInventoryModal from "@/presentation/inventory/components/whole-product-inventory-modal";
 import { InventoryUnit } from "@/core/inventory/models/inventory-item.model";
 

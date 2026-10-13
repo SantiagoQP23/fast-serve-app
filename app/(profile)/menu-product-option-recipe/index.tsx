@@ -16,6 +16,7 @@ import SwipeableRow from "@/presentation/theme/components/swipeable-row";
 import { queryClient } from "@/app/_layout";
 import { useInventoryRecipes } from "@/presentation/inventory/hooks/useInventoryRecipes";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
+import InventoryLineRow from "@/presentation/inventory/components/inventory-line-row";
 import RecipeDraftLineModal from "@/presentation/inventory/components/recipe-draft-line-modal";
 import BottomSheetPicker, {
   type BottomSheetPickerRef,
@@ -249,11 +250,7 @@ export default function MenuProductOptionRecipeScreen() {
           />
         }
       >
-        <ThemedView style={tw`gap-1`}>
-          <ThemedText type="h4" style={tw`text-gray-700`}>
-            {t("recipe.configureQuestion")}
-          </ThemedText>
-        </ThemedView>
+        <ThemedText type="h2">{t("trackMode.ingredients.label")}</ThemedText>
 
         {recipesQuery.isLoading && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
@@ -296,45 +293,21 @@ export default function MenuProductOptionRecipeScreen() {
 
         {lines.length > 0 && (
           <ThemedView>
-            {lines.map((line, index) => {
-              const isLast = index === lines.length - 1;
-
-              return (
-                <SwipeableRow
-                  key={line.draftId}
-                  onDelete={canManage ? () => setLineToDelete(line) : undefined}
-                >
-                  <Pressable
-                    disabled={!canManage}
-                    onPress={canManage ? () => setLineToEdit(line) : undefined}
-                    style={({ pressed }) => [
-                      tw`flex-row items-center justify-between py-4`,
-                      !isLast && tw`border-b border-light-divider`,
-                      pressed && canManage && tw`opacity-60`,
-                    ]}
-                  >
-                    <ThemedText type="body1" style={tw`flex-1`}>
-                      {getDraftLineName(line)}
-                    </ThemedText>
-                    <ThemedView style={tw`flex-row items-center gap-2`}>
-                      <ThemedText type="body2" style={tw`text-gray-500`}>
-                        {t("quantityWithUnit", {
-                          quantity: line.quantity,
-                          unit: t(`units.${getDraftLineUnit(line)}`),
-                        })}
-                      </ThemedText>
-                      {canManage && (
-                        <Ionicons
-                          name="create-outline"
-                          size={18}
-                          color={tw.color("gray-400")}
-                        />
-                      )}
-                    </ThemedView>
-                  </Pressable>
-                </SwipeableRow>
-              );
-            })}
+            {lines.map((line) => (
+              <SwipeableRow
+                key={line.draftId}
+                onDelete={canManage ? () => setLineToDelete(line) : undefined}
+              >
+                <InventoryLineRow
+                  name={getDraftLineName(line)}
+                  quantity={t("quantityWithUnit", {
+                    quantity: line.quantity,
+                    unit: t(`units.${getDraftLineUnit(line)}`),
+                  })}
+                  onPress={canManage ? () => setLineToEdit(line) : undefined}
+                />
+              </SwipeableRow>
+            ))}
           </ThemedView>
         )}
 
