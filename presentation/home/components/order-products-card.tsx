@@ -138,6 +138,7 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
                 orderId={order.id}
                 orderUserId={order.user?.id || ""}
                 orderType={order.type}
+                showAmount={false}
                 onPress={() =>
                   handleEditOrderDetail(order.num, order.id, detail)
                 }
