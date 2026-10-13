@@ -389,18 +389,7 @@ export default function MenuProductDetailScreen() {
 
           {(canManage || product.options.length > 0) && (
             <ThemedView style={tw`gap-3 mt-4`}>
-              <ThemedView style={tw`flex-row items-center justify-between`}>
-                <ThemedText type="h4">
-                  {t("products.variants.title")}
-                </ThemedText>
-                {canManage && (
-                  <IconButton
-                    onPress={openAddOptionSheet}
-                    icon="add-outline"
-                    size={24}
-                  />
-                )}
-              </ThemedView>
+              <ThemedText type="h4">{t("products.variants.title")}</ThemedText>
 
               {product.options.length === 0 ? (
                 <ThemedView
@@ -419,58 +408,60 @@ export default function MenuProductDetailScreen() {
                   </ThemedText>
                 </ThemedView>
               ) : (
-                <ThemedView style={tw`gap-3`}>
+                <ThemedView>
                   {product.options.map((option, index) => (
-                    <Card
+                    <Pressable
                       key={option.id ?? index}
                       onPress={
                         canManage
-                          ? () => navigateToOptionInventory(option)
+                          ? () => handleOpenOptionActions(option)
                           : undefined
                       }
-                      style={[
-                        tw`p-4`,
-                        option.isDefault && tw`bg-light-secondary`,
-                        !option.isActive && tw`opacity-50`,
-                      ]}
+                      style={({ pressed }) =>
+                        tw.style(
+                          "flex-row items-center justify-between gap-4 py-3",
+                          !option.isActive && "opacity-50",
+                          pressed && "opacity-60",
+                        )
+                      }
                     >
                       <ThemedView
-                        style={tw`flex-row items-center justify-between bg-transparent`}
+                        style={tw`flex-1 flex-row items-center gap-1.5 bg-transparent`}
                       >
-                        <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-                          <ThemedText
-                            type="body1"
-                            style={
-                              option.isDefault && tw`text-light-on-secondary`
-                            }
-                          >
-                            {option.name}
-                          </ThemedText>
-                        </ThemedView>
-                        <ThemedView
-                          style={tw`flex-row items-center gap-1 bg-transparent`}
+                        <ThemedText
+                          type="body1"
+                          style={{ fontFamily: typography.semibold }}
+                          numberOfLines={1}
                         >
-                          <ThemedText
-                            type="body2"
-                            style={
-                              option.isDefault && tw`text-light-on-secondary`
-                            }
-                          >
-                            {formatCurrency(option.price)}
-                          </ThemedText>
-                          {canManage && (
-                            <IconButton
-                              icon="ellipsis-vertical"
-                              size={18}
-                              variant="text"
-                              onPress={() => handleOpenOptionActions(option)}
-                            />
-                          )}
-                        </ThemedView>
+                          {option.name}
+                        </ThemedText>
+                        {option.isDefault && (
+                          <Ionicons
+                            name="star"
+                            size={14}
+                            color={tw.color("gray-400")}
+                          />
+                        )}
                       </ThemedView>
-                    </Card>
+                      <ThemedText type="body1">
+                        {formatCurrency(option.price)}
+                      </ThemedText>
+                    </Pressable>
                   ))}
                 </ThemedView>
+              )}
+
+              {canManage && (
+                <Pressable
+                  onPress={openAddOptionSheet}
+                  style={({ pressed }) =>
+                    tw.style("py-3", pressed && "opacity-60")
+                  }
+                >
+                  <ThemedText type="body1" style={tw`text-gray-400`}>
+                    {t("products.variants.addPlaceholder")}
+                  </ThemedText>
+                </Pressable>
               )}
             </ThemedView>
           )}
