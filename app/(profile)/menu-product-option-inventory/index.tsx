@@ -127,9 +127,9 @@ export default function MenuProductOptionInventoryScreen() {
         {showEditButton && (
           <Button
             label={t("common:actions.edit")}
-            leftIcon="create"
-            variant="secondary"
-            size="small"
+            leftIcon="create-outline"
+            variant="surface"
+            size="extra-small"
             onPress={handleEdit}
           />
         )}
