@@ -221,7 +221,7 @@ export default function FloatingSearchBar({
       >
         {children}
         {/* Elevation needs a filled background on the shadow-casting view. */}
-        <View style={tw`rounded-3xl bg-light-surface-high shadow-md`}>
+        <View style={tw`rounded-3xl  shadow-sm`}>
           <TextInput
             ref={inputRef}
             value={value}
@@ -245,6 +245,7 @@ export default function FloatingSearchBar({
             {...inputProps}
             onFocus={handleFocus}
             onBlur={handleBlur}
+            variant="filled"
           />
         </View>
       </Animated.View>

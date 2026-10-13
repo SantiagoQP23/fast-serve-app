@@ -393,7 +393,7 @@ export default function CartScreen() {
 
             if (row.kind === "chips") {
               return (
-                <ThemedView style={tw`bg-light-background py-1`}>
+                <ThemedView style={tw`bg-light-background pb-4`}>
                   <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}

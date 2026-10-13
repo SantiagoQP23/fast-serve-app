@@ -78,7 +78,7 @@ export default function NewOrderDetailCard({
         {/* ></ThemedView> */}
 
         <ThemedView style={tw`flex-row justify-between gap-4 items-center`}>
-          <ThemedText type="body1" style={{}}>
+          <ThemedText type="body1" style={{ fontFamily: typography.medium }}>
             {detail.product.name}{" "}
             {showProductOptionName && detail.productOption.name}
           </ThemedText>
@@ -89,7 +89,7 @@ export default function NewOrderDetailCard({
               onPress={decrement}
               style={tw`p-1`}
               size={20}
-              variant="outlined"
+              variant="surface"
             />
             <ThemedText>{counter}</ThemedText>
             <IconButton
@@ -97,7 +97,7 @@ export default function NewOrderDetailCard({
               onPress={increment}
               style={tw`p-1`}
               size={20}
-              variant="outlined"
+              variant="surface"
             />
           </ThemedView>
         </ThemedView>
