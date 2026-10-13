@@ -238,7 +238,10 @@ export default function CartScreen() {
 
   useEffect(() => {
     const total = details.reduce((acc, detail) => {
-      return acc + (detail.price ?? detail.productOption?.price ?? 0) * detail.quantity;
+      return (
+        acc +
+        (detail.price ?? detail.productOption?.price ?? 0) * detail.quantity
+      );
     }, 0);
     setTotal(total);
   }, [details]);
@@ -250,7 +253,7 @@ export default function CartScreen() {
           <Animated.FlatList
             style={tw`flex-1`}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={tw`gap-4 pb-4`}
+            contentContainerStyle={tw`gap-12 pb-4`}
             onScroll={scrollHandler}
             scrollEventThrottle={16}
             data={newItems}
