@@ -10,12 +10,42 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
-import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import { useInventoryRecipes } from "@/presentation/inventory/hooks/useInventoryRecipes";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import WholeProductInventoryModal from "@/presentation/inventory/components/whole-product-inventory-modal";
 import { InventoryUnit } from "@/core/inventory/models/inventory-item.model";
+
+interface InventoryLineRowProps {
+  name?: string;
+  quantity: string;
+  onPress?: () => void;
+}
+
+// Same plain-row look as the variants list in the menu product detail.
+function InventoryLineRow({ name, quantity, onPress }: InventoryLineRowProps) {
+  return (
+    <Pressable
+      disabled={!onPress}
+      onPress={onPress}
+      style={({ pressed }) =>
+        tw.style(
+          "flex-row items-center justify-between gap-4 py-3",
+          pressed && "opacity-60",
+        )
+      }
+    >
+      <ThemedText
+        type="body1"
+        style={[tw`flex-1`, { fontFamily: typography.semibold }]}
+        numberOfLines={1}
+      >
+        {name}
+      </ThemedText>
+      <ThemedText type="body1">{quantity}</ThemedText>
+    </Pressable>
+  );
+}
 
 export default function MenuProductOptionInventoryScreen() {
   const { t } = useTranslation("inventory");
@@ -70,15 +100,45 @@ export default function MenuProductOptionInventoryScreen() {
 
   const closeWholeProductModal = () => setShowWholeProductModal(false);
 
+  const showEditButton = canManage && (!!wholeProductLine || isIngredientsMode);
+  const handleEdit = wholeProductLine
+    ? () => setShowWholeProductModal(true)
+    : navigateToRecipeScreen;
+
+  const formatLineQuantity = (
+    quantity: number,
+    unit?: InventoryUnit,
+  ): string =>
+    t("quantityWithUnit", {
+      quantity,
+      unit: unit ? t(`units.${unit}`) : "",
+    });
+
   return (
     <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
-      <ThemedView style={tw`items-center gap-4 flex-row mb-6`}>
+      <ThemedView style={tw`items-center justify-between flex-row mb-6`}>
         <Pressable
           onPress={() => router.back()}
+          hitSlop={12}
           style={({ pressed }) => tw.style(pressed && "opacity-70")}
         >
           <Ionicons name="arrow-back-outline" size={24} />
         </Pressable>
+        {showEditButton && (
+          <Pressable
+            onPress={handleEdit}
+            hitSlop={12}
+            style={({ pressed }) => tw.style(pressed && "opacity-70")}
+            accessibilityRole="button"
+            accessibilityLabel={
+              wholeProductLine
+                ? t("wholeProduct.editTitle")
+                : t("recipe.manageRecipe")
+            }
+          >
+            <Ionicons name="create-outline" size={24} />
+          </Pressable>
+        )}
       </ThemedView>
 
       <ScrollView
@@ -129,70 +189,31 @@ export default function MenuProductOptionInventoryScreen() {
         )}
 
         {wholeProductLine && (
-          <Card
-            onPress={canManage ? () => setShowWholeProductModal(true) : undefined}
-            style={tw`flex-row items-center justify-between`}
-          >
-            <ThemedView style={tw`flex-1 gap-1`}>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {t("trackMode.wholeProduct.label")}
-              </ThemedText>
-              <ThemedText type="body1" style={{ fontFamily: typography.medium }}>
-                {wholeProductLine.inventoryItem?.name}
-              </ThemedText>
-              <ThemedText type="body2" style={tw`text-gray-500`}>
-                {t("quantityWithUnit", {
-                  quantity: wholeProductLine.inventoryItem?.quantity ?? 0,
-                  unit: t(`units.${wholeProductLine.inventoryItem?.unit}`),
-                })}
-              </ThemedText>
-            </ThemedView>
-            {canManage && (
-              <Ionicons
-                name="chevron-forward"
-                size={18}
-                color={tw.color("gray-400")}
-              />
-            )}
-          </Card>
+          <ThemedView>
+            <InventoryLineRow
+              name={wholeProductLine.inventoryItem?.name}
+              quantity={formatLineQuantity(
+                wholeProductLine.inventoryItem?.quantity ?? 0,
+                wholeProductLine.inventoryItem?.unit,
+              )}
+              onPress={canManage ? handleEdit : undefined}
+            />
+          </ThemedView>
         )}
 
         {isIngredientsMode && (
           <ThemedView>
-            {recipes.map((line, index) => {
-              const isLast = index === recipes.length - 1;
-              return (
-                <ThemedView
-                  key={line.id}
-                  style={[
-                    tw`flex-row items-center justify-between py-4`,
-                    !isLast && tw`border-b border-light-divider`,
-                  ]}
-                >
-                  <ThemedText type="body1">
-                    {line.inventoryItem?.name}
-                  </ThemedText>
-                  <ThemedText type="body2" style={tw`text-gray-500`}>
-                    {t("quantityWithUnit", {
-                      quantity: line.quantity,
-                      unit: line.inventoryItem
-                        ? t(`units.${line.inventoryItem.unit}`)
-                        : "",
-                    })}
-                  </ThemedText>
-                </ThemedView>
-              );
-            })}
+            {recipes.map((line) => (
+              <InventoryLineRow
+                key={line.id}
+                name={line.inventoryItem?.name}
+                quantity={formatLineQuantity(
+                  line.quantity,
+                  line.inventoryItem?.unit,
+                )}
+              />
+            ))}
           </ThemedView>
-        )}
-
-        {isIngredientsMode && canManage && (
-          <Button
-            label={t("recipe.manageRecipe")}
-            leftIcon="list-outline"
-            variant="outline"
-            onPress={navigateToRecipeScreen}
-          />
         )}
       </ScrollView>
 
