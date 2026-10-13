@@ -445,7 +445,10 @@ export default function MenuProductDetailScreen() {
                           />
                         )}
                       </ThemedView>
-                      <ThemedText type="body1">
+                      <ThemedText
+                        type="body1"
+                        style={{ fontFamily: typography.regular }}
+                      >
                         {formatCurrency(option.price)}
                       </ThemedText>
                     </Pressable>

@@ -42,7 +42,9 @@ function InventoryLineRow({ name, quantity, onPress }: InventoryLineRowProps) {
       >
         {name}
       </ThemedText>
-      <ThemedText type="body1">{quantity}</ThemedText>
+      <ThemedText type="body1" style={{ fontFamily: typography.regular }}>
+        {quantity}
+      </ThemedText>
     </Pressable>
   );
 }
@@ -105,10 +107,7 @@ export default function MenuProductOptionInventoryScreen() {
     ? () => setShowWholeProductModal(true)
     : navigateToRecipeScreen;
 
-  const formatLineQuantity = (
-    quantity: number,
-    unit?: InventoryUnit,
-  ): string =>
+  const formatLineQuantity = (quantity: number, unit?: InventoryUnit): string =>
     t("quantityWithUnit", {
       quantity,
       unit: unit ? t(`units.${unit}`) : "",
@@ -163,10 +162,15 @@ export default function MenuProductOptionInventoryScreen() {
         {!recipesQuery.isLoading && recipes.length === 0 && (
           <ThemedView style={tw`gap-4 mt-2`}>
             <Card
-              onPress={canManage ? () => setShowWholeProductModal(true) : undefined}
+              onPress={
+                canManage ? () => setShowWholeProductModal(true) : undefined
+              }
               style={tw`gap-1`}
             >
-              <ThemedText type="body1" style={{ fontFamily: typography.medium }}>
+              <ThemedText
+                type="body1"
+                style={{ fontFamily: typography.medium }}
+              >
                 {t("trackMode.wholeProduct.label")}
               </ThemedText>
               <ThemedText type="small" style={tw`text-gray-500`}>
@@ -178,7 +182,10 @@ export default function MenuProductOptionInventoryScreen() {
               onPress={canManage ? navigateToRecipeScreen : undefined}
               style={tw`gap-1`}
             >
-              <ThemedText type="body1" style={{ fontFamily: typography.medium }}>
+              <ThemedText
+                type="body1"
+                style={{ fontFamily: typography.medium }}
+              >
                 {t("trackMode.ingredients.label")}
               </ThemedText>
               <ThemedText type="small" style={tw`text-gray-500`}>
