@@ -39,7 +39,8 @@ export interface User {
   username: string;
   person: Person;
   online: boolean;
-  role?: IRole;
+  /** Role in the current restaurant; null when there is none. */
+  role?: IRole | null;
   restaurantRoles: RestaurantRole[];
   isActive: boolean;
   authProvider?: AuthProvider[];

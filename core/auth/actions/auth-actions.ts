@@ -30,18 +30,21 @@ const returnUserToken = (
 };
 
 /**
- * `role` isn't sent by the server; it's the user's role in the current
- * restaurant. Endpoints returning a bare User (e.g. PATCH /auth/me) need it
- * re-applied, or the app treats the user as having no restaurant.
+ * `role` is the user's role in the current restaurant. The server resolves it,
+ * but backends deployed before that change omit it, so it's derived from
+ * `restaurantRoles` and, as a last resort, the previously known role is kept;
+ * otherwise the app treats the user as having no restaurant.
  */
 export const withCurrentRole = (
   user: User,
   restaurantId?: string,
-  fallbackRole?: IRole,
+  fallbackRole?: IRole | null,
 ): User => {
-  const currentRole = user.restaurantRoles?.find(
-    (resRole) => resRole.restaurant.id === restaurantId,
-  )?.role;
+  const currentRole =
+    user.role ??
+    user.restaurantRoles?.find(
+      (resRole) => resRole.restaurant.id === restaurantId,
+    )?.role;
 
   return { ...user, role: currentRole ?? fallbackRole };
 };
