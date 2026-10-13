@@ -77,6 +77,9 @@ export default function OrderDetailCard({
   const { statusText, labelColor, statusIconColor } =
     useOrderDetailStatus(detail.status);
   const isCancelled = detail.status === OrderDetailStatus.CANCELLED;
+  const isDelivered = detail.status === OrderDetailStatus.DELIVERED;
+  // Delivered is gray, matching the "default" label color used for delivered orders.
+  const checkboxColor = isDelivered ? "gray-500" : statusIconColor;
 
   const handleOpenBottomSheet = () => {
     if (isCancelled) return;
@@ -311,9 +314,9 @@ export default function OrderDetailCard({
               {!isCancelled && !selectionMode && (
                 <ThemedView style={tw`mt-0.5 bg-transparent`}>
                   <Checkbox
-                    value={detail.status === OrderDetailStatus.DELIVERED}
+                    value={isDelivered}
                     onValueChange={onCheckedChange}
-                    color={statusIconColor}
+                    color={checkboxColor}
                   />
                 </ThemedView>
               )}
