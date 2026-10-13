@@ -11,6 +11,7 @@ import { useRouter } from "expo-router";
 import FloatingSearchBar from "@/presentation/theme/components/floating-search-bar";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
 import { useProductSearch } from "@/presentation/restaurant-menu/hooks/useProductSearch";
+import { useSyncRefresh } from "@/presentation/sync/hooks/useSyncRefresh";
 import { Category } from "@/core/menu/models/category.model";
 import { Product } from "@/core/menu/models/product.model";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
@@ -39,6 +40,7 @@ export default function RestaurantMenuScreen() {
     products: allProducts,
     menuQuery,
   } = useMenu();
+  const refreshSync = useSyncRefresh();
   const sections = useMemo(
     () => allSections.filter((s) => s.isActive),
     [allSections],
@@ -101,11 +103,11 @@ export default function RestaurantMenuScreen() {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      await menuQuery.refetch();
+      await refreshSync();
     } finally {
       setRefreshing(false);
     }
-  }, [menuQuery]);
+  }, [refreshSync]);
 
   const openProduct = (product: Product) => {
     Keyboard.dismiss();

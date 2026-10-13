@@ -34,6 +34,9 @@ import { useAppForeground } from "@/presentation/shared/hooks/useAppForeground";
 
 const INCREMENTAL_SYNC_LIMIT = 1000;
 
+export const syncQueryKey = (restaurantId?: string) =>
+  ["sync", restaurantId] as const;
+
 function applySnapshot(
   snapshot: SnapshotSyncResponseDto,
   restaurantId: string,
@@ -319,7 +322,7 @@ export const useSync = () => {
   }, [currentRestaurant?.id, restaurantId, setRestaurantId]);
 
   const syncQuery = useQuery({
-    queryKey: ["sync", currentRestaurant?.id],
+    queryKey: syncQueryKey(currentRestaurant?.id),
     queryFn: async () => {
       if (!currentRestaurant?.id) {
         throw new Error("No restaurant selected");
