@@ -16,40 +16,8 @@ import { useInventoryRecipes } from "@/presentation/inventory/hooks/useInventory
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import InventoryLineRow from "@/presentation/inventory/components/inventory-line-row";
 import WholeProductInventoryModal from "@/presentation/inventory/components/whole-product-inventory-modal";
-import { InventoryUnit } from "@/core/inventory/models/inventory-item.model";
-
-interface InventoryLineRowProps {
-  name?: string;
-  quantity: string;
-  onPress?: () => void;
-}
-
-// Same plain-row look as the variants list in the menu product detail.
-function InventoryLineRow({ name, quantity, onPress }: InventoryLineRowProps) {
-  return (
-    <Pressable
-      disabled={!onPress}
-      onPress={onPress}
-      style={({ pressed }) =>
-        tw.style(
-          "flex-row items-center justify-between gap-4 py-3",
-          pressed && "opacity-60",
-        )
-      }
-    >
-      <ThemedText
-        type="body1"
-        style={[tw`flex-1`, { fontFamily: typography.semibold }]}
-        numberOfLines={1}
-      >
-        {name}
-      </ThemedText>
-      <ThemedText type="body1" style={{ fontFamily: typography.regular }}>
-        {quantity}
-      </ThemedText>
-    </Pressable>
-  );
-}
+import type { InventoryUnit } from "@/core/inventory/models/inventory-item.model";
+import { getWholeProductLine } from "@/core/inventory/models/inventory-recipe.model";
 
 export default function MenuProductOptionInventoryScreen() {
   const { t } = useTranslation("inventory");
@@ -72,12 +40,7 @@ export default function MenuProductOptionInventoryScreen() {
 
   const [showWholeProductModal, setShowWholeProductModal] = useState(false);
 
-  const wholeProductLine =
-    recipes.length === 1 &&
-    recipes[0].quantity === 1 &&
-    recipes[0].inventoryItem?.unit === InventoryUnit.UNIT
-      ? recipes[0]
-      : null;
+  const wholeProductLine = getWholeProductLine(recipes);
   const isIngredientsMode = recipes.length > 0 && !wholeProductLine;
 
   const headerTitle = wholeProductLine
@@ -102,12 +65,17 @@ export default function MenuProductOptionInventoryScreen() {
     });
   };
 
-  const closeWholeProductModal = () => setShowWholeProductModal(false);
+  const wholeProductItemId = wholeProductLine?.inventoryItem?.id;
 
-  const showEditButton = canManage && (!!wholeProductLine || isIngredientsMode);
-  const handleEdit = wholeProductLine
-    ? () => setShowWholeProductModal(true)
-    : navigateToRecipeScreen;
+  const navigateToInventoryItem = () => {
+    if (!wholeProductItemId) return;
+    router.push({
+      pathname: "/(profile)/menu-inventory-item-detail",
+      params: { itemId: wholeProductItemId },
+    });
+  };
+
+  const closeWholeProductModal = () => setShowWholeProductModal(false);
 
   const formatLineQuantity = (quantity: number, unit?: InventoryUnit): string =>
     t("quantityWithUnit", {
@@ -125,13 +93,22 @@ export default function MenuProductOptionInventoryScreen() {
         >
           <Ionicons name="arrow-back-outline" size={24} />
         </Pressable>
-        {showEditButton && (
+        {canManage && wholeProductItemId && (
+          <Button
+            label={t("trackMode.manage")}
+            leftIcon="settings-outline"
+            variant="surface"
+            size="extra-small"
+            onPress={navigateToInventoryItem}
+          />
+        )}
+        {canManage && isIngredientsMode && (
           <Button
             label={t("common:actions.edit")}
             leftIcon="create-outline"
             variant="surface"
             size="extra-small"
-            onPress={handleEdit}
+            onPress={navigateToRecipeScreen}
           />
         )}
       </ThemedView>
@@ -199,8 +176,19 @@ export default function MenuProductOptionInventoryScreen() {
                 wholeProductLine.inventoryItem?.quantity ?? 0,
                 wholeProductLine.inventoryItem?.unit,
               )}
-              onPress={canManage ? handleEdit : undefined}
             />
+            {canManage && (
+              <Pressable
+                onPress={navigateToRecipeScreen}
+                style={({ pressed }) =>
+                  tw.style("py-3", pressed && "opacity-60")
+                }
+              >
+                <ThemedText type="body1" style={tw`text-gray-400`}>
+                  {t("trackMode.switchToIngredients")}
+                </ThemedText>
+              </Pressable>
+            )}
           </ThemedView>
         )}
 
@@ -227,7 +215,6 @@ export default function MenuProductOptionInventoryScreen() {
         productOptionName={
           hasSingleVariant ? undefined : params.productOptionName
         }
-        line={wholeProductLine}
         onClose={closeWholeProductModal}
       />
     </ScreenLayout>

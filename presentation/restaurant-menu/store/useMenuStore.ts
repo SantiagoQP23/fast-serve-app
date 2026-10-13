@@ -1,4 +1,4 @@
-import { Product } from "@/core/menu/models/product.model";
+import { Product, withDefaultOption } from "@/core/menu/models/product.model";
 import { ProductOption } from "@/core/menu/models/product-optionl.model";
 import { Section } from "@/core/menu/models/section.model";
 import { Category } from "@/core/menu/models/category.model";
@@ -30,6 +30,7 @@ interface MenuActions {
   removeCategory: (id: string) => void;
   upsertProduct: (product: Product) => void;
   removeProduct: (id: string) => void;
+  setProductDefaultOption: (productId: string, variantId: number) => void;
   addProductOption: (productId: string, option: ProductOption) => void;
   updateProductOption: (productId: string, option: ProductOption) => void;
   removeProductOption: (productId: string, optionId: number) => void;
@@ -121,6 +122,17 @@ export const useMenuStore = create<MenuState & MenuActions>()(
       removeProduct: (id: string) =>
         set((state) => ({
           products: state.products.filter((p) => p.id !== id),
+        })),
+
+      setProductDefaultOption: (productId: string, variantId: number) =>
+        set((state) => ({
+          products: state.products.map((p) =>
+            p.id === productId ? withDefaultOption(p, variantId) : p,
+          ),
+          activeProduct:
+            state.activeProduct?.id === productId
+              ? withDefaultOption(state.activeProduct, variantId)
+              : state.activeProduct,
         })),
 
       addProductOption: (productId: string, option: ProductOption) =>

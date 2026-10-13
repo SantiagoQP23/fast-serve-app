@@ -11,11 +11,11 @@ import { ProductionAreasService } from "@/presentation/production-areas/services
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Order } from "@/core/orders/models/order.model";
 import { Table } from "@/core/tables/models/table.model";
-import { Product } from "@/core/menu/models/product.model";
 import { Category } from "@/core/menu/models/category.model";
 import { Section } from "@/core/menu/models/section.model";
 import { useSyncStore } from "../store/useSyncStore";
 import { applyTicketEvent } from "../apply-ticket-event";
+import { applyProductEvent } from "../apply-product-event";
 
 function applyOrderEvent(event: SyncEventDto) {
   const order = event.data as Order;
@@ -62,22 +62,6 @@ function applyTableEvent(event: SyncEventDto) {
       break;
     case SyncOperation.DELETED:
       tablesState.deleteTable(event.resourceId);
-      break;
-  }
-}
-
-function applyProductEvent(event: SyncEventDto) {
-  const menuState = useMenuStore.getState();
-
-  switch (event.operation) {
-    case SyncOperation.CREATED:
-    case SyncOperation.UPDATED:
-      const product = event.data as Product;
-      menuState.upsertProduct(product);
-      useOrdersStore.getState().updateProductInOrders(product);
-      break;
-    case SyncOperation.DELETED:
-      menuState.removeProduct(event.resourceId);
       break;
   }
 }

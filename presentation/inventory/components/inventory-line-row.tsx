@@ -33,7 +33,9 @@ export default function InventoryLineRow({
       >
         {name}
       </ThemedText>
-      <ThemedText type="body1">{quantity}</ThemedText>
+      <ThemedText type="body1" style={{ fontFamily: typography.regular }}>
+        {quantity}
+      </ThemedText>
     </Pressable>
   );
 }

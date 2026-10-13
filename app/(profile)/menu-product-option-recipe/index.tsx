@@ -312,12 +312,14 @@ export default function MenuProductOptionRecipeScreen() {
         )}
 
         {canManage && (
-          <Button
-            label={t("recipe.addLine")}
-            leftIcon="add-outline"
-            variant="outline"
+          <Pressable
             onPress={openItemPicker}
-          />
+            style={({ pressed }) => tw.style("py-3", pressed && "opacity-60")}
+          >
+            <ThemedText type="body1" style={tw`text-gray-400`}>
+              {t("recipe.addLinePlaceholder")}
+            </ThemedText>
+          </Pressable>
         )}
       </ScrollView>
 

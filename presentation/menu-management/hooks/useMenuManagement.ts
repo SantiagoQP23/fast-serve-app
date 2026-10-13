@@ -31,6 +31,7 @@ export const useMenuManagement = () => {
     removeCategory,
     upsertProduct,
     removeProduct,
+    setProductDefaultOption: setProductDefaultOptionInStore,
     addProductOption,
     updateProductOption: updateProductOptionInStore,
     removeProductOption,
@@ -245,8 +246,10 @@ export const useMenuManagement = () => {
   >({
     mutationFn: ({ productId, variantId }) =>
       ProductsService.setDefaultVariant(productId, variantId),
-    onSuccess: (product) => {
-      upsertProduct(product);
+    // The response lacks fields the store keeps (option inventory items,
+    // production area), so only the default flags are updated.
+    onSuccess: (_product, { productId, variantId }) => {
+      setProductDefaultOptionInStore(productId, variantId);
     },
     onError: (error) => {
       toast.error(

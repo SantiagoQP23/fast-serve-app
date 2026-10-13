@@ -187,6 +187,8 @@
   "trackMode": {
     "title": "Configurar inventario",
     "question": "¿Cómo quieres controlar este producto?",
+    "manage": "Administrar",
+    "switchToIngredients": "Cambiar a ingredientes...",
     "wholeProduct": {
       "label": "Producto completo",
       "description": "Cada venta descuenta una unidad, ej. una Coca-Cola."
@@ -196,9 +198,19 @@
       "description": "Cada venta descuenta cantidades de uno o más inventarios, ej. un Arroz con Mariscos usa 200 g de arroz, 150 g de camarón y 100 g de calamar."
     }
   },
+  "optionInventory": {
+    "title": "Inventario",
+    "left": "{{count}} restantes",
+    "outOfStock": "Agotado",
+    "openItem": "Ver ítem de inventario",
+    "openIngredients": "Ver ingredientes",
+    "switchToIngredients": "Cambiar a ingredientes",
+    "switchToWholeProduct": "Cambiar a producto completo"
+  },
   "wholeProduct": {
     "configureTitle": "Configurar inventario",
-    "editTitle": "Editar inventario",
+    "switchTitle": "Cambiar a producto completo",
+    "replaceNote": "Esto reemplaza los ingredientes actuales. Sus ítems de inventario se conservan en tu catálogo.",
     "fields": {
       "currentQuantity": "Cantidad actual",
       "minimumQuantityInfo": "Cantidad mínima que quieres mantener disponible. Teikio te avisará cuando el stock llegue a este nivel."
@@ -212,6 +224,7 @@
     "empty": "Aún no hay ingredientes en la receta",
     "emptyDescription": "Agrega ingredientes desde tu catálogo de inventario para controlar el consumo de esta opción.",
     "addLine": "Agregar ingrediente",
+    "addLinePlaceholder": "Agregar un ingrediente...",
     "editLine": "Editar ingrediente",
     "deleteTitle": "Quitar ingrediente",
     "deleteMessage": "¿Estás seguro de que deseas quitar este ingrediente de la receta?",

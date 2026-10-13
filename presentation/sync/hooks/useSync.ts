@@ -19,7 +19,6 @@ import { SyncResourceType } from "@/core/sync/enums/sync-resource-type.enum";
 import { Order } from "@/core/orders/models/order.model";
 import { Table } from "@/core/tables/models/table.model";
 import { Menu } from "@/core/menu/models/menu.model";
-import { Product } from "@/core/menu/models/product.model";
 import { Category } from "@/core/menu/models/category.model";
 import { Section } from "@/core/menu/models/section.model";
 import { ProductionArea } from "@/core/menu/models/producion-area.model";
@@ -28,6 +27,7 @@ import { Account } from "@/core/restaurant/models/account.model";
 import { Printer } from "@/core/common/models/printer.model";
 import { useSyncStore } from "../store/useSyncStore";
 import { applyTicketEvent } from "../apply-ticket-event";
+import { applyProductEvent } from "../apply-product-event";
 import { useUnprintedTicketsStore } from "@/presentation/orders/store/useUnprintedTicketsStore";
 import { Ticket } from "@/core/tickets/models/ticket.model";
 import { useAppForeground } from "@/presentation/shared/hooks/useAppForeground";
@@ -178,22 +178,6 @@ function applyTableEvent(event: SyncEventDto) {
       break;
     case SyncOperation.DELETED:
       tablesState.deleteTable(event.resourceId);
-      break;
-  }
-}
-
-function applyProductEvent(event: SyncEventDto) {
-  const menuState = useMenuStore.getState();
-
-  switch (event.operation) {
-    case SyncOperation.CREATED:
-    case SyncOperation.UPDATED:
-      const product = event.data as Product;
-      menuState.upsertProduct(product);
-      useOrdersStore.getState().updateProductInOrders(product);
-      break;
-    case SyncOperation.DELETED:
-      menuState.removeProduct(event.resourceId);
       break;
   }
 }

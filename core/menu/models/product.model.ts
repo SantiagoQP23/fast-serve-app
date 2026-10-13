@@ -34,3 +34,17 @@ export function getProductDefaultOption(
     product.options?.find((option) => option.isDefault) ?? product.options?.[0]
   );
 }
+
+/** The product with `variantId` flagged as its only default option. */
+export function withDefaultOption(
+  product: Product,
+  variantId: number,
+): Product {
+  return {
+    ...product,
+    options: product.options?.map((option) => ({
+      ...option,
+      isDefault: option.id === variantId,
+    })),
+  };
+}

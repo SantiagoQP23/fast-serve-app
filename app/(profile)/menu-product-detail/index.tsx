@@ -34,6 +34,9 @@ import { formatCurrency } from "@/core/i18n/utils";
 import type { ProductOption } from "@/core/menu/models/product-optionl.model";
 import { getProductDefaultOption } from "@/core/menu/models/product.model";
 import { typography } from "@/constants/theme";
+import { getWholeProductLine } from "@/core/inventory/models/inventory-recipe.model";
+import OptionInventorySection from "@/presentation/inventory/components/option-inventory-section";
+import WholeProductInventoryModal from "@/presentation/inventory/components/whole-product-inventory-modal";
 
 export default function MenuProductDetailScreen() {
   const { t } = useTranslation("menuManagement");
@@ -66,6 +69,8 @@ export default function MenuProductDetailScreen() {
     null,
   );
   const optionActionsSheetRef = useRef<BottomSheetMethods>(null);
+  const [optionToSwitchToWholeProduct, setOptionToSwitchToWholeProduct] =
+    useState<ProductOption | null>(null);
   const editOptionSheetRef = useRef<BottomSheetMethods>(null);
   const [editOptionName, setEditOptionName] = useState("");
   const [editOptionPrice, setEditOptionPrice] = useState("");
@@ -193,6 +198,14 @@ export default function MenuProductDetailScreen() {
     });
   };
 
+  const handleMakeDefaultFromRow = (option: ProductOption) => {
+    if (!product || option.isDefault) return;
+    setDefaultProductOption.mutate({
+      productId: product.id,
+      variantId: option.id,
+    });
+  };
+
   const handleToggleOptionActive = () => {
     if (!product || !selectedOption) return;
     closeOptionActions();
@@ -256,6 +269,41 @@ export default function MenuProductDetailScreen() {
     if (!selectedOption) return;
     closeOptionActions();
     navigateToOptionInventory(selectedOption);
+  };
+
+  const handleOpenOptionInventoryItem = () => {
+    if (!selectedOption) return;
+    const itemId = getWholeProductLine(
+      selectedOption.inventoryItems,
+    )?.inventoryItemId;
+    closeOptionActions();
+    if (!itemId) {
+      navigateToOptionInventory(selectedOption);
+      return;
+    }
+    router.push({
+      pathname: "/(profile)/menu-inventory-item-detail",
+      params: { itemId },
+    });
+  };
+
+  const handleSwitchInventoryMode = () => {
+    if (!product || !selectedOption) return;
+    closeOptionActions();
+
+    if (!getWholeProductLine(selectedOption.inventoryItems)) {
+      setOptionToSwitchToWholeProduct(selectedOption);
+      return;
+    }
+    // The recipe opens with the current inventory item as its first ingredient.
+    router.push({
+      pathname: "/(profile)/menu-product-option-recipe",
+      params: {
+        productOptionId: String(selectedOption.id),
+        productOptionName: selectedOption.name,
+        productName: product.name,
+      },
+    });
   };
 
   const handleRequestDeleteOption = () => {
@@ -412,46 +460,73 @@ export default function MenuProductDetailScreen() {
               ) : (
                 <ThemedView>
                   {product.options.map((option, index) => (
-                    <Pressable
+                    <ThemedView
                       key={option.id ?? index}
-                      onPress={
-                        canManage
-                          ? () => handleOpenOptionActions(option)
-                          : undefined
-                      }
-                      style={({ pressed }) =>
-                        tw.style(
-                          "flex-row items-center justify-between gap-4 py-3",
-                          !option.isActive && "opacity-50",
-                          pressed && "opacity-60",
-                        )
-                      }
+                      style={tw.style(
+                        "flex-row items-center gap-1 bg-transparent",
+                        !option.isActive && "opacity-50",
+                      )}
                     >
-                      <ThemedView
-                        style={tw`flex-1 flex-row items-center gap-1.5 bg-transparent`}
+                      {canManage || option.isDefault ? (
+                        <Pressable
+                          onPress={() => handleMakeDefaultFromRow(option)}
+                          disabled={
+                            !canManage ||
+                            option.isDefault ||
+                            setDefaultProductOption.isPending
+                          }
+                          hitSlop={6}
+                          accessibilityRole="button"
+                          accessibilityLabel={
+                            option.isDefault
+                              ? t("products.variants.fields.isDefault")
+                              : t("products.variants.makeDefault")
+                          }
+                          accessibilityState={{ selected: option.isDefault }}
+                          style={({ pressed }) =>
+                            tw.style("p-2.5 -ml-2.5", pressed && "opacity-60")
+                          }
+                        >
+                          <Ionicons
+                            name={option.isDefault ? "star" : "star-outline"}
+                            size={22}
+                            color={tw.color("gray-400")}
+                          />
+                        </Pressable>
+                      ) : (
+                        <ThemedView style={tw`w-[22px] h-[22px] mr-2.5`} />
+                      )}
+                      <Pressable
+                        onPress={
+                          canManage
+                            ? () => handleOpenOptionActions(option)
+                            : undefined
+                        }
+                        style={({ pressed }) =>
+                          tw.style(
+                            "flex-1 flex-row items-center justify-between gap-4 py-3",
+                            pressed && "opacity-60",
+                          )
+                        }
                       >
                         <ThemedText
                           type="body1"
-                          style={{ fontFamily: typography.semibold }}
+                          style={[
+                            tw`flex-1`,
+                            { fontFamily: typography.semibold },
+                          ]}
                           numberOfLines={1}
                         >
                           {option.name}
                         </ThemedText>
-                        {option.isDefault && (
-                          <Ionicons
-                            name="star"
-                            size={14}
-                            color={tw.color("gray-400")}
-                          />
-                        )}
-                      </ThemedView>
-                      <ThemedText
-                        type="body1"
-                        style={{ fontFamily: typography.regular }}
-                      >
-                        {formatCurrency(option.price)}
-                      </ThemedText>
-                    </Pressable>
+                        <ThemedText
+                          type="body1"
+                          style={{ fontFamily: typography.regular }}
+                        >
+                          {formatCurrency(option.price)}
+                        </ThemedText>
+                      </Pressable>
+                    </ThemedView>
                   ))}
                 </ThemedView>
               )}
@@ -593,8 +668,26 @@ export default function MenuProductDetailScreen() {
 
       <ThemedBottomSheetModal ref={optionActionsSheetRef} enablePanDownToClose>
         {selectedOption && (
-          <ThemedView style={tw`px-4 py-4 gap-6`}>
+          <ThemedView style={tw`px-4 pb-4 gap-6`}>
             <ThemedView style={tw`flex-row justify-between items-start gap-3`}>
+              <IconButton
+                icon={
+                  selectedOption.isActive ? "eye-outline" : "eye-off-outline"
+                }
+                onPress={handleToggleOptionActive}
+                variant="surface"
+              />
+
+              <Button
+                label={t("edit")}
+                leftIcon="create"
+                variant="secondary"
+                onPress={handleOpenEditOption}
+                size="small"
+              />
+            </ThemedView>
+
+            <ThemedView style={tw`flex-row justify-center items-start gap-3`}>
               <ThemedView style={tw`flex-1 gap-2`}>
                 <ThemedText type="h2" style={{ fontFamily: typography.medium }}>
                   {selectedOption.name}
@@ -605,74 +698,31 @@ export default function MenuProductDetailScreen() {
                     {/*   {formatCurrency(selectedOption.price)} */}
                     {/* </ThemedText> */}
                   </ThemedView>
-                  {selectedOption.trackStock && (
-                    <ThemedView style={tw`flex-row items-center gap-1`}>
-                      <Ionicons
-                        name="cube-outline"
-                        size={16}
-                        color={tw.color("text-gray-500")}
-                      />
-                      <ThemedText type="small" style={tw`text-gray-500`}>
-                        {t("inventory:stockCount", {
-                          count: selectedOption.quantity,
-                        })}
-                      </ThemedText>
-                    </ThemedView>
-                  )}
                 </ThemedView>
-                {selectedOption.isDefault && (
-                  <Label
-                    text={t("products.variants.fields.isDefault")}
-                    leftIcon="star"
-                    color="primary"
-                    size="small"
-                  />
-                )}
               </ThemedView>
-              <IconButton
-                icon={
-                  selectedOption.isActive ? "eye-outline" : "eye-off-outline"
-                }
-                variant="secondary"
-                onPress={handleToggleOptionActive}
-              />
             </ThemedView>
-            {!selectedOption.isDefault && (
-              <ThemedView style={tw` w-full`}>
-                <Button
-                  label={t("products.variants.makeDefault")}
-                  leftIcon="star-outline"
-                  variant="outline"
-                  size="small"
-                  onPress={handleMakeOptionDefault}
-                />
-              </ThemedView>
+            {(selectedOption.inventoryItems?.length ?? 0) > 0 ? (
+              <OptionInventorySection
+                option={selectedOption}
+                onOpen={handleOpenOptionInventoryItem}
+                onSwitchMode={handleSwitchInventoryMode}
+              />
+            ) : (
+              <Button
+                label={t("products.variants.configureInventory")}
+                leftIcon="cube-outline"
+                variant="secondary"
+                onPress={handleOpenInventoryConfig}
+              />
             )}
             <ThemedView style={tw`flex-row gap-4 items-center`}>
               <Button
-                label={t("delete")}
                 leftIcon="trash"
                 variant="destructive"
                 onPress={handleRequestDeleteOption}
-              />
-              <Button
-                label={t("edit")}
-                leftIcon="create"
-                variant="secondary"
-                style={tw`flex-1`}
-                onPress={handleOpenEditOption}
+                size="small"
               />
             </ThemedView>
-            <Button
-              label={
-                (selectedOption.inventoryItems?.length ?? 0) > 0
-                  ? t("products.variants.editInventory")
-                  : t("products.variants.configureInventory")
-              }
-              leftIcon="cube-outline"
-              variant="secondary"
-              onPress={handleOpenInventoryConfig}
-            />
           </ThemedView>
         )}
       </ThemedBottomSheetModal>
@@ -708,14 +758,29 @@ export default function MenuProductDetailScreen() {
             </ThemedText>
           ) : null}
 
-          <Button
-            label={t("products.save")}
-            onPress={handleSaveEditOption}
-            loading={updateProductOption.isPending}
-            disabled={updateProductOption.isPending}
-          />
+          <ThemedView style={tw`flex-row gap-4 items-center justify-end`}>
+            <Button
+              label={t("products.save")}
+              onPress={handleSaveEditOption}
+              loading={updateProductOption.isPending}
+              disabled={updateProductOption.isPending}
+            />
+          </ThemedView>
         </BottomSheetView>
       </ThemedBottomSheetModal>
+
+      <WholeProductInventoryModal
+        visible={!!optionToSwitchToWholeProduct}
+        productOptionId={optionToSwitchToWholeProduct?.id ?? 0}
+        productName={product.name}
+        productOptionName={
+          product.options.length === 1
+            ? undefined
+            : optionToSwitchToWholeProduct?.name
+        }
+        replaceExisting
+        onClose={() => setOptionToSwitchToWholeProduct(null)}
+      />
 
       <DialogModal
         visible={!!optionToDelete}

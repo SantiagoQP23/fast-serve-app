@@ -187,6 +187,8 @@
   "trackMode": {
     "title": "Configure inventory",
     "question": "How do you want to control this product?",
+    "manage": "Manage",
+    "switchToIngredients": "Switch to ingredients...",
     "wholeProduct": {
       "label": "Whole product",
       "description": "Each sale deducts one unit, e.g. a Coca-Cola."
@@ -196,9 +198,19 @@
       "description": "Each sale deducts quantities from one or more inventory items, e.g. a Seafood Rice uses 200 g rice, 150 g shrimp and 100 g squid."
     }
   },
+  "optionInventory": {
+    "title": "Inventory",
+    "left": "{{count}} left",
+    "outOfStock": "Out of stock",
+    "openItem": "View inventory item",
+    "openIngredients": "View ingredients",
+    "switchToIngredients": "Switch to ingredients",
+    "switchToWholeProduct": "Switch to whole product"
+  },
   "wholeProduct": {
     "configureTitle": "Configure inventory",
-    "editTitle": "Edit inventory",
+    "switchTitle": "Switch to whole product",
+    "replaceNote": "This replaces the current ingredients. Their inventory items stay in your catalog.",
     "fields": {
       "currentQuantity": "Current quantity",
       "minimumQuantityInfo": "Minimum quantity you want to keep available. Teikio will notify you when stock reaches this level."
@@ -212,6 +224,7 @@
     "empty": "No recipe lines yet",
     "emptyDescription": "Add ingredients from your inventory catalog to track consumption for this option.",
     "addLine": "Add ingredient",
+    "addLinePlaceholder": "Add an ingredient...",
     "editLine": "Edit ingredient",
     "deleteTitle": "Remove ingredient",
     "deleteMessage": "Are you sure you want to remove this ingredient from the recipe?",

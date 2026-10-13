@@ -111,6 +111,7 @@ const styles = StyleSheet.create({
   caption: {
     fontSize: 14,
     lineHeight: 16,
+    color: tw.color("gray-500"),
     textTransform: "uppercase",
     fontFamily: typography.medium,
     letterSpacing: 0.5,
