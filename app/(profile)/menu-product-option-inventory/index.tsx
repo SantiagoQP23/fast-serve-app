@@ -14,39 +14,9 @@ import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import { useInventoryRecipes } from "@/presentation/inventory/hooks/useInventoryRecipes";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
+import InventoryLineRow from "@/presentation/inventory/components/inventory-line-row";
 import WholeProductInventoryModal from "@/presentation/inventory/components/whole-product-inventory-modal";
 import { InventoryUnit } from "@/core/inventory/models/inventory-item.model";
-
-interface InventoryLineRowProps {
-  name?: string;
-  quantity: string;
-  onPress?: () => void;
-}
-
-// Same plain-row look as the variants list in the menu product detail.
-function InventoryLineRow({ name, quantity, onPress }: InventoryLineRowProps) {
-  return (
-    <Pressable
-      disabled={!onPress}
-      onPress={onPress}
-      style={({ pressed }) =>
-        tw.style(
-          "flex-row items-center justify-between gap-4 py-3",
-          pressed && "opacity-60",
-        )
-      }
-    >
-      <ThemedText
-        type="body1"
-        style={[tw`flex-1`, { fontFamily: typography.semibold }]}
-        numberOfLines={1}
-      >
-        {name}
-      </ThemedText>
-      <ThemedText type="body1">{quantity}</ThemedText>
-    </Pressable>
-  );
-}
 
 export default function MenuProductOptionInventoryScreen() {
   const { t } = useTranslation("inventory");
