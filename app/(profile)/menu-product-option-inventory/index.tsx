@@ -10,6 +10,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import { useInventoryRecipes } from "@/presentation/inventory/hooks/useInventoryRecipes";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
@@ -125,19 +126,13 @@ export default function MenuProductOptionInventoryScreen() {
           <Ionicons name="arrow-back-outline" size={24} />
         </Pressable>
         {showEditButton && (
-          <Pressable
+          <Button
+            label={t("common:actions.edit")}
+            leftIcon="create"
+            variant="secondary"
+            size="small"
             onPress={handleEdit}
-            hitSlop={12}
-            style={({ pressed }) => tw.style(pressed && "opacity-70")}
-            accessibilityRole="button"
-            accessibilityLabel={
-              wholeProductLine
-                ? t("wholeProduct.editTitle")
-                : t("recipe.manageRecipe")
-            }
-          >
-            <Ionicons name="create-outline" size={24} />
-          </Pressable>
+          />
         )}
       </ThemedView>
 
