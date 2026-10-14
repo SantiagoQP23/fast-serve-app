@@ -191,13 +191,11 @@ function TextInput(
           />
         </View>
         {leftIcon && (
-          <View style={{ marginLeft: 8, alignSelf: "center" }}>
-            {leftIcon}
-          </View>
+          <View style={{ marginLeft: 8, alignSelf: "center" }}>{leftIcon}</View>
         )}
         {!!error && (
           <Ionicons
-            name="alert-circle"
+            name="alert-circle-outline"
             size={ERROR_ICON_SIZE}
             color={tw.color("red-500")}
             style={{ marginLeft: 8, marginRight: 4, alignSelf: "center" }}
