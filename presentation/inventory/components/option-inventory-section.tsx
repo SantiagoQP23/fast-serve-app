@@ -62,7 +62,6 @@ export default function OptionInventorySection({
         <IconButton
           icon="chevron-forward-outline"
           size={20}
-          variant="surface"
           onPress={onOpen}
           accessibilityLabel={
             isWholeProduct

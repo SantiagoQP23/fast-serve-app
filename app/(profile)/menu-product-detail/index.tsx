@@ -670,15 +670,9 @@ export default function MenuProductDetailScreen() {
       <ThemedBottomSheetModal ref={optionActionsSheetRef} enablePanDownToClose>
         {selectedOption && (
           <ThemedView style={tw`px-4 pb-4 gap-6`}>
-            <ThemedView style={tw`flex-row justify-between items-start gap-3`}>
-              <IconButton
-                icon={
-                  selectedOption.isActive ? "eye-outline" : "eye-off-outline"
-                }
-                onPress={handleToggleOptionActive}
-                variant="surface"
-              />
-            </ThemedView>
+            <ThemedView
+              style={tw`flex-row justify-between items-start gap-3`}
+            ></ThemedView>
 
             <ThemedView style={tw`flex-row justify-center items-start gap-3`}>
               <ThemedView style={tw`flex-1 gap-2`}>
@@ -693,6 +687,14 @@ export default function MenuProductDetailScreen() {
                   </ThemedView>
                 </ThemedView>
               </ThemedView>
+
+              <IconButton
+                icon={
+                  selectedOption.isActive ? "eye-outline" : "eye-off-outline"
+                }
+                onPress={handleToggleOptionActive}
+                variant="surface"
+              />
             </ThemedView>
             {(selectedOption.inventoryItems?.length ?? 0) > 0 ? (
               <OptionInventorySection

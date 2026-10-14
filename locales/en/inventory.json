@@ -188,13 +188,13 @@
     "title": "Configure inventory",
     "question": "How do you want to control this product?",
     "manage": "Manage",
-    "switchToIngredients": "Track by ingredients...",
+    "switchToIngredients": "Use recipe inventory...",
     "wholeProduct": {
-      "label": "Whole product",
+      "label": "Simple inventory",
       "description": "Each sale deducts one unit, e.g. a Coca-Cola."
     },
     "ingredients": {
-      "label": "Ingredients",
+      "label": "Recipe inventory",
       "description": "Each sale deducts quantities from one or more inventory items, e.g. a Seafood Rice uses 200 g rice, 150 g shrimp and 100 g squid."
     }
   },
@@ -204,12 +204,12 @@
     "outOfStock": "Out of stock",
     "openItem": "View inventory item",
     "openIngredients": "View ingredients",
-    "switchToIngredients": "Track by ingredients",
-    "switchToWholeProduct": "Track as whole product"
+    "switchToIngredients": "Use recipe inventory",
+    "switchToWholeProduct": "Use simple inventory"
   },
   "wholeProduct": {
     "configureTitle": "Configure inventory",
-    "switchTitle": "Track as whole product",
+    "switchTitle": "Use simple inventory",
     "replaceNote": "This replaces the current ingredients. Their inventory items stay in your catalog.",
     "fields": {
       "currentQuantity": "Current quantity",
