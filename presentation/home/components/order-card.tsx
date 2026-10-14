@@ -61,7 +61,7 @@ export default function OrderCard({ order }: OrderCardProps) {
     <ThemedView style={tw`mb-8    `}>
       <Card
         onPress={openOrder}
-        style={isSelected ? tw`bg-light-secondary-container` : tw` `}
+        style={isSelected ? tw`bg-light-secondary` : tw` `}
         variant="outline"
       >
         <ThemedView style={tw`gap-4 `}>

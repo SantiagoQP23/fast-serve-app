@@ -13,7 +13,17 @@ import InventoryPurchaseCard from "@/presentation/inventory/components/inventory
 import { useInventoryPurchases } from "@/presentation/inventory/hooks/useInventoryPurchases";
 import { type InventoryPurchase } from "@/core/inventory/models/inventory-purchase.model";
 
-export default function InventoryPurchasesTab() {
+interface InventoryPurchasesTabProps {
+  /** Overrides navigating to the purchase screen, e.g. to open a side pane. */
+  onOpenPurchase?: (purchase: InventoryPurchase) => void;
+  /** Purchase currently shown in the side pane. */
+  activeId?: string;
+}
+
+export default function InventoryPurchasesTab({
+  onOpenPurchase,
+  activeId,
+}: InventoryPurchasesTabProps) {
   const { t } = useTranslation("inventory");
   const {
     purchasesQuery,
@@ -29,10 +39,12 @@ export default function InventoryPurchasesTab() {
   );
 
   const openPurchase = (purchase: InventoryPurchase) =>
-    router.push({
-      pathname: "/(profile)/menu-inventory-purchase-detail",
-      params: { purchaseId: purchase.id },
-    });
+    onOpenPurchase
+      ? onOpenPurchase(purchase)
+      : router.push({
+          pathname: "/(profile)/menu-inventory-purchase-detail",
+          params: { purchaseId: purchase.id },
+        });
 
   return (
     <ScrollView
@@ -87,6 +99,7 @@ export default function InventoryPurchasesTab() {
               key={purchase.id}
               purchase={purchase}
               onPress={openPurchase}
+              active={activeId === purchase.id}
             />
           ))}
         </ThemedView>

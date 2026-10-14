@@ -20,16 +20,25 @@ const STATUS_COLORS: Record<InventoryCountItemStatus, LabelProps["color"]> = {
 interface CountLineCardProps {
   line: InventoryCountItem;
   onPress?: () => void;
+  /** Highlights the line currently open next to the list (tablet). */
+  active?: boolean;
 }
 
 /** One counted product: its answer and, when answered, system vs counted amounts. */
-export default function CountLineCard({ line, onPress }: CountLineCardProps) {
+export default function CountLineCard({
+  line,
+  onPress,
+  active,
+}: CountLineCardProps) {
   const { t } = useTranslation("inventory");
   const unit = t(`units.${line.inventoryItem.unit}`);
   const difference = line.difference ?? 0;
 
   return (
-    <Card onPress={onPress} style={tw`p-4`}>
+    <Card
+      onPress={onPress}
+      style={tw.style("p-4", active && "bg-light-secondary")}
+    >
       <ThemedView style={tw`gap-1 bg-transparent`}>
         <ThemedView
           style={tw`flex-row items-center justify-between gap-3 bg-transparent`}

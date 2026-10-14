@@ -24,6 +24,8 @@ interface InventoryItemCardProps {
   onReactivatePress: (item: InventoryItem) => void;
   selectionMode?: boolean;
   selected?: boolean;
+  /** Highlights the item open in the detail pane (tablet). */
+  active?: boolean;
   onLongPress?: (item: InventoryItem) => void;
   onToggleSelect?: (item: InventoryItem) => void;
 }
@@ -79,6 +81,7 @@ export default function InventoryItemCard({
   onPress,
   selectionMode,
   selected,
+  active,
   onLongPress,
   onToggleSelect,
 }: InventoryItemCardProps) {
@@ -102,6 +105,7 @@ export default function InventoryItemCard({
         tw.style(
           " gap-3 p-4",
           isInactive && "opacity-50 border border-dashed border-light-border",
+          active && !selectionMode && "bg-light-secondary",
           selected && "border border-blue-500 bg-blue-50",
           pressed && (onPress || selectionMode) && "opacity-80",
         )

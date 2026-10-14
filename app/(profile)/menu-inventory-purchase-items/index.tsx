@@ -22,6 +22,12 @@ import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryIt
 import { useInventoryItemCategories } from "@/presentation/inventory/hooks/useInventoryItemCategories";
 import { usePurchaseCartStore } from "@/presentation/inventory/store/purchaseCartStore";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
+import PurchaseCartPanel from "@/presentation/inventory/components/purchase-cart-panel";
+import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
+
+const ITEM_MIN_WIDTH = 260;
+const ITEM_GAP = 12;
+const CART_PANEL_WIDTH = 400;
 
 export default function MenuInventoryPurchaseItemsScreen() {
   const { t } = useTranslation("inventory");
@@ -32,6 +38,16 @@ export default function MenuInventoryPurchaseItemsScreen() {
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [target, setTarget] = useState<PurchaseQuantityTarget | null>(null);
+
+  // Tablet landscape: the cart lives in a side pane next to the picker, and
+  // items flow into as many columns as fit the measured list width.
+  const { isExpanded, gridColumns } = useResponsiveLayout();
+  const [listWidth, setListWidth] = useState(0);
+  const columns = isExpanded
+    ? gridColumns(ITEM_MIN_WIDTH, ITEM_GAP, listWidth)
+    : 1;
+  const itemWidth =
+    columns > 1 ? (listWidth - ITEM_GAP * (columns - 1)) / columns : undefined;
 
   const quantities = useMemo(
     () => new Map(lines.map((line) => [line.item.id, line.quantity])),
@@ -65,16 +81,18 @@ export default function MenuInventoryPurchaseItemsScreen() {
   const openCart = () =>
     router.push({ pathname: "/(profile)/menu-inventory-purchase-cart" });
 
-  return (
-    <ScreenLayout style={tw`flex-1`}>
+  const picker = (
+    <ScreenLayout fullWidth={isExpanded} style={tw`flex-1`}>
       <ThemedView style={tw`px-4 pt-8 gap-4 bg-transparent`}>
         <InventoryScreenHeader
           title={t("purchases.register")}
           right={
-            <ThemedView style={tw`relative bg-transparent`}>
-              <IconButton icon="cart-outline" onPress={openCart} />
-              {lines.length > 0 && <NotificationBadge value={lines.length} />}
-            </ThemedView>
+            isExpanded ? undefined : (
+              <ThemedView style={tw`relative bg-transparent`}>
+                <IconButton icon="cart-outline" onPress={openCart} />
+                {lines.length > 0 && <NotificationBadge value={lines.length} />}
+              </ThemedView>
+            )
           }
         />
 
@@ -119,7 +137,15 @@ export default function MenuInventoryPurchaseItemsScreen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`px-4 gap-3 pb-8 pt-4`}
+        contentContainerStyle={[
+          tw`px-4 pb-8 pt-4`,
+          columns > 1 ? tw`flex-row flex-wrap` : undefined,
+          { gap: ITEM_GAP },
+        ]}
+        onLayout={(e) =>
+          // Content width, without the px-4 padding on each side
+          setListWidth(e.nativeEvent.layout.width - 32)
+        }
       >
         {itemsQuery.isLoading && (
           <ThemedText type="body1" style={tw`text-gray-500 text-center py-8`}>
@@ -140,44 +166,48 @@ export default function MenuInventoryPurchaseItemsScreen() {
           const quantity = quantities.get(item.id);
           const unit = t(`units.${item.unit}`);
           return (
-            <Card
+            <ThemedView
               key={item.id}
-              variant={quantity ? "outline" : "default"}
-              onPress={() => openItem(item)}
-              style={tw`p-4`}
+              style={itemWidth ? { width: itemWidth } : undefined}
             >
-              <ThemedView
-                style={tw`flex-row items-center justify-between gap-3 bg-transparent`}
+              <Card
+                variant={quantity ? "outline" : "default"}
+                onPress={() => openItem(item)}
+                style={tw`p-4`}
               >
-                <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-                  <ThemedText type="body1" numberOfLines={1}>
-                    {item.name}
-                  </ThemedText>
-                  <ThemedText type="small" style={tw`text-gray-500`}>
-                    {t("currentStock")}:{" "}
-                    {t("quantityWithUnit", { quantity: item.quantity, unit })}
-                  </ThemedText>
+                <ThemedView
+                  style={tw`flex-row items-center justify-between gap-3 bg-transparent`}
+                >
+                  <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+                    <ThemedText type="body1" numberOfLines={1}>
+                      {item.name}
+                    </ThemedText>
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {t("currentStock")}:{" "}
+                      {t("quantityWithUnit", { quantity: item.quantity, unit })}
+                    </ThemedText>
+                  </ThemedView>
+                  {quantity ? (
+                    <Label
+                      text={`+${t("quantityWithUnit", { quantity, unit })}`}
+                      color="success"
+                      size="small"
+                    />
+                  ) : (
+                    <Ionicons
+                      name="add-circle-outline"
+                      size={24}
+                      color={tw.color("gray-400")}
+                    />
+                  )}
                 </ThemedView>
-                {quantity ? (
-                  <Label
-                    text={`+${t("quantityWithUnit", { quantity, unit })}`}
-                    color="success"
-                    size="small"
-                  />
-                ) : (
-                  <Ionicons
-                    name="add-circle-outline"
-                    size={24}
-                    color={tw.color("gray-400")}
-                  />
-                )}
-              </ThemedView>
-            </Card>
+              </Card>
+            </ThemedView>
           );
         })}
       </ScrollView>
 
-      {lines.length > 0 && (
+      {!isExpanded && lines.length > 0 && (
         <ThemedView style={tw`px-4 pb-2 pt-2 bg-transparent`}>
           <Button
             leftIcon="cart-outline"
@@ -193,5 +223,21 @@ export default function MenuInventoryPurchaseItemsScreen() {
         onClose={() => setTarget(null)}
       />
     </ScreenLayout>
+  );
+
+  if (!isExpanded) return picker;
+
+  return (
+    <ThemedView style={tw`flex-1 flex-row bg-light-background`}>
+      <ThemedView style={tw`flex-1`}>{picker}</ThemedView>
+      <ThemedView
+        style={[
+          tw`border-l border-light-outline-variant`,
+          { width: CART_PANEL_WIDTH },
+        ]}
+      >
+        <PurchaseCartPanel embedded />
+      </ThemedView>
+    </ThemedView>
   );
 }
