@@ -31,12 +31,39 @@ import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-s
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { formatCurrency } from "@/core/i18n/utils";
-import type { ProductOption } from "@/core/menu/models/product-optionl.model";
+import {
+  getProductOptionAvailableQuantity,
+  getProductOptionStockLevel,
+  type ProductOption,
+} from "@/core/menu/models/product-optionl.model";
 import { getProductDefaultOption } from "@/core/menu/models/product.model";
 import { typography } from "@/constants/theme";
 import { getWholeProductLine } from "@/core/inventory/models/inventory-recipe.model";
 import OptionInventorySection from "@/presentation/inventory/components/option-inventory-section";
 import WholeProductInventoryModal from "@/presentation/inventory/components/whole-product-inventory-modal";
+
+const STOCK_TEXT_COLOR = {
+  ok: "text-gray-500",
+  low: "text-orange-700",
+  out: "text-red-700",
+};
+
+// Units still deliverable for a variant linked to inventory; renders nothing
+// for a variant that doesn't track stock.
+function OptionStockLeft({ option }: { option: ProductOption }) {
+  const { t } = useTranslation("menu");
+  const available = getProductOptionAvailableQuantity(option);
+  const level = getProductOptionStockLevel(option, available);
+  if (!level) return null;
+
+  return (
+    <ThemedText type="small" style={tw`${STOCK_TEXT_COLOR[level]}`}>
+      {level === "out"
+        ? t("product.stock.out")
+        : t("product.stock.left", { count: available ?? 0 })}
+    </ThemedText>
+  );
+}
 
 export default function MenuProductDetailScreen() {
   const { t } = useTranslation("menuManagement");
@@ -510,16 +537,16 @@ export default function MenuProductDetailScreen() {
                           )
                         }
                       >
-                        <ThemedText
-                          type="body1"
-                          style={[
-                            tw`flex-1`,
-                            { fontFamily: typography.semibold },
-                          ]}
-                          numberOfLines={1}
-                        >
-                          {option.name}
-                        </ThemedText>
+                        <ThemedView style={tw`flex-1 gap-0.5 bg-transparent`}>
+                          <ThemedText
+                            type="body1"
+                            style={{ fontFamily: typography.semibold }}
+                            numberOfLines={1}
+                          >
+                            {option.name}
+                          </ThemedText>
+                          <OptionStockLeft option={option} />
+                        </ThemedView>
                         <ThemedText
                           type="body1"
                           style={{ fontFamily: typography.regular }}

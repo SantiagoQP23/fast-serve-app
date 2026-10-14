@@ -409,8 +409,12 @@ export default function MenuOverviewScreen() {
                   {/* /> */}
                   <ThemedView style={tw`flex-1 gap-2`}>
                     <ThemedText type="body1">{product.name}</ThemedText>
-                    <ThemedText type="small" style={tw`text-gray-500`}>
-                      ${(getProductDefaultOption(product)?.price ?? 0).toFixed(2)}
+                    <ThemedText type="body2" style={tw`text-gray-500`}>
+                      {product.options.length > 1
+                        ? product.options
+                            .map((option) => option.name)
+                            .join(" - ")
+                        : `$${(getProductDefaultOption(product)?.price ?? 0).toFixed(2)}`}
                     </ThemedText>
                   </ThemedView>
                 </ThemedView>

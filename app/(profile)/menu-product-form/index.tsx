@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -23,7 +23,6 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
-import ButtonGroup from "@/presentation/theme/components/button-group";
 import TextInput from "@/presentation/theme/components/text-input";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import Card from "@/presentation/theme/components/card";
@@ -91,7 +90,6 @@ const buildProductSchema = (t: (key: string) => string) =>
     });
 
 type ProductFormData = z.infer<ReturnType<typeof buildProductSchema>>;
-type PricingMode = "unique" | "variants";
 type VariantDraft = { name: string; price: string; isDefault: boolean };
 
 const emptyVariantDraft: VariantDraft = {
@@ -123,7 +121,6 @@ export default function MenuProductFormScreen() {
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
-  const [pricingMode, setPricingMode] = useState<PricingMode>("unique");
   const [editingVariantIndex, setEditingVariantIndex] = useState<number | null>(
     null,
   );
@@ -152,6 +149,7 @@ export default function MenuProductFormScreen() {
     control,
     handleSubmit,
     trigger,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormData>({
     resolver: zodResolver(schema),
@@ -172,16 +170,35 @@ export default function MenuProductFormScreen() {
     name: "options",
   });
 
+  // Areas known when the user left to create one; the first area missing from
+  // this set once they come back is the new one.
+  const knownAreaIdsRef = useRef<Set<number> | null>(null);
+
+  const handleCreateProductionArea = () => {
+    knownAreaIdsRef.current = new Set(productionAreas.map((area) => area.id));
+    router.push("/(profile)/production-area-form");
+  };
+
+  useEffect(() => {
+    const knownAreaIds = knownAreaIdsRef.current;
+    if (!knownAreaIds) return;
+    const createdArea = productionAreas.find(
+      (area) => !knownAreaIds.has(area.id),
+    );
+    if (!createdArea) return;
+    knownAreaIdsRef.current = null;
+    setValue("productionAreaId", String(createdArea.id), {
+      shouldValidate: true,
+    });
+  }, [productionAreas, setValue]);
+
   const animateLayout = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
   };
 
-  const handlePricingModeChange = (mode: PricingMode) => {
+  const handleUseSinglePrice = () => {
     animateLayout();
-    setPricingMode(mode);
-    if (mode === "unique" && fields.length > 0) {
-      remove();
-    }
+    remove();
   };
 
   const handleRemoveVariant = (index: number) => {
@@ -253,7 +270,7 @@ export default function MenuProductFormScreen() {
     closeVariantSheet();
   };
 
-  const handleNext = async () => {
+  const handleManageVariants = async () => {
     const valid = await trigger([
       "name",
       "description",
@@ -324,18 +341,13 @@ export default function MenuProductFormScreen() {
     value: String(area.id),
   }));
 
-  const pricingModeOptions = [
-    { label: t("products.pricingMode.unique"), value: "unique" },
-    { label: t("products.pricingMode.variants"), value: "variants" },
-  ];
-
   const isOnlyVariant =
     editingVariantIndex === null ? fields.length === 0 : fields.length === 1;
 
   const isCreateDisabled =
     isSubmitting ||
     createProduct.isPending ||
-    (pricingMode === "variants" && fields.length === 0);
+    (step === 2 && fields.length === 0);
 
   return (
     <KeyboardAvoidingView
@@ -466,6 +478,10 @@ export default function MenuProductFormScreen() {
                         options={productionAreaOptions}
                         value={value}
                         onChange={(v) => onChange(String(v))}
+                        headerAction={{
+                          label: t("productionAreas:newArea"),
+                          onPress: handleCreateProductionArea,
+                        }}
                       />
                     )}
                   />
@@ -477,6 +493,68 @@ export default function MenuProductFormScreen() {
                       {errors.productionAreaId.message}
                     </ThemedText>
                   )}
+
+                  {fields.length === 0 ? (
+                    <ThemedView style={tw`flex-row items-start gap-2`}>
+                      <ThemedView style={tw`flex-1`}>
+                        <Controller
+                          control={control}
+                          name="price"
+                          render={({ field: { onChange, onBlur, value } }) => (
+                            <TextInput
+                              label={t("products.fields.price")}
+                              icon="pricetag-outline"
+                              placeholder={t("products.placeholders.price")}
+                              onBlur={onBlur}
+                              value={value}
+                              onChangeText={onChange}
+                              keyboardType="decimal-pad"
+                              error={errors.price?.message}
+                            />
+                          )}
+                        />
+                      </ThemedView>
+                      <Button
+                        label={t("products.byVariants")}
+                        leftIcon="options-outline"
+                        variant="outline"
+                        onPress={handleManageVariants}
+                        style={tw`h-14 px-4`}
+                      />
+                    </ThemedView>
+                  ) : (
+                    <ThemedView style={tw`gap-2`}>
+                      <Card onPress={handleManageVariants}>
+                        <ThemedView
+                          style={tw`flex-row items-center justify-between gap-3`}
+                        >
+                          <ThemedView style={tw`flex-1 gap-1`}>
+                            <ThemedText type="body1" style={tw`font-semibold`}>
+                              {t("products.variants.title")}
+                            </ThemedText>
+                            <ThemedText
+                              type="body2"
+                              style={tw`text-gray-500`}
+                              numberOfLines={1}
+                            >
+                              {fields.map((field) => field.name).join(" - ")}
+                            </ThemedText>
+                          </ThemedView>
+                          <Ionicons
+                            name="chevron-forward-outline"
+                            size={20}
+                            color={tw.color("gray-400")}
+                          />
+                        </ThemedView>
+                      </Card>
+                      <Button
+                        label={t("products.useSinglePrice")}
+                        variant="text"
+                        size="small"
+                        onPress={handleUseSinglePrice}
+                      />
+                    </ThemedView>
+                  )}
                 </>
               )}
             </ThemedView>
@@ -484,108 +562,70 @@ export default function MenuProductFormScreen() {
 
           {!isEditing && step === 2 && (
             <ThemedView style={tw`gap-4`}>
-              <ThemedView style={tw`gap-2`}>
-                <ThemedText type="small" style={tw`ml-2`}>
-                  {t("products.fields.pricingMode")}
+              <ThemedView style={tw`flex-row items-center justify-between`}>
+                <ThemedText type="h4">
+                  {t("products.variants.title")}
                 </ThemedText>
-                <ButtonGroup
-                  options={pricingModeOptions}
-                  selected={pricingMode}
-                  onChange={handlePricingModeChange}
+                <Button
+                  label={t("products.variants.addVariant")}
+                  onPress={openAddVariant}
+                  variant="outline"
+                  size="extra-small"
+                  leftIcon="add-outline"
                 />
               </ThemedView>
 
-              {pricingMode === "unique" ? (
-                <Controller
-                  control={control}
-                  name="price"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      label={t("products.fields.price")}
-                      icon="pricetag-outline"
-                      placeholder={t("products.placeholders.price")}
-                      onBlur={onBlur}
-                      value={value}
-                      onChangeText={onChange}
-                      keyboardType="decimal-pad"
-                      error={errors.price?.message}
-                    />
-                  )}
-                />
+              {fields.length === 0 ? (
+                <ThemedView
+                  style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+                >
+                  <Ionicons
+                    name="options-outline"
+                    size={32}
+                    color={tw.color("gray-400")}
+                  />
+                  <ThemedText
+                    type="body2"
+                    style={tw`text-center text-gray-500`}
+                  >
+                    {t("products.variants.empty")}
+                  </ThemedText>
+                </ThemedView>
               ) : (
-                <ThemedView style={tw`gap-4`}>
-                  <ThemedView style={tw`flex-row items-center justify-between`}>
-                    <ThemedText type="h4">
-                      {t("products.variants.title")}
-                    </ThemedText>
-                    <Button
-                      label={t("products.variants.addVariant")}
-                      onPress={openAddVariant}
-                      variant="outline"
-                      size="extra-small"
-                      leftIcon="add-outline"
-                    />
-                  </ThemedView>
-
-                  {fields.length === 0 ? (
-                    <ThemedView
-                      style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+                <ThemedView style={tw`gap-3`}>
+                  {fields.map((field, index) => (
+                    <SwipeableRow
+                      key={field.id}
+                      onEdit={() => openEditVariant(index)}
+                      onDelete={() => handleRemoveVariant(index)}
                     >
-                      <Ionicons
-                        name="options-outline"
-                        size={32}
-                        color={tw.color("gray-400")}
-                      />
-                      <ThemedText
-                        type="body2"
-                        style={tw`text-center text-gray-500`}
-                      >
-                        {t("products.variants.empty")}
-                      </ThemedText>
-                    </ThemedView>
-                  ) : (
-                    <ThemedView style={tw`gap-3`}>
-                      {fields.map((field, index) => (
-                        <SwipeableRow
-                          key={field.id}
-                          onEdit={() => openEditVariant(index)}
-                          onDelete={() => handleRemoveVariant(index)}
+                      <Card onPress={() => openEditVariant(index)}>
+                        <ThemedView
+                          style={tw`flex-row items-center justify-between gap-3`}
                         >
-                          <Card onPress={() => openEditVariant(index)}>
-                            <ThemedView
-                              style={tw`flex-row items-center justify-between gap-3`}
-                            >
-                              <ThemedView style={tw`gap-1`}>
-                                <ThemedText
-                                  type="body1"
-                                  style={tw`font-semibold`}
-                                >
-                                  {field.name ||
-                                    t("products.variants.variantNumber", {
-                                      number: index + 1,
-                                    })}
-                                </ThemedText>
-                                <ThemedText
-                                  type="body2"
-                                  style={tw`text-gray-500`}
-                                >
-                                  {formatCurrency(Number(field.price) || 0)}
-                                </ThemedText>
-                              </ThemedView>
-                              {field.isDefault && (
-                                <Label
-                                  text={t("products.variants.fields.isDefault")}
-                                  size="small"
-                                  color="outline"
-                                  leftIcon="checkmark-circle-outline"
-                                />
-                              )}
-                            </ThemedView>
-                          </Card>
-                        </SwipeableRow>
-                      ))}
-                    </ThemedView>
-                  )}
+                          <ThemedView style={tw`gap-1`}>
+                            <ThemedText type="body1" style={tw`font-semibold`}>
+                              {field.name ||
+                                t("products.variants.variantNumber", {
+                                  number: index + 1,
+                                })}
+                            </ThemedText>
+                            <ThemedText type="body2" style={tw`text-gray-500`}>
+                              {formatCurrency(Number(field.price) || 0)}
+                            </ThemedText>
+                          </ThemedView>
+                          {field.isDefault && (
+                            <Label
+                              text={t("products.variants.fields.isDefault")}
+                              size="small"
+                              color="outline"
+                              leftIcon="checkmark-circle-outline"
+                            />
+                          )}
+                        </ThemedView>
+                      </Card>
+                    </SwipeableRow>
+                  ))}
                 </ThemedView>
               )}
             </ThemedView>
@@ -597,19 +637,19 @@ export default function MenuProductFormScreen() {
         <ThemedView
           style={tw`absolute bottom-0 left-0 right-0 bg-light-background dark:bg-black  px-4 py-4`}
         >
-          {step === 1 ? (
-            <Button label={t("next")} onPress={handleNext} />
-          ) : (
-            <ThemedView style={tw`flex-row gap-3 justify-between`}>
+          <ThemedView
+            style={tw`flex-row gap-3 ${step === 1 ? "justify-end" : "justify-between"}`}
+          >
+            {step === 2 && (
               <Button label={t("back")} onPress={handleBack} variant="text" />
-              <Button
-                label={t("products.create")}
-                onPress={handleSubmit(onSubmit)}
-                loading={isSubmitting || createProduct.isPending}
-                disabled={isCreateDisabled}
-              />
-            </ThemedView>
-          )}
+            )}
+            <Button
+              label={t("products.create")}
+              onPress={handleSubmit(onSubmit)}
+              loading={isSubmitting || createProduct.isPending}
+              disabled={isCreateDisabled}
+            />
+          </ThemedView>
         </ThemedView>
       )}
 
