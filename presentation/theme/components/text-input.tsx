@@ -28,6 +28,7 @@ const LABEL_FLOAT_POSITION = 9;
 const LABEL_REST_SIZE = 16;
 const LABEL_FLOAT_SIZE = 11;
 const INPUT_MARGIN_TOP = 25;
+const ERROR_ICON_SIZE = 22;
 
 interface Props extends TextInputProps {
   label?: string;
@@ -193,6 +194,14 @@ function TextInput(
           <View style={{ marginLeft: 8, alignSelf: "center" }}>
             {leftIcon}
           </View>
+        )}
+        {!!error && (
+          <Ionicons
+            name="alert-circle"
+            size={ERROR_ICON_SIZE}
+            color={tw.color("red-500")}
+            style={{ marginLeft: 8, marginRight: 4, alignSelf: "center" }}
+          />
         )}
       </View>
       {error && (
