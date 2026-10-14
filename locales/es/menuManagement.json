@@ -116,6 +116,7 @@
       "price": "Precio",
       "category": "Categoría",
       "productionArea": "Área de producción",
+      "pricingMode": "Precio",
       "isActive": "Activo",
       "isPublic": "Visible para los clientes",
       "trackStock": "Controlar stock",
@@ -129,8 +130,10 @@
       "productionArea": "Selecciona un área de producción",
       "quantity": "0"
     },
-    "byVariants": "Por variantes",
-    "useSinglePrice": "Usar un solo precio",
+    "pricingMode": {
+      "unique": "Precio único",
+      "variants": "Tiene variantes"
+    },
     "validations": {
       "nameMinLength": "El nombre debe tener al menos 2 caracteres",
       "nameMaxLength": "El nombre debe tener máximo 80 caracteres",
