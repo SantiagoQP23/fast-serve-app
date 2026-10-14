@@ -51,6 +51,10 @@ import TableSelectorBottomSheet, {
   type TableSelectorBottomSheetRef,
 } from "@/presentation/orders/components/table-selector-bottom-sheet";
 import EditNoteBottomSheet from "@/presentation/orders/components/edit-note-bottom-sheet";
+import { Order } from "@/core/orders/models/order.model";
+import MergeOrderBottomSheet, {
+  type MergeOrderBottomSheetRef,
+} from "@/presentation/orders/components/merge-order-bottom-sheet";
 import CloseOrderModal from "@/presentation/orders/components/close-order-modal";
 
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -87,6 +91,10 @@ export default function OrderScreen() {
   const init = useEditOrderCartStore((state) => state.init);
   const { mutate: updateOrder, isOnline, isLoading } = useOrders().updateOrder;
   const { mutate: deleteOrder } = useOrders().deleteOrder;
+  const { mutate: mergeOrder } = useOrders().mergeOrder;
+  const hasOtherOpenOrders = useOrdersStore((state) =>
+    state.orders.some((o) => o.id !== order?.id && !o.isClosed),
+  );
   const { markDelivered } = useMarkOrderDelivered();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -141,6 +149,7 @@ export default function OrderScreen() {
   const reassignBottomSheetRef = useRef<ReassignOrderBottomSheetRef>(null);
   const editPeopleBottomSheetRef = useRef<BottomSheetMethods>(null);
   const tableSelectorBottomSheetRef = useRef<TableSelectorBottomSheetRef>(null);
+  const mergeOrderBottomSheetRef = useRef<MergeOrderBottomSheetRef>(null);
   const editNoteBottomSheetRef = useRef<BottomSheetMethods>(null);
   const moreOptionsSheetRef = useRef<BottomSheetMethods>(null);
 
@@ -523,6 +532,37 @@ export default function OrderScreen() {
     handlePresentTableSelector();
   };
 
+  const handleMergeFromMenu = () => {
+    moreOptionsSheetRef.current?.dismiss();
+    mergeOrderBottomSheetRef.current?.present();
+  };
+
+  const confirmMergeOrder = (target: Order) => {
+    i18nAlert(
+      t("orders:merge.confirmTitle"),
+      t("orders:merge.confirmMessage", {
+        source: order.num,
+        target: target.num,
+      }),
+      [
+        { text: t("common:actions.cancel"), style: "cancel" },
+        {
+          text: t("orders:merge.confirm"),
+          onPress: () =>
+            mergeOrder(
+              { sourceOrderId: order.id, targetOrderId: target.id },
+              {
+                onSuccess: (resp) => {
+                  if (resp.data?.order)
+                    router.replace(`/(order)/${resp.data.order.num}`);
+                },
+              },
+            ),
+        },
+      ],
+    );
+  };
+
   const handleAddNoteFromMenu = () => {
     moreOptionsSheetRef.current?.dismiss();
     handlePresentEditNoteModal();
@@ -592,6 +632,15 @@ export default function OrderScreen() {
                 icon: "grid-outline" as const,
                 label: t("orders:options.changeTable"),
                 onPress: handleChangeTableFromMenu,
+              },
+            ]
+          : []),
+        ...(hasOtherOpenOrders
+          ? [
+              {
+                icon: "git-merge-outline" as const,
+                label: t("orders:options.mergeOrder"),
+                onPress: handleMergeFromMenu,
               },
             ]
           : []),
@@ -1277,6 +1326,12 @@ export default function OrderScreen() {
           if (selected.id === order.table?.id) return;
           updateOrder({ id: order.id, tableId: selected.id });
         }}
+      />
+
+      <MergeOrderBottomSheet
+        ref={mergeOrderBottomSheetRef}
+        order={order}
+        onSelectOrder={confirmMergeOrder}
       />
 
       <ThemedBottomSheetModal ref={editNoteBottomSheetRef} enablePanDownToClose>
