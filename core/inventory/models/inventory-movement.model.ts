@@ -35,7 +35,22 @@ export interface InventoryMovement {
   note: string | null;
   createdAt: string;
   inventoryItem?: { id: string; name: string; unit: string };
-  createdBy?: { id: string; firstName?: string; lastName?: string };
+  /** Null for movements the system recorded (e.g. order-driven ones). */
+  createdBy?: {
+    id: string;
+    username?: string;
+    person?: { firstName?: string; lastName?: string } | null;
+  } | null;
+}
+
+export function getMovementCreatorName(
+  movement: InventoryMovement,
+): string | null {
+  const person = movement.createdBy?.person;
+  const fullName = [person?.firstName, person?.lastName]
+    .filter(Boolean)
+    .join(" ");
+  return fullName || movement.createdBy?.username || null;
 }
 
 export interface DailyConsumption {

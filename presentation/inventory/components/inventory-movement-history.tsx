@@ -7,6 +7,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import {
+  getMovementCreatorName,
   InventoryMovementType,
   type InventoryMovement,
 } from "@/core/inventory/models/inventory-movement.model";
@@ -139,6 +140,8 @@ export default function InventoryMovementHistory({
                 ? false
                 : movement.quantity >= 0;
 
+            const creator = getMovementCreatorName(movement);
+
             return (
               <ThemedView
                 style={tw`flex-row items-center justify-between bg-transparent`}
@@ -172,6 +175,15 @@ export default function InventoryMovementHistory({
                       {dayjs(movement.createdAt).format("MMM D, HH:mm")}
                       {movement.note ? ` · ${movement.note}` : ""}
                     </ThemedText>
+                    {creator && (
+                      <ThemedText
+                        type="small"
+                        style={tw`text-gray-500`}
+                        numberOfLines={1}
+                      >
+                        {t("detail.movementBy", { name: creator })}
+                      </ThemedText>
+                    )}
                   </ThemedView>
                 </ThemedView>
                 <ThemedView style={tw`items-end gap-0.5 bg-transparent`}>

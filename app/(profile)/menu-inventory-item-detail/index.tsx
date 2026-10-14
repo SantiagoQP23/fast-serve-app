@@ -131,10 +131,7 @@ export default function MenuInventoryItemDetailScreen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw.style(
-          "px-4 gap-4 pt-2",
-          canManage ? "pb-28" : "pb-8",
-        )}
+        contentContainerStyle={tw`px-4 gap-4 pt-2 pb-28`}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -189,8 +186,8 @@ export default function MenuInventoryItemDetailScreen() {
         )}
       </ScrollView>
 
-      {/* Floating Actions */}
-      {canManage && item && (
+      {/* Floating Actions — stock movements are open to every role */}
+      {item && (
         <View style={tw`absolute bottom-6 left-4 right-4`}>
           <ThemedView
             style={tw`flex-row gap-3 bg-light-surface rounded-3xl p-2 shadow-sm`}
