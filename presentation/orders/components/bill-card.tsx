@@ -35,9 +35,11 @@ interface BillCardItem {
 
 interface BillCardProps extends PressableProps {
   bill: Bill;
+  /** Highlights the bill open in the detail pane (tablet). */
+  active?: boolean;
 }
 
-export default function BillCard({ onPress, bill }: BillCardProps) {
+export default function BillCard({ onPress, bill, active }: BillCardProps) {
   const { t } = useTranslation(["common", "bills"]);
   const date = dayjs(bill.createdAt).isSame(dayjs(), "day")
     ? `${t("common:time.today")}, ${dayjs(bill.createdAt).format("HH:mm")}`
@@ -49,7 +51,11 @@ export default function BillCard({ onPress, bill }: BillCardProps) {
     bill.createdBy && bill.owner && bill.createdBy.id !== bill.owner.id;
 
   return (
-    <Card onPress={onPress} style={tw`px-4  `} variant="outline">
+    <Card
+      onPress={onPress}
+      style={tw.style("px-4", active && "bg-light-secondary")}
+      variant="outline"
+    >
       <ThemedView style={tw`bg-transparent gap-3`}>
         {/* Header: Bill number and status */}
 

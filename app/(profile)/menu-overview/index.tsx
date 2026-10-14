@@ -29,10 +29,13 @@ import {
   type Product,
 } from "@/core/menu/models/product.model";
 import { typography } from "@/constants/theme";
+import MenuProductDetailView from "@/presentation/menu-management/components/menu-product-detail-view";
+import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
+
+const PRODUCT_PANE_WIDTH = 600;
 
 type SelectedEntity =
-  | { type: "section"; item: Section }
-  | { type: "category"; item: Category };
+  { type: "section"; item: Section } | { type: "category"; item: Category };
 
 export default function MenuOverviewScreen() {
   const { t } = useTranslation("menuManagement");
@@ -56,6 +59,12 @@ export default function MenuOverviewScreen() {
     null,
   );
   const actionsSheetRef = useRef<BottomSheetMethods>(null);
+
+  // Tablet landscape: the selected product opens in a pane next to the menu
+  const { isExpanded } = useResponsiveLayout();
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
+    null,
+  );
 
   const sortedSections = useMemo(
     () => sections.slice().sort((a, b) => a.order - b.order),
@@ -221,6 +230,10 @@ export default function MenuOverviewScreen() {
   };
 
   const openProduct = (product: Product) => {
+    if (isExpanded) {
+      setSelectedProductId(product.id);
+      return;
+    }
     router.push({
       pathname: "/(profile)/menu-product-detail",
       params: { productId: product.id },
@@ -264,8 +277,8 @@ export default function MenuOverviewScreen() {
     );
   }
 
-  return (
-    <ScreenLayout style={tw`px-4 pt-2 flex-1 gap-4`}>
+  const menu = (
+    <ScreenLayout fullWidth={isExpanded} style={tw`px-4 pt-2 flex-1 gap-4`}>
       {isLoading && sections.length === 0 && (
         <ThemedView style={tw`items-center py-8 gap-3`}>
           <Ionicons name="restaurant-outline" size={48} color="#999" />
@@ -398,7 +411,12 @@ export default function MenuOverviewScreen() {
             <Card
               key={product.id}
               onPress={() => openProduct(product)}
-              style={!product.isActive && tw`opacity-50`}
+              style={tw.style(
+                !product.isActive && "opacity-50",
+                isExpanded &&
+                  selectedProductId === product.id &&
+                  "bg-light-secondary",
+              )}
             >
               <ThemedView style={tw`flex-row items-center justify-between`}>
                 <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
@@ -525,5 +543,41 @@ export default function MenuOverviewScreen() {
         onCancel={() => setCategoryToDelete(null)}
       />
     </ScreenLayout>
+  );
+
+  if (!isExpanded) return menu;
+
+  return (
+    <ThemedView style={tw`flex-1 flex-row bg-light-background`}>
+      <ThemedView style={tw`flex-1`}>{menu}</ThemedView>
+      <ThemedView
+        style={[
+          tw`border-l border-light-outline-variant`,
+          { width: PRODUCT_PANE_WIDTH },
+        ]}
+      >
+        {selectedProductId ? (
+          <MenuProductDetailView
+            key={selectedProductId}
+            productId={selectedProductId}
+            embedded
+            onClose={() => setSelectedProductId(null)}
+            onOpenProduct={setSelectedProductId}
+          />
+        ) : (
+          <ThemedView style={tw`flex-1 items-center justify-center gap-4 px-8`}>
+            <Ionicons
+              name="fast-food-outline"
+              size={64}
+              color={tw.color("gray-400")}
+            />
+            <ThemedText type="h3">{t("overview.pane.emptyTitle")}</ThemedText>
+            <ThemedText type="body2" style={tw`text-center max-w-xs`}>
+              {t("overview.pane.emptyDescription")}
+            </ThemedText>
+          </ThemedView>
+        )}
+      </ThemedView>
+    </ThemedView>
   );
 }

@@ -183,6 +183,10 @@
       "completed": "Completado",
       "rejected": "Rechazado",
       "cancelled": "Cancelado"
+    },
+    "pane": {
+      "emptyTitle": "Selecciona una transacción",
+      "emptyDescription": "Toca una transacción para ver sus detalles y comprobantes aquí."
     }
   }
 }

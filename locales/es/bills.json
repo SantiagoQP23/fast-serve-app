@@ -145,5 +145,9 @@
     "requestApproval": "Enviar solicitud de aprobación",
     "autoApproveHint": "El pago se aprobará automáticamente",
     "autoApproved": "Transferencia aprobada"
+  },
+  "pane": {
+    "emptyTitle": "Selecciona una venta",
+    "emptyDescription": "Toca una venta para ver sus productos y pagos aquí."
   }
 }

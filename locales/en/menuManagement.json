@@ -10,6 +10,10 @@
       "loading": "Loading...",
       "retry": "Retry",
       "error": "Failed to load menu. Please try again."
+    },
+    "pane": {
+      "emptyTitle": "Select a product",
+      "emptyDescription": "Tap a product to see its variants, inventory and settings here."
     }
   },
   "sections": {

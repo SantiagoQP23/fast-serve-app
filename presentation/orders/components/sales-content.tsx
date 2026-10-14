@@ -40,10 +40,21 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { typography } from "@/constants/theme";
+import type { Bill } from "@/core/orders/models/bill.model";
 
 const STORAGE_KEY = "sales_selected_date";
 
-export default function SalesContent() {
+interface SalesContentProps {
+  /** Overrides navigating to the bill screen, e.g. to open a side pane. */
+  onOpenBill?: (bill: Bill) => void;
+  /** Bill currently shown in the side pane. */
+  activeBillId?: number;
+}
+
+export default function SalesContent({
+  onOpenBill,
+  activeBillId,
+}: SalesContentProps = {}) {
   const { t } = useTranslation(["bills", "common", "errors"]);
   const router = useRouter();
   const primaryColor = useThemeColor({}, "primary");
@@ -126,10 +137,11 @@ export default function SalesContent() {
   }, [refetch, t]);
 
   const handleBillPress = useCallback(
-    (bill: any) => {
-      router.push(`/(bills)/${bill.id}`);
+    (bill: Bill) => {
+      if (onOpenBill) onOpenBill(bill);
+      else router.push(`/(bills)/${bill.id}`);
     },
-    [router],
+    [router, onOpenBill],
   );
 
   const handleOpenFilters = useCallback(() => {
@@ -282,6 +294,7 @@ export default function SalesContent() {
                 <BillCard
                   key={bill.id}
                   bill={bill}
+                  active={bill.id === activeBillId}
                   onPress={() => handleBillPress(bill)}
                 />
               ))}

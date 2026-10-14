@@ -44,11 +44,18 @@ import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLa
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { OrderPaneContext } from "@/presentation/orders/context/order-pane.context";
 import OrderDetailView from "@/presentation/orders/components/order-detail-view";
+import BillDetailView from "@/presentation/orders/components/bill-detail-view";
 
 const ORDERS_LIST_PANE_WIDTH = 440;
 
 export default function MyOrdersScreen() {
-  const { t } = useTranslation(["common", "orders", "errors", "tables"]);
+  const { t } = useTranslation([
+    "common",
+    "orders",
+    "errors",
+    "tables",
+    "bills",
+  ]);
   const lastSequence = useSyncStore((state) => state.lastSequence);
   const byDeliveryTime = (a: Order, b: Order) =>
     (a.deliveryTime ? new Date(a.deliveryTime).getTime() : Infinity) -
@@ -80,11 +87,13 @@ export default function MyOrdersScreen() {
 
   const { setTable, setOrderType } = useNewOrderStore();
 
-  // Tablet landscape: orders list on the left, selected order on the right
+  // Tablet landscape: list on the left, the selected order or sale (bill) on
+  // the right
   const { isExpanded } = useResponsiveLayout();
   const showOrderPane = isExpanded && activeModule === "orders";
   const activeOrder = useOrdersStore((state) => state.activeOrder);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
+  const [selectedBillId, setSelectedBillId] = useState<number | null>(null);
 
   const [fabExpanded, setFabExpanded] = useState(true);
   const lastScrollY = useRef(0);
@@ -188,7 +197,7 @@ export default function MyOrdersScreen() {
     <ThemedView
       style={[
         tw`bg-light-background`,
-        showOrderPane ? { width: ORDERS_LIST_PANE_WIDTH } : tw`flex-1`,
+        isExpanded ? { width: ORDERS_LIST_PANE_WIDTH } : tw`flex-1`,
       ]}
     >
       {/* Fixed header with module toggle */}
@@ -228,7 +237,14 @@ export default function MyOrdersScreen() {
 
       {activeModule === "sales" && (
         <ThemedView style={tw`flex-1`}>
-          <SalesContent />
+          <SalesContent
+            activeBillId={
+              isExpanded ? (selectedBillId ?? undefined) : undefined
+            }
+            onOpenBill={
+              isExpanded ? (bill) => setSelectedBillId(bill.id) : undefined
+            }
+          />
         </ThemedView>
       )}
 
@@ -331,7 +347,17 @@ export default function MyOrdersScreen() {
     </ThemedView>
   );
 
-  if (!showOrderPane) return listPane;
+  if (!isExpanded) return listPane;
+
+  const emptyPane = (title: string, description: string) => (
+    <ThemedView style={tw`flex-1 items-center justify-center gap-4 px-8`}>
+      <Ionicons name="receipt-outline" size={64} color={tw.color("gray-400")} />
+      <ThemedText type="h3">{title}</ThemedText>
+      <ThemedText type="body2" style={tw`text-center max-w-xs`}>
+        {description}
+      </ThemedText>
+    </ThemedView>
+  );
 
   return (
     <ThemedView style={tw`flex-1 flex-row bg-light-background`}>
@@ -339,21 +365,28 @@ export default function MyOrdersScreen() {
         {listPane}
       </OrderPaneContext.Provider>
       <ThemedView style={tw`flex-1 border-l border-light-outline-variant`}>
-        {activeOrder ? (
+        {activeModule === "sales" ? (
+          selectedBillId != null ? (
+            <BillDetailView
+              key={selectedBillId}
+              billId={selectedBillId}
+              embedded
+              onClose={() => setSelectedBillId(null)}
+            />
+          ) : (
+            emptyPane(
+              t("bills:pane.emptyTitle"),
+              t("bills:pane.emptyDescription"),
+            )
+          )
+        ) : activeOrder ? (
           // Remount per order so per-order view state (tabs, selection) resets
           <OrderDetailView key={activeOrder.id} embedded />
         ) : (
-          <ThemedView style={tw`flex-1 items-center justify-center gap-4 px-8`}>
-            <Ionicons
-              name="receipt-outline"
-              size={64}
-              color={tw.color("gray-400")}
-            />
-            <ThemedText type="h3">{t("orders:pane.emptyTitle")}</ThemedText>
-            <ThemedText type="body2" style={tw`text-center max-w-xs`}>
-              {t("orders:pane.emptyDescription")}
-            </ThemedText>
-          </ThemedView>
+          emptyPane(
+            t("orders:pane.emptyTitle"),
+            t("orders:pane.emptyDescription"),
+          )
         )}
       </ThemedView>
     </ThemedView>

@@ -40,9 +40,12 @@ import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-b
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { GroupedList } from "@/presentation/theme/components/grouped-list";
 import Card from "@/presentation/theme/components/card";
+import TransactionDetailView from "@/presentation/transactions/components/transaction-detail-view";
+import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 
 const STORAGE_KEY = "incomes_selected_date";
 const FILTERS_STORAGE_KEY = "incomes_filters";
+const LIST_PANE_WIDTH = 440;
 
 export default function IncomesScreen() {
   const { t } = useTranslation(["common", "errors", "reports"]);
@@ -57,6 +60,12 @@ export default function IncomesScreen() {
   const queryClient = useQueryClient();
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
   const { paymentMethods } = usePaymentMethodsStore();
+
+  // Tablet landscape: transactions open in a pane next to the list
+  const { isExpanded } = useResponsiveLayout();
+  const [selectedTransactionId, setSelectedTransactionId] = useState<
+    number | null
+  >(null);
 
   const { user } = useAuthStore();
   const { users } = useUsers();
@@ -211,6 +220,10 @@ export default function IncomesScreen() {
   };
 
   const openTransactionDetail = (transaction: Transaction) => {
+    if (isExpanded) {
+      setSelectedTransactionId(transaction.id);
+      return;
+    }
     router.push(`/transaction/${transaction.id}`);
   };
 
@@ -260,8 +273,8 @@ export default function IncomesScreen() {
     ? formattedNetIncome
     : formattedNetIncome.replace(/\d/g, "*");
 
-  return (
-    <ScreenLayout style={tw`flex-1 pt-8`}>
+  const content = (
+    <>
       <ThemedView style={tw`px-4 mb-6`}>
         <ThemedText type="h2">{t("common:navigation.incomes")}</ThemedText>
       </ThemedView>
@@ -472,6 +485,7 @@ export default function IncomesScreen() {
                     renderItem={(item) => (
                       <TransactionCard
                         transaction={item}
+                        active={isExpanded && item.id === selectedTransactionId}
                         onPress={() => openTransactionDetail(item)}
                       />
                     )}
@@ -533,6 +547,42 @@ export default function IncomesScreen() {
           isAdmin={isAdmin}
         />
       </ThemedBottomSheetModal>
+    </>
+  );
+
+  if (!isExpanded) {
+    return <ScreenLayout style={tw`flex-1 pt-8`}>{content}</ScreenLayout>;
+  }
+
+  return (
+    <ScreenLayout fullWidth style={tw`flex-1 flex-row`}>
+      <ThemedView style={[tw`pt-8`, { width: LIST_PANE_WIDTH }]}>
+        {content}
+      </ThemedView>
+      <ThemedView style={tw`flex-1 border-l border-light-outline-variant`}>
+        {selectedTransactionId != null ? (
+          <TransactionDetailView
+            key={selectedTransactionId}
+            transactionId={selectedTransactionId}
+            embedded
+            onClose={() => setSelectedTransactionId(null)}
+          />
+        ) : (
+          <ThemedView style={tw`flex-1 items-center justify-center gap-4 px-8`}>
+            <Ionicons
+              name="swap-vertical-outline"
+              size={64}
+              color={tw.color("gray-400")}
+            />
+            <ThemedText type="h3">
+              {t("common:transactions.pane.emptyTitle")}
+            </ThemedText>
+            <ThemedText type="body2" style={tw`text-center max-w-xs`}>
+              {t("common:transactions.pane.emptyDescription")}
+            </ThemedText>
+          </ThemedView>
+        )}
+      </ThemedView>
     </ScreenLayout>
   );
 }
