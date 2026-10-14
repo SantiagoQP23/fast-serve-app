@@ -69,6 +69,7 @@ import OrderBillsTab from "@/presentation/orders/components/order-bills-tab";
 import OrderTicketsTab from "@/presentation/orders/components/order-tickets-tab";
 import { typography } from "@/constants/theme";
 import Chip from "@/presentation/theme/components/chip";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
 
 dayjs.extend(relativeTime);
 
@@ -130,6 +131,8 @@ export default function OrderScreen() {
   const [activeTab, setActiveTab] = useState<"products" | "bills" | "tickets">(
     "products",
   );
+  const [mergeTarget, setMergeTarget] = useState<Order | null>(null);
+  const [mergeDialogVisible, setMergeDialogVisible] = useState(false);
   const [selectionRequested, setSelectionRequested] = useState(false);
   const [selectedDetailIds, setSelectedDetailIds] = useState<Set<string>>(
     new Set(),
@@ -538,28 +541,21 @@ export default function OrderScreen() {
   };
 
   const confirmMergeOrder = (target: Order) => {
-    i18nAlert(
-      t("orders:merge.confirmTitle"),
-      t("orders:merge.confirmMessage", {
-        source: order.num,
-        target: target.num,
-      }),
-      [
-        { text: t("common:actions.cancel"), style: "cancel" },
-        {
-          text: t("orders:merge.confirm"),
-          onPress: () =>
-            mergeOrder(
-              { sourceOrderId: order.id, targetOrderId: target.id },
-              {
-                onSuccess: (resp) => {
-                  if (resp.data?.order)
-                    router.replace(`/(order)/${resp.data.order.num}`);
-                },
-              },
-            ),
+    setMergeTarget(target);
+    setMergeDialogVisible(true);
+  };
+
+  const handleMergeOrder = () => {
+    if (!mergeTarget) return;
+    // Close the dialog first so it doesn't stack under the socket loader sheet
+    setMergeDialogVisible(false);
+    mergeOrder(
+      { sourceOrderId: order.id, targetOrderId: mergeTarget.id },
+      {
+        onSuccess: (resp) => {
+          if (resp.data?.order) router.replace(`/(order)/${resp.data.order.num}`);
         },
-      ],
+      },
     );
   };
 
@@ -1332,6 +1328,18 @@ export default function OrderScreen() {
         ref={mergeOrderBottomSheetRef}
         order={order}
         onSelectOrder={confirmMergeOrder}
+      />
+
+      <DialogModal
+        visible={mergeDialogVisible}
+        title={t("orders:merge.confirmTitle")}
+        message={t("orders:merge.confirmMessage", {
+          source: order.num,
+          target: mergeTarget?.num,
+        })}
+        confirmLabel={t("orders:merge.confirm")}
+        onConfirm={handleMergeOrder}
+        onCancel={() => setMergeDialogVisible(false)}
       />
 
       <ThemedBottomSheetModal ref={editNoteBottomSheetRef} enablePanDownToClose>
