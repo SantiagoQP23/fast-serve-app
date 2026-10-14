@@ -3,9 +3,9 @@ import {
   Modal,
   Pressable,
   Animated,
-  Dimensions,
   StyleSheet,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -49,6 +49,7 @@ export default function Popover({
 }: PopoverProps) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
+  const { width: screenWidth } = useWindowDimensions();
 
   const dividerColor = useThemeColor(
     { light: "#e5e7eb", dark: "#374151" },
@@ -82,8 +83,6 @@ export default function Popover({
   }, [visible]);
 
   if (!anchor) return null;
-
-  const { width: screenWidth } = Dimensions.get("window");
 
   // Position below and right-aligned to the anchor button
   let left = anchor.x + anchor.width - POPOVER_WIDTH;

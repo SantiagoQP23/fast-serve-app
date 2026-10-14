@@ -3,16 +3,17 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import {
-  Dimensions,
   FlatList,
   Pressable,
   ActivityIndicator,
+  useWindowDimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Order } from "@/core/orders/models/order.model";
 import ClosedOrderCard from "@/presentation/home/components/closed-order-card";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import Button from "@/presentation/theme/components/button";
+import { CAROUSEL_CARD_MAX_WIDTH } from "@/constants/breakpoints";
 
 interface CollapsibleOrderSectionProps {
   title: string;
@@ -35,7 +36,8 @@ export default function CollapsibleOrderSection({
 }: CollapsibleOrderSectionProps) {
   const { t } = useTranslation(["common", "orders"]);
   const [isExpanded, setIsExpanded] = useState(false);
-  const screenWidth = Dimensions.get("window").width;
+  const { width: screenWidth } = useWindowDimensions();
+  const cardWidth = Math.min(screenWidth * 0.85, CAROUSEL_CARD_MAX_WIDTH);
 
   const handleToggle = () => {
     if (!isExpanded && orders.length === 0 && !isLoading) {
@@ -84,7 +86,7 @@ export default function CollapsibleOrderSection({
                   <ThemedView
                     style={[
                       index !== orders.length - 1 && tw`mr-4`,
-                      { width: screenWidth * 0.85 },
+                      { width: cardWidth },
                     ]}
                   >
                     <ClosedOrderCard order={item} />

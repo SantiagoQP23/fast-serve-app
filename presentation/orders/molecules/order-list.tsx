@@ -3,8 +3,9 @@ import OrderCard from "@/presentation/home/components/order-card";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { Dimensions, FlatList } from "react-native";
+import { FlatList, useWindowDimensions } from "react-native";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { CAROUSEL_CARD_MAX_WIDTH } from "@/constants/breakpoints";
 
 export interface OrderListProps {
   orders: Order[];
@@ -12,7 +13,8 @@ export interface OrderListProps {
 }
 export default function OrderList({ title, orders }: OrderListProps) {
   const { t } = useTranslation(["common"]);
-  const screenWidth = Dimensions.get("window").width;
+  const { width: screenWidth } = useWindowDimensions();
+  const cardWidth = Math.min(screenWidth * 0.85, CAROUSEL_CARD_MAX_WIDTH);
   return (
     <>
       <ThemedView>
@@ -31,7 +33,7 @@ export default function OrderList({ title, orders }: OrderListProps) {
             <ThemedView
               style={[
                 index !== orders.length - 1 && tw`mr-4`,
-                { width: screenWidth * 0.85 },
+                { width: cardWidth },
               ]}
             >
               <OrderCard order={item} />

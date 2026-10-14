@@ -3,7 +3,7 @@ import OrderCard from "@/presentation/home/components/order-card";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { Dimensions, FlatList, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import { useMemo, useState } from "react";
@@ -21,7 +21,6 @@ export default function OrderListByStatus({
   showProducts = false,
 }: OrderListProps) {
   const { t } = useTranslation(["common"]);
-  const screenWidth = Dimensions.get("window").width;
 
   const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "all">(
     "all",

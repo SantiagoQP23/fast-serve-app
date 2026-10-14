@@ -40,6 +40,12 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import Button from "@/presentation/theme/components/button";
 import HomeViewOptionsBottomSheet from "@/presentation/orders/components/home-view-options-bottom-sheet";
 import { useScopedOrders } from "@/presentation/orders/hooks/useScopedOrders";
+import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
+import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { OrderPaneContext } from "@/presentation/orders/context/order-pane.context";
+import OrderDetailView from "@/presentation/orders/components/order-detail-view";
+
+const ORDERS_LIST_PANE_WIDTH = 440;
 
 export default function MyOrdersScreen() {
   const { t } = useTranslation(["common", "orders", "errors", "tables"]);
@@ -73,6 +79,12 @@ export default function MyOrdersScreen() {
   const { isLoading: isLoadingOrders, refetchOrders } = useActiveOrders();
 
   const { setTable, setOrderType } = useNewOrderStore();
+
+  // Tablet landscape: orders list on the left, selected order on the right
+  const { isExpanded } = useResponsiveLayout();
+  const showOrderPane = isExpanded && activeModule === "orders";
+  const activeOrder = useOrdersStore((state) => state.activeOrder);
+  const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
   const [fabExpanded, setFabExpanded] = useState(true);
   const lastScrollY = useRef(0);
@@ -132,9 +144,14 @@ export default function MyOrdersScreen() {
   }, [refetchOrders, t]);
 
   const handleTablePress = (table: Table) => {
-    const tableHasOrders = orders.some(
-      (order) => order.table?.id === table.id,
-    );
+    const tableOrders = orders.filter((order) => order.table?.id === table.id);
+    const tableHasOrders = tableOrders.length > 0;
+
+    // Tablet: a table with a single order opens it straight in the pane
+    if (showOrderPane && tableOrders.length === 1) {
+      setActiveOrder(tableOrders[0]);
+      return;
+    }
 
     if (tableHasOrders) {
       router.push({
@@ -167,8 +184,13 @@ export default function MyOrdersScreen() {
           icon: "bag-handle-outline" as const,
         };
 
-  return (
-    <ThemedView style={tw`flex-1 bg-light-background`}>
+  const listPane = (
+    <ThemedView
+      style={[
+        tw`bg-light-background`,
+        showOrderPane ? { width: ORDERS_LIST_PANE_WIDTH } : tw`flex-1`,
+      ]}
+    >
       {/* Fixed header with module toggle */}
       <ThemedView style={tw`px-4  `}>
         <ThemedView style={tw`flex-row items-center justify-between pt-8 mb-2`}>
@@ -306,6 +328,34 @@ export default function MyOrdersScreen() {
           />
         </>
       )}
+    </ThemedView>
+  );
+
+  if (!showOrderPane) return listPane;
+
+  return (
+    <ThemedView style={tw`flex-1 flex-row bg-light-background`}>
+      <OrderPaneContext.Provider value={true}>
+        {listPane}
+      </OrderPaneContext.Provider>
+      <ThemedView style={tw`flex-1 border-l border-light-outline-variant`}>
+        {activeOrder ? (
+          // Remount per order so per-order view state (tabs, selection) resets
+          <OrderDetailView key={activeOrder.id} embedded />
+        ) : (
+          <ThemedView style={tw`flex-1 items-center justify-center gap-4 px-8`}>
+            <Ionicons
+              name="receipt-outline"
+              size={64}
+              color={tw.color("gray-400")}
+            />
+            <ThemedText type="h3">{t("orders:pane.emptyTitle")}</ThemedText>
+            <ThemedText type="body2" style={tw`text-center max-w-xs`}>
+              {t("orders:pane.emptyDescription")}
+            </ThemedText>
+          </ThemedView>
+        )}
+      </ThemedView>
     </ThemedView>
   );
 }

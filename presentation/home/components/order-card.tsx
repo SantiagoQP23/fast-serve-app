@@ -19,6 +19,7 @@ import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPayme
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import { typography } from "@/constants/theme";
+import { useIsOrderPaneActive } from "@/presentation/orders/context/order-pane.context";
 
 interface OrderCardProps {
   order: Order;
@@ -43,15 +44,26 @@ export default function OrderCard({ order }: OrderCardProps) {
   // Get relative time
   const relativeTime = getRelativeTime(order.deliveryTime);
 
+  const isPaneActive = useIsOrderPaneActive();
+  const isSelected = useOrdersStore(
+    (state) => isPaneActive && state.activeOrder?.id === order.id,
+  );
+
   const openOrder = () => {
     setActiveOrder(order);
+    // Tablet: the order opens in the detail pane next to the list
+    if (isPaneActive) return;
     router.push(`/(order)/${order.num}`);
     // router.replace("/(new-order)/order-confirmation", { withAnchor: true });
   };
 
   return (
     <ThemedView style={tw`mb-8    `}>
-      <Card onPress={openOrder} style={tw` `} variant="outline">
+      <Card
+        onPress={openOrder}
+        style={isSelected ? tw`bg-light-secondary-container` : tw` `}
+        variant="outline"
+      >
         <ThemedView style={tw`gap-4 `}>
           {/* Header Section - Table Name */}
           <ThemedView style={tw`flex-row justify-between items-center`}>

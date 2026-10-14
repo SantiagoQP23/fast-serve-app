@@ -1,5 +1,12 @@
 import { BottomSheetView, BottomSheetFlatList } from "@expo/ui/community/bottom-sheet";
-import { View, Text, Alert, ButtonProps, Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  Alert,
+  ButtonProps,
+  useWindowDimensions,
+} from "react-native";
+import { CAROUSEL_CARD_MAX_WIDTH } from "@/constants/breakpoints";
 import { useCallback, useMemo, useState } from "react";
 import { OrderType, orderTypes } from "@/core/orders/enums/order-type.enum";
 import { Table } from "@/core/tables/models/table.model";
@@ -59,20 +66,21 @@ const TableOrdersBottomSheet = ({
   const deliveredOrders = orders.filter(
     (order) => order.status === "delivered",
   );
-  const screenWidth = Dimensions.get("window").width;
+  const { width: screenWidth } = useWindowDimensions();
+  const cardWidth = Math.min(screenWidth * 0.8, CAROUSEL_CARD_MAX_WIDTH);
 
   const renderOrderItem = useCallback(
     ({ item, index }: { item: Order; index: number }) => (
       <ThemedView
         style={[
           index !== deliveredOrders.length - 1 && tw`mr-4`,
-          { width: screenWidth * 0.8 },
+          { width: cardWidth },
         ]}
       >
         <OrderCard order={item} />
       </ThemedView>
     ),
-    [deliveredOrders.length, screenWidth],
+    [deliveredOrders.length, cardWidth],
   );
 
   return (

@@ -17,6 +17,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { Colors, typography } from "@/constants/theme";
+import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 
 export default function NewOrderLayout() {
   const { t } = useTranslation(["common", "menu"]);
@@ -48,6 +49,29 @@ export default function NewOrderLayout() {
     bottomSheetModalRef.current?.present();
   }, []);
 
+  const { isExpanded } = useResponsiveLayout();
+
+  const renderCartActions = () =>
+    cartType === "order" &&
+    !isEditMode && (
+      <ThemedView style={tw`flex-row items-center gap-2`}>
+        <Button
+          variant="surface"
+          leftIcon="trash-outline"
+          size="extra-small"
+          label={t("orders:newOrder.resetCart")}
+          onPress={openResetCartDialog}
+          disabled={details.length === 0}
+        />
+        <IconButton
+          icon="create-outline"
+          onPress={handlePresentModalPress}
+          size={18}
+          style={tw`bg-light-surface p-2`}
+        ></IconButton>
+      </ThemedView>
+    );
+
   return (
     <>
       <Stack
@@ -64,7 +88,10 @@ export default function NewOrderLayout() {
             title: t("menu:title"),
             headerShadowVisible: false,
             headerRight: () =>
-              order ? null : (
+              order ? null : isExpanded ? (
+                // Cart is shown beside the menu, so offer its actions here
+                renderCartActions()
+              ) : (
                 <ThemedView style={tw`relative`}>
                   <IconButton
                     icon="cart-outline"
@@ -108,26 +135,7 @@ export default function NewOrderLayout() {
             // headerBlurEffect: "systemChromeMaterialLight",
             headerShadowVisible: false,
             // headerLargeTitleShadowVisible: true,
-            headerRight: () =>
-              cartType === "order" &&
-              !isEditMode && (
-                <ThemedView style={tw`flex-row items-center gap-2`}>
-                  <Button
-                    variant="surface"
-                    leftIcon="trash-outline"
-                    size="extra-small"
-                    label={t("orders:newOrder.resetCart")}
-                    onPress={openResetCartDialog}
-                    disabled={details.length === 0}
-                  />
-                  <IconButton
-                    icon="create-outline"
-                    onPress={handlePresentModalPress}
-                    size={18}
-                    style={tw`bg-light-surface p-2`}
-                  ></IconButton>
-                </ThemedView>
-              ),
+            headerRight: renderCartActions,
           }}
         />
       </Stack>
