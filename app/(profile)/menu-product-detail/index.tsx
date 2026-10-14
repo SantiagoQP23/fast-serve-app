@@ -273,9 +273,10 @@ export default function MenuProductDetailScreen() {
 
   const handleOpenOptionInventoryItem = () => {
     if (!selectedOption) return;
-    const itemId = getWholeProductLine(
-      selectedOption.inventoryItems,
-    )?.inventoryItemId;
+    // Lines delivered by sync events carry only the nested item, not its id.
+    const wholeProductLine = getWholeProductLine(selectedOption.inventoryItems);
+    const itemId =
+      wholeProductLine?.inventoryItem?.id ?? wholeProductLine?.inventoryItemId;
     closeOptionActions();
     if (!itemId) {
       navigateToOptionInventory(selectedOption);
@@ -677,14 +678,6 @@ export default function MenuProductDetailScreen() {
                 onPress={handleToggleOptionActive}
                 variant="surface"
               />
-
-              <Button
-                label={t("edit")}
-                leftIcon="create"
-                variant="secondary"
-                onPress={handleOpenEditOption}
-                size="small"
-              />
             </ThemedView>
 
             <ThemedView style={tw`flex-row justify-center items-start gap-3`}>
@@ -711,15 +704,23 @@ export default function MenuProductDetailScreen() {
               <Button
                 label={t("products.variants.configureInventory")}
                 leftIcon="cube-outline"
-                variant="secondary"
+                variant="outline"
                 onPress={handleOpenInventoryConfig}
               />
             )}
-            <ThemedView style={tw`flex-row gap-4 items-center`}>
+            <ThemedView style={tw`flex-row gap-4 items-center justify-center`}>
               <Button
                 leftIcon="trash"
+                label={t("delete")}
                 variant="destructive"
                 onPress={handleRequestDeleteOption}
+                size="small"
+              />
+              <Button
+                label={t("edit")}
+                leftIcon="create"
+                variant="secondary"
+                onPress={handleOpenEditOption}
                 size="small"
               />
             </ThemedView>

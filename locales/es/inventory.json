@@ -188,7 +188,7 @@
     "title": "Configurar inventario",
     "question": "¿Cómo quieres controlar este producto?",
     "manage": "Administrar",
-    "switchToIngredients": "Cambiar a ingredientes...",
+    "switchToIngredients": "Controlar por ingredientes...",
     "wholeProduct": {
       "label": "Producto completo",
       "description": "Cada venta descuenta una unidad, ej. una Coca-Cola."
@@ -204,12 +204,12 @@
     "outOfStock": "Agotado",
     "openItem": "Ver ítem de inventario",
     "openIngredients": "Ver ingredientes",
-    "switchToIngredients": "Cambiar a ingredientes",
-    "switchToWholeProduct": "Cambiar a producto completo"
+    "switchToIngredients": "Controlar por ingredientes",
+    "switchToWholeProduct": "Controlar como producto completo"
   },
   "wholeProduct": {
     "configureTitle": "Configurar inventario",
-    "switchTitle": "Cambiar a producto completo",
+    "switchTitle": "Controlar como producto completo",
     "replaceNote": "Esto reemplaza los ingredientes actuales. Sus ítems de inventario se conservan en tu catálogo.",
     "fields": {
       "currentQuantity": "Cantidad actual",

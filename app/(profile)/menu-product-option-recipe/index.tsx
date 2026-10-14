@@ -250,7 +250,7 @@ export default function MenuProductOptionRecipeScreen() {
           />
         }
       >
-        <ThemedText type="h2">{t("trackMode.ingredients.label")}</ThemedText>
+        {/* <ThemedText type="h2">{t("trackMode.ingredients.label")}</ThemedText> */}
 
         {recipesQuery.isLoading && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
