@@ -10,6 +10,7 @@ import { useCallback, useRef, useState } from "react";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
+import { useOutboxStore } from "@/presentation/offline/store/useOutboxStore";
 import {
   AVAILABLE_LANGUAGES,
   type LanguageCode,
@@ -30,6 +31,8 @@ export default function SettingsScreen() {
   const { logout, updateLanguage } = useAuthStore();
   const language = useGlobalStore((state) => state.language);
   const languagePickerRef = useRef<BottomSheetPickerRef>(null);
+  // Logging out drops the changes this phone hasn't sent yet.
+  const unsyncedCount = useOutboxStore((state) => state.operations.length);
 
   const handleLanguageChange = async (value: string | number) => {
     const { success, errorCode } = await updateLanguage(value as LanguageCode);
@@ -119,7 +122,11 @@ export default function SettingsScreen() {
         <DialogModal
           visible={visible}
           title={t("dialogs.logoutTitle")}
-          message={t("dialogs.logoutMessage")}
+          message={
+            unsyncedCount > 0
+              ? t("dialogs.logoutUnsyncedMessage", { count: unsyncedCount })
+              : t("dialogs.logoutMessage")
+          }
           onCancel={() => setVisible(false)}
           onConfirm={() => {
             setVisible(false);

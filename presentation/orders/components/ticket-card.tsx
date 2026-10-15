@@ -15,6 +15,7 @@ import Card from "@/presentation/theme/components/card";
 import Button from "@/presentation/theme/components/button";
 import Label from "@/presentation/theme/components/label";
 import { typography } from "@/constants/theme";
+import { orderNumberText } from "@/presentation/offline/local-order";
 
 interface TicketCardProps {
   ticket: Ticket;
@@ -116,7 +117,7 @@ export default function TicketCard({
             style={[tw`flex-1`, { fontFamily: typography.semibold }]}
           >
             {t("orders:unprintedTickets.orderHeader", {
-              num: order.num,
+              order: orderNumberText(order, t),
               place: order.table?.name
                 ? `${t("orders:details.table")} ${order.table.name}`
                 : t("orders:details.takeAway"),

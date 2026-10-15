@@ -72,7 +72,8 @@
       "selectedCount_one": "{{count}} selected",
       "selectedCount_other": "{{count}} selected",
       "deliver": "Deliver"
-    }
+    },
+    "orderNumberPending": "Order (no number yet)"
   },
   "actions": {
     "start": "Start",
@@ -240,7 +241,7 @@
     "title": "Tickets to print",
     "empty": "No tickets waiting to be printed",
     "skipError": "Couldn't skip the ticket",
-    "orderHeader": "Order #{{num}} · {{place}}",
+    "orderHeader": "{{order}} · {{place}}",
     "selectAll": "Select all",
     "unselectAll": "Unselect all",
     "cancelSelection": "Cancel selection",
@@ -283,7 +284,8 @@
       "ADD": "Add",
       "REMOVE": "Remove",
       "MODIFY": "Modify"
-    }
+    },
+    "orderPending": "ORDER (NO NUMBER YET)"
   },
   "merge": {
     "title": "Merge Into Another Order",
@@ -295,5 +297,37 @@
   "pane": {
     "emptyTitle": "Select an order",
     "emptyDescription": "Tap an order or a table to see its details here."
+  },
+  "offline": {
+    "title": "Unsynced changes",
+    "description": "These changes were made offline and will be sent automatically when the connection is back.",
+    "empty": "All changes are synced",
+    "notSynced": "Not synced",
+    "syncFailed": "Sync failed",
+    "status": {
+      "pending": "Pending",
+      "sending": "Sending",
+      "failed": "Rejected"
+    },
+    "rejected": "The server rejected this change",
+    "retry": "Retry",
+    "discard": "Discard",
+    "discardTitle": "Discard change",
+    "discardMessage": "The order will go back to what the server has.",
+    "discardOrderMessage": "This order only exists on this phone and will be deleted with its changes.",
+    "orderAtTable": "Table {{table}}",
+    "orderTakeAway": "Take away",
+    "productNotAvailable": "This product isn't available offline",
+    "summary": {
+      "createOrder_one": "Create order with {{count}} item",
+      "createOrder_other": "Create order with {{count}} items",
+      "addItems_one": "Add {{count}} item",
+      "addItems_other": "Add {{count}} items",
+      "updateItem": "Change {{product}}",
+      "updateItems_one": "Change {{count}} item",
+      "updateItems_other": "Change {{count}} items",
+      "removeItem": "Remove {{product}}",
+      "updateOrder": "Change order details"
+    }
   }
 }

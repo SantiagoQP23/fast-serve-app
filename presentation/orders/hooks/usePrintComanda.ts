@@ -9,12 +9,25 @@ import { useProductionAreasStore } from "@/presentation/production-areas/store/u
 import { TicketsService } from "@/core/tickets/services/tickets.service";
 import { Order } from "@/core/orders/models/order.model";
 import { useUnprintedTicketsStore } from "@/presentation/orders/store/useUnprintedTicketsStore";
+import { isOrderNumberPending } from "@/presentation/offline/local-order";
+
+interface PrintComandaOptions {
+  /**
+   * Tell the server the ticket was printed. Off for comandas built on the
+   * phone while offline: their action carries `ticketPrinted` instead.
+   */
+  markPrinted?: boolean;
+}
 
 export const usePrintComanda = () => {
   const { t } = useTranslation(["common", "orders"]);
 
   const printComanda = useCallback(
-    async (order: Order, ticket: Ticket) => {
+    async (
+      order: Order,
+      ticket: Ticket,
+      { markPrinted = true }: PrintComandaOptions = {},
+    ): Promise<boolean> => {
       const toastId = toast.loading(t("orders:options.printingComanda"));
 
       try {
@@ -44,7 +57,7 @@ export const usePrintComanda = () => {
 
         if (areaGroups.length === 0) {
           toast.error(t("orders:options.noProductionAreas"), { id: toastId });
-          return;
+          return false;
         }
 
       const ticketTypeLabel = t(`orders:comanda.ticketType.${ticket.type}`);
@@ -52,7 +65,9 @@ export const usePrintComanda = () => {
       const translations = {
         comandaTitle: t("orders:comanda.title"),
         area: (name: string) => t("orders:comanda.area", { area: name }),
-        order: t("orders:comanda.order", { num: order.num }),
+        order: isOrderNumberPending(order)
+          ? t("orders:comanda.orderPending")
+          : t("orders:comanda.order", { num: order.num }),
         table: (name: string) => t("orders:comanda.table", { name }),
         takeAway: t("orders:comanda.takeAway"),
         waiter: t("orders:comanda.waiter"),
@@ -93,8 +108,15 @@ export const usePrintComanda = () => {
 
       if (!printedAny) {
         toast.error(t("orders:options.noProductionAreas"), { id: toastId });
-        return;
+        return false;
       }
+
+        if (!markPrinted) {
+          toast.success(t("orders:options.printComandaSuccess"), {
+            id: toastId,
+          });
+          return true;
+        }
 
         // Mark ticket as printed via REST
         try {
@@ -107,9 +129,11 @@ export const usePrintComanda = () => {
         }
 
         toast.success(t("orders:options.printComandaSuccess"), { id: toastId });
+        return true;
       } catch (error) {
         console.error("Error printing comanda:", error);
         toast.error(t("orders:options.printComandaError"), { id: toastId });
+        return false;
       }
     },
     [t],

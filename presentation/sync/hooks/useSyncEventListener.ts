@@ -14,12 +14,16 @@ import { Table } from "@/core/tables/models/table.model";
 import { Category } from "@/core/menu/models/category.model";
 import { Section } from "@/core/menu/models/section.model";
 import { useSyncStore } from "../store/useSyncStore";
+import { shouldSkipOrderSyncEvent } from "@/presentation/offline/pending-orders";
 import { applyTicketEvent } from "../apply-ticket-event";
 import { applyProductEvent } from "../apply-product-event";
 
 function applyOrderEvent(event: SyncEventDto) {
   const order = event.data as Order;
   const ordersState = useOrdersStore.getState();
+
+  // Offline changes to this order are still queued; keep the local copy.
+  if (shouldSkipOrderSyncEvent(event.resourceId)) return;
 
   switch (event.operation) {
     case SyncOperation.CREATED:

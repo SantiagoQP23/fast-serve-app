@@ -17,6 +17,8 @@ import {
 import { useSync } from "@/presentation/sync/hooks/useSync";
 import { useSyncEventListener } from "@/presentation/sync/hooks/useSyncEventListener";
 import { useRevalidateOfflineSession } from "@/presentation/auth/hooks/useRevalidateOfflineSession";
+import { useOutboxRunner } from "@/presentation/offline/hooks/useOutboxRunner";
+import { useOutboxCounts } from "@/presentation/offline/hooks/useOrderSyncState";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import IconButton from "@/presentation/theme/components/icon-button";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -33,6 +35,8 @@ export function MyOrdersHeaderRight() {
   const details = useNewOrderStore((state) => state.details);
   const haveAnOpenOrder = details.length > 0;
   const unprintedTicketsCount = useUnprintedTickets().length;
+  const restaurantId = useAuthStore((state) => state.currentRestaurant?.id);
+  const unsynced = useOutboxCounts(restaurantId);
   const { openViewPopover } = useOrdersModuleContext();
   const moreButtonRef = useRef<View>(null);
 
@@ -51,6 +55,20 @@ export function MyOrdersHeaderRight() {
         />
         <NotificationBadge value={unprintedTicketsCount} />
       </ThemedView>
+      {unsynced.total > 0 && (
+        <ThemedView style={tw``}>
+          <IconButton
+            icon={
+              unsynced.failed > 0 ? "alert-circle-outline" : "cloud-upload-outline"
+            }
+            onPress={() => router.push("/(order)/pending-changes")}
+          />
+          <NotificationBadge
+            value={unsynced.total}
+            style={unsynced.failed > 0 ? "bg-red-500" : ""}
+          />
+        </ThemedView>
+      )}
       {haveAnOpenOrder && (
         <ThemedView style={tw``}>
           <IconButton
@@ -78,6 +96,7 @@ export default function TabLayout() {
   useSync();
   useSyncEventListener();
   useRevalidateOfflineSession();
+  useOutboxRunner();
 
   // const { printComanda } = usePrintComanda();
   // useNewTicketListener(printComanda);
