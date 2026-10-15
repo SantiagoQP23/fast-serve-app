@@ -4,6 +4,7 @@
     "tryAgain": "Por favor intente nuevamente",
     "somethingWrong": "Algo salió mal",
     "requestTimedOut": "Tiempo de espera agotado",
+    "noConnection": "Sin conexión. Revisa tu internet e inténtalo de nuevo",
     "permissionDenied": "Permiso denegado",
     "cameraPermissionRequired": "Se requiere permiso de cámara",
     "unknownError": "Error desconocido"

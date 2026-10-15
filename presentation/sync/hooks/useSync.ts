@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
@@ -31,6 +31,7 @@ import { applyProductEvent } from "../apply-product-event";
 import { useUnprintedTicketsStore } from "@/presentation/orders/store/useUnprintedTicketsStore";
 import { Ticket } from "@/core/tickets/models/ticket.model";
 import { useAppForeground } from "@/presentation/shared/hooks/useAppForeground";
+import { SocketContext } from "@/presentation/shared/context/SocketContext";
 
 const INCREMENTAL_SYNC_LIMIT = 1000;
 
@@ -335,6 +336,28 @@ export const useSync = () => {
     enabled: !!currentRestaurant?.id,
     staleTime: 0,
   });
+
+  // Catch up with what changed while the connection was down. The first
+  // connection doesn't count, the initial query already covers it, unless
+  // that query failed (e.g. the app opened offline).
+  const { online } = useContext(SocketContext);
+  const hasBeenOnlineRef = useRef(false);
+
+  useEffect(() => {
+    if (!online) return;
+
+    const isReconnect = hasBeenOnlineRef.current;
+    hasBeenOnlineRef.current = true;
+
+    if (!currentRestaurant?.id || syncQuery.isFetching) return;
+
+    if (isReconnect || useSyncStore.getState().status === "error") {
+      console.log("[useSync] Socket reconnected, refetching sync");
+      void syncQuery.refetch();
+    }
+    // Only react to connection changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [online]);
 
   useAppForeground(() => {
     if (currentRestaurant?.id && !syncQuery.isFetching) {

@@ -62,13 +62,27 @@ export const authLogin = async (
   }
 };
 
-export const authCheckStatus = async () => {
+export interface CheckStatusResult {
+  user?: User;
+  token?: string;
+  currentRestaurant?: Restaurant;
+  /**
+   * true when the server couldn't be reached (no internet, timeout, 5xx).
+   * The saved session may still be valid, so it must not be logged out.
+   */
+  offline?: boolean;
+}
+
+export const authCheckStatus = async (): Promise<CheckStatusResult> => {
   try {
     const { data } = await restaurantApi.get<AuthResponse>("/auth/auth-renew");
 
     return returnUserToken(data);
   } catch (error) {
-    return null;
+    const { status } = getApiError(error);
+    const serverRejected = status !== undefined && status >= 400 && status < 500;
+
+    return serverRejected ? {} : { offline: true };
   }
 };
 

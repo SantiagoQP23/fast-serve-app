@@ -29,6 +29,11 @@ import {
   AVAILABLE_LANGUAGES,
   type LanguageCode,
 } from "@/core/i18n/i18n.config";
+import {
+  clearSessionCache,
+  loadSessionCache,
+  saveSessionCache,
+} from "./session-cache";
 
 export type AuthStatus = "authenticated" | "unauthenticated" | "checking";
 export type BootstrapStatus = "idle" | "loading" | "success" | "error";
@@ -40,6 +45,11 @@ export interface AuthState {
   currentRestaurant?: Restaurant;
   bootstrapStatus: BootstrapStatus;
   bootstrapError: Error | null;
+  /**
+   * true when the app opened with the saved session because the server
+   * couldn't be reached. It is checked again once the connection is back.
+   */
+  isOfflineSession: boolean;
 
   login: (
     email: string,
@@ -78,6 +88,7 @@ export interface AuthState {
     currentPassword?: string,
   ) => Promise<{ success: boolean; errorCode?: string }>;
   checkStatus: () => Promise<void>;
+  revalidateSession: () => Promise<void>;
   logout: () => Promise<void>;
   resetBootstrap: () => void;
 
@@ -85,6 +96,7 @@ export interface AuthState {
     token?: string,
     user?: User,
     currentRestaurant?: Restaurant,
+    options?: { background?: boolean },
   ) => Promise<boolean>;
 }
 
@@ -116,6 +128,46 @@ const syncUserLanguage = (user: User) => {
   });
 };
 
+let isRevalidating = false;
+
+type SetAuthState = (partial: Partial<AuthState>) => void;
+type GetAuthState = () => AuthState;
+
+/**
+ * Keeps the user signed in with the last session the server confirmed (token
+ * in secure storage, user and restaurant in the session cache). Returns false
+ * when there is nothing saved to restore.
+ */
+const restoreOfflineSession = async (
+  set: SetAuthState,
+  get: GetAuthState,
+): Promise<boolean> => {
+  const token = await SecureStorageAdapter.getItem("token");
+  if (!token) return false;
+
+  const state = get();
+  const session =
+    state.status === "authenticated" && state.user
+      ? { user: state.user, currentRestaurant: state.currentRestaurant }
+      : await loadSessionCache();
+
+  if (!session) return false;
+
+  set({
+    status: "authenticated",
+    token,
+    user: session.user,
+    currentRestaurant: session.currentRestaurant,
+    bootstrapStatus:
+      state.bootstrapStatus === "loading" ? "idle" : state.bootstrapStatus,
+    bootstrapError: null,
+    isOfflineSession: true,
+  });
+
+  syncUserLanguage(session.user);
+  return true;
+};
+
 export const useAuthStore = create<AuthState>()((set, get) => ({
   // Properties
   status: "checking",
@@ -124,6 +176,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   restaurant: undefined,
   bootstrapStatus: "idle",
   bootstrapError: null,
+  isOfflineSession: false,
 
   // Actions
   resetBootstrap: () => set({ bootstrapStatus: "idle", bootstrapError: null }),
@@ -132,6 +185,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     token?: string,
     user?: User,
     currentRestaurant?: Restaurant,
+    options?: { background?: boolean },
   ) => {
     if (!token || !user) {
       set({
@@ -140,18 +194,29 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         user: undefined,
         bootstrapStatus: "idle",
         bootstrapError: null,
+        isOfflineSession: false,
       });
       await SecureStorageAdapter.removeItem("token");
+      await clearSessionCache();
       return false;
     }
+
+    // In the background (session re-checked after being offline) the screens
+    // keep showing the cached data instead of the loading screen.
+    const bootstrapStatus: BootstrapStatus = options?.background
+      ? get().bootstrapStatus
+      : currentRestaurant
+        ? "loading"
+        : "idle";
 
     set({
       status: "authenticated",
       token: token,
       user: user,
       currentRestaurant: currentRestaurant,
-      bootstrapStatus: currentRestaurant ? "loading" : "idle",
+      bootstrapStatus,
       bootstrapError: null,
+      isOfflineSession: false,
     });
 
     await SecureStorageAdapter.setItem("token", token);
@@ -363,7 +428,28 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
   checkStatus: async () => {
     const resp = await authCheckStatus();
-    get().changeStatus(resp?.token, resp?.user, resp?.currentRestaurant);
+
+    // No internet: open with the saved session instead of logging out.
+    if (resp.offline && (await restoreOfflineSession(set, get))) return;
+
+    get().changeStatus(resp.token, resp.user, resp.currentRestaurant);
+  },
+
+  revalidateSession: async () => {
+    if (isRevalidating) return;
+    isRevalidating = true;
+
+    try {
+      const resp = await authCheckStatus();
+      if (resp.offline) return;
+
+      // Logs out if the server rejected the token (e.g. it expired).
+      await get().changeStatus(resp.token, resp.user, resp.currentRestaurant, {
+        background: true,
+      });
+    } finally {
+      isRevalidating = false;
+    }
   },
 
   logout: async () => {
@@ -374,6 +460,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     useProductionAreasStore.getState().clearProductionAreas();
     usePrintersStore.getState().clearPrinters();
     useTablesStore.getState().clearTables();
+    await clearSessionCache();
 
     set({
       status: "unauthenticated",
@@ -381,6 +468,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       user: undefined,
       bootstrapStatus: "idle",
       bootstrapError: null,
+      isOfflineSession: false,
     });
   },
 
@@ -398,6 +486,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     useProductionAreasStore.getState().clearProductionAreas();
     usePrintersStore.getState().clearPrinters();
     useTablesStore.getState().clearTables();
+    await clearSessionCache();
 
     set({
       status: "unauthenticated",
@@ -406,6 +495,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       currentRestaurant: undefined,
       bootstrapStatus: "idle",
       bootstrapError: null,
+      isOfflineSession: false,
     });
 
     return { success: true };
@@ -464,3 +554,20 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     );
   },
 }));
+
+// Save the session whenever the user or restaurant changes (login, profile
+// edits, restaurant switch), so it can be restored without internet.
+useAuthStore.subscribe((state, prev) => {
+  if (state.status !== "authenticated" || !state.user) return;
+  if (
+    state.user === prev.user &&
+    state.currentRestaurant === prev.currentRestaurant
+  ) {
+    return;
+  }
+
+  void saveSessionCache({
+    user: state.user,
+    currentRestaurant: state.currentRestaurant,
+  });
+});
