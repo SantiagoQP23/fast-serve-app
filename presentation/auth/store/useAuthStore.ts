@@ -25,6 +25,7 @@ import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePayme
 import { usePrintersStore } from "@/presentation/printers/store/usePrintersStore";
 import { useProductionAreasStore } from "@/presentation/production-areas/store/useProductionAreasStore";
 import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
+import { useOutboxStore } from "@/presentation/offline/store/useOutboxStore";
 import {
   AVAILABLE_LANGUAGES,
   type LanguageCode,
@@ -460,6 +461,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     useProductionAreasStore.getState().clearProductionAreas();
     usePrintersStore.getState().clearPrinters();
     useTablesStore.getState().clearTables();
+    useOutboxStore.getState().clear();
     await clearSessionCache();
 
     set({
@@ -486,6 +488,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     useProductionAreasStore.getState().clearProductionAreas();
     usePrintersStore.getState().clearPrinters();
     useTablesStore.getState().clearTables();
+    useOutboxStore.getState().clear();
     await clearSessionCache();
 
     set({

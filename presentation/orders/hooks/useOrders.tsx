@@ -19,11 +19,50 @@ import {
 import { SocketEvent } from "@/core/common/dto/socket.dto";
 import { useWebsocketEventListener } from "@/presentation/shared/hooks/useWebsocketEventListener";
 import { usePrintComanda } from "./usePrintComanda";
+import {
+  QueueOptions,
+  isQueueableOrderUpdate,
+  useOrderOutbox,
+} from "@/presentation/offline/hooks/useOrderOutbox";
+
+type Emitter<TData, TVariables> = ReturnType<
+  typeof useWebsocketEventEmitter<TData, TVariables>
+>;
+type EmitterOptions<TData, TVariables> = Parameters<
+  Emitter<TData, TVariables>["mutate"]
+>[1];
+
+/**
+ * Sends the action as before when online; without a connection (or while
+ * earlier offline actions still wait) it goes to the outbox instead, which
+ * updates the order on the phone right away and sends it later. Actions that
+ * can be queued are never blocked by being offline, so isOnline is true.
+ */
+const withOutbox = <TData, TVariables>(
+  emitter: Emitter<TData, TVariables>,
+  shouldQueue: () => boolean,
+  queue: (data: TVariables, options: QueueOptions<TData>) => unknown,
+  canQueue: (data: TVariables) => boolean = () => true,
+) => ({
+  ...emitter,
+  isOnline: true,
+  mutate: (
+    data: TVariables,
+    options?: EmitterOptions<TData, TVariables> & { print?: boolean },
+  ) => {
+    if (canQueue(data) && shouldQueue()) {
+      void queue(data, options ?? {});
+      return Promise.resolve();
+    }
+    return emitter.mutate(data, options);
+  },
+});
 
 export const useOrders = () => {
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const updateOrder = useOrdersStore((state) => state.updateOrder);
   const { printComanda } = usePrintComanda();
+  const outbox = useOrderOutbox();
 
   const createOrderEmitter = useWebsocketEventEmitter<Order, CreateOrderDto>(
     OrderSocketEvent.createOrder,
@@ -177,13 +216,43 @@ export const useOrders = () => {
   });
 
   return {
-    createOrder: createOrderEmitter,
-    updateOrderDetail: updateOrderDetailEmitter,
-    addOrderDetailToOrder: useOrderDetailToOrderEmitter,
-    addOrderDetails: addOrderDetailsEmitter,
-    updateOrder: updateOrderEmitter,
-    updateOrderDetails: updateOrderDetailsEmitter,
-    removeOrderDetail: removeOrderDetailEmitter,
+    createOrder: withOutbox(
+      createOrderEmitter,
+      outbox.shouldQueue,
+      outbox.createOrder,
+    ),
+    updateOrderDetail: withOutbox(
+      updateOrderDetailEmitter,
+      outbox.shouldQueue,
+      outbox.updateOrderDetail,
+    ),
+    addOrderDetailToOrder: withOutbox(
+      useOrderDetailToOrderEmitter,
+      outbox.shouldQueue,
+      outbox.addOrderDetail,
+    ),
+    addOrderDetails: withOutbox(
+      addOrderDetailsEmitter,
+      outbox.shouldQueue,
+      outbox.addOrderDetails,
+    ),
+    // Closing, paying or reassigning an order still needs the server.
+    updateOrder: withOutbox(
+      updateOrderEmitter,
+      outbox.shouldQueue,
+      outbox.updateOrder,
+      isQueueableOrderUpdate,
+    ),
+    updateOrderDetails: withOutbox(
+      updateOrderDetailsEmitter,
+      outbox.shouldQueue,
+      outbox.updateOrderDetails,
+    ),
+    removeOrderDetail: withOutbox(
+      removeOrderDetailEmitter,
+      outbox.shouldQueue,
+      outbox.removeOrderDetail,
+    ),
     replaceOrderDetail: replaceOrderDetailEmitter,
     deleteOrder: deleteOrderEmitter,
     mergeOrder: mergeOrderEmitter,

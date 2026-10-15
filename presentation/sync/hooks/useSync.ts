@@ -26,6 +26,10 @@ import { PaymentMethod } from "@/core/restaurant/models/payment-method.model";
 import { Account } from "@/core/restaurant/models/account.model";
 import { Printer } from "@/core/common/models/printer.model";
 import { useSyncStore } from "../store/useSyncStore";
+import {
+  keepLocalPendingOrders,
+  shouldSkipOrderSyncEvent,
+} from "@/presentation/offline/pending-orders";
 import { applyTicketEvent } from "../apply-ticket-event";
 import { applyProductEvent } from "../apply-product-event";
 import { useUnprintedTicketsStore } from "@/presentation/orders/store/useUnprintedTicketsStore";
@@ -50,7 +54,7 @@ function applySnapshot(
   const productionAreas = (snapshot.productionAreas ?? []) as ProductionArea[];
   const unprintedTickets = (snapshot.unprintedTickets ?? []) as Ticket[];
 
-  useOrdersStore.getState().setOrders(orders);
+  useOrdersStore.getState().setOrders(keepLocalPendingOrders(orders));
   useTablesStore.getState().setTables(tables, restaurantId);
   useMenuStore
     .getState()
@@ -142,6 +146,9 @@ function applyEvent(event: SyncEventDto) {
 function applyOrderEvent(event: SyncEventDto) {
   const order = event.data as Order;
   const ordersState = useOrdersStore.getState();
+
+  // Offline changes to this order are still queued; keep the local copy.
+  if (shouldSkipOrderSyncEvent(event.resourceId)) return;
 
   switch (event.operation) {
     case SyncOperation.CREATED:

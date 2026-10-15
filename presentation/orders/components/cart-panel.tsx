@@ -76,8 +76,13 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
   const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
   const newOrder = useNewOrderStore();
   const { isOnline, isLoading, mutate: createOrder } = useOrders().createOrder;
-  const { mutate: createSale, isLoading: createSaleLoading } =
-    useBills().createSale;
+  const {
+    mutate: createSale,
+    isLoading: createSaleLoading,
+    isOnline: isSaleOnline,
+  } = useBills().createSale;
+  // Orders can be taken offline (they wait in the outbox); sales can't.
+  const canSubmit = cartType === "sale" ? isSaleOnline : isOnline;
 
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
@@ -220,6 +225,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
       const data = mapStoreToCreateOrderDto(newOrder);
 
       createOrder(data, {
+        print,
         onSuccess: async (resp) => {
           resetNewOrder();
           if (!resp.data) return;
@@ -599,7 +605,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
               )}
               onPress={() => onCreateOrder(false)}
               disabled={
-                !isOnline ||
+                !canSubmit ||
                 isLoading ||
                 details.length === 0 ||
                 createSaleLoading
@@ -614,7 +620,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
                 label={t("menu:cart.createAndPrintOrder")}
                 onPress={() => onCreateOrder(true)}
                 disabled={
-                  !isOnline ||
+                  !canSubmit ||
                   isLoading ||
                   details.length === 0 ||
                   createSaleLoading

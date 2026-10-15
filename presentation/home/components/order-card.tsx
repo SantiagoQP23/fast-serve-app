@@ -17,6 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
+import OrderSyncLabel from "@/presentation/offline/components/order-sync-label";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import { typography } from "@/constants/theme";
 import { useIsOrderPaneActive } from "@/presentation/orders/context/order-pane.context";
@@ -81,6 +82,7 @@ export default function OrderCard({ order }: OrderCardProps) {
                   size="small"
                 />
               )}
+              <OrderSyncLabel orderId={order.id} />
             </ThemedView>
             <Label
               leftIcon="time"

@@ -72,7 +72,8 @@
       "selectedCount_one": "{{count}} seleccionado",
       "selectedCount_other": "{{count}} seleccionados",
       "deliver": "Entregar"
-    }
+    },
+    "orderNumberPending": "Pedido (sin número)"
   },
   "actions": {
     "start": "Iniciar",
@@ -240,7 +241,7 @@
     "title": "Tickets por imprimir",
     "empty": "No hay tickets pendientes de imprimir",
     "skipError": "No se pudo omitir el ticket",
-    "orderHeader": "Pedido #{{num}} · {{place}}",
+    "orderHeader": "{{order}} · {{place}}",
     "selectAll": "Seleccionar todos",
     "unselectAll": "Quitar selección",
     "cancelSelection": "Cancelar selección",
@@ -283,7 +284,8 @@
       "ADD": "Agregar",
       "REMOVE": "Eliminar",
       "MODIFY": "Modificar"
-    }
+    },
+    "orderPending": "ORDEN (SIN NÚMERO)"
   },
   "merge": {
     "title": "Unir a Otro Pedido",
@@ -295,5 +297,37 @@
   "pane": {
     "emptyTitle": "Selecciona un pedido",
     "emptyDescription": "Toca un pedido o una mesa para ver sus detalles aquí."
+  },
+  "offline": {
+    "title": "Cambios sin sincronizar",
+    "description": "Estos cambios se hicieron sin conexión y se enviarán solos cuando vuelva la conexión.",
+    "empty": "Todos los cambios están sincronizados",
+    "notSynced": "Sin sincronizar",
+    "syncFailed": "Error al sincronizar",
+    "status": {
+      "pending": "Pendiente",
+      "sending": "Enviando",
+      "failed": "Rechazado"
+    },
+    "rejected": "El servidor rechazó este cambio",
+    "retry": "Reintentar",
+    "discard": "Descartar",
+    "discardTitle": "Descartar cambio",
+    "discardMessage": "El pedido volverá a quedar como está en el servidor.",
+    "discardOrderMessage": "El pedido solo existe en este teléfono y se eliminará junto con sus cambios.",
+    "orderAtTable": "Mesa {{table}}",
+    "orderTakeAway": "Para llevar",
+    "productNotAvailable": "Este producto no está disponible sin conexión",
+    "summary": {
+      "createOrder_one": "Crear pedido con {{count}} producto",
+      "createOrder_other": "Crear pedido con {{count}} productos",
+      "addItems_one": "Agregar {{count}} producto",
+      "addItems_other": "Agregar {{count}} productos",
+      "updateItem": "Modificar {{product}}",
+      "updateItems_one": "Modificar {{count}} producto",
+      "updateItems_other": "Modificar {{count}} productos",
+      "removeItem": "Eliminar {{product}}",
+      "updateOrder": "Modificar datos del pedido"
+    }
   }
 }

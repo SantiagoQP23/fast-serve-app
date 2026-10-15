@@ -70,6 +70,8 @@ import OrderTicketsTab from "@/presentation/orders/components/order-tickets-tab"
 import { typography } from "@/constants/theme";
 import Chip from "@/presentation/theme/components/chip";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
+import OrderSyncLabel from "@/presentation/offline/components/order-sync-label";
+import { orderNumberText } from "@/presentation/offline/local-order";
 
 dayjs.extend(relativeTime);
 
@@ -814,9 +816,12 @@ export default function OrderDetailView({
             {/* Table/Location & People */}
             <ThemedView style={tw`flex-row items-center justify-between`}>
               <ThemedView style={tw`gap-2`}>
-                <ThemedText type="caption" style={tw`text-gray-500 text-sm`}>
-                  {t("orders:details.orderNumber", { num: order.num })}
-                </ThemedText>
+                <ThemedView style={tw`flex-row items-center gap-2`}>
+                  <ThemedText type="caption" style={tw`text-gray-500 text-sm`}>
+                    {orderNumberText(order, t)}
+                  </ThemedText>
+                  <OrderSyncLabel orderId={order.id} />
+                </ThemedView>
                 <ThemedView style={tw`flex-row items-center gap-2`}>
                   <Ionicons
                     name={

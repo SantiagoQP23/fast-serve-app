@@ -71,6 +71,14 @@ export default function OrdersLayout() {
           headerShadowVisible: false,
         }}
       />
+      <Stack.Screen
+        name="pending-changes/index"
+        options={{
+          headerShown: true,
+          title: t("orders:offline.title"),
+          headerShadowVisible: false,
+        }}
+      />
     </Stack>
   );
 }
