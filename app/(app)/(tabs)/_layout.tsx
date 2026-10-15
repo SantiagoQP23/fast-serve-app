@@ -16,6 +16,7 @@ import {
 } from "@/presentation/orders/hooks/useOrders";
 import { useSync } from "@/presentation/sync/hooks/useSync";
 import { useSyncEventListener } from "@/presentation/sync/hooks/useSyncEventListener";
+import { useRevalidateOfflineSession } from "@/presentation/auth/hooks/useRevalidateOfflineSession";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import IconButton from "@/presentation/theme/components/icon-button";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -76,6 +77,7 @@ export default function TabLayout() {
   // useOrderDeletedListener();
   useSync();
   useSyncEventListener();
+  useRevalidateOfflineSession();
 
   // const { printComanda } = usePrintComanda();
   // useNewTicketListener(printComanda);

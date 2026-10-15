@@ -34,6 +34,7 @@ interface WebSocketOptions<TData> {
  * @version v1.0 24-12-2023
  * @version v1.1 05-01-2026 Add timeout mechanism with configurable duration
  * @version v1.2 12-09-2026 Drive the global socket-loading bottom sheet
+ * @version v1.3 15-10-2026 Don't buffer events while offline (no late duplicates)
  */
 export function useWebsocketEventEmitter<TData, TVariables>(
   eventMessage: string,
@@ -81,51 +82,54 @@ export function useWebsocketEventEmitter<TData, TVariables>(
 
     const timeoutDuration =
       options?.timeout ?? secondaryOptions?.timeout ?? 20000;
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
-    let responseReceived = false;
 
-    // Set up timeout handler
-    timeoutId = setTimeout(async () => {
-      if (!responseReceived) {
-        await clearLoadingAndWaitToPresent();
+    const fail = async (resp: SocketResponse, timedOut: boolean) => {
+      await clearLoadingAndWaitToPresent();
 
-        const timeoutError: SocketResponse = {
-          ok: false,
-          msg: t("errors:general.requestTimedOut"),
-        };
-
-        // Call timeout callbacks if provided
+      if (timedOut) {
         options?.onTimeout?.();
         secondaryOptions?.onTimeout?.();
-
-        // Call error callbacks with timeout error
-        options?.onError?.(timeoutError);
-        secondaryOptions?.onError?.(timeoutError);
       }
-    }, timeoutDuration);
 
-    socket?.emit(
-      eventMessage,
-      data,
-      async (resp: SocketResponseData<TData>) => {
-        responseReceived = true;
+      options?.onError?.(resp);
+      secondaryOptions?.onError?.(resp);
+    };
 
-        // Clear timeout since we received a response
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-        }
+    // Without a connection, fail right away. Otherwise socket.io buffers the
+    // event and sends it on reconnect, after the user was already told it
+    // failed (and may have retried it), so it would run twice.
+    if (!socket?.connected) {
+      await fail({ ok: false, msg: t("errors:general.noConnection") }, false);
+      return;
+    }
 
-        await clearLoadingAndWaitToPresent();
+    // With an ack timeout, socket.io drops the event from its send buffer when
+    // the timeout fires, so an event reported as timed out is never sent later.
+    socket
+      .timeout(timeoutDuration)
+      .emit(
+        eventMessage,
+        data,
+        async (err: Error | null, resp: SocketResponseData<TData>) => {
+          if (err) {
+            await fail(
+              { ok: false, msg: t("errors:general.requestTimedOut") },
+              true,
+            );
+            return;
+          }
 
-        if (resp.ok) {
-          options?.onSuccess?.(resp);
-          secondaryOptions?.onSuccess?.(resp);
-        } else {
-          options?.onError?.(resp);
-          secondaryOptions?.onError?.(resp);
-        }
-      },
-    );
+          await clearLoadingAndWaitToPresent();
+
+          if (resp.ok) {
+            options?.onSuccess?.(resp);
+            secondaryOptions?.onSuccess?.(resp);
+          } else {
+            options?.onError?.(resp);
+            secondaryOptions?.onError?.(resp);
+          }
+        },
+      );
   };
 
   return {
