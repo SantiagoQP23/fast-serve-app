@@ -16,12 +16,15 @@ import {
 interface InventoryCountCardProps {
   count: InventoryCount;
   onPress: (count: InventoryCount) => void;
+  /** Highlights the count open in the detail pane (tablet). */
+  active?: boolean;
 }
 
 /** One count in the counts history: size, status, who started it and how far along it is. */
 export default function InventoryCountCard({
   count,
   onPress,
+  active,
 }: InventoryCountCardProps) {
   const { t } = useTranslation("inventory");
   const creator = getCountUserName(count.createdBy);
@@ -33,9 +36,11 @@ export default function InventoryCountCard({
     <Card
       variant="outline"
       onPress={() => onPress(count)}
-      style={tw`gap-3 p-4`}
+      style={tw.style("gap-3 p-4", active && "bg-light-secondary")}
     >
-      <ThemedView style={tw`flex-row items-start justify-between gap-3 bg-transparent`}>
+      <ThemedView
+        style={tw`flex-row items-start justify-between gap-3 bg-transparent`}
+      >
         <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
           <ThemedText
             type="body1"

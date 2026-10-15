@@ -14,6 +14,9 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import Label from "@/presentation/theme/components/label";
 import InventoryScreenHeader from "@/presentation/inventory/components/screen-header";
 import CountQuantityModal from "@/presentation/inventory/components/count-quantity-modal";
+import CountLineCard from "@/presentation/inventory/components/count-line-card";
+import CountFinishButton from "@/presentation/inventory/components/count-finish-button";
+import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 import { useInventoryCount } from "@/presentation/inventory/hooks/useInventoryCounts";
 import {
   InventoryCountAnswer,
@@ -27,6 +30,8 @@ const isPending = (line: InventoryCountItem) =>
   line.status === InventoryCountItemStatus.PENDING;
 
 const DONE = "done";
+
+const LINES_PANE_WIDTH = 400;
 
 /** Next pending line after `fromIndex`, wrapping around; null when none is left. */
 const findNextPending = (
@@ -47,6 +52,10 @@ export default function MenuInventoryCountRunScreen() {
   const { count, countQuery, answerItem } = useInventoryCount(countId);
   const [currentId, setCurrentId] = useState<string | null>(lineId ?? null);
   const [isEditing, setIsEditing] = useState(false);
+
+  // Tablet landscape: every line is listed next to the one being counted,
+  // so the separate summary screen isn't needed to jump around.
+  const { isExpanded } = useResponsiveLayout();
 
   const lines = useMemo(() => count?.items ?? [], [count]);
   // Without an explicit line, start on the first pending one, then the
@@ -119,38 +128,42 @@ export default function MenuInventoryCountRunScreen() {
   const unit = item ? t(`units.${item.unit}`) : "";
   const answered = current ? isCountItemAnswered(current) : false;
 
-  return (
-    <ScreenLayout style={tw`flex-1`}>
+  const progress = lines.length > 0 && (
+    <View style={tw`gap-2`}>
+      <ThemedText type="small" style={tw`text-gray-500`}>
+        {t("counts.progress", {
+          current: currentIndex + 1,
+          total: lines.length,
+          done: doneCount,
+        })}
+      </ThemedText>
+      <View style={tw`h-2 rounded-full bg-gray-200 overflow-hidden`}>
+        <View
+          style={[
+            tw`h-2 rounded-full bg-light-primary`,
+            { width: `${(doneCount / lines.length) * 100}%` },
+          ]}
+        />
+      </View>
+    </View>
+  );
+
+  const run = (
+    <ScreenLayout fullWidth={isExpanded} style={tw`flex-1`}>
       <ThemedView style={tw`px-4 pt-8 gap-4 bg-transparent`}>
         <InventoryScreenHeader
           title={t("counts.runTitle")}
           right={
-            <ThemedView style={tw`flex-row gap-1 bg-transparent`}>
-              <IconButton icon="add-outline" onPress={addProducts} />
-              <IconButton icon="list-outline" onPress={openSummary} />
-            </ThemedView>
+            isExpanded ? undefined : (
+              <ThemedView style={tw`flex-row gap-1 bg-transparent`}>
+                <IconButton icon="add-outline" onPress={addProducts} />
+                <IconButton icon="list-outline" onPress={openSummary} />
+              </ThemedView>
+            )
           }
         />
 
-        {lines.length > 0 && (
-          <View style={tw`gap-2`}>
-            <ThemedText type="small" style={tw`text-gray-500`}>
-              {t("counts.progress", {
-                current: currentIndex + 1,
-                total: lines.length,
-                done: doneCount,
-              })}
-            </ThemedText>
-            <View style={tw`h-2 rounded-full bg-gray-200 overflow-hidden`}>
-              <View
-                style={[
-                  tw`h-2 rounded-full bg-light-primary`,
-                  { width: `${(doneCount / lines.length) * 100}%` },
-                ]}
-              />
-            </View>
-          </View>
-        )}
+        {!isExpanded && progress}
       </ThemedView>
 
       <ScrollView
@@ -280,6 +293,50 @@ export default function MenuInventoryCountRunScreen() {
         onClose={() => setIsEditing(false)}
       />
     </ScreenLayout>
+  );
+
+  if (!isExpanded) return run;
+
+  return (
+    <ThemedView style={tw`flex-1 flex-row bg-light-background`}>
+      <ThemedView
+        style={[
+          tw`border-r border-light-outline-variant px-4 pt-8 pb-2 gap-4`,
+          { width: LINES_PANE_WIDTH },
+        ]}
+      >
+        <ThemedText type="h4">{t("counts.detailTitle")}</ThemedText>
+        {progress}
+        <ScrollView
+          style={tw`flex-1`}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={tw`gap-3 pb-4`}
+        >
+          {lines.map((line) => (
+            <CountLineCard
+              key={line.id}
+              line={line}
+              active={line.id === current?.id}
+              onPress={() => {
+                setIsEditing(false);
+                setCurrentId(line.id);
+              }}
+            />
+          ))}
+        </ScrollView>
+        <ThemedView style={tw`flex-row gap-3 bg-transparent`}>
+          <Button
+            leftIcon="add-outline"
+            label={t("counts.addProducts")}
+            variant="outline"
+            onPress={addProducts}
+            style={tw`flex-1`}
+          />
+          <CountFinishButton countId={countId} style={tw`flex-1`} />
+        </ThemedView>
+      </ThemedView>
+      <ThemedView style={tw`flex-1`}>{run}</ThemedView>
+    </ThemedView>
   );
 }
 

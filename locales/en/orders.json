@@ -291,5 +291,9 @@
     "confirmTitle": "Merge orders",
     "confirmMessage": "The items, tickets and payments of order #{{source}} will move to order #{{target}}, and #{{source}} will be closed.",
     "confirm": "Merge"
+  },
+  "pane": {
+    "emptyTitle": "Select an order",
+    "emptyDescription": "Tap an order or a table to see its details here."
   }
 }

@@ -183,6 +183,10 @@
       "completed": "Completed",
       "rejected": "Rejected",
       "cancelled": "Cancelled"
+    },
+    "pane": {
+      "emptyTitle": "Select a transaction",
+      "emptyDescription": "Tap a transaction to see its details and payment proofs here."
     }
   }
 }

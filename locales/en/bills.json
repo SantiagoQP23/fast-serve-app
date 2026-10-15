@@ -145,5 +145,9 @@
     "requestApproval": "Send approval request",
     "autoApproveHint": "The payment will be approved automatically",
     "autoApproved": "Transfer approved"
+  },
+  "pane": {
+    "emptyTitle": "Select a sale",
+    "emptyDescription": "Tap a sale to see its products and payments here."
   }
 }

@@ -14,12 +14,15 @@ import {
 interface InventoryPurchaseCardProps {
   purchase: InventoryPurchase;
   onPress: (purchase: InventoryPurchase) => void;
+  /** Highlights the purchase open in the detail pane (tablet). */
+  active?: boolean;
 }
 
 /** One purchase in the purchases history: size, time, who registered it and its note. */
 export default function InventoryPurchaseCard({
   purchase,
   onPress,
+  active,
 }: InventoryPurchaseCardProps) {
   const { t } = useTranslation("inventory");
   const creator = getPurchaseCreatorName(purchase);
@@ -28,9 +31,11 @@ export default function InventoryPurchaseCard({
     <Card
       variant="outline"
       onPress={() => onPress(purchase)}
-      style={tw`gap-3 p-4`}
+      style={tw.style("gap-3 p-4", active && "bg-light-secondary")}
     >
-      <ThemedView style={tw`flex-row items-start justify-between gap-3 bg-transparent`}>
+      <ThemedView
+        style={tw`flex-row items-start justify-between gap-3 bg-transparent`}
+      >
         <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
           <ThemedText
             type="body1"
@@ -42,7 +47,11 @@ export default function InventoryPurchaseCard({
             {t("purchases.productsCount", { count: purchase.itemsCount ?? 0 })}
           </ThemedText>
           {creator && (
-            <ThemedText type="small" style={tw`text-gray-500`} numberOfLines={1}>
+            <ThemedText
+              type="small"
+              style={tw`text-gray-500`}
+              numberOfLines={1}
+            >
               {t("purchases.registeredBy", { name: creator })}
             </ThemedText>
           )}

@@ -17,7 +17,17 @@ import {
   type InventoryCount,
 } from "@/core/inventory/models/inventory-count.model";
 
-export default function InventoryCountsTab() {
+interface InventoryCountsTabProps {
+  /** Overrides navigating to the count screen, e.g. to open a side pane. */
+  onOpenCount?: (count: InventoryCount) => void;
+  /** Count currently shown in the side pane. */
+  activeId?: string;
+}
+
+export default function InventoryCountsTab({
+  onOpenCount,
+  activeId,
+}: InventoryCountsTabProps) {
   const { t } = useTranslation("inventory");
   const [status, setStatus] = useState<InventoryCountStatus | undefined>();
   const { countsQuery, counts, hasMore, isLoadingMore, loadMore, refresh } =
@@ -40,10 +50,12 @@ export default function InventoryCountsTab() {
   ];
 
   const openCount = (count: InventoryCount) =>
-    router.push({
-      pathname: "/(profile)/menu-inventory-count-detail",
-      params: { countId: count.id },
-    });
+    onOpenCount
+      ? onOpenCount(count)
+      : router.push({
+          pathname: "/(profile)/menu-inventory-count-detail",
+          params: { countId: count.id },
+        });
 
   return (
     <ScrollView
@@ -114,6 +126,7 @@ export default function InventoryCountsTab() {
               key={count.id}
               count={count}
               onPress={openCount}
+              active={activeId === count.id}
             />
           ))}
         </ThemedView>

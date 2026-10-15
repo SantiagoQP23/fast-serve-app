@@ -291,5 +291,9 @@
     "confirmTitle": "Unir pedidos",
     "confirmMessage": "Los productos, tickets y pagos del pedido #{{source}} pasarán al pedido #{{target}} y el #{{source}} se cerrará.",
     "confirm": "Unir"
+  },
+  "pane": {
+    "emptyTitle": "Selecciona un pedido",
+    "emptyDescription": "Toca un pedido o una mesa para ver sus detalles aquí."
   }
 }

@@ -24,6 +24,13 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { Ionicons } from "@expo/vector-icons";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
+import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
+import CartPanel from "@/presentation/orders/components/cart-panel";
+
+const PRODUCT_MIN_WIDTH = 200;
+const PRODUCT_GAP = 12;
+const CART_PANEL_WIDTH = 400;
+const CATEGORY_COLUMN_WIDTH = 200;
 
 export default function RestaurantMenuScreen() {
   const { t } = useTranslation(["menu", "orders"]);
@@ -82,6 +89,22 @@ export default function RestaurantMenuScreen() {
 
   // Leaving the menu ends replace mode, however the user leaves it.
   useEffect(() => resetReplace, [resetReplace]);
+
+  // Tablet landscape: cart lives in a side pane next to the menu
+  const { isExpanded, gridColumns } = useResponsiveLayout();
+  const showCartPanel = isExpanded && !isReplaceMode;
+
+  // Products flow into as many columns as fit the measured list width
+  const [productsWidth, setProductsWidth] = useState(0);
+  const productColumns = gridColumns(
+    PRODUCT_MIN_WIDTH,
+    PRODUCT_GAP,
+    productsWidth,
+  );
+  const productWidth =
+    productsWidth > 0
+      ? (productsWidth - PRODUCT_GAP * (productColumns - 1)) / productColumns
+      : undefined;
 
   useEffect(() => {
     if (order && !editOrderId) {
@@ -188,8 +211,8 @@ export default function RestaurantMenuScreen() {
     );
   }
 
-  return (
-    <ScreenLayout style={tw`px-4 pt-2 flex-1 gap-4`}>
+  const menu = (
+    <ScreenLayout fullWidth style={tw`px-4 pt-2 flex-1 gap-4`}>
       {isReplaceMode && (
         <ThemedView
           style={tw`flex-row items-center gap-3 p-3 rounded-xl bg-gray-100`}
@@ -223,7 +246,11 @@ export default function RestaurantMenuScreen() {
       <ThemedView style={tw`flex-row gap-2 flex-1`}>
         {!search && (
           <ScrollView
-            style={tw`w-30 flex-shrink-0`}
+            style={
+              isExpanded
+                ? { width: CATEGORY_COLUMN_WIDTH, flexGrow: 0 }
+                : tw`w-30 flex-shrink-0`
+            }
             showsVerticalScrollIndicator={false}
             contentContainerStyle={tw`gap-2`}
           >
@@ -238,11 +265,15 @@ export default function RestaurantMenuScreen() {
           </ScrollView>
         )}
         <ScrollView
-          style={tw`${search ? "flex-1" : "w-[70%] flex-shrink-0"}`}
+          style={tw`${search || isExpanded ? "flex-1" : "w-[70%] flex-shrink-0"}`}
+          onLayout={(e) => setProductsWidth(e.nativeEvent.layout.width)}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
-          contentContainerStyle={tw`gap-3 pb-40`}
+          contentContainerStyle={[
+            tw`flex-row flex-wrap pb-40`,
+            { gap: PRODUCT_GAP },
+          ]}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -253,11 +284,15 @@ export default function RestaurantMenuScreen() {
           }
         >
           {filteredProducts.map((product) => (
-            <ProductCard
+            <ThemedView
               key={product.id}
-              onPress={() => openProduct(product)}
-              product={product}
-            ></ProductCard>
+              style={productWidth ? { width: productWidth } : tw`w-full`}
+            >
+              <ProductCard
+                onPress={() => openProduct(product)}
+                product={product}
+              ></ProductCard>
+            </ThemedView>
           ))}
         </ScrollView>
       </ThemedView>
@@ -269,8 +304,9 @@ export default function RestaurantMenuScreen() {
         onBlur={() => setIsSearchFocused(false)}
         placeholder={t("menu:searchPlaceholder")}
       >
-        {/* Hidden while searching so it doesn't crowd the keyboard. */}
-        {!isSearchFocused && !order && details.length > 0 && (
+        {/* Hidden while searching so it doesn't crowd the keyboard, and
+            when the cart is already visible in the side pane. */}
+        {!showCartPanel && !isSearchFocused && !order && details.length > 0 && (
           <ThemedView
             style={tw`flex-row justify-end items-center bg-transparent`}
           >
@@ -282,25 +318,45 @@ export default function RestaurantMenuScreen() {
           </ThemedView>
         )}
 
-        {!isSearchFocused && isEditMode && !isReplaceMode && newItemCount > 0 && (
-          <ThemedView
-            style={tw`flex-row justify-end items-center bg-transparent gap-2`}
-          >
+        {!showCartPanel &&
+          !isSearchFocused &&
+          isEditMode &&
+          !isReplaceMode &&
+          newItemCount > 0 && (
             <ThemedView
-              style={tw`bg-primary-600 rounded-full w-8 h-8 items-center justify-center`}
+              style={tw`flex-row justify-end items-center bg-transparent gap-2`}
             >
-              <ThemedText style={tw`text-white font-bold text-sm`}>
-                {newItemCount}
-              </ThemedText>
+              <ThemedView
+                style={tw`bg-primary-600 rounded-full w-8 h-8 items-center justify-center`}
+              >
+                <ThemedText style={tw`text-white font-bold text-sm`}>
+                  {newItemCount}
+                </ThemedText>
+              </ThemedView>
+              <Button
+                label={t("menu:goToCart")}
+                leftIcon="cart-outline"
+                onPress={() => router.push("/(new-order)/cart")}
+              />
             </ThemedView>
-            <Button
-              label={t("menu:goToCart")}
-              leftIcon="cart-outline"
-              onPress={() => router.push("/(new-order)/cart")}
-            />
-          </ThemedView>
-        )}
+          )}
       </FloatingSearchBar>
     </ScreenLayout>
+  );
+
+  if (!showCartPanel) return menu;
+
+  return (
+    <ThemedView style={tw`flex-1 flex-row bg-light-background`}>
+      <ThemedView style={tw`flex-1`}>{menu}</ThemedView>
+      <ThemedView
+        style={[
+          tw`border-l border-light-outline-variant`,
+          { width: CART_PANEL_WIDTH },
+        ]}
+      >
+        <CartPanel embedded />
+      </ThemedView>
+    </ThemedView>
   );
 }

@@ -1,9 +1,4 @@
-import {
-  FlatList,
-  RefreshControl,
-  View,
-  useWindowDimensions,
-} from "react-native";
+import { FlatList, RefreshControl, View } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -22,8 +17,10 @@ import Button from "@/presentation/theme/components/button";
 import { useTableByStatus } from "@/presentation/orders/hooks/useTableByStatus";
 import { Table } from "@/core/tables/models/table.model";
 import { ViewStyle } from "react-native";
+import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 
-const NUM_COLUMNS = 4;
+const PHONE_NUM_COLUMNS = 4;
+const TABLET_MIN_ITEM_WIDTH = 120;
 const HORIZONTAL_PADDING = 16;
 const COLUMN_GAP = 8;
 
@@ -46,10 +43,14 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
   const primaryColor = useThemeColor({}, "primary");
   const [isLoadingTables, setIsLoadingTables] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const { width: screenWidth } = useWindowDimensions();
-  const itemWidth =
-    (screenWidth - HORIZONTAL_PADDING * 2 - COLUMN_GAP * (NUM_COLUMNS - 1)) /
-    NUM_COLUMNS;
+  // Measured, since the grid may sit in a side pane narrower than the window
+  const { width: windowWidth, isTablet, gridColumns } = useResponsiveLayout();
+  const [containerWidth, setContainerWidth] = useState(0);
+  const gridWidth = (containerWidth || windowWidth) - HORIZONTAL_PADDING * 2;
+  const numColumns = isTablet
+    ? gridColumns(TABLET_MIN_ITEM_WIDTH, COLUMN_GAP, gridWidth)
+    : PHONE_NUM_COLUMNS;
+  const itemWidth = (gridWidth - COLUMN_GAP * (numColumns - 1)) / numColumns;
 
   const tabs: { label: string; value: boolean | "all"; count: number }[] = [
     { label: t("list.filter.all"), value: "all", count: tables.length },
@@ -149,7 +150,10 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
   }
 
   return (
-    <ThemedView style={tw.style(`flex-1`, style)}>
+    <ThemedView
+      style={tw.style(`flex-1`, style)}
+      onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
+    >
       {/* <ThemedView style={tw`flex-row mb-4 gap-2 px-4 pt-4`}> */}
       {/*   {tabs.map((tab) => { */}
       {/*     const isActive = tab.value === selectedStatus; */}
@@ -172,6 +176,8 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
       {/*   })} */}
       {/* </ThemedView> */}
       <FlatList
+        // numColumns can't change on a mounted FlatList
+        key={numColumns}
         data={filteredTables}
         keyExtractor={(item) => item.name.toString()}
         renderItem={({ item }) => (
@@ -179,7 +185,7 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
             <TableCard table={item} onPress={() => onTablePress(item)} />
           </View>
         )}
-        numColumns={NUM_COLUMNS}
+        numColumns={numColumns}
         columnWrapperStyle={{
           gap: COLUMN_GAP,
           marginBottom: COLUMN_GAP,

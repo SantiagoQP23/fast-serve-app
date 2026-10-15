@@ -20,6 +20,8 @@ import { SyncIndicator } from "@/presentation/shared/components/sync-indicator";
 import { GlobalLoader } from "@/presentation/shared/components/global-loader";
 import { SocketLoaderBottomSheet } from "@/presentation/shared/components/socket-loader-bottom-sheet";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import * as Device from "expo-device";
+import * as ScreenOrientation from "expo-screen-orientation";
 
 // Initialize i18n
 import "@/core/i18n/i18n.config";
@@ -46,6 +48,15 @@ export default function RootLayout() {
     observeDeviceColorSchemeChanges: false,
     initialColorScheme: "light",
   });
+
+  // Tablets rotate freely (counter/POS use); phones stay in portrait
+  useEffect(() => {
+    if (Device.deviceType !== Device.DeviceType.TABLET) {
+      ScreenOrientation.lockAsync(
+        ScreenOrientation.OrientationLock.PORTRAIT_UP,
+      ).catch(() => {});
+    }
+  }, []);
 
   // Initialize i18n and dayjs with stored language
   useEffect(() => {

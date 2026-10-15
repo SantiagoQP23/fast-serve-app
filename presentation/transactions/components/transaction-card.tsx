@@ -22,11 +22,14 @@ import Label, { LabelProps } from "@/presentation/theme/components/label";
 
 interface TransactionCardProps extends PressableProps {
   transaction: Transaction;
+  /** Highlights the transaction open in the detail pane (tablet). */
+  active?: boolean;
 }
 
 export default function TransactionCard({
   transaction,
   onPress,
+  active,
   ...rest
 }: TransactionCardProps) {
   const { t } = useTranslation();
@@ -92,7 +95,11 @@ export default function TransactionCard({
             : undefined
         }
       >
-        <Pressable onPress={onPress} {...rest} style={tw``}>
+        <Pressable
+          onPress={onPress}
+          {...rest}
+          style={tw.style(active && "bg-light-secondary rounded-2xl")}
+        >
           <ThemedView style={tw`flex-row justify-between   rounded-3xl`}>
             {/* Left: Colored icon circle + transaction info */}
             <ThemedView style={tw`flex-row  gap-3 flex-1 items-center`}>

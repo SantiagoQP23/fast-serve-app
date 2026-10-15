@@ -25,6 +25,7 @@ import NotificationBadge from "@/presentation/theme/components/notification-badg
 import { ROUTES } from "@/constants/routes";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { useUnprintedTickets } from "@/presentation/orders/hooks/useUnprintedTickets";
+import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 
 export function MyOrdersHeaderRight() {
   const router = useRouter();
@@ -82,6 +83,10 @@ export default function TabLayout() {
   // Check if user has admin-level access (admin or owner)
   const isAdmin = isAdminLevelRole(user?.role?.name);
 
+  // Tablet in landscape (counter/POS): navigation rail on the left
+  const { isTablet, isLandscape } = useResponsiveLayout();
+  const isRail = isTablet && isLandscape;
+
   useEffect(() => {
     checkStatus();
   }, [checkStatus]);
@@ -123,23 +128,46 @@ export default function TabLayout() {
             backgroundColor: Colors.light.background,
           },
           // tabBarActiveTintColor: Colors["light"].tint,
-          tabBarStyle: {
-            backgroundColor: Colors["light"].surface,
-            paddingTop: 5,
-            paddingBottom: 0,
-            borderRadius: 20,
-            shadowColor: "transparent",
-            shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0,
-            shadowRadius: 0,
-            elevation: 0,
-            borderTopWidth: 0,
-          },
-          tabBarItemStyle: {
-            justifyContent: "center",
-            alignItems: "center",
-            paddingVertical: 0,
-          },
+          tabBarPosition: isRail ? "left" : "bottom",
+          tabBarVariant: isRail ? "material" : "uikit",
+          tabBarLabelPosition: "below-icon",
+          // The icon renders its own active pill
+          tabBarActiveBackgroundColor: "transparent",
+          tabBarStyle: isRail
+            ? {
+                backgroundColor: Colors["light"].surface,
+                width: 112,
+                paddingTop: 24,
+                // Override the sidebar's default paddingStart/End
+                paddingStart: 4,
+                paddingEnd: 4,
+                borderRightWidth: 0,
+                elevation: 0,
+              }
+            : {
+                backgroundColor: Colors["light"].surface,
+                paddingTop: 5,
+                paddingBottom: 0,
+                borderRadius: 20,
+                shadowColor: "transparent",
+                shadowOffset: { width: 0, height: 0 },
+                shadowOpacity: 0,
+                shadowRadius: 0,
+                elevation: 0,
+                borderTopWidth: 0,
+              },
+          tabBarItemStyle: isRail
+            ? {
+                justifyContent: "center",
+                alignItems: "center",
+                paddingVertical: 8,
+                marginVertical: 4,
+              }
+            : {
+                justifyContent: "center",
+                alignItems: "center",
+                paddingVertical: 0,
+              },
           tabBarButton: (props) => (
             <Pressable {...props} android_ripple={{ color: "transparent" }} />
           ),

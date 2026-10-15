@@ -36,8 +36,17 @@ import InventoryCountsTab from "@/presentation/inventory/components/inventory-co
 import InventoryPurchasesTab from "@/presentation/inventory/components/inventory-purchases-tab";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
 import { InventoryItemStockStatusFilter } from "@/presentation/inventory/interfaces/dto/find-all-inventory-items.dto";
+import InventoryItemDetailView from "@/presentation/inventory/components/inventory-item-detail-view";
+import InventoryCountDetailView from "@/presentation/inventory/components/inventory-count-detail-view";
+import InventoryPurchaseDetailView from "@/presentation/inventory/components/inventory-purchase-detail-view";
+import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 
 type InventoryTab = "inventory" | "counts" | "purchases";
+
+/** What the detail pane next to the list shows (tablet). */
+type PaneSelection = { kind: "item" | "count" | "purchase"; id: string };
+
+const LIST_PANE_WIDTH = 440;
 
 // Sentinel for the "No category" chip — category ids are UUIDs, so this
 // never collides with a real category.
@@ -89,6 +98,28 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     new Set(),
   );
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+
+  // Tablet landscape: details open in a pane next to the list instead of
+  // pushing a screen.
+  const { isExpanded } = useResponsiveLayout();
+  const [selection, setSelection] = useState<PaneSelection | null>(null);
+  const activeId = isExpanded ? selection?.id : undefined;
+
+  const changeTab = (tab: InventoryTab) => {
+    setActiveTab(tab);
+    setSelection(null);
+  };
+
+  const openItem = (item: InventoryItem) => {
+    if (isExpanded) {
+      setSelection({ kind: "item", id: item.id });
+      return;
+    }
+    router.push({
+      pathname: "/(profile)/menu-inventory-item-detail",
+      params: { itemId: item.id },
+    });
+  };
 
   const categoryFilter =
     selectedCategoryId && selectedCategoryId !== UNCATEGORIZED_FILTER
@@ -200,6 +231,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   const handleConfirmDelete = async () => {
     if (!itemToDelete) return;
     await deleteItem.mutateAsync(itemToDelete.id);
+    if (selection?.id === itemToDelete.id) setSelection(null);
     setItemToDelete(null);
   };
 
@@ -263,14 +295,14 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     {
       icon: "reader-outline",
       label: t("tabs.inventory"),
-      onPress: () => setActiveTab("inventory"),
+      onPress: () => changeTab("inventory"),
       active: activeTab === "inventory",
       accessibilityLabel: t("title"),
     },
     {
       icon: "clipboard-outline",
       label: t("tabs.counts"),
-      onPress: () => setActiveTab("counts"),
+      onPress: () => changeTab("counts"),
       active: activeTab === "counts",
       accessibilityLabel: t("counts.history"),
     },
@@ -279,7 +311,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
           {
             icon: "receipt-outline" as const,
             label: t("tabs.purchases"),
-            onPress: () => setActiveTab("purchases"),
+            onPress: () => changeTab("purchases"),
             active: activeTab === "purchases",
             accessibilityLabel: t("purchases.history"),
           },
@@ -294,7 +326,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
         ? t("purchases.title")
         : t("title");
 
-  return (
+  const content = (
     <>
       <ThemedView style={tw`px-4 pt-8 gap-4 bg-transparent`}>
         <ThemedView style={tw`items-center gap-3 flex-row bg-transparent`}>
@@ -480,10 +512,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
           {browsedItems.length > 0 && (
             <ThemedView style={tw`gap-6 bg-transparent`}>
               {groupedItems.map((group) => (
-                <ThemedView
-                  key={group.letter}
-                  style={tw`gap-3 bg-transparent`}
-                >
+                <ThemedView key={group.letter} style={tw`gap-3 bg-transparent`}>
                   <ThemedText
                     type="caption"
                     style={tw`text-gray-500 font-semibold`}
@@ -496,12 +525,8 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                         key={item.id}
                         item={item}
                         canManage={canManage}
-                        onPress={(pressedItem) =>
-                          router.push({
-                            pathname: "/(profile)/menu-inventory-item-detail",
-                            params: { itemId: pressedItem.id },
-                          })
-                        }
+                        onPress={openItem}
+                        active={activeId === item.id}
                         onOptionsPress={handleOpenOptions}
                         onAdjustPress={setItemToAdjust}
                         onReactivatePress={handleReactivate}
@@ -527,9 +552,28 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
         </ScrollView>
       )}
 
-      {activeTab === "counts" && <InventoryCountsTab />}
+      {activeTab === "counts" && (
+        <InventoryCountsTab
+          activeId={activeId}
+          onOpenCount={
+            isExpanded
+              ? (count) => setSelection({ kind: "count", id: count.id })
+              : undefined
+          }
+        />
+      )}
 
-      {activeTab === "purchases" && canManage && <InventoryPurchasesTab />}
+      {activeTab === "purchases" && canManage && (
+        <InventoryPurchasesTab
+          activeId={activeId}
+          onOpenPurchase={
+            isExpanded
+              ? (purchase) =>
+                  setSelection({ kind: "purchase", id: purchase.id })
+              : undefined
+          }
+        />
+      )}
 
       <View style={tw`absolute bottom-6 left-0 right-0 items-center`}>
         {isSelectionMode ? (
@@ -542,10 +586,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
               onPress={handleCancelSelectionMode}
               accessibilityLabel={t("selection.cancel")}
             />
-            <ThemedText
-              type="body1"
-              style={{ fontFamily: typography.medium }}
-            >
+            <ThemedText type="body1" style={{ fontFamily: typography.medium }}>
               {t("selection.count", { count: selectedItemIds.size })}
             </ThemedText>
             <IconButton
@@ -730,5 +771,58 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
         />
       </ThemedBottomSheetModal>
     </>
+  );
+
+  if (!isExpanded) return content;
+
+  const closePane = () => setSelection(null);
+  const emptyPane = {
+    inventory: { icon: "cube-outline", text: t("pane.selectItem") },
+    counts: { icon: "clipboard-outline", text: t("pane.selectCount") },
+    purchases: { icon: "receipt-outline", text: t("pane.selectPurchase") },
+  } as const;
+
+  return (
+    <ThemedView style={tw`flex-1 flex-row bg-transparent`}>
+      <View style={{ width: LIST_PANE_WIDTH }}>{content}</View>
+      <ThemedView style={tw`flex-1 border-l border-light-outline-variant`}>
+        {selection?.kind === "item" && (
+          <InventoryItemDetailView
+            key={selection.id}
+            itemId={selection.id}
+            embedded
+            onClose={closePane}
+          />
+        )}
+        {selection?.kind === "count" && (
+          <InventoryCountDetailView
+            key={selection.id}
+            countId={selection.id}
+            embedded
+            onClose={closePane}
+          />
+        )}
+        {selection?.kind === "purchase" && (
+          <InventoryPurchaseDetailView
+            key={selection.id}
+            purchaseId={selection.id}
+            embedded
+            onClose={closePane}
+          />
+        )}
+        {!selection && (
+          <ThemedView style={tw`flex-1 items-center justify-center gap-4 px-8`}>
+            <Ionicons
+              name={emptyPane[activeTab].icon}
+              size={64}
+              color={tw.color("gray-400")}
+            />
+            <ThemedText type="body1" style={tw`text-center text-gray-500`}>
+              {emptyPane[activeTab].text}
+            </ThemedText>
+          </ThemedView>
+        )}
+      </ThemedView>
+    </ThemedView>
   );
 }

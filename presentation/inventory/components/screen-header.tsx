@@ -11,25 +11,40 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 interface InventoryScreenHeaderProps {
   title: string;
   right?: ReactNode;
+  /** Defaults to router.back(). */
+  onBack?: () => void;
+  /** "close" for detail panes next to a list (tablet). */
+  backIcon?: "arrow-back-outline" | "close";
+  /** Hide the back button, e.g. for a side panel that can't be left. */
+  hideBack?: boolean;
 }
 
 /** Back arrow + title row used by the inventory stack screens. */
 export default function InventoryScreenHeader({
   title,
   right,
+  onBack,
+  backIcon = "arrow-back-outline",
+  hideBack = false,
 }: InventoryScreenHeaderProps) {
   const { t } = useTranslation("inventory");
 
   return (
     <ThemedView style={tw`items-center gap-3 flex-row bg-transparent`}>
-      <Pressable
-        onPress={() => router.back()}
-        accessibilityRole="button"
-        accessibilityLabel={t("common:actions.goBack")}
-        style={({ pressed }) => tw.style(pressed && "opacity-70")}
-      >
-        <Ionicons name="arrow-back-outline" size={24} />
-      </Pressable>
+      {!hideBack && (
+        <Pressable
+          onPress={onBack ?? (() => router.back())}
+          accessibilityRole="button"
+          accessibilityLabel={
+            backIcon === "close"
+              ? t("common:actions.close")
+              : t("common:actions.goBack")
+          }
+          style={({ pressed }) => tw.style(pressed && "opacity-70")}
+        >
+          <Ionicons name={backIcon} size={24} />
+        </Pressable>
+      )}
       <ThemedText
         type="h3"
         style={{ fontFamily: typography.medium, flex: 1 }}

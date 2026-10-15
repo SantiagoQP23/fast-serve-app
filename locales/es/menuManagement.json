@@ -10,6 +10,10 @@
       "loading": "Cargando...",
       "retry": "Reintentar",
       "error": "No se pudo cargar el menú. Inténtalo de nuevo."
+    },
+    "pane": {
+      "emptyTitle": "Selecciona un producto",
+      "emptyDescription": "Toca un producto para ver sus variantes, inventario y ajustes aquí."
     }
   },
   "sections": {

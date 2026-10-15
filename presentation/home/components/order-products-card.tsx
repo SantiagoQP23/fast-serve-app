@@ -22,6 +22,7 @@ import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import { useMarkOrderDelivered } from "@/presentation/orders/hooks/useMarkOrderDelivered";
 import { typography } from "@/constants/theme";
+import { useIsOrderPaneActive } from "@/presentation/orders/context/order-pane.context";
 
 interface OrderProductsCardProps {
   order: Order;
@@ -64,8 +65,15 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
   // Get relative time
   const relativeTime = getRelativeTime(order.deliveryTime);
 
+  const isPaneActive = useIsOrderPaneActive();
+  const isSelected = useOrdersStore(
+    (state) => isPaneActive && state.activeOrder?.id === order.id,
+  );
+
   const openOrder = () => {
     setActiveOrder(order);
+    // Tablet: the order opens in the detail pane next to the list
+    if (isPaneActive) return;
     router.push(`/(order)/${order.num}`);
     // router.replace("/(new-order)/order-confirmation", { withAnchor: true });
   };
@@ -83,7 +91,11 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
 
   return (
     <ThemedView style={tw`mb-8  `}>
-      <Card style={tw``} onPress={() => openOrder()} variant="outline">
+      <Card
+        style={isSelected ? tw`bg-light-secondary` : tw``}
+        onPress={() => openOrder()}
+        variant="outline"
+      >
         <ThemedView style={tw`mb-6 `}>
           <ThemedView style={tw`flex-row justify-between items-center`}>
             <ThemedView style={tw`flex-row items-center bg-transparent gap-2`}>
