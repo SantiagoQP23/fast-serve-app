@@ -17,6 +17,9 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
+import Select from "@/presentation/theme/components/select";
+import { useTablesStore } from "@/presentation/tables/hooks/useTablesStore";
+import { sortAreas } from "@/presentation/tables/hooks/useTableGroups";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
@@ -36,6 +39,7 @@ const buildTableSchema = (t: (key: string) => string) =>
         t("settings.validations.chairsInvalid"),
       ),
     isAvailable: z.boolean(),
+    areaId: z.string(),
   });
 
 type TableFormData = z.infer<ReturnType<typeof buildTableSchema>>;
@@ -48,6 +52,7 @@ export default function TableSettingsFormScreen() {
     description?: string;
     chairs?: string;
     isAvailable?: string;
+    areaId?: string;
   }>();
 
   const isEditing = !!params.tableId;
@@ -55,6 +60,11 @@ export default function TableSettingsFormScreen() {
   const { createTable, updateTable, deleteTable } = useTablesManagement();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const areas = useTablesStore((state) => state.areas);
+  const areaOptions = [
+    { label: t("areas.noArea"), value: "" },
+    ...sortAreas(areas).map((area) => ({ label: area.name, value: area.id })),
+  ];
 
   const schema = buildTableSchema(t);
 
@@ -69,6 +79,7 @@ export default function TableSettingsFormScreen() {
       description: params.description || "",
       chairs: params.chairs || "4",
       isAvailable: params.isAvailable !== "false",
+      areaId: params.areaId || "",
     },
   });
 
@@ -80,12 +91,14 @@ export default function TableSettingsFormScreen() {
         description: data.description?.trim() || "",
         chairs: Number(data.chairs),
         isAvailable: data.isAvailable,
+        areaId: data.areaId || null,
       });
     } else {
       await createTable.mutateAsync({
         name: data.name.trim(),
         description: data.description?.trim() || "",
         chairs: Number(data.chairs),
+        areaId: data.areaId || null,
       });
     }
 
@@ -187,6 +200,21 @@ export default function TableSettingsFormScreen() {
                 />
               )}
             />
+
+            {areas.length > 0 && (
+              <Controller
+                control={control}
+                name="areaId"
+                render={({ field: { onChange, value } }) => (
+                  <Select
+                    label={t("areas.field")}
+                    options={areaOptions}
+                    value={value}
+                    onChange={(v) => onChange(String(v))}
+                  />
+                )}
+              />
+            )}
           </ThemedView>
         </ScrollView>
       </ScreenLayout>

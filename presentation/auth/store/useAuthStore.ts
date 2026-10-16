@@ -259,6 +259,9 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       if (data.tables) {
         useTablesStore.getState().setTables(data.tables, restaurantId);
       }
+      if (data.tableAreas) {
+        useTablesStore.getState().setAreas(data.tableAreas);
+      }
 
       if (data.errors.length > 0) {
         throw data.errors[0];

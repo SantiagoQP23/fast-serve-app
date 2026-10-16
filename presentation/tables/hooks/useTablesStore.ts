@@ -1,4 +1,5 @@
 import { Table } from "@/core/tables/models/table.model";
+import { TableArea } from "@/core/tables/models/table-area.model";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { AsyncStorageAdapter } from "@/helpers/adapters/async-storage.adapter";
@@ -6,6 +7,10 @@ import { AsyncStorageAdapter } from "@/helpers/adapters/async-storage.adapter";
 export interface TablesState {
   // Table data
   tables: Table[];
+  /** Zonas del restaurante (incluye las ocultas). */
+  areas: TableArea[];
+  /** Zona elegida en la pantalla de mesas de este teléfono; null = Todas. */
+  selectedAreaId: string | null;
   restaurantId: string | null;
   lastUpdated: number | null;
 }
@@ -15,12 +20,20 @@ interface TablesActions {
   addTable: (table: Table) => void;
   updateTable: (table: Table) => void;
   deleteTable: (tableId: string) => void;
+  /** Reemplaza las mesas dadas por id (p. ej. tras reordenar). */
+  upsertTables: (tables: Table[]) => void;
+  setAreas: (areas: TableArea[]) => void;
+  setSelectedAreaId: (areaId: string | null) => void;
+  upsertArea: (area: TableArea) => void;
+  removeArea: (areaId: string) => void;
   clearTables: () => void;
   reset: () => void;
 }
 
 const initialState: TablesState = {
   tables: [],
+  areas: [],
+  selectedAreaId: null,
   restaurantId: null,
   lastUpdated: null,
 };
@@ -57,9 +70,41 @@ export const useTablesStore = create<TablesState & TablesActions>()(
           lastUpdated: Date.now(),
         })),
 
+      upsertTables: (tables: Table[]) =>
+        set((state) => {
+          const byId = new Map(tables.map((t) => [t.id, t]));
+          const known = new Set(state.tables.map((t) => t.id));
+          return {
+            tables: [
+              ...state.tables.map((t) => byId.get(t.id) ?? t),
+              ...tables.filter((t) => !known.has(t.id)),
+            ],
+            lastUpdated: Date.now(),
+          };
+        }),
+
+      setAreas: (areas: TableArea[]) => set({ areas }),
+
+      setSelectedAreaId: (selectedAreaId: string | null) =>
+        set({ selectedAreaId }),
+
+      upsertArea: (area: TableArea) =>
+        set((state) => ({
+          areas: state.areas.some((a) => a.id === area.id)
+            ? state.areas.map((a) => (a.id === area.id ? { ...a, ...area } : a))
+            : [...state.areas, area],
+        })),
+
+      removeArea: (areaId: string) =>
+        set((state) => ({
+          areas: state.areas.filter((a) => a.id !== areaId),
+        })),
+
       clearTables: () =>
         set({
           tables: [],
+          areas: [],
+          selectedAreaId: null,
           restaurantId: null,
           lastUpdated: null,
         }),

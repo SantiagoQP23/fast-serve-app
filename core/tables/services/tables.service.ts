@@ -23,4 +23,16 @@ export class TablesService {
   static async deleteTable(id: string): Promise<void> {
     await restaurantApi.delete(`/tables/${id}`);
   }
+
+  /** `tableIds`: todas las mesas de la zona en el nuevo orden. */
+  static async reorderTables(
+    areaId: string | null,
+    tableIds: string[],
+  ): Promise<Table[]> {
+    const resp = await restaurantApi.patch<Table[]>("/tables/reorder", {
+      areaId,
+      tableIds,
+    });
+    return resp.data;
+  }
 }

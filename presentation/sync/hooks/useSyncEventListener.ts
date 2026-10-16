@@ -17,6 +17,7 @@ import { useSyncStore } from "../store/useSyncStore";
 import { shouldSkipOrderSyncEvent } from "@/presentation/offline/pending-orders";
 import { applyTicketEvent } from "../apply-ticket-event";
 import { applyProductEvent } from "../apply-product-event";
+import { applyTableAreaEvent } from "../apply-table-area-event";
 
 function applyOrderEvent(event: SyncEventDto) {
   const order = event.data as Order;
@@ -132,6 +133,9 @@ export const useSyncEventListener = () => {
           break;
         case SyncResourceType.TABLE:
           applyTableEvent(event);
+          break;
+        case SyncResourceType.TABLE_AREA:
+          applyTableAreaEvent(event);
           break;
         case SyncResourceType.PRODUCT:
           applyProductEvent(event);
