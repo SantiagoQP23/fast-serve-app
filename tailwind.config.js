@@ -1,53 +1,51 @@
-import { Colors } from "./constants/theme";
+import {
+  palettes,
+  colorScaleOverrides,
+  DEFAULT_THEME,
+} from "./constants/theme";
 
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  theme: {
-    extend: {
-      colors: {
-        light: {
-          primary: Colors.light.primary,
-          secondary: Colors.light.secondary,
-          "secondary-container": Colors.light.secondaryContainer,
-          "on-secondary-container": Colors.light.onSecondaryContainer,
-          "on-primary": Colors.light.onPrimary,
-          "on-secondary": Colors.light.onSecondary,
-          "primary-container": Colors.light.primaryContainer,
-          "on-primary-container": Colors.light.onPrimaryContainer,
-          "surface-high": Colors.light.surfaceHigh,
-          "surface-container-low": Colors.light.surfaceContainerLow,
-          "on-surface-variant": Colors.light.onSurfaceVariant,
-          "outline-variant": Colors.light.outlineVariant,
+const toKebab = (key) => key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
 
-          background: Colors.light.background,
-          surface: Colors.light.surface,
+/**
+ * Builds the Tailwind config for one theme. Palette roles become
+ * prefix-free classes (`bg-surface`, `text-on-surface-variant`), and the
+ * theme's color scale overrides replace Tailwind's defaults (e.g. `gray`).
+ *
+ * @param {import("./constants/theme").ThemeName} themeName
+ * @returns {import('tailwindcss').Config}
+ */
+function buildTailwindConfig(themeName) {
+  const roles = Object.fromEntries(
+    Object.entries(palettes[themeName]).map(([key, value]) => [
+      toKebab(key),
+      value,
+    ]),
+  );
 
-          text: Colors.light.text,
-          icon: Colors.light.icon,
-          border: Colors.light.border,
-          divider: Colors.light.divider,
+  return {
+    theme: {
+      extend: {
+        colors: {
+          ...colorScaleOverrides[themeName],
+          ...roles,
         },
-        dark: {
-          primary: Colors.dark.primary,
-          secondary: Colors.dark.secondary,
-          tertiary: Colors.dark.tertiary,
-          background: Colors.dark.background,
-          text: Colors.dark.text,
+        fontFamily: {
+          inter: ["Inter_400Regular"],
+          "inter-medium": ["Inter_500Medium"],
+          "inter-semibold": ["Inter_600SemiBold"],
+          "inter-bold": ["Inter_700Bold"],
+          "inter-extrabold": ["Inter_800ExtraBold"],
         },
-      },
-      fontFamily: {
-        inter: ["Inter_400Regular"],
-        "inter-medium": ["Inter_500Medium"],
-        "inter-semibold": ["Inter_600SemiBold"],
-        "inter-bold": ["Inter_700Bold"],
-        "inter-extrabold": ["Inter_800ExtraBold"],
-      },
-      screens: {
-        sm: "480px", // teléfonos grandes
-        md: "768px", // tablet
-        lg: "1024px", // tablet grande
+        screens: {
+          sm: "480px", // teléfonos grandes
+          md: "768px", // tablet
+          lg: "1024px", // tablet grande
+        },
       },
     },
-  },
-  plugins: [],
-};
+    plugins: [],
+  };
+}
+
+module.exports = buildTailwindConfig(DEFAULT_THEME);
+module.exports.buildTailwindConfig = buildTailwindConfig;

@@ -1,56 +1,82 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
-
 import { Platform } from "react-native";
 
-const tintColorLight = "#0a7ea4";
-const tintColorDark = "#fff";
+/**
+ * Color roles shared by every theme. Components use these roles
+ * (`bg-surface`, `text-on-surface-variant`, `usePalette().primary`)
+ * instead of fixed colors, so the same code works in every theme.
+ */
+export interface Palette {
+  primary: string;
+  onPrimary: string;
+  primaryContainer: string;
+  onPrimaryContainer: string;
+  /** Selected/active fill for chips and segmented choices. */
+  secondary: string;
+  onSecondary: string;
+  secondaryContainer: string;
+  onSecondaryContainer: string;
 
-export const Colors = {
-  light: {
-    // primary: "#3F72AF",
-    // primary: "#1c1c1e",
-    primary: "#38608F",
-    onPrimary: "#FFFFFF",
-    primaryContainer: "#D2E4FF",
-    onPrimaryContainer: "#1C4975",
-    secondary: "#D7E3F8",
-    secondaryContainer: "#535F70",
-    onSecondaryContainer: "#FFFFFF",
-    onSecondary: "#3C4858",
-    outlineVariant: "#C3C6CF",
+  /** App canvas. */
+  background: string;
+  /** Cards, list rows, inputs. */
+  surface: string;
+  surfaceHigh: string;
+  surfaceContainerLow: string;
+  /** Raised cards that are plain white in the light theme. */
+  surfaceBright: string;
 
-    surface: "#ECEEF4", // cards, lists, inputs
-    onSurfaceVariant: "#43474E",
+  text: string;
+  onSurface: string;
+  onSurfaceVariant: string;
+  icon: string;
+  border: string;
+  outlineVariant: string;
+  divider: string;
+}
 
-    surfaceHigh: "#E7E8EE",
-    surfaceContainerLow: "#F2F3FA",
-    // surface: "#FFFFFF", // cards, lists, inputs
-    background: "#F8F9FF", // app canvas
-    // background: "#F7F7F7", // app canvas
+const light: Palette = {
+  primary: "#38608F",
+  onPrimary: "#FFFFFF",
+  primaryContainer: "#D2E4FF",
+  onPrimaryContainer: "#1C4975",
+  secondary: "#D7E3F8",
+  onSecondary: "#3C4858",
+  secondaryContainer: "#535F70",
+  onSecondaryContainer: "#FFFFFF",
 
-    text: "#191C20", // primary text
-    icon: "#64748b",
+  background: "#F8F9FF",
+  surface: "#ECEEF4",
+  surfaceHigh: "#E7E8EE",
+  surfaceContainerLow: "#F2F3FA",
+  surfaceBright: "#FFFFFF",
 
-    tint: "#0977CA",
-    tabIconDefault: "#64748b",
-    tabIconSelected: "#0977CA",
-    border: "#C3C6CF", // default borders
-    divider: "#f1f5f9",
-  },
-  dark: {
-    primary: "#205781",
-    secondary: "#1cbbb4",
-    tertiary: "#1c1c1e",
-    text: "#ECEDEE",
-    background: "#151718",
-    tint: tintColorDark,
-    icon: "#9BA1A6",
-    tabIconDefault: "#9BA1A6",
-    tabIconSelected: tintColorDark,
-  },
+  text: "#191C20",
+  onSurface: "#191C20",
+  onSurfaceVariant: "#43474E",
+  icon: "#64748b",
+  border: "#C3C6CF",
+  outlineVariant: "#C3C6CF",
+  divider: "#f1f5f9",
+};
+
+export const palettes = {
+  light,
+} satisfies Record<string, Palette>;
+
+export type ThemeName = keyof typeof palettes;
+
+export const DEFAULT_THEME: ThemeName = "light";
+
+/**
+ * Per-theme replacements for Tailwind's built-in color scales
+ * (e.g. a warmer `gray` on paper), so existing `text-gray-500` style
+ * classes follow the theme too. Empty for the light theme.
+ */
+export const colorScaleOverrides: Record<
+  ThemeName,
+  Record<string, Record<string, string>>
+> = {
+  light: {},
 };
 
 export const Fonts = Platform.select({

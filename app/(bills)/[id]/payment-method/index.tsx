@@ -332,7 +332,7 @@ export default function PaymentMethodScreen() {
         enablePanDownToClose
         onDismiss={handleSheetDismissed}
       >
-        <BottomSheetView style={tw`p-6 gap-4 bg-light-background`}>
+        <BottomSheetView style={tw`p-6 gap-4 bg-background`}>
           <ThemedView style={tw`gap-1`}>
             <ThemedText type="h3">{t("bills:details.transferNote")}</ThemedText>
             <ThemedText type="body1" style={tw`text-gray-500`}>
@@ -375,7 +375,7 @@ export default function PaymentMethodScreen() {
                 <Pressable
                   onPress={() => pickProofImage("gallery")}
                   style={({ pressed }) => [
-                    tw`flex-1 items-center justify-center p-4 rounded-xl border-2 border-dashed border-light-border  bg-light-surface gap-2`,
+                    tw`flex-1 items-center justify-center p-4 rounded-xl border-2 border-dashed border-border  bg-surface gap-2`,
                     pressed && tw`opacity-70 bg-gray-100`,
                   ]}
                 >
@@ -394,7 +394,7 @@ export default function PaymentMethodScreen() {
                 <Pressable
                   onPress={() => pickProofImage("camera")}
                   style={({ pressed }) => [
-                    tw`flex-1 items-center justify-center p-4 rounded-xl border-2 border-dashed border-light-border  bg-light-surface gap-2`,
+                    tw`flex-1 items-center justify-center p-4 rounded-xl border-2 border-dashed border-border  bg-surface gap-2`,
                     pressed && tw`opacity-70 bg-gray-100`,
                   ]}
                 >
@@ -455,7 +455,7 @@ export default function PaymentMethodScreen() {
         enablePanDownToClose
         onDismiss={handleSheetDismissed}
       >
-        <BottomSheetView style={tw`p-6 gap-4 bg-light-background`}>
+        <BottomSheetView style={tw`p-6 gap-4 bg-background`}>
           <ThemedView style={tw`gap-1 items-center`}>
             <ThemedText type="h3">{t("bills:details.commission")}</ThemedText>
             <ThemedText type="body2" style={tw`text-gray-500`}>
@@ -490,7 +490,7 @@ export default function PaymentMethodScreen() {
         enablePanDownToClose
         onDismiss={handleSheetDismissed}
       >
-        <BottomSheetView style={tw`p-4 gap-4 mb-8 bg-light-background`}>
+        <BottomSheetView style={tw`p-4 gap-4 mb-8 bg-background`}>
           <ThemedView style={tw`gap-1`}>
             <ThemedText type="h3">
               {t("bills:details.receivedAmount")}
@@ -536,7 +536,7 @@ export default function PaymentMethodScreen() {
 
           {+receivedAmount > +payAmount && (
             <ThemedView
-              style={tw`mt-2 p-4 rounded-xl border border-light-border items-center`}
+              style={tw`mt-2 p-4 rounded-xl border border-border items-center`}
             >
               <ThemedText type="caption" style={tw`mb-1`}>
                 {t("bills:details.change")}

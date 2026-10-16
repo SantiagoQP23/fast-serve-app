@@ -31,9 +31,9 @@ export default function Slider({
   step = 1,
   disabled = false,
   height = 16,
-  bgColor = "bg-light-secondary",
-  progressColor = "bg-light-primary",
-  thumbColor = "bg-light-primary",
+  bgColor = "bg-secondary",
+  progressColor = "bg-primary",
+  thumbColor = "bg-primary",
   style = "",
 }: {
   value: number;

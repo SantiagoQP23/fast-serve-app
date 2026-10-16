@@ -1,21 +1,14 @@
+import type { Palette } from "@/constants/theme";
+import { usePalette } from "@/presentation/theme/store/useThemeStore";
+
 /**
- * Learn more about light and dark modes:
- * https://docs.expo.dev/guides/color-schemes/
+ * Returns a color role from the active theme. `props.light` overrides it
+ * in the light theme only (kept for existing `lightColor` props).
  */
-
-import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/presentation/theme/hooks/use-color-scheme";
-
 export function useThemeColor(
   props: { light?: string; dark?: string },
-  colorName: keyof typeof Colors.light & keyof typeof Colors.dark,
+  colorName: keyof Palette,
 ) {
-  const theme = useColorScheme() ?? "light";
-  const colorFromProps = props[theme];
-
-  if (colorFromProps) {
-    return colorFromProps;
-  } else {
-    return Colors[theme][colorName];
-  }
+  const palette = usePalette();
+  return props.light ?? palette[colorName];
 }

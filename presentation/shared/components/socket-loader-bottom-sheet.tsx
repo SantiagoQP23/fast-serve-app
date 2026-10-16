@@ -52,7 +52,7 @@ export function SocketLoaderBottomSheet() {
       <BottomSheetView
         style={tw`items-center justify-center py-10 px-6 gap-4`}
       >
-        <ActivityIndicator size="large" color={tw.color("light-primary")} />
+        <ActivityIndicator size="large" color={tw.color("primary")} />
         <ThemedText type="body1" style={tw`text-center`}>
           {message}
         </ThemedText>

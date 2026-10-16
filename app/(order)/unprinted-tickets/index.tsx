@@ -161,7 +161,7 @@ export default function UnprintedTicketsScreen() {
       {isSelectionMode && (
         <View style={tw`absolute bottom-6 left-4 right-4 items-center`}>
           <ThemedView
-            style={tw`w-full flex-row items-center gap-1 bg-light-surface rounded-full shadow-sm px-2 py-2`}
+            style={tw`w-full flex-row items-center gap-1 bg-surface rounded-full shadow-sm px-2 py-2`}
           >
             <IconButton
               icon="close"

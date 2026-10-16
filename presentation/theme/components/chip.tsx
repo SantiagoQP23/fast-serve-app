@@ -26,7 +26,7 @@ type ChipProps = {
   leftContent?: React.ReactNode;
 };
 
-// Mirrors Colors.light.onSecondary / .primary (constants/theme.ts) — kept as
+// Mirrors palette.onSecondary / .primary (constants/theme.ts) — kept as
 // literals here since Ionicons' `color` prop needs a raw value, not a tw class.
 const SELECTED_ICON_COLOR = "#3C4858";
 const DEFAULT_ICON_COLOR = "#4b5563";
@@ -72,10 +72,10 @@ export default function Chip({
       style={({ pressed }) => [
         tw`flex-row items-center px-4 py-[6px] rounded-md gap-2`,
         filled
-          ? tw`bg-light-secondary`
+          ? tw`bg-secondary`
           : variant === "input"
-            ? tw`bg-light-surface-container-low border border-light-border`
-            : tw`border border-light-border`,
+            ? tw`bg-surface-container-low border border-border`
+            : tw`border border-border`,
         pressed && tw`opacity-75`,
         disabled && tw`opacity-50`,
       ]}
@@ -88,10 +88,10 @@ export default function Chip({
         type="body2"
         style={[
           filled
-            ? tw`text-light-on-secondary`
+            ? tw`text-on-secondary`
             : variant === "assist"
-              ? tw`text-light-text`
-              : tw`text-light-on-surface-variant`,
+              ? tw`text-text`
+              : tw`text-on-surface-variant`,
           { fontFamily: typography.medium },
         ]}
       >

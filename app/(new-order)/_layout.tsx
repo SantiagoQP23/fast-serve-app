@@ -16,10 +16,12 @@ import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
-import { Colors, typography } from "@/constants/theme";
+import { typography } from "@/constants/theme";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
+import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 export default function NewOrderLayout() {
+  const palette = usePalette();
   const { t } = useTranslation(["common", "menu"]);
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
   const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
@@ -67,7 +69,7 @@ export default function NewOrderLayout() {
           icon="create-outline"
           onPress={handlePresentModalPress}
           size={18}
-          style={tw`bg-light-surface p-2`}
+          style={tw`bg-surface p-2`}
         ></IconButton>
       </ThemedView>
     );
@@ -77,7 +79,7 @@ export default function NewOrderLayout() {
       <Stack
         screenOptions={{
           headerShown: false,
-          headerStyle: { backgroundColor: Colors.light.background },
+          headerStyle: { backgroundColor: palette.background },
           headerTitleStyle: { fontFamily: typography.medium },
         }}
       >

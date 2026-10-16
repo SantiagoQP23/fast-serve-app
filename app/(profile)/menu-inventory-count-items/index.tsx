@@ -209,7 +209,7 @@ export default function MenuInventoryCountItemsScreen() {
                   <Ionicons
                     name={isSelected ? "checkmark-circle" : "ellipse-outline"}
                     size={24}
-                    color={tw.color(isSelected ? "light-primary" : "gray-400")}
+                    color={tw.color(isSelected ? "primary" : "gray-400")}
                   />
                 )}
               </ThemedView>

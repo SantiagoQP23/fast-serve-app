@@ -44,7 +44,7 @@ export default function BestSellingProductsCard({
           {t("reports:bestSelling.products.title")}
         </ThemedText>
         <Pressable onPress={handleSeeAll} hitSlop={8}>
-          <ThemedText type="small" style={tw`text-light-primary`}>
+          <ThemedText type="small" style={tw`text-primary`}>
             {t("common:actions.seeAll")}
           </ThemedText>
         </Pressable>
@@ -63,7 +63,7 @@ export default function BestSellingProductsCard({
             >
               <ThemedView style={tw`flex-row items-center gap-3 flex-1`}>
                 <ThemedView
-                  style={tw`w-6 h-6 rounded-full bg-light-background items-center justify-center`}
+                  style={tw`w-6 h-6 rounded-full bg-background items-center justify-center`}
                 >
                   <ThemedText type="small" style={tw`text-gray-500`}>
                     {index + 1}

@@ -407,7 +407,7 @@ export default function MenuProductFormScreen() {
                 {!hasPresetCategory &&
                   (categories.length === 0 ? (
                     <ThemedView
-                      style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+                      style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
                     >
                       <Ionicons
                         name="pricetag-outline"
@@ -508,7 +508,7 @@ export default function MenuProductFormScreen() {
                   <ThemedView style={tw`gap-3`}>
                     {fields.length === 0 ? (
                       <ThemedView
-                        style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+                        style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
                       >
                         <Ionicons
                           name="options-outline"
@@ -530,7 +530,7 @@ export default function MenuProductFormScreen() {
                             onDelete={() => handleRemoveVariant(index)}
                           >
                             <ThemedView
-                              style={tw`flex-row items-center gap-1 bg-light-background dark:bg-black`}
+                              style={tw`flex-row items-center gap-1 bg-background `}
                             >
                               <Pressable
                                 onPress={() => handleMakeDefault(index)}
@@ -615,7 +615,7 @@ export default function MenuProductFormScreen() {
 
       {!isEditing && (
         <ThemedView
-          style={tw`absolute bottom-0 left-0 right-0 bg-light-background dark:bg-black  px-4 py-4`}
+          style={tw`absolute bottom-0 left-0 right-0 bg-background  px-4 py-4`}
         >
           <ThemedView style={tw`flex-row justify-end`}>
             <Button

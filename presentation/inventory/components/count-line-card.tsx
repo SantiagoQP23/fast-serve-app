@@ -37,7 +37,7 @@ export default function CountLineCard({
   return (
     <Card
       onPress={onPress}
-      style={tw.style("p-4", active && "bg-light-secondary")}
+      style={tw.style("p-4", active && "bg-secondary")}
     >
       <ThemedView style={tw`gap-1 bg-transparent`}>
         <ThemedView

@@ -24,13 +24,13 @@ export default function InventoryDetailSummaryCard({
   const unitLabel = t(`units.${item.unit}`);
 
   return (
-    <ThemedView style={tw`bg-light-surface rounded-3xl p-6 gap-5 shadow-xs`}>
+    <ThemedView style={tw`bg-surface rounded-3xl p-6 gap-5 shadow-xs`}>
       <ThemedText type="h3" style={{ fontFamily: typography.medium }}>
         {item.name}
       </ThemedText>
 
       <ThemedView
-        style={tw`bg-light-background rounded-3xl p-5 shadow-xs flex-row items-baseline justify-between`}
+        style={tw`bg-background rounded-3xl p-5 shadow-xs flex-row items-baseline justify-between`}
       >
         <ThemedView style={tw`gap-1 bg-transparent`}>
           <ThemedText type="small" style={tw`text-gray-500`}>
@@ -41,7 +41,7 @@ export default function InventoryDetailSummaryCard({
           >
             <ThemedText
               type="h1"
-              style={[{ fontFamily: typography.bold }, tw`text-light-primary`]}
+              style={[{ fontFamily: typography.bold }, tw`text-primary`]}
             >
               {item.quantity}
             </ThemedText>
@@ -49,7 +49,7 @@ export default function InventoryDetailSummaryCard({
               type="body1"
               style={[
                 { fontFamily: typography.semibold },
-                tw`text-light-primary`,
+                tw`text-primary`,
               ]}
             >
               {unitLabel}
@@ -79,7 +79,7 @@ export default function InventoryDetailSummaryCard({
       </ThemedView>
 
       <ThemedView
-        style={tw`flex-row flex-wrap gap-y-4 pt-4 border-t border-light-divider bg-transparent`}
+        style={tw`flex-row flex-wrap gap-y-4 pt-4 border-t border-divider bg-transparent`}
       >
         {item.minimumQuantity != null && (
           <DetailField

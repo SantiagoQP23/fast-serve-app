@@ -149,7 +149,7 @@ const EditOrderBottomSheet = ({
           />
         )}
         <ThemedView style={tw`gap-2`}>
-          <Text style={tw`text-gray-700 dark:text-gray-300  font-semibold`}>
+          <Text style={tw`text-gray-700  font-semibold`}>
             {t("orders:form.people")}
           </Text>
           <PeopleSelector
@@ -162,7 +162,7 @@ const EditOrderBottomSheet = ({
         {/* <Card onPress={openTimePicker}> */}
         {/*   <ThemedText */}
         {/*     type="body2" */}
-        {/*     style={tw`text-gray-700 dark:text-gray-300 `} */}
+        {/*     style={tw`text-gray-700 `} */}
         {/*   > */}
         {/*     {t("orders:form.deliveryTime")} */}
         {/*   </ThemedText> */}
@@ -170,7 +170,7 @@ const EditOrderBottomSheet = ({
         {/* </Card> */}
         {/* {Platform.OS === "ios" && showTimePicker && ( */}
         {/*   <ThemedView */}
-        {/*     style={tw`border border-gray-300 dark:border-gray-700 rounded-2xl overflow-hidden`} */}
+        {/*     style={tw`border border-gray-300 rounded-2xl overflow-hidden`} */}
         {/*   > */}
         {/*     <DateTimePicker */}
         {/*       value={form.deliveryTime} */}

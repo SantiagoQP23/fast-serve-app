@@ -559,7 +559,7 @@ export default function IncomesScreen() {
       <ThemedView style={[tw`pt-8`, { width: LIST_PANE_WIDTH }]}>
         {content}
       </ThemedView>
-      <ThemedView style={tw`flex-1 border-l border-light-outline-variant`}>
+      <ThemedView style={tw`flex-1 border-l border-outline-variant`}>
         {selectedTransactionId != null ? (
           <TransactionDetailView
             key={selectedTransactionId}

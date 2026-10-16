@@ -424,7 +424,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
 
             if (row.kind === "chips") {
               return (
-                <ThemedView style={tw`bg-light-background pb-4`}>
+                <ThemedView style={tw`bg-background pb-4`}>
                   <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}

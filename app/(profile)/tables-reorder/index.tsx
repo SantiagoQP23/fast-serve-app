@@ -40,7 +40,7 @@ function DraggableRow({ row }: { row: Row }) {
       delayLongPress={200}
       style={({ pressed }) =>
         tw.style(
-          "flex-row items-center gap-4 px-4 py-4 mb-2 rounded-2xl bg-light-surface",
+          "flex-row items-center gap-4 px-4 py-4 mb-2 rounded-2xl bg-surface",
           pressed && "opacity-80",
         )
       }
@@ -48,7 +48,7 @@ function DraggableRow({ row }: { row: Row }) {
       <Ionicons
         name="reorder-three-outline"
         size={24}
-        color={tw.color("text-light-on-surface-variant")}
+        color={tw.color("text-on-surface-variant")}
       />
       <ThemedView style={tw`flex-1 bg-transparent`}>
         <ThemedText type="body1" style={{ fontFamily: typography.medium }}>

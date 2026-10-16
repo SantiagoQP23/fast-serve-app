@@ -135,7 +135,7 @@ export default function TicketCard({
 
       {/* Ticket Header */}
       <ThemedView
-        style={tw`flex-row justify-between items-center border-b border-light-border pb-4`}
+        style={tw`flex-row justify-between items-center border-b border-border pb-4`}
       >
         <ThemedView style={tw`flex-row items-center gap-2`}>
           <Label text={typeLabel} />
@@ -173,7 +173,7 @@ export default function TicketCard({
             <ThemedText
               type="body2"
               style={[
-                tw` text-light-on-surface-variant uppercase`,
+                tw` text-on-surface-variant uppercase`,
                 { fontFamily: typography.semibold },
               ]}
             >
@@ -185,13 +185,13 @@ export default function TicketCard({
                   <ThemedView style={tw`flex-row items-start gap-2`}>
                     <ThemedText
                       type="small"
-                      style={tw`font-bold text-light-text min-w-6`}
+                      style={tw`font-bold text-text min-w-6`}
                     >
                       {item.quantity}x
                     </ThemedText>
                     <ThemedText
                       type="small"
-                      style={tw`font-semibold text-light-text flex-1`}
+                      style={tw`font-semibold text-text flex-1`}
                     >
                       {item.productName}
                     </ThemedText>

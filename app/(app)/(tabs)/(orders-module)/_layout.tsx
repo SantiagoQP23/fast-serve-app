@@ -63,7 +63,7 @@ export default function OrdersModuleLayout() {
   const { t } = useTranslation("orders");
 
   return (
-    <ThemedView style={tw`flex-1 bg-light-background `}>
+    <ThemedView style={tw`flex-1 bg-background `}>
       <Stack screenOptions={{ headerShown: true }}>
         <Stack.Screen
           name="my-orders"

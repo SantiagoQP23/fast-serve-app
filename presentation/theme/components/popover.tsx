@@ -107,7 +107,7 @@ export default function Popover({
 
       <Animated.View
         style={[
-          tw`absolute rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-light-surface-container-low dark:bg-black`,
+          tw`absolute rounded-xl border border-gray-200 overflow-hidden bg-surface-container-low `,
           shadows.card,
           {
             top,
@@ -150,7 +150,7 @@ export default function Popover({
                 <Ionicons
                   name={item.icon}
                   size={18}
-                  color={tw.color("text-light-on-surface-variant")}
+                  color={tw.color("text-on-surface-variant")}
                   style={tw`mr-4`}
                 />
               )}

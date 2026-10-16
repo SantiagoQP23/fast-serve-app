@@ -287,8 +287,7 @@ export default function TablesSettingsScreen() {
                       canSelect ? () => toggleSelected(table.id) : undefined
                     }
                     containerStyle={
-                      selectedIds.has(table.id) &&
-                      tw`border-2 border-light-primary`
+                      selectedIds.has(table.id) && tw`border-2 border-primary`
                     }
                     style={table.isActive === false && tw`opacity-50`}
                   >
@@ -302,8 +301,8 @@ export default function TablesSettingsScreen() {
                         size={28}
                         color={tw.color(
                           selectedIds.has(table.id)
-                            ? "light-primary"
-                            : "text-light-on-surface-variant",
+                            ? "primary"
+                            : "text-on-surface-variant",
                         )}
                       />
                       <ThemedView style={tw`gap-2`}>
@@ -337,7 +336,7 @@ export default function TablesSettingsScreen() {
 
       {isSelecting && (
         <ThemedView
-          style={tw`absolute bottom-6 left-4 right-4 flex-row items-center gap-4 p-4 rounded-3xl bg-light-surface-high`}
+          style={tw`absolute bottom-6 left-4 right-4 flex-row items-center gap-4 p-4 rounded-3xl bg-surface-high`}
         >
           <ThemedText type="body1" style={tw`flex-1`}>
             {t("areas.selectedCount", { count: selectedIds.size })}

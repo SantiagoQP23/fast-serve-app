@@ -150,7 +150,7 @@ export default function InventoryMovementHistory({
                   style={tw`flex-row items-center gap-3 flex-1 bg-transparent`}
                 >
                   <ThemedView
-                    style={tw`w-9 h-9 rounded-full bg-light-background items-center justify-center shadow-xs`}
+                    style={tw`w-9 h-9 rounded-full bg-background items-center justify-center shadow-xs`}
                   >
                     <Ionicons
                       name={visual.icon}

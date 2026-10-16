@@ -31,7 +31,7 @@ export default function InventoryPurchaseCard({
     <Card
       variant="outline"
       onPress={() => onPress(purchase)}
-      style={tw.style("gap-3 p-4", active && "bg-light-secondary")}
+      style={tw.style("gap-3 p-4", active && "bg-secondary")}
     >
       <ThemedView
         style={tw`flex-row items-start justify-between gap-3 bg-transparent`}
@@ -41,7 +41,7 @@ export default function InventoryPurchaseCard({
             type="body1"
             style={[
               { fontFamily: typography.semibold },
-              tw`text-light-on-surface`,
+              tw`text-on-surface`,
             ]}
           >
             {t("purchases.productsCount", { count: purchase.itemsCount ?? 0 })}
@@ -59,7 +59,7 @@ export default function InventoryPurchaseCard({
         <ThemedText
           type="small"
           style={[
-            tw`text-light-on-surface-variant pt-1`,
+            tw`text-on-surface-variant pt-1`,
             { fontVariant: ["tabular-nums"] },
           ]}
         >
@@ -77,7 +77,7 @@ export default function InventoryPurchaseCard({
           />
           <ThemedText
             type="body2"
-            style={tw`flex-1 text-light-on-surface-variant`}
+            style={tw`flex-1 text-on-surface-variant`}
             numberOfLines={2}
           >
             {purchase.note}

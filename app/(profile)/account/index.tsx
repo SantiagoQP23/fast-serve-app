@@ -59,7 +59,7 @@ export default function AccountScreen() {
           <Pressable
             style={({ pressed }) =>
               tw.style(
-                `flex-row items-center gap-4 bg-light-surface p-4 rounded-3xl`,
+                `flex-row items-center gap-4 bg-surface p-4 rounded-3xl`,
                 pressed && "opacity-70",
               )
             }
@@ -68,7 +68,7 @@ export default function AccountScreen() {
             <Ionicons
               name="mail-outline"
               size={24}
-              color={tw.color("light-primary")}
+              color={tw.color("primary")}
             />
             <ThemedText type="body1" style={tw`flex-1`}>
               {t("account.changeEmail")}
@@ -83,7 +83,7 @@ export default function AccountScreen() {
           <Pressable
             style={({ pressed }) =>
               tw.style(
-                `flex-row items-center gap-4 bg-light-surface p-4 rounded-3xl`,
+                `flex-row items-center gap-4 bg-surface p-4 rounded-3xl`,
                 !hasLocalPassword && "opacity-50",
                 pressed && hasLocalPassword && "opacity-70",
               )
@@ -94,7 +94,7 @@ export default function AccountScreen() {
             <Ionicons
               name="lock-closed-outline"
               size={24}
-              color={tw.color("light-primary")}
+              color={tw.color("primary")}
             />
             <ThemedText type="body1" style={tw`flex-1`}>
               {t("account.changePassword")}
@@ -110,7 +110,7 @@ export default function AccountScreen() {
             <Pressable
               style={({ pressed }) =>
                 tw.style(
-                  `flex-row items-center gap-4 bg-light-surface p-4 rounded-3xl`,
+                  `flex-row items-center gap-4 bg-surface p-4 rounded-3xl`,
                   pressed && "opacity-70",
                 )
               }
@@ -119,7 +119,7 @@ export default function AccountScreen() {
               <Ionicons
                 name="key-outline"
                 size={24}
-                color={tw.color("light-primary")}
+                color={tw.color("primary")}
               />
               <ThemedText type="body1" style={tw`flex-1`}>
                 {t("account.setCredentials")}

@@ -221,7 +221,7 @@ export default function MyOrdersScreen() {
   const listPane = (
     <ThemedView
       style={[
-        tw`bg-light-background`,
+        tw`bg-background`,
         isExpanded ? { width: ORDERS_LIST_PANE_WIDTH } : tw`flex-1`,
       ]}
     >
@@ -386,11 +386,11 @@ export default function MyOrdersScreen() {
   );
 
   return (
-    <ThemedView style={tw`flex-1 flex-row bg-light-background`}>
+    <ThemedView style={tw`flex-1 flex-row bg-background`}>
       <OrderPaneContext.Provider value={true}>
         {listPane}
       </OrderPaneContext.Provider>
-      <ThemedView style={tw`flex-1 border-l border-light-outline-variant`}>
+      <ThemedView style={tw`flex-1 border-l border-outline-variant`}>
         {activeModule === "sales" ? (
           selectedBillId != null ? (
             <BillDetailView

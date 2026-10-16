@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import tw from "../lib/tailwind";
 import { Ionicons } from "@expo/vector-icons";
-import { Colors, typography } from "@/constants/theme";
+import { typography } from "@/constants/theme";
 import { ThemedView } from "./themed-view";
 import { ThemedText } from "./themed-text";
 
@@ -52,13 +52,13 @@ export const labelSolidStyles: Record<
   default: { bg: "bg-gray-100", text: "text-gray-600", dot: "bg-gray-400" },
   outline: {
     bg: "bg-transparent",
-    text: "text-light-on-surface-variant",
+    text: "text-on-surface-variant",
     dot: "bg-gray-400",
   },
   primary: {
-    bg: "bg-light-primary-container",
-    text: "text-light-on-primary-container",
-    dot: "bg-light-primary",
+    bg: "bg-primary-container",
+    text: "text-on-primary-container",
+    dot: "bg-primary",
   },
 };
 
@@ -76,7 +76,7 @@ export default function Label({
   const baseStyle = " rounded-xl flex-row justify-center items-center";
 
   const variants = {
-    primary: "bg-light-primary",
+    primary: "bg-primary",
     secondary: "bg-gray-100",
     outline: "border border-gray-200 bg-transparent",
   };
@@ -97,8 +97,8 @@ export default function Label({
     error: "text-red-600",
     info: "text-blue-600",
     default: "text-gray-600",
-    outline: "text-light-on-surface-variant",
-    primary: "text-light-primary",
+    outline: "text-on-surface-variant",
+    primary: "text-primary",
   };
 
   const iconColors = {
@@ -108,7 +108,7 @@ export default function Label({
     info: "blue-500",
     default: "gray-500",
     outline: "gray-500",
-    primary: "light-primary",
+    primary: "primary",
   };
 
   const isOutline = color === "outline";
@@ -117,7 +117,7 @@ export default function Label({
   const solid = labelSolidStyles[color];
 
   const containerBg = isOutline
-    ? "border border-light-border"
+    ? "border border-border"
     : isSolid
       ? solid.bg
       : `${bgColors[color]}/10`;

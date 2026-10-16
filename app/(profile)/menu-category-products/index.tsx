@@ -246,7 +246,7 @@ export default function MenuCategoryProductsScreen() {
                       <Ionicons
                         name="fast-food-outline"
                         size={28}
-                        color={tw.color("text-light-on-surface-variant")}
+                        color={tw.color("text-on-surface-variant")}
                       />
                       <ThemedView style={tw`flex-1 gap-2`}>
                         <ThemedText type="h4">{product.name}</ThemedText>

@@ -763,7 +763,7 @@ export default function OrderDetailView({
       />
       <View style={tw`flex-1 relative`}>
         <Container
-          style={tw`px-4 ${embedded ? "pt-2" : "pt-6"} flex-1 bg-light-background`}
+          style={tw`px-4 ${embedded ? "pt-2" : "pt-6"} flex-1 bg-background`}
         >
           {/* Pane header: stands in for the stack header when embedded */}
           {embedded && (
@@ -1231,7 +1231,7 @@ export default function OrderDetailView({
 
         {/* Footer - Total */}
         <ThemedView
-          style={tw`px-4 py-4 border-t border-light-border bg-light-background`}
+          style={tw`px-4 py-4 border-t border-border bg-background`}
         >
           <ThemedView style={tw`flex-row justify-between items-center`}>
             <ThemedText type="h4" style={tw`text-gray-600`}>
@@ -1247,7 +1247,7 @@ export default function OrderDetailView({
         {isSelectionMode && (
           <View style={tw`absolute bottom-20 left-4 right-4 items-center`}>
             <ThemedView
-              style={tw`w-full flex-row items-center gap-1 bg-light-surface rounded-full shadow-sm px-2 py-2`}
+              style={tw`w-full flex-row items-center gap-1 bg-surface rounded-full shadow-sm px-2 py-2`}
             >
               <IconButton
                 icon="close"

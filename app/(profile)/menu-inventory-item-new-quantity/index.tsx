@@ -102,7 +102,7 @@ export default function NewInventoryItemQuantityScreen() {
           </ThemedText>
 
           <View style={tw`gap-2`}>
-            <ThemedText style={tw`dark:text-gray-300 text-gray-500`}>
+            <ThemedText style={tw`text-gray-500`}>
               {t("recipe.fields.quantity")}
             </ThemedText>
             <Counter

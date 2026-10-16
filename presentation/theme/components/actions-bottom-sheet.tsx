@@ -53,7 +53,7 @@ export default function ActionsBottomSheet({
           <ThemedView
             key={section.title ?? `section-${sectionIndex}`}
             style={tw.style(
-              sectionIndex > 0 && "pt-3 mt-3 border-t border-light-border",
+              sectionIndex > 0 && "pt-3 mt-3 border-t border-border",
             )}
           >
             {section.title && (

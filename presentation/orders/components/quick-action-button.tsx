@@ -28,7 +28,7 @@ export const QuickActionButton = ({
         <Ionicons
           name={icon}
           size={26}
-          color={disabled ? tw.color("gray-400") : tw.color("light-primary")}
+          color={disabled ? tw.color("gray-400") : tw.color("primary")}
         />
       </Pressable>
       <ThemedText
@@ -36,7 +36,7 @@ export const QuickActionButton = ({
         style={[
           tw.style(
             disabled && "text-gray-400",
-            "text-light-on-surface-variant",
+            "text-on-surface-variant",
           ),
           { fontFamily: typography.medium },
         ]}

@@ -1,4 +1,4 @@
-import { Colors, typography } from "@/constants/theme";
+import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import IconButton from "@/presentation/theme/components/icon-button";
@@ -7,8 +7,10 @@ import { router, Stack } from "expo-router";
 import { useCallback, useRef } from "react";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 export default function OrdersLayout() {
+  const palette = usePalette();
   const { t } = useTranslation([
     "auth",
     "orders",
@@ -32,7 +34,7 @@ export default function OrdersLayout() {
       <Stack
         screenOptions={{
           headerShown: false,
-          headerStyle: { backgroundColor: Colors.light.background },
+          headerStyle: { backgroundColor: palette.background },
 
           headerTitleStyle: { fontFamily: typography.medium },
         }}

@@ -180,7 +180,7 @@ export default function ScanQrInviteScreen() {
               <Ionicons
                 name="person-circle-outline"
                 size={80}
-                color={tw.color("light-primary")}
+                color={tw.color("primary")}
               />
               <ThemedText type="h2" style={tw`text-center`}>
                 {userInfo.name}

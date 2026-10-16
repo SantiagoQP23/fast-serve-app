@@ -80,7 +80,7 @@ export default function JoinRestaurantScreen() {
           <Ionicons
             name="qr-code-outline"
             size={64}
-            color={tw.color("light-primary")}
+            color={tw.color("primary")}
           />
           <ThemedText type="h2" style={tw`text-center`}>
             {t("joinRestaurant.title")}

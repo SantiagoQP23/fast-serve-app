@@ -78,20 +78,20 @@ export default function BestSellingProductsScreen() {
           </ThemedView>
         ) : products.length > 0 ? (
           <ThemedView
-            style={tw`bg-light-surface rounded-2xl px-4 py-2 shadow-xs`}
+            style={tw`bg-surface rounded-2xl px-4 py-2 shadow-xs`}
           >
             {products.map((product, index) => (
               <ThemedView
                 key={`${product.productId}-${product.productOptionId ?? "none"}`}
                 style={tw`flex-row items-center justify-between py-3 ${
                   index < products.length - 1
-                    ? "border-b border-light-border"
+                    ? "border-b border-border"
                     : ""
                 }`}
               >
                 <ThemedView style={tw`flex-row items-center gap-3 flex-1`}>
                   <ThemedView
-                    style={tw`w-7 h-7 rounded-full bg-light-background items-center justify-center`}
+                    style={tw`w-7 h-7 rounded-full bg-background items-center justify-center`}
                   >
                     <ThemedText type="small" style={tw`text-gray-500`}>
                       {index + 1}

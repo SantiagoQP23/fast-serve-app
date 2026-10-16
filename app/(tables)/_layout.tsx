@@ -1,15 +1,16 @@
 import { Stack, useRouter } from "expo-router";
 import IconButton from "@/presentation/theme/components/icon-button";
-import { Colors } from "@/constants/theme";
+import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 export default function TablesLayout() {
+  const palette = usePalette();
   const router = useRouter();
 
   return (
     <Stack
       screenOptions={{
         headerShown: false,
-        headerStyle: { backgroundColor: Colors.light.background },
+        headerStyle: { backgroundColor: palette.background },
       }}
     >
       <Stack.Screen

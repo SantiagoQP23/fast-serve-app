@@ -121,13 +121,13 @@ export default function Counter({
         disabled={!canDecrement}
         onPress={handleDecrement}
         style={tw.style(
-          ` items-center justify-center bg-light-surface-high border-0`,
+          ` items-center justify-center bg-surface-high border-0`,
         )}
       />
 
       <View
         style={tw.style(
-          "flex-1 flex-row items-center justify-center rounded-3xl bg-light-surface-container-low px-4 py-2",
+          "flex-1 flex-row items-center justify-center rounded-3xl bg-surface-container-low px-4 py-2",
           disabled && "opacity-50",
         )}
       >
@@ -142,7 +142,7 @@ export default function Counter({
           keyboardType="decimal-pad"
           selectTextOnFocus
           style={[
-            tw`text-center text-light-text`,
+            tw`text-center text-text`,
             { fontSize, fontFamily: typography.bold, minWidth: 32, padding: 0 },
           ]}
         />
@@ -157,7 +157,7 @@ export default function Counter({
               <ThemedText
                 type="body2"
                 style={[
-                  tw`text-light-on-surface-variant`,
+                  tw`text-on-surface-variant`,
                   { fontFamily: typography.medium },
                 ]}
               >
@@ -166,7 +166,7 @@ export default function Counter({
               <Ionicons
                 name="chevron-down"
                 size={12}
-                color={tw.color("light-on-surface-variant")}
+                color={tw.color("on-surface-variant")}
                 style={tw`ml-0.5`}
               />
             </Pressable>
@@ -174,7 +174,7 @@ export default function Counter({
             <ThemedText
               type="body2"
               style={[
-                tw`ml-1.5 text-light-on-surface-variant`,
+                tw`ml-1.5 text-on-surface-variant`,
                 { fontFamily: typography.medium },
               ]}
             >

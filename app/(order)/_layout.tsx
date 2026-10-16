@@ -1,11 +1,13 @@
-import { Colors, typography } from "@/constants/theme";
+import { typography } from "@/constants/theme";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 import { Stack } from "expo-router";
 import { useEffect } from "react";
+import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 export default function OrdersLayout() {
+  const palette = usePalette();
   const { t } = useTranslation(["orders"]);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
@@ -19,7 +21,7 @@ export default function OrdersLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        headerStyle: { backgroundColor: Colors.light.background },
+        headerStyle: { backgroundColor: palette.background },
         headerTitleStyle: { fontFamily: typography.medium },
       }}
     >

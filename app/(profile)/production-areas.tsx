@@ -147,12 +147,12 @@ export default function ProductionAreasScreen() {
                       <Ionicons
                         name="cube-outline"
                         size={30}
-                        color={tw.color("text-light-on-surface-variant")}
+                        color={tw.color("text-on-surface-variant")}
                       />
                       <ThemedView style={tw`flex-1 gap-2`}>
                         <ThemedText
                           type="h4"
-                          style={tw`text-light-on-surface-variant`}
+                          style={tw`text-on-surface-variant`}
                         >
                           {area.name}
                         </ThemedText>
@@ -160,7 +160,7 @@ export default function ProductionAreasScreen() {
                           <Ionicons
                             name="print-outline"
                             size={16}
-                            color={tw.color("text-light-on-surface-variant")}
+                            color={tw.color("text-on-surface-variant")}
                           />
                           <ThemedText type="small" style={tw``}>
                             {getPrinterCountText(area.printers?.length || 0)}

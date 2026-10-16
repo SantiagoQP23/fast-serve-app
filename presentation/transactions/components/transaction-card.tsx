@@ -98,7 +98,7 @@ export default function TransactionCard({
         <Pressable
           onPress={onPress}
           {...rest}
-          style={tw.style(active && "bg-light-secondary rounded-2xl")}
+          style={tw.style(active && "bg-secondary rounded-2xl")}
         >
           <ThemedView style={tw`flex-row justify-between   rounded-3xl`}>
             {/* Left: Colored icon circle + transaction info */}

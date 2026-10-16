@@ -140,7 +140,7 @@ export default function MenuInventoryCountRunScreen() {
       <View style={tw`h-2 rounded-full bg-gray-200 overflow-hidden`}>
         <View
           style={[
-            tw`h-2 rounded-full bg-light-primary`,
+            tw`h-2 rounded-full bg-primary`,
             { width: `${(doneCount / lines.length) * 100}%` },
           ]}
         />
@@ -298,10 +298,10 @@ export default function MenuInventoryCountRunScreen() {
   if (!isExpanded) return run;
 
   return (
-    <ThemedView style={tw`flex-1 flex-row bg-light-background`}>
+    <ThemedView style={tw`flex-1 flex-row bg-background`}>
       <ThemedView
         style={[
-          tw`border-r border-light-outline-variant px-4 pt-8 pb-2 gap-4`,
+          tw`border-r border-outline-variant px-4 pt-8 pb-2 gap-4`,
           { width: LINES_PANE_WIDTH },
         ]}
       >

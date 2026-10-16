@@ -169,10 +169,10 @@ export default function PrintersScreen() {
                       <Ionicons
                         name="print-outline"
                         size={30}
-                        color={tw.color("text-light-on-surface-variant")}
+                        color={tw.color("text-on-surface-variant")}
                       />
                       <ThemedView
-                        style={tw`flex-1 text-light-on-surface-variant gap-2`}
+                        style={tw`flex-1 text-on-surface-variant gap-2`}
                       >
                         <ThemedText type="h4" style={tw`font-semibold`}>
                           {printer.name}

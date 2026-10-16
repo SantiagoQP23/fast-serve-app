@@ -91,7 +91,7 @@ const OrderDetailStatusModal = ({
             <IconButton
               icon="close-outline"
               size={25}
-              style={tw`bg-light-surface p-2`}
+              style={tw`bg-surface p-2`}
               onPress={onClose}
               accessibilityLabel={t("common:actions.close")}
             />
@@ -129,7 +129,7 @@ const OrderDetailStatusModal = ({
                     <Ionicons
                       name="checkmark"
                       size={20}
-                      color={tw.color("light-on-surface")}
+                      color={tw.color("on-surface")}
                     />
                   )}
                 </Pressable>

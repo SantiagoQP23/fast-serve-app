@@ -2,8 +2,8 @@ import React from "react";
 import { Pressable, ViewStyle } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "@/presentation/theme/lib/tailwind";
+import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
-import { Colors } from "@/constants/theme";
 
 interface IconButtonProps {
   icon: keyof typeof Ionicons.glyphMap;
@@ -39,21 +39,22 @@ export default function IconButton({
   variant = "text",
   accessibilityLabel,
 }: IconButtonProps) {
+  const palette = usePalette();
   const variants = {
-    filled: "bg-light-primary",
-    secondary: "bg-light-secondary",
-    surface: "bg-light-surface",
-    outlined: "border border-light-border bg-transparent",
+    filled: "bg-primary",
+    secondary: "bg-secondary",
+    surface: "bg-surface",
+    outlined: "border border-border bg-transparent",
     text: "bg-transparent",
     destructive: "bg-red-50",
   };
 
   const variantStyles = {
     filled: "#ffffff",
-    secondary: Colors.light.onSecondary,
-    surface: Colors.light.onSurfaceVariant,
-    outlined: Colors.light.onSurfaceVariant,
-    text: Colors.light.onSurfaceVariant,
+    secondary: palette.onSecondary,
+    surface: palette.onSurfaceVariant,
+    outlined: palette.onSurfaceVariant,
+    text: palette.onSurfaceVariant,
     destructive: tw.color("red-600") as string,
   };
 

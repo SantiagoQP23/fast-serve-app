@@ -347,11 +347,11 @@ export default function RestaurantMenuScreen() {
   if (!showCartPanel) return menu;
 
   return (
-    <ThemedView style={tw`flex-1 flex-row bg-light-background`}>
+    <ThemedView style={tw`flex-1 flex-row bg-background`}>
       <ThemedView style={tw`flex-1`}>{menu}</ThemedView>
       <ThemedView
         style={[
-          tw`border-l border-light-outline-variant`,
+          tw`border-l border-outline-variant`,
           { width: CART_PANEL_WIDTH },
         ]}
       >

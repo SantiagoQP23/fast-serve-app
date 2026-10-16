@@ -29,7 +29,7 @@ export function GroupedList<T>({
           <ThemedView
             key={keyExtractor(item, index)}
             style={tw.style(
-              "bg-light-surface shadow-xs overflow-hidden",
+              "bg-surface shadow-xs overflow-hidden",
               isFirst ? "rounded-t-3xl" : "rounded-t-md",
               isLast ? "rounded-b-3xl" : "rounded-b-md",
             )}
