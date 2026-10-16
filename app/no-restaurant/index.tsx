@@ -36,7 +36,7 @@ export default function NoRestaurantScreen() {
           <Ionicons
             name="restaurant-outline"
             size={64}
-            color={tw.color("light-primary")}
+            color={tw.color("primary")}
           />
           <ThemedText type="h2" style={tw`text-center`}>
             {t("noRestaurant.title")}
@@ -50,12 +50,12 @@ export default function NoRestaurantScreen() {
           <Card variant="outline" style={tw`gap-3 `}>
             <ThemedView style={tw`flex-row items-center gap-3`}>
               <ThemedView
-                style={tw`w-12 h-12 rounded-full bg-light-primary/10 items-center justify-center`}
+                style={tw`w-12 h-12 rounded-full bg-primary/10 items-center justify-center`}
               >
                 <Ionicons
                   name="business-outline"
                   size={24}
-                  color={tw.color("light-primary")}
+                  color={tw.color("primary")}
                 />
               </ThemedView>
               <ThemedView style={tw`flex-1 gap-1`}>
@@ -76,12 +76,12 @@ export default function NoRestaurantScreen() {
           <Card variant="outline" style={tw`gap-3 `}>
             <ThemedView style={tw`flex-row items-center gap-3`}>
               <ThemedView
-                style={tw`w-12 h-12 rounded-full bg-light-primary/10 items-center justify-center`}
+                style={tw`w-12 h-12 rounded-full bg-primary/10 items-center justify-center`}
               >
                 <Ionicons
                   name="qr-code-outline"
                   size={24}
-                  color={tw.color("light-primary")}
+                  color={tw.color("primary")}
                 />
               </ThemedView>
               <ThemedView style={tw`flex-1 gap-1`}>

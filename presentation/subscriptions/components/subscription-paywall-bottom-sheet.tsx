@@ -25,12 +25,12 @@ const SubscriptionPaywallBottomSheet = ({
   return (
     <BottomSheetView style={tw`flex-1 px-6 pt-12 items-center gap-4`}>
       <ThemedView
-        style={tw`w-20 h-20 rounded-full bg-light-primary/10 items-center justify-center`}
+        style={tw`w-20 h-20 rounded-full bg-primary/10 items-center justify-center`}
       >
         <Ionicons
           name="lock-closed-outline"
           size={36}
-          color={tw.color("light-primary")}
+          color={tw.color("primary")}
         />
       </ThemedView>
       <ThemedText type="h2" style={tw`text-center`}>

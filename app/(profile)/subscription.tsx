@@ -128,7 +128,7 @@ export default function SubscriptionScreen() {
                   variant="outline"
                   style={
                     current &&
-                    tw`border-light-primary border-2 bg-light-primary/5`
+                    tw`border-primary border-2 bg-primary/5`
                   }
                 >
                   <ThemedView style={tw`gap-4`}>

@@ -578,7 +578,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
       <View style={tw`absolute bottom-6 left-0 right-0 items-center`}>
         {isSelectionMode ? (
           <ThemedView
-            style={tw`flex-row items-center gap-3 bg-light-surface rounded-full shadow-sm px-3 py-2`}
+            style={tw`flex-row items-center gap-3 bg-surface rounded-full shadow-sm px-3 py-2`}
           >
             <IconButton
               icon="close"
@@ -675,7 +675,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                 <Ionicons
                   name="cart-outline"
                   size={26}
-                  color={tw.color("text-light-on-surface-variant")}
+                  color={tw.color("text-on-surface-variant")}
                 />
                 <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
                   <ThemedText
@@ -698,7 +698,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                 <Ionicons
                   name="clipboard-outline"
                   size={26}
-                  color={tw.color("text-light-on-surface-variant")}
+                  color={tw.color("text-on-surface-variant")}
                 />
                 <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
                   <ThemedText
@@ -785,7 +785,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   return (
     <ThemedView style={tw`flex-1 flex-row bg-transparent`}>
       <View style={{ width: LIST_PANE_WIDTH }}>{content}</View>
-      <ThemedView style={tw`flex-1 border-l border-light-outline-variant`}>
+      <ThemedView style={tw`flex-1 border-l border-outline-variant`}>
         {selection?.kind === "item" && (
           <InventoryItemDetailView
             key={selection.id}

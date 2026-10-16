@@ -20,17 +20,17 @@ export function ScreenLayout({
 
   if (fullWidth || !isTablet) {
     return (
-      <ThemedView style={[tw`flex-1 bg-light-background`, style]}>
+      <ThemedView style={[tw`flex-1 bg-background`, style]}>
         {children}
       </ThemedView>
     );
   }
 
   return (
-    <ThemedView style={tw`flex-1 bg-light-background`}>
+    <ThemedView style={tw`flex-1 bg-background`}>
       <ThemedView
         style={[
-          tw`flex-1 w-full self-center bg-light-background`,
+          tw`flex-1 w-full self-center bg-background`,
           { maxWidth: CONTENT_MAX_WIDTH },
           style,
         ]}

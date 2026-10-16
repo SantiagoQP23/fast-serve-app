@@ -62,7 +62,7 @@ export default function InventoryStockSummary({
           >
             <ThemedView
               style={[
-                tw`bg-light-surface rounded-3xl p-3.5 gap-2`,
+                tw`bg-surface rounded-3xl p-3.5 gap-2`,
                 isSelected && {
                   borderWidth: 2,
                   borderColor: tw.color(tile.color),

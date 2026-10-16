@@ -7,9 +7,9 @@ import {
 } from "react-native";
 import tw from "../lib/tailwind";
 import { Ionicons } from "@expo/vector-icons";
-import { Colors } from "@/constants/theme";
 import { ThemedView } from "./themed-view";
 import { ThemedText } from "./themed-text";
+import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 export interface ButtonProps extends PressableProps {
   label?: string;
@@ -42,13 +42,14 @@ export default function Button({
   icon: verticalIcon,
   style,
 }: ButtonProps) {
+  const palette = usePalette();
   const isVertical = layout === "vertical";
 
   const variants = {
-    primary: "bg-light-primary",
-    secondary: "bg-light-secondary",
-    surface: "bg-light-surface",
-    outline: "border border-light-border bg-transparent",
+    primary: "bg-primary",
+    secondary: "bg-secondary",
+    surface: "bg-surface",
+    outline: "border border-border bg-transparent",
     text: "bg-transparent",
     destructive: "bg-red-100",
   };
@@ -95,19 +96,19 @@ export default function Button({
 
   const textColors = {
     primary: "text-white",
-    secondary: "text-light-on-secondary",
-    outline: "text-light-on-surface-variant",
-    text: "text-light-primary",
-    surface: "text-light-on-surface-variant",
+    secondary: "text-on-secondary",
+    outline: "text-on-surface-variant",
+    text: "text-primary",
+    surface: "text-on-surface-variant",
     destructive: "text-red-800",
   };
 
   const iconColors = {
     primary: "#fff",
-    secondary: Colors.light.onSecondary,
-    outline: Colors.light.onSurfaceVariant,
-    text: Colors.light.primary,
-    surface: Colors.light.onSurfaceVariant,
+    secondary: palette.onSecondary,
+    outline: palette.onSurfaceVariant,
+    text: palette.primary,
+    surface: palette.onSurfaceVariant,
     destructive: tw.color("red-900"),
   };
 

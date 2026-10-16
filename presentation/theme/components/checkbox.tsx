@@ -41,8 +41,8 @@ export default function Checkbox({
         tw.style(
           "justify-center items-center border rounded-3xl",
           value
-            ? "bg-light-primary border-light-primary"
-            : " border-light-border border-2",
+            ? "bg-primary border-primary"
+            : " border-border border-2",
           pressed && !disabled && "opacity-80",
           disabled && "opacity-50",
           error && !value && "border-red-500",

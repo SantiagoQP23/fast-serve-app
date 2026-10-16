@@ -415,7 +415,7 @@ export default function MenuOverviewScreen() {
                 !product.isActive && "opacity-50",
                 isExpanded &&
                   selectedProductId === product.id &&
-                  "bg-light-secondary",
+                  "bg-secondary",
               )}
             >
               <ThemedView style={tw`flex-row items-center justify-between`}>
@@ -423,7 +423,7 @@ export default function MenuOverviewScreen() {
                   {/* <Ionicons */}
                   {/*   name="fast-food-outline" */}
                   {/*   size={28} */}
-                  {/*   color={tw.color("text-light-on-surface-variant")} */}
+                  {/*   color={tw.color("text-on-surface-variant")} */}
                   {/* /> */}
                   <ThemedView style={tw`flex-1 gap-2`}>
                     <ThemedText type="body1">{product.name}</ThemedText>
@@ -548,11 +548,11 @@ export default function MenuOverviewScreen() {
   if (!isExpanded) return menu;
 
   return (
-    <ThemedView style={tw`flex-1 flex-row bg-light-background`}>
+    <ThemedView style={tw`flex-1 flex-row bg-background`}>
       <ThemedView style={tw`flex-1`}>{menu}</ThemedView>
       <ThemedView
         style={[
-          tw`border-l border-light-outline-variant`,
+          tw`border-l border-outline-variant`,
           { width: PRODUCT_PANE_WIDTH },
         ]}
       >

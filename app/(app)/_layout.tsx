@@ -5,7 +5,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 
 export default function AppLayout() {
   return (
-    <ThemedView style={tw`flex-1 bg-light-background `}>
+    <ThemedView style={tw`flex-1 bg-background `}>
       <OrdersModuleProvider>
         <Slot />
       </OrdersModuleProvider>

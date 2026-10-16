@@ -131,7 +131,7 @@ export default function StaffScreen() {
                 <ThemedText
                   type="body2"
                   style={[
-                    tw`text-light-primary`,
+                    tw`text-primary`,
                     { fontFamily: typography.medium },
                   ]}
                 >

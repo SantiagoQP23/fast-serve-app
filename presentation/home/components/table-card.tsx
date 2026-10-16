@@ -33,7 +33,7 @@ export default function TableCard({ table, onPress }: TableCardProps) {
         onPress={onPress}
         style={[
           tw`p-2 `,
-          hasOrders ? tw`border border-light-primary` : tw`bg-transparent`,
+          hasOrders ? tw`border border-primary` : tw`bg-transparent`,
         ]}
         variant={hasOrders ? "default" : "outline"}
       >

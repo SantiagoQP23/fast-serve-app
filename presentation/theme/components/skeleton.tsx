@@ -35,7 +35,7 @@ export default function Skeleton({ style, ...props }: SkeletonProps) {
   return (
     <Animated.View
       style={[
-        tw`bg-gray-200 dark:bg-gray-700 rounded-md`,
+        tw`bg-gray-200 rounded-md`,
         { opacity },
         style,
       ]}

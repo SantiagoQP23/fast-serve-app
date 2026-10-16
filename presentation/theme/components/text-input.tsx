@@ -95,15 +95,15 @@ function TextInput(
   const labelColor = error
     ? tw.color("red-500")
     : isFocused
-      ? tw.color("light-primary")
+      ? tw.color("primary")
       : tw.color("gray-500");
 
   const borderColor = error
     ? tw.color("red-500")
     : isFocused
-      ? tw.color("light-primary")
+      ? tw.color("primary")
       : variant === "outlined"
-        ? tw.color("light-border")
+        ? tw.color("border")
         : "transparent";
 
   const handleFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
@@ -127,7 +127,7 @@ function TextInput(
         style={[
           tw.style(
             "flex-row rounded-3xl px-3",
-            variant === "filled" ? "bg-light-surface-high" : "bg-transparent",
+            variant === "filled" ? "bg-surface-high" : "bg-transparent",
             !editable && "opacity-50",
           ),
           {
@@ -146,7 +146,7 @@ function TextInput(
               tw``,
               { marginRight: 10, marginLeft: 4, alignSelf: "center" },
             ]}
-            color={tw.color("light-on-surface-variant")}
+            color={tw.color("on-surface-variant")}
           />
         )}
         <View style={[tw`flex-1`, { alignSelf: "stretch" }]}>
@@ -169,7 +169,7 @@ function TextInput(
           <InputComponent
             ref={ref as React.ForwardedRef<RNTextInput>}
             style={[
-              tw`text-light-on-surface`,
+              tw`text-on-surface`,
               {
                 fontSize: 16,
                 fontFamily: typography.medium,
@@ -182,7 +182,7 @@ function TextInput(
             value={value}
             defaultValue={defaultValue}
             placeholder={!label || isFocused ? placeholder : undefined}
-            placeholderTextColor={tw.color("light-on-surface-variant")}
+            placeholderTextColor={tw.color("on-surface-variant")}
             editable={editable}
             onFocus={handleFocus as (e: any) => void}
             onBlur={handleBlur as (e: any) => void}

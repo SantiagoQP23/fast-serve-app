@@ -40,7 +40,7 @@ export default function OptionStockSummary({
           <Ionicons
             name="cube-outline"
             size={14}
-            color={tw.color("text-light-on-surface-variant")}
+            color={tw.color("text-on-surface-variant")}
           />
           <ThemedText type="small" style={tw`text-gray-500`}>
             {t("stockCount", { count: quantity })}

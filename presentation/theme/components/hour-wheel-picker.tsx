@@ -32,12 +32,12 @@ export default function HourWheelPicker({
   );
 
   return (
-    <View style={tw`items-center bg-light-surface rounded-3xl p-4`}>
+    <View style={tw`items-center bg-surface rounded-3xl p-4`}>
       <View style={{ width: COLUMN_WIDTH, height: WHEEL_HEIGHT, position: "relative" }}>
         <View
           pointerEvents="none"
           style={[
-            tw`absolute left-0 right-0 bg-light-secondary rounded-3xl`,
+            tw`absolute left-0 right-0 bg-secondary rounded-3xl`,
             { top: BAND_TOP, height: ITEM_HEIGHT },
           ]}
         />

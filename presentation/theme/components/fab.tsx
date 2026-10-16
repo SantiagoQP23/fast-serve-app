@@ -26,7 +26,7 @@ export default function Fab({
   label,
   expanded = true,
   color = "white",
-  bgColor = "bg-light-primary",
+  bgColor = "bg-primary",
   bottom = 24,
   right = 24,
 }: FabProps) {

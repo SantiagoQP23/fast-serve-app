@@ -166,7 +166,7 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
       {/*         rightContent={ */}
       {/*           <ThemedText */}
       {/*             type="small" */}
-      {/*             style={tw`${isActive ? "text-light-on-secondary" : ""}`} */}
+      {/*             style={tw`${isActive ? "text-on-secondary" : ""}`} */}
       {/*           > */}
       {/*             {tab.count} */}
       {/*           </ThemedText> */}

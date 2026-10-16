@@ -172,10 +172,10 @@ const BottomSheetPicker = forwardRef<
                     onPress={() => handleSelect(item.value)}
                     style={({ pressed }) =>
                       tw.style(
-                        "flex-row items-center justify-between p-6 rounded-3xl bg-light-surface",
+                        "flex-row items-center justify-between p-6 rounded-3xl bg-surface",
                         item.value === value &&
-                          "bg-light-secondary dark:bg-primary-900",
-                        pressed && "bg-gray-100 dark:bg-gray-700",
+                          "bg-secondary ",
+                        pressed && "bg-gray-100 ",
                       )
                     }
                   >
@@ -188,7 +188,7 @@ const BottomSheetPicker = forwardRef<
                             : typography.medium,
                         color:
                           value === item.value
-                            ? tw.color("light-on-secondary")
+                            ? tw.color("on-secondary")
                             : tw.color(""),
                       }}
                     >
@@ -198,7 +198,7 @@ const BottomSheetPicker = forwardRef<
                       <Ionicons
                         name="checkmark"
                         size={22}
-                        color={tw.color("light-on-secondary")}
+                        color={tw.color("on-secondary")}
                       />
                     )}
                   </Pressable>

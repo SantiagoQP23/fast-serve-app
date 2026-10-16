@@ -53,7 +53,7 @@ export default function BillCard({ onPress, bill, active }: BillCardProps) {
   return (
     <Card
       onPress={onPress}
-      style={tw.style("px-4", active && "bg-light-secondary")}
+      style={tw.style("px-4", active && "bg-secondary")}
       variant="outline"
     >
       <ThemedView style={tw`bg-transparent gap-3`}>
@@ -80,7 +80,7 @@ export default function BillCard({ onPress, bill, active }: BillCardProps) {
           style={tw`flex-row bg-transparent justify-between items-center`}
         >
           <ThemedView style={tw`flex-row bg-transparent items-center gap-2`}>
-            <ThemedView style={tw`bg-light-surface p-2 rounded-md`}>
+            <ThemedView style={tw`bg-surface p-2 rounded-md`}>
               <Ionicons
                 name="receipt-outline"
                 size={20}

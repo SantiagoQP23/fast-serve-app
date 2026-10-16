@@ -1,9 +1,10 @@
 import React from "react";
 import { Pressable, ViewStyle } from "react-native";
 import tw from "../lib/tailwind";
-import { typography, Colors } from "@/constants/theme";
+import { typography } from "@/constants/theme";
 import { ThemedView } from "./themed-view";
 import { ThemedText } from "./themed-text";
+import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 export interface AvatarProps {
   name?: string;
@@ -31,9 +32,10 @@ function getAvatarColor(initial: string): string {
 }
 
 export default function Avatar({ name, size = 40, style, onPress }: AvatarProps) {
+  const palette = usePalette();
   const initial = name?.trim()?.charAt(0)?.toUpperCase() || "?";
   const backgroundColor =
-    initial === "?" ? Colors.light.primary : getAvatarColor(initial);
+    initial === "?" ? palette.primary : getAvatarColor(initial);
 
   const content = (
     <ThemedView

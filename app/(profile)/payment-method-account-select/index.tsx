@@ -194,7 +194,7 @@ export default function PaymentMethodAccountSelectScreen() {
 
             {accountsQuery.isLoading ? (
               <ThemedView
-                style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+                style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
               >
                 <ActivityIndicator color={tw.color("blue-500")} />
                 <ThemedText type="small" style={tw`text-gray-500`}>
@@ -203,7 +203,7 @@ export default function PaymentMethodAccountSelectScreen() {
               </ThemedView>
             ) : selectableAccounts.length === 0 ? (
               <ThemedView
-                style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+                style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
               >
                 <Ionicons
                   name="wallet-outline"
@@ -231,7 +231,7 @@ export default function PaymentMethodAccountSelectScreen() {
                       <Ionicons
                         name={accountIcon(account.type)}
                         size={26}
-                        color={tw.color("text-light-on-surface-variant")}
+                        color={tw.color("text-on-surface-variant")}
                       />
                       <ThemedView style={tw`flex-1 gap-1`}>
                         <ThemedText type="body1" style={tw`font-semibold`}>
@@ -244,7 +244,7 @@ export default function PaymentMethodAccountSelectScreen() {
                       <Ionicons
                         name="add-circle-outline"
                         size={22}
-                        color={tw.color("light-primary")}
+                        color={tw.color("primary")}
                       />
                     </ThemedView>
                   </Card>

@@ -77,7 +77,7 @@ export default function OrderPrintScreen() {
         >
           <Card style={tw``}>
             <ThemedView
-              style={tw`items-center gap-1 pb-3 border-b border-dashed border-light-border`}
+              style={tw`items-center gap-1 pb-3 border-b border-dashed border-border`}
             >
               <ThemedText type="h4" style={{ fontFamily: "monospace" }}>
                 {t("orders:details.orderNumber", { num: order.num })}
@@ -90,7 +90,7 @@ export default function OrderPrintScreen() {
             </ThemedView>
 
             <ThemedView
-              style={tw`gap-1 py-3 border-b border-dashed border-light-border`}
+              style={tw`gap-1 py-3 border-b border-dashed border-border`}
             >
               <ThemedText style={{ fontFamily: "monospace" }}>
                 {t("common:labels.waiter")}:{" "}
@@ -111,7 +111,7 @@ export default function OrderPrintScreen() {
             </ThemedView>
 
             <ThemedView
-              style={tw`gap-2 py-3 border-b border-dashed border-light-border`}
+              style={tw`gap-2 py-3 border-b border-dashed border-border`}
             >
               {visibleDetails.map((detail) => (
                 <ThemedView

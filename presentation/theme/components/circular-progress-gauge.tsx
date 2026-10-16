@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from "react";
-import { Animated, View, useColorScheme } from "react-native";
+import { Animated, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import tw from "@/presentation/theme/lib/tailwind";
-import { Colors } from "@/constants/theme";
+import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 interface CircularProgressGaugeProps {
   percentage: number; // 0-100
@@ -33,12 +33,11 @@ export default function CircularProgressGauge({
   backgroundColor,
   formatValue = (val) => val.toString(),
 }: CircularProgressGaugeProps) {
+  const palette = usePalette();
   const animatedValue = useRef(new Animated.Value(0)).current;
-  const colorScheme = useColorScheme();
 
   // Get colors with fallback to theme primary color
-  const themePrimaryColor =
-    colorScheme === "dark" ? Colors.dark.primary : Colors.light.primary;
+  const themePrimaryColor = palette.primary;
   const primaryColor = accentColor || themePrimaryColor;
   const bgColor = backgroundColor || tw.color("gray-200") || "#E5E7EB";
 

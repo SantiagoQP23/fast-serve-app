@@ -232,7 +232,7 @@ export default function MenuInventoryItemFormScreen() {
                 }
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
-                <ThemedText type="small" style={tw`text-light-primary ml-2`}>
+                <ThemedText type="small" style={tw`text-primary ml-2`}>
                   {t("categories.manageCategories")}
                 </ThemedText>
               </Pressable>

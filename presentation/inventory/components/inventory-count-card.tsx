@@ -36,7 +36,7 @@ export default function InventoryCountCard({
     <Card
       variant="outline"
       onPress={() => onPress(count)}
-      style={tw.style("gap-3 p-4", active && "bg-light-secondary")}
+      style={tw.style("gap-3 p-4", active && "bg-secondary")}
     >
       <ThemedView
         style={tw`flex-row items-start justify-between gap-3 bg-transparent`}
@@ -46,7 +46,7 @@ export default function InventoryCountCard({
             type="body1"
             style={[
               { fontFamily: typography.semibold },
-              tw`text-light-on-surface`,
+              tw`text-on-surface`,
             ]}
           >
             {t("counts.productsCount", { count: total })}
@@ -74,7 +74,7 @@ export default function InventoryCountCard({
           <ThemedText
             type="small"
             style={[
-              tw`text-light-on-surface-variant`,
+              tw`text-on-surface-variant`,
               { fontVariant: ["tabular-nums"] },
             ]}
           >

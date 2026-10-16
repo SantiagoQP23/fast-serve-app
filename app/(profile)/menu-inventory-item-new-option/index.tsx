@@ -117,19 +117,19 @@ export default function NewInventoryItemSelectOptionScreen() {
             <Card
               key={option.id}
               onPress={() => handleSelectOption(option)}
-              style={[tw`p-4`, option.isDefault && tw`bg-light-secondary`]}
+              style={[tw`p-4`, option.isDefault && tw`bg-secondary`]}
             >
               <ThemedView style={tw`flex-row items-center justify-between`}>
                 <ThemedText
                   type="body1"
-                  style={option.isDefault && tw`text-light-on-secondary`}
+                  style={option.isDefault && tw`text-on-secondary`}
                 >
                   {option.name}
                 </ThemedText>
                 <ThemedView style={tw`flex-row items-center gap-2`}>
                   <ThemedText
                     type="body2"
-                    style={option.isDefault && tw`text-light-on-secondary`}
+                    style={option.isDefault && tw`text-on-secondary`}
                   >
                     {formatCurrency(option.price)}
                   </ThemedText>
@@ -138,7 +138,7 @@ export default function NewInventoryItemSelectOptionScreen() {
                     size={18}
                     color={
                       option.isDefault
-                        ? tw.color("light-on-secondary")
+                        ? tw.color("on-secondary")
                         : tw.color("gray-400")
                     }
                   />

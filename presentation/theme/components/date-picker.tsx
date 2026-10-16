@@ -65,7 +65,7 @@ export default function DatePicker({
 
       <Pressable
         onPress={handleOpen}
-        style={tw`dark:border-gray-700  dark:bg-gray-800 border border-light-border rounded-2xl px-4 py-3 flex-row justify-between items-center`}
+        style={tw` border border-border rounded-2xl px-4 py-3 flex-row justify-between items-center`}
       >
         <View style={tw`flex-row items-center gap-2`}>
           <ThemedText type="body1" style={tw`font-medium`}>
@@ -80,14 +80,14 @@ export default function DatePicker({
         <Ionicons
           name="calendar-outline"
           size={20}
-          color={tw.color("light-on-surface-variant")}
+          color={tw.color("on-surface-variant")}
         />
       </Pressable>
 
       {/* iOS renders inline picker */}
       {show && Platform.OS === "ios" && (
         <ThemedView
-          style={tw`mt-2 rounded-2xl border border-gray-300 dark:border-gray-700 overflow-hidden`}
+          style={tw`mt-2 rounded-2xl border border-gray-300 overflow-hidden`}
         >
           <DateTimePicker
             value={value}
@@ -97,12 +97,12 @@ export default function DatePicker({
             maximumDate={maxDate}
             minimumDate={minDate}
             themeVariant="light"
-            accentColor={tw.color("light-primary")}
+            accentColor={tw.color("primary")}
           />
 
           {/* Action buttons for iOS */}
           <View
-            style={tw`flex-row gap-2 p-3 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700`}
+            style={tw`flex-row gap-2 p-3 bg-gray-50 border-t border-gray-200 `}
           >
             {showTodayButton && !isToday && (
               <View style={tw`flex-1`}>
@@ -135,7 +135,7 @@ export default function DatePicker({
           onChange={handleChange}
           maximumDate={maxDate}
           minimumDate={minDate}
-          accentColor={tw.color("light-primary")}
+          accentColor={tw.color("primary")}
         />
       )}
     </View>

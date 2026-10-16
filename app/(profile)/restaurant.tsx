@@ -222,7 +222,7 @@ export default function RestaurantOfflineDataScreen() {
 
                 {/* Menu Summary */}
                 <ThemedView
-                  style={tw` dark:bg-gray-800 rounded-lg p-4 gap-3 border border-light-border`}
+                  style={tw` rounded-lg p-4 gap-3 border border-border`}
                 >
                   <ThemedView style={tw`flex-row items-center gap-3`}>
                     <Ionicons name="layers-outline" size={20} />
@@ -279,7 +279,7 @@ export default function RestaurantOfflineDataScreen() {
               </ThemedView>
             ) : (
               <ThemedView
-                style={tw`items-center gap-3 py-6 bg-gray-50 dark:bg-gray-900 rounded-lg`}
+                style={tw`items-center gap-3 py-6 bg-gray-50 rounded-lg`}
               >
                 <Ionicons name="restaurant-outline" size={48} color="#999" />
                 <ThemedView style={tw`gap-1 items-center`}>
@@ -309,7 +309,7 @@ export default function RestaurantOfflineDataScreen() {
           </ThemedView>
 
           {/* Divider */}
-          <ThemedView style={tw`h-px bg-gray-200 dark:bg-gray-700`} />
+          <ThemedView style={tw`h-px bg-gray-200 `} />
 
           {/* Tables Section */}
           <ThemedView style={tw`gap-4`}>
@@ -333,7 +333,7 @@ export default function RestaurantOfflineDataScreen() {
 
                 {/* Tables Summary */}
                 <ThemedView
-                  style={tw` dark:bg-gray-800 rounded-lg p-4 gap-3 border border-light-border`}
+                  style={tw` rounded-lg p-4 gap-3 border border-border`}
                 >
                   <ThemedView style={tw`flex-row items-center gap-3`}>
                     <Ionicons name="grid-outline" size={20} />
@@ -370,7 +370,7 @@ export default function RestaurantOfflineDataScreen() {
               </ThemedView>
             ) : (
               <ThemedView
-                style={tw`items-center gap-3 py-6 bg-gray-50 dark:bg-gray-900 rounded-lg`}
+                style={tw`items-center gap-3 py-6 bg-gray-50 rounded-lg`}
               >
                 <Ionicons name="grid-outline" size={48} color="#999" />
                 <ThemedView style={tw`gap-1 items-center`}>
@@ -400,7 +400,7 @@ export default function RestaurantOfflineDataScreen() {
           </ThemedView>
 
           {/* Divider */}
-          <ThemedView style={tw`h-px bg-gray-200 dark:bg-gray-700`} />
+          <ThemedView style={tw`h-px bg-gray-200 `} />
 
           {/* Payment Methods Section */}
           <ThemedView style={tw`gap-4`}>
@@ -421,7 +421,7 @@ export default function RestaurantOfflineDataScreen() {
 
                 {/* Payment Methods Summary */}
                 <ThemedView
-                  style={tw`dark:bg-gray-800 rounded-lg p-4 gap-3 border border-light-border`}
+                  style={tw`rounded-lg p-4 gap-3 border border-border`}
                 >
                   <ThemedView style={tw`flex-row items-center gap-3`}>
                     <Ionicons name="card-outline" size={20} />
@@ -468,7 +468,7 @@ export default function RestaurantOfflineDataScreen() {
               </ThemedView>
             ) : (
               <ThemedView
-                style={tw`items-center gap-3 py-6 bg-gray-50 dark:bg-gray-900 rounded-lg`}
+                style={tw`items-center gap-3 py-6 bg-gray-50 rounded-lg`}
               >
                 <Ionicons name="card-outline" size={48} color="#999" />
                 <ThemedView style={tw`gap-1 items-center`}>
@@ -498,7 +498,7 @@ export default function RestaurantOfflineDataScreen() {
           </ThemedView>
 
           {/* Divider */}
-          <ThemedView style={tw`h-px bg-gray-200 dark:bg-gray-700`} />
+          <ThemedView style={tw`h-px bg-gray-200 `} />
 
           {/* Production Areas Section */}
           <ThemedView style={tw`gap-4`}>
@@ -522,7 +522,7 @@ export default function RestaurantOfflineDataScreen() {
 
                 {/* Production Areas Summary */}
                 <ThemedView
-                  style={tw` dark:bg-gray-800 rounded-lg p-4 gap-3 border border-light-border`}
+                  style={tw` rounded-lg p-4 gap-3 border border-border`}
                 >
                   <ThemedView style={tw`flex-row items-center gap-3`}>
                     <Ionicons name="construct-outline" size={20} />
@@ -559,7 +559,7 @@ export default function RestaurantOfflineDataScreen() {
               </ThemedView>
             ) : (
               <ThemedView
-                style={tw`items-center gap-3 py-6 bg-gray-50 dark:bg-gray-900 rounded-lg`}
+                style={tw`items-center gap-3 py-6 bg-gray-50 rounded-lg`}
               >
                 <Ionicons name="construct-outline" size={48} color="#999" />
                 <ThemedView style={tw`gap-1 items-center`}>
