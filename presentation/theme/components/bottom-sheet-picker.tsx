@@ -23,6 +23,8 @@ import { ThemedView } from "./themed-view";
 export type Option = {
   label: string;
   value: string | number;
+  /** Encabezado de grupo; se muestra cuando cambia respecto a la opción anterior. */
+  group?: string;
 };
 
 export type BottomSheetPickerAction = {
@@ -167,41 +169,61 @@ const BottomSheetPicker = forwardRef<
                 keyExtractor={(item: Option) => item.value.toString()}
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
-                renderItem={({ item }: { item: Option }) => (
-                  <Pressable
-                    onPress={() => handleSelect(item.value)}
-                    style={({ pressed }) =>
-                      tw.style(
-                        "flex-row items-center justify-between p-6 rounded-3xl bg-light-surface",
-                        item.value === value &&
-                          "bg-light-secondary dark:bg-primary-900",
-                        pressed && "bg-gray-100 dark:bg-gray-700",
-                      )
-                    }
-                  >
-                    <ThemedText
-                      type="body1"
-                      style={{
-                        fontFamily:
-                          value === item.value
-                            ? typography.bold
-                            : typography.medium,
-                        color:
-                          value === item.value
-                            ? tw.color("light-on-secondary")
-                            : tw.color(""),
-                      }}
+                renderItem={({
+                  item,
+                  index,
+                }: {
+                  item: Option;
+                  index: number;
+                }) => (
+                  <View style={tw`gap-4`}>
+                    {!!item.group &&
+                      item.group !== filteredOptions[index - 1]?.group && (
+                        <ThemedText
+                          type="small"
+                          style={tw.style(
+                            "text-gray-500 px-2",
+                            index > 0 && "pt-2",
+                          )}
+                        >
+                          {item.group}
+                        </ThemedText>
+                      )}
+                    <Pressable
+                      onPress={() => handleSelect(item.value)}
+                      style={({ pressed }) =>
+                        tw.style(
+                          "flex-row items-center justify-between p-6 rounded-3xl bg-light-surface",
+                          item.value === value &&
+                            "bg-light-secondary dark:bg-primary-900",
+                          pressed && "bg-gray-100 dark:bg-gray-700",
+                        )
+                      }
                     >
-                      {item.label}
-                    </ThemedText>
-                    {value === item.value && (
-                      <Ionicons
-                        name="checkmark"
-                        size={22}
-                        color={tw.color("light-on-secondary")}
-                      />
-                    )}
-                  </Pressable>
+                      <ThemedText
+                        type="body1"
+                        style={{
+                          fontFamily:
+                            value === item.value
+                              ? typography.bold
+                              : typography.medium,
+                          color:
+                            value === item.value
+                              ? tw.color("light-on-secondary")
+                              : tw.color(""),
+                        }}
+                      >
+                        {item.label}
+                      </ThemedText>
+                      {value === item.value && (
+                        <Ionicons
+                          name="checkmark"
+                          size={22}
+                          color={tw.color("light-on-secondary")}
+                        />
+                      )}
+                    </Pressable>
+                  </View>
                 )}
               />
             </BottomSheetView>

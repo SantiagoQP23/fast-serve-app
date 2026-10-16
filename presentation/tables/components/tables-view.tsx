@@ -1,4 +1,4 @@
-import { FlatList, RefreshControl, View } from "react-native";
+import { FlatList, RefreshControl, ScrollView, View } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -18,6 +18,8 @@ import { useTableByStatus } from "@/presentation/orders/hooks/useTableByStatus";
 import { Table } from "@/core/tables/models/table.model";
 import { ViewStyle } from "react-native";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
+import { useTableGroups } from "@/presentation/tables/hooks/useTableGroups";
+import { useTablesStore } from "@/presentation/tables/hooks/useTablesStore";
 
 const PHONE_NUM_COLUMNS = 4;
 const TABLET_MIN_ITEM_WIDTH = 120;
@@ -112,6 +114,49 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
 
   const hasTables = tables.length > 0;
 
+  // Zonas: chips arriba (solo si el restaurante tiene zonas) y, con "Todas",
+  // un encabezado por zona. La zona elegida se recuerda en el teléfono.
+  const { groups, hasAreas, areas } = useTableGroups(filteredTables);
+  const storedAreaId = useTablesStore((state) => state.selectedAreaId);
+  const setSelectedAreaId = useTablesStore((state) => state.setSelectedAreaId);
+  const visibleAreas = useMemo(
+    () =>
+      areas.filter((area) => area.isActive).sort((a, b) => a.order - b.order),
+    [areas],
+  );
+  const selectedAreaId = visibleAreas.some((a) => a.id === storedAreaId)
+    ? storedAreaId
+    : null;
+
+  const listItems = useMemo(() => {
+    const items: (
+      | { type: "header"; key: string; title: string; count: number }
+      | { type: "row"; key: string; tables: Table[] }
+    )[] = [];
+    const shown = selectedAreaId
+      ? groups.filter((group) => group.area?.id === selectedAreaId)
+      : groups;
+    for (const group of shown) {
+      const groupKey = group.area?.id ?? "no-area";
+      if (hasAreas && !selectedAreaId) {
+        items.push({
+          type: "header",
+          key: `header-${groupKey}`,
+          title: group.area?.name ?? t("tables:areas.noArea"),
+          count: group.tables.length,
+        });
+      }
+      for (let i = 0; i < group.tables.length; i += numColumns) {
+        items.push({
+          type: "row",
+          key: `row-${groupKey}-${i}`,
+          tables: group.tables.slice(i, i + numColumns),
+        });
+      }
+    }
+    return items;
+  }, [groups, hasAreas, selectedAreaId, numColumns, t]);
+
   if (!hasTables) {
     return (
       <ThemedView
@@ -175,22 +220,67 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
       {/*     ); */}
       {/*   })} */}
       {/* </ThemedView> */}
+      {hasAreas && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={tw`grow-0`}
+          contentContainerStyle={tw`gap-2 px-4 pt-4`}
+        >
+          <Chip
+            label={t("tables:areas.all")}
+            selected={!selectedAreaId}
+            onPress={() => setSelectedAreaId(null)}
+          />
+          {visibleAreas.map((area) => (
+            <Chip
+              key={area.id}
+              label={area.name}
+              selected={selectedAreaId === area.id}
+              onPress={() => setSelectedAreaId(area.id)}
+            />
+          ))}
+        </ScrollView>
+      )}
       <FlatList
-        // numColumns can't change on a mounted FlatList
-        key={numColumns}
-        data={filteredTables}
-        keyExtractor={(item) => item.name.toString()}
-        renderItem={({ item }) => (
-          <View style={{ width: itemWidth }}>
-            <TableCard table={item} onPress={() => onTablePress(item)} />
-          </View>
-        )}
-        numColumns={numColumns}
-        columnWrapperStyle={{
-          gap: COLUMN_GAP,
-          marginBottom: COLUMN_GAP,
-          paddingHorizontal: HORIZONTAL_PADDING,
-        }}
+        data={listItems}
+        keyExtractor={(item) => item.key}
+        renderItem={({ item }) =>
+          item.type === "header" ? (
+            <ThemedView
+              style={{
+                paddingHorizontal: HORIZONTAL_PADDING,
+                paddingTop: COLUMN_GAP,
+                paddingBottom: COLUMN_GAP,
+              }}
+            >
+              <ThemedText type="h4">
+                {item.title}{" "}
+                <ThemedText type="small" style={tw`text-gray-500`}>
+                  {t("tables:areas.tablesCount", { count: item.count })}
+                </ThemedText>
+              </ThemedText>
+            </ThemedView>
+          ) : (
+            <View
+              style={{
+                flexDirection: "row",
+                gap: COLUMN_GAP,
+                marginBottom: COLUMN_GAP,
+                paddingHorizontal: HORIZONTAL_PADDING,
+              }}
+            >
+              {item.tables.map((table) => (
+                <View key={table.id} style={{ width: itemWidth }}>
+                  <TableCard
+                    table={table}
+                    onPress={() => onTablePress(table)}
+                  />
+                </View>
+              ))}
+            </View>
+          )
+        }
         contentContainerStyle={tw`pb-20 pt-4`}
         showsVerticalScrollIndicator={false}
         refreshControl={

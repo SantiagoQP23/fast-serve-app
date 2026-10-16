@@ -78,6 +78,52 @@
       "nameMaxLength": "El nombre debe tener máximo 60 caracteres",
       "chairsRequired": "El número de sillas es requerido",
       "chairsInvalid": "Las sillas deben ser un número entero mayor a 0"
-    }
+    },
+    "reorderTables": "Ordenar mesas"
+  },
+  "areas": {
+    "title": "Zonas",
+    "all": "Todas",
+    "noArea": "Sin zona",
+    "field": "Zona",
+    "tablesCount": "{{count}} mesas",
+    "hidden": "Oculta",
+    "manage": "Zonas",
+    "manageDescription": "Agrupa las mesas en zonas como Salón o Terraza",
+    "newArea": "Nueva zona",
+    "editArea": "Editar zona",
+    "name": "Nombre",
+    "namePlaceholder": "ej. Terraza",
+    "nameRequired": "El nombre es requerido",
+    "nameMaxLength": "El nombre debe tener máximo 50 caracteres",
+    "create": "Crear",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "reorder": "Ordenar",
+    "noAreas": "Aún no hay zonas",
+    "noAreasDescription": "Crea zonas como Salón o Terraza para agrupar las mesas.",
+    "deleteTitle": "Eliminar zona",
+    "deleteMessage": "Las {{count}} mesas de {{name}} quedarán sin zona.",
+    "deleteMessageEmpty": "¿Eliminar la zona {{name}}?",
+    "confirm": "Eliminar",
+    "deleteSuccess": "Zona eliminada",
+    "createError": "No se pudo crear la zona",
+    "updateError": "No se pudo actualizar la zona",
+    "deleteError": "No se pudo eliminar la zona"
+  },
+  "reorder": {
+    "title": "Ordenar mesas",
+    "areasTitle": "Ordenar zonas",
+    "save": "Guardar",
+    "hint": "Mantén presionada una fila y arrástrala para cambiar su lugar.",
+    "empty": "No hay mesas en esta zona",
+    "discardTitle": "Descartar cambios",
+    "discardMessage": "Hay cambios sin guardar. ¿Salir sin guardarlos?",
+    "discard": "Descartar",
+    "keepEditing": "Seguir editando",
+    "error": "No se pudo guardar el orden",
+    "offline": "Necesitas conexión para guardar"
   }
 }

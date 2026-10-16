@@ -6,6 +6,8 @@ import { PaymentMethod } from "@/core/restaurant/models/payment-method.model";
 import { PaymentMethodsService } from "@/core/restaurant/services/payment-methods.service";
 import { Table } from "@/core/tables/models/table.model";
 import { TablesService } from "@/core/tables/services/tables.service";
+import { TableArea } from "@/core/tables/models/table-area.model";
+import { TableAreasService } from "@/core/tables/services/table-areas.service";
 import { Printer } from "@/core/common/models/printer.model";
 import { ProductionAreasService } from "@/presentation/production-areas/services/production-areas.service";
 
@@ -15,6 +17,7 @@ export interface BootstrapResult {
   productionAreas?: ProductionArea[];
   printers?: Printer[];
   tables?: Table[];
+  tableAreas?: TableArea[];
   /** Errors from the requests that failed. Empty when everything loaded. */
   errors: unknown[];
 }
@@ -38,13 +41,14 @@ const valueOf = <T>(
 export const bootstrapRestaurantData = async (
   restaurantId: string,
 ): Promise<BootstrapResult> => {
-  const [menu, paymentMethods, productionAreas, printers, tables] =
+  const [menu, paymentMethods, productionAreas, printers, tables, tableAreas] =
     await Promise.allSettled([
       RestaurantMenuService.getAllMenu(restaurantId),
       PaymentMethodsService.getPaymentMethods(),
       ProductionAreasService.getAll(),
       PrintersService.getAll(),
       TablesService.getTables(),
+      TableAreasService.getAll(),
     ]);
 
   const errors: unknown[] = [];
@@ -55,6 +59,9 @@ export const bootstrapRestaurantData = async (
     productionAreas: valueOf(productionAreas, errors),
     printers: valueOf(printers, errors),
     tables: valueOf(tables, errors),
+    // Zones are optional: a backend without /table-areas must not block the rest.
+    tableAreas:
+      tableAreas.status === "fulfilled" ? tableAreas.value : undefined,
     errors,
   };
 };

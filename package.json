@@ -67,6 +67,7 @@
     "react-native-image-zoom-viewer": "^3.0.1",
     "react-native-qrcode-svg": "^6.3.21",
     "react-native-reanimated": "~4.3.1",
+    "react-native-reorderable-list": "0.18.1",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.2",
     "react-native-svg": "15.15.4",

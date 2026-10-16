@@ -32,6 +32,8 @@ import {
 } from "@/presentation/offline/pending-orders";
 import { applyTicketEvent } from "../apply-ticket-event";
 import { applyProductEvent } from "../apply-product-event";
+import { applyTableAreaEvent } from "../apply-table-area-event";
+import { TableArea } from "@/core/tables/models/table-area.model";
 import { useUnprintedTicketsStore } from "@/presentation/orders/store/useUnprintedTicketsStore";
 import { Ticket } from "@/core/tickets/models/ticket.model";
 import { useAppForeground } from "@/presentation/shared/hooks/useAppForeground";
@@ -56,6 +58,11 @@ function applySnapshot(
 
   useOrdersStore.getState().setOrders(keepLocalPendingOrders(orders));
   useTablesStore.getState().setTables(tables, restaurantId);
+  if (snapshot.tableAreas) {
+    useTablesStore
+      .getState()
+      .setAreas(snapshot.tableAreas as TableArea[]);
+  }
   useMenuStore
     .getState()
     .setMenu({ sections, categories, products }, restaurantId);
@@ -105,6 +112,9 @@ function applyEvent(event: SyncEventDto) {
       break;
     case SyncResourceType.TABLE:
       applyTableEvent(event);
+      break;
+    case SyncResourceType.TABLE_AREA:
+      applyTableAreaEvent(event);
       break;
     case SyncResourceType.BILL:
       // Bills are nested inside orders. Legacy order websocket events and
