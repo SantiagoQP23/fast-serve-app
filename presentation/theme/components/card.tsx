@@ -58,13 +58,13 @@ export default function Card({
 }
 
 const shadows = StyleSheet.create({
-  // Resting lift (Material 3 elevation level 1): soft offset shadow on iOS,
-  // native elevation on Android.
+  // Resting lift: a wide, faint diffuse shadow on iOS, the lowest native
+  // elevation on Android (its shadow can't be blurred further).
   elevated: {
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.12,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 1,
   },
 });

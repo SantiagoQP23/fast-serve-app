@@ -245,7 +245,7 @@ export default function FloatingSearchBar({
             {...inputProps}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            variant="filled"
+            containerStyle={tw`bg-light-surface-container-low rounded-3xl`}
           />
         </View>
       </Animated.View>
