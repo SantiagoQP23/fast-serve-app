@@ -3,6 +3,7 @@ import { ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
+import { useShallow } from "zustand/react/shallow";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -33,7 +34,11 @@ export default function PendingChangesScreen() {
   const { t } = useTranslation(["common", "orders"]);
   const queryClient = useQueryClient();
   const restaurantId = useAuthStore((state) => state.currentRestaurant?.id);
-  const operations = useOutboxStore(selectRestaurantOperations(restaurantId));
+  // The selector filters, so it returns a new array on every read; useShallow
+  // keeps the reference stable while the operations are the same.
+  const operations = useOutboxStore(
+    useShallow(selectRestaurantOperations(restaurantId)),
+  );
   const [toDiscard, setToDiscard] = useState<OutboxOperation | null>(null);
 
   const retry = (op: OutboxOperation) => {

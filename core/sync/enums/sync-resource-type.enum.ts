@@ -1,6 +1,7 @@
 export enum SyncResourceType {
   RESTAURANT = "restaurant",
   TABLE = "table",
+  TABLE_AREA = "table_area",
   ORDER = "order",
   BILL = "bill",
   PRODUCT = "product",

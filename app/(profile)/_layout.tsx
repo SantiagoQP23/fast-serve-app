@@ -328,6 +328,29 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="table-areas-settings/index"
+          options={{
+            headerShown: true,
+            title: t("tables:areas.title"),
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="table-area-form/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="tables-reorder/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
           name="payment-methods-settings/index"
           options={{
             headerShown: true,

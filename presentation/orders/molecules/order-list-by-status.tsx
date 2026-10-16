@@ -10,15 +10,21 @@ import { useMemo, useState } from "react";
 import Chip from "@/presentation/theme/components/chip";
 import { Ionicons } from "@expo/vector-icons";
 import OrderProductsCard from "@/presentation/home/components/order-products-card";
+import OrderCompactCard from "@/presentation/home/components/order-compact-card";
 
 export interface OrderListProps {
   orders: Order[];
   showProducts?: boolean;
+  /** "grid" shows minimal cards two per row; `showProducts` only applies to "list". */
+  variant?: "list" | "grid";
 }
+
+const GRID_COLUMNS = 2;
 
 export default function OrderListByStatus({
   orders,
   showProducts = false,
+  variant = "list",
 }: OrderListProps) {
   const { t } = useTranslation(["common"]);
 
@@ -47,10 +53,22 @@ export default function OrderListByStatus({
     );
   }, [orders, selectedStatus]);
 
+  const gridRows = useMemo(() => {
+    if (variant !== "grid") return [];
+    const rows: Order[][] = [];
+    for (let i = 0; i < filteredOrders.length; i += GRID_COLUMNS) {
+      rows.push(filteredOrders.slice(i, i + GRID_COLUMNS));
+    }
+    return rows;
+  }, [filteredOrders, variant]);
+
   return (
     <>
       <ScrollView
         horizontal
+        // Horizontal ScrollViews default to flexGrow: 1, so inside a
+        // flex-grow parent with little content the chips stretched vertically.
+        style={tw`flex-grow-0`}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={tw`gap-2 px-4`}
       >
@@ -80,7 +98,21 @@ export default function OrderListByStatus({
         })}
       </ScrollView>
 
-      {filteredOrders.length > 0 ? (
+      {filteredOrders.length > 0 && variant === "grid" ? (
+        <ThemedView style={tw`px-4 gap-3`}>
+          {gridRows.map((row) => (
+            // Cells stretch to the tallest card so each row stays even.
+            <ThemedView key={row[0].id} style={tw`flex-row gap-3`}>
+              {row.map((order) => (
+                <ThemedView key={order.id} style={tw`flex-1`}>
+                  <OrderCompactCard order={order} />
+                </ThemedView>
+              ))}
+              {row.length < GRID_COLUMNS && <ThemedView style={tw`flex-1`} />}
+            </ThemedView>
+          ))}
+        </ThemedView>
+      ) : filteredOrders.length > 0 ? (
         <ThemedView style={tw`px-4`}>
           {filteredOrders.map((order) => (
             <ThemedView key={order.id}>

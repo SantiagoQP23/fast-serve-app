@@ -1,6 +1,7 @@
 import { forwardRef, useImperativeHandle, useMemo, useRef } from "react";
 import { Table } from "@/core/tables/models/table.model";
 import { useTablesStore } from "@/presentation/tables/hooks/useTablesStore";
+import { useTableGroups } from "@/presentation/tables/hooks/useTableGroups";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import BottomSheetPicker, {
   type BottomSheetPickerRef,
@@ -26,13 +27,25 @@ const TableSelectorBottomSheet = forwardRef<
     dismiss: () => pickerRef.current?.dismiss(),
   }));
 
+  const activeTables = useMemo(
+    () => tables.filter((table) => table.isActive !== false),
+    [tables],
+  );
+  const { groups, hasAreas } = useTableGroups(activeTables);
+
+  // Mesas por zona y orden; encabezado de zona solo si el restaurante tiene zonas.
   const options = useMemo(
     () =>
-      tables.map((table) => ({
-        label: t("tables:card.table", { name: table.name }),
-        value: table.id,
-      })),
-    [tables, t],
+      groups.flatMap((group) =>
+        group.tables.map((table) => ({
+          label: t("tables:card.table", { name: table.name }),
+          value: table.id,
+          group: hasAreas
+            ? (group.area?.name ?? t("tables:areas.noArea"))
+            : undefined,
+        })),
+      ),
+    [groups, hasAreas, t],
   );
 
   const handleChange = (value: string | number) => {

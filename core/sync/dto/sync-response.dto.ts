@@ -29,6 +29,7 @@ export interface SnapshotSyncResponseDto {
   categories: unknown[];
   sections: unknown[];
   productionAreas: unknown[];
+  tableAreas?: unknown[];
   paymentMethods?: unknown[];
   accounts?: unknown[];
   printers?: unknown[];

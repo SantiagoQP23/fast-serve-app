@@ -8,6 +8,7 @@
     "itemsPending": "productos pendientes",
     "unpaid": "Sin Pagar",
     "noPendingProducts": "Todos los productos entregados",
+    "moreItems": "+{{count}} más",
     "noPendingProductsDescription": "¡Buen trabajo! No hay productos pendientes por entregar.",
     "closedOrders": "Pedidos Cerrados",
     "noClosedOrders": "No se encontraron pedidos cerrados",
@@ -22,6 +23,10 @@
     "title": "Vista de pedidos",
     "products": "Productos",
     "orders": "Pedidos"
+  },
+  "homeViews": {
+    "list": "Lista",
+    "cards": "Tarjetas"
   },
   "homeOptions": {
     "title": "Personalizar vista",

@@ -78,6 +78,52 @@
       "nameMaxLength": "Name must be at most 60 characters",
       "chairsRequired": "Number of chairs is required",
       "chairsInvalid": "Chairs must be a whole number greater than 0"
-    }
+    },
+    "reorderTables": "Sort"
+  },
+  "areas": {
+    "title": "Zones",
+    "all": "All",
+    "noArea": "No zone",
+    "field": "Zone",
+    "tablesCount": "{{count}} tables",
+    "hidden": "Hidden",
+    "manage": "Zones",
+    "manageDescription": "Group tables into zones like Dining room or Terrace",
+    "newArea": "New zone",
+    "editArea": "Edit zone",
+    "name": "Name",
+    "namePlaceholder": "e.g. Terrace",
+    "nameRequired": "Name is required",
+    "nameMaxLength": "Name must be 50 characters or less",
+    "create": "Create",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "reorder": "Reorder",
+    "noAreas": "No zones yet",
+    "noAreasDescription": "Create zones like Dining room or Terrace to group tables.",
+    "deleteTitle": "Delete zone",
+    "deleteMessage": "The {{count}} tables in {{name}} will have no zone.",
+    "deleteMessageEmpty": "Delete the zone {{name}}?",
+    "confirm": "Delete",
+    "deleteSuccess": "Zone deleted",
+    "createError": "Could not create the zone",
+    "updateError": "Could not update the zone",
+    "deleteError": "Could not delete the zone"
+  },
+  "reorder": {
+    "title": "Reorder tables",
+    "areasTitle": "Reorder zones",
+    "save": "Save",
+    "hint": "Press and hold a row, then drag it to change its place.",
+    "empty": "There are no tables in this zone",
+    "discardTitle": "Discard changes",
+    "discardMessage": "You have unsaved changes. Leave without saving?",
+    "discard": "Discard",
+    "keepEditing": "Keep editing",
+    "error": "Could not save the order",
+    "offline": "You need a connection to save"
   }
 }

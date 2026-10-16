@@ -8,6 +8,7 @@
     "itemsPending": "items pending",
     "unpaid": "Unpaid",
     "noPendingProducts": "All products delivered",
+    "moreItems": "+{{count}} more",
     "noPendingProductsDescription": "Great job! There are no pending products to deliver.",
     "closedOrders": "Closed Orders",
     "noClosedOrders": "No closed orders found",
@@ -22,6 +23,10 @@
     "title": "Orders view",
     "products": "Products",
     "orders": "Orders"
+  },
+  "homeViews": {
+    "list": "List",
+    "cards": "Cards"
   },
   "homeOptions": {
     "title": "Customize view",

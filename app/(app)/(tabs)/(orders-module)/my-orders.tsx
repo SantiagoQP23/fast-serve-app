@@ -68,12 +68,13 @@ export default function MyOrdersScreen() {
   const [activeModule, setActiveModule] = useState<"orders" | "sales">(
     params.module === "sales" ? "sales" : "orders",
   );
-  const [activeView, setActiveView] = useState<"tables" | "take-away">(
-    "tables",
-  );
+  const [activeView, setActiveView] = useState<
+    "tables" | "take-away" | "list" | "cards"
+  >("tables");
   const takeAwayOrders = orders.filter(
     (order) => order.type === OrderType.TAKE_AWAY,
   );
+  const listOrders = activeView === "take-away" ? takeAwayOrders : orders;
   const [selectedView, setSelectedView] = useState<
     "pending-products" | "order-lists"
   >("pending-products");
@@ -185,13 +186,37 @@ export default function MyOrdersScreen() {
     },
   ];
 
+  const viewOptions = [
+    {
+      label: t("tables:list.title"),
+      value: "tables" as const,
+      icon: "grid-outline" as const,
+    },
+    {
+      label: t("orders:details.takeAway"),
+      value: "take-away" as const,
+      icon: "bag-handle-outline" as const,
+    },
+    {
+      label: t("orders:homeViews.list"),
+      value: "list" as const,
+      icon: "list-outline" as const,
+    },
+    {
+      label: t("orders:homeViews.cards"),
+      value: "cards" as const,
+      icon: "albums-outline" as const,
+    },
+  ];
   const currentView =
-    activeView === "tables"
-      ? { label: t("tables:list.title"), icon: "grid-outline" as const }
-      : {
-          label: t("orders:details.takeAway"),
-          icon: "bag-handle-outline" as const,
-        };
+    viewOptions.find((option) => option.value === activeView) ?? viewOptions[0];
+
+  const handleViewTogglePress = () => {
+    const currentIndex = viewOptions.findIndex(
+      (option) => option.value === activeView,
+    );
+    setActiveView(viewOptions[(currentIndex + 1) % viewOptions.length].value);
+  };
 
   const listPane = (
     <ThemedView
@@ -220,11 +245,7 @@ export default function MyOrdersScreen() {
               size="small"
               label={currentView.label}
               leftIcon={currentView.icon}
-              onPress={() =>
-                setActiveView((view) =>
-                  view === "tables" ? "take-away" : "tables",
-                )
-              }
+              onPress={handleViewTogglePress}
             />
             <IconButton
               icon="options-outline"
@@ -252,7 +273,7 @@ export default function MyOrdersScreen() {
       {activeModule === "orders" && (
         <>
           <ThemedView style={tw`flex-1`}>
-            {activeView === "take-away" && (
+            {activeView !== "tables" && (
               <ScrollView
                 contentContainerStyle={tw`pb-20 gap-4 pt-4`}
                 showsVerticalScrollIndicator={false}
@@ -273,7 +294,7 @@ export default function MyOrdersScreen() {
                     <OrderCardSkeleton />
                     <OrderCardSkeleton />
                   </ThemedView>
-                ) : takeAwayOrders.length === 0 ? (
+                ) : listOrders.length === 0 ? (
                   <ThemedView
                     style={tw` items-center justify-center flex-1 gap-4 mt-20`}
                   >
@@ -291,7 +312,12 @@ export default function MyOrdersScreen() {
                   </ThemedView>
                 ) : (
                   <ThemedView style={tw`gap-6`}>
-                    <OrderListByStatus orders={takeAwayOrders} showProducts />
+                    <OrderListByStatus
+                      key={activeView}
+                      orders={listOrders}
+                      showProducts
+                      variant={activeView === "cards" ? "grid" : "list"}
+                    />
                   </ThemedView>
                 )}
               </ScrollView>

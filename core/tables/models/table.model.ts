@@ -6,4 +6,6 @@ export interface Table {
   isAvailable: boolean;
   order?: number;
   isActive?: boolean;
+  /** Zona de la mesa; null = "Sin zona". `order` es su posición dentro de ella. */
+  areaId?: string | null;
 }

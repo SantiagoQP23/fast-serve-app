@@ -136,7 +136,7 @@
     }
   },
   "connection": {
-    "offline": "Sin Conexión",
+    "offline": "Trabajando sin conexión",
     "reconnecting": "Reconectando...",
     "reconnected": "Conexión Restablecida"
   },

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
-import { router } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -21,9 +21,11 @@ import Label from "@/presentation/theme/components/label";
 import type { Table } from "@/core/tables/models/table.model";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { typography } from "@/constants/theme";
+import { useTableGroups } from "@/presentation/tables/hooks/useTableGroups";
 
 export default function TablesSettingsScreen() {
   const { t } = useTranslation("tables");
+  const navigation = useNavigation();
   const { tables, tablesQuery } = useTables();
   const { isLoading, isError, refetch, isRefetching } = tablesQuery;
   const { updateTable, deleteTable } = useTablesManagement();
@@ -32,6 +34,9 @@ export default function TablesSettingsScreen() {
   const [tableToDelete, setTableToDelete] = useState<Table | null>(null);
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
   const actionsSheetRef = useRef<BottomSheetMethods>(null);
+  const { groups, hasAreas } = useTableGroups(tables, {
+    includeHidden: true,
+  });
 
   useEffect(() => {
     if (tables.length === 0) {
@@ -39,6 +44,24 @@ export default function TablesSettingsScreen() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const canReorder = canManage && tables.length > 1;
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: canReorder
+        ? () => (
+            <Button
+              label={t("settings.reorderTables")}
+              leftIcon="swap-vertical-outline"
+              variant="surface"
+              size="extra-small"
+              onPress={() => router.push("/(profile)/tables-reorder")}
+            />
+          )
+        : undefined,
+    });
+  }, [navigation, canReorder, t]);
 
   const handleCreateTable = () => {
     router.push("/(profile)/table-settings-form");
@@ -54,6 +77,7 @@ export default function TablesSettingsScreen() {
         chairs: table.chairs != null ? String(table.chairs) : "",
         isActive: String(table.isActive !== false),
         isAvailable: String(table.isAvailable !== false),
+        areaId: table.areaId ?? "",
       },
     });
   };
@@ -131,44 +155,73 @@ export default function TablesSettingsScreen() {
           </ThemedView>
         )}
 
-        {tables.length > 0 && (
-          <ThemedView style={tw`flex-row flex-wrap justify-between gap-y-4`}>
-            {tables.map((table) => (
-              <ThemedView key={table.id} style={tw`w-[48%]`}>
-                <Card
-                  onPress={
-                    canManage ? () => handleOpenTableActions(table) : undefined
-                  }
-                  style={table.isActive === false && tw`opacity-50`}
-                >
-                  <ThemedView style={tw`gap-4`}>
-                    <Ionicons
-                      name="grid-outline"
-                      size={28}
-                      color={tw.color("text-on-surface-variant")}
-                    />
-                    <ThemedView style={tw`gap-2`}>
-                      <ThemedText type="h4">
-                        {t("settings.tableName", { name: table.name })}
-                      </ThemedText>
-                      <ThemedView
-                        style={tw`flex-row items-center gap-2 flex-wrap`}
-                      >
-                        {table.chairs != null && (
-                          <ThemedText type="small" style={tw`text-gray-500`}>
-                            {t("settings.chairsCount", {
-                              count: table.chairs,
-                            })}
-                          </ThemedText>
-                        )}
+        {canManage && (
+          <Button
+            label={t("areas.manage")}
+            leftIcon="albums-outline"
+            variant="outline"
+            size="small"
+            onPress={() => router.push("/(profile)/table-areas-settings")}
+          />
+        )}
+
+        {groups.map((group) => (
+          <ThemedView key={group.area?.id ?? "no-area"} style={tw`gap-3`}>
+            {hasAreas && (
+              <ThemedView style={tw`flex-row items-center gap-2`}>
+                <ThemedText type="h4">
+                  {group.area?.name ?? t("areas.noArea")}
+                </ThemedText>
+                <ThemedText type="small" style={tw`text-gray-500`}>
+                  {t("areas.tablesCount", { count: group.tables.length })}
+                </ThemedText>
+                {group.area && !group.area.isActive && (
+                  <ThemedText type="small" style={tw`text-gray-500`}>
+                    · {t("areas.hidden")}
+                  </ThemedText>
+                )}
+              </ThemedView>
+            )}
+            <ThemedView style={tw`flex-row flex-wrap justify-between gap-y-4`}>
+              {group.tables.map((table) => (
+                <ThemedView key={table.id} style={tw`w-[48%]`}>
+                  <Card
+                    onPress={
+                      canManage
+                        ? () => handleOpenTableActions(table)
+                        : undefined
+                    }
+                    style={table.isActive === false && tw`opacity-50`}
+                  >
+                    <ThemedView style={tw`gap-4`}>
+                      <Ionicons
+                        name="grid-outline"
+                        size={28}
+                        color={tw.color("text-on-surface-variant")}
+                      />
+                      <ThemedView style={tw`gap-2`}>
+                        <ThemedText type="h4">
+                          {t("settings.tableName", { name: table.name })}
+                        </ThemedText>
+                        <ThemedView
+                          style={tw`flex-row items-center gap-2 flex-wrap`}
+                        >
+                          {table.chairs != null && (
+                            <ThemedText type="small" style={tw`text-gray-500`}>
+                              {t("settings.chairsCount", {
+                                count: table.chairs,
+                              })}
+                            </ThemedText>
+                          )}
+                        </ThemedView>
                       </ThemedView>
                     </ThemedView>
-                  </ThemedView>
-                </Card>
-              </ThemedView>
-            ))}
+                  </Card>
+                </ThemedView>
+              ))}
+            </ThemedView>
           </ThemedView>
-        )}
+        ))}
       </ScrollView>
 
       {canManage && <Fab icon="add" onPress={handleCreateTable} />}

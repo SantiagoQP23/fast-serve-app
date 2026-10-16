@@ -57,7 +57,7 @@ export default function ProductCard({ product, onPress }: ProductCardProps) {
   return (
     <Card
       style={({ pressed }) => [
-        tw` p-4 rounded-2xl `,
+        tw` p-4 rounded-2xl bg-surface-container-low`,
         pressed && tw`opacity-80`,
       ]}
       onPress={onPress}
