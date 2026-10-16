@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import { router, useNavigation } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,7 +21,16 @@ import Label from "@/presentation/theme/components/label";
 import type { Table } from "@/core/tables/models/table.model";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { typography } from "@/constants/theme";
-import { useTableGroups } from "@/presentation/tables/hooks/useTableGroups";
+import {
+  sortAreas,
+  useTableGroups,
+} from "@/presentation/tables/hooks/useTableGroups";
+import { useTableAreasManagement } from "@/presentation/tables/hooks/useTableAreasManagement";
+import BottomSheetPicker, {
+  type BottomSheetPickerRef,
+} from "@/presentation/theme/components/bottom-sheet-picker";
+
+const NO_AREA = "no-area";
 
 export default function TablesSettingsScreen() {
   const { t } = useTranslation("tables");
@@ -34,9 +43,66 @@ export default function TablesSettingsScreen() {
   const [tableToDelete, setTableToDelete] = useState<Table | null>(null);
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
   const actionsSheetRef = useRef<BottomSheetMethods>(null);
-  const { groups, hasAreas } = useTableGroups(tables, {
+  const { groups, hasAreas, areas } = useTableGroups(tables, {
     includeHidden: true,
   });
+
+  // Selección múltiple para mover mesas a otra zona: mantener presionada una
+  // mesa empieza a seleccionar; mientras hay selección, tocar alterna.
+  const { moveTables } = useTableAreasManagement();
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const isSelecting = selectedIds.size > 0;
+  const canSelect = canManage && hasAreas;
+  const areaPickerRef = useRef<BottomSheetPickerRef>(null);
+  const areaOptions = useMemo(
+    () => [
+      ...sortAreas(areas).map((area) => ({ label: area.name, value: area.id })),
+      { label: t("areas.noArea"), value: NO_AREA },
+    ],
+    [areas, t],
+  );
+
+  const toggleSelected = (tableId: string) =>
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (next.has(tableId)) next.delete(tableId);
+      else next.add(tableId);
+      return next;
+    });
+
+  const selectGroup = (groupTables: Table[]) =>
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      const allSelected = groupTables.every((table) => next.has(table.id));
+      groupTables.forEach((table) =>
+        allSelected ? next.delete(table.id) : next.add(table.id),
+      );
+      return next;
+    });
+
+  // La zona destino completa: sus mesas actuales y al final las movidas, en el
+  // orden en que se ven. Sin toast de éxito: la mesa aparece en su nueva zona.
+  const handleMoveToArea = async (value: string | number) => {
+    const areaId = value === NO_AREA ? null : String(value);
+    const groupKey = areaId ?? NO_AREA;
+    const target = groups.find((g) => (g.area?.id ?? NO_AREA) === groupKey);
+    const targetIds = (target?.tables ?? [])
+      .map((table) => table.id)
+      .filter((id) => !selectedIds.has(id));
+    const movedIds = groups
+      .filter((g) => (g.area?.id ?? NO_AREA) !== groupKey)
+      .flatMap((g) => g.tables)
+      .map((table) => table.id)
+      .filter((id) => selectedIds.has(id));
+
+    if (movedIds.length > 0) {
+      await moveTables.mutateAsync({
+        areaId,
+        tableIds: [...targetIds, ...movedIds],
+      });
+    }
+    setSelectedIds(new Set());
+  };
 
   useEffect(() => {
     if (tables.length === 0) {
@@ -49,19 +115,28 @@ export default function TablesSettingsScreen() {
 
   useEffect(() => {
     navigation.setOptions({
-      headerRight: canReorder
+      headerRight: isSelecting
         ? () => (
             <Button
-              label={t("settings.reorderTables")}
-              leftIcon="swap-vertical-outline"
+              label={t("areas.cancelSelection")}
               variant="surface"
               size="extra-small"
-              onPress={() => router.push("/(profile)/tables-reorder")}
+              onPress={() => setSelectedIds(new Set())}
             />
           )
-        : undefined,
+        : canReorder
+          ? () => (
+              <Button
+                label={t("settings.reorderTables")}
+                leftIcon="swap-vertical-outline"
+                variant="surface"
+                size="extra-small"
+                onPress={() => router.push("/(profile)/tables-reorder")}
+              />
+            )
+          : undefined,
     });
-  }, [navigation, canReorder, t]);
+  }, [navigation, canReorder, isSelecting, t]);
 
   const handleCreateTable = () => {
     router.push("/(profile)/table-settings-form");
@@ -165,6 +240,12 @@ export default function TablesSettingsScreen() {
           />
         )}
 
+        {canSelect && !isSelecting && tables.length > 1 && (
+          <ThemedText type="small" style={tw`text-gray-500`}>
+            {t("areas.selectHint")}
+          </ThemedText>
+        )}
+
         {groups.map((group) => (
           <ThemedView key={group.area?.id ?? "no-area"} style={tw`gap-3`}>
             {hasAreas && (
@@ -180,6 +261,15 @@ export default function TablesSettingsScreen() {
                     · {t("areas.hidden")}
                   </ThemedText>
                 )}
+                {isSelecting && group.tables.length > 0 && (
+                  <Button
+                    label={t("areas.selectAll")}
+                    variant="surface"
+                    size="extra-small"
+                    style={tw`ml-auto`}
+                    onPress={() => selectGroup(group.tables)}
+                  />
+                )}
               </ThemedView>
             )}
             <ThemedView style={tw`flex-row flex-wrap justify-between gap-y-4`}>
@@ -187,17 +277,34 @@ export default function TablesSettingsScreen() {
                 <ThemedView key={table.id} style={tw`w-[48%]`}>
                   <Card
                     onPress={
-                      canManage
-                        ? () => handleOpenTableActions(table)
-                        : undefined
+                      isSelecting
+                        ? () => toggleSelected(table.id)
+                        : canManage
+                          ? () => handleOpenTableActions(table)
+                          : undefined
+                    }
+                    onLongPress={
+                      canSelect ? () => toggleSelected(table.id) : undefined
+                    }
+                    containerStyle={
+                      selectedIds.has(table.id) &&
+                      tw`border-2 border-light-primary`
                     }
                     style={table.isActive === false && tw`opacity-50`}
                   >
                     <ThemedView style={tw`gap-4`}>
                       <Ionicons
-                        name="grid-outline"
+                        name={
+                          selectedIds.has(table.id)
+                            ? "checkmark-circle"
+                            : "grid-outline"
+                        }
                         size={28}
-                        color={tw.color("text-light-on-surface-variant")}
+                        color={tw.color(
+                          selectedIds.has(table.id)
+                            ? "light-primary"
+                            : "text-light-on-surface-variant",
+                        )}
                       />
                       <ThemedView style={tw`gap-2`}>
                         <ThemedText type="h4">
@@ -224,7 +331,34 @@ export default function TablesSettingsScreen() {
         ))}
       </ScrollView>
 
-      {canManage && <Fab icon="add" onPress={handleCreateTable} />}
+      {canManage && !isSelecting && (
+        <Fab icon="add" onPress={handleCreateTable} />
+      )}
+
+      {isSelecting && (
+        <ThemedView
+          style={tw`absolute bottom-6 left-4 right-4 flex-row items-center gap-4 p-4 rounded-3xl bg-light-surface-high`}
+        >
+          <ThemedText type="body1" style={tw`flex-1`}>
+            {t("areas.selectedCount", { count: selectedIds.size })}
+          </ThemedText>
+          <Button
+            label={t("areas.moveToArea")}
+            leftIcon="albums-outline"
+            size="small"
+            loading={moveTables.isPending}
+            disabled={moveTables.isPending}
+            onPress={() => areaPickerRef.current?.present()}
+          />
+        </ThemedView>
+      )}
+
+      <BottomSheetPicker
+        ref={areaPickerRef}
+        title={t("areas.moveToArea")}
+        options={areaOptions}
+        onChange={(value) => void handleMoveToArea(value).catch(() => {})}
+      />
 
       <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
         {selectedTable && (

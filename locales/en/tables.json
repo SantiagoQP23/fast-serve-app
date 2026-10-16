@@ -111,7 +111,13 @@
     "deleteSuccess": "Zone deleted",
     "createError": "Could not create the zone",
     "updateError": "Could not update the zone",
-    "deleteError": "Could not delete the zone"
+    "deleteError": "Could not delete the zone",
+    "selectHint": "Press and hold a table to select several and move them to another zone.",
+    "selectedCount": "{{count}} selected",
+    "selectAll": "Select all",
+    "moveToArea": "Move to zone",
+    "cancelSelection": "Cancel",
+    "moveError": "Could not move the tables"
   },
   "reorder": {
     "title": "Reorder tables",

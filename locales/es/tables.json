@@ -111,7 +111,13 @@
     "deleteSuccess": "Zona eliminada",
     "createError": "No se pudo crear la zona",
     "updateError": "No se pudo actualizar la zona",
-    "deleteError": "No se pudo eliminar la zona"
+    "deleteError": "No se pudo eliminar la zona",
+    "selectHint": "Mantén presionada una mesa para seleccionar varias y moverlas a otra zona.",
+    "selectedCount": "{{count}} seleccionadas",
+    "selectAll": "Seleccionar todas",
+    "moveToArea": "Mover a zona",
+    "cancelSelection": "Cancelar",
+    "moveError": "No se pudieron mover las mesas"
   },
   "reorder": {
     "title": "Ordenar mesas",
