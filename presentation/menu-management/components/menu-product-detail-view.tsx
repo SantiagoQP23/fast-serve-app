@@ -389,7 +389,7 @@ export default function MenuProductDetailView({
             hitSlop={12}
             style={({ pressed }) => tw.style(pressed && "opacity-70")}
           >
-            <Ionicons name={backIcon} size={24} />
+            <Ionicons name={backIcon} color={tw.color("on-surface")} size={24} />
           </Pressable>
         </ThemedView>
         <ThemedView style={tw`items-center py-8 gap-3`}>
@@ -421,7 +421,7 @@ export default function MenuProductDetailView({
             hitSlop={12}
             style={({ pressed }) => tw.style(pressed && "opacity-70")}
           >
-            <Ionicons name={backIcon} size={24} />
+            <Ionicons name={backIcon} color={tw.color("on-surface")} size={24} />
           </Pressable>
         </ThemedView>
 

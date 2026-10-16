@@ -217,7 +217,7 @@ const BottomSheetPicker = forwardRef<
                           color:
                             value === item.value
                               ? tw.color("on-secondary")
-                              : tw.color(""),
+                              : tw.color("on-surface"),
                         }}
                       >
                         {item.label}

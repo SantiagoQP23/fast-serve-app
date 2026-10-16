@@ -138,7 +138,7 @@ A cool, restrained steel-blue palette on a near-white canvas — one accent colo
 The user picks a theme per device in Settings → Appearance (`useThemeStore`). Values for every role live in `palettes`:
 - **Light** (default): the palette described above.
 - **Paper**: warm off-white canvas (`#F4EFE6`), sand surfaces (`#EAE4D8`), ink text (`#2A2722`), and a deeper steel blue accent (`#2F4A6B`). Tailwind's `gray` scale is swapped for the warm `stone` scale.
-- **Black**: true black canvas (`#000000`), near-black surfaces (`#121212` / `#1C1C1E`), light text (`#F2F2F2`), and a lightened steel blue accent (`#A2C9FE`, text on it `#00315C`). Tailwind scales are remapped (`colorScaleOverrides`): pale shades (50–300) become dark fills and dark text shades (700+) become light, so `bg-red-100 text-red-800` still reads as a soft label.
+- **Black**: true black canvas (`#000000`), near-black surfaces (`#121212` / `#1C1C1E`), light text (`#F2F2F2`), and a bright blue accent (`#5C9DFF`, text on it `#00214A`). Tailwind scales are remapped (`colorScaleOverrides`): pale shades (50–300) become dark fills and dark text shades (700+) become light, so `bg-red-100 text-red-800` still reads as a soft label.
 
 The One Accent Rule holds in every theme. Printed receipts and QR codes stay black on white.
 

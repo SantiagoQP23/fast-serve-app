@@ -830,7 +830,7 @@ export default function OrderDetailView({
                         : "bag-outline"
                     }
                     size={24}
-                    color={tw.color("primary-600")}
+                    color={tw.color("primary")}
                   />
                   <ThemedText type="h2">
                     {order.type === OrderType.IN_PLACE

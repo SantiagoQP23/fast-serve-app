@@ -128,7 +128,7 @@ export default function InventoryItemDetailView({
             style={({ pressed }) => tw.style(pressed && "opacity-70")}
           >
             <Ionicons
-              name={embedded ? "close" : "arrow-back-outline"}
+              name={embedded ? "close" : "arrow-back-outline"} color={tw.color("on-surface")}
               size={24}
             />
           </Pressable>
@@ -147,7 +147,7 @@ export default function InventoryItemDetailView({
             accessibilityLabel={t("options")}
             accessibilityRole="button"
           >
-            <Ionicons name="ellipsis-vertical-outline" size={22} />
+            <Ionicons name="ellipsis-vertical-outline" color={tw.color("on-surface")} size={22} />
           </Pressable>
         )}
       </ThemedView>

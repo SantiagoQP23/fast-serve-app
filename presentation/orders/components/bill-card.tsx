@@ -84,7 +84,7 @@ export default function BillCard({ onPress, bill, active }: BillCardProps) {
               <Ionicons
                 name="receipt-outline"
                 size={20}
-                color={tw.color("black")}
+                color={tw.color("on-surface")}
               />
             </ThemedView>
             <ThemedView style={tw`bg-transparent gap-1`}>

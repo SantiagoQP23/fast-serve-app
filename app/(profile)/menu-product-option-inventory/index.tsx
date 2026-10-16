@@ -91,7 +91,7 @@ export default function MenuProductOptionInventoryScreen() {
           hitSlop={12}
           style={({ pressed }) => tw.style(pressed && "opacity-70")}
         >
-          <Ionicons name="arrow-back-outline" size={24} />
+          <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
         </Pressable>
         {canManage && wholeProductItemId && (
           <Button

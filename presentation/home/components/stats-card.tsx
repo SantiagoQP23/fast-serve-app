@@ -26,7 +26,7 @@ export default function StatsCard({
         <ThemedView
           style={tw`w-10 h-10 rounded-lg bg-surface items-center justify-center`}
         >
-          <Ionicons name={icon} size={24} color={tw.color(`black`)} />
+          <Ionicons name={icon} size={24} color={tw.color("on-surface")} />
         </ThemedView>
         <ThemedView style={tw`flex-1 bg-transparent`}>
           <ThemedText

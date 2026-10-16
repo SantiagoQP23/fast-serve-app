@@ -116,7 +116,7 @@ export default function BillsListScreen() {
               size={20}
               color={
                 hasActiveFilters
-                  ? tw.color("primary-600")
+                  ? tw.color("primary")
                   : tw.color("gray-600")
               }
             />
@@ -176,7 +176,7 @@ export default function BillsListScreen() {
                         filters.paymentMethod as PaymentMethod,
                       )}
                       size={14}
-                      color={tw.color("primary-700")}
+                      color={tw.color("primary")}
                     />
                     <ThemedText
                       type="small"
@@ -189,7 +189,7 @@ export default function BillsListScreen() {
                     <Ionicons
                       name="close-circle"
                       size={16}
-                      color={tw.color("primary-600")}
+                      color={tw.color("primary")}
                     />
                   </ThemedView>
                 </Pressable>
@@ -210,7 +210,7 @@ export default function BillsListScreen() {
                           : "time-outline"
                       }
                       size={14}
-                      color={tw.color("primary-700")}
+                      color={tw.color("primary")}
                     />
                     <ThemedText
                       type="small"
@@ -223,7 +223,7 @@ export default function BillsListScreen() {
                     <Ionicons
                       name="close-circle"
                       size={16}
-                      color={tw.color("primary-600")}
+                      color={tw.color("primary")}
                     />
                   </ThemedView>
                 </Pressable>
@@ -240,7 +240,7 @@ export default function BillsListScreen() {
                     <Ionicons
                       name="person-outline"
                       size={14}
-                      color={tw.color("primary-700")}
+                      color={tw.color("primary")}
                     />
                     <ThemedText
                       type="small"
@@ -252,7 +252,7 @@ export default function BillsListScreen() {
                     <Ionicons
                       name="close-circle"
                       size={16}
-                      color={tw.color("primary-600")}
+                      color={tw.color("primary")}
                     />
                   </ThemedView>
                 </Pressable>
