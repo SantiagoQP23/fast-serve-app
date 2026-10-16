@@ -15,7 +15,7 @@ import { SocketProvider } from "@/presentation/shared/context/SocketContext";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { useState, useEffect } from "react";
 import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
-import { WebSocketIndicator } from "@/presentation/shared/components/websocket-indicator";
+import { OfflineToast } from "@/presentation/shared/components/offline-toast";
 import { SyncIndicator } from "@/presentation/shared/components/sync-indicator";
 import { GlobalLoader } from "@/presentation/shared/components/global-loader";
 import { SocketLoaderBottomSheet } from "@/presentation/shared/components/socket-loader-bottom-sheet";
@@ -177,8 +177,8 @@ export default function RootLayout() {
           </Stack>
           <StatusBar style="auto" />
 
-          {/* WebSocket Connection Indicator - only show on non-auth pages */}
-          {!isAuthPage && <WebSocketIndicator />}
+          {/* Offline notice - only on non-auth pages */}
+          {!isAuthPage && <OfflineToast />}
           {!isAuthPage && <SyncIndicator />}
 
           <GlobalLoader />

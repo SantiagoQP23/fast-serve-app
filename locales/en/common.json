@@ -136,7 +136,7 @@
     }
   },
   "connection": {
-    "offline": "Connection Lost",
+    "offline": "Working without connection",
     "reconnecting": "Reconnecting...",
     "reconnected": "Connected to internet"
   },
