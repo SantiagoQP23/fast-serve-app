@@ -31,10 +31,7 @@ export default function TableCard({ table, onPress }: TableCardProps) {
     <ThemedView style={[tw`w-full`]}>
       <Card
         onPress={onPress}
-        style={[
-          tw`p-2 rounded-lg `,
-          hasOrders ? tw`border border-light-primary` : tw`bg-transparent`,
-        ]}
+        style={[tw`p-2 rounded-lg `, hasOrders ? tw`` : tw`bg-transparent`]}
         containerStyle={tw`rounded-lg`}
         variant={hasOrders ? "default" : "default"}
       >
