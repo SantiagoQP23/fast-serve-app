@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
-import { router } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -25,6 +25,7 @@ import { useTableGroups } from "@/presentation/tables/hooks/useTableGroups";
 
 export default function TablesSettingsScreen() {
   const { t } = useTranslation("tables");
+  const navigation = useNavigation();
   const { tables, tablesQuery } = useTables();
   const { isLoading, isError, refetch, isRefetching } = tablesQuery;
   const { updateTable, deleteTable } = useTablesManagement();
@@ -43,6 +44,24 @@ export default function TablesSettingsScreen() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const canReorder = canManage && tables.length > 1;
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: canReorder
+        ? () => (
+            <Button
+              label={t("settings.reorderTables")}
+              leftIcon="swap-vertical-outline"
+              variant="surface"
+              size="extra-small"
+              onPress={() => router.push("/(profile)/tables-reorder")}
+            />
+          )
+        : undefined,
+    });
+  }, [navigation, canReorder, t]);
 
   const handleCreateTable = () => {
     router.push("/(profile)/table-settings-form");
@@ -137,26 +156,13 @@ export default function TablesSettingsScreen() {
         )}
 
         {canManage && (
-          <ThemedView style={tw`flex-row gap-2`}>
-            <Button
-              label={t("areas.manage")}
-              leftIcon="albums-outline"
-              variant="secondary"
-              size="small"
-              style={tw`flex-1`}
-              onPress={() => router.push("/(profile)/table-areas-settings")}
-            />
-            {tables.length > 1 && (
-              <Button
-                label={t("settings.reorderTables")}
-                leftIcon="swap-vertical-outline"
-                variant="secondary"
-                size="small"
-                style={tw`flex-1`}
-                onPress={() => router.push("/(profile)/tables-reorder")}
-              />
-            )}
-          </ThemedView>
+          <Button
+            label={t("areas.manage")}
+            leftIcon="albums-outline"
+            variant="outline"
+            size="small"
+            onPress={() => router.push("/(profile)/table-areas-settings")}
+          />
         )}
 
         {groups.map((group) => (

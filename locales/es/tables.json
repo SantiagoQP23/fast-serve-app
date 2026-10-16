@@ -79,7 +79,7 @@
       "chairsRequired": "El número de sillas es requerido",
       "chairsInvalid": "Las sillas deben ser un número entero mayor a 0"
     },
-    "reorderTables": "Ordenar mesas"
+    "reorderTables": "Ordenar"
   },
   "areas": {
     "title": "Zonas",

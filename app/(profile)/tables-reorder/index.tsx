@@ -202,6 +202,7 @@ export default function TablesReorderScreen() {
           label={t("reorder.save")}
           size="small"
           onPress={handleSave}
+          variant="text"
           loading={isSaving}
           disabled={isSaving || (isDirty && !online)}
         />
