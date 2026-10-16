@@ -13,6 +13,7 @@ export default function ReportsLayout() {
     <Stack
       screenOptions={{
         headerStyle: { backgroundColor: palette.background },
+        headerTintColor: palette.text,
       }}
     >
       <Stack.Screen

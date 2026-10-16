@@ -5,6 +5,7 @@ import tw from "../lib/tailwind";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "./themed-text";
 import { typography } from "@/constants/theme";
+import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 // Material Design 3 chip types. "filter" (toggle selection, e.g. category/status
 // tabs) is the default and matches this component's original, only behavior.
@@ -26,12 +27,6 @@ type ChipProps = {
   leftContent?: React.ReactNode;
 };
 
-// Mirrors palette.onSecondary / .primary (constants/theme.ts) — kept as
-// literals here since Ionicons' `color` prop needs a raw value, not a tw class.
-const SELECTED_ICON_COLOR = "#3C4858";
-const DEFAULT_ICON_COLOR = "#4b5563";
-const ASSIST_ICON_COLOR = "#38608F";
-
 export default function Chip({
   label,
   variant = "filter",
@@ -45,12 +40,13 @@ export default function Chip({
 }: ChipProps) {
   // Assist chips represent a one-off action, not a toggle, so they never fill.
   const filled = variant !== "assist" && selected;
+  const palette = usePalette();
 
   const iconColor = filled
-    ? SELECTED_ICON_COLOR
+    ? palette.onSecondary
     : variant === "assist"
-      ? ASSIST_ICON_COLOR
-      : DEFAULT_ICON_COLOR;
+      ? palette.primary
+      : tw.color("gray-600");
 
   // When filled and nothing else occupies the leading slot, show the M3
   // selected-state checkmark. An explicit `icon` always wins (e.g. a "close"

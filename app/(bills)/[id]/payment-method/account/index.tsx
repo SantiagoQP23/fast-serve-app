@@ -351,7 +351,7 @@ export default function AccountScreen() {
         <ThemedView
           style={tw`absolute inset-0 bg-black/50 justify-center items-center z-50`}
         >
-          <ThemedView style={tw`bg-white rounded-2xl p-6 items-center gap-3`}>
+          <ThemedView style={tw`bg-surface-bright rounded-2xl p-6 items-center gap-3`}>
             <ActivityIndicator size="large" color={tw.color("primary")} />
             <ThemedText type="body1" style={tw`font-semibold`}>
               {t("bills:proofUpload.uploading")}

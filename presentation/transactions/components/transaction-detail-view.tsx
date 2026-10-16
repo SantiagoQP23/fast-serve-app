@@ -383,7 +383,7 @@ export default function TransactionDetailView({
             {proofs.map((proof, index) => (
               <ThemedView
                 key={proof.id}
-                style={tw`rounded-xl border border-gray-200 overflow-hidden bg-white`}
+                style={tw`rounded-xl border border-gray-200 overflow-hidden bg-surface-bright`}
               >
                 <Pressable
                   onPress={() => openPreview(index)}
@@ -469,7 +469,7 @@ export default function TransactionDetailView({
                     <Pressable
                       onPress={() => pickImage("gallery")}
                       style={({ pressed }) => [
-                        tw`flex-1 items-center justify-center p-3 rounded-xl border border-gray-200 bg-white gap-2`,
+                        tw`flex-1 items-center justify-center p-3 rounded-xl border border-gray-200 bg-surface-bright gap-2`,
                         pressed && tw`opacity-70 bg-gray-50`,
                       ]}
                     >
@@ -488,7 +488,7 @@ export default function TransactionDetailView({
                     <Pressable
                       onPress={() => pickImage("camera")}
                       style={({ pressed }) => [
-                        tw`flex-1 items-center justify-center p-3 rounded-xl border border-gray-200 bg-white gap-2`,
+                        tw`flex-1 items-center justify-center p-3 rounded-xl border border-gray-200 bg-surface-bright gap-2`,
                         pressed && tw`opacity-70 bg-gray-50`,
                       ]}
                     >

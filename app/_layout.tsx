@@ -27,7 +27,11 @@ import * as ScreenOrientation from "expo-screen-orientation";
 import "@/core/i18n/i18n.config";
 import { initializeDayjs } from "@/core/i18n/utils";
 import { usePushNotifications } from "@/presentation/shared/hooks/usePushNotifications";
-import { typography } from "@/constants/theme";
+import { isDarkTheme, palettes, typography } from "@/constants/theme";
+import {
+  useThemeHydrated,
+  useThemeStore,
+} from "@/presentation/theme/store/useThemeStore";
 
 export const queryClient = new QueryClient();
 
@@ -38,6 +42,8 @@ export const unstable_settings = {
 export default function RootLayout() {
   const language = useGlobalStore((state) => state.language);
   const setLanguage = useGlobalStore((state) => state.setLanguage);
+  const theme = useThemeStore((state) => state.theme);
+  const themeHydrated = useThemeHydrated();
   usePushNotifications();
 
   // Detect if user is on auth pages
@@ -72,15 +78,21 @@ export default function RootLayout() {
     });
   }, []);
 
+  // Wait for the saved theme so the app doesn't flash the light theme first
+  if (!themeHydrated) return null;
+
   // Conditionally wrap content with SocketProvider
   const renderContent = () => {
     const content = (
       <BottomSheetModalProvider>
-        <ThemedView style={tw`flex-1 `}>
+        {/* Remount screens on theme change so every tw style is recomputed */}
+        <ThemedView key={theme} style={tw`flex-1 `}>
           <Stack
             screenOptions={{
               headerShown: false,
               headerTitleStyle: { fontFamily: typography.medium },
+              headerTintColor: palettes[theme].text,
+              contentStyle: { backgroundColor: palettes[theme].background },
             }}
           >
             <Stack.Screen
@@ -175,7 +187,7 @@ export default function RootLayout() {
               }}
             />
           </Stack>
-          <StatusBar style="auto" />
+          <StatusBar style={isDarkTheme(theme) ? "light" : "dark"} />
 
           {/* Offline notice - only on non-auth pages */}
           {!isAuthPage && <OfflineToast />}
@@ -198,9 +210,7 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={tw`flex-1`}>
-        <SafeAreaView
-          style={tw`flex-1 bg-background `}
-        >
+        <SafeAreaView style={tw`flex-1 bg-background `}>
           {renderContent()}
         </SafeAreaView>
         <Toaster

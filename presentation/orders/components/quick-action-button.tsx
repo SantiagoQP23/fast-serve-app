@@ -21,7 +21,7 @@ export const QuickActionButton = ({
   return (
     <ThemedView style={tw`gap-2 items-center`}>
       <Pressable
-        style={tw`flex items-center justify-center gap-2 px-4 py-2 h-16 min-w-16 w-16 bg-white rounded-full`}
+        style={tw`flex items-center justify-center gap-2 px-4 py-2 h-16 min-w-16 w-16 bg-surface-bright rounded-full`}
         onPress={onPress}
         disabled={disabled}
       >

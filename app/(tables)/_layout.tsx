@@ -11,6 +11,7 @@ export default function TablesLayout() {
       screenOptions={{
         headerShown: false,
         headerStyle: { backgroundColor: palette.background },
+        headerTintColor: palette.text,
       }}
     >
       <Stack.Screen

@@ -1,5 +1,6 @@
 import { Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import tw from "@/presentation/theme/lib/tailwind";
 
 interface Props {
   visible: boolean;
@@ -12,7 +13,7 @@ export default function PasswordVisibilityToggle({ visible, onToggle }: Props) {
       <Ionicons
         name={visible ? "eye-off-outline" : "eye-outline"}
         size={20}
-        style={{ color: "#9CA3AF" }}
+        style={{ color: tw.color("gray-400") }}
       />
     </Pressable>
   );

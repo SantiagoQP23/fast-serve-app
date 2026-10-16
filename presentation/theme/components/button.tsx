@@ -95,7 +95,7 @@ export default function Button({
   };
 
   const textColors = {
-    primary: "text-white",
+    primary: "text-on-primary",
     secondary: "text-on-secondary",
     outline: "text-on-surface-variant",
     text: "text-primary",
@@ -104,7 +104,7 @@ export default function Button({
   };
 
   const iconColors = {
-    primary: "#fff",
+    primary: palette.onPrimary,
     secondary: palette.onSecondary,
     outline: palette.onSurfaceVariant,
     text: palette.primary,

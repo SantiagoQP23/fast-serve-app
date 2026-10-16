@@ -21,6 +21,8 @@ import { toast } from "sonner-native";
 import { translateErrorCode } from "@/core/api/get-error-message";
 import Label from "@/presentation/theme/components/label";
 import Card from "@/presentation/theme/components/card";
+import { useThemeStore } from "@/presentation/theme/store/useThemeStore";
+import { palettes, themeSwatches, type ThemeName } from "@/constants/theme";
 import BottomSheetPicker, {
   type BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
@@ -31,6 +33,9 @@ export default function SettingsScreen() {
   const { logout, updateLanguage } = useAuthStore();
   const language = useGlobalStore((state) => state.language);
   const languagePickerRef = useRef<BottomSheetPickerRef>(null);
+  const theme = useThemeStore((state) => state.theme);
+  const setTheme = useThemeStore((state) => state.setTheme);
+  const themePickerRef = useRef<BottomSheetPickerRef>(null);
   // Logging out drops the changes this phone hasn't sent yet.
   const unsyncedCount = useOutboxStore((state) => state.operations.length);
 
@@ -47,6 +52,18 @@ export default function SettingsScreen() {
     // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     languagePickerRef.current?.present();
   }, []);
+
+  // Applying a theme remounts the screens, so wait until the sheet is gone.
+  const pendingThemeRef = useRef<ThemeName | null>(null);
+  const handleThemeChange = (value: string | number) => {
+    pendingThemeRef.current = value as ThemeName;
+  };
+  const handleThemePickerDismiss = () => {
+    if (pendingThemeRef.current && pendingThemeRef.current !== theme) {
+      setTheme(pendingThemeRef.current);
+    }
+    pendingThemeRef.current = null;
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -107,6 +124,49 @@ export default function SettingsScreen() {
             )}
             value={language}
             onChange={handleLanguageChange}
+          />
+
+          <Card
+            style={tw`gap-2 p-4 rounded-3xl`}
+            onPress={() => themePickerRef.current?.present()}
+          >
+            <ThemedView style={tw`flex-row items-center justify-between`}>
+              <ThemedText type="body1">{t("settings.themeTitle")}</ThemedText>
+              <Ionicons
+                name="chevron-forward-outline"
+                size={20}
+                color={tw.color("gray-400")}
+              />
+            </ThemedView>
+            <ThemedText type="small">
+              {t("settings.themeDescription")}
+            </ThemedText>
+            <ThemedView style={tw`flex-row items-center gap-2`}>
+              <ThemedView style={tw`flex-row`}>
+                {themeSwatches[theme].map((color, index) => (
+                  <ThemedView
+                    key={index}
+                    style={[
+                      tw`w-5 h-5 rounded-full border border-outline-variant`,
+                      { backgroundColor: color, marginLeft: index ? -6 : 0 },
+                    ]}
+                  />
+                ))}
+              </ThemedView>
+              <Label text={t(`settings.themes.${theme}`)} color="info" />
+            </ThemedView>
+          </Card>
+
+          <BottomSheetPicker
+            ref={themePickerRef}
+            title={t("settings.themeTitle")}
+            options={(Object.keys(palettes) as ThemeName[]).map((name) => ({
+              value: name,
+              label: t(`settings.themes.${name}`),
+            }))}
+            value={theme}
+            onChange={handleThemeChange}
+            onDismiss={handleThemePickerDismiss}
           />
 
           <Button

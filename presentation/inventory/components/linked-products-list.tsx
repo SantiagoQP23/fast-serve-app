@@ -41,7 +41,7 @@ export default function LinkedProductsList({
       </ThemedView>
 
       {lines.length === 0 ? (
-        <ThemedView style={tw`bg-white rounded-3xl p-6 shadow-xs`}>
+        <ThemedView style={tw`bg-surface-bright rounded-3xl p-6 shadow-xs`}>
           <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
             {t("detail.noLinkedProducts")}
           </ThemedText>

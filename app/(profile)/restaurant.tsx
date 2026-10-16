@@ -281,7 +281,7 @@ export default function RestaurantOfflineDataScreen() {
               <ThemedView
                 style={tw`items-center gap-3 py-6 bg-gray-50 rounded-lg`}
               >
-                <Ionicons name="restaurant-outline" size={48} color="#999" />
+                <Ionicons name="restaurant-outline" size={48} color={tw.color("gray-400")} />
                 <ThemedView style={tw`gap-1 items-center`}>
                   <ThemedText type="body1" style={tw`font-semibold`}>
                     {t("offlineData:menu.noCache")}
@@ -372,7 +372,7 @@ export default function RestaurantOfflineDataScreen() {
               <ThemedView
                 style={tw`items-center gap-3 py-6 bg-gray-50 rounded-lg`}
               >
-                <Ionicons name="grid-outline" size={48} color="#999" />
+                <Ionicons name="grid-outline" size={48} color={tw.color("gray-400")} />
                 <ThemedView style={tw`gap-1 items-center`}>
                   <ThemedText type="body1" style={tw`font-semibold`}>
                     {t("offlineData:tables.noCache")}
@@ -470,7 +470,7 @@ export default function RestaurantOfflineDataScreen() {
               <ThemedView
                 style={tw`items-center gap-3 py-6 bg-gray-50 rounded-lg`}
               >
-                <Ionicons name="card-outline" size={48} color="#999" />
+                <Ionicons name="card-outline" size={48} color={tw.color("gray-400")} />
                 <ThemedView style={tw`gap-1 items-center`}>
                   <ThemedText type="body1" style={tw`font-semibold`}>
                     No payment methods cached
@@ -561,7 +561,7 @@ export default function RestaurantOfflineDataScreen() {
               <ThemedView
                 style={tw`items-center gap-3 py-6 bg-gray-50 rounded-lg`}
               >
-                <Ionicons name="construct-outline" size={48} color="#999" />
+                <Ionicons name="construct-outline" size={48} color={tw.color("gray-400")} />
                 <ThemedView style={tw`gap-1 items-center`}>
                   <ThemedText type="body1" style={tw`font-semibold`}>
                     {t("offlineData:productionAreas.noCache")}

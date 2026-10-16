@@ -81,7 +81,7 @@ export default function PaymentMethodReportScreen() {
               <ThemedText type="h3">
                 {t("reports:paymentMethodReport.title")}
               </ThemedText>
-              <ThemedView style={tw`bg-white rounded-full `}>
+              <ThemedView style={tw`bg-surface-bright rounded-full `}>
                 <ThemedText type="caption" style={tw`text-gray-600`}>
                   {summary?.startDate && summary?.endDate
                     ? dayjs(summary.startDate).format("MMM DD") ===
@@ -104,7 +104,7 @@ export default function PaymentMethodReportScreen() {
         ) : paymentMethods.length > 0 ? (
           <ThemedView style={tw`px-4 gap-6`}>
             {/* Pie Chart with Legend */}
-            <ThemedView style={tw`bg-white rounded-2xl p-6 shadow-sm`}>
+            <ThemedView style={tw`bg-surface-bright rounded-2xl p-6 shadow-sm`}>
               {/* Donut Chart */}
               <ThemedView style={tw`items-center mb-6`}>
                 <PieChart
@@ -112,7 +112,7 @@ export default function PaymentMethodReportScreen() {
                   donut
                   radius={120}
                   innerRadius={75}
-                  innerCircleColor="#fff"
+                  innerCircleColor={palette.surfaceBright}
                   centerLabelComponent={() => (
                     <ThemedView style={tw`items-center bg-transparent`}>
                       <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
@@ -131,7 +131,7 @@ export default function PaymentMethodReportScreen() {
                   showText
                   textBackgroundRadius={12}
                   strokeWidth={2}
-                  strokeColor="#fff"
+                  strokeColor={palette.surfaceBright}
                 />
               </ThemedView>
 

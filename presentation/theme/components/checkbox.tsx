@@ -58,7 +58,7 @@ export default function Checkbox({
       ]}
     >
       {value && (
-        <Ionicons name="checkmark" size={checkboxSize.icon} color="#fff" />
+        <Ionicons name="checkmark" size={checkboxSize.icon} color={tw.color("on-primary")} />
       )}
     </Pressable>
   );

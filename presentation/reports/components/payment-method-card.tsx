@@ -21,7 +21,7 @@ export default function PaymentMethodCard({ paymentMethodStats }: PaymentMethodC
 
   return (
     <ThemedView style={tw`rounded-2xl border border-gray-200 shadow-sm overflow-hidden`}>
-      <ThemedView style={tw`p-4 bg-white`}>
+      <ThemedView style={tw`p-4 bg-surface-bright`}>
         {/* Header with icon and name */}
         <ThemedView style={tw`flex-row items-center mb-3 bg-transparent`}>
           <ThemedView

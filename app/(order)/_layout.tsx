@@ -22,6 +22,7 @@ export default function OrdersLayout() {
       screenOptions={{
         headerShown: false,
         headerStyle: { backgroundColor: palette.background },
+        headerTintColor: palette.text,
         headerTitleStyle: { fontFamily: typography.medium },
       }}
     >

@@ -189,7 +189,7 @@ const LoginScreen = () => {
                       <Ionicons
                         name={showPassword ? "eye-off-outline" : "eye-outline"}
                         size={20}
-                        style={{ color: "#9CA3AF" }}
+                        style={{ color: tw.color("gray-400") }}
                       />
                     </Pressable>
                   )

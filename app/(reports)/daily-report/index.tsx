@@ -68,7 +68,7 @@ export default function DailyReportScreen() {
           <ThemedView style={tw`bg-primary-50 rounded-2xl py-4`}>
             <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
               <ThemedText type="h3">{t("reports:summary.title")}</ThemedText>
-              <ThemedView style={tw`bg-white rounded-full px-3 py-1`}>
+              <ThemedView style={tw`bg-surface-bright rounded-full px-3 py-1`}>
                 <ThemedText type="caption" style={tw`text-gray-600`}>
                   {dayjs(summary?.date).format("MMM DD, YYYY")}
                 </ThemedText>
@@ -85,7 +85,7 @@ export default function DailyReportScreen() {
               <ThemedView style={tw`gap-3`}>
                 {/* Circular Progress Gauge - Income vs Amount */}
                 <ThemedView
-                  style={tw`bg-white rounded-xl p-6 border border-border items-center`}
+                  style={tw`bg-surface-bright rounded-xl p-6 border border-border items-center`}
                 >
                   <CircularProgressGauge
                     percentage={collectionRate * 100}

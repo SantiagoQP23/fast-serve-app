@@ -165,7 +165,7 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
           style,
         )}
       >
-        <Ionicons name="grid-outline" size={64} color="#999" />
+        <Ionicons name="grid-outline" size={64} color={tw.color("gray-400")} />
         <ThemedView style={tw`gap-2 items-center`}>
           <ThemedText type="h2">{t("tables:noTables.title")}</ThemedText>
           <ThemedText type="body2" style={tw`text-center text-gray-500 px-8`}>

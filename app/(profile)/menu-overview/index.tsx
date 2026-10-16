@@ -248,7 +248,7 @@ export default function MenuOverviewScreen() {
       <ThemedView
         style={tw`flex-1 px-4 pt-8 items-center justify-center gap-4`}
       >
-        <Ionicons name="restaurant-outline" size={64} color="#999" />
+        <Ionicons name="restaurant-outline" size={64} color={tw.color("gray-400")} />
         <ThemedView style={tw`gap-2 items-center`}>
           <ThemedText type="h2">{t("overview.noMenu.title")}</ThemedText>
           <ThemedText type="body2" style={tw`text-center text-gray-500 px-8`}>
@@ -281,7 +281,7 @@ export default function MenuOverviewScreen() {
     <ScreenLayout fullWidth={isExpanded} style={tw`px-4 pt-2 flex-1 gap-4`}>
       {isLoading && sections.length === 0 && (
         <ThemedView style={tw`items-center py-8 gap-3`}>
-          <Ionicons name="restaurant-outline" size={48} color="#999" />
+          <Ionicons name="restaurant-outline" size={48} color={tw.color("gray-400")} />
           <ThemedText type="body1" style={tw`text-gray-500`}>
             {t("loading")}
           </ThemedText>
@@ -290,7 +290,7 @@ export default function MenuOverviewScreen() {
 
       {isError && sections.length === 0 && (
         <ThemedView style={tw`items-center py-8 gap-3`}>
-          <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
+          <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
           <ThemedText type="body1" style={tw`text-red-500`}>
             {t("loadError")}
           </ThemedText>
@@ -398,7 +398,7 @@ export default function MenuOverviewScreen() {
           )}
           {filteredProducts.length === 0 && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Ionicons name="fast-food-outline" size={40} color="#999" />
+              <Ionicons name="fast-food-outline" size={40} color={tw.color("gray-400")} />
               <ThemedText
                 type="body2"
                 style={tw`text-center text-gray-500 px-4`}

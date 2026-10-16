@@ -32,7 +32,7 @@ export default function ClosedOrderCard({ order }: ClosedOrderCardProps) {
   return (
     <ThemedView style={tw`mb-3 rounded-2xl opacity-75`}>
       <Card onPress={openOrder}>
-        <ThemedView style={tw`gap-4 bg-white`}>
+        <ThemedView style={tw`gap-4 bg-surface-bright`}>
           {/* Table/Type Info */}
           <ThemedView style={tw`gap-2 bg-transparent`}>
             <ThemedView

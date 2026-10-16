@@ -21,7 +21,7 @@ export default function BillItem({ bill }: BillItemProps) {
   const time = dayjs(bill.createdAt).format("HH:mm");
 
   return (
-    <ThemedView style={tw`  pb-3  bg-white  rounded-xl `}>
+    <ThemedView style={tw`  pb-3  bg-surface-bright  rounded-xl `}>
       <ThemedView style={tw`flex-row justify-between mb-2`}>
         {/* Bill Number */}
         <ThemedView

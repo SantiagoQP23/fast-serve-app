@@ -42,6 +42,8 @@ type BottomSheetPickerProps = {
   snapPoints?: string[];
   headerAction?: BottomSheetPickerAction;
   footerAction?: BottomSheetPickerAction;
+  /** Called once the sheet has fully closed. */
+  onDismiss?: () => void;
 };
 
 export type BottomSheetPickerRef = {
@@ -64,6 +66,7 @@ const BottomSheetPicker = forwardRef<
       snapPoints = ["40%", "70%", "90%"],
       headerAction,
       footerAction,
+      onDismiss,
     },
     ref,
   ) => {
@@ -113,7 +116,11 @@ const BottomSheetPicker = forwardRef<
     }, [options, searchQuery]);
 
     return (
-      <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
+      <ThemedBottomSheetModal
+        ref={bottomSheetModalRef}
+        enablePanDownToClose
+        onDismiss={onDismiss}
+      >
         <BottomSheetView style={tw` px-4 `}>
           {/* Header */}
           <ThemedView style={tw`mb-4`}>
@@ -138,7 +145,7 @@ const BottomSheetPicker = forwardRef<
                 trailingIcon={
                   searchQuery.length > 0 ? (
                     <Pressable onPress={() => setSearchQuery("")} hitSlop={8}>
-                      <Ionicons name="close-circle" size={20} color="#9ca3af" />
+                      <Ionicons name="close-circle" size={20} color={tw.color("gray-400")} />
                     </Pressable>
                   ) : null
                 }
@@ -229,7 +236,7 @@ const BottomSheetPicker = forwardRef<
             </BottomSheetView>
           ) : (
             <View style={tw`py-12 items-center`}>
-              <Ionicons name="search-outline" size={48} color="#d1d5db" />
+              <Ionicons name="search-outline" size={48} color={tw.color("gray-300")} />
               <Text style={tw`text-gray-400 mt-3 text-base`}>
                 No results found
               </Text>

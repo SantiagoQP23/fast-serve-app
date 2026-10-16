@@ -23,7 +23,7 @@ export default function NotificationBadge({
         ${style}
       `}
     >
-      <Text style={tw`text-white text-xs font-bold`}>
+      <Text style={tw`text-on-primary text-xs font-bold`}>
         {value > 99 ? "99+" : value}
       </Text>
     </View>

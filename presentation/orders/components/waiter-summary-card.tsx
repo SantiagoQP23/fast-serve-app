@@ -26,7 +26,7 @@ export default function WaiterSummaryCard({
   return (
     <Pressable onPress={onPress}>
       <ThemedView
-        style={tw`rounded-xl border ${isSelected ? "border-primary bg-surface" : "border-border bg-white"} p-4 min-w-60`}
+        style={tw`rounded-xl border ${isSelected ? "border-primary bg-surface" : "border-border bg-surface-bright"} p-4 min-w-60`}
       >
         <ThemedView style={tw`flex-row items-center gap-2 mb-2 bg-transparent`}>
           <ThemedView

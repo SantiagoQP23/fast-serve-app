@@ -66,7 +66,7 @@ export default function TableAreasSettingsScreen() {
       >
         {sortedAreas.length === 0 ? (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="albums-outline" size={48} color="#999" />
+            <Ionicons name="albums-outline" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`font-semibold`}>
               {t("areas.noAreas")}
             </ThemedText>

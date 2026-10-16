@@ -50,7 +50,7 @@ export default function IconButton({
   };
 
   const variantStyles = {
-    filled: "#ffffff",
+    filled: palette.onPrimary,
     secondary: palette.onSecondary,
     surface: palette.onSurfaceVariant,
     outlined: palette.onSurfaceVariant,

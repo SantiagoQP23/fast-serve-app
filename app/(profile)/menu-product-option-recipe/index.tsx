@@ -262,7 +262,7 @@ export default function MenuProductOptionRecipeScreen() {
 
         {recipesQuery.isError && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
+            <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
             <ThemedText type="body1" style={tw`text-red-500`}>
               {t("loadError")}
             </ThemedText>
@@ -278,7 +278,7 @@ export default function MenuProductOptionRecipeScreen() {
           !recipesQuery.isError &&
           lines.length === 0 && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Ionicons name="restaurant-outline" size={48} color="#999" />
+              <Ionicons name="restaurant-outline" size={48} color={tw.color("gray-400")} />
               <ThemedText type="body1" style={tw`font-semibold`}>
                 {t("recipe.empty")}
               </ThemedText>

@@ -39,7 +39,7 @@ export default function DialogModal({
       onRequestClose={onCancel}
     >
       <View style={tw`flex-1 bg-black/50 items-center justify-center`}>
-        <View style={tw`bg-white rounded-2xl w-4/5 max-w-md p-6 shadow-lg`}>
+        <View style={tw`bg-surface-bright rounded-2xl w-4/5 max-w-md p-6 shadow-lg`}>
           <ThemedText type="h3" style={{ fontFamily: typography.medium }}>
             {title}
           </ThemedText>

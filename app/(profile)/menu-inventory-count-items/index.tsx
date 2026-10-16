@@ -171,7 +171,7 @@ export default function MenuInventoryCountItemsScreen() {
 
         {!itemsQuery.isLoading && visibleItems.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="cube-outline" size={40} color="#999" />
+            <Ionicons name="cube-outline" size={40} color={tw.color("gray-400")} />
             <ThemedText type="body2" style={tw`text-center text-gray-500 px-4`}>
               {items.length === 0 ? t("counts.noItems") : t("noResults")}
             </ThemedText>

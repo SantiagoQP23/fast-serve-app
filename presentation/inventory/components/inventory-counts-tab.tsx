@@ -87,7 +87,7 @@ export default function InventoryCountsTab({
 
       {countsQuery.isError && (
         <ThemedView style={tw`items-center py-8 gap-3`}>
-          <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
+          <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
           <ThemedText type="body1" style={tw`text-red-500`}>
             {t("counts.loadError")}
           </ThemedText>
@@ -103,7 +103,7 @@ export default function InventoryCountsTab({
         !countsQuery.isError &&
         counts.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="clipboard-outline" size={48} color="#999" />
+            <Ionicons name="clipboard-outline" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`font-semibold`}>
               {status ? t("counts.emptyFiltered") : t("counts.empty")}
             </ThemedText>

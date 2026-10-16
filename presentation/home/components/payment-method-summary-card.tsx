@@ -94,7 +94,7 @@ export default function PaymentMethodSummaryCard({
               donut
               radius={100}
               innerRadius={65}
-              innerCircleColor="#fff"
+              innerCircleColor={palette.surfaceBright}
               centerLabelComponent={() => (
                 <ThemedView style={tw`items-center bg-transparent`}>
                   <ThemedText
@@ -122,7 +122,7 @@ export default function PaymentMethodSummaryCard({
               showText
               textBackgroundRadius={10}
               strokeWidth={2}
-              strokeColor="#fff"
+              strokeColor={palette.surfaceBright}
             />
           </ThemedView>
 

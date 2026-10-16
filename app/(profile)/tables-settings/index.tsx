@@ -122,7 +122,7 @@ export default function TablesSettingsScreen() {
       >
         {isLoading && tables.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="grid-outline" size={48} color="#999" />
+            <Ionicons name="grid-outline" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`text-gray-500`}>
               {t("settings.loading")}
             </ThemedText>
@@ -131,7 +131,7 @@ export default function TablesSettingsScreen() {
 
         {isError && tables.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
+            <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
             <ThemedText type="body1" style={tw`text-red-500`}>
               {t("settings.loadError")}
             </ThemedText>
@@ -145,7 +145,7 @@ export default function TablesSettingsScreen() {
 
         {!isLoading && !isError && tables.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="grid-outline" size={48} color="#999" />
+            <Ionicons name="grid-outline" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`font-semibold`}>
               {t("settings.noTables")}
             </ThemedText>
