@@ -4,7 +4,6 @@ import {
   Alert,
   NativeSyntheticEvent,
   NativeScrollEvent,
-  View,
 } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -70,7 +69,7 @@ export default function MyOrdersScreen() {
     params.module === "sales" ? "sales" : "orders",
   );
   const [activeView, setActiveView] = useState<
-    "tables" | "take-away" | "list"
+    "tables" | "take-away" | "list" | "cards"
   >("tables");
   const takeAwayOrders = orders.filter(
     (order) => order.type === OrderType.TAKE_AWAY,
@@ -79,10 +78,6 @@ export default function MyOrdersScreen() {
   const [selectedView, setSelectedView] = useState<
     "pending-products" | "order-lists"
   >("pending-products");
-  const viewPickerButtonRef = useRef<View>(null);
-  const [viewPickerVisible, setViewPickerVisible] = useState(false);
-  const [viewPickerAnchor, setViewPickerAnchor] =
-    useState<AnchorPosition | null>(null);
   const [popoverVisible, setPopoverVisible] = useState(false);
   const [popoverAnchor, setPopoverAnchor] = useState<AnchorPosition | null>(
     null,
@@ -207,17 +202,20 @@ export default function MyOrdersScreen() {
       value: "list" as const,
       icon: "list-outline" as const,
     },
+    {
+      label: t("orders:homeViews.cards"),
+      value: "cards" as const,
+      icon: "albums-outline" as const,
+    },
   ];
   const currentView =
     viewOptions.find((option) => option.value === activeView) ?? viewOptions[0];
 
-  const handleViewPickerPress = () => {
-    viewPickerButtonRef.current?.measure(
-      (_x, _y, width, height, pageX, pageY) => {
-        setViewPickerAnchor({ x: pageX, y: pageY, width, height });
-        setViewPickerVisible(true);
-      },
+  const handleViewTogglePress = () => {
+    const currentIndex = viewOptions.findIndex(
+      (option) => option.value === activeView,
     );
+    setActiveView(viewOptions[(currentIndex + 1) % viewOptions.length].value);
   };
 
   const listPane = (
@@ -242,16 +240,13 @@ export default function MyOrdersScreen() {
         </ThemedView>
         {activeModule === "orders" && (
           <ThemedView style={tw` flex-row items-center justify-end gap-2 `}>
-            <View ref={viewPickerButtonRef} collapsable={false}>
-              <Button
-                variant="surface"
-                size="small"
-                label={currentView.label}
-                leftIcon={currentView.icon}
-                rightIcon="chevron-down-outline"
-                onPress={handleViewPickerPress}
-              />
-            </View>
+            <Button
+              variant="surface"
+              size="small"
+              label={currentView.label}
+              leftIcon={currentView.icon}
+              onPress={handleViewTogglePress}
+            />
             <IconButton
               icon="options-outline"
               accessibilityLabel={t("orders:homeOptions.title")}
@@ -321,6 +316,7 @@ export default function MyOrdersScreen() {
                       key={activeView}
                       orders={listOrders}
                       showProducts
+                      variant={activeView === "cards" ? "grid" : "list"}
                     />
                   </ThemedView>
                 )}
@@ -345,18 +341,6 @@ export default function MyOrdersScreen() {
           >
             <HomeViewOptionsBottomSheet />
           </ThemedBottomSheetModal>
-          <Popover
-            visible={viewPickerVisible}
-            onClose={() => setViewPickerVisible(false)}
-            anchor={viewPickerAnchor}
-            selectedValue={activeView}
-            items={viewOptions.map((option) => ({
-              label: option.label,
-              value: option.value,
-              icon: option.icon,
-              onPress: () => setActiveView(option.value),
-            }))}
-          />
           <Popover
             visible={popoverVisible}
             onClose={() => setPopoverVisible(false)}

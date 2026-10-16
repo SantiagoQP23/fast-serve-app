@@ -1,11 +1,19 @@
 import tw from "@/presentation/theme/lib/tailwind";
-import { Pressable, PressableProps, StyleSheet } from "react-native";
+import {
+  Pressable,
+  PressableProps,
+  StyleProp,
+  StyleSheet,
+  ViewStyle,
+} from "react-native";
 import { ThemedView } from "./themed-view";
 
 type CardVariant = "default" | "outline" | "elevated";
 
 type CardProps = PressableProps & {
   variant?: CardVariant;
+  /** Styles for the outer container (background, border, margin, shadow…). `style` targets the inner pressable. */
+  containerStyle?: StyleProp<ViewStyle>;
 };
 
 const containerVariantStyles: Record<CardVariant, string> = {
@@ -21,6 +29,7 @@ export default function Card({
   children,
   style,
   variant = "default",
+  containerStyle,
   ...rest
 }: CardProps) {
   return (
@@ -28,6 +37,7 @@ export default function Card({
       style={[
         tw`${containerVariantStyles[variant]}`,
         variant === "elevated" && shadows.elevated,
+        containerStyle,
       ]}
     >
       <Pressable
