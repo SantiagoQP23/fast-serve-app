@@ -26,11 +26,11 @@ export default function WaiterSummaryCard({
   return (
     <Pressable onPress={onPress}>
       <ThemedView
-        style={tw`rounded-xl border ${isSelected ? "border-light-primary bg-light-surface" : "border-light-border bg-white"} p-4 min-w-60`}
+        style={tw`rounded-xl border ${isSelected ? "border-primary bg-surface" : "border-border bg-white"} p-4 min-w-60`}
       >
         <ThemedView style={tw`flex-row items-center gap-2 mb-2 bg-transparent`}>
           <ThemedView
-            style={tw`w-10 h-10 rounded-full ${isSelected ? "bg-light-primary" : "bg-gray-200"} items-center justify-center`}
+            style={tw`w-10 h-10 rounded-full ${isSelected ? "bg-primary" : "bg-gray-200"} items-center justify-center`}
           >
             <Ionicons
               name="person"

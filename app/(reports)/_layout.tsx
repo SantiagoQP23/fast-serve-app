@@ -1,9 +1,10 @@
 import { Stack, useRouter } from "expo-router";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import IconButton from "@/presentation/theme/components/icon-button";
-import { Colors } from "@/constants/theme";
+import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 export default function ReportsLayout() {
+  const palette = usePalette();
   const { t } = useTranslation("reports");
   const tBills = useTranslation("bills").t;
   const router = useRouter();
@@ -11,7 +12,7 @@ export default function ReportsLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: Colors.light.background },
+        headerStyle: { backgroundColor: palette.background },
       }}
     >
       <Stack.Screen

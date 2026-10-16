@@ -245,7 +245,7 @@ export default function TransactionDetailView({
   if (isLoading || !transaction) {
     return (
       <Container
-        style={tw`flex-1 justify-center items-center bg-light-background`}
+        style={tw`flex-1 justify-center items-center bg-background`}
       >
         <ThemedText type="body2" style={tw`text-gray-400`}>
           {t("common:status.loading")}
@@ -255,7 +255,7 @@ export default function TransactionDetailView({
   }
 
   return (
-    <Container style={tw`flex-1 bg-light-background`}>
+    <Container style={tw`flex-1 bg-background`}>
       {/* Pane header: stands in for the stack header when embedded */}
       {embedded && (
         <ThemedView style={tw`flex-row items-center px-4 pt-2`}>
@@ -291,7 +291,7 @@ export default function TransactionDetailView({
 
         {/* Details Card */}
         <ThemedView
-          style={tw`bg-light-surface rounded-2xl overflow-hidden p-6 gap-4`}
+          style={tw`bg-surface rounded-2xl overflow-hidden p-6 gap-4`}
         >
           <DetailRow
             icon="wallet-outline"
@@ -304,10 +304,10 @@ export default function TransactionDetailView({
             <Ionicons
               name="business-outline"
               size={18}
-              color={tw.color("light-on-surface")}
+              color={tw.color("on-surface")}
             />
             <ThemedView style={tw`flex-1`}>
-              <ThemedText type="body1" style={tw`text-light-on-surface`}>
+              <ThemedText type="body1" style={tw`text-on-surface`}>
                 {t("common:transactions.account")}
               </ThemedText>
               <ThemedText type="body2" style={tw`font-medium text-gray-800`}>
@@ -518,7 +518,7 @@ export default function TransactionDetailView({
         (canApproveTransaction || canRejectTransaction) && (
           <View style={tw`absolute bottom-6 left-4 right-4`}>
             <ThemedView
-              style={tw`flex-row gap-3 bg-light-surface rounded-3xl p-2 shadow-sm`}
+              style={tw`flex-row gap-3 bg-surface rounded-3xl p-2 shadow-sm`}
             >
               {canRejectTransaction && (
                 <Button
@@ -611,10 +611,10 @@ function DetailRow({
       <Ionicons
         name={icon as any}
         size={18}
-        color={tw.color("text-light-on-surface")}
+        color={tw.color("text-on-surface")}
       />
       <ThemedView style={tw`flex-1 gap-1`}>
-        <ThemedText type="body1" style={tw`text-light-on-surface`}>
+        <ThemedText type="body1" style={tw`text-on-surface`}>
           {label}
         </ThemedText>
         <ThemedText type="body2" style={tw` text-gray-800`}>

@@ -89,7 +89,7 @@ export default function PurchaseCartPanel({
   };
 
   return (
-    <Container style={tw`flex-1 px-4 pt-8 gap-4 bg-light-background`}>
+    <Container style={tw`flex-1 px-4 pt-8 gap-4 bg-background`}>
       <InventoryScreenHeader
         title={t("purchases.summaryTitle")}
         hideBack={embedded}

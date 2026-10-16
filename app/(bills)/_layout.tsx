@@ -1,15 +1,17 @@
-import { Colors, typography } from "@/constants/theme";
+import { typography } from "@/constants/theme";
 import { Stack } from "expo-router";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 export default function BillsLayout() {
+  const palette = usePalette();
   const { t } = useTranslation(["bills"]);
 
   return (
     <Stack
       screenOptions={{
         headerShown: false,
-        headerStyle: { backgroundColor: Colors.light.background },
+        headerStyle: { backgroundColor: palette.background },
         headerTitleStyle: { fontFamily: typography.medium },
       }}
     >

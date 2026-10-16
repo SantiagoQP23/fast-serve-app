@@ -382,7 +382,7 @@ export default function MenuProductDetailView({
 
   if (!product) {
     return (
-      <Container style={tw`flex-1 px-4 pt-8 bg-light-background`}>
+      <Container style={tw`flex-1 px-4 pt-8 bg-background`}>
         <ThemedView style={tw`items-center gap-4 flex-row`}>
           <Pressable
             onPress={close}
@@ -410,7 +410,7 @@ export default function MenuProductDetailView({
 
   return (
     <View style={tw`flex-1 relative`}>
-      <Container style={tw`flex-1 px-4 pt-8 bg-light-background`}>
+      <Container style={tw`flex-1 px-4 pt-8 bg-background`}>
         <ThemedView style={tw`items-center flex-row mb-6`}>
           <Pressable
             onPress={close}
@@ -440,7 +440,7 @@ export default function MenuProductDetailView({
             {/* <ThemedText */}
             {/*   type="body1" */}
             {/*   style={[ */}
-            {/*     tw`text-light-primary`, */}
+            {/*     tw`text-primary`, */}
             {/*     { fontFamily: typography.semibold }, */}
             {/*   ]} */}
             {/* > */}
@@ -499,7 +499,7 @@ export default function MenuProductDetailView({
 
               {product.options.length === 0 ? (
                 <ThemedView
-                  style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+                  style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
                 >
                   <Ionicons
                     name="options-outline"

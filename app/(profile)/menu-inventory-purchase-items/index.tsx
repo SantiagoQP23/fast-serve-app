@@ -228,11 +228,11 @@ export default function MenuInventoryPurchaseItemsScreen() {
   if (!isExpanded) return picker;
 
   return (
-    <ThemedView style={tw`flex-1 flex-row bg-light-background`}>
+    <ThemedView style={tw`flex-1 flex-row bg-background`}>
       <ThemedView style={tw`flex-1`}>{picker}</ThemedView>
       <ThemedView
         style={[
-          tw`border-l border-light-outline-variant`,
+          tw`border-l border-outline-variant`,
           { width: CART_PANEL_WIDTH },
         ]}
       >

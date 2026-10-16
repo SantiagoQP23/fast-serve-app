@@ -280,7 +280,7 @@ export default function BillDetailView({
         loading={isRemovingBill}
       />
 
-      <Container style={tw`flex-1 bg-light-background`}>
+      <Container style={tw`flex-1 bg-background`}>
         <KeyboardAvoidingView
           style={tw`flex-1`}
           behavior={Platform.OS === "ios" ? "padding" : "height"}

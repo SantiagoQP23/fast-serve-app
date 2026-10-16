@@ -416,7 +416,7 @@ export default function ProductScreen() {
                       <Card
                         onPress={() => onChangeSelectedOption(option)}
                         variant="outline"
-                        style={tw`min-w-36 p-4 gap-2 rounded-3xl ${isSelected ? "border-2 border-light-primary" : "border-none"}`}
+                        style={tw`min-w-36 p-4 gap-2 rounded-3xl ${isSelected ? "border-2 border-primary" : "border-none"}`}
                       >
                         <ThemedView
                           style={tw`flex-row items-center justify-between gap-2`}

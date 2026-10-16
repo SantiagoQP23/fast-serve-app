@@ -121,7 +121,7 @@ const InviteStaffBottomSheet = ({
                   tw.style(
                     "flex-row items-center justify-between gap-2 p-3 rounded-xl border",
                     isSelected
-                      ? "border-light-primary bg-light-primary/5"
+                      ? "border-primary bg-primary/5"
                       : "border-gray-200",
                     pressed && "opacity-70",
                   ),
@@ -139,7 +139,7 @@ const InviteStaffBottomSheet = ({
                   <Ionicons
                     name="checkmark-circle"
                     size={22}
-                    color={tw.color("light-primary")}
+                    color={tw.color("primary")}
                   />
                 )}
               </Pressable>

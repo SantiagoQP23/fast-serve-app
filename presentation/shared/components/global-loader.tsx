@@ -6,13 +6,14 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import tw from "@/presentation/theme/lib/tailwind";
-import { Colors } from "@/constants/theme";
+import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 interface GlobalLoaderProps {
   message?: string;
 }
 
 export function GlobalLoader({ message }: GlobalLoaderProps) {
+  const palette = usePalette();
   const { t } = useTranslation();
   const isLoading = useGlobalStore((state) => state.isLoading);
   const httpActiveRequests = useGlobalStore(
@@ -52,13 +53,13 @@ export function GlobalLoader({ message }: GlobalLoaderProps) {
         }}
       >
         <ThemedView
-          style={tw`bg-light-surface dark:bg-dark-surface p-6 rounded-lg items-center`}
+          style={tw`bg-surface p-6 rounded-lg items-center`}
         >
-          <ActivityIndicator size="large" color={tw.color("light-primary")} />
+          <ActivityIndicator size="large" color={tw.color("primary")} />
           <ThemedText
             type="body1"
             style={{
-              color: Colors.light.primary,
+              color: palette.primary,
               marginTop: 16,
             }}
           >

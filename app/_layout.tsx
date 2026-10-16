@@ -199,7 +199,7 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={tw`flex-1`}>
         <SafeAreaView
-          style={tw`flex-1 bg-light-background dark:bg-dark-background`}
+          style={tw`flex-1 bg-background `}
         >
           {renderContent()}
         </SafeAreaView>
@@ -210,7 +210,7 @@ export default function RootLayout() {
             descriptionStyle: { fontFamily: typography.regular },
             actionButtonTextStyle: { fontFamily: typography.medium },
             cancelButtonTextStyle: { fontFamily: typography.medium },
-            style: { backgroundColor: tw.color("light-surface-container-low") },
+            style: { backgroundColor: tw.color("surface-container-low") },
           }}
         />
       </GestureHandlerRootView>

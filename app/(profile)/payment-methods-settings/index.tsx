@@ -173,7 +173,7 @@ export default function PaymentMethodsSettingsScreen() {
 
           {paymentMethodsQuery.isLoading && (
             <ThemedView
-              style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+              style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
             >
               <ActivityIndicator color={tw.color("blue-500")} />
               <ThemedText type="small" style={tw`text-gray-500`}>
@@ -184,7 +184,7 @@ export default function PaymentMethodsSettingsScreen() {
 
           {!paymentMethodsQuery.isLoading && paymentMethodsQuery.isError && (
             <ThemedView
-              style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+              style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
             >
               <Ionicons
                 name="alert-circle-outline"
@@ -207,7 +207,7 @@ export default function PaymentMethodsSettingsScreen() {
             !paymentMethodsQuery.isError &&
             paymentMethods.length === 0 && (
               <ThemedView
-                style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+                style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
               >
                 <Ionicons
                   name="card-outline"
@@ -241,7 +241,7 @@ export default function PaymentMethodsSettingsScreen() {
                         <Ionicons
                           name={paymentMethodIcons[method.type]}
                           size={26}
-                          color={tw.color("text-light-on-surface-variant")}
+                          color={tw.color("text-on-surface-variant")}
                         />
                         <ThemedView style={tw`flex-1 gap-2`}>
                           <ThemedText type="body1" style={tw`font-semibold`}>

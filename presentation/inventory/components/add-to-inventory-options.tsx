@@ -32,7 +32,7 @@ export default function AddToInventoryOptions({
           <Ionicons
             name="fast-food-outline"
             size={26}
-            color={tw.color("text-light-on-surface-variant")}
+            color={tw.color("text-on-surface-variant")}
           />
           <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
             <ThemedText type="body1" style={{ fontFamily: typography.medium }}>
@@ -52,7 +52,7 @@ export default function AddToInventoryOptions({
           <Ionicons
             name="cube-outline"
             size={26}
-            color={tw.color("text-light-on-surface-variant")}
+            color={tw.color("text-on-surface-variant")}
           />
           <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
             <ThemedText type="body1" style={{ fontFamily: typography.medium }}>

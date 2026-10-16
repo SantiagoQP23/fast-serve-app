@@ -7,7 +7,7 @@ export default function OrderCardSkeleton() {
   return (
     <ThemedView style={tw`mb-3 rounded-2xl`}>
       <ThemedView
-        style={tw`p-4 rounded-3xl border border-light-border bg-light-surface dark:bg-gray-800`}
+        style={tw`p-4 rounded-3xl border border-border bg-surface `}
       >
         <ThemedView style={tw`gap-4 bg-transparent`}>
           {/* Header: status + time */}

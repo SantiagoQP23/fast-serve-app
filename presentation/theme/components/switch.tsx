@@ -1,10 +1,11 @@
 // components/Switch.tsx
-import { Colors, typography } from "@/constants/theme";
+import { typography } from "@/constants/theme";
 import React from "react";
 import { Switch as RNSwitch } from "react-native";
 import tw from "twrnc";
 import { ThemedView } from "./themed-view";
 import { ThemedText } from "./themed-text";
+import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 type SwitchProps = {
   value: boolean;
@@ -19,6 +20,7 @@ export default function Switch({
   label,
   disabled = false,
 }: SwitchProps) {
+  const palette = usePalette();
   return (
     <ThemedView style={tw`flex-row items-center justify-between w-full `}>
       {label && (
@@ -27,7 +29,7 @@ export default function Switch({
         </ThemedText>
       )}
       <RNSwitch
-        trackColor={{ false: "#d1d5db", true: Colors.light.primary }} // gray-300 / blue-500
+        trackColor={{ false: "#d1d5db", true: palette.primary }} // gray-300 / blue-500
         thumbColor={value ? "#fff" : "#f4f3f4"}
         ios_backgroundColor="#d1d5db"
         onValueChange={onValueChange}

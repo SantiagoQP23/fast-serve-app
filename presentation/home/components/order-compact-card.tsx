@@ -102,7 +102,7 @@ export default function OrderCompactCard({ order }: OrderCompactCardProps) {
       containerStyle={tw`grow rounded-2xl`}
       style={[
         tw`grow p-4 rounded-2xl`,
-        isSelected ? tw`bg-light-secondary` : undefined,
+        isSelected ? tw`bg-secondary` : undefined,
       ]}
     >
       <ThemedView style={tw`flex-row items-center justify-between gap-2`}>

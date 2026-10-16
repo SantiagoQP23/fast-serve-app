@@ -60,13 +60,13 @@ export default function Select({
   }, []);
 
   const labelColor = isPressed
-    ? tw.color("light-primary")
+    ? tw.color("primary")
     : tw.color("gray-500");
 
   const borderColor = isPressed
-    ? tw.color("light-primary")
+    ? tw.color("primary")
     : variant === "outlined"
-      ? tw.color("light-border")
+      ? tw.color("border")
       : "transparent";
 
   return (
@@ -79,7 +79,7 @@ export default function Select({
           style={[
             tw.style(
               "flex-row rounded-3xl px-3",
-              variant === "filled" ? "bg-light-surface-high" : "bg-transparent",
+              variant === "filled" ? "bg-surface-high" : "bg-transparent",
             ),
             {
               minHeight: CONTAINER_HEIGHT,
@@ -119,7 +119,7 @@ export default function Select({
                   includeFontPadding: false,
                   color: selectedOption
                     ? tw.color("text")
-                    : tw.color("light-on-surface-variant"),
+                    : tw.color("on-surface-variant"),
                 }}
               >
                 {selectedOption ? selectedOption.label : placeholder}
@@ -130,7 +130,7 @@ export default function Select({
             name="chevron-down"
             size={18}
             style={{ marginLeft: 8, alignSelf: "center" }}
-            color={tw.color("light-on-surface-variant")}
+            color={tw.color("on-surface-variant")}
           />
         </Pressable>
       </ThemedView>

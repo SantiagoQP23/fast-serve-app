@@ -63,7 +63,7 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
           </ThemedView>
 
           {/* Income vs Amount with Progress Bar */}
-          <ThemedView style={tw`bg-light-surface rounded-xl p-4`}>
+          <ThemedView style={tw`bg-surface rounded-xl p-4`}>
             {/* Values Row */}
             <ThemedView
               style={tw`flex-row justify-between mb-3 bg-transparent`}

@@ -248,7 +248,7 @@ export default function PaymentMethodDetailsScreen() {
                         ? () => handleOpenAccountActions(account)
                         : undefined
                     }
-                    style={isDefault && tw`bg-light-secondary`}
+                    style={isDefault && tw`bg-secondary`}
                   >
                     <ThemedView
                       style={tw`flex-row items-center gap-3 bg-transparent`}
@@ -258,8 +258,8 @@ export default function PaymentMethodDetailsScreen() {
                         size={26}
                         color={
                           isDefault
-                            ? tw.color("light-on-secondary")
-                            : tw.color("text-light-on-surface-variant")
+                            ? tw.color("on-secondary")
+                            : tw.color("text-on-surface-variant")
                         }
                       />
                       <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
@@ -267,7 +267,7 @@ export default function PaymentMethodDetailsScreen() {
                           type="body1"
                           style={[
                             tw`font-semibold`,
-                            isDefault && tw`text-light-on-secondary`,
+                            isDefault && tw`text-on-secondary`,
                           ]}
                         >
                           {account.name}
@@ -276,7 +276,7 @@ export default function PaymentMethodDetailsScreen() {
                           type="small"
                           style={
                             isDefault
-                              ? tw`text-light-on-secondary/70`
+                              ? tw`text-on-secondary/70`
                               : tw`text-gray-500`
                           }
                         >
@@ -287,7 +287,7 @@ export default function PaymentMethodDetailsScreen() {
                         <Ionicons
                           name="star"
                           size={18}
-                          color={tw.color("light-on-secondary")}
+                          color={tw.color("on-secondary")}
                         />
                       )}
                     </ThemedView>

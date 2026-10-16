@@ -231,7 +231,7 @@ export default function SalesContent({
         <Pressable
           onPress={handleOpenFilters}
           accessibilityLabel={t("bills:filters.title")}
-          style={tw`p-3 rounded-2xl ${hasActiveFilters ? "bg-light-surface" : "bg-transparent"}`}
+          style={tw`p-3 rounded-2xl ${hasActiveFilters ? "bg-surface" : "bg-transparent"}`}
         >
           <Ionicons
             name="filter"

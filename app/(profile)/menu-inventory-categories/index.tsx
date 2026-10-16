@@ -151,7 +151,7 @@ export default function MenuInventoryCategoriesScreen() {
                 <Ionicons
                   name="folder-outline"
                   size={24}
-                  color={tw.color("text-light-on-surface-variant")}
+                  color={tw.color("text-on-surface-variant")}
                 />
                 <ThemedText type="h4">{category.name}</ThemedText>
               </ThemedView>

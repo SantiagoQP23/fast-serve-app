@@ -92,7 +92,7 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
   return (
     <ThemedView style={tw`mb-8  `}>
       <Card
-        style={isSelected ? tw`bg-light-secondary` : tw``}
+        style={isSelected ? tw`bg-secondary` : tw``}
         onPress={() => openOrder()}
         variant="outline"
       >

@@ -193,7 +193,7 @@ export default function ProductionAreaFormScreen() {
 
               {!printersQuery.isLoading && printers.length === 0 && (
                 <ThemedView
-                  style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+                  style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
                 >
                   <Ionicons
                     name="print-outline"

@@ -42,7 +42,7 @@ export default function OrderConfirmationScreen() {
           </ThemedText>
         </ThemedView>
         <ThemedView style={tw` w-full  gap-4`}>
-          <ThemedView style={tw` w-full bg-light-surface p-4 rounded-3xl`}>
+          <ThemedView style={tw` w-full bg-surface p-4 rounded-3xl`}>
             <ThemedView
               style={tw`flex-row  items-center bg-transparent gap-2 `}
             >
@@ -81,7 +81,7 @@ export default function OrderConfirmationScreen() {
           </ThemedView>
 
           {order.notes && (
-            <ThemedView style={tw` w-full bg-light-surface p-4 rounded-lg`}>
+            <ThemedView style={tw` w-full bg-surface p-4 rounded-lg`}>
               <ThemedView style={tw`  bg-transparent gap-2 `}>
                 <ThemedText type="body2">{t("common:labels.notes")}</ThemedText>
                 <ThemedText type="body1">
@@ -91,7 +91,7 @@ export default function OrderConfirmationScreen() {
             </ThemedView>
           )}
           <ThemedView
-            style={tw` w-full bg-light-surface p-4 rounded-3xl gap-2`}
+            style={tw` w-full bg-surface p-4 rounded-3xl gap-2`}
           >
             {order.details.map((item, index) => (
               <ThemedView

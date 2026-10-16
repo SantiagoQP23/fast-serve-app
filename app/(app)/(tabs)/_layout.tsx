@@ -1,8 +1,6 @@
 import { Redirect, Tabs, useNavigation, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
-import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/presentation/theme/hooks/use-color-scheme";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useEffect, useRef } from "react";
@@ -29,6 +27,7 @@ import { ROUTES } from "@/constants/routes";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { useUnprintedTickets } from "@/presentation/orders/hooks/useUnprintedTickets";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
+import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 export function MyOrdersHeaderRight() {
   const router = useRouter();
@@ -86,8 +85,8 @@ export function MyOrdersHeaderRight() {
 }
 
 export default function TabLayout() {
+  const palette = usePalette();
   const { t } = useTranslation("common");
-  const colorScheme = useColorScheme();
   const { status, checkStatus, user, bootstrapStatus } = useAuthStore();
   // useOrders();
   // useOrderCreatedListener();
@@ -138,17 +137,17 @@ export default function TabLayout() {
   // activeOrdersQuery.refetch();
 
   return (
-    <ThemedView style={tw`flex-1 bg-light-background `}>
+    <ThemedView style={tw`flex-1 bg-background `}>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors.light.onSecondary,
-          tabBarInactiveTintColor: Colors.light.onSurfaceVariant,
-          // tabBarActiveBackgroundColor: Colors.light.surface,
+          tabBarActiveTintColor: palette.onSecondary,
+          tabBarInactiveTintColor: palette.onSurfaceVariant,
+          // tabBarActiveBackgroundColor: palette.surface,
           headerShown: false,
           headerStyle: {
-            backgroundColor: Colors.light.background,
+            backgroundColor: palette.background,
           },
-          // tabBarActiveTintColor: Colors["light"].tint,
+          // tabBarActiveTintColor: palette.tint,
           tabBarPosition: isRail ? "left" : "bottom",
           tabBarVariant: isRail ? "material" : "uikit",
           tabBarLabelPosition: "below-icon",
@@ -156,7 +155,7 @@ export default function TabLayout() {
           tabBarActiveBackgroundColor: "transparent",
           tabBarStyle: isRail
             ? {
-                backgroundColor: Colors["light"].surface,
+                backgroundColor: palette.surface,
                 width: 112,
                 paddingTop: 24,
                 // Override the sidebar's default paddingStart/End
@@ -166,7 +165,7 @@ export default function TabLayout() {
                 elevation: 0,
               }
             : {
-                backgroundColor: Colors["light"].surface,
+                backgroundColor: palette.surface,
                 paddingTop: 5,
                 paddingBottom: 0,
                 borderRadius: 20,
@@ -204,7 +203,7 @@ export default function TabLayout() {
             ),
             tabBarIcon: ({ color, focused }) => (
               <ThemedView
-                style={tw`items-center justify-center ${focused ? "bg-light-secondary" : ""} w-15 h-8 rounded-full`}
+                style={tw`items-center justify-center ${focused ? "bg-secondary" : ""} w-15 h-8 rounded-full`}
               >
                 <Ionicons
                   color={color}
@@ -229,7 +228,7 @@ export default function TabLayout() {
             ),
             tabBarIcon: ({ color, focused }) => (
               <ThemedView
-                style={tw`items-center justify-center ${focused ? "bg-light-secondary" : ""} w-15 h-8 rounded-full`}
+                style={tw`items-center justify-center ${focused ? "bg-secondary" : ""} w-15 h-8 rounded-full`}
               >
                 <Ionicons
                   color={color}
@@ -250,7 +249,7 @@ export default function TabLayout() {
             ),
             tabBarIcon: ({ color, focused }) => (
               <ThemedView
-                style={tw`items-center justify-center ${focused ? "bg-light-secondary" : ""} w-15 h-8 rounded-full`}
+                style={tw`items-center justify-center ${focused ? "bg-secondary" : ""} w-15 h-8 rounded-full`}
               >
                 <Ionicons
                   color={color}
@@ -271,7 +270,7 @@ export default function TabLayout() {
             ),
             tabBarIcon: ({ color, focused }) => (
               <ThemedView
-                style={tw`items-center justify-center ${focused ? "bg-light-secondary" : ""} w-15 h-8 rounded-full`}
+                style={tw`items-center justify-center ${focused ? "bg-secondary" : ""} w-15 h-8 rounded-full`}
               >
                 <Ionicons
                   color={color}
@@ -293,7 +292,7 @@ export default function TabLayout() {
             ),
             tabBarIcon: ({ color, focused }) => (
               <ThemedView
-                style={tw`items-center justify-center ${focused ? "bg-light-secondary" : ""} w-15 h-8 rounded-full`}
+                style={tw`items-center justify-center ${focused ? "bg-secondary" : ""} w-15 h-8 rounded-full`}
               >
                 <Ionicons
                   color={color}

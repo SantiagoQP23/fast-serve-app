@@ -103,7 +103,7 @@ export default function TableAreasSettingsScreen() {
                   <Ionicons
                     name="albums-outline"
                     size={28}
-                    color={tw.color("text-light-on-surface-variant")}
+                    color={tw.color("text-on-surface-variant")}
                   />
                   <ThemedView style={tw`flex-1 gap-1`}>
                     <ThemedText type="h4">{area.name}</ThemedText>

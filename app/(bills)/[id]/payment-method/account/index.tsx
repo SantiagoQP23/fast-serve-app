@@ -274,7 +274,7 @@ export default function AccountScreen() {
                   style={({ pressed }) => [
                     tw`flex-row items-center `,
                     pressed && tw`opacity-80`,
-                    isSelected && tw`border-light-primary border-2`,
+                    isSelected && tw`border-primary border-2`,
                   ]}
                   variant={isSelected ? "default" : "outline"}
                 >
@@ -314,7 +314,7 @@ export default function AccountScreen() {
                     <Ionicons
                       name="checkmark-circle"
                       size={22}
-                      color={tw.color("light-primary")}
+                      color={tw.color("primary")}
                       style={tw`ml-2`}
                     />
                   )}

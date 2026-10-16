@@ -40,7 +40,7 @@ const EditPeopleBottomSheet = ({
 
   return (
     <BottomSheetView
-      style={tw`p-4 bg-light-background dark:bg-dark-background`}
+      style={tw`p-4 bg-background `}
     >
       <ThemedView style={tw`w-full gap-6`}>
         <ThemedText type="h3" style={tw``}>

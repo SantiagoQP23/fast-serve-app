@@ -28,18 +28,18 @@ export default function PaymentMethodCard({
       <Pressable
         onPress={onPress}
         style={({ pressed }) => [
-          tw`flex-row items-center p-6 rounded-2xl border border-light-border`,
+          tw`flex-row items-center p-6 rounded-2xl border border-border`,
           pressed && tw`opacity-80`,
-          active && tw`border-light-primary `,
+          active && tw`border-primary `,
         ]}
       >
         <ThemedView
-          style={tw`w-10 h-10 rounded-full bg-light-primary-container items-center justify-center`}
+          style={tw`w-10 h-10 rounded-full bg-primary-container items-center justify-center`}
         >
           <Ionicons
             name={paymentMethod.icon}
             size={22}
-            color={tw.color("light-on-primary-container")}
+            color={tw.color("on-primary-container")}
           />
         </ThemedView>
         <ThemedText type="h4" style={tw`flex-1 ml-3`}>
@@ -60,7 +60,7 @@ export default function PaymentMethodCard({
       style={({ pressed }) => [
         tw`py-4 px-10 rounded-2xl items-center border border-gray-200`,
         pressed && tw`opacity-80`,
-        active && tw`border-light-primary bg-gray-100`,
+        active && tw`border-primary bg-gray-100`,
       ]}
     >
       <Ionicons

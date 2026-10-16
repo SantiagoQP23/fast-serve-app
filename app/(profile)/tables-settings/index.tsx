@@ -197,7 +197,7 @@ export default function TablesSettingsScreen() {
                       <Ionicons
                         name="grid-outline"
                         size={28}
-                        color={tw.color("text-light-on-surface-variant")}
+                        color={tw.color("text-on-surface-variant")}
                       />
                       <ThemedView style={tw`gap-2`}>
                         <ThemedText type="h4">

@@ -316,7 +316,7 @@ export default function PaymentMethodFormScreen() {
             <ThemedView style={tw`gap-4`}>
               {noCategoriesAvailable ? (
                 <ThemedView
-                  style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+                  style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
                 >
                   <Ionicons
                     name="checkmark-done-circle-outline"
@@ -402,7 +402,7 @@ export default function PaymentMethodFormScreen() {
 
                 {eligibleAccounts.length === 0 ? (
                   <ThemedView
-                    style={tw`items-center py-6 gap-2 bg-gray-50 dark:bg-gray-800 rounded-3xl px-4`}
+                    style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
                   >
                     <Ionicons
                       name="wallet-outline"
@@ -439,7 +439,7 @@ export default function PaymentMethodFormScreen() {
                                   onChange,
                                 )
                               }
-                              style={isSelected && tw`bg-light-secondary`}
+                              style={isSelected && tw`bg-secondary`}
                             >
                               <ThemedView
                                 style={tw`flex-row items-center justify-between bg-transparent`}
@@ -452,9 +452,9 @@ export default function PaymentMethodFormScreen() {
                                     size={22}
                                     color={
                                       isSelected
-                                        ? tw.color("light-on-secondary")
+                                        ? tw.color("on-secondary")
                                         : tw.color(
-                                            "text-light-on-surface-variant",
+                                            "text-on-surface-variant",
                                           )
                                     }
                                   />
@@ -463,7 +463,7 @@ export default function PaymentMethodFormScreen() {
                                     style={[
                                       tw`font-semibold`,
                                       isSelected &&
-                                        tw`text-light-on-secondary`,
+                                        tw`text-on-secondary`,
                                     ]}
                                   >
                                     {account.name}
@@ -478,7 +478,7 @@ export default function PaymentMethodFormScreen() {
                                   size={22}
                                   color={
                                     isSelected
-                                      ? tw.color("light-on-secondary")
+                                      ? tw.color("on-secondary")
                                       : tw.color("gray-300")
                                   }
                                 />
@@ -536,7 +536,7 @@ export default function PaymentMethodFormScreen() {
       </ScreenLayout>
 
       <ThemedView
-        style={tw`absolute bottom-0 left-0 right-0 bg-light-background dark:bg-black px-4 py-4`}
+        style={tw`absolute bottom-0 left-0 right-0 bg-background px-4 py-4`}
       >
         {step === 1 ? (
           <Button

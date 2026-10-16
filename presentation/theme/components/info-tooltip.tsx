@@ -53,7 +53,7 @@ export default function InfoTooltip({ text }: InfoTooltipProps) {
       {visible && (
         <View
           style={[
-            tw`absolute rounded-xl border border-gray-200 dark:border-gray-700 bg-light-surface-container-low dark:bg-black p-3`,
+            tw`absolute rounded-xl border border-gray-200 bg-surface-container-low p-3`,
             {
               top: 24,
               right: 0,

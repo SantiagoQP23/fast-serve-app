@@ -25,7 +25,7 @@ export default function InventoryConsumptionChart({
   );
 
   return (
-    <ThemedView style={tw`bg-light-surface rounded-3xl p-6 gap-4 shadow-xs`}>
+    <ThemedView style={tw`bg-surface rounded-3xl p-6 gap-4 shadow-xs`}>
       <ThemedView
         style={tw`flex-row items-center justify-between bg-transparent`}
       >
@@ -51,7 +51,7 @@ export default function InventoryConsumptionChart({
               <ThemedText
                 type="small"
                 style={[
-                  isPeak ? tw`text-light-primary` : tw`text-gray-500`,
+                  isPeak ? tw`text-primary` : tw`text-gray-500`,
                   isPeak && { fontFamily: typography.bold },
                 ]}
               >
@@ -61,7 +61,7 @@ export default function InventoryConsumptionChart({
                 style={[
                   tw.style(
                     "w-full rounded-t-lg",
-                    isPeak ? "bg-light-primary" : "bg-light-secondary",
+                    isPeak ? "bg-primary" : "bg-secondary",
                   ),
                   { height: `${heightPercent}%` },
                 ]}
@@ -70,7 +70,7 @@ export default function InventoryConsumptionChart({
                 type="small"
                 style={
                   isPeak
-                    ? [tw`text-light-primary`, { fontFamily: typography.bold }]
+                    ? [tw`text-primary`, { fontFamily: typography.bold }]
                     : tw`text-gray-500`
                 }
               >

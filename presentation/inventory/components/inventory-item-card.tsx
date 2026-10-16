@@ -104,8 +104,8 @@ export default function InventoryItemCard({
       style={({ pressed }) =>
         tw.style(
           " gap-3 p-4",
-          isInactive && "opacity-50 border border-dashed border-light-border",
-          active && !selectionMode && "bg-light-secondary",
+          isInactive && "opacity-50 border border-dashed border-border",
+          active && !selectionMode && "bg-secondary",
           selected && "border border-blue-500 bg-blue-50",
           pressed && (onPress || selectionMode) && "opacity-80",
         )
@@ -124,7 +124,7 @@ export default function InventoryItemCard({
             type="body1"
             style={[
               { fontFamily: typography.semibold },
-              tw`text-light-on-surface`,
+              tw`text-on-surface`,
             ]}
             numberOfLines={2}
           >

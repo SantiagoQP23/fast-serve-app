@@ -13,9 +13,9 @@ import {
 import { useTransactionPaymentMethodReport } from "@/presentation/transactions/hooks/useTransactionPaymentMethodReport";
 import { useRouter } from "expo-router";
 import { PieChart } from "react-native-gifted-charts";
-import { Colors, typography } from "@/constants/theme";
-import { useColorScheme } from "@/presentation/theme/hooks/use-color-scheme";
+import { typography } from "@/constants/theme";
 import Card from "@/presentation/theme/components/card";
+import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 export default function PaymentMethodSummaryCard({
   startDate,
@@ -24,15 +24,14 @@ export default function PaymentMethodSummaryCard({
   startDate?: string;
   endDate?: string;
 }) {
+  const palette = usePalette();
   const { t } = useTranslation(["reports", "common", "bills"]);
   const [showTotalIncome, setShowTotalIncome] = useState(false);
   const { paymentMethodReport, isLoading } = useTransactionPaymentMethodReport(
     startDate && endDate ? { startDate, endDate } : undefined,
   );
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const themePrimaryColor =
-    colorScheme === "dark" ? Colors.dark.primary : Colors.light.primary;
+  const themePrimaryColor = palette.primary;
 
   const handlePress = () => {
     router.push("/(reports)/payment-method-report");

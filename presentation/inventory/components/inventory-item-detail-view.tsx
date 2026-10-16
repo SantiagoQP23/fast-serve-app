@@ -112,7 +112,7 @@ export default function InventoryItemDetailView({
   };
 
   return (
-    <Container style={tw`flex-1 bg-light-background`}>
+    <Container style={tw`flex-1 bg-background`}>
       <ThemedView
         style={tw`items-center gap-2 flex-row justify-between px-4 pt-8 pb-2 bg-transparent`}
       >
@@ -213,7 +213,7 @@ export default function InventoryItemDetailView({
       {item && (
         <View style={tw`absolute bottom-6 left-4 right-4`}>
           <ThemedView
-            style={tw`flex-row gap-3 bg-light-surface rounded-3xl p-2 shadow-sm`}
+            style={tw`flex-row gap-3 bg-surface rounded-3xl p-2 shadow-sm`}
           >
             <Button
               label={t("decrease")}

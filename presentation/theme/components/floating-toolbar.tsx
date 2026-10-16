@@ -9,7 +9,7 @@ import Animated, {
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedView } from "./themed-view";
 import { ThemedText } from "./themed-text";
-import { Colors } from "@/constants/theme";
+import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 export interface ToolbarItem {
   icon: keyof typeof Ionicons.glyphMap;
@@ -30,11 +30,10 @@ interface FloatingToolbarProps {
 const LABEL_GAP = 6;
 
 function ToolbarButton({ item, size }: { item: ToolbarItem; size: number }) {
+  const palette = usePalette();
   const iconSize = Math.round(size * 0.46);
   const paddingHorizontal = (size - iconSize) / 2;
-  const color = item.icon
-    ? Colors.light.onSecondary
-    : Colors.light.onSurfaceVariant;
+  const color = item.icon ? palette.onSecondary : palette.onSurfaceVariant;
 
   const [labelWidth, setLabelWidth] = useState(0);
   const progress = useSharedValue(item.active ? 1 : 0);
@@ -58,7 +57,7 @@ function ToolbarButton({ item, size }: { item: ToolbarItem; size: number }) {
       style={({ pressed }) => [
         tw`rounded-full items-center justify-center flex-row`,
         { height: size, paddingHorizontal },
-        item.active && tw`bg-light-secondary`,
+        item.active && tw`bg-secondary`,
         pressed && !item.disabled && tw`opacity-70`,
         item.disabled && tw`opacity-40`,
       ]}
@@ -104,7 +103,7 @@ export default function FloatingToolbar({
   return (
     <ThemedView
       style={[
-        tw`bg-light-surface rounded-full shadow-sm`,
+        tw`bg-surface rounded-full shadow-sm`,
         isHorizontal
           ? tw`flex-row items-center py-2 px-4 gap-2`
           : tw`flex-col items-center px-2 py-3`,

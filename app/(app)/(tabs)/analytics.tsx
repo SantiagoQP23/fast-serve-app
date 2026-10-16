@@ -154,7 +154,7 @@ export default function AnalyticsScreen() {
     : formattedTotalAmount.replace(/\d/g, "*");
 
   return (
-    <ScreenLayout style={tw`flex-1 bg-light-background pt-4`}>
+    <ScreenLayout style={tw`flex-1 bg-background pt-4`}>
       <ThemedView style={tw`px-4 py-4 gap-3`}>
         <ThemedView style={tw`flex-row items-center justify-between`}>
           <ThemedText type="h2">
@@ -247,7 +247,7 @@ export default function AnalyticsScreen() {
                   </ThemedText>
                   <ThemedText
                     type="body1"
-                    style={tw`font-semibold text-light-primary`}
+                    style={tw`font-semibold text-primary`}
                   >
                     {`${t("common:currency.symbol")}${dashboardStats?.totalIncome?.toFixed(2) ?? "0.00"}`}
                   </ThemedText>

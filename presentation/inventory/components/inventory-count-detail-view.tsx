@@ -72,7 +72,7 @@ export default function InventoryCountDetailView({
     });
 
   return (
-    <Container style={tw`flex-1 bg-light-background`}>
+    <Container style={tw`flex-1 bg-background`}>
       <ThemedView style={tw`px-4 pt-8 bg-transparent`}>
         <InventoryScreenHeader
           title={t("counts.detailTitle")}

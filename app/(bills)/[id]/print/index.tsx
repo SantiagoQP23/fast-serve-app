@@ -75,7 +75,7 @@ export default function BillPrintScreen() {
         >
           <Card style={tw``}>
             <ThemedView
-              style={tw`items-center gap-1 pb-3 border-b border-dashed border-light-border`}
+              style={tw`items-center gap-1 pb-3 border-b border-dashed border-border`}
             >
               <ThemedText type="h4" style={{ fontFamily: "monospace" }}>
                 {t("bills:list.title")} #{bill.num}
@@ -87,7 +87,7 @@ export default function BillPrintScreen() {
 
             {bill.order && (
               <ThemedView
-                style={tw`gap-1 py-3 border-b border-dashed border-light-border`}
+                style={tw`gap-1 py-3 border-b border-dashed border-border`}
               >
                 <ThemedText style={{ fontFamily: "monospace" }}>
                   {t("orders:details.orderNumber", { num: bill.order.num })}
@@ -101,7 +101,7 @@ export default function BillPrintScreen() {
             )}
 
             <ThemedView
-              style={tw`gap-2 py-3 border-b border-dashed border-light-border`}
+              style={tw`gap-2 py-3 border-b border-dashed border-border`}
             >
               {bill.details.map((detail) => {
                 const productName =
@@ -130,7 +130,7 @@ export default function BillPrintScreen() {
             </ThemedView>
 
             <ThemedView
-              style={tw`gap-1 py-3 border-b border-dashed border-light-border`}
+              style={tw`gap-1 py-3 border-b border-dashed border-border`}
             >
               <ThemedView style={tw`flex-row justify-between`}>
                 <ThemedText style={{ fontFamily: "monospace" }}>

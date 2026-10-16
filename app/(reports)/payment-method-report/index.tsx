@@ -15,18 +15,16 @@ import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import * as Haptics from "expo-haptics";
 import dayjs from "dayjs";
 import { PieChart } from "react-native-gifted-charts";
-import { Colors } from "@/constants/theme";
-import { useColorScheme } from "react-native";
+import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 export default function PaymentMethodReportScreen() {
+  const palette = usePalette();
   const { t } = useTranslation(["reports", "common"]);
   const primaryColor = useThemeColor({}, "primary");
-  const colorScheme = useColorScheme();
   const [refreshing, setRefreshing] = useState(false);
 
   // Get theme primary color
-  const themePrimaryColor =
-    colorScheme === "dark" ? Colors.dark.primary : Colors.light.primary;
+  const themePrimaryColor = palette.primary;
 
   // Fetch payment method report
   const { paymentMethodReport, isLoading, refetch } = usePaymentMethodReport();

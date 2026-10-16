@@ -118,7 +118,7 @@ export default function CreateRestaurantScreen() {
             <Ionicons
               name="business-outline"
               size={64}
-              color={tw.color("light-primary")}
+              color={tw.color("primary")}
             />
             <ThemedText type="h2" style={tw`text-center`}>
               {t("createRestaurant.title")}

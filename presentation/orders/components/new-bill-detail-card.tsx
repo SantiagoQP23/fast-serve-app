@@ -57,7 +57,7 @@ export default function NewBillDetailCard({
     <Card
       style={({ pressed }) => [
         tw`p-6 rounded-3xl gap-4`,
-        isSelected ? tw`border-2 border-light-primary` : tw``,
+        isSelected ? tw`border-2 border-primary` : tw``,
         pressed && tw`opacity-60`,
       ]}
       onPress={onPress}
@@ -103,7 +103,7 @@ export default function NewBillDetailCard({
                 color={
                   counter === availableQty
                     ? tw.color("gray-300")
-                    : tw.color("border-light-primary")
+                    : tw.color("border-primary")
                 }
                 style={tw`p-2`}
               />

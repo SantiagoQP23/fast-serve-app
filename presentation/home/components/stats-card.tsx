@@ -19,12 +19,12 @@ export default function StatsCard({
   loading = false,
 }: StatsCardProps) {
   return (
-    <ThemedView style={tw`flex-1 rounded-3xl  p-4  bg-light-surface`}>
+    <ThemedView style={tw`flex-1 rounded-3xl  p-4  bg-surface`}>
       <ThemedView
         style={tw`flex-row items-center justify-between bg-transparent gap-2`}
       >
         <ThemedView
-          style={tw`w-10 h-10 rounded-lg bg-light-surface items-center justify-center`}
+          style={tw`w-10 h-10 rounded-lg bg-surface items-center justify-center`}
         >
           <Ionicons name={icon} size={24} color={tw.color(`black`)} />
         </ThemedView>
