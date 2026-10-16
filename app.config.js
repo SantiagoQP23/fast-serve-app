@@ -40,6 +40,7 @@ export default {
       "@react-native-google-signin/google-signin",
       "expo-iap",
       "expo-router",
+      "expo-status-bar",
       [
         "expo-splash-screen",
         {
