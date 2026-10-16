@@ -68,5 +68,26 @@ export const useTableAreasManagement = () => {
       toast.error(getErrorMessage(error, { fallback: t("reorder.error") })),
   });
 
-  return { createArea, updateArea, deleteArea, reorderAreas, reorderTables };
+  // Mover varias mesas a una zona: `tableIds` es la zona destino completa (sus
+  // mesas actuales y luego las movidas), igual que un reorder.
+  const moveTables = useMutation<
+    Table[],
+    Error,
+    { areaId: string | null; tableIds: string[] }
+  >({
+    mutationFn: ({ areaId, tableIds }) =>
+      TablesService.reorderTables(areaId, tableIds),
+    onSuccess: (tables) => upsertTables(tables),
+    onError: (error) =>
+      toast.error(getErrorMessage(error, { fallback: t("areas.moveError") })),
+  });
+
+  return {
+    createArea,
+    updateArea,
+    deleteArea,
+    reorderAreas,
+    reorderTables,
+    moveTables,
+  };
 };
