@@ -220,28 +220,28 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
       {/*     ); */}
       {/*   })} */}
       {/* </ThemedView> */}
-      {hasAreas && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={tw`grow-0`}
-          contentContainerStyle={tw`gap-2 px-4 pt-4`}
-        >
-          <Chip
-            label={t("tables:areas.all")}
-            selected={!selectedAreaId}
-            onPress={() => setSelectedAreaId(null)}
-          />
-          {visibleAreas.map((area) => (
-            <Chip
-              key={area.id}
-              label={area.name}
-              selected={selectedAreaId === area.id}
-              onPress={() => setSelectedAreaId(area.id)}
-            />
-          ))}
-        </ScrollView>
-      )}
+      {/* {hasAreas && ( */}
+      {/*   <ScrollView */}
+      {/*     horizontal */}
+      {/*     showsHorizontalScrollIndicator={false} */}
+      {/*     style={tw`grow-0`} */}
+      {/*     contentContainerStyle={tw`gap-2 px-4 pt-4`} */}
+      {/*   > */}
+      {/*     <Chip */}
+      {/*       label={t("tables:areas.all")} */}
+      {/*       selected={!selectedAreaId} */}
+      {/*       onPress={() => setSelectedAreaId(null)} */}
+      {/*     /> */}
+      {/*     {visibleAreas.map((area) => ( */}
+      {/*       <Chip */}
+      {/*         key={area.id} */}
+      {/*         label={area.name} */}
+      {/*         selected={selectedAreaId === area.id} */}
+      {/*         onPress={() => setSelectedAreaId(area.id)} */}
+      {/*       /> */}
+      {/*     ))} */}
+      {/*   </ScrollView> */}
+      {/* )} */}
       <FlatList
         data={listItems}
         keyExtractor={(item) => item.key}
@@ -254,12 +254,7 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
                 paddingBottom: COLUMN_GAP,
               }}
             >
-              <ThemedText type="h4">
-                {item.title}{" "}
-                <ThemedText type="small" style={tw`text-gray-500`}>
-                  {t("tables:areas.tablesCount", { count: item.count })}
-                </ThemedText>
-              </ThemedText>
+              <ThemedText type="h4">{item.title} </ThemedText>
             </ThemedView>
           ) : (
             <View
