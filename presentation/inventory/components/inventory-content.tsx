@@ -337,7 +337,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
               accessibilityLabel={t("common:actions.goBack")}
               style={({ pressed }) => tw.style(pressed && "opacity-70")}
             >
-              <Ionicons name="arrow-back-outline" size={24} />
+              <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
             </Pressable>
           )}
           <ThemedText
@@ -354,7 +354,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
               accessibilityLabel={t("categories.title")}
               accessibilityRole="button"
             >
-              <Ionicons name="folder-outline" size={22} />
+              <Ionicons name="folder-outline" color={tw.color("on-surface")} size={22} />
             </Pressable>
           )}
         </ThemedView>

@@ -144,7 +144,7 @@ export default function PaymentMethodAccountSelectScreen() {
             hitSlop={12}
             style={({ pressed }) => tw.style(pressed && "opacity-70")}
           >
-            <Ionicons name="arrow-back-outline" size={24} />
+            <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
           </Pressable>
         </ThemedView>
         <ThemedView style={tw`items-center py-8 gap-3`}>
@@ -178,7 +178,7 @@ export default function PaymentMethodAccountSelectScreen() {
               onPress={() => router.back()}
               style={({ pressed }) => tw.style(pressed && "opacity-70")}
             >
-              <Ionicons name="arrow-back-outline" size={24} />
+              <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
             </Pressable>
             <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
               {t("methods.selectAccount.title")}

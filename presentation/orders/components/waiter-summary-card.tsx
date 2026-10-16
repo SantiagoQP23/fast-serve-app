@@ -35,7 +35,7 @@ export default function WaiterSummaryCard({
             <Ionicons
               name="person"
               size={20}
-              color={isSelected ? tw.color("white") : tw.color("gray-600")}
+              color={isSelected ? tw.color("on-primary") : tw.color("gray-600")}
             />
           </ThemedView>
           <ThemedView style={tw`flex-1 bg-transparent`}>

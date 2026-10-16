@@ -25,11 +25,13 @@ export default function Fab({
   icon = "add",
   label,
   expanded = true,
-  color = "white",
+  color: colorProp,
   bgColor = "bg-primary",
   bottom = 24,
   right = 24,
 }: FabProps) {
+  // Default: the text color that sits on the primary fill in this theme
+  const color = colorProp ?? tw.color("on-primary");
   const hasLabel = !!label;
   const [labelWidth, setLabelWidth] = useState(0);
   const progress = useSharedValue(expanded ? 1 : 0);

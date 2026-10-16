@@ -148,7 +148,7 @@ export default function MenuInventoryItemFormScreen() {
                 accessibilityLabel={t("common:actions.goBack")}
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
-                <Ionicons name="arrow-back-outline" size={24} />
+                <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
               </Pressable>
               <ThemedView style={tw`flex-1`}>
                 <ThemedText

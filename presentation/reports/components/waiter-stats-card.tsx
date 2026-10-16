@@ -45,7 +45,7 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
                 <Ionicons
                   name="person"
                   size={24}
-                  color={tw.color("primary-600")}
+                  color={tw.color("primary")}
                 />
               </ThemedView>
               <ThemedView style={tw`flex-1 bg-transparent`}>

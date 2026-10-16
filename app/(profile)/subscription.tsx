@@ -81,7 +81,7 @@ export default function SubscriptionScreen() {
                 {subscription.status === "TRIAL" &&
                   subscription.trialEndsAt && (
                     <ThemedView style={tw`flex-row items-center gap-2`}>
-                      <Ionicons name="time-outline" size={16} />
+                      <Ionicons name="time-outline" color={tw.color("on-surface")} size={16} />
                       <ThemedText type="body2" style={tw`text-gray-500`}>
                         {t("manage.subscription.trialEnds", {
                           date: new Date(
@@ -94,7 +94,7 @@ export default function SubscriptionScreen() {
 
                 {subscription.currentPeriodEnd && (
                   <ThemedView style={tw`flex-row items-center gap-2`}>
-                    <Ionicons name="calendar-outline" size={16} />
+                    <Ionicons name="calendar-outline" color={tw.color("on-surface")} size={16} />
                     <ThemedText type="body2" style={tw`text-gray-500`}>
                       {t("manage.subscription.periodEnds")}:{" "}
                       {new Date(

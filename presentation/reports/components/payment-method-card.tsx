@@ -30,7 +30,7 @@ export default function PaymentMethodCard({ paymentMethodStats }: PaymentMethodC
             <Ionicons
               name={iconName}
               size={24}
-              color={tw.color("primary-600")}
+              color={tw.color("primary")}
             />
           </ThemedView>
           <ThemedView style={tw`flex-1 bg-transparent`}>

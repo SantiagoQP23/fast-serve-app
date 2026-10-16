@@ -147,7 +147,7 @@ export default function ManageScreen() {
 
   const renderManageOption = (option: ManageOption) => (
     <ThemedView style={tw`flex-row items-center gap-4`}>
-      <Ionicons name={option.icon} size={22} />
+      <Ionicons name={option.icon} color={tw.color("on-surface")} size={22} />
       <ThemedText style={[{ fontFamily: typography.medium }]}>
         {option.label}
       </ThemedText>

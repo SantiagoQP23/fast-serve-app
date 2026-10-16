@@ -92,16 +92,16 @@ const paper: Palette = {
   onInverseSurface: "#FFFFFF",
 };
 
-/** True black canvas with near-black surfaces and a lighter accent. */
+/** True black canvas with near-black surfaces and a bright blue accent. */
 const black: Palette = {
-  primary: "#A2C9FE",
-  onPrimary: "#00315C",
-  primaryContainer: "#1C4975",
-  onPrimaryContainer: "#D2E4FF",
-  secondary: "#2A3441",
-  onSecondary: "#D7E3F8",
-  secondaryContainer: "#B8C8DC",
-  onSecondaryContainer: "#22303F",
+  primary: "#5C9DFF",
+  onPrimary: "#00214A",
+  primaryContainer: "#163C78",
+  onPrimaryContainer: "#D6E4FF",
+  secondary: "#1E3352",
+  onSecondary: "#D6E4FF",
+  secondaryContainer: "#B4C8E8",
+  onSecondaryContainer: "#1A2C45",
 
   background: "#000000",
   surface: "#121212",

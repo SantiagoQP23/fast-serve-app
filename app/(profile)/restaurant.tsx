@@ -193,7 +193,7 @@ export default function RestaurantOfflineDataScreen() {
           {/* Header */}
           <ThemedView style={tw`gap-2`}>
             <ThemedView style={tw`flex-row items-center gap-2 justify-center`}>
-              <Ionicons name="storefront-outline" size={20} />
+              <Ionicons name="storefront-outline" color={tw.color("on-surface")} size={20} />
               <ThemedText type="h2" style={tw``}>
                 {currentRestaurant?.name}
               </ThemedText>
@@ -203,7 +203,7 @@ export default function RestaurantOfflineDataScreen() {
           {/* Menu Section */}
           <ThemedView style={tw`gap-4`}>
             <ThemedView style={tw`flex-row items-center gap-2`}>
-              <Ionicons name="restaurant-outline" size={24} />
+              <Ionicons name="restaurant-outline" color={tw.color("on-surface")} size={24} />
               <ThemedText type="h2">{t("offlineData:menu.title")}</ThemedText>
             </ThemedView>
 
@@ -212,7 +212,7 @@ export default function RestaurantOfflineDataScreen() {
                 {/* Menu Info */}
                 <ThemedView style={tw`gap-2`}>
                   <ThemedView style={tw`flex-row items-center gap-2`}>
-                    <Ionicons name="time-outline" size={18} />
+                    <Ionicons name="time-outline" color={tw.color("on-surface")} size={18} />
                     <ThemedText type="body2" style={tw`text-gray-500`}>
                       {t("offlineData:lastUpdated")}:{" "}
                       {formatDate(menuLastUpdated)}
@@ -225,7 +225,7 @@ export default function RestaurantOfflineDataScreen() {
                   style={tw` rounded-lg p-4 gap-3 border border-border`}
                 >
                   <ThemedView style={tw`flex-row items-center gap-3`}>
-                    <Ionicons name="layers-outline" size={20} />
+                    <Ionicons name="layers-outline" color={tw.color("on-surface")} size={20} />
                     <ThemedView style={tw`flex-1`}>
                       <ThemedText type="body2" style={tw`text-gray-500`}>
                         {t("offlineData:menu.sections")}
@@ -235,7 +235,7 @@ export default function RestaurantOfflineDataScreen() {
                   </ThemedView>
 
                   <ThemedView style={tw`flex-row items-center gap-3`}>
-                    <Ionicons name="grid-outline" size={20} />
+                    <Ionicons name="grid-outline" color={tw.color("on-surface")} size={20} />
                     <ThemedView style={tw`flex-1`}>
                       <ThemedText type="body2" style={tw`text-gray-500`}>
                         {t("offlineData:menu.categories")}
@@ -245,7 +245,7 @@ export default function RestaurantOfflineDataScreen() {
                   </ThemedView>
 
                   <ThemedView style={tw`flex-row items-center gap-3`}>
-                    <Ionicons name="fast-food-outline" size={20} />
+                    <Ionicons name="fast-food-outline" color={tw.color("on-surface")} size={20} />
                     <ThemedView style={tw`flex-1`}>
                       <ThemedText type="body2" style={tw`text-gray-500`}>
                         {t("offlineData:menu.products")}
@@ -314,7 +314,7 @@ export default function RestaurantOfflineDataScreen() {
           {/* Tables Section */}
           <ThemedView style={tw`gap-4`}>
             <ThemedView style={tw`flex-row items-center gap-2`}>
-              <Ionicons name="grid-outline" size={24} />
+              <Ionicons name="grid-outline" color={tw.color("on-surface")} size={24} />
               <ThemedText type="h2">{t("offlineData:tables.title")}</ThemedText>
             </ThemedView>
 
@@ -323,7 +323,7 @@ export default function RestaurantOfflineDataScreen() {
                 {/* Tables Info */}
                 <ThemedView style={tw`gap-2`}>
                   <ThemedView style={tw`flex-row items-center gap-2`}>
-                    <Ionicons name="time-outline" size={18} />
+                    <Ionicons name="time-outline" color={tw.color("on-surface")} size={18} />
                     <ThemedText type="body2" style={tw`text-gray-500`}>
                       {t("offlineData:lastUpdated")}:{" "}
                       {formatDate(tablesLastUpdated)}
@@ -336,7 +336,7 @@ export default function RestaurantOfflineDataScreen() {
                   style={tw` rounded-lg p-4 gap-3 border border-border`}
                 >
                   <ThemedView style={tw`flex-row items-center gap-3`}>
-                    <Ionicons name="grid-outline" size={20} />
+                    <Ionicons name="grid-outline" color={tw.color("on-surface")} size={20} />
                     <ThemedView style={tw`flex-1`}>
                       <ThemedText type="body2" style={tw`text-gray-500`}>
                         {t("offlineData:tables.totalTables")}
@@ -405,7 +405,7 @@ export default function RestaurantOfflineDataScreen() {
           {/* Payment Methods Section */}
           <ThemedView style={tw`gap-4`}>
             <ThemedView style={tw`flex-row items-center gap-2`}>
-              <Ionicons name="card-outline" size={24} />
+              <Ionicons name="card-outline" color={tw.color("on-surface")} size={24} />
               <ThemedText type="h2">Payment Methods</ThemedText>
             </ThemedView>
 
@@ -413,7 +413,7 @@ export default function RestaurantOfflineDataScreen() {
               <ThemedView style={tw`gap-4`}>
                 {/* Payment Methods Info */}
                 <ThemedView style={tw`flex-row items-center gap-2`}>
-                  <Ionicons name="time-outline" size={18} />
+                  <Ionicons name="time-outline" color={tw.color("on-surface")} size={18} />
                   <ThemedText type="body2" style={tw`text-gray-500`}>
                     Last updated: {formatDate(paymentMethodsLastUpdated)}
                   </ThemedText>
@@ -424,7 +424,7 @@ export default function RestaurantOfflineDataScreen() {
                   style={tw`rounded-lg p-4 gap-3 border border-border`}
                 >
                   <ThemedView style={tw`flex-row items-center gap-3`}>
-                    <Ionicons name="card-outline" size={20} />
+                    <Ionicons name="card-outline" color={tw.color("on-surface")} size={20} />
                     <ThemedView style={tw`flex-1`}>
                       <ThemedText type="body2" style={tw`text-gray-500`}>
                         Total methods
@@ -434,7 +434,7 @@ export default function RestaurantOfflineDataScreen() {
                   </ThemedView>
 
                   <ThemedView style={tw`flex-row items-center gap-3`}>
-                    <Ionicons name="checkmark-circle-outline" size={20} />
+                    <Ionicons name="checkmark-circle-outline" color={tw.color("on-surface")} size={20} />
                     <ThemedView style={tw`flex-1`}>
                       <ThemedText type="body2" style={tw`text-gray-500`}>
                         Active
@@ -503,7 +503,7 @@ export default function RestaurantOfflineDataScreen() {
           {/* Production Areas Section */}
           <ThemedView style={tw`gap-4`}>
             <ThemedView style={tw`flex-row items-center gap-2`}>
-              <Ionicons name="construct-outline" size={24} />
+              <Ionicons name="construct-outline" color={tw.color("on-surface")} size={24} />
               <ThemedText type="h2">{t("offlineData:productionAreas.title")}</ThemedText>
             </ThemedView>
 
@@ -512,7 +512,7 @@ export default function RestaurantOfflineDataScreen() {
                 {/* Production Areas Info */}
                 <ThemedView style={tw`gap-2`}>
                   <ThemedView style={tw`flex-row items-center gap-2`}>
-                    <Ionicons name="time-outline" size={18} />
+                    <Ionicons name="time-outline" color={tw.color("on-surface")} size={18} />
                     <ThemedText type="body2" style={tw`text-gray-500`}>
                       {t("offlineData:lastUpdated")}:{" "}
                       {formatDate(productionAreasLastUpdated)}
@@ -525,7 +525,7 @@ export default function RestaurantOfflineDataScreen() {
                   style={tw` rounded-lg p-4 gap-3 border border-border`}
                 >
                   <ThemedView style={tw`flex-row items-center gap-3`}>
-                    <Ionicons name="construct-outline" size={20} />
+                    <Ionicons name="construct-outline" color={tw.color("on-surface")} size={20} />
                     <ThemedView style={tw`flex-1`}>
                       <ThemedText type="body2" style={tw`text-gray-500`}>
                         {t("offlineData:productionAreas.totalAreas")}

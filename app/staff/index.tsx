@@ -87,7 +87,7 @@ export default function StaffScreen() {
     <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
       <ThemedView style={tw`flex-row items-center gap-3 mb-4`}>
         <Pressable onPress={() => router.back()}>
-          <Ionicons name="arrow-back-outline" size={24} />
+          <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
         </Pressable>
         <ThemedText type="h2">{t("staff.title")}</ThemedText>
       </ThemedView>

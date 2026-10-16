@@ -42,7 +42,7 @@ export default function InventoryScreenHeader({
           }
           style={({ pressed }) => tw.style(pressed && "opacity-70")}
         >
-          <Ionicons name={backIcon} size={24} />
+          <Ionicons name={backIcon} color={tw.color("on-surface")} size={24} />
         </Pressable>
       )}
       <ThemedText

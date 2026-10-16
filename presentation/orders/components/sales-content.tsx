@@ -236,7 +236,7 @@ export default function SalesContent({
           <Ionicons
             name="filter"
             size={20}
-            color={hasActiveFilters ? tw.color("") : tw.color("gray-600")}
+            color={hasActiveFilters ? tw.color("on-surface") : tw.color("gray-600")}
           />
         </Pressable>
       </ThemedView>
