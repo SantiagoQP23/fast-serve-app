@@ -59,7 +59,7 @@ export default function PurchaseCartPanel({
 
   const handleAddProduct = () => {
     if (router.canGoBack()) router.back();
-    else router.push({ pathname: "/(profile)/menu-inventory-purchase-items" });
+    else router.push({ pathname: "/(profile)/inventory/purchases/items" });
   };
 
   const handleRegister = () => {
@@ -80,7 +80,7 @@ export default function PurchaseCartPanel({
           // picker is the current screen and replace alone does that.
           if (!embedded) router.dismiss();
           router.replace({
-            pathname: "/(profile)/menu-inventory-purchase-detail",
+            pathname: "/(profile)/inventory/purchases/detail",
             params: { purchaseId: purchase.id },
           });
         },

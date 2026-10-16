@@ -19,7 +19,7 @@ const SubscriptionPaywallBottomSheet = ({
 
   const goToPlans = () => {
     onDismiss();
-    router.push("/(profile)/subscription");
+    router.push("/(profile)/restaurant/subscription");
   };
 
   return (

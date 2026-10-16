@@ -116,7 +116,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
       return;
     }
     router.push({
-      pathname: "/(profile)/menu-inventory-item-detail",
+      pathname: "/(profile)/inventory/items/detail",
       params: { itemId: item.id },
     });
   };
@@ -166,7 +166,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   });
 
   const handleOpenSearch = () => {
-    router.push({ pathname: "/(profile)/menu-inventory-search" });
+    router.push({ pathname: "/(profile)/inventory/search" });
   };
 
   const handleOpenAddSelector = () => {
@@ -183,20 +183,20 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
 
   const handleCreateItem = () => {
     addSheetRef.current?.dismiss();
-    router.push({ pathname: "/(profile)/menu-inventory-item-form" });
+    router.push({ pathname: "/(profile)/inventory/items/form" });
   };
 
   const handleTrackMenuProduct = () => {
     addSheetRef.current?.dismiss();
     router.push({
-      pathname: "/(profile)/menu-inventory-item-new-product",
+      pathname: "/(profile)/inventory/items/new-product",
       params: { mode: "track" },
     });
   };
 
   const handleEditItem = (item: InventoryItem) => {
     router.push({
-      pathname: "/(profile)/menu-inventory-item-form",
+      pathname: "/(profile)/inventory/items/form",
       params: {
         itemId: item.id,
         name: item.name,
@@ -212,20 +212,20 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
 
   const handleNewCount = () => {
     addSheetRef.current?.dismiss();
-    router.push({ pathname: "/(profile)/menu-inventory-count-items" });
+    router.push({ pathname: "/(profile)/inventory/counts/items" });
   };
 
   const handleRegisterPurchase = () => {
     addSheetRef.current?.dismiss();
-    router.push({ pathname: "/(profile)/menu-inventory-purchase-items" });
+    router.push({ pathname: "/(profile)/inventory/purchases/items" });
   };
 
   const handleManageCategories = () => {
-    router.push({ pathname: "/(profile)/menu-inventory-categories" });
+    router.push({ pathname: "/(profile)/inventory/categories" });
   };
 
   const handleCreateCategory = () => {
-    router.push({ pathname: "/(profile)/menu-inventory-category-form" });
+    router.push({ pathname: "/(profile)/inventory/categories/form" });
   };
 
   const handleConfirmDelete = async () => {

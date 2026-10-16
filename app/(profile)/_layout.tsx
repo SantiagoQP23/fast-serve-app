@@ -41,7 +41,7 @@ export default function OrdersLayout() {
         }}
       >
         <Stack.Screen
-          name="restaurants/index"
+          name="restaurant/list/index"
           options={{
             headerShown: true,
             title: t("manage.myRestaurants"),
@@ -49,7 +49,7 @@ export default function OrdersLayout() {
           }}
         />
         <Stack.Screen
-          name="restaurant"
+          name="restaurant/index"
           options={{
             headerShown: true,
             title: "",
@@ -58,7 +58,7 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
-          name="subscription"
+          name="restaurant/subscription/index"
           options={{
             headerShown: true,
             title: t("manage.subscription.title"),
@@ -75,7 +75,7 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
-          name="printers"
+          name="production/printers/index"
           options={{
             headerShown: true,
             title: t("printers:title"),
@@ -84,14 +84,14 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
-          name="printer-form/index"
+          name="production/printers/form/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="production-areas"
+          name="production/areas/index"
           options={{
             headerShown: true,
             title: t("manage.productionAreas"),
@@ -100,7 +100,7 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
-          name="restaurant-settings"
+          name="restaurant/settings/index"
           options={{
             headerShown: true,
             title: t("manage.restaurantSettings"),
@@ -109,14 +109,14 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
-          name="production-area-form/index"
+          name="production/areas/form/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-overview/index"
+          name="menu/overview/index"
           options={{
             headerShown: true,
             title: t("menuManagement:overview.title"),
@@ -125,7 +125,7 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
-          name="menu-sections/index"
+          name="menu/sections/index"
           options={{
             headerShown: true,
             title: t("menuManagement:sections.title"),
@@ -134,21 +134,21 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
-          name="menu-section-form/index"
+          name="menu/sections/form/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-section-categories/index"
+          name="menu/sections/categories/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-categories/index"
+          name="menu/categories/index"
           options={{
             headerShown: true,
             title: t("menuManagement:categories.title"),
@@ -157,21 +157,21 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
-          name="menu-category-form/index"
+          name="menu/categories/form/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-category-products/index"
+          name="menu/categories/products/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-products/index"
+          name="menu/products/index"
           options={{
             headerShown: true,
             title: t("menuManagement:products.title"),
@@ -180,140 +180,140 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
-          name="menu-product-detail/index"
+          name="menu/products/detail/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-product-form/index"
+          name="menu/products/form/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-product-option-inventory/index"
+          name="menu/products/option-inventory/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-product-option-recipe/index"
+          name="menu/products/option-recipe/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-inventory-item-form/index"
+          name="inventory/items/form/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-inventory-item-new-product/index"
+          name="inventory/items/new-product/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-inventory-item-new-option/index"
+          name="inventory/items/new-option/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-inventory-item-new-quantity/index"
+          name="inventory/items/new-quantity/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-inventory-items/index"
+          name="inventory/items/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-inventory-categories/index"
+          name="inventory/categories/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-inventory-category-form/index"
+          name="inventory/categories/form/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-inventory-purchases/index"
+          name="inventory/purchases/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-inventory-purchase-items/index"
+          name="inventory/purchases/items/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-inventory-purchase-cart/index"
+          name="inventory/purchases/cart/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-inventory-purchase-detail/index"
+          name="inventory/purchases/detail/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-inventory-counts/index"
+          name="inventory/counts/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-inventory-count-items/index"
+          name="inventory/counts/items/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-inventory-count-run/index"
+          name="inventory/counts/run/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu-inventory-count-detail/index"
+          name="inventory/counts/detail/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="tables-settings/index"
+          name="tables/index"
           options={{
             headerShown: true,
             title: t("tables:settings.title"),
@@ -322,14 +322,14 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
-          name="table-settings-form/index"
+          name="tables/form/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="table-areas-settings/index"
+          name="tables/areas/index"
           options={{
             headerShown: true,
             title: t("tables:areas.title"),
@@ -338,21 +338,21 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
-          name="table-area-form/index"
+          name="tables/areas/form/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="tables-reorder/index"
+          name="tables/reorder/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="payment-methods-settings/index"
+          name="payment-methods/index"
           options={{
             headerShown: true,
             title: t("paymentMethods:title"),
@@ -361,21 +361,21 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
-          name="account-form/index"
+          name="payment-methods/account-form/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="payment-method-form/index"
+          name="payment-methods/form/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="settings"
+          name="account/settings/index"
           options={{
             headerShown: true,
             title: t("manage.settings"),
@@ -384,7 +384,7 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
-          name="edit-profile/index"
+          name="account/edit-profile/index"
           options={{
             headerShown: false,
           }}
@@ -400,21 +400,21 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
-          name="change-password/index"
+          name="account/change-password/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="set-credentials/index"
+          name="account/set-credentials/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="change-email/index"
+          name="account/change-email/index"
           options={{
             headerShown: false,
           }}

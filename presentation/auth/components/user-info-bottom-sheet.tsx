@@ -41,7 +41,7 @@ function UserInfoBottomSheet(
 
   const handleEditProfile = () => {
     bottomSheetModalRef.current?.dismiss();
-    router.push("/(profile)/edit-profile");
+    router.push("/(profile)/account/edit-profile");
   };
 
   return (

@@ -71,7 +71,7 @@ export default function InventoryItemDetailView({
     if (!item) return;
     optionsSheetRef.current?.dismiss();
     router.push({
-      pathname: "/(profile)/menu-inventory-item-form",
+      pathname: "/(profile)/inventory/items/form",
       params: {
         itemId: item.id,
         name: item.name,
@@ -89,7 +89,7 @@ export default function InventoryItemDetailView({
     if (!item) return;
     optionsSheetRef.current?.dismiss();
     router.push({
-      pathname: "/(profile)/menu-inventory-item-new-product",
+      pathname: "/(profile)/inventory/items/new-product",
       params: {
         inventoryItemId: item.id,
         itemName: item.name,

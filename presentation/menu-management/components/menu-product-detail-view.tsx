@@ -141,7 +141,7 @@ export default function MenuProductDetailView({
   const handleEditProduct = () => {
     if (!product) return;
     router.push({
-      pathname: "/(profile)/menu-product-form",
+      pathname: "/(profile)/menu/products/form",
       params: {
         productId: product.id,
         name: product.name,
@@ -177,7 +177,7 @@ export default function MenuProductDetailView({
           return;
         }
         router.replace({
-          pathname: "/(profile)/menu-product-detail",
+          pathname: "/(profile)/menu/products/detail",
           params: { productId: newProduct.id },
         });
       },
@@ -307,7 +307,7 @@ export default function MenuProductDetailView({
   const navigateToOptionInventory = (option: ProductOption) => {
     if (!product) return;
     router.push({
-      pathname: "/(profile)/menu-product-option-inventory",
+      pathname: "/(profile)/menu/products/option-inventory",
       params: {
         productOptionId: String(option.id),
         productOptionName: option.name,
@@ -334,7 +334,7 @@ export default function MenuProductDetailView({
       return;
     }
     router.push({
-      pathname: "/(profile)/menu-inventory-item-detail",
+      pathname: "/(profile)/inventory/items/detail",
       params: { itemId },
     });
   };
@@ -349,7 +349,7 @@ export default function MenuProductDetailView({
     }
     // The recipe opens with the current inventory item as its first ingredient.
     router.push({
-      pathname: "/(profile)/menu-product-option-recipe",
+      pathname: "/(profile)/menu/products/option-recipe",
       params: {
         productOptionId: String(selectedOption.id),
         productOptionName: selectedOption.name,

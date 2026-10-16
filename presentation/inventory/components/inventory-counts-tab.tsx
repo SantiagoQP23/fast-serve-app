@@ -53,7 +53,7 @@ export default function InventoryCountsTab({
     onOpenCount
       ? onOpenCount(count)
       : router.push({
-          pathname: "/(profile)/menu-inventory-count-detail",
+          pathname: "/(profile)/inventory/counts/detail",
           params: { countId: count.id },
         });
 

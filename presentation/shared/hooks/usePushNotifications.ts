@@ -239,7 +239,7 @@ export const usePushNotifications = () => {
     if (!pendingInventoryItemId) return;
 
     router.push({
-      pathname: "/(profile)/menu-inventory-item-detail",
+      pathname: "/(profile)/inventory/items/detail",
       params: { itemId: pendingInventoryItemId },
     });
     setPendingInventoryItemId(null);

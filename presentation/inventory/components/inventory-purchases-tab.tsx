@@ -42,7 +42,7 @@ export default function InventoryPurchasesTab({
     onOpenPurchase
       ? onOpenPurchase(purchase)
       : router.push({
-          pathname: "/(profile)/menu-inventory-purchase-detail",
+          pathname: "/(profile)/inventory/purchases/detail",
           params: { purchaseId: purchase.id },
         });
 

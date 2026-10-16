@@ -24,15 +24,15 @@ export default function AccountScreen() {
   const hasLocalPassword = user?.authProvider?.includes("local") ?? true;
 
   const handleChangeEmail = () => {
-    router.push("/(profile)/change-email");
+    router.push("/(profile)/account/change-email");
   };
 
   const handleChangePassword = () => {
-    router.push("/(profile)/change-password");
+    router.push("/(profile)/account/change-password");
   };
 
   const handleSetCredentials = () => {
-    router.push("/(profile)/set-credentials");
+    router.push("/(profile)/account/set-credentials");
   };
 
   const handleOpenDeleteAccount = () => {
