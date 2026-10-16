@@ -23,6 +23,9 @@
     "products": "Products",
     "orders": "Orders"
   },
+  "homeViews": {
+    "list": "List"
+  },
   "homeOptions": {
     "title": "Customize view",
     "ordersSection": "Orders"

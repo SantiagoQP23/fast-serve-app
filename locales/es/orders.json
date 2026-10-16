@@ -23,6 +23,9 @@
     "products": "Productos",
     "orders": "Pedidos"
   },
+  "homeViews": {
+    "list": "Lista"
+  },
   "homeOptions": {
     "title": "Personalizar vista",
     "ordersSection": "Pedidos"

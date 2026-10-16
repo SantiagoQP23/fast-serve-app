@@ -4,6 +4,7 @@ import {
   Alert,
   NativeSyntheticEvent,
   NativeScrollEvent,
+  View,
 } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -68,15 +69,20 @@ export default function MyOrdersScreen() {
   const [activeModule, setActiveModule] = useState<"orders" | "sales">(
     params.module === "sales" ? "sales" : "orders",
   );
-  const [activeView, setActiveView] = useState<"tables" | "take-away">(
-    "tables",
-  );
+  const [activeView, setActiveView] = useState<
+    "tables" | "take-away" | "list"
+  >("tables");
   const takeAwayOrders = orders.filter(
     (order) => order.type === OrderType.TAKE_AWAY,
   );
+  const listOrders = activeView === "take-away" ? takeAwayOrders : orders;
   const [selectedView, setSelectedView] = useState<
     "pending-products" | "order-lists"
   >("pending-products");
+  const viewPickerButtonRef = useRef<View>(null);
+  const [viewPickerVisible, setViewPickerVisible] = useState(false);
+  const [viewPickerAnchor, setViewPickerAnchor] =
+    useState<AnchorPosition | null>(null);
   const [popoverVisible, setPopoverVisible] = useState(false);
   const [popoverAnchor, setPopoverAnchor] = useState<AnchorPosition | null>(
     null,
@@ -185,13 +191,34 @@ export default function MyOrdersScreen() {
     },
   ];
 
+  const viewOptions = [
+    {
+      label: t("tables:list.title"),
+      value: "tables" as const,
+      icon: "grid-outline" as const,
+    },
+    {
+      label: t("orders:details.takeAway"),
+      value: "take-away" as const,
+      icon: "bag-handle-outline" as const,
+    },
+    {
+      label: t("orders:homeViews.list"),
+      value: "list" as const,
+      icon: "list-outline" as const,
+    },
+  ];
   const currentView =
-    activeView === "tables"
-      ? { label: t("tables:list.title"), icon: "grid-outline" as const }
-      : {
-          label: t("orders:details.takeAway"),
-          icon: "bag-handle-outline" as const,
-        };
+    viewOptions.find((option) => option.value === activeView) ?? viewOptions[0];
+
+  const handleViewPickerPress = () => {
+    viewPickerButtonRef.current?.measure(
+      (_x, _y, width, height, pageX, pageY) => {
+        setViewPickerAnchor({ x: pageX, y: pageY, width, height });
+        setViewPickerVisible(true);
+      },
+    );
+  };
 
   const listPane = (
     <ThemedView
@@ -215,17 +242,16 @@ export default function MyOrdersScreen() {
         </ThemedView>
         {activeModule === "orders" && (
           <ThemedView style={tw` flex-row items-center justify-end gap-2 `}>
-            <Button
-              variant="surface"
-              size="small"
-              label={currentView.label}
-              leftIcon={currentView.icon}
-              onPress={() =>
-                setActiveView((view) =>
-                  view === "tables" ? "take-away" : "tables",
-                )
-              }
-            />
+            <View ref={viewPickerButtonRef} collapsable={false}>
+              <Button
+                variant="surface"
+                size="small"
+                label={currentView.label}
+                leftIcon={currentView.icon}
+                rightIcon="chevron-down-outline"
+                onPress={handleViewPickerPress}
+              />
+            </View>
             <IconButton
               icon="options-outline"
               accessibilityLabel={t("orders:homeOptions.title")}
@@ -252,7 +278,7 @@ export default function MyOrdersScreen() {
       {activeModule === "orders" && (
         <>
           <ThemedView style={tw`flex-1`}>
-            {activeView === "take-away" && (
+            {activeView !== "tables" && (
               <ScrollView
                 contentContainerStyle={tw`pb-20 gap-4 pt-4`}
                 showsVerticalScrollIndicator={false}
@@ -273,7 +299,7 @@ export default function MyOrdersScreen() {
                     <OrderCardSkeleton />
                     <OrderCardSkeleton />
                   </ThemedView>
-                ) : takeAwayOrders.length === 0 ? (
+                ) : listOrders.length === 0 ? (
                   <ThemedView
                     style={tw` items-center justify-center flex-1 gap-4 mt-20`}
                   >
@@ -291,7 +317,11 @@ export default function MyOrdersScreen() {
                   </ThemedView>
                 ) : (
                   <ThemedView style={tw`gap-6`}>
-                    <OrderListByStatus orders={takeAwayOrders} showProducts />
+                    <OrderListByStatus
+                      key={activeView}
+                      orders={listOrders}
+                      showProducts
+                    />
                   </ThemedView>
                 )}
               </ScrollView>
@@ -315,6 +345,18 @@ export default function MyOrdersScreen() {
           >
             <HomeViewOptionsBottomSheet />
           </ThemedBottomSheetModal>
+          <Popover
+            visible={viewPickerVisible}
+            onClose={() => setViewPickerVisible(false)}
+            anchor={viewPickerAnchor}
+            selectedValue={activeView}
+            items={viewOptions.map((option) => ({
+              label: option.label,
+              value: option.value,
+              icon: option.icon,
+              onPress: () => setActiveView(option.value),
+            }))}
+          />
           <Popover
             visible={popoverVisible}
             onClose={() => setPopoverVisible(false)}

@@ -35,7 +35,7 @@ export default function TableCard({ table, onPress }: TableCardProps) {
           tw`p-2 `,
           hasOrders ? tw`border border-light-primary` : tw`bg-transparent`,
         ]}
-        variant={hasOrders ? "default" : "outline"}
+        variant={hasOrders ? "default" : "default"}
       >
         <ThemedView
           style={tw`flex-row items-center bg-transparent justify-center`}
