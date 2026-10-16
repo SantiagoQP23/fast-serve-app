@@ -182,7 +182,7 @@ export default function RestaurantMenuScreen() {
       <ThemedView
         style={tw`flex-1 px-4 pt-8 items-center justify-center gap-4`}
       >
-        <Ionicons name="restaurant-outline" size={64} color="#999" />
+        <Ionicons name="restaurant-outline" size={64} color={tw.color("gray-400")} />
         <ThemedView style={tw`gap-2 items-center`}>
           <ThemedText type="h2">{t("menu:noMenu.title")}</ThemedText>
           <ThemedText type="body2" style={tw`text-center text-gray-500 px-8`}>

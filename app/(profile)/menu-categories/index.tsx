@@ -119,7 +119,7 @@ export default function MenuCategoriesScreen() {
       >
         {isLoading && categories.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="pricetag-outline" size={48} color="#999" />
+            <Ionicons name="pricetag-outline" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`text-gray-500`}>
               {t("loading")}
             </ThemedText>
@@ -128,7 +128,7 @@ export default function MenuCategoriesScreen() {
 
         {isError && categories.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
+            <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
             <ThemedText type="body1" style={tw`text-red-500`}>
               {t("loadError")}
             </ThemedText>
@@ -142,7 +142,7 @@ export default function MenuCategoriesScreen() {
 
         {!isLoading && !isError && categories.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="pricetag-outline" size={48} color="#999" />
+            <Ionicons name="pricetag-outline" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`font-semibold`}>
               {t("categories.noCategories")}
             </ThemedText>

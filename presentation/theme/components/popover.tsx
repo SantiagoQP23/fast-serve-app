@@ -51,10 +51,7 @@ export default function Popover({
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
   const { width: screenWidth } = useWindowDimensions();
 
-  const dividerColor = useThemeColor(
-    { light: "#e5e7eb", dark: "#374151" },
-    "border" as any,
-  );
+  const dividerColor = tw.color("gray-200");
   const textColor = useThemeColor({}, "primary");
 
   useEffect(() => {

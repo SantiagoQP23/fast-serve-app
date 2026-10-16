@@ -2,7 +2,7 @@
 import { typography } from "@/constants/theme";
 import React from "react";
 import { Switch as RNSwitch } from "react-native";
-import tw from "twrnc";
+import tw from "../lib/tailwind";
 import { ThemedView } from "./themed-view";
 import { ThemedText } from "./themed-text";
 import { usePalette } from "@/presentation/theme/store/useThemeStore";
@@ -29,9 +29,9 @@ export default function Switch({
         </ThemedText>
       )}
       <RNSwitch
-        trackColor={{ false: "#d1d5db", true: palette.primary }} // gray-300 / blue-500
+        trackColor={{ false: tw.color("gray-300"), true: palette.primary }}
         thumbColor={value ? "#fff" : "#f4f3f4"}
-        ios_backgroundColor="#d1d5db"
+        ios_backgroundColor={tw.color("gray-300")}
         onValueChange={onValueChange}
         value={value}
         disabled={disabled}

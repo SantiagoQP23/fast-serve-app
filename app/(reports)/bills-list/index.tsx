@@ -303,7 +303,7 @@ export default function BillsListScreen() {
           </ThemedView>
         ) : bills.length > 0 ? (
           <ThemedView
-            style={tw`px-4 bg-white rounded-2xl mx-4 py-2 shadow-sm border border-gray-200`}
+            style={tw`px-4 bg-surface-bright rounded-2xl mx-4 py-2 shadow-sm border border-gray-200`}
           >
             {bills.map((bill, index) => (
               <DashboardBillCard

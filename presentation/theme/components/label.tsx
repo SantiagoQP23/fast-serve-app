@@ -88,7 +88,7 @@ export default function Label({
     info: "bg-blue-500",
     default: "bg-gray-500",
     outline: "bg-transparent",
-    primary: "bg-white",
+    primary: "bg-surface-bright",
   };
 
   const textColors = {

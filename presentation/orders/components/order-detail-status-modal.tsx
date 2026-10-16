@@ -76,7 +76,7 @@ const OrderDetailStatusModal = ({
         onPress={onClose}
       >
         <Pressable
-          style={tw`bg-white rounded-2xl w-4/5 max-w-md p-6 shadow-lg`}
+          style={tw`bg-surface-bright rounded-2xl w-4/5 max-w-md p-6 shadow-lg`}
           onPress={(e) => e.stopPropagation()}
         >
           <ThemedView

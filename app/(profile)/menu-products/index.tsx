@@ -90,7 +90,7 @@ export default function MenuProductsScreen() {
           trailingIcon={
             searchQuery.length > 0 ? (
               <Pressable onPress={() => setSearchQuery("")} hitSlop={8}>
-                <Ionicons name="close-circle" size={20} color="#9ca3af" />
+                <Ionicons name="close-circle" size={20} color={tw.color("gray-400")} />
               </Pressable>
             ) : null
           }
@@ -112,7 +112,7 @@ export default function MenuProductsScreen() {
       >
         {isLoading && products.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="fast-food-outline" size={48} color="#999" />
+            <Ionicons name="fast-food-outline" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`text-gray-500`}>
               {t("loading")}
             </ThemedText>
@@ -121,7 +121,7 @@ export default function MenuProductsScreen() {
 
         {isError && products.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
+            <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
             <ThemedText type="body1" style={tw`text-red-500`}>
               {t("loadError")}
             </ThemedText>
@@ -135,7 +135,7 @@ export default function MenuProductsScreen() {
 
         {!isLoading && !isError && products.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="fast-food-outline" size={48} color="#999" />
+            <Ionicons name="fast-food-outline" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`font-semibold`}>
               {t("products.noProducts")}
             </ThemedText>
@@ -150,7 +150,7 @@ export default function MenuProductsScreen() {
           products.length > 0 &&
           filteredProducts.length === 0 && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Ionicons name="search-outline" size={48} color="#999" />
+              <Ionicons name="search-outline" size={48} color={tw.color("gray-400")} />
               <ThemedText
                 type="body2"
                 style={tw`text-center text-gray-500 px-4`}

@@ -33,7 +33,7 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
       style={tw`rounded-2xl border border-gray-200 shadow-sm overflow-hidden`}
     >
       <Pressable onPress={toggleExpand}>
-        <ThemedView style={tw`p-4 bg-white`}>
+        <ThemedView style={tw`p-4 bg-surface-bright`}>
           {/* Header with icon and name */}
           <ThemedView
             style={tw`flex-row items-center justify-between mb-4 bg-transparent`}

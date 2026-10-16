@@ -12,6 +12,7 @@ export default function BillsLayout() {
       screenOptions={{
         headerShown: false,
         headerStyle: { backgroundColor: palette.background },
+        headerTintColor: palette.text,
         headerTitleStyle: { fontFamily: typography.medium },
       }}
     >

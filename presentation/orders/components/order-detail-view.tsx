@@ -734,7 +734,7 @@ export default function OrderDetailView({
         {/* Backdrop */}
         <View style={tw`flex-1 bg-black/50 items-center justify-center`}>
           {/* Modal card */}
-          <View style={tw`bg-white rounded-2xl w-4/5 max-w-md p-5 shadow-lg`}>
+          <View style={tw`bg-surface-bright rounded-2xl w-4/5 max-w-md p-5 shadow-lg`}>
             <ThemedText type="h4">{t("orders:dialogs.removeTitle")}</ThemedText>
             <ThemedText type="body1" style={tw`mt-2 mb-4`}>
               {t("orders:dialogs.removeMessage")}

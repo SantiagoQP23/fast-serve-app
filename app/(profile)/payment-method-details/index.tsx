@@ -169,7 +169,7 @@ export default function PaymentMethodDetailsScreen() {
           </Pressable>
         </ThemedView>
         <ThemedView style={tw`items-center py-8 gap-3`}>
-          <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
+          <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
           <ThemedText type="body1" style={tw`text-gray-500`}>
             {t("methods.notFound")}
           </ThemedText>

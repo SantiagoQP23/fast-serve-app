@@ -94,7 +94,7 @@ export default function TicketCard({
       disabled={!selectionMode && !onLongPress}
       onPress={() => selectionMode && onToggleSelect?.(ticket)}
       onLongPress={() => !selectionMode && onLongPress?.(ticket)}
-      style={tw.style("p-4 bg-white", selected && "border-2 border-blue-500")}
+      style={tw.style("p-4 bg-surface-bright", selected && "border-2 border-blue-500")}
     >
       {order && (
         <Pressable
@@ -168,7 +168,7 @@ export default function TicketCard({
         {areaGroups.map((group) => (
           <ThemedView
             key={group.areaName}
-            style={tw`gap-2 bg-white p-3 rounded-3xl`}
+            style={tw`gap-2 bg-surface-bright p-3 rounded-3xl`}
           >
             <ThemedText
               type="body2"

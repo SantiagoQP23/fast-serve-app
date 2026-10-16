@@ -63,6 +63,10 @@ export function ThemedText({
         type === "body2" ? styles.body2 : undefined,
         type === "small" ? styles.small : undefined,
         type === "caption" ? styles.caption : undefined,
+        // Muted color resolved per render so it follows the theme
+        type === "small" || type === "caption"
+          ? { color: tw.color("gray-500") }
+          : undefined,
         style,
       ]}
       {...rest}
@@ -106,12 +110,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16,
     fontFamily: typography.medium,
-    color: tw.color("gray-500"),
   },
   caption: {
     fontSize: 14,
     lineHeight: 16,
-    color: tw.color("gray-500"),
     textTransform: "uppercase",
     fontFamily: typography.medium,
     letterSpacing: 0.5,

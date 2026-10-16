@@ -459,7 +459,7 @@ export default function ViewOrderScreen() {
       </ThemedView>
 
       {/* Footer - Total */}
-      <ThemedView style={tw`px-4 py-4 border-t border-gray-200 bg-white`}>
+      <ThemedView style={tw`px-4 py-4 border-t border-gray-200 bg-surface-bright`}>
         <ThemedView style={tw`flex-row justify-between items-center`}>
           <ThemedText type="h4" style={tw`text-gray-600`}>
             {t("common:labels.total")}

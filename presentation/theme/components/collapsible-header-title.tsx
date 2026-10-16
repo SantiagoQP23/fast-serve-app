@@ -97,7 +97,10 @@ export function CollapsibleHeaderTitle({
         {title}
       </ThemedText>
       {subtitle && (
-        <ThemedText style={styles.subtitle} numberOfLines={1}>
+        <ThemedText
+          style={[styles.subtitle, { color: tw.color("gray-500") }]}
+          numberOfLines={1}
+        >
           {subtitle}
         </ThemedText>
       )}
@@ -115,6 +118,5 @@ const styles = StyleSheet.create({
     fontSize: 11,
     lineHeight: 13,
     fontFamily: typography.regular,
-    color: tw.color("gray-500"),
   },
 });

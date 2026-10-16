@@ -80,6 +80,7 @@ export default function NewOrderLayout() {
         screenOptions={{
           headerShown: false,
           headerStyle: { backgroundColor: palette.background },
+          headerTintColor: palette.text,
           headerTitleStyle: { fontFamily: typography.medium },
         }}
       >

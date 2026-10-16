@@ -132,7 +132,15 @@ A cool, restrained steel-blue palette on a near-white canvas — one accent colo
 ### Named Rules
 **The One Accent Rule.** Steel Harbor Blue is the only brand color in the system. Selection state is Pale Sky Blue, not a tint of the primary. Status is the semantic four, never the primary. If a screen needs a second "brand" color, that's a decision for `new-work`, not a local choice.
 
-**Dark mode is incomplete.** `Colors.dark` currently defines only `primary` / `secondary` / `tertiary` / `text` / `background` / `tint` / `icon` — none of the surface, container, or on-color roles the light palette has. Treat dark mode as a real gap to close deliberately, not a place to invent values ad hoc per screen.
+**Roles, not colors.** Every color comes from a role in `constants/theme.ts` (`Palette`), used as a prefix-free class (`bg-surface`, `text-on-surface-variant`, `bg-primary`, `text-on-primary`) or through `usePalette()` / `tw.color()` when a prop needs a raw value. Never hard-code a hex value or `white` for something that sits on a themed surface, and never compute a color in a module-level `StyleSheet.create`: it won't follow the theme.
+
+### Themes
+The user picks a theme per device in Settings → Appearance (`useThemeStore`). Values for every role live in `palettes`:
+- **Light** (default): the palette described above.
+- **Paper**: warm off-white canvas (`#F4EFE6`), sand surfaces (`#EAE4D8`), ink text (`#2A2722`), and a deeper steel blue accent (`#2F4A6B`). Tailwind's `gray` scale is swapped for the warm `stone` scale.
+- **Black**: true black canvas (`#000000`), near-black surfaces (`#121212` / `#1C1C1E`), light text (`#F2F2F2`), and a lightened steel blue accent (`#A2C9FE`, text on it `#00315C`). Tailwind scales are remapped (`colorScaleOverrides`): pale shades (50–300) become dark fills and dark text shades (700+) become light, so `bg-red-100 text-red-800` still reads as a soft label.
+
+The One Accent Rule holds in every theme. Printed receipts and QR codes stay black on white.
 
 ## Typography
 
@@ -251,4 +259,4 @@ A scrollable, haptic, iOS-style value picker (`WheelColumn` primitive) for fast,
 - **Don't** invent an intermediate shadow weight. A surface is resting (no shadow, or `shadow-xs` on a `GroupedList` row) or floating (`shadow-lg`/the tuned popover shadow) — nothing in between.
 - **Don't** default new body copy to regular weight; medium is the system default.
 - **Don't** reach for a full-screen `Modal` for anything beyond a short yes/no confirmation — that's what `DialogModal` is for; everything else (options, pickers) is a bottom sheet.
-- **Don't** invent dark-mode color values ad hoc per screen — the dark palette is a known, incomplete gap (see Colors), not a green light to freelance.
+- **Don't** hard-code colors (`#fff`, `"#999"`, `text-white` on a surface) — use a role so Paper and Black keep working (see Colors).

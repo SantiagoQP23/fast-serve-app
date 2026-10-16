@@ -45,12 +45,12 @@ export function SyncIndicator() {
   return (
     <View style={styles.container}>
       <View
-        style={tw`bg-gray-500 px-3 py-2 rounded-full flex-row items-center shadow-lg`}
+        style={tw`bg-inverse-surface px-3 py-2 rounded-full flex-row items-center shadow-lg`}
       >
         <Animated.View style={{ transform: [{ rotate }] }}>
           <Ionicons name="sync-outline" size={20} color="white" />
         </Animated.View>
-        <ThemedText type="small" style={tw`text-white ml-2`}>
+        <ThemedText type="small" style={tw`text-on-inverse-surface ml-2`}>
           {t("common:status.syncing")}
         </ThemedText>
       </View>
