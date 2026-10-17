@@ -40,6 +40,23 @@ export const useTablesManagement = () => {
     },
   });
 
+  const setTableAvailability = useMutation<
+    Table,
+    Error,
+    { id: string; isAvailable: boolean }
+  >({
+    mutationFn: ({ id, isAvailable }) =>
+      TablesService.setTableAvailability(id, isAvailable),
+    onSuccess: (table) => {
+      updateTableCache(table);
+    },
+    onError: (error) => {
+      toast.error(
+        getErrorMessage(error, { fallback: t("details.status.error") }),
+      );
+    },
+  });
+
   const deleteTable = useMutation<void, Error, string>({
     mutationFn: (id) => TablesService.deleteTable(id),
     onSuccess: (_, id) => {
@@ -56,6 +73,7 @@ export const useTablesManagement = () => {
   return {
     createTable,
     updateTable,
+    setTableAvailability,
     deleteTable,
   };
 };

@@ -197,6 +197,7 @@
     "TABLE_DUPLICATE_NAME": "Ya existe una mesa con ese nombre",
     "TABLE_NOT_FOUND": "No se encontró la mesa",
     "TABLE_INVALID_ORDER": "La lista de mesas cambió. Vuelve a abrir la pantalla e inténtalo de nuevo",
+    "TABLE_HAS_OPEN_ORDERS": "La mesa tiene pedidos abiertos. Ciérralos para poder ponerla disponible",
     "TABLE_AREA_DUPLICATE_NAME": "Ya existe una zona con ese nombre",
     "TABLE_AREA_NOT_FOUND": "No se encontró la zona",
     "TABLE_AREA_INVALID_ORDER": "La lista de zonas cambió. Vuelve a abrir la pantalla e inténtalo de nuevo",

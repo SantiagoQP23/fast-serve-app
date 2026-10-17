@@ -66,6 +66,7 @@ export default function Label({
   onPress,
   disabled = false,
   leftIcon: icon,
+  rightIcon,
   color = "default",
   variant = "soft",
   showDot: showDotProp = true,
@@ -149,6 +150,13 @@ export default function Label({
       >
         {text}
       </ThemedText>
+      {rightIcon && (
+        <Ionicons
+          name={rightIcon}
+          size={isSmall ? 12 : 14}
+          color={tw.color(iconColors[color])}
+        />
+      )}
     </Pressable>
   );
 }

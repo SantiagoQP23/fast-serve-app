@@ -6,6 +6,7 @@ import { Account } from "@/core/restaurant/models/account.model";
 import { PaymentMethod } from "@/core/restaurant/models/payment-method.model";
 import { Transaction } from "@/core/transactions/models/transaction.model";
 import { AsyncStorageAdapter } from "@/helpers/adapters/async-storage.adapter";
+import { useTablesStore } from "@/presentation/tables/hooks/useTablesStore";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
@@ -65,9 +66,20 @@ const initialState = {
   pendingProofImage: null,
 };
 
+// Igual que el servidor: cuando sale el último pedido abierto de una mesa, la
+// mesa queda disponible. Así se ve bien aunque el teléfono esté sin conexión.
+const freeTableIfEmpty = (tableId: string | undefined, orders: Order[]) => {
+  if (!tableId) return;
+  if (orders.some((o) => o.table?.id === tableId && !o.isClosed)) return;
+  const { tables, updateTable } = useTablesStore.getState();
+  const table = tables.find((t) => t.id === tableId);
+  if (table?.isAvailable === false)
+    updateTable({ ...table, isAvailable: true });
+};
+
 export const useOrdersStore = create<OrdersState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       ...initialState,
       setOrders: (orders: Order[]) => set({ orders }),
       addOrder: (order: Order) =>
@@ -76,10 +88,15 @@ export const useOrdersStore = create<OrdersState>()(
             ? [...state.orders]
             : [...state.orders, order],
         })),
-      updateOrder: (order: Order) =>
+      updateOrder: (order: Order) => {
+        const previous = get().orders.find((o) => o.id === order.id);
         set((state) => ({
           orders: state.orders.map((o) => (o.id === order.id ? order : o)),
-        })),
+        }));
+        if (order.isClosed || previous?.table?.id !== order.table?.id) {
+          freeTableIfEmpty(previous?.table?.id, get().orders);
+        }
+      },
       setActiveOrder: (order: Order | null) => set({ activeOrder: order }),
       setActiveBill: (bill: Bill | null) => set({ activeBill: bill }),
       setActiveOrderDetail: (detail: OrderDetail | null) =>
@@ -99,10 +116,13 @@ export const useOrdersStore = create<OrdersState>()(
         set({ activePendingTransaction: transaction }),
       setPendingProofImage: (image: PendingProofImage | null) =>
         set({ pendingProofImage: image }),
-      deleteOrder: (orderId: string) =>
+      deleteOrder: (orderId: string) => {
+        const removed = get().orders.find((o) => o.id === orderId);
         set((state) => ({
           orders: state.orders.filter((o) => o.id !== orderId),
-        })),
+        }));
+        freeTableIfEmpty(removed?.table?.id, get().orders);
+      },
       updateProductInOrders: (product: Product) =>
         set((state) => {
           const replaceInDetails = (details: OrderDetail[]) =>

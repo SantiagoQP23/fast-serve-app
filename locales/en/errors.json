@@ -197,6 +197,7 @@
     "TABLE_DUPLICATE_NAME": "A table with that name already exists",
     "TABLE_NOT_FOUND": "Table not found",
     "TABLE_INVALID_ORDER": "The list of tables changed. Reopen the screen and try again",
+    "TABLE_HAS_OPEN_ORDERS": "The table has open orders. Close them to make it available",
     "TABLE_AREA_DUPLICATE_NAME": "A zone with that name already exists",
     "TABLE_AREA_NOT_FOUND": "Zone not found",
     "TABLE_AREA_INVALID_ORDER": "The list of zones changed. Reopen the screen and try again",

@@ -6,6 +6,7 @@ import React from "react";
 import { View, PressableProps } from "react-native";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useTableOrders } from "@/presentation/orders/hooks/useTableOrders";
+import { useTableStatus } from "@/presentation/tables/hooks/useTableStatus";
 import { Table } from "@/core/tables/models/table.model";
 import { Order } from "@/core/orders/models/order.model";
 import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";
@@ -27,11 +28,12 @@ function OrderStatusDot({ order }: { order: Order }) {
 export default function TableCard({ table, onPress }: TableCardProps) {
   const { t } = useTranslation(["tables"]);
   const { hasOrders, tableOrders } = useTableOrders(table.id);
+  const { isOccupied } = useTableStatus(table.id);
   return (
     <ThemedView style={[tw`w-full`]}>
       <Card
         onPress={onPress}
-        style={[tw`p-2 rounded-lg `, hasOrders ? tw`` : tw`bg-transparent`]}
+        style={[tw`p-2 rounded-lg `, isOccupied ? tw`` : tw`bg-transparent`]}
         containerStyle={tw`rounded-lg`}
         variant={hasOrders ? "default" : "default"}
       >
