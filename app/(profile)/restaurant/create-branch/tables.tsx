@@ -1,4 +1,4 @@
-import { ScrollView } from "react-native";
+import { ScrollView, View } from "react-native";
 import { router } from "expo-router";
 
 import tw from "@/presentation/theme/lib/tailwind";
@@ -89,13 +89,17 @@ export default function CreateBranchTablesScreen() {
               >
                 {row.label}
               </ThemedText>
-              <Counter
-                value={tables[row.key] ?? 0}
-                onChangeValue={(value) => setQuantity(row.key, value)}
-                min={0}
-                max={BRANCH_MAX_TABLES}
-                size="small"
-              />
+              {/* Counter's value box is flex-1: without a fixed width here it
+                  takes the whole row and squeezes the area name to nothing. */}
+              <View style={tw`w-44`}>
+                <Counter
+                  value={tables[row.key] ?? 0}
+                  onChangeValue={(value) => setQuantity(row.key, value)}
+                  min={0}
+                  max={BRANCH_MAX_TABLES}
+                  size="small"
+                />
+              </View>
             </Card>
           ))}
         </ThemedView>

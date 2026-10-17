@@ -242,15 +242,6 @@ export default function ManageScreen() {
           style={tw`mt-4`}
           size="small"
         />
-        {isOwner && (
-          <Button
-            label={t("createBranch.button")}
-            onPress={() => router.push("/(profile)/restaurant/create-branch")}
-            variant="text"
-            leftIcon="git-branch-outline"
-            size="small"
-          />
-        )}
 
         <ThemedView style={tw`my-6 gap-6`}>
           {/* Menu */}
