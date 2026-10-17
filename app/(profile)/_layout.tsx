@@ -329,6 +329,33 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="create-branch/index"
+          options={{
+            headerShown: true,
+            title: t("auth:createBranch.details.title"),
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="create-branch/tables"
+          options={{
+            headerShown: true,
+            title: t("auth:createBranch.tables.title"),
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="create-branch/users"
+          options={{
+            headerShown: true,
+            title: t("auth:createBranch.users.title"),
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
           name="table-areas-settings/index"
           options={{
             headerShown: true,

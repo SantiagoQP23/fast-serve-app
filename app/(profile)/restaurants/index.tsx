@@ -14,6 +14,7 @@ import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import { GroupedList } from "@/presentation/theme/components/grouped-list";
 import { ROUTES } from "@/constants/routes";
+import { Roles } from "@/core/auth/models/user.model";
 
 export default function RestaurantsScreen() {
   const { t } = useTranslation("auth");
@@ -30,6 +31,14 @@ export default function RestaurantsScreen() {
       },
     });
   };
+
+  const isOwner = user?.role?.name === Roles.OWNER;
+  const restaurantNames = new Map(
+    (user?.restaurantRoles ?? []).map((rr) => [
+      rr.restaurant.id,
+      rr.restaurant.name,
+    ]),
+  );
 
   const sortedRestaurantRoles = [...(user?.restaurantRoles ?? [])].sort(
     (a, b) => {
@@ -62,6 +71,18 @@ export default function RestaurantsScreen() {
                     <ThemedText type={isSelected ? "h4" : "body1"}>
                       {restaurantRole.restaurant.name}
                     </ThemedText>
+                    {(() => {
+                      const parentId =
+                        restaurantRole.restaurant.parentRestaurantId;
+                      const parentName = parentId
+                        ? restaurantNames.get(parentId)
+                        : undefined;
+                      return parentName ? (
+                        <ThemedText type="small" style={tw`text-gray-500`}>
+                          {t("createBranch.branchOf", { name: parentName })}
+                        </ThemedText>
+                      ) : null;
+                    })()}
                     <ThemedView style={tw`flex-row items-center gap-1`}>
                       <ThemedText type={isSelected ? "body1" : "body2"}>
                         {translateRole(restaurantRole.role.name)}
@@ -90,6 +111,15 @@ export default function RestaurantsScreen() {
             }}
           />
         </ThemedView>
+
+        {isOwner && (
+          <Button
+            label={t("createBranch.button")}
+            onPress={() => router.push("/(profile)/create-branch")}
+            variant="secondary"
+            leftIcon="git-branch-outline"
+          />
+        )}
 
         <Card variant="outline" style={tw`gap-3`}>
           <ThemedView style={tw`flex-row items-center gap-3`}>

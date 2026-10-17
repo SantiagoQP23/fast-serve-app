@@ -51,6 +51,11 @@ export interface Restaurant {
   phone: string;
   email: string;
   subscription?: Subscription;
+  /** Restaurante principal, solo en sucursales. */
+  parentRestaurantId?: string | null;
+  parentRestaurant?: Pick<Restaurant, "id" | "name"> | null;
+  /** Número de la sucursal (la primera es 2). */
+  branchNumber?: number | null;
 }
 
 const INACTIVE_SUBSCRIPTION_STATUSES: Subscription["status"][] = [

@@ -2,6 +2,10 @@ import { restaurantApi } from "@/core/api/restaurantApi";
 import { LoginResponseDto } from "@/core/auth/dto/login.response.dto";
 import { CreateRestaurantDto } from "@/core/restaurant/dto/create-restaurant.dto";
 import {
+  CreateBranchDto,
+  NextBranchNameDto,
+} from "@/core/restaurant/dto/create-branch.dto";
+import {
   QrTokenResponseDto,
   ValidateQrTokenResponseDto,
   AcceptQrInviteDto,
@@ -10,6 +14,21 @@ import {
 export class RestaurantService {
   static async create(data: CreateRestaurantDto) {
     const resp = await restaurantApi.post<LoginResponseDto>("restaurant", data);
+    return resp.data;
+  }
+
+  static async getNextBranchName(restaurantId: string) {
+    const resp = await restaurantApi.get<NextBranchNameDto>(
+      `restaurant/${restaurantId}/branches/next-name`,
+    );
+    return resp.data;
+  }
+
+  static async createBranch(restaurantId: string, data: CreateBranchDto) {
+    const resp = await restaurantApi.post<LoginResponseDto>(
+      `restaurant/${restaurantId}/branches`,
+      data,
+    );
     return resp.data;
   }
 
