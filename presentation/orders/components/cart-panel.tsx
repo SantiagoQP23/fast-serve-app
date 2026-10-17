@@ -231,15 +231,21 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
           if (!resp.data) return;
           setActiveOrder(resp.data);
 
-          if (print && resp.data.tickets) {
-            for (const ticket of resp.data.tickets) {
-              await printComanda(resp.data, ticket);
-            }
-          }
-
           router.replace("/(new-order)/order-confirmation", {
             withAnchor: true,
           });
+
+          // Print after showing the confirmation, so the waiter doesn't wait
+          // on the printer. It has its own toast, and a comanda that fails
+          // stays in "Tickets por imprimir".
+          if (print && resp.data.tickets) {
+            const order = resp.data;
+            void (async () => {
+              for (const ticket of order.tickets ?? []) {
+                await printComanda(order, ticket);
+              }
+            })();
+          }
         },
       });
     }

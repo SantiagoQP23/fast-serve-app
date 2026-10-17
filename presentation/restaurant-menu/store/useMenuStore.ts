@@ -29,6 +29,7 @@ interface MenuActions {
   upsertCategory: (category: Category) => void;
   removeCategory: (id: string) => void;
   upsertProduct: (product: Product) => void;
+  upsertProducts: (products: Product[]) => void;
   removeProduct: (id: string) => void;
   setProductDefaultOption: (productId: string, variantId: number) => void;
   addProductOption: (productId: string, option: ProductOption) => void;
@@ -47,7 +48,7 @@ const initialState: MenuState = {
 
 export const useMenuStore = create<MenuState & MenuActions>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       ...initialState,
       
       setActiveProduct: (product: Product | null) =>
@@ -105,17 +106,24 @@ export const useMenuStore = create<MenuState & MenuActions>()(
           categories: state.categories.filter((c) => c.id !== id),
         })),
 
-      upsertProduct: (product: Product) =>
+      upsertProduct: (product: Product) => get().upsertProducts([product]),
+
+      // One store update (and one save to storage) for many products, e.g.
+      // the stock updates a single sale sends for every product it touched.
+      upsertProducts: (products: Product[]) =>
         set((state) => {
-          const exists = state.products.some((p) => p.id === product.id);
+          if (!products.length) return state;
+          const byId = new Map(products.map((p) => [p.id, p]));
+          const existing = new Set(state.products.map((p) => p.id));
+          const activeProduct = state.activeProduct
+            ? (byId.get(state.activeProduct.id) ?? state.activeProduct)
+            : state.activeProduct;
           return {
-            products: exists
-              ? state.products.map((p) => (p.id === product.id ? product : p))
-              : [...state.products, product],
-            activeProduct:
-              state.activeProduct?.id === product.id
-                ? product
-                : state.activeProduct,
+            products: [
+              ...state.products.map((p) => byId.get(p.id) ?? p),
+              ...[...byId.values()].filter((p) => !existing.has(p.id)),
+            ],
+            activeProduct,
           };
         }),
 

@@ -16,7 +16,7 @@ import { Section } from "@/core/menu/models/section.model";
 import { useSyncStore } from "../store/useSyncStore";
 import { shouldSkipOrderSyncEvent } from "@/presentation/offline/pending-orders";
 import { applyTicketEvent } from "../apply-ticket-event";
-import { applyProductEvent } from "../apply-product-event";
+import { applyProductEvents } from "../apply-product-event";
 import { applyTableAreaEvent } from "../apply-table-area-event";
 
 function applyOrderEvent(event: SyncEventDto) {
@@ -111,6 +111,38 @@ async function refetchProductionAreas(restaurantId: string) {
   }
 }
 
+// A sale sends one PRODUCT event per product whose stock changed, often
+// dozens in a burst. They're held for a moment and applied together, so the
+// menu and orders update (and save) once instead of once per event.
+const PRODUCT_BATCH_MS = 100;
+let pendingProductEvents: SyncEventDto[] = [];
+let productBatchTimer: ReturnType<typeof setTimeout> | null = null;
+
+function markSynced(sequence: number) {
+  const syncState = useSyncStore.getState();
+  if (sequence > syncState.lastSequence) {
+    syncState.setSynced(sequence);
+  }
+}
+
+function flushProductEvents() {
+  if (productBatchTimer) clearTimeout(productBatchTimer);
+  productBatchTimer = null;
+  if (!pendingProductEvents.length) return;
+
+  const events = pendingProductEvents;
+  pendingProductEvents = [];
+  applyProductEvents(events);
+  markSynced(Math.max(...events.map((e) => e.sequence)));
+}
+
+function queueProductEvent(event: SyncEventDto) {
+  pendingProductEvents.push(event);
+  if (!productBatchTimer) {
+    productBatchTimer = setTimeout(flushProductEvents, PRODUCT_BATCH_MS);
+  }
+}
+
 export const useSyncEventListener = () => {
   const { currentRestaurant } = useAuthStore();
 
@@ -127,6 +159,17 @@ export const useSyncEventListener = () => {
       const restaurantId = currentRestaurant?.id;
       if (!restaurantId) return;
 
+      if (
+        event.resourceType === SyncResourceType.PRODUCT &&
+        event.operation !== SyncOperation.DELETED
+      ) {
+        queueProductEvent(event);
+        return;
+      }
+
+      // Keep the order events arrive in: earlier product updates first.
+      flushProductEvents();
+
       switch (event.resourceType) {
         case SyncResourceType.ORDER:
           applyOrderEvent(event);
@@ -138,7 +181,7 @@ export const useSyncEventListener = () => {
           applyTableAreaEvent(event);
           break;
         case SyncResourceType.PRODUCT:
-          applyProductEvent(event);
+          applyProductEvents([event]);
           break;
         case SyncResourceType.CATEGORY:
           applyCategoryEvent(event);
@@ -164,10 +207,7 @@ export const useSyncEventListener = () => {
           );
       }
 
-      const syncState = useSyncStore.getState();
-      if (event.sequence > syncState.lastSequence) {
-        syncState.setSynced(event.sequence);
-      }
+      markSynced(event.sequence);
     },
   );
 };
