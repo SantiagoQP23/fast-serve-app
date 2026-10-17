@@ -1,6 +1,6 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ScrollView } from "react-native";
-import { router } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -22,6 +22,7 @@ import { useTableAreasManagement } from "@/presentation/tables/hooks/useTableAre
 
 export default function TableAreasSettingsScreen() {
   const { t } = useTranslation("tables");
+  const navigation = useNavigation();
   const areas = useTablesStore((state) => state.areas);
   const tables = useTablesStore((state) => state.tables);
   const { updateArea, deleteArea } = useTableAreasManagement();
@@ -30,6 +31,29 @@ export default function TableAreasSettingsScreen() {
   const [selectedArea, setSelectedArea] = useState<TableArea | null>(null);
   const [areaToDelete, setAreaToDelete] = useState<TableArea | null>(null);
   const actionsSheetRef = useRef<BottomSheetMethods>(null);
+
+  const canReorder = sortedAreas.length > 1;
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: canReorder
+        ? () => (
+            <Button
+              label={t("areas.reorder")}
+              leftIcon="swap-vertical-outline"
+              variant="surface"
+              size="extra-small"
+              onPress={() =>
+                router.push({
+                  pathname: "/(profile)/tables/reorder",
+                  params: { mode: "areas" },
+                })
+              }
+            />
+          )
+        : undefined,
+    });
+  }, [navigation, canReorder, t]);
 
   const tableCount = (areaId: string) =>
     tables.filter((table) => table.areaId === areaId).length;
@@ -75,47 +99,31 @@ export default function TableAreasSettingsScreen() {
             </ThemedText>
           </ThemedView>
         ) : (
-          <>
-            {sortedAreas.length > 1 && (
-              <Button
-                label={t("areas.reorder")}
-                leftIcon="swap-vertical-outline"
-                variant="secondary"
-                size="small"
-                onPress={() =>
-                  router.push({
-                    pathname: "/(profile)/tables/reorder",
-                    params: { mode: "areas" },
-                  })
-                }
-              />
-            )}
-            {sortedAreas.map((area) => (
-              <Card
-                key={area.id}
-                onPress={() => {
-                  setSelectedArea(area);
-                  actionsSheetRef.current?.present();
-                }}
-                style={!area.isActive && tw`opacity-50`}
-              >
-                <ThemedView style={tw`flex-row items-center gap-4`}>
-                  <Ionicons
-                    name="albums-outline"
-                    size={28}
-                    color={tw.color("text-on-surface-variant")}
-                  />
-                  <ThemedView style={tw`flex-1 gap-1`}>
-                    <ThemedText type="h4">{area.name}</ThemedText>
-                    <ThemedText type="small" style={tw`text-gray-500`}>
-                      {t("areas.tablesCount", { count: tableCount(area.id) })}
-                      {!area.isActive ? ` · ${t("areas.hidden")}` : ""}
-                    </ThemedText>
-                  </ThemedView>
+          sortedAreas.map((area) => (
+            <Card
+              key={area.id}
+              onPress={() => {
+                setSelectedArea(area);
+                actionsSheetRef.current?.present();
+              }}
+              style={!area.isActive && tw`opacity-50`}
+            >
+              <ThemedView style={tw`flex-row items-center gap-4`}>
+                <Ionicons
+                  name="albums-outline"
+                  size={28}
+                  color={tw.color("text-on-surface-variant")}
+                />
+                <ThemedView style={tw`flex-1 gap-1`}>
+                  <ThemedText type="h4">{area.name}</ThemedText>
+                  <ThemedText type="small" style={tw`text-gray-500`}>
+                    {t("areas.tablesCount", { count: tableCount(area.id) })}
+                    {!area.isActive ? ` · ${t("areas.hidden")}` : ""}
+                  </ThemedText>
                 </ThemedView>
-              </Card>
-            ))}
-          </>
+              </ThemedView>
+            </Card>
+          ))
         )}
       </ScrollView>
 

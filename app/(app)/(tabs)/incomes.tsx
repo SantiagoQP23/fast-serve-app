@@ -532,6 +532,31 @@ export default function IncomesScreen() {
             </ThemedView>
           </ThemedView>
         )}
+
+        {/* Empty state: no incomes for the selected date / filters */}
+        {!transactionsLoading && count === 0 && (
+          <ThemedView style={tw`py-20 items-center px-4`}>
+            <Ionicons
+              name="receipt-outline"
+              size={64}
+              color={tw.color("gray-300")}
+            />
+            <ThemedText
+              type="h4"
+              style={tw`text-gray-500 mt-4 text-center`}
+            >
+              {t("common:empty.noIncomes")}
+            </ThemedText>
+            <ThemedText
+              type="body2"
+              style={tw`text-gray-400 mt-2 text-center max-w-xs`}
+            >
+              {thereAreFiltersApplied
+                ? t("common:empty.noIncomesFiltered")
+                : t("common:empty.noIncomesDescription")}
+            </ThemedText>
+          </ThemedView>
+        )}
       </ScrollView>
 
       {/* Filter Bottom Sheet */}

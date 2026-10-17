@@ -94,7 +94,10 @@
   },
   "empty": {
     "noData": "No hay datos disponibles",
-    "noResults": "No se encontraron resultados"
+    "noResults": "No se encontraron resultados",
+    "noIncomes": "Sin ingresos",
+    "noIncomesDescription": "No hay ingresos registrados para esta fecha.",
+    "noIncomesFiltered": "No hay ingresos que coincidan con los filtros aplicados."
   },
   "currency": {
     "symbol": "$"
