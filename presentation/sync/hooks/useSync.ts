@@ -26,6 +26,8 @@ import { PaymentMethod } from "@/core/restaurant/models/payment-method.model";
 import { Account } from "@/core/restaurant/models/account.model";
 import { Printer } from "@/core/common/models/printer.model";
 import { useSyncStore } from "../store/useSyncStore";
+import { queryClient } from "@/app/_layout";
+import { RESTAURANT_SETTINGS_QUERY_KEY } from "@/presentation/restaurant/hooks/useRestaurantSettings";
 import {
   keepLocalPendingOrders,
   shouldSkipOrderSyncEvent,
@@ -144,8 +146,13 @@ function applyEvent(event: SyncEventDto) {
     case SyncResourceType.TICKET:
       applyTicketEvent(event);
       break;
-    case SyncResourceType.RESTAURANT:
     case SyncResourceType.SETTINGS:
+      // Another phone changed a setting (e.g. products without stock).
+      queryClient.invalidateQueries({
+        queryKey: [RESTAURANT_SETTINGS_QUERY_KEY],
+      });
+      break;
+    case SyncResourceType.RESTAURANT:
       // Intentionally ignored for now.
       break;
     default:

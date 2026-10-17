@@ -72,6 +72,15 @@ export const isQueueableOrderUpdate = (dto: UpdateOrderDto) =>
  * to be sent): applied to the local order right away, comanda printed from
  * the phone, and queued in the outbox so useOutboxRunner sends them in order.
  */
+/** Actions that can take stock, and so accept `queuedOffline`. */
+const STOCK_CHECKED_EVENTS: OutboxEvent[] = [
+  OrderSocketEvent.createOrder,
+  OrderSocketEvent.addOrderDetail,
+  OrderSocketEvent.addOrderDetails,
+  OrderSocketEvent.updateOrderDetail,
+  OrderSocketEvent.updateOrderDetails,
+];
+
 export const useOrderOutbox = () => {
   const { socket } = useContext(SocketContext);
   const { t } = useTranslation(["orders"]);
@@ -136,7 +145,16 @@ export const useOrderOutbox = () => {
       id: input.id,
       restaurantId,
       event: input.event,
-      payload: input.payload as Record<string, unknown>,
+      // Taken without a connection: the server accepts it even when the
+      // restaurant blocks products without stock, since the waiter already
+      // took it (and the comanda may be printed).
+      payload: {
+        ...input.payload,
+        ...(!socket?.connected &&
+          STOCK_CHECKED_EVENTS.includes(input.event) && {
+            queuedOffline: true,
+          }),
+      } as Record<string, unknown>,
       orderId: input.order.id,
       orderLabel: orderLabel(input.order),
       summary: input.summary,
