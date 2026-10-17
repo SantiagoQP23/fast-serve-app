@@ -5,7 +5,7 @@ import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { router } from "expo-router";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -22,7 +22,7 @@ import UserInfoBottomSheet from "@/presentation/auth/components/user-info-bottom
 
 interface ManageOption {
   key: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: IconName;
   label: string;
   onPress: () => void;
 }
@@ -59,13 +59,13 @@ export default function ManageScreen() {
   const menuOptions: ManageOption[] = [
     {
       key: "overview",
-      icon: "restaurant-outline",
+      icon: "utensils",
       label: t("manage.menu.overview"),
       onPress: () => router.push("/(profile)/menu/overview"),
     },
     {
       key: "productionAreas",
-      icon: "cube-outline",
+      icon: "package",
       label: t("manage.productionAreas"),
       onPress: () => router.push("/(profile)/production/areas"),
     },
@@ -73,19 +73,19 @@ export default function ManageScreen() {
     // still registered and reachable, just not linked from here.
     // {
     //   key: "sections",
-    //   icon: "list-outline",
+    //   icon: "list",
     //   label: t("manage.menu.sections"),
     //   onPress: () => router.push("/(profile)/menu/sections"),
     // },
     // {
     //   key: "categories",
-    //   icon: "pricetag-outline",
+    //   icon: "tag",
     //   label: t("manage.menu.categories"),
     //   onPress: () => router.push("/(profile)/menu/categories"),
     // },
     // {
     //   key: "products",
-    //   icon: "fast-food-outline",
+    //   icon: "hamburger",
     //   label: t("manage.menu.products"),
     //   onPress: () => router.push("/(profile)/menu/products"),
     // },
@@ -93,7 +93,7 @@ export default function ManageScreen() {
     // linked from here.
     // {
     //   key: "inventory",
-    //   icon: "cube-outline",
+    //   icon: "package",
     //   label: t("manage.menu.inventory"),
     //   onPress: () => router.push("/(profile)/inventory/items"),
     // },
@@ -102,7 +102,7 @@ export default function ManageScreen() {
   const subscriptionOptions: ManageOption[] = [
     {
       key: "subscription",
-      icon: "ribbon-outline",
+      icon: "ribbon",
       label: t("manage.subscription.menuItem"),
       onPress: () => router.push("/(profile)/restaurant/subscription"),
     },
@@ -111,25 +111,25 @@ export default function ManageScreen() {
   const restaurantOptions: ManageOption[] = [
     {
       key: "tables",
-      icon: "grid-outline",
+      icon: "layout-grid",
       label: t("manage.tables"),
       onPress: () => router.push("/(profile)/tables"),
     },
     {
       key: "paymentMethods",
-      icon: "card-outline",
+      icon: "credit-card",
       label: t("manage.paymentMethods"),
       onPress: () => router.push("/(profile)/payment-methods"),
     },
     {
       key: "printers",
-      icon: "print-outline",
+      icon: "printer",
       label: t("manage.printers"),
       onPress: () => router.push("/(profile)/production/printers"),
     },
     {
       key: "restaurantSettings",
-      icon: "options-outline",
+      icon: "sliders-horizontal",
       label: t("manage.restaurantSettings"),
       onPress: () => router.push("/(profile)/restaurant/settings"),
     },
@@ -137,7 +137,7 @@ export default function ManageScreen() {
       ? [
           {
             key: "staff",
-            icon: "people-outline" as const,
+            icon: "users" as const,
             label: t("manage.staff"),
             onPress: () => router.push("/staff"),
           },
@@ -147,7 +147,7 @@ export default function ManageScreen() {
 
   const renderManageOption = (option: ManageOption) => (
     <ThemedView style={tw`flex-row items-center gap-4`}>
-      <Ionicons name={option.icon} color={tw.color("on-surface")} size={22} />
+      <Icon name={option.icon} color={tw.color("on-surface")} size={22} />
       <ThemedText style={[{ fontFamily: typography.medium }]}>
         {option.label}
       </ThemedText>
@@ -166,7 +166,7 @@ export default function ManageScreen() {
           />
           <IconButton
             onPress={() => router.push("/(profile)/account/settings")}
-            icon="settings-outline"
+            icon="settings"
             variant="secondary"
           ></IconButton>
         </ThemedView>
@@ -179,7 +179,7 @@ export default function ManageScreen() {
         {subscription && (
           <ThemedView>
             <ThemedView style={tw`flex  items-center gap-2`}>
-              {/* <Ionicons */}
+              {/* <Icon */}
               {/*   name={ */}
               {/*     subscription.status === "ACTIVE" */}
               {/*       ? "shield-checkmark-outline" */}

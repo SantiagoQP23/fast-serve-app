@@ -7,7 +7,7 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
@@ -16,7 +16,7 @@ import { typography } from "@/constants/theme";
 export interface PopoverItem {
   label: string;
   value?: any;
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: IconName;
   onPress: () => void;
 }
 
@@ -144,7 +144,7 @@ export default function Popover({
               ]}
             >
               {item.icon && (
-                <Ionicons
+                <Icon
                   name={item.icon}
                   size={18}
                   color={tw.color("text-on-surface-variant")}
@@ -161,8 +161,8 @@ export default function Popover({
                 {item.label}
               </ThemedText>
               {isSelected && (
-                <Ionicons
-                  name="checkmark"
+                <Icon
+                  name="check"
                   size={16}
                   color={textColor}
                   style={tw`ml-2`}

@@ -1,4 +1,4 @@
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import React from "react";
 import { Pressable, View } from "react-native";
 import tw from "../lib/tailwind";
@@ -58,7 +58,7 @@ export default function Checkbox({
       ]}
     >
       {value && (
-        <Ionicons name="checkmark" size={checkboxSize.icon} color={tw.color("on-primary")} />
+        <Icon name="check" size={checkboxSize.icon} color={tw.color("on-primary")} />
       )}
     </Pressable>
   );

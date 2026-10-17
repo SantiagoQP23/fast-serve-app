@@ -1,12 +1,12 @@
 import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
 import { Pressable } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 
 export interface ActionsBottomSheetItem {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: IconName;
   label: string;
   color?: string;
   onPress: () => void;
@@ -77,7 +77,7 @@ export default function ActionsBottomSheet({
                   )
                 }
               >
-                <Ionicons
+                <Icon
                   name={item.icon}
                   size={22}
                   color={

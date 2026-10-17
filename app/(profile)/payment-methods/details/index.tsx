@@ -1,7 +1,9 @@
 import { useRef, useState } from "react";
 import { ScrollView, Pressable, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Ionicons, {
+  type IoniconsIconName,
+} from "@react-native-vector-icons/ionicons/static";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -29,7 +31,7 @@ import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.m
 
 const categoryIcons: Record<
   PaymentMethodCategory,
-  keyof typeof Ionicons.glyphMap
+  IoniconsIconName
 > = {
   [PaymentMethodCategory.CASH]: "cash-outline",
   [PaymentMethodCategory.CARD]: "card-outline",

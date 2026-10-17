@@ -1,5 +1,5 @@
 import { Redirect, Tabs, useNavigation, useRouter } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
@@ -205,9 +205,9 @@ export default function TabLayout() {
               <ThemedView
                 style={tw`items-center justify-center ${focused ? "bg-secondary" : ""} w-15 h-8 rounded-full`}
               >
-                <Ionicons
+                <Icon
                   color={color}
-                  name={focused ? "home" : "home-outline"}
+                  name="house"
                   size={24}
                 />
               </ThemedView>
@@ -230,9 +230,9 @@ export default function TabLayout() {
               <ThemedView
                 style={tw`items-center justify-center ${focused ? "bg-secondary" : ""} w-15 h-8 rounded-full`}
               >
-                <Ionicons
+                <Icon
                   color={color}
-                  name={focused ? "cube" : "cube-outline"}
+                  name="package"
                   size={24}
                 />
               </ThemedView>
@@ -251,9 +251,9 @@ export default function TabLayout() {
               <ThemedView
                 style={tw`items-center justify-center ${focused ? "bg-secondary" : ""} w-15 h-8 rounded-full`}
               >
-                <Ionicons
+                <Icon
                   color={color}
-                  name={focused ? "trending-up" : "trending-up-outline"}
+                  name="trending-up"
                   size={24}
                 />
               </ThemedView>
@@ -272,9 +272,9 @@ export default function TabLayout() {
               <ThemedView
                 style={tw`items-center justify-center ${focused ? "bg-secondary" : ""} w-15 h-8 rounded-full`}
               >
-                <Ionicons
+                <Icon
                   color={color}
-                  name={focused ? "stats-chart" : "stats-chart-outline"}
+                  name="chart-column"
                   size={24}
                 />
               </ThemedView>
@@ -294,9 +294,9 @@ export default function TabLayout() {
               <ThemedView
                 style={tw`items-center justify-center ${focused ? "bg-secondary" : ""} w-15 h-8 rounded-full`}
               >
-                <Ionicons
+                <Icon
                   color={color}
-                  name={focused ? "apps" : "apps-outline"}
+                  name="grip"
                   size={24}
                 />
               </ThemedView>

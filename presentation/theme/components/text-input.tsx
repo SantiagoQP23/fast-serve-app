@@ -1,4 +1,4 @@
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import {
   View,
   TextInput as RNTextInput,
@@ -33,7 +33,7 @@ const ERROR_ICON_SIZE = 22;
 interface Props extends TextInputProps {
   label?: string;
   error?: string;
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: IconName;
   bottomSheet?: boolean;
   trailingIcon?: React.ReactNode;
   containerStyle?: StyleProp<ViewStyle>;
@@ -139,7 +139,7 @@ function TextInput(
         ]}
       >
         {icon && (
-          <Ionicons
+          <Icon
             name={icon}
             size={18}
             style={[
@@ -194,8 +194,8 @@ function TextInput(
           <View style={{ marginLeft: 8, alignSelf: "center" }}>{leftIcon}</View>
         )}
         {!!error && (
-          <Ionicons
-            name="alert-circle-outline"
+          <Icon
+            name="circle-alert"
             size={ERROR_ICON_SIZE}
             color={tw.color("red-500")}
             style={{ marginLeft: 8, marginRight: 4, alignSelf: "center" }}

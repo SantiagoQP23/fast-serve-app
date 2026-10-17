@@ -6,7 +6,7 @@ import {
   PressableProps,
 } from "react-native";
 import tw from "../lib/tailwind";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import { ThemedView } from "./themed-view";
 import { ThemedText } from "./themed-text";
 import { usePalette } from "@/presentation/theme/store/useThemeStore";
@@ -23,10 +23,10 @@ export interface ButtonProps extends PressableProps {
   size?: "extra-small" | "small" | "medium" | "large" | "extra-large";
   loading?: boolean;
   disabled?: boolean;
-  leftIcon?: keyof typeof Ionicons.glyphMap;
-  rightIcon?: keyof typeof Ionicons.glyphMap;
+  leftIcon?: IconName;
+  rightIcon?: IconName;
   layout?: "horizontal" | "vertical";
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: IconName;
 }
 
 export default function Button({
@@ -139,7 +139,7 @@ export default function Button({
             <ActivityIndicator color={iconColors[variant]} />
           ) : (
             verticalIcon && (
-              <Ionicons
+              <Icon
                 name={verticalIcon}
                 size={currentIconSize}
                 color={iconColors[variant]}
@@ -176,7 +176,7 @@ export default function Button({
       ) : (
         <ThemedView style={tw`bg-transparent flex-row items-center gap-3`}>
           {icon && (
-            <Ionicons
+            <Icon
               name={icon}
               size={currentIconSize}
               color={iconColors[variant]}
@@ -190,7 +190,7 @@ export default function Button({
           )}
 
           {rightIcon && (
-            <Ionicons
+            <Icon
               name={rightIcon}
               size={currentIconSize}
               color={iconColors[variant]}

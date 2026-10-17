@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Pressable } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import tw from "../lib/tailwind";
 import { ThemedText } from "./themed-text";
 import { typography } from "@/constants/theme";
@@ -9,7 +9,7 @@ import { usePalette } from "@/presentation/theme/store/useThemeStore";
 export interface ButtonGroupOption {
   label: string;
   value: any;
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: IconName;
 }
 
 type ButtonGroupProps = {
@@ -62,7 +62,7 @@ export default function ButtonGroup({
             }
           >
             {showIcon && (
-              <Ionicons
+              <Icon
                 name={option.icon!}
                 size={isSmall ? 15 : 20}
                 color={

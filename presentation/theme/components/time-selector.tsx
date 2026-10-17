@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { View } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import { type IconName } from "@/presentation/theme/components/icon";
 import {
   BottomSheetView,
   type BottomSheetMethods,
@@ -33,7 +33,7 @@ export type TimeSelectorProps = {
   onDone?: (minutes: number) => void | Promise<void>;
   minMinutes?: number;
   maxMinutes: number;
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: IconName;
   editable?: boolean;
   hoursUnit?: string;
   minutesUnit?: string;
@@ -50,7 +50,7 @@ export default function TimeSelector({
   onDone,
   minMinutes = 1,
   maxMinutes,
-  icon = "time-outline",
+  icon = "clock",
   editable = true,
   hoursUnit = "h",
   minutesUnit = "min",

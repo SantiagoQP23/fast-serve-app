@@ -1,5 +1,7 @@
 import { Pressable } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Ionicons, {
+  type IoniconsIconName,
+} from "@react-native-vector-icons/ionicons/static";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Label, { LabelProps } from "@/presentation/theme/components/label";
@@ -33,7 +35,7 @@ interface InventoryItemCardProps {
 export const INVENTORY_STATUS_STYLES: Record<
   InventoryStockStatus,
   {
-    icon: keyof typeof Ionicons.glyphMap;
+    icon: IoniconsIconName;
     color: string;
     badgeBg: string;
     badgeText: string;

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Pressable, View, Platform } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ThemedView } from "./themed-view";
 import { ThemedText } from "./themed-text";
 import tw from "../lib/tailwind";
@@ -77,8 +77,8 @@ export default function DatePicker({
             </ThemedText>
           )}
         </View>
-        <Ionicons
-          name="calendar-outline"
+        <Icon
+          name="calendar"
           size={20}
           color={tw.color("on-surface-variant")}
         />

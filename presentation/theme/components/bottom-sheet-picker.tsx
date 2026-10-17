@@ -11,7 +11,7 @@ import {
   BottomSheetFlatList,
   type BottomSheetMethods,
 } from "@expo/ui/community/bottom-sheet";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "../lib/tailwind";
 import TextInput from "./text-input";
 import Button from "./button";
@@ -145,8 +145,8 @@ const BottomSheetPicker = forwardRef<
                 trailingIcon={
                   searchQuery.length > 0 ? (
                     <Pressable onPress={() => setSearchQuery("")} hitSlop={8}>
-                      <Ionicons
-                        name="close-circle"
+                      <Icon
+                        name="circle-x"
                         size={20}
                         color={tw.color("gray-400")}
                       />
@@ -160,7 +160,7 @@ const BottomSheetPicker = forwardRef<
           {headerAction && (
             <ThemedView style={tw`flex-row mb-2`}>
               <Button
-                leftIcon="add"
+                leftIcon="plus"
                 label={headerAction.label}
                 variant={
                   value !== undefined && value !== "" ? "outline" : "secondary"
@@ -226,8 +226,8 @@ const BottomSheetPicker = forwardRef<
                         {item.label}
                       </ThemedText>
                       {value === item.value && (
-                        <Ionicons
-                          name="checkmark"
+                        <Icon
+                          name="check"
                           size={22}
                           color={tw.color("on-secondary")}
                         />
@@ -239,8 +239,8 @@ const BottomSheetPicker = forwardRef<
             </BottomSheetView>
           ) : (
             <View style={tw`py-12 items-center`}>
-              <Ionicons
-                name="search-outline"
+              <Icon
+                name="search"
                 size={48}
                 color={tw.color("gray-300")}
               />

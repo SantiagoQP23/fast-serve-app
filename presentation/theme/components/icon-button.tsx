@@ -1,12 +1,12 @@
 import React from "react";
 import { Pressable, ViewStyle } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 
 interface IconButtonProps {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: IconName;
   size?: number;
   color?:
     | "primary"
@@ -69,7 +69,7 @@ export default function IconButton({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
     >
-      <Ionicons name={icon} size={size} color={variantStyles[variant]} />
+      <Icon name={icon} size={size} color={variantStyles[variant]} />
     </Pressable>
   );
 }
