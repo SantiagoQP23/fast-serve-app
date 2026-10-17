@@ -63,6 +63,12 @@ export default function ManageScreen() {
       label: t("manage.menu.overview"),
       onPress: () => router.push("/(profile)/menu/overview"),
     },
+    {
+      key: "productionAreas",
+      icon: "cube-outline",
+      label: t("manage.productionAreas"),
+      onPress: () => router.push("/(profile)/production/areas"),
+    },
     // Hidden in favor of the consolidated menu-overview screen — routes are
     // still registered and reachable, just not linked from here.
     // {
@@ -120,12 +126,6 @@ export default function ManageScreen() {
       icon: "print-outline",
       label: t("manage.printers"),
       onPress: () => router.push("/(profile)/production/printers"),
-    },
-    {
-      key: "productionAreas",
-      icon: "cube-outline",
-      label: t("manage.productionAreas"),
-      onPress: () => router.push("/(profile)/production/areas"),
     },
     {
       key: "restaurantSettings",
@@ -297,17 +297,14 @@ export default function ManageScreen() {
 
         {/* Web management button (admin only) */}
         {isAdmin && (
-          <ThemedView style={tw`mb-8 gap-2`}>
-            <Button
-              label={t("manage.userInfo.manageOnWeb")}
-              onPress={handleOpenWeb}
-              variant="secondary"
-              leftIcon="globe-outline"
-            />
-            <ThemedText type="small" style={tw`text-center text-gray-500`}>
-              {t("manage.userInfo.webHint")}
-            </ThemedText>
-          </ThemedView>
+          <Button
+            label={t("manage.userInfo.openWebVersion")}
+            onPress={handleOpenWeb}
+            variant="text"
+            leftIcon="globe-outline"
+            size="small"
+            style={tw`mb-8`}
+          />
         )}
       </ScrollView>
 

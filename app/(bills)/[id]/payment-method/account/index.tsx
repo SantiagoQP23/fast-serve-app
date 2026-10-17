@@ -301,17 +301,6 @@ export default function AccountScreen() {
                       </ThemedText>
                     ) : null}
                   </ThemedView>
-                  <Label
-                    text={
-                      account.type === AccountType.BANK
-                        ? t("bills:account.accountTypeBank")
-                        : t("bills:account.accountTypeCash")
-                    }
-                    color={
-                      account.type === AccountType.BANK ? "info" : "default"
-                    }
-                    size="small"
-                  />
                   {isSelected && (
                     <Ionicons
                       name="checkmark-circle"
@@ -328,7 +317,7 @@ export default function AccountScreen() {
       </ScrollView>
 
       {/* Pay button */}
-      <ThemedView style={tw`px-4 pb-6 pt-4 border-t border-gray-200`}>
+      <ThemedView style={tw`px-4 pb-6 pt-4 `}>
         <Button
           label={
             isTransfer
@@ -353,7 +342,9 @@ export default function AccountScreen() {
         <ThemedView
           style={tw`absolute inset-0 bg-black/50 justify-center items-center z-50`}
         >
-          <ThemedView style={tw`bg-surface-bright rounded-2xl p-6 items-center gap-3`}>
+          <ThemedView
+            style={tw`bg-surface-bright rounded-2xl p-6 items-center gap-3`}
+          >
             <ActivityIndicator size="large" color={tw.color("primary")} />
             <ThemedText type="body1" style={tw`font-semibold`}>
               {t("bills:proofUpload.uploading")}

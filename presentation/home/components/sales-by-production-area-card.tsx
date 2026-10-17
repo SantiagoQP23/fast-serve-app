@@ -11,29 +11,20 @@ import { formatCurrency } from "@/core/i18n/utils";
 import { useSalesByProductionArea } from "@/presentation/orders/hooks/useSalesByProductionArea";
 import { DateRange } from "@/core/orders/enums/date-range-filter.enum";
 
-// Categorical slots in fixed order (blue, orange, aqua, yellow, magenta,
-// green, violet, red); the dark set is the same hues stepped for dark surfaces.
-const SLICE_COLORS_LIGHT = [
-  "#2a78d6",
-  "#eb6834",
-  "#1baf7a",
-  "#eda100",
-  "#e87ba4",
-  "#008300",
-  "#4a3aa7",
-  "#e34948",
-];
-const SLICE_COLORS_DARK = [
-  "#3987e5",
-  "#d95926",
-  "#199e70",
-  "#c98500",
-  "#d55181",
-  "#008300",
-  "#9085e9",
-  "#e66767",
-];
-const OTHER_COLOR = "#9ca3af";
+// Gray ramp from the biggest slice to the smallest, spread evenly over the
+// slices that exist so few slices still get strong contrast. Light themes go
+// dark -> light, the dark theme goes light -> dark.
+const GRAY_RAMP_LIGHT = { from: 38, to: 212 };
+const GRAY_RAMP_DARK = { from: 242, to: 82 };
+
+const grayShade = (index: number, count: number, dark: boolean) => {
+  const { from, to } = dark ? GRAY_RAMP_DARK : GRAY_RAMP_LIGHT;
+  const t = count > 1 ? index / (count - 1) : 0;
+  const channel = Math.round(from + (to - from) * t)
+    .toString(16)
+    .padStart(2, "0");
+  return `#${channel}${channel}${channel}`;
+};
 
 // With 9+ areas, the smallest ones fold into a single "Other" slice.
 const MAX_SLICES = 8;
@@ -62,30 +53,35 @@ export default function SalesByProductionAreaCard({
   );
 
   const slices = useMemo<Slice[]>(() => {
-    const colors = isDarkTheme(theme) ? SLICE_COLORS_DARK : SLICE_COLORS_LIGHT;
-    const toSlice = (area: (typeof areas)[number], index: number): Slice => ({
+    const toSlice = (area: (typeof areas)[number]): Omit<Slice, "color"> => ({
       key: String(area.productionAreaId ?? "none"),
       name:
         area.productionAreaName ?? t("reports:salesByProductionArea.noArea"),
       amount: Number(area.totalAmountSold),
       units: Number(area.totalSold),
-      color: colors[index],
     });
 
-    if (areas.length <= MAX_SLICES) return areas.map(toSlice);
+    let base: Omit<Slice, "color">[];
+    if (areas.length <= MAX_SLICES) {
+      base = areas.map(toSlice);
+    } else {
+      const rest = areas.slice(MAX_SLICES - 1);
+      base = [
+        ...areas.slice(0, MAX_SLICES - 1).map(toSlice),
+        {
+          key: "other",
+          name: t("reports:salesByProductionArea.other"),
+          amount: rest.reduce((sum, a) => sum + Number(a.totalAmountSold), 0),
+          units: rest.reduce((sum, a) => sum + Number(a.totalSold), 0),
+        },
+      ];
+    }
 
-    const named = areas.slice(0, MAX_SLICES - 1).map(toSlice);
-    const rest = areas.slice(MAX_SLICES - 1);
-    return [
-      ...named,
-      {
-        key: "other",
-        name: t("reports:salesByProductionArea.other"),
-        amount: rest.reduce((sum, a) => sum + Number(a.totalAmountSold), 0),
-        units: rest.reduce((sum, a) => sum + Number(a.totalSold), 0),
-        color: OTHER_COLOR,
-      },
-    ];
+    const dark = isDarkTheme(theme);
+    return base.map((slice, index) => ({
+      ...slice,
+      color: grayShade(index, base.length, dark),
+    }));
   }, [areas, theme, t]);
 
   const pieData = useMemo(
@@ -124,7 +120,8 @@ export default function SalesByProductionAreaCard({
                 paddingLeft={String(CHART_SIZE / 4)}
                 backgroundColor="transparent"
                 hasLegend={false}
-                chartConfig={{ color: () => OTHER_COLOR }}
+                // Required by chart-kit even though slices bring their own color.
+                chartConfig={{ color: () => "#000" }}
               />
             </ThemedView>
           )}

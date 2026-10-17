@@ -535,9 +535,7 @@ export default function PaymentMethodScreen() {
           />
 
           {+receivedAmount > +payAmount && (
-            <ThemedView
-              style={tw`mt-2 p-4 rounded-xl border border-border items-center`}
-            >
+            <ThemedView style={tw`mt-2 p-4  items-center`}>
               <ThemedText type="caption" style={tw`mb-1`}>
                 {t("bills:details.change")}
               </ThemedText>
