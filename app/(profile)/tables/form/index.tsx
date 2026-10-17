@@ -90,7 +90,6 @@ export default function TableSettingsFormScreen() {
         name: data.name.trim(),
         description: data.description?.trim() || "",
         chairs: Number(data.chairs),
-        isAvailable: data.isAvailable,
         areaId: data.areaId || null,
       });
     } else {

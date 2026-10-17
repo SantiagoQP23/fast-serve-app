@@ -20,6 +20,18 @@ export class TablesService {
     return resp.data;
   }
 
+  /** Cambia solo el estado Disponible / Ocupada de la mesa. */
+  static async setTableAvailability(
+    id: string,
+    isAvailable: boolean,
+  ): Promise<Table> {
+    const resp = await restaurantApi.patch<Table>(
+      `/tables/${id}/availability`,
+      { isAvailable },
+    );
+    return resp.data;
+  }
+
   static async deleteTable(id: string): Promise<void> {
     await restaurantApi.delete(`/tables/${id}`);
   }
