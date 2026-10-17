@@ -108,6 +108,7 @@ export const usePushNotifications = () => {
   const [pendingInventoryItemId, setPendingInventoryItemId] = useState<
     string | null
   >("");
+  const [pendingRestaurantsOpen, setPendingRestaurantsOpen] = useState(false);
   const rootNavigationState = useRootNavigationState();
 
   const authStatus = useAuthStore((state) => state.status);
@@ -153,6 +154,13 @@ export const usePushNotifications = () => {
           notification,
           ...prevNotifications,
         ]);
+
+        // Acceso a una sucursal nueva: refresca los restaurantes del usuario.
+        const data = notification.request.content
+          .data as any as PushNotification;
+        if (data?.type === PushNotificationType.RESTAURANT_ACCESS_GRANTED) {
+          useAuthStore.getState().revalidateSession();
+        }
       },
     );
 
@@ -176,6 +184,9 @@ export const usePushNotifications = () => {
               setPendingInventoryItemId(
                 notification.payload.inventoryItemId as string,
               );
+              break;
+            case PushNotificationType.RESTAURANT_ACCESS_GRANTED:
+              setPendingRestaurantsOpen(true);
               break;
           }
         }
@@ -201,6 +212,9 @@ export const usePushNotifications = () => {
             setPendingInventoryItemId(
               notification.payload.inventoryItemId as string,
             );
+            break;
+          case PushNotificationType.RESTAURANT_ACCESS_GRANTED:
+            setPendingRestaurantsOpen(true);
             break;
 
           // case PushNotificationType.NEW_ORDER:
@@ -244,6 +258,20 @@ export const usePushNotifications = () => {
     });
     setPendingInventoryItemId(null);
   }, [pendingInventoryItemId, rootNavigationState?.key]);
+
+  useEffect(() => {
+    if (!rootNavigationState.key) return;
+    if (!pendingRestaurantsOpen) return;
+
+    // La lista muestra la sucursal nueva después de refrescar la sesión.
+    useAuthStore
+      .getState()
+      .revalidateSession()
+      .finally(() => {
+        setPendingRestaurantsOpen(false);
+        router.push("/(profile)/restaurant/list");
+      });
+  }, [pendingRestaurantsOpen, rootNavigationState?.key]);
 
   return {
     // Props

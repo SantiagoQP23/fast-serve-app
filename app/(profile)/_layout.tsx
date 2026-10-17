@@ -329,6 +329,33 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="restaurant/create-branch/index"
+          options={{
+            headerShown: true,
+            title: t("auth:createBranch.details.title"),
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="restaurant/create-branch/tables"
+          options={{
+            headerShown: true,
+            title: t("auth:createBranch.tables.title"),
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
+          name="restaurant/create-branch/users"
+          options={{
+            headerShown: true,
+            title: t("auth:createBranch.users.title"),
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
           name="tables/areas/index"
           options={{
             headerShown: true,

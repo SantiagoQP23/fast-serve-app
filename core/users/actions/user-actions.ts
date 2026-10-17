@@ -3,9 +3,12 @@ import { User } from "@/core/auth/models/user.model";
 import { InviteUserDto } from "@/core/users/dto/invite-user.dto";
 import { UpdateUserRoleDto } from "@/core/users/dto/update-user-role.dto";
 
-export const getUsers = async (): Promise<User[]> => {
+export const getUsers = async (params?: {
+  limit?: number;
+}): Promise<User[]> => {
   const { data } = await restaurantApi.get<{ users: User[]; count: number }>(
     "/users",
+    { params },
   );
   return data.users;
 };
