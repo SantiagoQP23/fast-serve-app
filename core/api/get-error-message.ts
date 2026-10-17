@@ -1,5 +1,6 @@
 import i18n from "@/core/i18n/i18n.config";
 import { AppApiError, GenericErrorCodes, getApiError } from "./api-response";
+import type { SocketResponse } from "@/core/common/dto/socket.dto";
 
 const STATUS_CODES: Record<number, string> = {
   400: "BAD_REQUEST",
@@ -73,3 +74,15 @@ export const translateErrorCode = (
   code: string | undefined,
   fallback: string,
 ): string => translateCode(code) ?? fallback;
+
+/**
+ * Replaces a socket error's `msg` with the translation of its `code`, filled
+ * with its `details` (e.g. "Only 2 left of Burger"). Responses without a
+ * translated code keep the server's message.
+ */
+export const translateSocketResponse = <T extends SocketResponse>(
+  resp: T,
+): T =>
+  resp.code && i18n.exists(`errors:codes.${resp.code}`)
+    ? { ...resp, msg: i18n.t(`errors:codes.${resp.code}`, resp.details ?? {}) }
+    : resp;

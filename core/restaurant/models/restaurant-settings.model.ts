@@ -9,6 +9,7 @@ export interface RestaurantSettings {
   SOUND_ENABLED?: boolean;
   DEFAULT_PRINTER?: string;
   LOW_STOCK_EMAIL_HOUR?: number;
+  ALLOW_ORDERS_WITHOUT_STOCK?: boolean;
   [key: string]: RestaurantSettingValue | undefined;
 }
 
@@ -16,3 +17,9 @@ export const DEFAULT_ORDER_PREP_TIME = 15;
 
 /** Hour of the day (0-23, Ecuador time) of the daily low-stock email. */
 export const DEFAULT_LOW_STOCK_EMAIL_HOUR = 22;
+
+/**
+ * Whether orders and sales may take more units than the ingredients cover.
+ * Also what the app assumes while settings haven't loaded (e.g. offline).
+ */
+export const DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK = true;

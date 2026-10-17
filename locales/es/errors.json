@@ -157,6 +157,7 @@
     "ORDER_BILL_TRANSFER_PENDING": "Hay una transferencia pendiente de aprobación",
     "ORDER_BILL_INVALID_DETAILS": "Los productos de la venta no son válidos",
     "ORDER_BILL_TOTAL_BELOW_PAID": "El total no puede ser menor a lo que ya se pagó",
+    "ORDER_INSUFFICIENT_STOCK": "No hay stock suficiente de {{productName}} (quedan {{available}})",
     "ORDER_BILL_DISCOUNT_EXCEEDS_SUBTOTAL": "El descuento es mayor que el subtotal",
     "PERSON_INVALID_CEDULA": "El número de cédula no puede tener más de 10 dígitos",
     "PERSON_INVALID_RUC": "El número de RUC debe tener al menos 13 dígitos",
