@@ -4,6 +4,7 @@ import { Socket } from "socket.io-client";
 import { SocketContext } from "@/presentation/shared/context/SocketContext";
 import { useAppForeground } from "@/presentation/shared/hooks/useAppForeground";
 import { SocketResponseData } from "@/core/common/dto/socket.dto";
+import { translateSocketResponse } from "@/core/api/get-error-message";
 import { Order } from "@/core/orders/models/order.model";
 import { Ticket } from "@/core/tickets/models/ticket.model";
 import { OrderSocketEvent } from "@/core/orders/enums/socket-events.enum";
@@ -129,7 +130,7 @@ export const useOutboxRunner = () => {
 
       outbox.setStatus(op.id, "failed", {
         code: resp?.code,
-        msg: resp?.msg ?? "",
+        msg: resp ? translateSocketResponse(resp).msg : "",
       });
       return "failed";
     },

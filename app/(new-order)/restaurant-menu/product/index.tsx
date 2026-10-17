@@ -15,6 +15,8 @@ import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCart
 import { useReplaceOrderDetailStore } from "@/presentation/orders/store/replaceOrderDetailStore";
 import { useEditSaleStore } from "@/presentation/orders/store/editSaleStore";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
+import { useRestaurantSettings } from "@/presentation/restaurant/hooks/useRestaurantSettings";
+import { DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK } from "@/core/restaurant/models/restaurant-settings.model";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -171,11 +173,19 @@ export default function ProductScreen() {
     activeOrderDetail,
   ]);
 
+  // Replacing a line gives its units back before taking the new ones.
+  const quantityReturnedByOption = (option: ProductOption) =>
+    isReplaceMode && replacingDetail?.productOption?.id === option.id
+      ? replacingDetail.quantity
+      : 0;
+
   const getOptionStock = (option: ProductOption) => {
     const available = getProductOptionAvailableQuantity(option);
     if (available === null) return null;
     const remaining = Math.max(
-      available - (quantityInCartByOption.get(option.id) ?? 0),
+      available -
+        (quantityInCartByOption.get(option.id) ?? 0) +
+        quantityReturnedByOption(option),
       0,
     );
     return {
@@ -183,6 +193,13 @@ export default function ProductScreen() {
       level: getProductOptionStockLevel(option, remaining)!,
     };
   };
+  const { settings } = useRestaurantSettings();
+  // With the setting off, the server rejects anything beyond the stock left,
+  // so don't let the waiter ask for it.
+  const blocksWithoutStock =
+    (settings?.ALLOW_ORDERS_WITHOUT_STOCK ??
+      DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK) === false;
+
   const {
     isLoading,
     isOnline,
@@ -237,6 +254,9 @@ export default function ProductScreen() {
 
   const selectedStock = selectedOption ? getOptionStock(selectedOption) : null;
   const exceedsStock = !!selectedStock && counter > selectedStock.remaining;
+  const blockedByStock = blocksWithoutStock && exceedsStock;
+  const atStockLimit =
+    blocksWithoutStock && !!selectedStock && counter >= selectedStock.remaining;
 
   const parsedCustomPrice = parseFloat(price);
   const effectivePrice = Number.isFinite(parsedCustomPrice)
@@ -518,6 +538,7 @@ export default function ProductScreen() {
                   onPress={increment}
                   variant="secondary"
                   size={40}
+                  disabled={atStockLimit}
                 />
               </ThemedView>
               {exceedsStock && (
@@ -587,6 +608,7 @@ export default function ProductScreen() {
                 }
                 disabled={
                   isUnavailable ||
+                  blockedByStock ||
                   isReplacing ||
                   requiresOptionSelection ||
                   (isSaleEditMode && !selectedOption)

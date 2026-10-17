@@ -12,6 +12,7 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useRestaurantSettings } from "@/presentation/restaurant/hooks/useRestaurantSettings";
 import {
+  DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK,
   DEFAULT_LOW_STOCK_EMAIL_HOUR,
   DEFAULT_ORDER_PREP_TIME,
 } from "@/core/restaurant/models/restaurant-settings.model";
@@ -20,6 +21,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
+import Switch from "@/presentation/theme/components/switch";
 import TimeSelector from "@/presentation/theme/components/time-selector";
 import HourWheelBottomSheet, {
   HourWheelBottomSheetRef,
@@ -55,6 +57,20 @@ export default function RestaurantSettingsScreen() {
   const handleDoneLowStockHour = async (hour: number) => {
     if (hour === lowStockEmailHour) return;
     await updateSettings.mutateAsync({ LOW_STOCK_EMAIL_HOUR: hour });
+  };
+
+  // While saving, show the new value so the switch doesn't jump back.
+  const pendingAllowOrdersWithoutStock = updateSettings.isPending
+    ? updateSettings.variables?.ALLOW_ORDERS_WITHOUT_STOCK
+    : undefined;
+  const allowOrdersWithoutStock =
+    typeof pendingAllowOrdersWithoutStock === "boolean"
+      ? pendingAllowOrdersWithoutStock
+      : (settings?.ALLOW_ORDERS_WITHOUT_STOCK ??
+        DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK);
+
+  const handleToggleAllowOrdersWithoutStock = (value: boolean) => {
+    updateSettings.mutate({ ALLOW_ORDERS_WITHOUT_STOCK: value });
   };
 
   return (
@@ -150,6 +166,17 @@ export default function RestaurantSettingsScreen() {
                     <Ionicons name="chevron-down" size={16} color={tw.color("gray-400")} />
                   )}
                 </Pressable>
+              </Card>
+              <Card style={tw`gap-1 p-4 rounded-3xl`}>
+                <Switch
+                  label={t("restaurantSettings.allowOrdersWithoutStock.title")}
+                  value={allowOrdersWithoutStock}
+                  onValueChange={handleToggleAllowOrdersWithoutStock}
+                  disabled={!canEdit || updateSettings.isPending}
+                />
+                <ThemedText type="small" style={tw`text-gray-500`}>
+                  {t("restaurantSettings.allowOrdersWithoutStock.description")}
+                </ThemedText>
               </Card>
             </ThemedView>
           )}

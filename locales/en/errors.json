@@ -157,6 +157,7 @@
     "ORDER_BILL_TRANSFER_PENDING": "A transfer is waiting for approval",
     "ORDER_BILL_INVALID_DETAILS": "The sale's products are not valid",
     "ORDER_BILL_TOTAL_BELOW_PAID": "The total can't be lower than what was already paid",
+    "ORDER_INSUFFICIENT_STOCK": "Not enough stock of {{productName}} ({{available}} left)",
     "ORDER_BILL_DISCOUNT_EXCEEDS_SUBTOTAL": "The discount is larger than the subtotal",
     "PERSON_INVALID_CEDULA": "The ID number can't have more than 10 digits",
     "PERSON_INVALID_RUC": "The RUC number must have at least 13 digits",

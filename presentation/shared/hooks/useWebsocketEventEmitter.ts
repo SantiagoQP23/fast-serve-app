@@ -9,6 +9,7 @@ import {
   useGlobalStore,
   waitForSocketLoaderClose,
 } from "@/presentation/shared/store/useGlobalStore";
+import { translateSocketResponse } from "@/core/api/get-error-message";
 
 interface WebSocketOptions<TData> {
   onSuccess?: (resp: TData) => void;
@@ -125,8 +126,9 @@ export function useWebsocketEventEmitter<TData, TVariables>(
             options?.onSuccess?.(resp);
             secondaryOptions?.onSuccess?.(resp);
           } else {
-            options?.onError?.(resp);
-            secondaryOptions?.onError?.(resp);
+            const translated = translateSocketResponse(resp);
+            options?.onError?.(translated);
+            secondaryOptions?.onError?.(translated);
           }
         },
       );

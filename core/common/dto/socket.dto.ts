@@ -7,6 +7,8 @@ export interface SocketResponse {
   msg: string;
   /** Stable error code the app can translate (e.g. ORDER_CLOSED). */
   code?: string;
+  /** Values for the translated error message (e.g. productName, available). */
+  details?: Record<string, unknown>;
 }
 
 /**

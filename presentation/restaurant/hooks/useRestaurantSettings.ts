@@ -10,8 +10,11 @@ import type {
 } from "@/core/restaurant/models/restaurant-settings.model";
 import { getErrorMessage } from "@/core/api/get-error-message";
 
+/** Prefix of every restaurant's settings query, for invalidating them all. */
+export const RESTAURANT_SETTINGS_QUERY_KEY = "restaurant-settings";
+
 const getRestaurantSettingsQueryKey = (restaurantId?: string) => [
-  "restaurant-settings",
+  RESTAURANT_SETTINGS_QUERY_KEY,
   restaurantId,
 ];
 
