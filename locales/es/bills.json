@@ -149,5 +149,23 @@
   "pane": {
     "emptyTitle": "Selecciona una venta",
     "emptyDescription": "Toca una venta para ver sus productos y pagos aquí."
+  },
+  "editSale": {
+    "title": "Editar venta",
+    "addProducts": "Agregar productos",
+    "save": "Guardar cambios",
+    "items": "{{count}} productos",
+    "discount": "Descuento: {{amount}}",
+    "paid": "Pagado: {{amount}}",
+    "totalBelowPaid": "El total no puede ser menor a lo ya pagado ({{amount}})",
+    "transferPending": "Hay una transferencia pendiente de aprobación. Apruébala o recházala antes de editar.",
+    "noItems": "La venta debe tener al menos un producto",
+    "discountExceedsSubtotal": "El descuento es mayor que el subtotal",
+    "offline": "Necesitas conexión para editar la venta",
+    "saved": "Venta actualizada",
+    "reprint": "Reimprimir",
+    "addToSale": "Agregar a la venta",
+    "menuBanner": "Agregando productos a la venta #{{number}}",
+    "backToSale": "Volver a la venta ({{count}})"
   }
 }

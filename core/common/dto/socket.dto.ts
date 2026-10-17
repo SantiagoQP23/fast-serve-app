@@ -5,6 +5,8 @@
 export interface SocketResponse {
   ok: boolean;
   msg: string;
+  /** Stable error code the app can translate (e.g. ORDER_CLOSED). */
+  code?: string;
 }
 
 /**

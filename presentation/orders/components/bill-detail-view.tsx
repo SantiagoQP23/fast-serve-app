@@ -22,7 +22,9 @@ import { formatCurrency, i18nAlert } from "@/core/i18n/utils";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import Label from "@/presentation/theme/components/label";
-import { BillSource, BillStatus } from "@/core/orders/models/bill.model";
+import { Bill, BillSource, BillStatus } from "@/core/orders/models/bill.model";
+import { useWebsocketEventListener } from "@/presentation/shared/hooks/useWebsocketEventListener";
+import { OrderSocketEvent } from "@/core/orders/enums/socket-events.enum";
 import TransactionCard from "@/presentation/transactions/components/transaction-card";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import {
@@ -73,6 +75,14 @@ export default function BillDetailView({
   const Container = embedded ? ThemedView : ScreenLayout;
 
   const { data: bill, isLoading, refetch } = useBills().billByIdQuery(billId);
+
+  // Another phone edited a direct sale: refresh it if it's the one shown.
+  useWebsocketEventListener<Bill>(
+    OrderSocketEvent.directBillUpdated,
+    ({ data }) => {
+      if (data?.id === billId) refetch();
+    },
+  );
 
   const { status } = useBillStatus(bill?.status || BillStatus.OPEN);
 
@@ -191,9 +201,11 @@ export default function BillDetailView({
   };
 
   const handleEditBillPress = () => {
+    if (bill.source === BillSource.DIRECT) {
+      router.push(`/(bills)/${bill.id}/edit-sale`);
+      return;
+    }
     if (!bill.order) return;
-    // setActiveOrder(bill.order);
-    // initEditCart(bill.order);
     router.push(`/(bills)/${bill.id}/edit`);
   };
 
@@ -595,8 +607,7 @@ export default function BillDetailView({
                     },
                   ]
                 : []),
-              ...(bill.status !== BillStatus.PAID &&
-              bill.source === BillSource.ORDER
+              ...(bill.status !== BillStatus.PAID
                 ? [
                     {
                       icon: "pencil-outline" as const,

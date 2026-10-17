@@ -13,6 +13,7 @@ import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { useReplaceOrderDetailStore } from "@/presentation/orders/store/replaceOrderDetailStore";
+import { useEditSaleStore } from "@/presentation/orders/store/editSaleStore";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
@@ -66,7 +67,13 @@ export default function ProductScreen() {
   const typePickerRef = useRef<BottomSheetPickerRef>(null);
   const activeOrderDetail = useNewOrderStore((state) => state.activeDetail);
   const orderType = useNewOrderStore((state) => state.orderType);
-  const order = useOrdersStore((state) => state.activeOrder);
+  // While a direct sale is being edited, products go to that sale, never to
+  // an order or the cart, whatever order is still marked active.
+  const isSaleEditMode = useEditSaleStore((state) => state.billId !== null);
+  const saleLines = useEditSaleStore((state) => state.lines);
+  const addSaleLine = useEditSaleStore((state) => state.addLine);
+  const activeOrder = useOrdersStore((state) => state.activeOrder);
+  const order = isSaleEditMode ? null : activeOrder;
   const replaceOrderId = useReplaceOrderDetailStore((state) => state.orderId);
   const replacingDetail = useReplaceOrderDetailStore((state) => state.detail);
   const resetReplace = useReplaceOrderDetailStore((state) => state.reset);
@@ -134,16 +141,35 @@ export default function ProductScreen() {
   // Units of each option already sitting in the cart (excluding the line
   // being edited), so the stock shown is what's actually left to sell.
   const quantityInCartByOption = useMemo(() => {
-    const lines = isEditMode ? editNewItems : order ? [] : cartDetails;
+    const lines = isSaleEditMode
+      ? saleLines.filter((line) => !line.billDetailId)
+      : isEditMode
+        ? editNewItems
+        : order
+          ? []
+          : cartDetails;
     const totals = new Map<number, number>();
     for (const line of lines) {
       if (!line.productOption) continue;
-      if (activeOrderDetail?.id && line.id === activeOrderDetail.id) continue;
+      if (
+        activeOrderDetail?.id &&
+        "id" in line &&
+        line.id === activeOrderDetail.id
+      )
+        continue;
       const id = line.productOption.id;
       totals.set(id, (totals.get(id) ?? 0) + line.quantity);
     }
     return totals;
-  }, [isEditMode, editNewItems, order, cartDetails, activeOrderDetail]);
+  }, [
+    isSaleEditMode,
+    saleLines,
+    isEditMode,
+    editNewItems,
+    order,
+    cartDetails,
+    activeOrderDetail,
+  ]);
 
   const getOptionStock = (option: ProductOption) => {
     const available = getProductOptionAvailableQuantity(option);
@@ -294,6 +320,17 @@ export default function ProductScreen() {
   };
 
   const onAddProduct = () => {
+    if (isSaleEditMode) {
+      addSaleLine({
+        product: activeProduct!,
+        productOption: selectedOption!,
+        price: effectivePrice,
+        quantity: counter,
+      });
+      goToMenu();
+      return;
+    }
+
     if (isReplaceMode) {
       replaceProductInOrder();
       return;
@@ -501,49 +538,58 @@ export default function ProductScreen() {
               )}
             </ThemedView>
 
-            <ThemedView style={tw`flex-row items-center justify-center gap-2 `}>
-              <Chip
-                label={
-                  typeOrderDetail === OrderType.IN_PLACE
-                    ? t("common:orderType.inPlace")
-                    : t("common:orderType.takeAway")
-                }
-                icon={
-                  typeOrderDetail === OrderType.IN_PLACE
-                    ? "restaurant-outline"
-                    : "bag-outline"
-                }
-                variant="filter"
-                onPress={() => typePickerRef.current?.present()}
-              />
-
-              {!notes.trim() && (
+            {!isSaleEditMode && (
+              <ThemedView
+                style={tw`flex-row items-center justify-center gap-2 `}
+              >
                 <Chip
-                  variant="assist"
-                  label={t("orders:newOrder.addNote")}
-                  icon="document-text-outline"
-                  onPress={openNoteBottomSheet}
+                  label={
+                    typeOrderDetail === OrderType.IN_PLACE
+                      ? t("common:orderType.inPlace")
+                      : t("common:orderType.takeAway")
+                  }
+                  icon={
+                    typeOrderDetail === OrderType.IN_PLACE
+                      ? "restaurant-outline"
+                      : "bag-outline"
+                  }
+                  variant="filter"
+                  onPress={() => typePickerRef.current?.present()}
                 />
-              )}
-            </ThemedView>
+
+                {!notes.trim() && (
+                  <Chip
+                    variant="assist"
+                    label={t("orders:newOrder.addNote")}
+                    icon="document-text-outline"
+                    onPress={openNoteBottomSheet}
+                  />
+                )}
+              </ThemedView>
+            )}
 
             <ThemedView style={tw`flex-row gap-5  mb-4`}>
               <Button
                 label={
-                  isReplaceMode
-                    ? t("orders:replaceItem.confirm")
-                    : t("menu:product.addToOrderOrCart", {
-                        type: order
-                          ? t("menu:product.order")
-                          : t("menu:product.cart"),
-                      })
+                  isSaleEditMode
+                    ? t("bills:editSale.addToSale")
+                    : isReplaceMode
+                      ? t("orders:replaceItem.confirm")
+                      : t("menu:product.addToOrderOrCart", {
+                          type: order
+                            ? t("menu:product.order")
+                            : t("menu:product.cart"),
+                        })
                 }
                 onPress={onAddProduct}
                 leftIcon={
                   isReplaceMode ? "swap-horizontal-outline" : "cart-outline"
                 }
                 disabled={
-                  isUnavailable || isReplacing || requiresOptionSelection
+                  isUnavailable ||
+                  isReplacing ||
+                  requiresOptionSelection ||
+                  (isSaleEditMode && !selectedOption)
                 }
                 style={tw`flex-1`}
               />

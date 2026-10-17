@@ -167,7 +167,8 @@
     "updateBill": "Actualizando cuenta...",
     "order-bill:edit": "Actualizando cuenta...",
     "payBillTransaction": "Creando transacción...",
-    "removeTransaction": "Eliminando transacción..."
+    "removeTransaction": "Eliminando transacción...",
+    "direct-bill:edit": "Guardando venta..."
   },
   "transactions": {
     "deleteConfirmTitle": "Eliminar Transacción",

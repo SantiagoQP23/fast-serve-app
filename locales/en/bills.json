@@ -149,5 +149,23 @@
   "pane": {
     "emptyTitle": "Select a sale",
     "emptyDescription": "Tap a sale to see its products and payments here."
+  },
+  "editSale": {
+    "title": "Edit sale",
+    "addProducts": "Add products",
+    "save": "Save changes",
+    "items": "{{count}} items",
+    "discount": "Discount: {{amount}}",
+    "paid": "Paid: {{amount}}",
+    "totalBelowPaid": "The total can't be lower than what was already paid ({{amount}})",
+    "transferPending": "A transfer is waiting for approval. Approve or reject it before editing.",
+    "noItems": "The sale needs at least one product",
+    "discountExceedsSubtotal": "The discount is larger than the subtotal",
+    "offline": "You need a connection to edit the sale",
+    "saved": "Sale updated",
+    "reprint": "Reprint",
+    "addToSale": "Add to sale",
+    "menuBanner": "Adding products to sale #{{number}}",
+    "backToSale": "Back to sale ({{count}})"
   }
 }

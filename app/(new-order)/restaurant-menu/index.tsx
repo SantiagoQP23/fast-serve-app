@@ -20,6 +20,7 @@ import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { useReplaceOrderDetailStore } from "@/presentation/orders/store/replaceOrderDetailStore";
+import { useEditSaleStore } from "@/presentation/orders/store/editSaleStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { Ionicons } from "@expo/vector-icons";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
@@ -70,7 +71,14 @@ export default function RestaurantMenuScreen() {
   );
   const { setActiveProduct } = useMenuStore();
   const details = useNewOrderStore((state) => state.details);
-  const order = useOrdersStore((state) => state.activeOrder);
+  // Editing a direct sale: products are added to it, not to an order or cart.
+  const isSaleEditMode = useEditSaleStore((state) => state.billId !== null);
+  const saleBillNum = useEditSaleStore((state) => state.billNum);
+  const newSaleLineCount = useEditSaleStore(
+    (state) => state.lines.filter((line) => !line.billDetailId).length,
+  );
+  const activeOrder = useOrdersStore((state) => state.activeOrder);
+  const order = isSaleEditMode ? null : activeOrder;
   const editOrderId = useEditOrderCartStore((state) => state.orderId);
   const newItemCount = useEditOrderCartStore((state) =>
     state.getNewItemCount(),
@@ -92,7 +100,7 @@ export default function RestaurantMenuScreen() {
 
   // Tablet landscape: cart lives in a side pane next to the menu
   const { isExpanded, gridColumns } = useResponsiveLayout();
-  const showCartPanel = isExpanded && !isReplaceMode;
+  const showCartPanel = isExpanded && !isReplaceMode && !isSaleEditMode;
 
   // Products flow into as many columns as fit the measured list width
   const [productsWidth, setProductsWidth] = useState(0);
@@ -182,7 +190,11 @@ export default function RestaurantMenuScreen() {
       <ThemedView
         style={tw`flex-1 px-4 pt-8 items-center justify-center gap-4`}
       >
-        <Ionicons name="restaurant-outline" size={64} color={tw.color("gray-400")} />
+        <Ionicons
+          name="restaurant-outline"
+          size={64}
+          color={tw.color("gray-400")}
+        />
         <ThemedView style={tw`gap-2 items-center`}>
           <ThemedText type="h2">{t("menu:noMenu.title")}</ThemedText>
           <ThemedText type="body2" style={tw`text-center text-gray-500 px-8`}>
@@ -213,6 +225,20 @@ export default function RestaurantMenuScreen() {
 
   const menu = (
     <ScreenLayout fullWidth style={tw`px-4 pt-2 flex-1 gap-4`}>
+      {isSaleEditMode && (
+        <ThemedView
+          style={tw`flex-row items-center gap-3 p-3 rounded-xl bg-gray-100`}
+        >
+          <Ionicons
+            name="receipt-outline"
+            size={20}
+            color={tw.color("gray-700")}
+          />
+          <ThemedText type="body2" style={tw`flex-1`}>
+            {t("bills:editSale.menuBanner", { number: saleBillNum })}
+          </ThemedText>
+        </ThemedView>
+      )}
       {isReplaceMode && (
         <ThemedView
           style={tw`flex-row items-center gap-3 p-3 rounded-xl bg-gray-100`}
@@ -306,17 +332,35 @@ export default function RestaurantMenuScreen() {
       >
         {/* Hidden while searching so it doesn't crowd the keyboard, and
             when the cart is already visible in the side pane. */}
-        {!showCartPanel && !isSearchFocused && !order && details.length > 0 && (
+        {!isSearchFocused && isSaleEditMode && newSaleLineCount > 0 && (
           <ThemedView
             style={tw`flex-row justify-end items-center bg-transparent`}
           >
             <Button
-              label={t("menu:goToCart")}
-              leftIcon="cart-outline"
-              onPress={() => router.push("/(new-order)/cart")}
+              label={t("bills:editSale.backToSale", {
+                count: newSaleLineCount,
+              })}
+              leftIcon="receipt-outline"
+              onPress={() => router.back()}
             />
           </ThemedView>
         )}
+
+        {!showCartPanel &&
+          !isSearchFocused &&
+          !order &&
+          !isSaleEditMode &&
+          details.length > 0 && (
+            <ThemedView
+              style={tw`flex-row justify-end items-center bg-transparent`}
+            >
+              <Button
+                label={t("menu:goToCart")}
+                leftIcon="cart-outline"
+                onPress={() => router.push("/(new-order)/cart")}
+              />
+            </ThemedView>
+          )}
 
         {!showCartPanel &&
           !isSearchFocused &&

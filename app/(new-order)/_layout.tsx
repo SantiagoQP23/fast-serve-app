@@ -2,6 +2,7 @@ import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
+import { useEditSaleStore } from "@/presentation/orders/store/editSaleStore";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Button from "@/presentation/theme/components/button";
@@ -32,6 +33,7 @@ export default function NewOrderLayout() {
   const resetNewOrder = useNewOrderStore((state) => state.reset);
   const editOrderId = useEditOrderCartStore((state) => state.orderId);
   const isEditMode = !!editOrderId && editOrderId === order?.id;
+  const isSaleEditMode = useEditSaleStore((state) => state.billId !== null);
 
   const [resetCartDialogVisible, setResetCartDialogVisible] = useState(false);
   const openResetCartDialog = () => setResetCartDialogVisible(true);
@@ -91,7 +93,7 @@ export default function NewOrderLayout() {
             title: t("menu:title"),
             headerShadowVisible: false,
             headerRight: () =>
-              order ? null : isExpanded ? (
+              order || isSaleEditMode ? null : isExpanded ? (
                 // Cart is shown beside the menu, so offer its actions here
                 renderCartActions()
               ) : (
