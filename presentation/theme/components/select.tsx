@@ -59,9 +59,7 @@ export default function Select({
     bottomSheetPickerRef.current?.present();
   }, []);
 
-  const labelColor = isPressed
-    ? tw.color("primary")
-    : tw.color("gray-500");
+  const labelColor = isPressed ? tw.color("primary") : tw.color("gray-500");
 
   const borderColor = isPressed
     ? tw.color("primary")
@@ -78,7 +76,7 @@ export default function Select({
           onPressOut={() => setIsPressed(false)}
           style={[
             tw.style(
-              "flex-row rounded-3xl px-3",
+              "flex-row rounded-xl px-3",
               variant === "filled" ? "bg-surface-high" : "bg-transparent",
             ),
             {

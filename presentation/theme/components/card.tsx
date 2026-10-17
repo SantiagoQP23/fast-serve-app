@@ -45,7 +45,7 @@ export default function Card({
         style={(state) =>
           [
             tw`p-6 rounded-3xl bg-transparent`,
-            state.pressed && tw`opacity-80`,
+            state.pressed && onPress && tw`opacity-80`,
             typeof style === "function" ? style(state) : style,
           ].filter(Boolean)
         }

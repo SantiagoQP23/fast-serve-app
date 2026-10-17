@@ -23,6 +23,7 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
+import Card from "@/presentation/theme/components/card";
 import ButtonGroup from "@/presentation/theme/components/button-group";
 import TextInput from "@/presentation/theme/components/text-input";
 import Checkbox from "@/presentation/theme/components/checkbox";
@@ -367,47 +368,49 @@ export default function MenuProductFormScreen() {
           <ThemedView style={tw`my-6`} />
 
           <ThemedView style={tw`gap-4`}>
-            <Controller
-              control={control}
-              name="name"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label={t("products.fields.name")}
-                  icon="fast-food"
-                  placeholder={t("products.placeholders.name")}
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onChange}
-                  error={errors.name?.message}
-                />
-              )}
-            />
+            <Card style={tw`gap-4`}>
+              <Controller
+                control={control}
+                name="name"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    label={t("products.fields.name")}
+                    icon="fast-food"
+                    placeholder={t("products.placeholders.name")}
+                    onBlur={onBlur}
+                    value={value}
+                    onChangeText={onChange}
+                    error={errors.name?.message}
+                  />
+                )}
+              />
 
-            <Controller
-              control={control}
-              name="description"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label={t("products.fields.description")}
-                  icon="document-text"
-                  placeholder={t("products.placeholders.description")}
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onChange}
-                  multiline
-                  numberOfLines={3}
-                  textAlignVertical="top"
-                  error={errors.description?.message}
-                />
-              )}
-            />
+              <Controller
+                control={control}
+                name="description"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    label={t("products.fields.description")}
+                    icon="document-text"
+                    placeholder={t("products.placeholders.description")}
+                    onBlur={onBlur}
+                    value={value}
+                    onChangeText={onChange}
+                    multiline
+                    numberOfLines={3}
+                    textAlignVertical="top"
+                    error={errors.description?.message}
+                  />
+                )}
+              />
+            </Card>
 
             {!isEditing && (
-              <>
+              <Card style={tw`gap-4`}>
                 {!hasPresetCategory &&
                   (categories.length === 0 ? (
                     <ThemedView
-                      style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
+                      style={tw`items-center py-6 gap-2 bg-surface-high rounded-3xl px-4`}
                     >
                       <Ionicons
                         name="pricetag-outline"
@@ -466,7 +469,11 @@ export default function MenuProductFormScreen() {
                     {errors.productionAreaId.message}
                   </ThemedText>
                 )}
+              </Card>
+            )}
 
+            {!isEditing && (
+              <Card style={tw`gap-4`}>
                 <ThemedView style={tw`gap-2`}>
                   <ThemedText type="small" style={tw`ml-2`}>
                     {t("products.fields.pricingMode")}
@@ -508,7 +515,7 @@ export default function MenuProductFormScreen() {
                   <ThemedView style={tw`gap-3`}>
                     {fields.length === 0 ? (
                       <ThemedView
-                        style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
+                        style={tw`items-center py-6 gap-2 bg-surface-high rounded-3xl px-4`}
                       >
                         <Ionicons
                           name="options-outline"
@@ -530,7 +537,7 @@ export default function MenuProductFormScreen() {
                             onDelete={() => handleRemoveVariant(index)}
                           >
                             <ThemedView
-                              style={tw`flex-row items-center gap-1 bg-background `}
+                              style={tw`flex-row items-center gap-1 bg-surface-container-low`}
                             >
                               <Pressable
                                 onPress={() => handleMakeDefault(index)}
@@ -607,7 +614,7 @@ export default function MenuProductFormScreen() {
                     </Pressable>
                   </ThemedView>
                 )}
-              </>
+              </Card>
             )}
           </ThemedView>
         </ScrollView>

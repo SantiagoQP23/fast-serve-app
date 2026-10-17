@@ -145,7 +145,11 @@ const BottomSheetPicker = forwardRef<
                 trailingIcon={
                   searchQuery.length > 0 ? (
                     <Pressable onPress={() => setSearchQuery("")} hitSlop={8}>
-                      <Ionicons name="close-circle" size={20} color={tw.color("gray-400")} />
+                      <Ionicons
+                        name="close-circle"
+                        size={20}
+                        color={tw.color("gray-400")}
+                      />
                     </Pressable>
                   ) : null
                 }
@@ -171,7 +175,7 @@ const BottomSheetPicker = forwardRef<
             <BottomSheetView style={tw`max-h-[60vh]`}>
               <BottomSheetFlatList
                 style={tw`pb-6`}
-                contentContainerStyle={tw`   rounded-xl gap-4`}
+                contentContainerStyle={tw`   rounded-xl gap-2`}
                 data={filteredOptions}
                 keyExtractor={(item: Option) => item.value.toString()}
                 showsVerticalScrollIndicator={false}
@@ -201,8 +205,7 @@ const BottomSheetPicker = forwardRef<
                       style={({ pressed }) =>
                         tw.style(
                           "flex-row items-center justify-between p-6 rounded-3xl bg-surface",
-                          item.value === value &&
-                            "bg-secondary ",
+                          item.value === value && "bg-secondary ",
                           pressed && "bg-gray-100 ",
                         )
                       }
@@ -236,7 +239,11 @@ const BottomSheetPicker = forwardRef<
             </BottomSheetView>
           ) : (
             <View style={tw`py-12 items-center`}>
-              <Ionicons name="search-outline" size={48} color={tw.color("gray-300")} />
+              <Ionicons
+                name="search-outline"
+                size={48}
+                color={tw.color("gray-300")}
+              />
               <Text style={tw`text-gray-400 mt-3 text-base`}>
                 No results found
               </Text>
