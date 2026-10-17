@@ -203,11 +203,7 @@ export default function AccountScreen() {
 
   return (
     <ScreenLayout style={tw`flex-1`}>
-      <ScrollView
-        style={tw`flex-1`}
-        contentContainerStyle={tw`px-4 pt-6 pb-4`}
-        showsVerticalScrollIndicator={false}
-      >
+      <ThemedView style={tw`px-4 pt-6`}>
         {/* Total summary */}
         <ThemedView style={tw`items-center mb-8`}>
           <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
@@ -251,7 +247,13 @@ export default function AccountScreen() {
         <ThemedText type="body2" style={tw`text-gray-500 mb-3`}>
           {t("bills:account.destinationAccount")}
         </ThemedText>
+      </ThemedView>
 
+      <ScrollView
+        style={tw`flex-1`}
+        contentContainerStyle={tw`px-4 pb-4 gap-3`}
+        showsVerticalScrollIndicator={false}
+      >
         {accounts.length === 0 ? (
           <ThemedView style={tw`items-center py-8 gap-2`}>
             <Ionicons
@@ -264,7 +266,7 @@ export default function AccountScreen() {
             </ThemedText>
           </ThemedView>
         ) : (
-          <ThemedView style={tw`gap-3`}>
+          <>
             {accounts.map((account) => {
               const isSelected = account.id === selectedAccountId;
               return (
@@ -321,7 +323,7 @@ export default function AccountScreen() {
                 </Card>
               );
             })}
-          </ThemedView>
+          </>
         )}
       </ScrollView>
 

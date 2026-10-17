@@ -86,6 +86,7 @@
   },
   "salesByProductionArea": {
     "title": "Sales by Production Area",
-    "noArea": "No area"
+    "noArea": "No area",
+    "other": "Other"
   }
 }

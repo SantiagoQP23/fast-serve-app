@@ -36,10 +36,12 @@ import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-b
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { useSyncStore } from "@/presentation/sync/store/useSyncStore";
 import SalesContent from "@/presentation/orders/components/sales-content";
-import IconButton from "@/presentation/theme/components/icon-button";
+// import IconButton from "@/presentation/theme/components/icon-button";
 import Button from "@/presentation/theme/components/button";
+import ButtonGroup from "@/presentation/theme/components/button-group";
 import HomeViewOptionsBottomSheet from "@/presentation/orders/components/home-view-options-bottom-sheet";
 import { useScopedOrders } from "@/presentation/orders/hooks/useScopedOrders";
+import { useOrdersViewStore } from "@/presentation/orders/store/useOrdersViewStore";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { OrderPaneContext } from "@/presentation/orders/context/order-pane.context";
@@ -62,6 +64,8 @@ export default function MyOrdersScreen() {
     (b.deliveryTime ? new Date(b.deliveryTime).getTime() : Infinity);
 
   const orders = useScopedOrders().slice().sort(byDeliveryTime);
+  const ordersScope = useOrdersViewStore((state) => state.ordersScope);
+  const setOrdersScope = useOrdersViewStore((state) => state.setOrdersScope);
   const router = useRouter();
   const params = useLocalSearchParams<{ module?: "orders" | "sales" }>();
   const [refreshing, setRefreshing] = useState(false);
@@ -211,6 +215,19 @@ export default function MyOrdersScreen() {
   const currentView =
     viewOptions.find((option) => option.value === activeView) ?? viewOptions[0];
 
+  const scopeOptions = [
+    {
+      label: t("orders:drawer.myOrders"),
+      value: "my-orders" as const,
+      icon: "person-outline" as const,
+    },
+    {
+      label: t("orders:drawer.allOrders"),
+      value: "all-orders" as const,
+      icon: "people-outline" as const,
+    },
+  ];
+
   const handleViewTogglePress = () => {
     const currentIndex = viewOptions.findIndex(
       (option) => option.value === activeView,
@@ -240,6 +257,13 @@ export default function MyOrdersScreen() {
         </ThemedView>
         {activeModule === "orders" && (
           <ThemedView style={tw` flex-row items-center justify-end gap-2 `}>
+            <ButtonGroup
+              size="small"
+              iconOnly
+              options={scopeOptions}
+              selected={ordersScope}
+              onChange={setOrdersScope}
+            />
             <Button
               variant="surface"
               size="small"
@@ -247,11 +271,13 @@ export default function MyOrdersScreen() {
               leftIcon={currentView.icon}
               onPress={handleViewTogglePress}
             />
-            <IconButton
-              icon="options-outline"
-              accessibilityLabel={t("orders:homeOptions.title")}
-              onPress={() => viewOptionsSheetRef.current?.present()}
-            />
+            {/* Customize view button hidden for now; the scope is switched */}
+            {/* with the button group above instead. */}
+            {/* <IconButton */}
+            {/*   icon="options-outline" */}
+            {/*   accessibilityLabel={t("orders:homeOptions.title")} */}
+            {/*   onPress={() => viewOptionsSheetRef.current?.present()} */}
+            {/* /> */}
           </ThemedView>
         )}
       </ThemedView>

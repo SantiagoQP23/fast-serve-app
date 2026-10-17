@@ -58,7 +58,7 @@ export default function InventoryCountDetailView({
   // run opens on top so the list stays underneath.
   const openRun = (line?: InventoryCountItem) => {
     const route = {
-      pathname: "/(profile)/menu-inventory-count-run",
+      pathname: "/(profile)/inventory/counts/run",
       params: line ? { countId, lineId: line.id } : { countId },
     } as const;
     if (embedded) router.push(route);
@@ -67,7 +67,7 @@ export default function InventoryCountDetailView({
 
   const addProducts = () =>
     router.push({
-      pathname: "/(profile)/menu-inventory-count-items",
+      pathname: "/(profile)/inventory/counts/items",
       params: { countId },
     });
 

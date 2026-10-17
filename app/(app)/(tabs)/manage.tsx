@@ -61,7 +61,7 @@ export default function ManageScreen() {
       key: "overview",
       icon: "restaurant-outline",
       label: t("manage.menu.overview"),
-      onPress: () => router.push("/(profile)/menu-overview"),
+      onPress: () => router.push("/(profile)/menu/overview"),
     },
     // Hidden in favor of the consolidated menu-overview screen — routes are
     // still registered and reachable, just not linked from here.
@@ -69,19 +69,19 @@ export default function ManageScreen() {
     //   key: "sections",
     //   icon: "list-outline",
     //   label: t("manage.menu.sections"),
-    //   onPress: () => router.push("/(profile)/menu-sections"),
+    //   onPress: () => router.push("/(profile)/menu/sections"),
     // },
     // {
     //   key: "categories",
     //   icon: "pricetag-outline",
     //   label: t("manage.menu.categories"),
-    //   onPress: () => router.push("/(profile)/menu-categories"),
+    //   onPress: () => router.push("/(profile)/menu/categories"),
     // },
     // {
     //   key: "products",
     //   icon: "fast-food-outline",
     //   label: t("manage.menu.products"),
-    //   onPress: () => router.push("/(profile)/menu-products"),
+    //   onPress: () => router.push("/(profile)/menu/products"),
     // },
     // Hidden for now — route is still registered and reachable, just not
     // linked from here.
@@ -89,7 +89,7 @@ export default function ManageScreen() {
     //   key: "inventory",
     //   icon: "cube-outline",
     //   label: t("manage.menu.inventory"),
-    //   onPress: () => router.push("/(profile)/menu-inventory-items"),
+    //   onPress: () => router.push("/(profile)/inventory/items"),
     // },
   ];
 
@@ -98,7 +98,7 @@ export default function ManageScreen() {
       key: "subscription",
       icon: "ribbon-outline",
       label: t("manage.subscription.menuItem"),
-      onPress: () => router.push("/(profile)/subscription"),
+      onPress: () => router.push("/(profile)/restaurant/subscription"),
     },
   ];
 
@@ -107,31 +107,31 @@ export default function ManageScreen() {
       key: "tables",
       icon: "grid-outline",
       label: t("manage.tables"),
-      onPress: () => router.push("/(profile)/tables-settings"),
+      onPress: () => router.push("/(profile)/tables"),
     },
     {
       key: "paymentMethods",
       icon: "card-outline",
       label: t("manage.paymentMethods"),
-      onPress: () => router.push("/(profile)/payment-methods-settings"),
+      onPress: () => router.push("/(profile)/payment-methods"),
     },
     {
       key: "printers",
       icon: "print-outline",
       label: t("manage.printers"),
-      onPress: () => router.push("/(profile)/printers"),
+      onPress: () => router.push("/(profile)/production/printers"),
     },
     {
       key: "productionAreas",
       icon: "cube-outline",
       label: t("manage.productionAreas"),
-      onPress: () => router.push("/(profile)/production-areas"),
+      onPress: () => router.push("/(profile)/production/areas"),
     },
     {
       key: "restaurantSettings",
       icon: "options-outline",
       label: t("manage.restaurantSettings"),
-      onPress: () => router.push("/(profile)/restaurant-settings"),
+      onPress: () => router.push("/(profile)/restaurant/settings"),
     },
     ...(isAdmin
       ? [
@@ -165,7 +165,7 @@ export default function ManageScreen() {
             onPress={() => userInfoSheetRef.current?.present()}
           />
           <IconButton
-            onPress={() => router.push("/(profile)/settings")}
+            onPress={() => router.push("/(profile)/account/settings")}
             icon="settings-outline"
             variant="secondary"
           ></IconButton>
@@ -236,7 +236,7 @@ export default function ManageScreen() {
         )}
         <Button
           label={t("manage.manageOtherRestaurant")}
-          onPress={() => router.push("/(profile)/restaurants")}
+          onPress={() => router.push("/(profile)/restaurant/list")}
           variant="text"
           leftIcon="storefront-outline"
           style={tw`mt-4`}
@@ -245,7 +245,7 @@ export default function ManageScreen() {
         {isOwner && (
           <Button
             label={t("createBranch.button")}
-            onPress={() => router.push("/(profile)/create-branch")}
+            onPress={() => router.push("/(profile)/restaurant/create-branch")}
             variant="text"
             leftIcon="git-branch-outline"
             size="small"

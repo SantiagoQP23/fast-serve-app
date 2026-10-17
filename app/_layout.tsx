@@ -32,6 +32,7 @@ import {
   useThemeHydrated,
   useThemeStore,
 } from "@/presentation/theme/store/useThemeStore";
+import { usePreserveNavigationOnThemeChange } from "@/presentation/theme/hooks/use-preserve-navigation-on-theme-change";
 
 export const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ export default function RootLayout() {
   const setLanguage = useGlobalStore((state) => state.setLanguage);
   const theme = useThemeStore((state) => state.theme);
   const themeHydrated = useThemeHydrated();
+  const isRestoringNavigation = usePreserveNavigationOnThemeChange();
   usePushNotifications();
 
   // Detect if user is on auth pages
@@ -85,8 +87,13 @@ export default function RootLayout() {
   const renderContent = () => {
     const content = (
       <BottomSheetModalProvider>
-        {/* Remount screens on theme change so every tw style is recomputed */}
-        <ThemedView key={theme} style={tw`flex-1 `}>
+        {/* Remount screens on theme change so every tw style is recomputed.
+            The navigator restarts on its initial screen, so keep it hidden
+            until the previous navigation state is restored. */}
+        <ThemedView
+          key={theme}
+          style={tw.style("flex-1", isRestoringNavigation && "opacity-0")}
+        >
           <Stack
             screenOptions={{
               headerShown: false,

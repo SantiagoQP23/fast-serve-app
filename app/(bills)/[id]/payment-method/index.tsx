@@ -602,7 +602,12 @@ export default function PaymentMethodScreen() {
         <ThemedText type="body2" style={tw`text-gray-500 mb-3`}>
           {t("bills:details.paymentMethod")}
         </ThemedText>
-        <ThemedView style={tw`gap-4`}>
+        <ScrollView
+          style={tw`flex-1`}
+          contentContainerStyle={tw`gap-4 pb-6`}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
           {activePaymentMethods.map((method) => (
             <PaymentMethodCard
               key={method.id}
@@ -616,7 +621,7 @@ export default function PaymentMethodScreen() {
               onPress={() => handlePaymentMethodPress(method)}
             />
           ))}
-        </ThemedView>
+        </ScrollView>
       </ScreenLayout>
     </>
   );

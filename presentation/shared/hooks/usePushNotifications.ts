@@ -253,7 +253,7 @@ export const usePushNotifications = () => {
     if (!pendingInventoryItemId) return;
 
     router.push({
-      pathname: "/(profile)/menu-inventory-item-detail",
+      pathname: "/(profile)/inventory/items/detail",
       params: { itemId: pendingInventoryItemId },
     });
     setPendingInventoryItemId(null);
@@ -269,7 +269,7 @@ export const usePushNotifications = () => {
       .revalidateSession()
       .finally(() => {
         setPendingRestaurantsOpen(false);
-        router.push("/(profile)/restaurants");
+        router.push("/(profile)/restaurant/list");
       });
   }, [pendingRestaurantsOpen, rootNavigationState?.key]);
 

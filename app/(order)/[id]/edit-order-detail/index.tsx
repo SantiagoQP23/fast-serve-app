@@ -122,26 +122,47 @@ export default function EditOrderDetailScreen() {
     variantSheetRef.current?.dismiss();
   };
 
+  const openActivityBottomSheet = () => {
+    activitySheetRef.current?.present();
+  };
+
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <ThemedView style={tw`flex-row items-center bg-transparent`}>
+        <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}>
           <IconButton
-            icon="repeat-outline"
-            onPress={openVariantBottomSheet}
+            icon="information-circle-outline"
+            onPress={openActivityBottomSheet}
             size={24}
+            accessibilityLabel={t("orders:details.activity")}
+          />
+          <Button
+            label={t("orders:replaceItem.confirm")}
+            leftIcon="repeat-outline"
+            variant="surface"
+            size="extra-small"
+            onPress={openVariantBottomSheet}
           />
           {isAdmin && (
-            <IconButton
-              icon="create-outline"
+            <Button
+              label={t("common:actions.edit")}
+              leftIcon="create-outline"
+              variant="surface"
+              size="extra-small"
               onPress={openCustomBottomSheet}
-              size={24}
             />
           )}
         </ThemedView>
       ),
     });
-  }, [navigation, openCustomBottomSheet, openVariantBottomSheet, isAdmin]);
+  }, [
+    navigation,
+    openCustomBottomSheet,
+    openVariantBottomSheet,
+    openActivityBottomSheet,
+    isAdmin,
+    t,
+  ]);
 
   const openNoteBottomSheet = () => {
     noteSheetRef.current?.present();
@@ -200,10 +221,6 @@ export default function EditOrderDetailScreen() {
         },
       },
     );
-  };
-
-  const openActivityBottomSheet = () => {
-    activitySheetRef.current?.present();
   };
 
   const openStatusModal = () => {
