@@ -169,6 +169,23 @@ export default function SettingsScreen() {
             onDismiss={handleThemePickerDismiss}
           />
 
+          <Card
+            style={tw`gap-2 p-4 rounded-3xl`}
+            onPress={() => router.push("/(profile)/account/about")}
+          >
+            <ThemedView style={tw`flex-row items-center justify-between`}>
+              <ThemedText type="body1">{t("settings.aboutTitle")}</ThemedText>
+              <Ionicons
+                name="chevron-forward-outline"
+                size={20}
+                color={tw.color("gray-400")}
+              />
+            </ThemedView>
+            <ThemedText type="small">
+              {t("settings.aboutDescription")}
+            </ThemedText>
+          </Card>
+
           <Button
             variant="destructive"
             label={t("manage.logout")}

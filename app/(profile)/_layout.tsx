@@ -411,6 +411,15 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="account/about/index"
+          options={{
+            headerShown: true,
+            title: t("settings.aboutTitle"),
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
           name="account/edit-profile/index"
           options={{
             headerShown: false,
