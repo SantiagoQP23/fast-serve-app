@@ -9,7 +9,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { router } from "expo-router";
 import { Text } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import { typography } from "@/constants/theme";

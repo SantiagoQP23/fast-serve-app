@@ -24,7 +24,7 @@ import BottomSheetPicker, {
 } from "@/presentation/theme/components/bottom-sheet-picker";
 import OrderDetailActionsBottomSheet from "./order-detail-actions-bottom-sheet";
 import Checkbox from "@/presentation/theme/components/checkbox";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { formatCurrency } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";

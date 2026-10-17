@@ -12,7 +12,7 @@ import { Transaction } from "@/core/transactions/models/transaction.model";
 import { PaymentProofStatus } from "@/core/transactions/models/payment-proof.model";
 import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
 import { formatCurrency } from "@/core/i18n/utils";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import Button from "@/presentation/theme/components/button";
 import { usePaymentProofs } from "@/presentation/transactions/hooks/usePaymentProofs";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";

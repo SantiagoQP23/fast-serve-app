@@ -7,7 +7,7 @@ import "dayjs/locale/en";
 import { PaymentMethod } from "../orders/enums/payment-method";
 import { PaymentMethodCategory } from "../restaurant/models/payment-method.model";
 import { Roles } from "../auth/models/user.model";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 
 // Extend dayjs with relativeTime plugin
 dayjs.extend(relativeTime);

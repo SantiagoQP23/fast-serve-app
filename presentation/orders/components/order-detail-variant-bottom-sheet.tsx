@@ -1,5 +1,5 @@
 import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import Card from "@/presentation/theme/components/card";

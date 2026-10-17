@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Pressable } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,

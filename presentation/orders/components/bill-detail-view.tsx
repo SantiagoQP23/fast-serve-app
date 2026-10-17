@@ -37,7 +37,7 @@ import { Roles, isAdminLevelRole } from "@/core/auth/models/user.model";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { useBillPrint } from "@/presentation/orders/hooks/useBillPrint";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import { Transaction } from "@/core/transactions/models/transaction.model";

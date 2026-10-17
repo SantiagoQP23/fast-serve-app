@@ -3,7 +3,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import Fab from "@/presentation/theme/components/fab";
 import { useTableOrders } from "@/presentation/orders/hooks/useTableOrders";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";

@@ -10,7 +10,7 @@ import Checkbox from "@/presentation/theme/components/checkbox";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { useState } from "react";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import tw from "@/presentation/theme/lib/tailwind";
 import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";

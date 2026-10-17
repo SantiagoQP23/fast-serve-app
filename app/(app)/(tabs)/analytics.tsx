@@ -3,7 +3,7 @@ import { ScrollView, RefreshControl, Alert, Pressable } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { router } from "expo-router";

@@ -6,7 +6,7 @@ import {
   PressableProps,
 } from "react-native";
 import tw from "../lib/tailwind";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { ThemedView } from "./themed-view";
 import { ThemedText } from "./themed-text";
 import { usePalette } from "@/presentation/theme/store/useThemeStore";

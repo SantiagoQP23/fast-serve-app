@@ -5,7 +5,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useState, useCallback } from "react";
 import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import Button from "@/presentation/theme/components/button";
 import BillCard from "@/presentation/orders/components/bill-card";
 import { useBills } from "@/presentation/orders/hooks/useBills";

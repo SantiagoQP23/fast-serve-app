@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { router } from "expo-router";
 import { toast } from "sonner-native";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import QRCode from "react-native-qrcode-svg";
 
 import tw from "@/presentation/theme/lib/tailwind";

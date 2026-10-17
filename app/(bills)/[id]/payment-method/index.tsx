@@ -27,7 +27,7 @@ import {
 } from "@/core/restaurant/models/payment-method.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import {
   BottomSheetView,
   type BottomSheetMethods,

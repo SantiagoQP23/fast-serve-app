@@ -13,7 +13,7 @@ import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.m
 import { Account, AccountType } from "@/core/restaurant/models/account.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { useBills } from "@/presentation/orders/hooks/useBills";
 import { Pressable } from "react-native";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";

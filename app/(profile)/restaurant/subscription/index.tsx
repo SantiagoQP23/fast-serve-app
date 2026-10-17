@@ -1,5 +1,5 @@
 import { Platform, ScrollView } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";

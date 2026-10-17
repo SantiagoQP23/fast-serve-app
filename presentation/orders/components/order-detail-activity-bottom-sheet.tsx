@@ -2,7 +2,7 @@ import {
   BottomSheetView,
   type BottomSheetMethods,
 } from "@expo/ui/community/bottom-sheet";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 

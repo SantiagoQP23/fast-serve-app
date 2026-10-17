@@ -8,7 +8,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import { useMemo, useState } from "react";
 import Chip from "@/presentation/theme/components/chip";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import OrderProductsCard from "@/presentation/home/components/order-products-card";
 import OrderCompactCard from "@/presentation/home/components/order-compact-card";
 

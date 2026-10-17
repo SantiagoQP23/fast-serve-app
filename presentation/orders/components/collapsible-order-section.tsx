@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   useWindowDimensions,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { Order } from "@/core/orders/models/order.model";
 import ClosedOrderCard from "@/presentation/home/components/closed-order-card";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";

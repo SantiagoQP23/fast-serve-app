@@ -3,7 +3,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { usePrintComanda } from "@/presentation/orders/hooks/usePrintComanda";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useTickets } from "@/presentation/orders/hooks/useTickets";
 import { Order } from "@/core/orders/models/order.model";

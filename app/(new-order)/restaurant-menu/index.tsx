@@ -22,7 +22,7 @@ import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCart
 import { useReplaceOrderDetailStore } from "@/presentation/orders/store/replaceOrderDetailStore";
 import { useEditSaleStore } from "@/presentation/orders/store/editSaleStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";

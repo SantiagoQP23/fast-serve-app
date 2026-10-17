@@ -12,7 +12,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import Button from "@/presentation/theme/components/button";
 import { useTableByStatus } from "@/presentation/orders/hooks/useTableByStatus";
 import { Table } from "@/core/tables/models/table.model";

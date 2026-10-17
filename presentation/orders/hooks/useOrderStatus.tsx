@@ -1,5 +1,5 @@
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { LabelProps } from "@/presentation/theme/components/label";
 

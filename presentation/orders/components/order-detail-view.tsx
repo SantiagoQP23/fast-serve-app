@@ -12,7 +12,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useNavigation } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";

@@ -3,7 +3,7 @@ import { Pressable, PressableProps } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { Transaction } from "@/core/transactions/models/transaction.model";
 import { TransactionType } from "@/core/transactions/models/transaction-category.model";
 import { formatCurrency, getRelativeTime } from "@/core/i18n/utils";

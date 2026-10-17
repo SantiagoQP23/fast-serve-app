@@ -12,7 +12,7 @@ import { useRouter } from "expo-router";
 import DashboardBillCard from "@/presentation/home/components/dashboard-bill-card";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 
 import BillsFilterBottomSheet from "@/presentation/orders/components/bills-filter-bottom-sheet";
 import { BillListFiltersDto, BillStatusFilter } from "@/core/orders/dto/bill-list-filters.dto";

@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Pressable } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import tw from "../lib/tailwind";
 import { ThemedText } from "./themed-text";
 import { typography } from "@/constants/theme";

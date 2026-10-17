@@ -12,7 +12,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { formatCurrency } from "@/core/i18n/utils";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import Button from "@/presentation/theme/components/button";
 import { usePaymentProofs } from "@/presentation/transactions/hooks/usePaymentProofs";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { View, Animated, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useSyncStore } from "@/presentation/sync/store/useSyncStore";

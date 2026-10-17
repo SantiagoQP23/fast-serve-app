@@ -5,7 +5,7 @@ import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { router } from "expo-router";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";

@@ -4,7 +4,7 @@ import Card from "@/presentation/theme/components/card";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { router } from "expo-router";
 import React from "react";
 import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";

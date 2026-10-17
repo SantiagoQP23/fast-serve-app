@@ -17,7 +17,7 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import { useMarkOrderDelivered } from "@/presentation/orders/hooks/useMarkOrderDelivered";

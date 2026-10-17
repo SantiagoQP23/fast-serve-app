@@ -6,7 +6,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
 import BillCard from "@/presentation/orders/components/bill-card";

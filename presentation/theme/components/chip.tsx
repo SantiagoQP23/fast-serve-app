@@ -2,7 +2,7 @@
 import React from "react";
 import { Pressable } from "react-native";
 import tw from "../lib/tailwind";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { ThemedText } from "./themed-text";
 import { typography } from "@/constants/theme";
 import { usePalette } from "@/presentation/theme/store/useThemeStore";

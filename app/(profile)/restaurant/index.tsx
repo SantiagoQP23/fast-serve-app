@@ -13,7 +13,7 @@ import { usePaymentMethods } from "@/presentation/restaurant/hooks/usePaymentMet
 import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
 import { useProductionAreas } from "@/presentation/production-areas/hooks/useProductionAreas";
 import { useProductionAreasStore } from "@/presentation/production-areas/store/useProductionAreasStore";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { useState } from "react";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 

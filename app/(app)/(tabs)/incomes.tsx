@@ -21,7 +21,7 @@ import { useUsers } from "@/presentation/users/hooks/useUsers";
 import DatePicker from "@/presentation/theme/components/date-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import dayjs from "dayjs";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { useTransactionsList } from "@/presentation/transactions/hooks/useTransactionsList";
 import TransactionCard from "@/presentation/transactions/components/transaction-card";
 import { formatCurrency } from "@/core/i18n/utils";

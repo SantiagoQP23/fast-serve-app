@@ -13,7 +13,7 @@ import ProgressBar from "@/presentation/theme/components/progress-bar";
 import { getRelativeTime } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import dayjs from "dayjs";
 import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";

@@ -41,6 +41,7 @@ export default {
       "expo-iap",
       "expo-router",
       "expo-status-bar",
+      "@react-native-vector-icons/ionicons",
       [
         "expo-splash-screen",
         {

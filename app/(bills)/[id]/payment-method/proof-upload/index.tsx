@@ -7,7 +7,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import Button from "@/presentation/theme/components/button";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { usePaymentProofs } from "@/presentation/transactions/hooks/usePaymentProofs";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
