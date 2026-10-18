@@ -190,11 +190,7 @@ export default function RestaurantMenuScreen() {
       <ThemedView
         style={tw`flex-1 px-4 pt-8 items-center justify-center gap-4`}
       >
-        <Icon
-          name="utensils"
-          size={64}
-          color={tw.color("gray-400")}
-        />
+        <Icon name="utensils" size={64} color={tw.color("gray-400")} />
         <ThemedView style={tw`gap-2 items-center`}>
           <ThemedText type="h2">{t("menu:noMenu.title")}</ThemedText>
           <ThemedText type="body2" style={tw`text-center text-gray-500 px-8`}>
@@ -229,11 +225,7 @@ export default function RestaurantMenuScreen() {
         <ThemedView
           style={tw`flex-row items-center gap-3 p-3 rounded-xl bg-gray-100`}
         >
-          <Icon
-            name="receipt-text"
-            size={20}
-            color={tw.color("gray-700")}
-          />
+          <Icon name="receipt-text" size={20} color={tw.color("gray-700")} />
           <ThemedText type="body2" style={tw`flex-1`}>
             {t("bills:editSale.menuBanner", { number: saleBillNum })}
           </ThemedText>
@@ -261,7 +253,7 @@ export default function RestaurantMenuScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <SegmentedControl
               variant="text"
-              textType="body1"
+              textType="h4"
               items={sections.map((s) => ({ label: s.name, value: s.id }))}
               value={section}
               onChange={onChangeSection}

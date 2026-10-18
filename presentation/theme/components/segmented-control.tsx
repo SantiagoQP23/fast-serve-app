@@ -44,10 +44,10 @@ export default function SegmentedControl<T extends string>({
               <ThemedText
                 type={textType}
                 style={[
-                  tw.style(isActive ? "text-text" : "text-gray-500"),
+                  tw.style(isActive ? "text-primary" : "text-gray-500"),
                   {
                     fontFamily: isActive
-                      ? typography.medium
+                      ? typography.semibold
                       : typography.regular,
                   },
                 ]}
@@ -68,7 +68,10 @@ export default function SegmentedControl<T extends string>({
         const iconColor = isActive
           ? tw.color("on-primary")
           : tw.color("on-surface-variant");
-        const iconName = item.icon;
+        const iconName =
+          isActive && item.icon?.endsWith("-outline")
+            ? (item.icon.replace(/-outline$/, "") as IconName)
+            : item.icon;
         return (
           <Pressable
             key={item.value}
@@ -77,8 +80,7 @@ export default function SegmentedControl<T extends string>({
               tw.style(
                 "flex-1 flex-row items-center justify-center gap-2 py-2.5 rounded-lg bg-surface",
                 pressed && "opacity-80",
-                isActive &&
-                  " shadow-sm rounded-3xl bg-secondary-container",
+                isActive && " shadow-sm rounded-3xl bg-secondary-container",
               )
             }
           >
@@ -89,9 +91,7 @@ export default function SegmentedControl<T extends string>({
               type="body2"
               style={[
                 tw.style(
-                  isActive
-                    ? "text-on-primary"
-                    : "text-on-surface-variant",
+                  isActive ? "text-on-primary" : "text-on-surface-variant",
                 ),
                 { fontFamily: typography.medium },
               ]}
