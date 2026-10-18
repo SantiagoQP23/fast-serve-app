@@ -12,7 +12,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { isAdminLevelRole } from "@/core/auth/models/user.model";
+import { canManageInventory } from "@/core/auth/models/user.model";
 import Button from "@/presentation/theme/components/button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import TextInput from "@/presentation/theme/components/text-input";
@@ -59,7 +59,7 @@ interface InventoryContentProps {
 export default function InventoryContent({ onBack }: InventoryContentProps) {
   const { t } = useTranslation("inventory");
   const { user } = useAuthStore();
-  const canManage = isAdminLevelRole(user?.role?.name);
+  const canManage = canManageInventory(user?.role?.name);
   const {
     items: catalogItems,
     itemsQuery: catalogQuery,

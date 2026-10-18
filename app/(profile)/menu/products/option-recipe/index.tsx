@@ -8,7 +8,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { isAdminLevelRole } from "@/core/auth/models/user.model";
+import { canManageInventory } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
@@ -55,7 +55,7 @@ export default function MenuProductOptionRecipeScreen() {
   }>();
   const productOptionId = Number(params.productOptionId);
   const { user } = useAuthStore();
-  const canManage = isAdminLevelRole(user?.role?.name);
+  const canManage = canManageInventory(user?.role?.name);
   const { recipes, recipesQuery, createRecipe, updateRecipe, deleteRecipe } =
     useInventoryRecipes(productOptionId);
   const { items } = useInventoryItems();
