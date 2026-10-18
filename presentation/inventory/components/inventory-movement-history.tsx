@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import dayjs from "dayjs";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -6,6 +7,8 @@ import { GroupedList } from "@/presentation/theme/components/grouped-list";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { groupByDay } from "@/core/i18n/utils";
+import DaySectionHeader from "@/presentation/inventory/components/day-section-header";
 import {
   getMovementCreatorName,
   InventoryMovementType,
@@ -115,6 +118,11 @@ export default function InventoryMovementHistory({
   unit,
 }: InventoryMovementHistoryProps) {
   const { t } = useTranslation("inventory");
+  // Movements arrive newest first, so each day's group keeps that order.
+  const days = useMemo(
+    () => groupByDay(movements, (movement) => movement.createdAt),
+    [movements],
+  );
 
   return (
     <ThemedView style={tw`gap-3 bg-transparent mt-4`}>
@@ -129,84 +137,92 @@ export default function InventoryMovementHistory({
           </ThemedText>
         </ThemedView>
       ) : (
-        <GroupedList
-          data={movements}
-          keyExtractor={(movement) => movement.id}
-          renderItem={(movement) => {
-            const visual = MOVEMENT_VISUALS[movement.type] ?? DEFAULT_VISUAL;
-            const isIncrease = INCREASE_TYPES.has(movement.type)
-              ? true
-              : MOVEMENT_VISUALS[movement.type]
-                ? false
-                : movement.quantity >= 0;
+        days.map(({ day, items }) => (
+          <ThemedView key={day} style={tw`gap-2 bg-transparent`}>
+            <ThemedView style={tw`px-1 bg-transparent`}>
+              <DaySectionHeader day={day} />
+            </ThemedView>
+            <GroupedList
+              data={items}
+              keyExtractor={(movement) => movement.id}
+              renderItem={(movement) => {
+                const visual =
+                  MOVEMENT_VISUALS[movement.type] ?? DEFAULT_VISUAL;
+                const isIncrease = INCREASE_TYPES.has(movement.type)
+                  ? true
+                  : MOVEMENT_VISUALS[movement.type]
+                    ? false
+                    : movement.quantity >= 0;
 
-            const creator = getMovementCreatorName(movement);
+                const creator = getMovementCreatorName(movement);
 
-            return (
-              <ThemedView
-                style={tw`flex-row items-center justify-between bg-transparent`}
-              >
-                <ThemedView
-                  style={tw`flex-row items-center gap-3 flex-1 bg-transparent`}
-                >
+                return (
                   <ThemedView
-                    style={tw`w-9 h-9 rounded-full bg-background items-center justify-center shadow-xs`}
+                    style={tw`flex-row items-center justify-between bg-transparent`}
                   >
-                    <Icon
-                      name={visual.icon}
-                      size={18}
-                      color={tw.color(visual.iconColor)}
-                    />
-                  </ThemedView>
-                  <ThemedView style={tw`gap-0.5 flex-1 bg-transparent`}>
-                    <ThemedText
-                      type="body2"
-                      style={{ fontFamily: typography.medium }}
+                    <ThemedView
+                      style={tw`flex-row items-center gap-3 flex-1 bg-transparent`}
                     >
-                      {t(`movementTypes.${movement.type}`, {
-                        defaultValue: movement.type,
-                      })}
-                    </ThemedText>
-                    <ThemedText
-                      type="small"
-                      style={tw`text-gray-500`}
-                      numberOfLines={1}
-                    >
-                      {dayjs(movement.createdAt).format("MMM D, HH:mm")}
-                      {movement.note ? ` · ${movement.note}` : ""}
-                    </ThemedText>
-                    {creator && (
-                      <ThemedText
-                        type="small"
-                        style={tw`text-gray-500`}
-                        numberOfLines={1}
+                      <ThemedView
+                        style={tw`w-9 h-9 rounded-full bg-background items-center justify-center shadow-xs`}
                       >
-                        {t("detail.movementBy", { name: creator })}
+                        <Icon
+                          name={visual.icon}
+                          size={18}
+                          color={tw.color(visual.iconColor)}
+                        />
+                      </ThemedView>
+                      <ThemedView style={tw`gap-0.5 flex-1 bg-transparent`}>
+                        <ThemedText
+                          type="body2"
+                          style={{ fontFamily: typography.medium }}
+                        >
+                          {t(`movementTypes.${movement.type}`, {
+                            defaultValue: movement.type,
+                          })}
+                        </ThemedText>
+                        <ThemedText
+                          type="small"
+                          style={tw`text-gray-500`}
+                          numberOfLines={1}
+                        >
+                          {dayjs(movement.createdAt).format("HH:mm")}
+                          {movement.note ? ` · ${movement.note}` : ""}
+                        </ThemedText>
+                        {creator && (
+                          <ThemedText
+                            type="small"
+                            style={tw`text-gray-500`}
+                            numberOfLines={1}
+                          >
+                            {t("detail.movementBy", { name: creator })}
+                          </ThemedText>
+                        )}
+                      </ThemedView>
+                    </ThemedView>
+                    <ThemedView style={tw`items-end gap-0.5 bg-transparent`}>
+                      <ThemedText
+                        type="body2"
+                        style={[
+                          { fontFamily: typography.semibold },
+                          tw.style(visual.textColor),
+                        ]}
+                      >
+                        {isIncrease ? "+" : "-"}
+                        {Math.abs(movement.quantity)} {unit}
                       </ThemedText>
-                    )}
+                      {movement.quantityAfter != null && (
+                        <ThemedText type="small" style={tw`text-gray-500`}>
+                          {movement.quantityAfter} {unit}
+                        </ThemedText>
+                      )}
+                    </ThemedView>
                   </ThemedView>
-                </ThemedView>
-                <ThemedView style={tw`items-end gap-0.5 bg-transparent`}>
-                  <ThemedText
-                    type="body2"
-                    style={[
-                      { fontFamily: typography.semibold },
-                      tw.style(visual.textColor),
-                    ]}
-                  >
-                    {isIncrease ? "+" : "-"}
-                    {Math.abs(movement.quantity)} {unit}
-                  </ThemedText>
-                  {movement.quantityAfter != null && (
-                    <ThemedText type="small" style={tw`text-gray-500`}>
-                      {movement.quantityAfter} {unit}
-                    </ThemedText>
-                  )}
-                </ThemedView>
-              </ThemedView>
-            );
-          }}
-        />
+                );
+              }}
+            />
+          </ThemedView>
+        ))
       )}
     </ThemedView>
   );
