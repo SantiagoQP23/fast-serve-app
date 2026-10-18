@@ -221,8 +221,9 @@ export default function FloatingSearchBar({
       >
         {children}
         {/* Elevation needs a filled background on the shadow-casting view. */}
-        <View style={tw`rounded-3xl  shadow-sm`}>
+        <View style={tw`rounded-3xl bg-surface-bright shadow-sm`}>
           <TextInput
+            variant="outlined"
             ref={inputRef}
             value={value}
             onChangeText={onChangeText}
@@ -245,7 +246,7 @@ export default function FloatingSearchBar({
             {...inputProps}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            containerStyle={tw`bg-surface-container-low rounded-3xl`}
+            containerStyle={tw`bg-surface-bright rounded-3xl`}
           />
         </View>
       </Animated.View>
