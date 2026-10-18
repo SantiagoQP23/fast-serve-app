@@ -71,7 +71,7 @@ export default function ActionsBottomSheet({
                 onPress={item.onPress}
                 style={(state) =>
                   tw.style(
-                    "flex-row items-center gap-3 py-3",
+                    "flex-row items-center gap-4 py-3",
                     state.pressed && "opacity-60",
                     item.disabled && "opacity-40",
                   )

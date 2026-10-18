@@ -1,4 +1,3 @@
-import { Toaster } from "sonner-native";
 import { router, Stack, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
@@ -16,6 +15,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { useState, useEffect } from "react";
 import { useGlobalStore } from "@/presentation/shared/store/useGlobalStore";
 import { OfflineToast } from "@/presentation/shared/components/offline-toast";
+import { RootToaster } from "@/presentation/shared/components/app-toaster";
 import { SyncIndicator } from "@/presentation/shared/components/sync-indicator";
 import { GlobalLoader } from "@/presentation/shared/components/global-loader";
 import { SocketLoaderBottomSheet } from "@/presentation/shared/components/socket-loader-bottom-sheet";
@@ -220,16 +220,7 @@ export default function RootLayout() {
         <SafeAreaView style={tw`flex-1 bg-background `}>
           {renderContent()}
         </SafeAreaView>
-        <Toaster
-          style={{ zIndex: 50000 }}
-          toastOptions={{
-            titleStyle: { fontFamily: typography.medium },
-            descriptionStyle: { fontFamily: typography.regular },
-            actionButtonTextStyle: { fontFamily: typography.medium },
-            cancelButtonTextStyle: { fontFamily: typography.medium },
-            style: { backgroundColor: tw.color("surface-container-low") },
-          }}
-        />
+        <RootToaster />
       </GestureHandlerRootView>
     </QueryClientProvider>
   );

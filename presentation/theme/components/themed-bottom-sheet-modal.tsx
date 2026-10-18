@@ -6,6 +6,7 @@ import {
 import { forwardRef } from "react";
 import { View, useWindowDimensions } from "react-native";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
+import { SheetToaster } from "@/presentation/shared/components/app-toaster";
 
 export type ThemedBottomSheetModalProps = BottomSheetProps;
 
@@ -37,9 +38,13 @@ export const ThemedBottomSheetModal = forwardRef<
           style={{ width: SHEET_MAX_WIDTH, alignSelf: "center", flexGrow: 1 }}
         >
           {children}
+          <SheetToaster />
         </View>
       ) : (
-        children
+        <>
+          {children}
+          <SheetToaster />
+        </>
       )}
     </BottomSheetModal>
   );
