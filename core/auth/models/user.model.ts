@@ -26,6 +26,19 @@ export function isAdminLevelRole(role?: Roles): boolean {
   return isValidRole(role, ADMIN_LEVEL_ROLES);
 }
 
+const INVENTORY_ROLES = [
+  Roles.OWNER,
+  Roles.ADMIN,
+  Roles.CASHIER,
+  Roles.WAITER,
+  Roles.COOK,
+];
+
+/** Every restaurant role can use every option of the inventory module. */
+export function canManageInventory(role?: Roles): boolean {
+  return isValidRole(role, INVENTORY_ROLES);
+}
+
 export interface RestaurantRole {
   id: number;
   restaurant: Restaurant;
