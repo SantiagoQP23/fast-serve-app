@@ -278,6 +278,13 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="inventory/purchases/shopping-list/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
           name="inventory/purchases/detail/index"
           options={{
             headerShown: false,

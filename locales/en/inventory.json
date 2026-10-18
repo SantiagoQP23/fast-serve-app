@@ -307,6 +307,19 @@
     "removeItemSuccess": "Product removed from the purchase",
     "removeItemError": "Could not remove the product"
   },
+  "shoppingList": {
+    "title": "Shopping list",
+    "lowCount_one": "{{count}} item low on stock",
+    "lowCount_other": "{{count}} items low on stock",
+    "allGood": "All good, nothing low on stock",
+    "empty": "No items low on stock",
+    "emptyDescription": "Items at or below their minimum stock show up here.",
+    "stockAndMinimum": "{{stock}} left · Minimum {{minimum}}",
+    "suggested": "Buy ≈ {{quantity}}",
+    "atMinimum": "At the minimum",
+    "startPurchase": "Start a purchase with this list",
+    "share": "Share list"
+  },
   "counts": {
     "title": "Inventory counts",
     "history": "Count history",
