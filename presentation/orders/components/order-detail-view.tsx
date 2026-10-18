@@ -734,7 +734,9 @@ export default function OrderDetailView({
         {/* Backdrop */}
         <View style={tw`flex-1 bg-black/50 items-center justify-center`}>
           {/* Modal card */}
-          <View style={tw`bg-surface-bright rounded-2xl w-4/5 max-w-md p-5 shadow-lg`}>
+          <View
+            style={tw`bg-surface-bright rounded-2xl w-4/5 max-w-md p-5 shadow-lg`}
+          >
             <ThemedText type="h4">{t("orders:dialogs.removeTitle")}</ThemedText>
             <ThemedText type="body1" style={tw`mt-2 mb-4`}>
               {t("orders:dialogs.removeMessage")}
@@ -830,7 +832,7 @@ export default function OrderDetailView({
                         : "shopping-bag"
                     }
                     size={24}
-                    color={tw.color("primary")}
+                    color={tw.color("text")}
                   />
                   <ThemedText type="h2">
                     {order.type === OrderType.IN_PLACE
@@ -1006,9 +1008,7 @@ export default function OrderDetailView({
                         </ThemedView>
                         <Icon
                           name={
-                            isDeliveredExpanded
-                              ? "chevron-up"
-                              : "chevron-down"
+                            isDeliveredExpanded ? "chevron-up" : "chevron-down"
                           }
                           size={20}
                           color={tw.color("gray-400")}
@@ -1057,9 +1057,7 @@ export default function OrderDetailView({
                         </ThemedView>
                         <Icon
                           name={
-                            isCancelledExpanded
-                              ? "chevron-up"
-                              : "chevron-down"
+                            isCancelledExpanded ? "chevron-up" : "chevron-down"
                           }
                           size={20}
                           color={tw.color("gray-400")}
@@ -1120,11 +1118,7 @@ export default function OrderDetailView({
                 {/* Empty state for closed orders with no items */}
                 {isClosed && !hasItems && (
                   <ThemedView style={tw`mb-6 p-8 items-center justify-center`}>
-                    <Icon
-                      name="file"
-                      size={48}
-                      color={tw.color("gray-300")}
-                    />
+                    <Icon name="file" size={48} color={tw.color("gray-300")} />
                     <ThemedText
                       type="body1"
                       style={tw`text-gray-500 mt-4 text-center`}
@@ -1230,9 +1224,7 @@ export default function OrderDetailView({
         </Container>
 
         {/* Footer - Total */}
-        <ThemedView
-          style={tw`px-4 py-4 border-t border-border bg-background`}
-        >
+        <ThemedView style={tw`px-4 py-4 border-t border-border bg-background`}>
           <ThemedView style={tw`flex-row justify-between items-center`}>
             <ThemedText type="h4" style={tw`text-gray-600`}>
               {t("common:labels.total")}
@@ -1321,9 +1313,7 @@ export default function OrderDetailView({
                   onPress={
                     activeTab === "products" ? handleAddProduct : handleAddBill
                   }
-                  icon={
-                    activeTab === "products" ? "plus" : "credit-card"
-                  }
+                  icon={activeTab === "products" ? "plus" : "credit-card"}
                   size={40}
                   variant="secondary"
                 ></IconButton>
