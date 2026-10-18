@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { ScrollView, RefreshControl, Pressable, View } from "react-native";
 import { router } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import {
   BottomSheetMethods,
   BottomSheetView,
@@ -293,14 +293,14 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
 
   const toolbarItems: ToolbarItem[] = [
     {
-      icon: "reader-outline",
+      icon: "book-open-text",
       label: t("tabs.inventory"),
       onPress: () => changeTab("inventory"),
       active: activeTab === "inventory",
       accessibilityLabel: t("title"),
     },
     {
-      icon: "clipboard-outline",
+      icon: "clipboard",
       label: t("tabs.counts"),
       onPress: () => changeTab("counts"),
       active: activeTab === "counts",
@@ -309,7 +309,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     ...(canManage
       ? [
           {
-            icon: "receipt-outline" as const,
+            icon: "receipt-text" as const,
             label: t("tabs.purchases"),
             onPress: () => changeTab("purchases"),
             active: activeTab === "purchases",
@@ -337,7 +337,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
               accessibilityLabel={t("common:actions.goBack")}
               style={({ pressed }) => tw.style(pressed && "opacity-70")}
             >
-              <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+              <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
             </Pressable>
           )}
           <ThemedText
@@ -354,7 +354,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
               accessibilityLabel={t("categories.title")}
               accessibilityRole="button"
             >
-              <Ionicons name="folder-outline" color={tw.color("on-surface")} size={22} />
+              <Icon name="folder" color={tw.color("on-surface")} size={22} />
             </Pressable>
           )}
         </ThemedView>
@@ -368,7 +368,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
             >
               <TextInput
                 placeholder={t("searchPlaceholder")}
-                icon="search-outline"
+                icon="search"
                 editable={false}
                 pointerEvents="none"
               />
@@ -415,7 +415,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
 
                   {canManage && (
                     <IconButton
-                      icon="add"
+                      icon="plus"
                       variant="outlined"
                       size={18}
                       onPress={handleCreateCategory}
@@ -452,7 +452,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
 
           {browserQuery.isError && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+              <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
               <ThemedText type="body1" style={tw`text-red-500`}>
                 {t("loadError")}
               </ThemedText>
@@ -468,7 +468,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
             !browserQuery.isError &&
             catalogItems.length === 0 && (
               <ThemedView style={tw`items-center py-8 gap-3`}>
-                <Ionicons name="cube-outline" size={48} color={tw.color("gray-400")} />
+                <Icon name="package" size={48} color={tw.color("gray-400")} />
                 <ThemedText type="body1" style={tw`font-semibold`}>
                   {t("empty")}
                 </ThemedText>
@@ -496,7 +496,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
             catalogItems.length > 0 &&
             browsedItems.length === 0 && (
               <ThemedView style={tw`items-center py-8 gap-3`}>
-                <Ionicons name="search-outline" size={40} color={tw.color("gray-400")} />
+                <Icon name="search" size={40} color={tw.color("gray-400")} />
                 <ThemedText type="body1" style={tw`font-semibold`}>
                   {t("noResults")}
                 </ThemedText>
@@ -581,7 +581,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
             style={tw`flex-row items-center gap-3 bg-surface rounded-full shadow-sm px-3 py-2`}
           >
             <IconButton
-              icon="close"
+              icon="x"
               variant="text"
               onPress={handleCancelSelectionMode}
               accessibilityLabel={t("selection.cancel")}
@@ -590,14 +590,14 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
               {t("selection.count", { count: selectedItemIds.size })}
             </ThemedText>
             <IconButton
-              icon="folder-outline"
+              icon="folder"
               variant="secondary"
               onPress={handleOpenMoveCategorySheet}
               disabled={selectedItemIds.size === 0}
               accessibilityLabel={t("selection.move")}
             />
             <IconButton
-              icon="trash-outline"
+              icon="trash"
               variant="destructive"
               onPress={() => setShowBulkDeleteConfirm(true)}
               disabled={selectedItemIds.size === 0}
@@ -609,7 +609,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
             <FloatingToolbar items={toolbarItems} />
             {canManage && (
               <IconButton
-                icon="add"
+                icon="plus"
                 size={40}
                 variant="filled"
                 onPress={handleOpenAddSelector}
@@ -672,8 +672,8 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
               <ThemedView
                 style={tw`flex-row items-center gap-3 bg-transparent`}
               >
-                <Ionicons
-                  name="cart-outline"
+                <Icon
+                  name="shopping-cart"
                   size={26}
                   color={tw.color("text-on-surface-variant")}
                 />
@@ -695,8 +695,8 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
               <ThemedView
                 style={tw`flex-row items-center gap-3 bg-transparent`}
               >
-                <Ionicons
-                  name="clipboard-outline"
+                <Icon
+                  name="clipboard"
                   size={26}
                   color={tw.color("text-on-surface-variant")}
                 />
@@ -724,7 +724,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
             subtitle={itemForOptions.name}
             items={[
               {
-                icon: "create-outline",
+                icon: "square-pen",
                 label: t("editItem"),
                 onPress: () => {
                   optionsSheetRef.current?.dismiss();
@@ -732,14 +732,14 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                 },
               },
               {
-                icon: "power-outline",
+                icon: "power",
                 label: itemForOptions.isActive
                   ? t("deactivateItem")
                   : t("activateItem"),
                 onPress: () => handleToggleActive(itemForOptions),
               },
               {
-                icon: "trash-outline",
+                icon: "trash",
                 label: t("deleteItem"),
                 color: "text-red-600",
                 onPress: () => {
@@ -758,12 +758,12 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
           subtitle={t("selection.count", { count: selectedItemIds.size })}
           items={[
             ...categories.map((category) => ({
-              icon: "folder-outline" as const,
+              icon: "folder" as const,
               label: category.name,
               onPress: () => handleConfirmBulkMove(category.id),
             })),
             {
-              icon: "folder-open-outline" as const,
+              icon: "folder-open" as const,
               label: t("categories.none"),
               onPress: () => handleConfirmBulkMove(null),
             },
@@ -777,9 +777,9 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
 
   const closePane = () => setSelection(null);
   const emptyPane = {
-    inventory: { icon: "cube-outline", text: t("pane.selectItem") },
-    counts: { icon: "clipboard-outline", text: t("pane.selectCount") },
-    purchases: { icon: "receipt-outline", text: t("pane.selectPurchase") },
+    inventory: { icon: "package", text: t("pane.selectItem") },
+    counts: { icon: "clipboard", text: t("pane.selectCount") },
+    purchases: { icon: "receipt-text", text: t("pane.selectPurchase") },
   } as const;
 
   return (
@@ -812,7 +812,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
         )}
         {!selection && (
           <ThemedView style={tw`flex-1 items-center justify-center gap-4 px-8`}>
-            <Ionicons
+            <Icon
               name={emptyPane[activeTab].icon}
               size={64}
               color={tw.color("gray-400")}

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { RefreshControl, ScrollView, View } from "react-native";
 import { useRouter } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { toast } from "sonner-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -130,8 +130,8 @@ export default function UnprintedTicketsScreen() {
       >
         {tickets.length === 0 && (
           <ThemedView style={tw`items-center py-12`}>
-            <Ionicons
-              name="receipt-outline"
+            <Icon
+              name="receipt-text"
               size={48}
               color={tw.color("gray-400")}
             />
@@ -164,7 +164,7 @@ export default function UnprintedTicketsScreen() {
             style={tw`w-full flex-row items-center gap-1 bg-surface rounded-full shadow-sm px-2 py-2`}
           >
             <IconButton
-              icon="close"
+              icon="x"
               variant="text"
               onPress={cancelSelectionMode}
               accessibilityLabel={t("orders:unprintedTickets.cancelSelection")}
@@ -191,7 +191,7 @@ export default function UnprintedTicketsScreen() {
             <Button
               variant="secondary"
               size="small"
-              leftIcon="eye-off-outline"
+              leftIcon="eye-off"
               label={t("orders:tickets.skip")}
               loading={isSkippingSelected}
               disabled={selectedTickets.length === 0 || isSkippingSelected}

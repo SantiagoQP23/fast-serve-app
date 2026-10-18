@@ -6,7 +6,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import Button from "@/presentation/theme/components/button";
 import NewBillDetailCard from "@/presentation/orders/components/new-bill-detail-card";
 import {
@@ -221,8 +221,8 @@ export default function EditBillScreen() {
         {/* Items List */}
         {editableDetails.length === 0 ? (
           <ThemedView style={tw`p-8 items-center gap-2`}>
-            <Ionicons
-              name="checkmark-circle"
+            <Icon
+              name="circle-check"
               size={48}
               color={tw.color("green-500")}
             />

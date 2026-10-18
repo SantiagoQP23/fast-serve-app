@@ -27,7 +27,7 @@ import {
 } from "@/core/restaurant/models/payment-method.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import {
   BottomSheetView,
   type BottomSheetMethods,
@@ -48,15 +48,15 @@ const iconForType = (
 ): PaymentMethodCardProps["icon"] => {
   switch (type) {
     case PaymentMethodCategory.CASH:
-      return "cash-outline";
+      return "banknote";
     case PaymentMethodCategory.CARD:
-      return "card-outline";
+      return "credit-card";
     case PaymentMethodCategory.TRANSFER:
-      return "wallet-outline";
+      return "wallet";
     case PaymentMethodCategory.DIGITAL_WALLET:
-      return "phone-portrait-outline";
+      return "smartphone";
     default:
-      return "ellipsis-horizontal-circle-outline";
+      return "circle-ellipsis";
   }
 };
 
@@ -104,7 +104,7 @@ export default function PaymentMethodScreen() {
         isRefetching ? (
           <ActivityIndicator size="small" style={{ marginRight: 4 }} />
         ) : (
-          <IconButton icon="refresh-outline" onPress={() => refetch()} />
+          <IconButton icon="refresh-cw" onPress={() => refetch()} />
         ),
     });
   }, [isRefetching, refetch, navigation]);
@@ -175,7 +175,7 @@ export default function PaymentMethodScreen() {
   if (activePaymentMethods.length === 0) {
     return (
       <ThemedView style={tw`flex-1 items-center justify-center px-8 gap-4`}>
-        <Ionicons name="card-outline" size={56} color={tw.color("gray-400")} />
+        <Icon name="credit-card" size={56} color={tw.color("gray-400")} />
         <ThemedView style={tw`items-center gap-1`}>
           <ThemedText type="h3" style={tw`text-center`}>
             No payment methods available
@@ -187,7 +187,7 @@ export default function PaymentMethodScreen() {
         </ThemedView>
         <Button
           label="Go to Restaurant settings"
-          leftIcon="storefront-outline"
+          leftIcon="store"
           variant="outline"
           onPress={() => router.push("/(profile)/restaurant")}
         />
@@ -379,8 +379,8 @@ export default function PaymentMethodScreen() {
                     pressed && tw`opacity-70 bg-gray-100`,
                   ]}
                 >
-                  <Ionicons
-                    name="images-outline"
+                  <Icon
+                    name="images"
                     size={24}
                     color={tw.color("gray-400")}
                   />
@@ -398,8 +398,8 @@ export default function PaymentMethodScreen() {
                     pressed && tw`opacity-70 bg-gray-100`,
                   ]}
                 >
-                  <Ionicons
-                    name="camera-outline"
+                  <Icon
+                    name="camera"
                     size={24}
                     color={tw.color("gray-400")}
                   />
@@ -432,7 +432,7 @@ export default function PaymentMethodScreen() {
           {/* <ThemedView */}
           {/*   style={tw`flex-row items-center gap-2 p-3 rounded-xl bg-blue-50`} */}
           {/* > */}
-          {/*   <Ionicons */}
+          {/*   <Icon */}
           {/*     name="information-circle-outline" */}
           {/*     size={18} */}
           {/*     color={tw.color("blue-500")} */}
@@ -506,7 +506,7 @@ export default function PaymentMethodScreen() {
             inputMode="numeric"
             placeholder="0.00"
             bottomSheet
-            icon="cash-outline"
+            icon="banknote"
           />
 
           <ScrollView

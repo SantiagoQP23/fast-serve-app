@@ -1,5 +1,5 @@
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
-import type { IoniconsIconName } from "@react-native-vector-icons/ionicons/static";
+import type { IconName } from "@/presentation/theme/components/icon";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { LabelProps } from "@/presentation/theme/components/label";
 
@@ -38,13 +38,13 @@ export function useOrderStatus(status: OrderStatus) {
     [OrderStatus.CANCELLED]: "bg-red-500",
   };
 
-  const statusIcons: { [key in OrderStatus]: IoniconsIconName } =
+  const statusIcons: { [key in OrderStatus]: IconName } =
     {
-      [OrderStatus.PENDING]: "time-outline",
-      [OrderStatus.IN_PROGRESS]: "flame-outline",
-      [OrderStatus.READY]: "notifications-outline",
-      [OrderStatus.DELIVERED]: "checkmark-done-outline",
-      [OrderStatus.CANCELLED]: "close-circle-outline",
+      [OrderStatus.PENDING]: "clock",
+      [OrderStatus.IN_PROGRESS]: "flame",
+      [OrderStatus.READY]: "bell",
+      [OrderStatus.DELIVERED]: "check-check",
+      [OrderStatus.CANCELLED]: "circle-x",
     };
 
   const labelColors: { [key in OrderStatus]: LabelProps["color"] } = {

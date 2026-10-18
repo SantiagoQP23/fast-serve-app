@@ -22,7 +22,7 @@ import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCart
 import { useReplaceOrderDetailStore } from "@/presentation/orders/store/replaceOrderDetailStore";
 import { useEditSaleStore } from "@/presentation/orders/store/editSaleStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
@@ -190,8 +190,8 @@ export default function RestaurantMenuScreen() {
       <ThemedView
         style={tw`flex-1 px-4 pt-8 items-center justify-center gap-4`}
       >
-        <Ionicons
-          name="restaurant-outline"
+        <Icon
+          name="utensils"
           size={64}
           color={tw.color("gray-400")}
         />
@@ -209,7 +209,7 @@ export default function RestaurantMenuScreen() {
                 ? t("menu:noMenu.loading")
                 : t("menu:noMenu.loadButton")
           }
-          leftIcon="cloud-download-outline"
+          leftIcon="cloud-download"
           onPress={handleLoadMenu}
           disabled={isLoadingMenu}
           loading={isLoadingMenu}
@@ -229,8 +229,8 @@ export default function RestaurantMenuScreen() {
         <ThemedView
           style={tw`flex-row items-center gap-3 p-3 rounded-xl bg-gray-100`}
         >
-          <Ionicons
-            name="receipt-outline"
+          <Icon
+            name="receipt-text"
             size={20}
             color={tw.color("gray-700")}
           />
@@ -243,8 +243,8 @@ export default function RestaurantMenuScreen() {
         <ThemedView
           style={tw`flex-row items-center gap-3 p-3 rounded-xl bg-gray-100`}
         >
-          <Ionicons
-            name="swap-horizontal-outline"
+          <Icon
+            name="arrow-left-right"
             size={20}
             color={tw.color("gray-700")}
           />
@@ -340,7 +340,7 @@ export default function RestaurantMenuScreen() {
               label={t("bills:editSale.backToSale", {
                 count: newSaleLineCount,
               })}
-              leftIcon="receipt-outline"
+              leftIcon="receipt-text"
               onPress={() => router.back()}
             />
           </ThemedView>
@@ -356,7 +356,7 @@ export default function RestaurantMenuScreen() {
             >
               <Button
                 label={t("menu:goToCart")}
-                leftIcon="cart-outline"
+                leftIcon="shopping-cart"
                 onPress={() => router.push("/(new-order)/cart")}
               />
             </ThemedView>
@@ -379,7 +379,7 @@ export default function RestaurantMenuScreen() {
               </ThemedView>
               <Button
                 label={t("menu:goToCart")}
-                leftIcon="cart-outline"
+                leftIcon="shopping-cart"
                 onPress={() => router.push("/(new-order)/cart")}
               />
             </ThemedView>

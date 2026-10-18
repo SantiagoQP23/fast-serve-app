@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { FlatList } from "react-native";
 import { router } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -128,8 +128,8 @@ export default function PurchaseCartPanel({
         }}
         ListEmptyComponent={
           <ThemedView style={tw`items-center py-12`}>
-            <Ionicons
-              name="cart-outline"
+            <Icon
+              name="shopping-cart"
               size={48}
               color={tw.color("gray-400")}
             />
@@ -142,7 +142,7 @@ export default function PurchaseCartPanel({
           <ThemedView style={tw`gap-4 bg-transparent`}>
             {!embedded && (
               <Button
-                leftIcon="add-outline"
+                leftIcon="plus"
                 label={t("purchases.addProduct")}
                 variant="secondary"
                 onPress={handleAddProduct}
@@ -162,7 +162,7 @@ export default function PurchaseCartPanel({
 
       <ThemedView style={tw`pb-2 bg-transparent`}>
         <Button
-          leftIcon="checkmark-outline"
+          leftIcon="check"
           label={t("purchases.confirm")}
           onPress={handleRegister}
           loading={createPurchase.isPending}

@@ -32,7 +32,7 @@ import {
   getProductOptionAvailableQuantity,
   getProductOptionStockLevel,
 } from "@/core/menu/models/product-optionl.model";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import {
   BottomSheetView,
   type BottomSheetMethods,
@@ -223,7 +223,7 @@ export default function ProductScreen() {
       headerRight: () =>
         isAdmin ? (
           <IconButton
-            icon="create-outline"
+            icon="square-pen"
             onPress={openCustomBottomSheet}
             size={24}
           />
@@ -417,7 +417,7 @@ export default function ProductScreen() {
                     <Label
                       variant="solid"
                       size="small"
-                      leftIcon="cube-outline"
+                      leftIcon="package"
                       color={STOCK_LABEL_COLOR[selectedStock.level]}
                       text={
                         selectedStock.level === "out"
@@ -527,14 +527,14 @@ export default function ProductScreen() {
             <ThemedView style={tw`items-center gap-3 w-full`}>
               <ThemedView style={tw`flex-row items-center gap-6`}>
                 <IconButton
-                  icon="remove-outline"
+                  icon="minus"
                   onPress={decrement}
                   variant="secondary"
                   size={40}
                 />
                 <ThemedText type="h1">{counter}</ThemedText>
                 <IconButton
-                  icon="add"
+                  icon="plus"
                   onPress={increment}
                   variant="secondary"
                   size={40}
@@ -543,8 +543,8 @@ export default function ProductScreen() {
               </ThemedView>
               {exceedsStock && (
                 <ThemedView style={tw`flex-row items-center gap-1.5`}>
-                  <Ionicons
-                    name="alert-circle-outline"
+                  <Icon
+                    name="circle-alert"
                     size={16}
                     color={tw.color("orange-700")}
                   />
@@ -571,8 +571,8 @@ export default function ProductScreen() {
                   }
                   icon={
                     typeOrderDetail === OrderType.IN_PLACE
-                      ? "restaurant-outline"
-                      : "bag-outline"
+                      ? "utensils"
+                      : "shopping-bag"
                   }
                   variant="filter"
                   onPress={() => typePickerRef.current?.present()}
@@ -582,7 +582,7 @@ export default function ProductScreen() {
                   <Chip
                     variant="assist"
                     label={t("orders:newOrder.addNote")}
-                    icon="document-text-outline"
+                    icon="file-text"
                     onPress={openNoteBottomSheet}
                   />
                 )}
@@ -604,7 +604,7 @@ export default function ProductScreen() {
                 }
                 onPress={onAddProduct}
                 leftIcon={
-                  isReplaceMode ? "swap-horizontal-outline" : "cart-outline"
+                  isReplaceMode ? "arrow-left-right" : "shopping-cart"
                 }
                 disabled={
                   isUnavailable ||

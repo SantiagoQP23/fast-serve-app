@@ -13,7 +13,7 @@ import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.m
 import { Account, AccountType } from "@/core/restaurant/models/account.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { useBills } from "@/presentation/orders/hooks/useBills";
 import { Pressable } from "react-native";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
@@ -226,8 +226,8 @@ export default function AccountScreen() {
         <ThemedView
           style={tw`flex-row items-center justify-center gap-3 py-4 rounded-2xl  mb-6`}
         >
-          <Ionicons
-            name="card-outline"
+          <Icon
+            name="credit-card"
             size={26}
             color={tw.color("gray-500")}
           />
@@ -256,8 +256,8 @@ export default function AccountScreen() {
       >
         {accounts.length === 0 ? (
           <ThemedView style={tw`items-center py-8 gap-2`}>
-            <Ionicons
-              name="wallet-outline"
+            <Icon
+              name="wallet"
               size={40}
               color={tw.color("gray-400")}
             />
@@ -283,11 +283,11 @@ export default function AccountScreen() {
                   <ThemedView
                     style={tw`w-10 h-10 rounded-full bg-gray-100 items-center justify-center`}
                   >
-                    <Ionicons
+                    <Icon
                       name={
                         account.type === AccountType.BANK
-                          ? "business-outline"
-                          : "cash-outline"
+                          ? "building"
+                          : "banknote"
                       }
                       size={20}
                       color={tw.color("gray-700")}
@@ -302,8 +302,8 @@ export default function AccountScreen() {
                     ) : null}
                   </ThemedView>
                   {isSelected && (
-                    <Ionicons
-                      name="checkmark-circle"
+                    <Icon
+                      name="circle-check"
                       size={22}
                       color={tw.color("primary")}
                       style={tw`ml-2`}

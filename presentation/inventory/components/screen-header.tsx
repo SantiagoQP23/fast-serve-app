@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Pressable } from "react-native";
 import { router } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -13,8 +13,8 @@ interface InventoryScreenHeaderProps {
   right?: ReactNode;
   /** Defaults to router.back(). */
   onBack?: () => void;
-  /** "close" for detail panes next to a list (tablet). */
-  backIcon?: "arrow-back-outline" | "close";
+  /** "x" for detail panes next to a list (tablet). */
+  backIcon?: "arrow-left" | "x";
   /** Hide the back button, e.g. for a side panel that can't be left. */
   hideBack?: boolean;
 }
@@ -24,7 +24,7 @@ export default function InventoryScreenHeader({
   title,
   right,
   onBack,
-  backIcon = "arrow-back-outline",
+  backIcon = "arrow-left",
   hideBack = false,
 }: InventoryScreenHeaderProps) {
   const { t } = useTranslation("inventory");
@@ -36,13 +36,13 @@ export default function InventoryScreenHeader({
           onPress={onBack ?? (() => router.back())}
           accessibilityRole="button"
           accessibilityLabel={
-            backIcon === "close"
+            backIcon === "x"
               ? t("common:actions.close")
               : t("common:actions.goBack")
           }
           style={({ pressed }) => tw.style(pressed && "opacity-70")}
         >
-          <Ionicons name={backIcon} color={tw.color("on-surface")} size={24} />
+          <Icon name={backIcon} color={tw.color("on-surface")} size={24} />
         </Pressable>
       )}
       <ThemedText

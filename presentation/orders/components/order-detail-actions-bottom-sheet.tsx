@@ -7,9 +7,7 @@ import {
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
-import Ionicons, {
-  type IoniconsIconName,
-} from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 interface OrderDetailActionsBottomSheetProps {
@@ -21,7 +19,7 @@ interface OrderDetailActionsBottomSheetProps {
 }
 
 interface OptionItem {
-  icon: IoniconsIconName;
+  icon: IconName;
   label: string;
   hint?: string;
   color?: string;
@@ -64,14 +62,14 @@ const OrderDetailActionsBottomSheet = ({
 
   const options: OptionItem[] = [
     {
-      icon: "create-outline",
+      icon: "square-pen",
       label: t("orders:detailActions.editQuantity"),
       onPress: handleEditQuantity,
     },
     ...(onReplace
       ? [
           {
-            icon: "swap-horizontal-outline" as const,
+            icon: "arrow-left-right" as const,
             label: t("orders:detailActions.replaceItem"),
             hint: replaceBlockReason
               ? t(`orders:replaceItem.reasons.${replaceBlockReason}`)
@@ -81,7 +79,7 @@ const OrderDetailActionsBottomSheet = ({
         ]
       : []),
     {
-      icon: "trash-outline",
+      icon: "trash",
       label: t("orders:detailActions.deleteItem"),
       color: "text-red-500",
       onPress: handleDelete,
@@ -105,7 +103,7 @@ const OrderDetailActionsBottomSheet = ({
                 ),
               ]}
             >
-              <Ionicons
+              <Icon
                 name={option.icon}
                 size={22}
                 color={

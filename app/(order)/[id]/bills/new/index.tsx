@@ -6,7 +6,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
 import BillCard from "@/presentation/orders/components/bill-card";
@@ -203,8 +203,8 @@ export default function NewBillScreen() {
         {/* Items List */}
         {detailsToPay.length === 0 ? (
           <ThemedView style={tw`p-8 items-center gap-2`}>
-            <Ionicons
-              name="checkmark-circle"
+            <Icon
+              name="circle-check"
               size={48}
               color={tw.color("green-500")}
             />
@@ -250,8 +250,8 @@ export default function NewBillScreen() {
                     <ThemedView
                       style={tw`flex-row items-center gap-2 flex-1 bg-transparent`}
                     >
-                      <Ionicons
-                        name="checkmark-circle"
+                      <Icon
+                        name="circle-check"
                         size={18}
                         color={tw.color("primary")}
                       />

@@ -24,7 +24,7 @@ import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 
 import BillsFilterBottomSheet from "@/presentation/orders/components/bills-filter-bottom-sheet";
 import { BillListFiltersDto } from "@/core/orders/dto/bill-list-filters.dto";
@@ -233,8 +233,8 @@ export default function SalesContent({
           accessibilityLabel={t("bills:filters.title")}
           style={tw`p-3 rounded-2xl ${hasActiveFilters ? "bg-surface" : "bg-transparent"}`}
         >
-          <Ionicons
-            name="filter"
+          <Icon
+            name="funnel"
             size={20}
             color={hasActiveFilters ? tw.color("on-surface") : tw.color("gray-600")}
           />
@@ -253,8 +253,8 @@ export default function SalesContent({
             onPress={() => setShowTotalSales((prev) => !prev)}
             hitSlop={8}
           >
-            <Ionicons
-              name={showTotalSales ? "eye-off-outline" : "eye-outline"}
+            <Icon
+              name={showTotalSales ? "eye-off" : "eye"}
               size={18}
               color={tw.color("gray-500")}
             />
@@ -310,8 +310,8 @@ export default function SalesContent({
           </ThemedView>
         ) : (
           <ThemedView style={tw`py-20 items-center px-4`}>
-            <Ionicons
-              name="receipt-outline"
+            <Icon
+              name="receipt-text"
               size={64}
               color={tw.color("gray-300")}
             />
@@ -328,7 +328,7 @@ export default function SalesContent({
         )}
       </ScrollView>
       <Fab
-        icon="add-outline"
+        icon="plus"
         label={t("bills:list.newSale")}
         expanded={fabExpanded}
         onPress={onNewSale}

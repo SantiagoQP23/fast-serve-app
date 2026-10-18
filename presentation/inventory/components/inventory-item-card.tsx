@@ -1,7 +1,5 @@
 import { Pressable } from "react-native";
-import Ionicons, {
-  type IoniconsIconName,
-} from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Label, { LabelProps } from "@/presentation/theme/components/label";
@@ -35,7 +33,7 @@ interface InventoryItemCardProps {
 export const INVENTORY_STATUS_STYLES: Record<
   InventoryStockStatus,
   {
-    icon: IoniconsIconName;
+    icon: IconName;
     color: string;
     badgeBg: string;
     badgeText: string;
@@ -43,7 +41,7 @@ export const INVENTORY_STATUS_STYLES: Record<
   }
 > = {
   critical: {
-    icon: "alert-circle",
+    icon: "circle-alert",
     color: "red-500",
     badgeBg: "bg-red-100",
     badgeText: "text-red-700",
@@ -57,7 +55,7 @@ export const INVENTORY_STATUS_STYLES: Record<
     numberColor: "text-orange-600",
   },
   optimal: {
-    icon: "checkmark-circle",
+    icon: "circle-check",
     color: "emerald-500",
     badgeBg: "bg-emerald-100",
     badgeText: "text-emerald-800",
@@ -115,8 +113,8 @@ export default function InventoryItemCard({
     >
       <ThemedView style={tw`flex-row items-start justify-between gap-3`}>
         {selectionMode && (
-          <Ionicons
-            name={selected ? "checkmark-circle" : "ellipse-outline"}
+          <Icon
+            name={selected ? "circle-check" : "circle"}
             size={22}
             color={selected ? tw.color("blue-500") : tw.color("gray-400")}
           />

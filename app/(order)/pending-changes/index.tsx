@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ScrollView } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import { useShallow } from "zustand/react/shallow";
@@ -85,8 +85,8 @@ export default function PendingChangesScreen() {
       >
         {operations.length === 0 && (
           <ThemedView style={tw`items-center py-12`}>
-            <Ionicons
-              name="cloud-done-outline"
+            <Icon
+              name="cloud-check"
               size={48}
               color={tw.color("gray-400")}
             />
@@ -139,7 +139,7 @@ export default function PendingChangesScreen() {
                   <Button
                     variant="secondary"
                     size="small"
-                    leftIcon="refresh-outline"
+                    leftIcon="refresh-cw"
                     label={t("orders:offline.retry")}
                     onPress={() => retry(op)}
                   />

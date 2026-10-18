@@ -1,6 +1,6 @@
 import { RefreshControl, ScrollView } from "react-native";
 import { router } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -77,7 +77,7 @@ export default function InventoryCountDetailView({
         <InventoryScreenHeader
           title={t("counts.detailTitle")}
           onBack={onClose}
-          backIcon={embedded ? "close" : "arrow-back-outline"}
+          backIcon={embedded ? "x" : "arrow-left"}
         />
       </ThemedView>
 
@@ -99,7 +99,7 @@ export default function InventoryCountDetailView({
 
         {countQuery.isError && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+            <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
             <ThemedText type="body1" style={tw`text-red-500`}>
               {t("counts.notFound")}
             </ThemedText>
@@ -158,14 +158,14 @@ export default function InventoryCountDetailView({
               <ThemedView style={tw`gap-3 bg-transparent`}>
                 {hasPending && (
                   <Button
-                    leftIcon="play-outline"
+                    leftIcon="play"
                     label={t("counts.continue")}
                     onPress={() => openRun()}
                   />
                 )}
                 <ThemedView style={tw`flex-row gap-3 bg-transparent`}>
                   <Button
-                    leftIcon="add-outline"
+                    leftIcon="plus"
                     label={t("counts.addProducts")}
                     variant="outline"
                     onPress={addProducts}

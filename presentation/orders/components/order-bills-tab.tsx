@@ -5,7 +5,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useState, useCallback } from "react";
 import { useRouter } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import Button from "@/presentation/theme/components/button";
 import BillCard from "@/presentation/orders/components/bill-card";
 import { useBills } from "@/presentation/orders/hooks/useBills";
@@ -85,8 +85,8 @@ export default function OrderBillsTab({ order }: OrderBillsTabProps) {
 
       {bills?.length === 0 ? (
         <ThemedView style={tw`items-center flex-1 gap-4 mt-8`}>
-          <Ionicons
-            name="document-text-outline"
+          <Icon
+            name="file-text"
             size={80}
             color={tw.color("gray-500")}
           />

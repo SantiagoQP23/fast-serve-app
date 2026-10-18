@@ -1,4 +1,4 @@
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -16,8 +16,8 @@ export default function HistoryScreen() {
       </ThemedView>
 
       <ThemedView style={tw`flex-1 items-center justify-center gap-4`}>
-        <Ionicons
-          name="time-outline"
+        <Icon
+          name="clock"
           size={80}
           color={tw.color("gray-400")}
         />

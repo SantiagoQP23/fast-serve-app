@@ -10,7 +10,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 
 import Fab from "@/presentation/theme/components/fab";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -199,22 +199,22 @@ export default function MyOrdersScreen() {
     {
       label: t("tables:list.title"),
       value: "tables" as const,
-      icon: "grid-outline" as const,
+      icon: "layout-grid" as const,
     },
     {
       label: t("orders:details.takeAway"),
       value: "take-away" as const,
-      icon: "bag-handle-outline" as const,
+      icon: "handbag" as const,
     },
     {
       label: t("orders:homeViews.list"),
       value: "list" as const,
-      icon: "list-outline" as const,
+      icon: "list" as const,
     },
     {
       label: t("orders:homeViews.cards"),
       value: "cards" as const,
-      icon: "albums-outline" as const,
+      icon: "gallery-vertical-end" as const,
     },
   ];
   const currentView =
@@ -224,12 +224,12 @@ export default function MyOrdersScreen() {
     {
       label: t("orders:drawer.myOrders"),
       value: "my-orders" as const,
-      icon: "person-outline" as const,
+      icon: "user" as const,
     },
     {
       label: t("orders:drawer.allOrders"),
       value: "all-orders" as const,
-      icon: "people-outline" as const,
+      icon: "users" as const,
     },
   ];
 
@@ -329,8 +329,8 @@ export default function MyOrdersScreen() {
                   <ThemedView
                     style={tw` items-center justify-center flex-1 gap-4 mt-20`}
                   >
-                    <Ionicons
-                      name="document-text-outline"
+                    <Icon
+                      name="file-text"
                       size={80}
                       color={tw.color("gray-500")}
                     />
@@ -390,19 +390,19 @@ export default function MyOrdersScreen() {
               {
                 label: t("orders:views.products"),
                 value: "pending-products",
-                icon: "grid-outline",
+                icon: "layout-grid",
                 onPress: () => setSelectedView("pending-products"),
               },
               {
                 label: t("orders:views.orders"),
                 value: "order-lists",
-                icon: "list-outline",
+                icon: "list",
                 onPress: () => setSelectedView("order-lists"),
               },
             ]}
           />
           <Fab
-            icon="add-outline"
+            icon="plus"
             label={t("orders:actions.newOrder")}
             expanded={fabExpanded}
             onPress={handlePresentModalPress}
@@ -416,7 +416,7 @@ export default function MyOrdersScreen() {
 
   const emptyPane = (title: string, description: string) => (
     <ThemedView style={tw`flex-1 items-center justify-center gap-4 px-8`}>
-      <Ionicons name="receipt-outline" size={64} color={tw.color("gray-400")} />
+      <Icon name="receipt-text" size={64} color={tw.color("gray-400")} />
       <ThemedText type="h3">{title}</ThemedText>
       <ThemedText type="body2" style={tw`text-center max-w-xs`}>
         {description}

@@ -24,7 +24,7 @@ import BottomSheetPicker, {
 } from "@/presentation/theme/components/bottom-sheet-picker";
 import OrderDetailActionsBottomSheet from "./order-detail-actions-bottom-sheet";
 import Checkbox from "@/presentation/theme/components/checkbox";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { formatCurrency } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
@@ -242,7 +242,7 @@ export default function OrderDetailCard({
           </ThemedView>
           <ThemedView style={tw`flex-row items-center justify-between mb-4`}>
             <IconButton
-              icon="remove-outline"
+              icon="minus"
               onPress={() =>
                 setDeliveredDraft((current) => Math.max(0, current - 1))
               }
@@ -253,7 +253,7 @@ export default function OrderDetailCard({
               {deliveredDraft} / {detail.quantity}
             </ThemedText>
             <IconButton
-              icon="add"
+              icon="plus"
               onPress={() =>
                 setDeliveredDraft((current) =>
                   Math.min(detail.quantity, current + 1),
@@ -279,7 +279,7 @@ export default function OrderDetailCard({
               : () => (
                   <ThemedView style={tw`justify-center  pl-2 `}>
                     <IconButton
-                      icon="trash-outline"
+                      icon="trash"
                       variant="destructive"
                       onPress={onRemoveDetail}
                     />
@@ -305,8 +305,8 @@ export default function OrderDetailCard({
           >
             <ThemedView style={tw`flex-row  gap-4`}>
               {selectionMode && !isCancelled && (
-                <Ionicons
-                  name={selected ? "checkmark-circle" : "ellipse-outline"}
+                <Icon
+                  name={selected ? "circle-check" : "circle"}
                   size={20}
                   color={selected ? tw.color("blue-500") : tw.color("gray-400")}
                   style={tw`mt-1`}
@@ -405,8 +405,8 @@ export default function OrderDetailCard({
                       }
                       leftIcon={
                         detail.typeOrderDetail === OrderType.IN_PLACE
-                          ? "restaurant-outline"
-                          : "bag-outline"
+                          ? "utensils"
+                          : "shopping-bag"
                       }
                       color="default"
                       size="small"
@@ -424,7 +424,7 @@ export default function OrderDetailCard({
                   {showCreatedBy && (
                     <Label
                       text={detail.createdBy?.person.firstName || ""}
-                      leftIcon="person-outline"
+                      leftIcon="user"
                       size="small"
                       color="default"
                     />
@@ -433,7 +433,7 @@ export default function OrderDetailCard({
                     <Label
                       text={detail.updatedBy?.person.firstName || ""}
                       color="default"
-                      leftIcon="person-outline"
+                      leftIcon="user"
                       size="small"
                     />
                   )}

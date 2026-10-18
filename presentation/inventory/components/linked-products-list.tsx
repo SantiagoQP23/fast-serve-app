@@ -1,4 +1,4 @@
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { router } from "expo-router";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -30,7 +30,7 @@ export default function LinkedProductsList({
         <ThemedText type="body1">{t("detail.linkedProducts")}</ThemedText>
         {onAddPress && (
           <IconButton
-            icon="add-outline"
+            icon="plus"
             variant="secondary"
             size={20}
             onPress={onAddPress}
@@ -84,8 +84,8 @@ export default function LinkedProductsList({
                     {t("quantityWithUnit", { quantity: line.quantity, unit })}
                   </ThemedText>
                 </ThemedView>
-                <Ionicons
-                  name="chevron-forward"
+                <Icon
+                  name="chevron-right"
                   size={18}
                   color={tw.color("gray-400")}
                 />

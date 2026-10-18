@@ -1,14 +1,12 @@
 import { Pressable } from "react-native";
-import Ionicons, {
-  type IoniconsIconName,
-} from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 
 interface QuickActionButtonProps {
-  icon: IoniconsIconName;
+  icon: IconName;
   label: string;
   onPress: () => void;
   disabled?: boolean;
@@ -27,7 +25,7 @@ export const QuickActionButton = ({
         onPress={onPress}
         disabled={disabled}
       >
-        <Ionicons
+        <Icon
           name={icon}
           size={26}
           color={disabled ? tw.color("gray-400") : tw.color("primary")}

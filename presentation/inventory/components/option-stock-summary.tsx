@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import Button from "@/presentation/theme/components/button";
@@ -37,8 +37,8 @@ export default function OptionStockSummary({
     <ThemedView style={tw`flex-row items-center justify-between mt-1`}>
       {trackStock ? (
         <ThemedView style={tw`flex-row items-center gap-1`}>
-          <Ionicons
-            name="cube-outline"
+          <Icon
+            name="package"
             size={14}
             color={tw.color("text-on-surface-variant")}
           />

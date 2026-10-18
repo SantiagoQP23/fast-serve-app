@@ -1,16 +1,14 @@
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import Ionicons, {
-  type IoniconsIconName,
-} from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import React from "react";
 import { Pressable, PressableProps } from "react-native";
 
 export interface PaymentMethod {
   name: string;
   value: string;
-  icon: IoniconsIconName;
+  icon: IconName;
 }
 
 interface PaymentMethodCardProps extends PressableProps {
@@ -38,7 +36,7 @@ export default function PaymentMethodCard({
         <ThemedView
           style={tw`w-10 h-10 rounded-full bg-primary-container items-center justify-center`}
         >
-          <Ionicons
+          <Icon
             name={paymentMethod.icon}
             size={22}
             color={tw.color("on-primary-container")}
@@ -47,8 +45,8 @@ export default function PaymentMethodCard({
         <ThemedText type="h4" style={tw`flex-1 ml-3`}>
           {paymentMethod.name}
         </ThemedText>
-        <Ionicons
-          name="chevron-forward"
+        <Icon
+          name="chevron-right"
           size={18}
           color={tw.color("gray-400")}
         />
@@ -65,7 +63,7 @@ export default function PaymentMethodCard({
         active && tw`border-primary bg-gray-100`,
       ]}
     >
-      <Ionicons
+      <Icon
         name={paymentMethod.icon}
         size={30}
         color={tw.color("gray-700")}

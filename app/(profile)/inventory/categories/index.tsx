@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { ScrollView, RefreshControl, Pressable } from "react-native";
 import { router } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -75,7 +75,7 @@ export default function MenuInventoryCategoriesScreen() {
             onPress={() => router.back()}
             style={({ pressed }) => tw.style(pressed && "opacity-70")}
           >
-            <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+            <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
           </Pressable>
           <ThemedText
             type="h3"
@@ -109,7 +109,7 @@ export default function MenuInventoryCategoriesScreen() {
 
         {categoriesQuery.isError && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+            <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
             <ThemedText type="body1" style={tw`text-red-500`}>
               {t("categories.loadError")}
             </ThemedText>
@@ -125,7 +125,7 @@ export default function MenuInventoryCategoriesScreen() {
           !categoriesQuery.isError &&
           categories.length === 0 && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Ionicons name="folder-outline" size={48} color={tw.color("gray-400")} />
+              <Icon name="folder" size={48} color={tw.color("gray-400")} />
               <ThemedText type="body1" style={tw`font-semibold`}>
                 {t("categories.empty")}
               </ThemedText>
@@ -148,15 +148,15 @@ export default function MenuInventoryCategoriesScreen() {
           >
             <ThemedView style={tw`flex-row items-center justify-between`}>
               <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
-                <Ionicons
-                  name="folder-outline"
+                <Icon
+                  name="folder"
                   size={24}
                   color={tw.color("text-on-surface-variant")}
                 />
                 <ThemedText type="h4">{category.name}</ThemedText>
               </ThemedView>
               {canManage && (
-                <Ionicons
+                <Icon
                   name="ellipsis-vertical"
                   size={18}
                   color={tw.color("gray-400")}
@@ -169,7 +169,7 @@ export default function MenuInventoryCategoriesScreen() {
 
       {canManage && (
         <Fab
-          icon="add"
+          icon="plus"
           label={t("categories.createCategory")}
           onPress={handleCreateCategory}
         />
@@ -194,7 +194,7 @@ export default function MenuInventoryCategoriesScreen() {
             subtitle={categoryForOptions.name}
             items={[
               {
-                icon: "create-outline",
+                icon: "square-pen",
                 label: t("categories.editCategory"),
                 onPress: () => {
                   optionsSheetRef.current?.dismiss();
@@ -202,14 +202,14 @@ export default function MenuInventoryCategoriesScreen() {
                 },
               },
               {
-                icon: "power-outline",
+                icon: "power",
                 label: categoryForOptions.isActive
                   ? t("categories.deactivateCategory")
                   : t("categories.activateCategory"),
                 onPress: () => handleToggleActive(categoryForOptions),
               },
               {
-                icon: "trash-outline",
+                icon: "trash",
                 label: t("categories.deleteCategory"),
                 color: "text-red-600",
                 onPress: () => {

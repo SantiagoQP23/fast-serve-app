@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { ScrollView } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -106,7 +106,7 @@ export default function MenuInventoryCountItemsScreen() {
 
         <TextInput
           placeholder={t("searchPlaceholder")}
-          icon="search-outline"
+          icon="search"
           value={search}
           onChangeText={setSearch}
           returnKeyType="search"
@@ -171,7 +171,7 @@ export default function MenuInventoryCountItemsScreen() {
 
         {!itemsQuery.isLoading && visibleItems.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="cube-outline" size={40} color={tw.color("gray-400")} />
+            <Icon name="package" size={40} color={tw.color("gray-400")} />
             <ThemedText type="body2" style={tw`text-center text-gray-500 px-4`}>
               {items.length === 0 ? t("counts.noItems") : t("noResults")}
             </ThemedText>
@@ -206,8 +206,8 @@ export default function MenuInventoryCountItemsScreen() {
                 {inCount ? (
                   <Label text={t("counts.alreadyInCount")} size="small" />
                 ) : (
-                  <Ionicons
-                    name={isSelected ? "checkmark-circle" : "ellipse-outline"}
+                  <Icon
+                    name={isSelected ? "circle-check" : "circle"}
                     size={24}
                     color={tw.color(isSelected ? "primary" : "gray-400")}
                   />
@@ -221,7 +221,7 @@ export default function MenuInventoryCountItemsScreen() {
       {selected.size > 0 && (
         <ThemedView style={tw`px-4 pb-2 pt-2 bg-transparent`}>
           <Button
-            leftIcon={isAdding ? "add-outline" : "play-outline"}
+            leftIcon={isAdding ? "plus" : "play"}
             label={
               isAdding
                 ? t("counts.addSelected", { count: selected.size })

@@ -1,4 +1,4 @@
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Card from "@/presentation/theme/components/card";
@@ -29,8 +29,8 @@ export default function AddToInventoryOptions({
       </ThemedText>
       <Card onPress={onTrackMenuProduct}>
         <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
-          <Ionicons
-            name="fast-food-outline"
+          <Icon
+            name="hamburger"
             size={26}
             color={tw.color("text-on-surface-variant")}
           />
@@ -49,8 +49,8 @@ export default function AddToInventoryOptions({
 
       <Card onPress={onCreateItem}>
         <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
-          <Ionicons
-            name="cube-outline"
+          <Icon
+            name="package"
             size={26}
             color={tw.color("text-on-surface-variant")}
           />

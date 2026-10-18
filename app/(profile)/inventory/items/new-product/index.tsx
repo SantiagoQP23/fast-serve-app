@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ScrollView, RefreshControl, Pressable } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -120,7 +120,7 @@ export default function NewInventoryItemSelectProductScreen() {
           accessibilityLabel={t("common:actions.goBack")}
           style={({ pressed }) => tw.style(pressed && "opacity-70")}
         >
-          <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+          <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
         </Pressable>
         <ThemedText
           type="h3"
@@ -134,7 +134,7 @@ export default function NewInventoryItemSelectProductScreen() {
       <ThemedView style={tw`gap-4 flex-1`}>
         <TextInput
           placeholder={t("linkedItem.searchProductsPlaceholder")}
-          icon="search-outline"
+          icon="search"
           value={search}
           onChangeText={setSearch}
           returnKeyType="search"
@@ -190,7 +190,7 @@ export default function NewInventoryItemSelectProductScreen() {
 
           {!isLoadingMenu && menuQuery.isError && products.length === 0 && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+              <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
               <ThemedText type="body1" style={tw`text-red-500`}>
                 {t("loadError")}
               </ThemedText>
@@ -206,7 +206,7 @@ export default function NewInventoryItemSelectProductScreen() {
             !menuQuery.isError &&
             products.length === 0 && (
               <ThemedView style={tw`items-center py-8 gap-3`}>
-                <Ionicons name="fast-food-outline" size={48} color={tw.color("gray-400")} />
+                <Icon name="hamburger" size={48} color={tw.color("gray-400")} />
                 <ThemedText type="body1" style={tw`font-semibold`}>
                   {t("linkedItem.noProducts")}
                 </ThemedText>
@@ -221,7 +221,7 @@ export default function NewInventoryItemSelectProductScreen() {
 
           {products.length > 0 && filteredProducts.length === 0 && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Ionicons name="search-outline" size={40} color={tw.color("gray-400")} />
+              <Icon name="search" size={40} color={tw.color("gray-400")} />
               <ThemedText type="body1" style={tw`font-semibold`}>
                 {t("noResults")}
               </ThemedText>

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { RefreshControl, ScrollView } from "react-native";
 import { router } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -65,7 +65,7 @@ export default function InventoryPurchasesTab({
 
       {purchasesQuery.isError && (
         <ThemedView style={tw`items-center py-8 gap-3`}>
-          <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+          <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
           <ThemedText type="body1" style={tw`text-red-500`}>
             {t("purchases.loadError")}
           </ThemedText>
@@ -81,7 +81,7 @@ export default function InventoryPurchasesTab({
         !purchasesQuery.isError &&
         purchases.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="receipt-outline" size={48} color={tw.color("gray-400")} />
+            <Icon name="receipt-text" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`font-semibold`}>
               {t("purchases.empty")}
             </ThemedText>
