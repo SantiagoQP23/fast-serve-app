@@ -27,10 +27,7 @@ import {
 } from "@/core/restaurant/models/account.model";
 import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.model";
 
-const categoryIcons: Record<
-  PaymentMethodCategory,
-  IconName
-> = {
+const categoryIcons: Record<PaymentMethodCategory, IconName> = {
   [PaymentMethodCategory.CASH]: "banknote",
   [PaymentMethodCategory.CARD]: "credit-card",
   [PaymentMethodCategory.TRANSFER]: "arrow-left-right",
@@ -220,10 +217,7 @@ export default function PaymentMethodDetailsScreen() {
               text={t(getPaymentMethodTranslationKey(method.type))}
               leftIcon={categoryIcons[method.type]}
             />
-            <Label
-              text={`${method.commissionPercentage}%`}
-              leftIcon="tag"
-            />
+            <Label text={`${method.commissionPercentage}%`} leftIcon="tag" />
           </ThemedView>
 
           <ThemedView style={tw`gap-3 mt-4`}>
@@ -297,13 +291,15 @@ export default function PaymentMethodDetailsScreen() {
             </ThemedView>
 
             {canManage && (
-              <Button
-                label={t("methods.fields.addAccount")}
-                onPress={handleAddAccount}
-                variant="outline"
-                size="small"
-                leftIcon="plus"
-              />
+              <ThemedView style={tw`flex-row`}>
+                <Button
+                  label={t("methods.fields.addAccount")}
+                  onPress={handleAddAccount}
+                  variant="outline"
+                  size="small"
+                  leftIcon="plus"
+                />
+              </ThemedView>
             )}
           </ThemedView>
         </ScrollView>
@@ -359,9 +355,7 @@ export default function PaymentMethodDetailsScreen() {
                 },
               },
               {
-                icon: selectedAccount.isActive
-                  ? "eye-off"
-                  : "eye",
+                icon: selectedAccount.isActive ? "eye-off" : "eye",
                 label: selectedAccount.isActive
                   ? t("deactivate")
                   : t("activate"),

@@ -94,7 +94,10 @@ export default function TicketCard({
       disabled={!selectionMode && !onLongPress}
       onPress={() => selectionMode && onToggleSelect?.(ticket)}
       onLongPress={() => !selectionMode && onLongPress?.(ticket)}
-      style={tw.style("p-4 bg-surface-bright", selected && "border-2 border-blue-500")}
+      style={tw.style(
+        "p-4 bg-surface-bright",
+        selected && "border-2 border-blue-500",
+      )}
     >
       {order && (
         <Pressable
@@ -124,11 +127,7 @@ export default function TicketCard({
             })}
           </ThemedText>
           {!selectionMode && (
-            <Icon
-              name="chevron-right"
-              size={18}
-              color={tw.color("gray-400")}
-            />
+            <Icon name="chevron-right" size={18} color={tw.color("gray-400")} />
           )}
         </Pressable>
       )}
@@ -240,6 +239,7 @@ export default function TicketCard({
                 leftIcon="eye-off"
                 label={t("orders:tickets.skip")}
                 onPress={() => onSkip(ticket)}
+                size="small"
               />
             </ThemedView>
           )}
@@ -253,6 +253,7 @@ export default function TicketCard({
                   : t("orders:tickets.print")
               }
               onPress={() => onReprint(ticket)}
+              size="small"
             />
           </ThemedView>
         </ThemedView>

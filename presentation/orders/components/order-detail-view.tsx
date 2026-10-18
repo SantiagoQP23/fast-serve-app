@@ -135,9 +135,6 @@ export default function OrderDetailView({
   } = useModal();
 
   const [visible, setVisible] = useState(false);
-  const [isDeliveredExpanded, setIsDeliveredExpanded] = useState(
-    order?.status === OrderStatus.DELIVERED,
-  );
   const [isCancelledExpanded, setIsCancelledExpanded] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [pickerValue, setPickerValue] = useState<Date | null>(null);
@@ -517,10 +514,6 @@ export default function OrderDetailView({
     if (selectedDetails.length === 0) return;
     markDelivered(order, selectedDetails);
     cancelSelectionMode();
-  };
-
-  const toggleDeliveredSection = () => {
-    setIsDeliveredExpanded(!isDeliveredExpanded);
   };
 
   const toggleCancelledSection = () => {
@@ -950,7 +943,13 @@ export default function OrderDetailView({
                       style={tw`flex-row justify-between items-center mb-4`}
                     >
                       <ThemedView style={tw`flex-row items-center gap-2`}>
-                        <ThemedText type="body2" style={tw`text-gray-500`}>
+                        <ThemedText
+                          type="body2"
+                          style={[
+                            tw`text-gray-500`,
+                            { fontFamily: typography.semibold },
+                          ]}
+                        >
                           {t("orders:details.pendingItems")}
                         </ThemedText>
                         <ThemedView
@@ -984,52 +983,43 @@ export default function OrderDetailView({
                   </ThemedView>
                 )}
 
-                {/* Delivered Items Section - Expandable (for active orders) */}
+                {/* Delivered Items Section (for active orders) */}
                 {!isClosed && deliveredDetails.length > 0 && (
                   <ThemedView style={tw`mb-6`}>
-                    <Pressable onPress={toggleDeliveredSection}>
-                      <ThemedView
-                        style={tw`flex-row justify-between items-center py-3`}
-                      >
-                        <ThemedView style={tw`flex-row items-center gap-2`}>
-                          <ThemedText type="body2" style={tw`text-gray-500`}>
-                            {t("orders:details.deliveredItems")}
+                    <ThemedView
+                      style={tw`flex-row justify-between items-center mb-4`}
+                    >
+                      <ThemedView style={tw`flex-row items-center gap-2`}>
+                        <ThemedText
+                          type="body2"
+                          style={[
+                            tw`text-gray-500`,
+                            { fontFamily: typography.semibold },
+                          ]}
+                        >
+                          {t("orders:details.deliveredItems")}
+                        </ThemedText>
+                        <ThemedView
+                          style={tw`bg-gray-100 px-2 py-0.5 rounded-full`}
+                        >
+                          <ThemedText type="caption" style={tw`text-gray-600`}>
+                            {deliveredDetails.length}
                           </ThemedText>
-                          <ThemedView
-                            style={tw`bg-gray-100 px-2 py-0.5 rounded-full`}
-                          >
-                            <ThemedText
-                              type="caption"
-                              style={tw`text-gray-600`}
-                            >
-                              {deliveredDetails.length}
-                            </ThemedText>
-                          </ThemedView>
                         </ThemedView>
-                        <Icon
-                          name={
-                            isDeliveredExpanded ? "chevron-up" : "chevron-down"
-                          }
-                          size={20}
-                          color={tw.color("gray-400")}
+                      </ThemedView>
+                    </ThemedView>
+                    <ThemedView style={tw`gap-6`}>
+                      {deliveredDetails.map((detail) => (
+                        <OrderDetailCard
+                          key={detail.id}
+                          detail={detail}
+                          onPress={() => openProduct(detail)}
+                          orderUserId={order.user?.id || ""}
+                          orderType={order.type}
+                          showAmount={false}
                         />
-                      </ThemedView>
-                    </Pressable>
-
-                    {isDeliveredExpanded && (
-                      <ThemedView style={tw`gap-3 mt-2 `}>
-                        {deliveredDetails.map((detail) => (
-                          <OrderDetailCard
-                            key={detail.id}
-                            detail={detail}
-                            onPress={() => openProduct(detail)}
-                            orderUserId={order.user?.id || ""}
-                            orderType={order.type}
-                            showAmount={false}
-                          />
-                        ))}
-                      </ThemedView>
-                    )}
+                      ))}
+                    </ThemedView>
                   </ThemedView>
                 )}
 

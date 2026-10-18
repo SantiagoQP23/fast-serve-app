@@ -25,10 +25,7 @@ import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.m
 import type { Account } from "@/core/restaurant/models/account.model";
 import type { PaymentMethod } from "@/core/restaurant/models/payment-method.model";
 
-const paymentMethodIcons: Record<
-  PaymentMethodCategory,
-  IconName
-> = {
+const paymentMethodIcons: Record<PaymentMethodCategory, IconName> = {
   [PaymentMethodCategory.CASH]: "banknote",
   [PaymentMethodCategory.CARD]: "credit-card",
   [PaymentMethodCategory.TRANSFER]: "arrow-left-right",
@@ -186,11 +183,7 @@ export default function PaymentMethodsSettingsScreen() {
             <ThemedView
               style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
             >
-              <Icon
-                name="circle-alert"
-                size={28}
-                color={tw.color("red-500")}
-              />
+              <Icon name="circle-alert" size={28} color={tw.color("red-500")} />
               <ThemedText type="small" style={tw`text-center text-gray-500`}>
                 {t("loadError")}
               </ThemedText>
@@ -281,7 +274,7 @@ export default function PaymentMethodsSettingsScreen() {
                           size="small"
                           color={
                             method.defaultDestinationAccount?.id === account.id
-                              ? "primary"
+                              ? "default"
                               : "outline"
                           }
                           onPress={
