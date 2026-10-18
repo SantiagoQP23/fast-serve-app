@@ -277,11 +277,7 @@ export const authChangeEmail = async (
 
 export const authLogout = async () => {
   try {
-    const pushToken = await SecureStorageAdapter.getItem("expoPushToken");
-    if (pushToken) {
-      await PushNotificationsService.unregisterToken({ token: pushToken });
-      await SecureStorageAdapter.removeItem("expoPushToken");
-    }
+    await PushNotificationsService.unregisterStoredToken();
   } catch (error) {
     console.log("Unregister push token error", error);
   }

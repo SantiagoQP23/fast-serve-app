@@ -10,6 +10,11 @@ import { SecureStorageAdapter } from "@/helpers/adapters/secure-storage.adapter"
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { PushNotificationType } from "@/core/push-notifications/enums/push-notification-type.enum";
 import { PushNotification } from "@/core/push-notifications/model/push-notification.model";
+import {
+  useNotificationsHydrated,
+  useNotificationsStore,
+} from "@/presentation/shared/store/useNotificationsStore";
+import { useAppForeground } from "@/presentation/shared/hooks/useAppForeground";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -49,56 +54,44 @@ async function sendPushNotification(options: SendPushOptions) {
   });
 }
 
-function handleRegistrationError(errorMessage: string) {
-  alert(errorMessage);
-  throw new Error(errorMessage);
+async function setupAndroidChannel() {
+  if (Platform.OS !== "android") return;
+
+  // Android 13+ only shows the permission prompt once a channel exists.
+  await Notifications.setNotificationChannelAsync("default", {
+    name: "default",
+    importance: Notifications.AndroidImportance.MAX,
+    vibrationPattern: [0, 250, 250, 250],
+    lightColor: "#FF231F7C",
+  });
 }
 
-async function registerForPushNotificationsAsync() {
-  if (Platform.OS === "android") {
-    await Notifications.setNotificationChannelAsync("default", {
-      name: "default",
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: "#FF231F7C",
-    });
+/** Asks the OS for permission, but only if the user hasn't answered yet. */
+async function askForPermissionOnce() {
+  await setupAndroidChannel();
+
+  const { refreshPermission, requestPermission } =
+    useNotificationsStore.getState();
+  const permission = await refreshPermission();
+  if (permission === "undetermined") await requestPermission();
+}
+
+async function getPushTokenAsync() {
+  const projectId =
+    Constants?.expoConfig?.extra?.eas?.projectId ??
+    Constants?.easConfig?.projectId;
+  if (!projectId) {
+    console.log("Push notifications: project ID not found");
+    return null;
   }
 
-  if (Device.isDevice) {
-    const { status: existingStatus } =
-      await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== "granted") {
-      //! Aviso al usuario que va a recibir el prompt
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-
-    if (finalStatus !== "granted") {
-      handleRegistrationError(
-        "Permission not granted to get push token for push notification!",
-      );
-      return;
-    }
-    const projectId =
-      Constants?.expoConfig?.extra?.eas?.projectId ??
-      Constants?.easConfig?.projectId;
-    if (!projectId) {
-      handleRegistrationError("Project ID not found");
-    }
-    try {
-      const pushTokenString = (
-        await Notifications.getExpoPushTokenAsync({
-          projectId,
-        })
-      ).data;
-      console.log({ [Platform.OS]: pushTokenString });
-      return pushTokenString;
-    } catch (e: unknown) {
-      handleRegistrationError(`${e}`);
-    }
-  } else {
-    handleRegistrationError("Must use physical device for push notifications");
+  try {
+    const { data } = await Notifications.getExpoPushTokenAsync({ projectId });
+    console.log({ [Platform.OS]: data });
+    return data;
+  } catch (e: unknown) {
+    console.log("Push notifications: couldn't get the push token", e);
+    return null;
   }
 }
 
@@ -120,20 +113,58 @@ export const usePushNotifications = () => {
     Notifications.Notification[]
   >([]);
 
+  const notificationsEnabled = useNotificationsStore((state) => state.enabled);
+  const notificationPermission = useNotificationsStore(
+    (state) => state.permission,
+  );
+  const refreshPermission = useNotificationsStore(
+    (state) => state.refreshPermission,
+  );
+  const notificationsHydrated = useNotificationsHydrated();
+
+  // The user may allow notifications from the system settings.
   useEffect(() => {
-    registerForPushNotificationsAsync()
-      .then(async (token) => {
-        setExpoPushToken(token ?? "");
-        if (token) {
-          await SecureStorageAdapter.setItem("expoPushToken", token);
-        }
-      })
-      .catch((error: any) => setExpoPushToken(`${error}`));
-  }, []);
+    refreshPermission().catch(() => {});
+  }, [refreshPermission]);
+  useAppForeground(() => {
+    refreshPermission().catch(() => {});
+  });
+
+  // Ask for permission once the user is signed in, not on the login screen.
+  useEffect(() => {
+    if (authStatus !== "authenticated" || !notificationsHydrated) return;
+    if (!notificationsEnabled || !Device.isDevice) return;
+
+    askForPermissionOnce().catch((error) =>
+      console.log("Push notifications: permission request failed", error),
+    );
+  }, [authStatus, notificationsHydrated, notificationsEnabled]);
+
+  useEffect(() => {
+    if (authStatus !== "authenticated" || !notificationsHydrated) return;
+    if (!notificationsEnabled || notificationPermission !== "granted") return;
+    if (!Device.isDevice) return;
+
+    let cancelled = false;
+    getPushTokenAsync().then(async (token) => {
+      if (cancelled || !token) return;
+      setExpoPushToken(token);
+      await SecureStorageAdapter.setItem("expoPushToken", token);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    authStatus,
+    notificationsHydrated,
+    notificationsEnabled,
+    notificationPermission,
+  ]);
 
   useEffect(() => {
     if (authStatus !== "authenticated" || !authToken) return;
-    if (!expoPushToken || expoPushToken.startsWith("Error")) return;
+    if (!notificationsEnabled || !expoPushToken) return;
 
     const registrationKey = `${authToken}:${expoPushToken}`;
     if (lastRegisteredRef.current === registrationKey) return;
@@ -145,7 +176,18 @@ export const usePushNotifications = () => {
       .catch((error: any) => {
         console.log("Failed to register push token", error);
       });
-  }, [expoPushToken, authStatus, authToken]);
+  }, [expoPushToken, authStatus, authToken, notificationsEnabled]);
+
+  // Turned off in settings: this device stops receiving pushes.
+  useEffect(() => {
+    if (authStatus !== "authenticated" || !notificationsHydrated) return;
+    if (notificationsEnabled) return;
+
+    lastRegisteredRef.current = null;
+    PushNotificationsService.unregisterStoredToken().catch((error: any) => {
+      console.log("Failed to unregister push token", error);
+    });
+  }, [authStatus, notificationsHydrated, notificationsEnabled]);
 
   useEffect(() => {
     const notificationListener = Notifications.addNotificationReceivedListener(
