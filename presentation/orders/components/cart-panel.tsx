@@ -15,7 +15,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useEffect, useRef, useState } from "react";
 import { useNavigation, useRouter } from "expo-router";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
@@ -325,7 +325,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
                   />
                   <Label
                     text={String(activeOrder?.people || 0)}
-                    leftIcon="people-outline"
+                    leftIcon="users"
                     size="small"
                   />
                 </ThemedView>
@@ -346,7 +346,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
             ListFooterComponent={
               embedded ? null : (
                 <Button
-                  leftIcon="add-outline"
+                  leftIcon="plus"
                   label={t("menu:cart.addProduct")}
                   variant="outline"
                   onPress={() => router.push("/(new-order)/restaurant-menu")}
@@ -355,8 +355,8 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
             }
             ListEmptyComponent={
               <ThemedView style={tw`items-center py-12`}>
-                <Ionicons
-                  name="cart-outline"
+                <Icon
+                  name="shopping-cart"
                   size={48}
                   color={tw.color("gray-400")}
                 />
@@ -439,8 +439,8 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
                     <Chip
                       icon={
                         orderType === OrderType.IN_PLACE
-                          ? "restaurant-outline"
-                          : "bag-outline"
+                          ? "utensils"
+                          : "shopping-bag"
                       }
                       label={
                         orderType === OrderType.IN_PLACE
@@ -454,13 +454,13 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
                       }
                     />
                     <Chip
-                      icon="people-outline"
+                      icon="users"
                       label={String(people)}
                       onPress={handlePresentPeopleSelector}
                     />
                     {deliveryTime ? (
                       <Chip
-                        icon="time-outline"
+                        icon="clock"
                         label={dayjs(deliveryTime).format("HH:mm")}
                         onPress={openTimePicker}
                         rightContent={
@@ -468,8 +468,8 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
                             onPress={() => setDeliveryTime(null)}
                             hitSlop={8}
                           >
-                            <Ionicons
-                              name="close"
+                            <Icon
+                              name="x"
                               size={16}
                               color={tw.color("gray-600")}
                             />
@@ -479,7 +479,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
                     ) : (
                       <Chip
                         variant="assist"
-                        icon="time-outline"
+                        icon="clock"
                         label={t("orders:form.addDeliveryTime")}
                         onPress={openTimePicker}
                       />
@@ -487,7 +487,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
                     {!withNotes && (
                       <Chip
                         variant="assist"
-                        icon="document-text-outline"
+                        icon="file-text"
                         label={t("orders:form.addNote")}
                         onPress={() => setWithNotes(true)}
                       />
@@ -564,15 +564,15 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
           ListFooterComponent={
             !embedded ? (
               <Button
-                leftIcon="add-outline"
+                leftIcon="plus"
                 label={t("menu:cart.addProduct")}
                 variant="text"
                 onPress={() => router.push("/(new-order)/restaurant-menu")}
               />
             ) : details.length === 0 ? (
               <ThemedView style={tw`items-center py-12`}>
-                <Ionicons
-                  name="cart-outline"
+                <Icon
+                  name="shopping-cart"
                   size={48}
                   color={tw.color("gray-400")}
                 />
@@ -621,7 +621,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
             {canPrintOnCreate && (
               <Button
                 style={tw`flex-1`}
-                leftIcon="print-outline"
+                leftIcon="printer"
                 loading={(isLoading || createSaleLoading) && printOnCreate}
                 label={t("menu:cart.createAndPrintOrder")}
                 onPress={() => onCreateOrder(true)}

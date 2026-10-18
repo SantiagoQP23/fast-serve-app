@@ -4,7 +4,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 
 import Fab from "@/presentation/theme/components/fab";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useRouter } from "expo-router";
@@ -82,8 +82,8 @@ export default function AllOrdersScreen() {
     <ThemedView style={tw`flex-1`}>
       {orders.length === 0 ? (
         <ThemedView style={tw`items-center justify-center flex-1 gap-4`}>
-          <Ionicons
-            name="document-text-outline"
+          <Icon
+            name="file-text"
             size={80}
             color={tw.color("gray-500")}
           />
@@ -157,7 +157,7 @@ export default function AllOrdersScreen() {
         <NewOrderBottomSheet onCreateOrder={handleNavigate} />
       </ThemedBottomSheetModal>
 
-      <Fab icon="add-outline" onPress={handlePresentModalPress} />
+      <Fab icon="plus" onPress={handlePresentModalPress} />
     </ThemedView>
   );
 }

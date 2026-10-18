@@ -6,9 +6,7 @@ import {
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
-import Ionicons, {
-  type IoniconsIconName,
-} from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { typography } from "@/constants/theme";
@@ -22,7 +20,7 @@ interface OrderDetailStatusModalProps {
 
 interface StatusOption {
   status: OrderDetailStatus;
-  icon: IoniconsIconName;
+  icon: IconName;
   labelKey: string;
   iconColor: string;
   disabled?: boolean;
@@ -31,27 +29,27 @@ interface StatusOption {
 const STATUS_OPTIONS: StatusOption[] = [
   {
     status: OrderDetailStatus.PENDING,
-    icon: "time-outline",
+    icon: "clock",
     labelKey: "common:status.pending",
     iconColor: "orange-400",
   },
   {
     status: OrderDetailStatus.IN_PROGRESS,
-    icon: "flame-outline",
+    icon: "flame",
     labelKey: "common:status.inProgress",
     iconColor: "blue-700",
     disabled: true,
   },
   {
     status: OrderDetailStatus.READY,
-    icon: "notifications-outline",
+    icon: "bell",
     labelKey: "common:status.ready",
     iconColor: "emerald-500",
     disabled: true,
   },
   {
     status: OrderDetailStatus.DELIVERED,
-    icon: "checkmark-done-circle-outline",
+    icon: "circle-check-big",
     labelKey: "common:status.delivered",
     iconColor: "green-600",
   },
@@ -91,7 +89,7 @@ const OrderDetailStatusModal = ({
               {t("orders:detailActions.statusTitle")}
             </ThemedText>
             <IconButton
-              icon="close-outline"
+              icon="x"
               size={25}
               style={tw`bg-surface p-2`}
               onPress={onClose}
@@ -115,7 +113,7 @@ const OrderDetailStatusModal = ({
                     ),
                   ]}
                 >
-                  <Ionicons
+                  <Icon
                     name={option.icon}
                     size={22}
                     color={
@@ -128,8 +126,8 @@ const OrderDetailStatusModal = ({
                     {t(option.labelKey)}
                   </ThemedText>
                   {isSelected && (
-                    <Ionicons
-                      name="checkmark"
+                    <Icon
+                      name="check"
                       size={20}
                       color={tw.color("on-surface")}
                     />

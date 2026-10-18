@@ -37,7 +37,7 @@ import { Roles, isAdminLevelRole } from "@/core/auth/models/user.model";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { useBillPrint } from "@/presentation/orders/hooks/useBillPrint";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import { Transaction } from "@/core/transactions/models/transaction.model";
@@ -264,14 +264,14 @@ export default function BillDetailView({
     ...(bill.status !== BillStatus.PAID
       ? [
           {
-            icon: "pricetag-outline" as const,
+            icon: "tag" as const,
             label: t("bills:details.addDiscount"),
             onPress: handleAddDiscountFromMenu,
           },
         ]
       : []),
     {
-      icon: "share-outline",
+      icon: "share",
       label: t("common:actions.share"),
       onPress: handleShareFromMenu,
     },
@@ -304,7 +304,7 @@ export default function BillDetailView({
             {embedded && (
               <ThemedView style={tw`flex-row items-center`}>
                 <IconButton
-                  icon="close"
+                  icon="x"
                   accessibilityLabel={t("common:actions.close")}
                   onPress={onClose}
                   size={24}
@@ -367,7 +367,7 @@ export default function BillDetailView({
                     t("common:labels.deletedUser"),
                   )}
                   color="default"
-                  leftIcon="person-outline"
+                  leftIcon="user"
                   size="small"
                 />
 
@@ -381,8 +381,8 @@ export default function BillDetailView({
                     color="default"
                     leftIcon={
                       bill.order.type === OrderType.IN_PLACE
-                        ? "restaurant-outline"
-                        : "bicycle-outline"
+                        ? "utensils"
+                        : "bike"
                     }
                     size="small"
                   />
@@ -479,7 +479,7 @@ export default function BillDetailView({
                             </ThemedText>
                             {bill.status !== BillStatus.PAID && (
                               <IconButton
-                                icon="pencil-outline"
+                                icon="pencil"
                                 size={16}
                                 onPress={handleOpenDiscountSheet}
                                 variant="text"
@@ -550,8 +550,8 @@ export default function BillDetailView({
                 <ThemedView style={tw`mt-3 gap-2`}>
                   <ThemedView>
                     <ThemedView style={tw`flex-row items-center gap-2`}>
-                      <Ionicons
-                        name="ellipse-outline"
+                      <Icon
+                        name="circle"
                         size={12}
                         color={tw.color("gray-500")}
                       />
@@ -574,8 +574,8 @@ export default function BillDetailView({
                   </ThemedView>
                   <ThemedView>
                     <ThemedView style={tw`flex-row items-center gap-2`}>
-                      <Ionicons
-                        name="ellipse-outline"
+                      <Icon
+                        name="circle"
                         size={12}
                         color={tw.color("gray-500")}
                       />
@@ -602,7 +602,7 @@ export default function BillDetailView({
               ...(bill.status !== BillStatus.PAID
                 ? [
                     {
-                      icon: "trash-outline" as const,
+                      icon: "trash" as const,
                       onPress: () => setVisible(true),
                     },
                   ]
@@ -610,17 +610,17 @@ export default function BillDetailView({
               ...(bill.status !== BillStatus.PAID
                 ? [
                     {
-                      icon: "pencil-outline" as const,
+                      icon: "pencil" as const,
                       onPress: handleEditBillPress,
                     },
                   ]
                 : []),
               {
-                icon: "print-outline",
+                icon: "printer",
                 onPress: () => router.push(`/(bills)/${bill.id}/print`),
               },
               {
-                icon: "ellipsis-horizontal-outline",
+                icon: "ellipsis",
                 onPress: handleOpenMoreOptions,
               },
             ]}
@@ -628,7 +628,7 @@ export default function BillDetailView({
           {bill.status !== BillStatus.PAID && canChargeBill && (
             <IconButton
               onPress={handlePayBillPress}
-              icon="card-outline"
+              icon="credit-card"
               size={40}
               variant="filled"
             ></IconButton>
@@ -656,7 +656,7 @@ export default function BillDetailView({
             value={discountInput}
             onChangeText={setDiscountInput}
             placeholder="0.00"
-            icon="pricetag-outline"
+            icon="tag"
           />
 
           <ThemedView style={tw`flex-row gap-2`}>

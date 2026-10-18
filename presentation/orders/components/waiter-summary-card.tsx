@@ -2,7 +2,7 @@ import React from "react";
 import { Pressable } from "react-native";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
@@ -32,8 +32,8 @@ export default function WaiterSummaryCard({
           <ThemedView
             style={tw`w-10 h-10 rounded-full ${isSelected ? "bg-primary" : "bg-gray-200"} items-center justify-center`}
           >
-            <Ionicons
-              name="person"
+            <Icon
+              name="user"
               size={20}
               color={isSelected ? tw.color("on-primary") : tw.color("gray-600")}
             />

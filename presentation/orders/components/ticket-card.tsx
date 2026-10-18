@@ -2,7 +2,7 @@ import { Pressable } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { useProductionAreasStore } from "@/presentation/production-areas/store/useProductionAreasStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { Ticket } from "@/core/tickets/models/ticket.model";
@@ -105,8 +105,8 @@ export default function TicketCard({
           style={tw`flex-row items-center justify-between pb-3`}
         >
           {selectionMode && (
-            <Ionicons
-              name={selected ? "checkmark-circle" : "ellipse-outline"}
+            <Icon
+              name={selected ? "circle-check" : "circle"}
               size={22}
               color={selected ? tw.color("blue-500") : tw.color("gray-400")}
               style={tw`mr-2`}
@@ -124,8 +124,8 @@ export default function TicketCard({
             })}
           </ThemedText>
           {!selectionMode && (
-            <Ionicons
-              name="chevron-forward"
+            <Icon
+              name="chevron-right"
               size={18}
               color={tw.color("gray-400")}
             />
@@ -148,7 +148,7 @@ export default function TicketCard({
           {ticket.printed && (
             <Label
               text={t("orders:tickets.printed")}
-              leftIcon="checkmark-circle"
+              leftIcon="circle-check"
               color="success"
               size="small"
             />
@@ -156,7 +156,7 @@ export default function TicketCard({
           {!ticket.printed && ticket.skipped && (
             <Label
               text={t("orders:tickets.skipped")}
-              leftIcon="eye-off-outline"
+              leftIcon="eye-off"
               size="small"
             />
           )}
@@ -237,7 +237,7 @@ export default function TicketCard({
             <ThemedView style={tw`flex-1`}>
               <Button
                 variant="text"
-                leftIcon="eye-off-outline"
+                leftIcon="eye-off"
                 label={t("orders:tickets.skip")}
                 onPress={() => onSkip(ticket)}
               />
@@ -246,7 +246,7 @@ export default function TicketCard({
           <ThemedView style={tw`flex-1`}>
             <Button
               variant={ticket.printed ? "text" : "secondary"}
-              leftIcon="print-outline"
+              leftIcon="printer"
               label={
                 ticket.printed
                   ? t("orders:tickets.reprint")

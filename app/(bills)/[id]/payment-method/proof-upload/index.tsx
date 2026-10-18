@@ -7,7 +7,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import Button from "@/presentation/theme/components/button";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { usePaymentProofs } from "@/presentation/transactions/hooks/usePaymentProofs";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
@@ -159,8 +159,8 @@ export default function ProofUploadScreen() {
           <ThemedView
             style={tw`flex-row items-center gap-2 p-3 rounded-xl bg-yellow-50 border border-yellow-200`}
           >
-            <Ionicons
-              name="time-outline"
+            <Icon
+              name="clock"
               size={20}
               color={tw.color("yellow-600")}
             />
@@ -173,8 +173,8 @@ export default function ProofUploadScreen() {
           <ThemedView
             style={tw`flex-row items-center gap-2 p-3 rounded-xl bg-green-50 border border-green-200`}
           >
-            <Ionicons
-              name="checkmark-circle-outline"
+            <Icon
+              name="circle-check"
               size={20}
               color={tw.color("green-600")}
             />
@@ -187,8 +187,8 @@ export default function ProofUploadScreen() {
           <ThemedView
             style={tw`flex-row items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200`}
           >
-            <Ionicons
-              name="close-circle-outline"
+            <Icon
+              name="circle-x"
               size={20}
               color={tw.color("red-600")}
             />
@@ -296,8 +296,8 @@ export default function ProofUploadScreen() {
                     pressed && tw`opacity-70 bg-gray-100`,
                   ]}
                 >
-                  <Ionicons
-                    name="images-outline"
+                  <Icon
+                    name="images"
                     size={32}
                     color={tw.color("gray-400")}
                   />
@@ -312,8 +312,8 @@ export default function ProofUploadScreen() {
                     pressed && tw`opacity-70 bg-gray-100`,
                   ]}
                 >
-                  <Ionicons
-                    name="camera-outline"
+                  <Icon
+                    name="camera"
                     size={32}
                     color={tw.color("gray-400")}
                   />

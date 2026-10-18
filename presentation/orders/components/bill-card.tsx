@@ -2,7 +2,7 @@ import React from "react";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { PressableProps } from "react-native";
 import { Bill, BillStatus } from "@/core/orders/models/bill.model";
 import dayjs from "dayjs";
@@ -81,8 +81,8 @@ export default function BillCard({ onPress, bill, active }: BillCardProps) {
         >
           <ThemedView style={tw`flex-row bg-transparent items-center gap-2`}>
             <ThemedView style={tw`bg-surface p-2 rounded-md`}>
-              <Ionicons
-                name="receipt-outline"
+              <Icon
+                name="receipt-text"
                 size={20}
                 color={tw.color("on-surface")}
               />

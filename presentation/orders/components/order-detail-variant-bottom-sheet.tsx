@@ -1,5 +1,5 @@
 import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import Card from "@/presentation/theme/components/card";
@@ -81,8 +81,8 @@ const OrderDetailVariantBottomSheet = ({
                       <ThemedView
                         style={tw`flex-row items-center gap-1 bg-transparent`}
                       >
-                        <Ionicons
-                          name="cube-outline"
+                        <Icon
+                          name="package"
                           size={14}
                           color={tw.color("gray-500")}
                         />
@@ -107,8 +107,8 @@ const OrderDetailVariantBottomSheet = ({
 
       {showVariantBlockedMessage && (
         <ThemedView style={tw`flex-row items-center gap-4 px-1`}>
-          <Ionicons
-            name="information-circle-outline"
+          <Icon
+            name="info"
             size={16}
             color={tw.color("gray-500")}
           />
@@ -122,8 +122,8 @@ const OrderDetailVariantBottomSheet = ({
         <ThemedView style={tw`gap-2`}>
           {replaceBlockReason ? (
             <ThemedView style={tw`flex-row items-center gap-4 px-1`}>
-              <Ionicons
-                name="information-circle-outline"
+              <Icon
+                name="info"
                 size={16}
                 color={tw.color("gray-500")}
               />
@@ -136,7 +136,7 @@ const OrderDetailVariantBottomSheet = ({
               label={t("orders:detailActions.replaceItem")}
               onPress={handleReplace}
               variant="outline"
-              leftIcon="swap-horizontal-outline"
+              leftIcon="arrow-left-right"
             />
           )}
         </ThemedView>

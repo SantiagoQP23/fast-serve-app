@@ -8,7 +8,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 import { useMemo, useState } from "react";
 import Chip from "@/presentation/theme/components/chip";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import OrderProductsCard from "@/presentation/home/components/order-products-card";
 import OrderCompactCard from "@/presentation/home/components/order-compact-card";
 
@@ -129,8 +129,8 @@ export default function OrderListByStatus({
         <ThemedView
           style={tw`items-center justify-center flex-1 gap-4 px-4 my-8`}
         >
-          <Ionicons
-            name="document-text-outline"
+          <Icon
+            name="file-text"
             size={80}
             color={tw.color("gray-500")}
           />

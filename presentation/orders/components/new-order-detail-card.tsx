@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { View, Pressable, PressableProps } from "react-native";
 import Label from "@/presentation/theme/components/label";
 import { useCounter } from "@/presentation/shared/hooks/useCounter";
@@ -64,7 +63,7 @@ export default function NewOrderDetailCard({
       renderRightActions={() => (
         <ThemedView style={tw`justify-center items-center px-4 `}>
           <IconButton
-            icon="trash-outline"
+            icon="trash"
             onPress={onRemoveDetail}
             variant="destructive"
             size={26}
@@ -85,7 +84,7 @@ export default function NewOrderDetailCard({
 
           <ThemedView style={tw`flex-row items-center gap-4 bg-transparent`}>
             <IconButton
-              icon="remove-outline"
+              icon="minus"
               onPress={decrement}
               style={tw`p-1`}
               size={20}
@@ -93,7 +92,7 @@ export default function NewOrderDetailCard({
             />
             <ThemedText>{counter}</ThemedText>
             <IconButton
-              icon="add"
+              icon="plus"
               onPress={increment}
               style={tw`p-1`}
               size={20}
@@ -131,8 +130,8 @@ export default function NewOrderDetailCard({
               }
               leftIcon={
                 detail.typeOrderDetail === OrderType.IN_PLACE
-                  ? "restaurant-outline"
-                  : "bag-outline"
+                  ? "utensils"
+                  : "shopping-bag"
               }
               color="outline"
               size="small"

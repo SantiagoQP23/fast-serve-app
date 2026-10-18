@@ -2,7 +2,7 @@ import {
   BottomSheetView,
   type BottomSheetMethods,
 } from "@expo/ui/community/bottom-sheet";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
@@ -52,8 +52,8 @@ export default function OrderDetailActivityBottomSheet({
         <ThemedView style={tw`gap-3`}>
           <ThemedView style={tw`gap-1`}>
             <ThemedView style={tw`flex-row items-center gap-2`}>
-              <Ionicons
-                name="ellipse-outline"
+              <Icon
+                name="circle"
                 size={12}
                 color={tw.color("gray-500")}
               />
@@ -74,8 +74,8 @@ export default function OrderDetailActivityBottomSheet({
           </ThemedView>
           <ThemedView style={tw`gap-1`}>
             <ThemedView style={tw`flex-row items-center gap-2`}>
-              <Ionicons
-                name="ellipse-outline"
+              <Icon
+                name="circle"
                 size={12}
                 color={tw.color("gray-500")}
               />

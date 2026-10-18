@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { ScrollView, Pressable, RefreshControl, View } from "react-native";
 import { router } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -127,8 +127,8 @@ export default function InventoryItemDetailView({
             }
             style={({ pressed }) => tw.style(pressed && "opacity-70")}
           >
-            <Ionicons
-              name={embedded ? "close" : "arrow-back-outline"} color={tw.color("on-surface")}
+            <Icon
+              name={embedded ? "x" : "arrow-left"} color={tw.color("on-surface")}
               size={24}
             />
           </Pressable>
@@ -147,7 +147,7 @@ export default function InventoryItemDetailView({
             accessibilityLabel={t("options")}
             accessibilityRole="button"
           >
-            <Ionicons name="ellipsis-vertical-outline" color={tw.color("on-surface")} size={22} />
+            <Icon name="ellipsis-vertical" color={tw.color("on-surface")} size={22} />
           </Pressable>
         )}
       </ThemedView>
@@ -174,7 +174,7 @@ export default function InventoryItemDetailView({
 
         {itemQuery.isError && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+            <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
             <ThemedText type="body1" style={tw`text-red-500`}>
               {t("detail.loadError")}
             </ThemedText>
@@ -217,14 +217,14 @@ export default function InventoryItemDetailView({
           >
             <Button
               label={t("decrease")}
-              leftIcon="remove-outline"
+              leftIcon="minus"
               variant="secondary"
               onPress={() => setAdjustMode("decrease")}
               style={tw`flex-1`}
             />
             <Button
               label={t("restock")}
-              leftIcon="add-outline"
+              leftIcon="plus"
               variant="primary"
               onPress={() => setAdjustMode("restock")}
               style={tw`flex-1`}
@@ -258,22 +258,22 @@ export default function InventoryItemDetailView({
             subtitle={item.name}
             items={[
               {
-                icon: "create-outline",
+                icon: "square-pen",
                 label: t("editItem"),
                 onPress: handleEditItem,
               },
               {
-                icon: "link-outline",
+                icon: "link",
                 label: t("detail.linkToProduct"),
                 onPress: handleLinkToProduct,
               },
               {
-                icon: "power-outline",
+                icon: "power",
                 label: item.isActive ? t("deactivateItem") : t("activateItem"),
                 onPress: handleToggleActive,
               },
               {
-                icon: "trash-outline",
+                icon: "trash",
                 label: t("deleteItem"),
                 color: "text-red-600",
                 onPress: () => {

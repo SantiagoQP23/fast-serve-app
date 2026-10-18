@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { View, Pressable, PressableProps } from "react-native";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { OrderDetail } from "@/core/orders/models/order-detail.model";
@@ -88,7 +87,7 @@ export default function NewBillDetailCard({
           ) : (
             <>
               <IconButton
-                icon="remove-outline"
+                icon="minus"
                 variant="outlined"
                 onPress={decrement}
                 style={tw`p-2`}
@@ -97,7 +96,7 @@ export default function NewBillDetailCard({
                 {counter}
               </ThemedText>
               <IconButton
-                icon="add-outline"
+                icon="plus"
                 onPress={increment}
                 variant="outlined"
                 color={

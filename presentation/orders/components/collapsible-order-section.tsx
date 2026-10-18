@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   useWindowDimensions,
 } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { Order } from "@/core/orders/models/order.model";
 import ClosedOrderCard from "@/presentation/home/components/closed-order-card";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -57,7 +57,7 @@ export default function CollapsibleOrderSection({
               {t("common:labels.count")}: {totalCount}
             </ThemedText>
           </ThemedView>
-          <Ionicons
+          <Icon
             name={isExpanded ? "chevron-up" : "chevron-down"}
             size={24}
             color={tw.color("gray-500")}
@@ -114,8 +114,8 @@ export default function CollapsibleOrderSection({
             </>
           ) : (
             <ThemedView style={tw`py-8 items-center`}>
-              <Ionicons
-                name="archive-outline"
+              <Icon
+                name="archive"
                 size={60}
                 color={tw.color("gray-400")}
               />

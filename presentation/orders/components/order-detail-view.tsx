@@ -12,9 +12,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useNavigation } from "expo-router";
-import Ionicons, {
-  type IoniconsIconName,
-} from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
@@ -78,7 +76,7 @@ import { orderNumberText } from "@/presentation/offline/local-order";
 dayjs.extend(relativeTime);
 
 interface MoreOptionItem {
-  icon: IoniconsIconName;
+  icon: IconName;
   label: string;
   onPress: () => void;
   disabled?: boolean;
@@ -239,7 +237,7 @@ export default function OrderDetailView({
     <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}>
       {canMarkDelivered && !isSelectionMode && (
         <Button
-          leftIcon="checkmark-done-outline"
+          leftIcon="check-check"
           label={t("orders:options.markDelivered")}
           onPress={() => order && markDelivered(order)}
           variant="outline"
@@ -248,7 +246,7 @@ export default function OrderDetailView({
       )}
       {canCloseOrder && (
         <Button
-          leftIcon="lock-closed-outline"
+          leftIcon="lock"
           label={t("orders:options.closeOrder")}
           onPress={openCloseModal}
           variant="outline"
@@ -644,12 +642,12 @@ export default function OrderDetailView({
   const editOptions: MoreOptionItem[] = !isClosed
     ? [
         {
-          icon: "create-outline",
+          icon: "square-pen",
           label: t("common:actions.edit"),
           onPress: handleEditFromMenu,
         },
         {
-          icon: "swap-horizontal-outline",
+          icon: "arrow-left-right",
           label: t("orders:options.changeType", {
             type: otherOrderTypeLabel,
           }),
@@ -658,7 +656,7 @@ export default function OrderDetailView({
         ...(order.type === OrderType.IN_PLACE
           ? [
               {
-                icon: "grid-outline" as const,
+                icon: "layout-grid" as const,
                 label: t("orders:options.changeTable"),
                 onPress: handleChangeTableFromMenu,
               },
@@ -667,14 +665,14 @@ export default function OrderDetailView({
         ...(hasOtherOpenOrders
           ? [
               {
-                icon: "git-merge-outline" as const,
+                icon: "git-merge" as const,
                 label: t("orders:options.mergeOrder"),
                 onPress: handleMergeFromMenu,
               },
             ]
           : []),
         {
-          icon: "document-text-outline",
+          icon: "file-text",
           label: t("orders:form.addNote"),
           onPress: handleAddNoteFromMenu,
         },
@@ -683,12 +681,12 @@ export default function OrderDetailView({
 
   const generalOptions: MoreOptionItem[] = [
     {
-      icon: "print-outline",
+      icon: "printer",
       label: t("common:actions.print"),
       onPress: handlePrintFromMenu,
     },
     {
-      icon: "share-outline",
+      icon: "share",
       label: t("common:actions.share"),
       onPress: handleShareFromMenu,
     },
@@ -697,7 +695,7 @@ export default function OrderDetailView({
     order.isPaid === true
       ? [
           {
-            icon: "lock-closed-outline" as const,
+            icon: "lock" as const,
             label: t("common:actions.close"),
             onPress: handleCloseFromMenu,
           },
@@ -706,7 +704,7 @@ export default function OrderDetailView({
     ...(isAdmin && canForceCloseOrder
       ? [
           {
-            icon: "lock-closed-outline" as const,
+            icon: "lock" as const,
             label: t("orders:options.forceCloseOrder"),
             onPress: handleForceCloseFromMenu,
           },
@@ -717,7 +715,7 @@ export default function OrderDetailView({
   const dangerOptions: MoreOptionItem[] = !isClosed
     ? [
         {
-          icon: "trash-outline",
+          icon: "trash",
           label: t("orders:options.deleteOrder"),
           onPress: handleDeleteFromMenu,
           disabled: orderCantBeDeleted,
@@ -771,7 +769,7 @@ export default function OrderDetailView({
           {embedded && (
             <ThemedView style={tw`flex-row items-center justify-between mb-2`}>
               <IconButton
-                icon="close"
+                icon="x"
                 accessibilityLabel={t("common:actions.close")}
                 onPress={() => setActiveOrder(null)}
                 size={24}
@@ -825,11 +823,11 @@ export default function OrderDetailView({
                   <OrderSyncLabel orderId={order.id} />
                 </ThemedView>
                 <ThemedView style={tw`flex-row items-center gap-2`}>
-                  <Ionicons
+                  <Icon
                     name={
                       order.type === OrderType.IN_PLACE
-                        ? "restaurant-outline"
-                        : "bag-outline"
+                        ? "utensils"
+                        : "shopping-bag"
                     }
                     size={24}
                     color={tw.color("primary")}
@@ -902,20 +900,20 @@ export default function OrderDetailView({
                   contentContainerStyle={tw`gap-2 mb-6`}
                 >
                   <Chip
-                    icon="hourglass-outline"
+                    icon="hourglass"
                     label={(deliveryTime ?? createdAt).format("HH:mm")}
                     onPress={openTimePicker}
                   />
                   <Chip
                     label={String(order.people)}
-                    icon="people-outline"
+                    icon="users"
                     onPress={
                       !isClosed ? handlePresentEditPeopleModal : undefined
                     }
                   />
 
                   <Chip
-                    icon="person-outline"
+                    icon="user"
                     label={`${order.user?.person.firstName} ${order.user?.person.lastName}`}
                     onPress={!isClosed ? handlePresentReassignModal : undefined}
                   />
@@ -925,8 +923,8 @@ export default function OrderDetailView({
                 {order.notes && (
                   <ThemedView style={tw`mb-6   rounded-xl`}>
                     <ThemedView style={tw`flex-row items-center gap-2 mb-2`}>
-                      <Ionicons
-                        name="document-text-outline"
+                      <Icon
+                        name="file-text"
                         size={16}
                         color={tw.color("gray-500")}
                       />
@@ -1006,11 +1004,11 @@ export default function OrderDetailView({
                             </ThemedText>
                           </ThemedView>
                         </ThemedView>
-                        <Ionicons
+                        <Icon
                           name={
                             isDeliveredExpanded
-                              ? "chevron-up-outline"
-                              : "chevron-down-outline"
+                              ? "chevron-up"
+                              : "chevron-down"
                           }
                           size={20}
                           color={tw.color("gray-400")}
@@ -1057,11 +1055,11 @@ export default function OrderDetailView({
                             </ThemedText>
                           </ThemedView>
                         </ThemedView>
-                        <Ionicons
+                        <Icon
                           name={
                             isCancelledExpanded
-                              ? "chevron-up-outline"
-                              : "chevron-down-outline"
+                              ? "chevron-up"
+                              : "chevron-down"
                           }
                           size={20}
                           color={tw.color("gray-400")}
@@ -1122,8 +1120,8 @@ export default function OrderDetailView({
                 {/* Empty state for closed orders with no items */}
                 {isClosed && !hasItems && (
                   <ThemedView style={tw`mb-6 p-8 items-center justify-center`}>
-                    <Ionicons
-                      name="document-outline"
+                    <Icon
+                      name="file"
                       size={48}
                       color={tw.color("gray-300")}
                     />
@@ -1156,7 +1154,7 @@ export default function OrderDetailView({
                 {/*       style={tw`gap-2 flex-1 pt-10`} */}
                 {/*       onPress={() => setActiveTab("bills")} */}
                 {/*     > */}
-                {/*       <Ionicons name="cash-outline" size={22} /> */}
+                {/*       <Icon name="cash-outline" size={22} /> */}
                 {/*       <ThemedView style={tw``}> */}
                 {/*         <ThemedText */}
                 {/*           type="body2" */}
@@ -1173,7 +1171,7 @@ export default function OrderDetailView({
                 {/*       style={tw`gap-2 flex-1 pt-10`} */}
                 {/*       onPress={() => setActiveTab("tickets")} */}
                 {/*     > */}
-                {/*       <Ionicons name="receipt-outline" size={22} /> */}
+                {/*       <Icon name="receipt-outline" size={22} /> */}
                 {/*       <ThemedView style={tw` gap-1`}> */}
                 {/*         <ThemedText */}
                 {/*           type="body2" */}
@@ -1193,8 +1191,8 @@ export default function OrderDetailView({
                   <ThemedView style={tw`mt-3 gap-2`}>
                     <ThemedView>
                       <ThemedView style={tw`flex-row items-center gap-2`}>
-                        <Ionicons
-                          name="ellipse-outline"
+                        <Icon
+                          name="circle"
                           size={12}
                           color={tw.color("gray-500")}
                         />
@@ -1208,8 +1206,8 @@ export default function OrderDetailView({
                     </ThemedView>
                     <ThemedView>
                       <ThemedView style={tw`flex-row items-center gap-2`}>
-                        <Ionicons
-                          name="ellipse-outline"
+                        <Icon
+                          name="circle"
                           size={12}
                           color={tw.color("gray-500")}
                         />
@@ -1252,7 +1250,7 @@ export default function OrderDetailView({
               style={tw`w-full flex-row items-center gap-1 bg-surface rounded-full shadow-sm px-2 py-2`}
             >
               <IconButton
-                icon="close"
+                icon="x"
                 variant="text"
                 onPress={cancelSelectionMode}
                 accessibilityLabel={t(
@@ -1281,7 +1279,7 @@ export default function OrderDetailView({
               <Button
                 variant="secondary"
                 size="small"
-                leftIcon="checkmark-done-outline"
+                leftIcon="check-check"
                 label={t("orders:details.selection.deliver")}
                 disabled={selectedDetails.length === 0}
                 onPress={deliverSelected}
@@ -1297,19 +1295,19 @@ export default function OrderDetailView({
               <FloatingToolbar
                 items={[
                   {
-                    icon: "fast-food-outline",
+                    icon: "hamburger",
                     label: t("orders:details.tabs.products"),
                     onPress: () => setActiveTab("products"),
                     active: activeTab === "products",
                   },
                   {
-                    icon: "cash-outline",
+                    icon: "banknote",
                     label: t("orders:details.tabs.bills"),
                     onPress: () => setActiveTab("bills"),
                     active: activeTab === "bills",
                   },
                   {
-                    icon: "receipt-outline",
+                    icon: "receipt-text",
                     label: t("orders:details.tabs.tickets"),
                     onPress: () => setActiveTab("tickets"),
                     active: activeTab === "tickets",
@@ -1324,7 +1322,7 @@ export default function OrderDetailView({
                     activeTab === "products" ? handleAddProduct : handleAddBill
                   }
                   icon={
-                    activeTab === "products" ? "add-outline" : "card-outline"
+                    activeTab === "products" ? "plus" : "credit-card"
                   }
                   size={40}
                   variant="secondary"

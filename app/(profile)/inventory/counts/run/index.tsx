@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -156,8 +156,8 @@ export default function MenuInventoryCountRunScreen() {
           right={
             isExpanded ? undefined : (
               <ThemedView style={tw`flex-row gap-1 bg-transparent`}>
-                <IconButton icon="add-outline" onPress={addProducts} />
-                <IconButton icon="list-outline" onPress={openSummary} />
+                <IconButton icon="plus" onPress={addProducts} />
+                <IconButton icon="list" onPress={openSummary} />
               </ThemedView>
             )
           }
@@ -178,7 +178,7 @@ export default function MenuInventoryCountRunScreen() {
 
         {countQuery.isError && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+            <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
             <ThemedText type="body1" style={tw`text-red-500`}>
               {t("counts.notFound")}
             </ThemedText>
@@ -194,8 +194,8 @@ export default function MenuInventoryCountRunScreen() {
           <>
             <Card style={tw`p-6`}>
               <ThemedView style={tw`gap-3 items-center bg-transparent`}>
-                <Ionicons
-                  name="cube-outline"
+                <Icon
+                  name="package"
                   size={40}
                   color={tw.color("gray-400")}
                 />
@@ -240,14 +240,14 @@ export default function MenuInventoryCountRunScreen() {
 
             <View style={tw`gap-3`}>
               <Button
-                leftIcon="checkmark-outline"
+                leftIcon="check"
                 label={t("counts.correct")}
                 loading={pendingAnswer === InventoryCountAnswer.MATCH}
                 disabled={answerItem.isPending}
                 onPress={() => answer(InventoryCountAnswer.MATCH)}
               />
               <Button
-                leftIcon="create-outline"
+                leftIcon="square-pen"
                 label={t("counts.updateQuantity")}
                 variant="outline"
                 disabled={answerItem.isPending}
@@ -257,7 +257,7 @@ export default function MenuInventoryCountRunScreen() {
 
             <View style={tw`flex-row justify-between mt-auto`}>
               <Button
-                leftIcon="chevron-back-outline"
+                leftIcon="chevron-left"
                 label={t("counts.previous")}
                 variant="text"
                 disabled={currentIndex <= 0 || answerItem.isPending}
@@ -265,7 +265,7 @@ export default function MenuInventoryCountRunScreen() {
               />
               {answered ? (
                 <Button
-                  rightIcon="chevron-forward-outline"
+                  rightIcon="chevron-right"
                   label={t("counts.next")}
                   variant="text"
                   disabled={answerItem.isPending}
@@ -273,7 +273,7 @@ export default function MenuInventoryCountRunScreen() {
                 />
               ) : (
                 <Button
-                  rightIcon="play-skip-forward-outline"
+                  rightIcon="skip-forward"
                   label={t("counts.skip")}
                   variant="text"
                   loading={pendingAnswer === InventoryCountAnswer.SKIP}
@@ -326,7 +326,7 @@ export default function MenuInventoryCountRunScreen() {
         </ScrollView>
         <ThemedView style={tw`flex-row gap-3 bg-transparent`}>
           <Button
-            leftIcon="add-outline"
+            leftIcon="plus"
             label={t("counts.addProducts")}
             variant="outline"
             onPress={addProducts}

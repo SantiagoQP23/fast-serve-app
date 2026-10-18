@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { RefreshControl, ScrollView } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { toast } from "sonner-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -93,7 +93,7 @@ export default function InventoryPurchaseDetailView({
         <InventoryScreenHeader
           title={t("purchases.detailTitle")}
           onBack={onClose}
-          backIcon={embedded ? "close" : "arrow-back-outline"}
+          backIcon={embedded ? "x" : "arrow-left"}
         />
       </ThemedView>
 
@@ -115,7 +115,7 @@ export default function InventoryPurchaseDetailView({
 
         {purchaseQuery.isError && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+            <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
             <ThemedText type="body1" style={tw`text-red-500`}>
               {t("purchases.notFound")}
             </ThemedText>

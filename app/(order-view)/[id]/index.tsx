@@ -4,7 +4,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter, useNavigation, useLocalSearchParams } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import dayjs from "dayjs";
@@ -120,8 +120,8 @@ export default function ViewOrderScreen() {
   if (isOrderError || !order) {
     return (
       <ThemedView style={tw`flex-1 justify-center items-center px-6`}>
-        <Ionicons
-          name="alert-circle-outline"
+        <Icon
+          name="circle-alert"
           size={64}
           color={tw.color("gray-300")}
         />
@@ -183,11 +183,11 @@ export default function ViewOrderScreen() {
 
             {/* Table/Location & People */}
             <ThemedView style={tw`flex-row items-center gap-2`}>
-              <Ionicons
+              <Icon
                 name={
                   order.type === OrderType.IN_PLACE
-                    ? "restaurant-outline"
-                    : "bag-outline"
+                    ? "utensils"
+                    : "shopping-bag"
                 }
                 size={24}
                 color={tw.color("primary")}
@@ -198,8 +198,8 @@ export default function ViewOrderScreen() {
                   : t("common:labels.takeAway")}
               </ThemedText>
               <ThemedView style={tw`flex-row items-center gap-1 ml-2`}>
-                <Ionicons
-                  name="people-outline"
+                <Icon
+                  name="users"
                   size={18}
                   color={tw.color("gray-600")}
                 />
@@ -214,7 +214,7 @@ export default function ViewOrderScreen() {
               <ThemedView
                 style={tw`flex-row items-center gap-1.5 ${bgColor}/10 px-3 py-1.5 rounded-full`}
               >
-                <Ionicons
+                <Icon
                   name={statusIcon}
                   size={16}
                   color={tw.color(statusIconColor)}
@@ -235,8 +235,8 @@ export default function ViewOrderScreen() {
               <ThemedView
                 style={tw`flex-row items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-full`}
               >
-                <Ionicons
-                  name="eye-outline"
+                <Icon
+                  name="eye"
                   size={16}
                   color={tw.color("gray-600")}
                 />
@@ -253,8 +253,8 @@ export default function ViewOrderScreen() {
             <ThemedView
               style={tw`flex-row items-center gap-2 pt-2 border-t border-gray-200`}
             >
-              <Ionicons
-                name="person-outline"
+              <Icon
+                name="user"
                 size={16}
                 color={tw.color("gray-500")}
               />
@@ -268,8 +268,8 @@ export default function ViewOrderScreen() {
           {order.notes && (
             <ThemedView style={tw`mb-6 p-4 bg-gray-50 rounded-xl`}>
               <ThemedView style={tw`flex-row items-center gap-2 mb-2`}>
-                <Ionicons
-                  name="document-text-outline"
+                <Icon
+                  name="file-text"
                   size={16}
                   color={tw.color("gray-500")}
                 />
@@ -335,8 +335,8 @@ export default function ViewOrderScreen() {
           {/* Empty state for orders with no items */}
           {!hasItems && (
             <ThemedView style={tw`mb-6 p-8 items-center justify-center`}>
-              <Ionicons
-                name="document-outline"
+              <Icon
+                name="file"
                 size={48}
                 color={tw.color("gray-300")}
               />
@@ -388,11 +388,11 @@ export default function ViewOrderScreen() {
                               : "bg-orange-50"
                           } items-center justify-center`}
                         >
-                          <Ionicons
+                          <Icon
                             name={
                               bill.status === BillStatus.PAID
                                 ? getPaymentMethodIcon(bill.paymentMethod)
-                                : "time-outline"
+                                : "clock"
                             }
                             size={20}
                             color={
@@ -443,8 +443,8 @@ export default function ViewOrderScreen() {
                         >
                           {formatCurrency(bill.total)}
                         </ThemedText>
-                        <Ionicons
-                          name="chevron-forward"
+                        <Icon
+                          name="chevron-right"
                           size={16}
                           color={tw.color("gray-400")}
                         />

@@ -3,7 +3,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { usePrintComanda } from "@/presentation/orders/hooks/usePrintComanda";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useTickets } from "@/presentation/orders/hooks/useTickets";
 import { Order } from "@/core/orders/models/order.model";
@@ -27,8 +27,8 @@ export default function OrderTicketsTab({ order }: OrderTicketsTabProps) {
     >
       {tickets.length === 0 && !isLoading && (
         <ThemedView style={tw`items-center py-12`}>
-          <Ionicons
-            name="receipt-outline"
+          <Icon
+            name="receipt-text"
             size={48}
             color={tw.color("gray-400")}
           />

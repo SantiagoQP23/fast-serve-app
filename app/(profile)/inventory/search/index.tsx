@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { ScrollView, Pressable } from "react-native";
 import { router } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import {
   BottomSheetMethods,
   BottomSheetView,
@@ -59,7 +59,7 @@ export default function MenuInventorySearchScreen() {
           accessibilityLabel={t("common:actions.goBack")}
           style={({ pressed }) => tw.style(pressed && "opacity-70")}
         >
-          <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+          <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
         </Pressable>
         <ThemedText
           type="h3"
@@ -72,7 +72,7 @@ export default function MenuInventorySearchScreen() {
 
       <TextInput
         placeholder={t("searchPlaceholder")}
-        icon="search-outline"
+        icon="search"
         value={search}
         onChangeText={handleChangeSearch}
         returnKeyType="search"
@@ -85,7 +85,7 @@ export default function MenuInventorySearchScreen() {
       >
         {!hasSearchTerm && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="search-outline" size={40} color={tw.color("gray-400")} />
+            <Icon name="search" size={40} color={tw.color("gray-400")} />
             <ThemedText type="body2" style={tw`text-center text-gray-500 px-4`}>
               {t("searchHint")}
             </ThemedText>
@@ -102,7 +102,7 @@ export default function MenuInventorySearchScreen() {
 
         {hasSearchTerm && itemsQuery.isError && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+            <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
             <ThemedText type="body1" style={tw`text-red-500`}>
               {t("loadError")}
             </ThemedText>
@@ -114,7 +114,7 @@ export default function MenuInventorySearchScreen() {
           !itemsQuery.isError &&
           items.length === 0 && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Ionicons name="search-outline" size={40} color={tw.color("gray-400")} />
+              <Icon name="search" size={40} color={tw.color("gray-400")} />
               <ThemedText type="body1" style={tw`font-semibold`}>
                 {t("noResults")}
               </ThemedText>
@@ -126,7 +126,7 @@ export default function MenuInventorySearchScreen() {
               </ThemedText>
               <Button
                 label={t("createItem")}
-                leftIcon="add"
+                leftIcon="plus"
                 size="small"
                 onPress={handleOpenAddSheet}
                 style={tw`mt-2`}

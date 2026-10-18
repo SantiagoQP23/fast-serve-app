@@ -1,4 +1,4 @@
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -69,8 +69,8 @@ export default function InventoryPurchaseCard({
 
       {purchase.note && (
         <ThemedView style={tw`flex-row items-start gap-2 bg-transparent`}>
-          <Ionicons
-            name="document-text-outline"
+          <Icon
+            name="file-text"
             size={16}
             color={tw.color("gray-400")}
             style={tw`mt-0.5`}

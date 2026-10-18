@@ -1,6 +1,4 @@
-import Ionicons, {
-  type IoniconsIconName,
-} from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import dayjs from "dayjs";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -22,68 +20,68 @@ interface InventoryMovementHistoryProps {
 const MOVEMENT_VISUALS: Record<
   InventoryMovementType,
   {
-    icon: IoniconsIconName;
+    icon: IconName;
     iconColor: string;
     textColor: string;
   }
 > = {
   [InventoryMovementType.MANUAL_RESTOCK]: {
-    icon: "add-outline",
+    icon: "plus",
     iconColor: "emerald-500",
     textColor: "text-emerald-600",
   },
   [InventoryMovementType.MANUAL_ADJUSTMENT]: {
-    icon: "remove-outline",
+    icon: "minus",
     iconColor: "red-500",
     textColor: "text-red-600",
   },
   [InventoryMovementType.ORDER_DELIVERED]: {
-    icon: "trending-down-outline",
+    icon: "trending-down",
     iconColor: "blue-500",
     textColor: "text-blue-600",
   },
   [InventoryMovementType.ORDER_DELIVERY_REVERSED]: {
-    icon: "arrow-undo-outline",
+    icon: "undo-2",
     iconColor: "emerald-500",
     textColor: "text-emerald-600",
   },
   [InventoryMovementType.ORDER_CREATED]: {
-    icon: "trending-down-outline",
+    icon: "trending-down",
     iconColor: "blue-500",
     textColor: "text-blue-600",
   },
   [InventoryMovementType.ORDER_CREATED_REVERSED]: {
-    icon: "arrow-undo-outline",
+    icon: "undo-2",
     iconColor: "emerald-500",
     textColor: "text-emerald-600",
   },
   [InventoryMovementType.SALE_DIRECT]: {
-    icon: "trending-down-outline",
+    icon: "trending-down",
     iconColor: "blue-500",
     textColor: "text-blue-600",
   },
   [InventoryMovementType.SALE_DIRECT_CANCELLED]: {
-    icon: "arrow-undo-outline",
+    icon: "undo-2",
     iconColor: "emerald-500",
     textColor: "text-emerald-600",
   },
   [InventoryMovementType.PURCHASE]: {
-    icon: "cart-outline",
+    icon: "shopping-cart",
     iconColor: "emerald-500",
     textColor: "text-emerald-600",
   },
   [InventoryMovementType.PURCHASE_REVERSED]: {
-    icon: "arrow-undo-outline",
+    icon: "undo-2",
     iconColor: "red-500",
     textColor: "text-red-600",
   },
   [InventoryMovementType.INVENTORY_COUNT_INCREASE]: {
-    icon: "clipboard-outline",
+    icon: "clipboard",
     iconColor: "emerald-500",
     textColor: "text-emerald-600",
   },
   [InventoryMovementType.INVENTORY_COUNT_DECREASE]: {
-    icon: "clipboard-outline",
+    icon: "clipboard",
     iconColor: "red-500",
     textColor: "text-red-600",
   },
@@ -103,11 +101,11 @@ const INCREASE_TYPES = new Set<InventoryMovementType>([
 // Fallback for a movement type the frontend doesn't recognize (e.g. a type
 // the backend added that this map hasn't been updated for yet).
 const DEFAULT_VISUAL: {
-  icon: IoniconsIconName;
+  icon: IconName;
   iconColor: string;
   textColor: string;
 } = {
-  icon: "swap-horizontal-outline",
+  icon: "arrow-left-right",
   iconColor: "gray-500",
   textColor: "text-gray-600",
 };
@@ -154,7 +152,7 @@ export default function InventoryMovementHistory({
                   <ThemedView
                     style={tw`w-9 h-9 rounded-full bg-background items-center justify-center shadow-xs`}
                   >
-                    <Ionicons
+                    <Icon
                       name={visual.icon}
                       size={18}
                       color={tw.color(visual.iconColor)}

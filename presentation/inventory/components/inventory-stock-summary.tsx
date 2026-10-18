@@ -1,5 +1,5 @@
 import { Pressable } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -27,7 +27,7 @@ export default function InventoryStockSummary({
       count: counts.critical,
       label: t("summary.critical"),
       description: t("summary.criticalDescription"),
-      icon: "warning" as const,
+      icon: "triangle-alert" as const,
       color: "red-500",
     },
     {
@@ -43,7 +43,7 @@ export default function InventoryStockSummary({
       count: counts.optimal,
       label: t("summary.optimal"),
       description: t("summary.optimalDescription"),
-      icon: "checkmark-circle" as const,
+      icon: "circle-check" as const,
       color: "emerald-500",
     },
   ];
@@ -75,7 +75,7 @@ export default function InventoryStockSummary({
                 <ThemedText type="small" style={tw`text-gray-500`}>
                   {tile.label}
                 </ThemedText>
-                <Ionicons
+                <Icon
                   name={tile.icon}
                   size={16}
                   color={tw.color(tile.color)}

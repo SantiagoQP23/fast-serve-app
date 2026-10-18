@@ -9,7 +9,7 @@ import {
   Platform,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
@@ -148,7 +148,7 @@ export default function MenuInventoryItemFormScreen() {
                 accessibilityLabel={t("common:actions.goBack")}
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
-                <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+                <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
               </Pressable>
               <ThemedView style={tw`flex-1`}>
                 <ThemedText
@@ -184,7 +184,7 @@ export default function MenuInventoryItemFormScreen() {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <TextInput
                       label={t("fields.name")}
-                      icon="cube"
+                      icon="package"
                       placeholder={t("placeholders.name")}
                       onBlur={onBlur}
                       value={value}
@@ -287,12 +287,12 @@ export default function MenuInventoryItemFormScreen() {
           subtitle={t("linkedItem.belongsToProductMessage")}
           items={[
             {
-              icon: "fast-food-outline",
+              icon: "hamburger",
               label: t("linkedItem.belongsToProductYes"),
               onPress: handleLinkCreatedItem,
             },
             {
-              icon: "cube-outline",
+              icon: "package",
               label: t("linkedItem.belongsToProductNo"),
               onPress: handleSkipLinkCreatedItem,
             },

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { ScrollView } from "react-native";
 import { router } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -89,7 +89,7 @@ export default function MenuInventoryPurchaseItemsScreen() {
           right={
             isExpanded ? undefined : (
               <ThemedView style={tw`relative bg-transparent`}>
-                <IconButton icon="cart-outline" onPress={openCart} />
+                <IconButton icon="shopping-cart" onPress={openCart} />
                 {lines.length > 0 && <NotificationBadge value={lines.length} />}
               </ThemedView>
             )
@@ -98,7 +98,7 @@ export default function MenuInventoryPurchaseItemsScreen() {
 
         <TextInput
           placeholder={t("searchPlaceholder")}
-          icon="search-outline"
+          icon="search"
           value={search}
           onChangeText={setSearch}
           returnKeyType="search"
@@ -155,7 +155,7 @@ export default function MenuInventoryPurchaseItemsScreen() {
 
         {!itemsQuery.isLoading && visibleItems.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="cube-outline" size={40} color={tw.color("gray-400")} />
+            <Icon name="package" size={40} color={tw.color("gray-400")} />
             <ThemedText type="body2" style={tw`text-center text-gray-500 px-4`}>
               {items.length === 0 ? t("purchases.noItems") : t("noResults")}
             </ThemedText>
@@ -194,8 +194,8 @@ export default function MenuInventoryPurchaseItemsScreen() {
                       size="small"
                     />
                   ) : (
-                    <Ionicons
-                      name="add-circle-outline"
+                    <Icon
+                      name="circle-plus"
                       size={24}
                       color={tw.color("gray-400")}
                     />
@@ -210,7 +210,7 @@ export default function MenuInventoryPurchaseItemsScreen() {
       {!isExpanded && lines.length > 0 && (
         <ThemedView style={tw`px-4 pb-2 pt-2 bg-transparent`}>
           <Button
-            leftIcon="cart-outline"
+            leftIcon="shopping-cart"
             label={t("purchases.viewSummary", { count: lines.length })}
             onPress={openCart}
           />
