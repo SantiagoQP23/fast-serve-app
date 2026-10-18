@@ -73,6 +73,8 @@ export default function Label({
   size = "medium",
   text,
   style,
+  hitSlop,
+  accessibilityLabel,
 }: LabelProps) {
   const baseStyle = " rounded-xl flex-row justify-center items-center";
 
@@ -127,6 +129,8 @@ export default function Label({
     <Pressable
       onPress={onPress}
       disabled={disabled}
+      hitSlop={hitSlop}
+      accessibilityLabel={accessibilityLabel}
       style={({ pressed }) => [
         tw.style(
           `gap-1.5 flex-row items-center ${containerBg} ${isSmall ? "px-3 py-1" : "px-4 py-1"} rounded-full`,

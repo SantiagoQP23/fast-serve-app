@@ -8,8 +8,7 @@ import Fab from "@/presentation/theme/components/fab";
 import { useTableOrders } from "@/presentation/orders/hooks/useTableOrders";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
-import { useCallback, useContext, useEffect, useRef } from "react";
-import { toast } from "sonner-native";
+import { useCallback, useEffect, useRef } from "react";
 
 import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -25,10 +24,7 @@ import {
   CollapsibleLargeTitle,
   useCollapsibleHeaderScroll,
 } from "@/presentation/theme/components/collapsible-header-title";
-import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import { useTableStatus } from "@/presentation/tables/hooks/useTableStatus";
-import { useTablesManagement } from "@/presentation/tables/hooks/useTablesManagement";
-import { SocketContext } from "@/presentation/shared/context/SocketContext";
 
 export default function TableOrdersScreen() {
   const { t } = useTranslation(["common", "tables"]);
@@ -40,15 +36,12 @@ export default function TableOrdersScreen() {
   const navigation = useNavigation();
   const { scrollY, scrollHandler } = useCollapsibleHeaderScroll();
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
-  const statusSheetRef = useRef<BottomSheetMethods>(null);
-  const { online } = useContext(SocketContext);
 
   const { totalAmount, activeOrdersCount, hasOrders, orders } = useTableOrders(
     tableId!,
   );
 
-  const { hasOpenOrders, isOccupied } = useTableStatus(tableId!);
-  const { setTableAvailability } = useTablesManagement();
+  const { isOccupied } = useTableStatus(tableId!);
 
   const { setTable, setOrderType } = useNewOrderStore();
 
@@ -56,20 +49,6 @@ export default function TableOrdersScreen() {
   const statusText = isOccupied
     ? t("common:status.occupied")
     : t("common:status.available");
-
-  const handleOpenStatusSheet = () => {
-    if (!online) {
-      toast.info(t("tables:details.status.offline"));
-      return;
-    }
-    statusSheetRef.current?.present();
-  };
-
-  const handleChangeStatus = (isAvailable: boolean) => {
-    statusSheetRef.current?.close();
-    if (isAvailable === !isOccupied) return;
-    setTableAvailability.mutate({ id: tableId!, isAvailable });
-  };
 
   useEffect(() => {
     navigation.setOptions({
@@ -115,10 +94,6 @@ export default function TableOrdersScreen() {
                     text={statusText}
                     color={isOccupied ? "error" : "success"}
                     variant="soft"
-                    rightIcon="chevron-down"
-                    disabled={setTableAvailability.isPending}
-                    onPress={handleOpenStatusSheet}
-                    accessibilityLabel={t("tables:details.status.change")}
                   />
                 </ThemedView>
               }
@@ -156,30 +131,6 @@ export default function TableOrdersScreen() {
 
         <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
           <NewOrderBottomSheet onCreateOrder={handleNavigate} />
-        </ThemedBottomSheetModal>
-
-        <ThemedBottomSheetModal ref={statusSheetRef} enablePanDownToClose>
-          <ActionsBottomSheet
-            title={t("tables:details.status.title")}
-            subtitle={
-              hasOpenOrders ? t("tables:details.status.hasOrders") : undefined
-            }
-            items={[
-              {
-                icon: isOccupied ? "ellipse-outline" : "checkmark-circle",
-                label: t("common:status.available"),
-                color: "text-green-600",
-                disabled: hasOpenOrders,
-                onPress: () => handleChangeStatus(true),
-              },
-              {
-                icon: isOccupied ? "checkmark-circle" : "ellipse-outline",
-                label: t("common:status.occupied"),
-                color: "text-red-600",
-                onPress: () => handleChangeStatus(false),
-              },
-            ]}
-          />
         </ThemedBottomSheetModal>
       </ScreenLayout>
       <Fab icon="add-outline" onPress={handlePresentModalPress} />

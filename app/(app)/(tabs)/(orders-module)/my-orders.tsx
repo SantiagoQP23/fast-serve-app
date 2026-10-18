@@ -27,8 +27,8 @@ import OrderListByStatus from "@/presentation/orders/molecules/order-list-by-sta
 import OrderCardSkeleton from "@/presentation/home/components/order-card-skeleton";
 import SegmentedControl from "@/presentation/theme/components/segmented-control";
 import TablesView from "@/presentation/tables/components/tables-view";
+import TableActionsBottomSheet from "@/presentation/tables/components/table-actions-bottom-sheet";
 import { Table } from "@/core/tables/models/table.model";
-import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { Order } from "@/core/orders/models/order.model";
 import { MyOrdersHeaderRight } from "../_layout";
@@ -90,7 +90,7 @@ export default function MyOrdersScreen() {
   const { registerOpenViewPopover } = useOrdersModuleContext();
   const { isLoading: isLoadingOrders, refetchOrders } = useActiveOrders();
 
-  const { setTable, setOrderType } = useNewOrderStore();
+  const [selectedTable, setSelectedTable] = useState<Table | null>(null);
 
   // Tablet landscape: list on the left, the selected order or sale (bill) on
   // the right
@@ -126,10 +126,16 @@ export default function MyOrdersScreen() {
 
   // ref
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
+  const tableSheetRef = useRef<BottomSheetMethods>(null);
   const viewOptionsSheetRef = useRef<BottomSheetMethods>(null);
 
   const handleNavigate = () => {
     bottomSheetModalRef.current?.close();
+    router.push("/(new-order)/restaurant-menu");
+  };
+
+  const handleTableOrderNavigate = () => {
+    tableSheetRef.current?.close();
     router.push("/(new-order)/restaurant-menu");
   };
 
@@ -173,9 +179,8 @@ export default function MyOrdersScreen() {
         params: { tableId: table.id, tableName: table.name },
       });
     } else {
-      setTable(table);
-      setOrderType(OrderType.IN_PLACE);
-      bottomSheetModalRef.current?.present();
+      setSelectedTable(table);
+      tableSheetRef.current?.present();
     }
   };
 
@@ -360,6 +365,14 @@ export default function MyOrdersScreen() {
             enablePanDownToClose
           >
             <NewOrderBottomSheet onCreateOrder={handleNavigate} />
+          </ThemedBottomSheetModal>
+          <ThemedBottomSheetModal ref={tableSheetRef} enablePanDownToClose>
+            {selectedTable && (
+              <TableActionsBottomSheet
+                table={selectedTable}
+                onCreateOrder={handleTableOrderNavigate}
+              />
+            )}
           </ThemedBottomSheetModal>
           <ThemedBottomSheetModal
             ref={viewOptionsSheetRef}

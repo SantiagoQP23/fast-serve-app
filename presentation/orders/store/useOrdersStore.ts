@@ -47,6 +47,7 @@ interface OrdersState {
   updateOrder: (order: Order) => void;
   deleteOrder: (orderId: string) => void;
   updateProductInOrders: (product: Product) => void;
+  updateProductsInOrders: (products: Product[]) => void;
   reset: () => void;
 }
 
@@ -124,30 +125,45 @@ export const useOrdersStore = create<OrdersState>()(
         freeTableIfEmpty(removed?.table?.id, get().orders);
       },
       updateProductInOrders: (product: Product) =>
+        get().updateProductsInOrders([product]),
+
+      // Only orders that contain one of the products change, so the rest
+      // keep their identity and don't re-render.
+      updateProductsInOrders: (products: Product[]) =>
         set((state) => {
+          const byId = new Map(products.map((p) => [p.id, p]));
           const replaceInDetails = (details: OrderDetail[]) =>
-            details.some((d) => d.product?.id === product.id)
+            details.some((d) => d.product?.id && byId.has(d.product.id))
               ? details.map((d) =>
-                  d.product?.id === product.id ? { ...d, product } : d,
+                  d.product?.id && byId.has(d.product.id)
+                    ? { ...d, product: byId.get(d.product.id)! }
+                    : d,
                 )
               : details;
-
-          return {
-            orders: state.orders.map((o) => ({
-              ...o,
-              details: replaceInDetails(o.details),
-            })),
-            activeOrder: state.activeOrder
-              ? {
-                  ...state.activeOrder,
-                  details: replaceInDetails(state.activeOrder.details),
-                }
-              : state.activeOrder,
-            activeOrderDetail:
-              state.activeOrderDetail?.product?.id === product.id
-                ? { ...state.activeOrderDetail, product }
-                : state.activeOrderDetail,
+          const replaceInOrder = (o: Order) => {
+            const details = replaceInDetails(o.details);
+            return details === o.details ? o : { ...o, details };
           };
+
+          const orders = state.orders.map(replaceInOrder);
+          const activeOrder = state.activeOrder
+            ? replaceInOrder(state.activeOrder)
+            : state.activeOrder;
+          const detailProduct = state.activeOrderDetail?.product?.id
+            ? byId.get(state.activeOrderDetail.product.id)
+            : undefined;
+          const activeOrderDetail = detailProduct
+            ? { ...state.activeOrderDetail!, product: detailProduct }
+            : state.activeOrderDetail;
+
+          if (
+            orders.every((o, i) => o === state.orders[i]) &&
+            activeOrder === state.activeOrder &&
+            activeOrderDetail === state.activeOrderDetail
+          )
+            return state;
+
+          return { orders, activeOrder, activeOrderDetail };
         }),
       reset: () => set(initialState),
     }),

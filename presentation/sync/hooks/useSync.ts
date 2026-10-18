@@ -33,7 +33,7 @@ import {
   shouldSkipOrderSyncEvent,
 } from "@/presentation/offline/pending-orders";
 import { applyTicketEvent } from "../apply-ticket-event";
-import { applyProductEvent } from "../apply-product-event";
+import { applyProductEvents } from "../apply-product-event";
 import { applyTableAreaEvent } from "../apply-table-area-event";
 import { TableArea } from "@/core/tables/models/table-area.model";
 import { useUnprintedTicketsStore } from "@/presentation/orders/store/useUnprintedTicketsStore";
@@ -96,8 +96,22 @@ function applySnapshot(
 
 async function applyIncremental(response: IncrementalSyncResponseDto) {
   const events = response.events;
+  // Runs of product updates (a sale sends one per product) go in together.
+  let productRun: SyncEventDto[] = [];
+  const flushProducts = () => {
+    if (productRun.length) applyProductEvents(productRun);
+    productRun = [];
+  };
 
   for (const event of events) {
+    if (
+      event.resourceType === SyncResourceType.PRODUCT &&
+      event.operation !== SyncOperation.DELETED
+    ) {
+      productRun.push(event);
+      continue;
+    }
+    flushProducts();
     console.log(
       "[useSync] Applying sync event",
       event.resourceType,
@@ -105,6 +119,7 @@ async function applyIncremental(response: IncrementalSyncResponseDto) {
     );
     applyEvent(event);
   }
+  flushProducts();
 }
 
 function applyEvent(event: SyncEventDto) {
@@ -123,7 +138,7 @@ function applyEvent(event: SyncEventDto) {
       // ORDER sync events keep the order state up to date.
       break;
     case SyncResourceType.PRODUCT:
-      applyProductEvent(event);
+      applyProductEvents([event]);
       break;
     case SyncResourceType.CATEGORY:
       applyCategoryEvent(event);

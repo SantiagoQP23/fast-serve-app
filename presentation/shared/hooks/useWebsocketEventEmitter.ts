@@ -36,6 +36,7 @@ interface WebSocketOptions<TData> {
  * @version v1.1 05-01-2026 Add timeout mechanism with configurable duration
  * @version v1.2 12-09-2026 Drive the global socket-loading bottom sheet
  * @version v1.3 15-10-2026 Don't buffer events while offline (no late duplicates)
+ * @version v1.4 17-10-2026 Run onSuccess without waiting for the loader to close
  */
 export function useWebsocketEventEmitter<TData, TVariables>(
   eventMessage: string,
@@ -120,12 +121,15 @@ export function useWebsocketEventEmitter<TData, TVariables>(
             return;
           }
 
-          await clearLoadingAndWaitToPresent();
-
           if (resp.ok) {
+            // Don't wait for the loader to finish closing: the screen can
+            // move on (navigate, show the result) while it animates away.
+            void clearLoadingAndWaitToPresent();
             options?.onSuccess?.(resp);
             secondaryOptions?.onSuccess?.(resp);
           } else {
+            // An error may show an Alert, which needs the sheet gone first.
+            await clearLoadingAndWaitToPresent();
             const translated = translateSocketResponse(resp);
             options?.onError?.(translated);
             secondaryOptions?.onError?.(translated);

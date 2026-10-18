@@ -26,16 +26,26 @@ function OrderStatusDot({ order }: { order: Order }) {
 }
 
 export default function TableCard({ table, onPress }: TableCardProps) {
-  const { t } = useTranslation(["tables"]);
+  const { t } = useTranslation(["common", "tables"]);
   const { hasOrders, tableOrders } = useTableOrders(table.id);
   const { isOccupied } = useTableStatus(table.id);
+  const statusText = isOccupied
+    ? t("common:status.occupied")
+    : t("common:status.available");
   return (
     <ThemedView style={[tw`w-full`]}>
+      {/* The dots only show the current waiter's orders, so an occupied table
+          with none (marked by hand, or with another waiter's orders) shows an
+          outlined dot to tell it apart from a free one. */}
       <Card
         onPress={onPress}
-        style={[tw`p-2 rounded-lg `, isOccupied ? tw`` : tw`bg-transparent`]}
-        containerStyle={tw`rounded-lg`}
-        variant={hasOrders ? "default" : "default"}
+        accessibilityLabel={`${t("tables:details.table", { name: table.name })}, ${statusText}`}
+        style={tw`p-2 rounded-lg`}
+        containerStyle={[
+          tw`rounded-lg`,
+          isOccupied && tw`border border-transparent bg-light-surface-variant`,
+        ]}
+        variant={isOccupied ? "elevated" : "default"}
       >
         <ThemedView
           style={tw`flex-row items-center bg-transparent justify-center`}
@@ -49,6 +59,15 @@ export default function TableCard({ table, onPress }: TableCardProps) {
             tableOrders.map((order) => (
               <OrderStatusDot key={order.id} order={order} />
             ))
+          ) : isOccupied ? (
+            // Explicit radius: `rounded-full` isn't clamped on Android once a
+            // border is added, so the ring would render square
+            <View
+              style={[
+                tw`w-2 h-2 border-on-surface`,
+                { borderRadius: 4, borderWidth: 1.5 },
+              ]}
+            />
           ) : (
             <View style={tw`w-2 h-2 rounded-full bg-transparent`} />
           )}
