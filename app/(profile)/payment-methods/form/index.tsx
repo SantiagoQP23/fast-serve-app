@@ -11,7 +11,7 @@ import {
   UIManager,
 } from "react-native";
 import { router } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -71,7 +71,7 @@ type PaymentMethodFormData = z.infer<
 >;
 
 const accountIcon = (type: AccountType) =>
-  type === AccountType.BANK ? "business-outline" : "cash-outline";
+  type === AccountType.BANK ? "building" : "banknote";
 
 export default function PaymentMethodFormScreen() {
   const { t } = useTranslation("paymentMethods");
@@ -302,7 +302,7 @@ export default function PaymentMethodFormScreen() {
                 onPress={handleBack}
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
-                <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+                <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
               </Pressable>
               <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
                 {t("methods.createMethod")}
@@ -318,8 +318,8 @@ export default function PaymentMethodFormScreen() {
                 <ThemedView
                   style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
                 >
-                  <Ionicons
-                    name="checkmark-done-circle-outline"
+                  <Icon
+                    name="circle-check-big"
                     size={32}
                     color={tw.color("gray-400")}
                   />
@@ -355,7 +355,7 @@ export default function PaymentMethodFormScreen() {
                     render={({ field: { onChange, onBlur, value } }) => (
                       <TextInput
                         label={t("methods.fields.name")}
-                        icon="card-outline"
+                        icon="credit-card"
                         placeholder={t("methods.placeholders.name")}
                         onBlur={onBlur}
                         value={value}
@@ -372,7 +372,7 @@ export default function PaymentMethodFormScreen() {
                       render={({ field: { onChange, onBlur, value } }) => (
                         <TextInput
                           label={t("methods.fields.commission")}
-                          icon="pricetag-outline"
+                          icon="tag"
                           placeholder={t("methods.placeholders.commission")}
                           onBlur={onBlur}
                           value={value}
@@ -404,8 +404,8 @@ export default function PaymentMethodFormScreen() {
                   <ThemedView
                     style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
                   >
-                    <Ionicons
-                      name="wallet-outline"
+                    <Icon
+                      name="wallet"
                       size={32}
                       color={tw.color("gray-400")}
                     />
@@ -447,7 +447,7 @@ export default function PaymentMethodFormScreen() {
                                 <ThemedView
                                   style={tw`flex-row items-center gap-3 flex-1 bg-transparent`}
                                 >
-                                  <Ionicons
+                                  <Icon
                                     name={accountIcon(account.type)}
                                     size={22}
                                     color={
@@ -469,11 +469,11 @@ export default function PaymentMethodFormScreen() {
                                     {account.name}
                                   </ThemedText>
                                 </ThemedView>
-                                <Ionicons
+                                <Icon
                                   name={
                                     isSelected
-                                      ? "checkmark-circle"
-                                      : "ellipse-outline"
+                                      ? "circle-check"
+                                      : "circle"
                                   }
                                   size={22}
                                   color={
@@ -501,7 +501,7 @@ export default function PaymentMethodFormScreen() {
                   onPress={openAddAccountSheet}
                   variant="outline"
                   size="small"
-                  leftIcon="add-outline"
+                  leftIcon="plus"
                 />
               </ThemedView>
 

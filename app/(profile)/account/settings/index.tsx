@@ -4,7 +4,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import Button from "@/presentation/theme/components/button";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { useCallback, useRef, useState } from "react";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
@@ -118,8 +118,8 @@ export default function SettingsScreen() {
           >
             <ThemedView style={tw`flex-row items-center justify-between`}>
               <ThemedText type="body1">{t("settings.accountTitle")}</ThemedText>
-              <Ionicons
-                name="chevron-forward-outline"
+              <Icon
+                name="chevron-right"
                 size={20}
                 color={tw.color("gray-400")}
               />
@@ -137,8 +137,8 @@ export default function SettingsScreen() {
               <ThemedText type="body1">
                 {t("settings.languageTitle")}
               </ThemedText>
-              <Ionicons
-                name="chevron-forward-outline"
+              <Icon
+                name="chevron-right"
                 size={20}
                 color={tw.color("gray-400")}
               />
@@ -170,8 +170,8 @@ export default function SettingsScreen() {
           >
             <ThemedView style={tw`flex-row items-center justify-between`}>
               <ThemedText type="body1">{t("settings.themeTitle")}</ThemedText>
-              <Ionicons
-                name="chevron-forward-outline"
+              <Icon
+                name="chevron-right"
                 size={20}
                 color={tw.color("gray-400")}
               />
@@ -232,8 +232,8 @@ export default function SettingsScreen() {
           >
             <ThemedView style={tw`flex-row items-center justify-between`}>
               <ThemedText type="body1">{t("settings.aboutTitle")}</ThemedText>
-              <Ionicons
-                name="chevron-forward-outline"
+              <Icon
+                name="chevron-right"
                 size={20}
                 color={tw.color("gray-400")}
               />
@@ -246,7 +246,7 @@ export default function SettingsScreen() {
           <Button
             variant="destructive"
             label={t("manage.logout")}
-            leftIcon="log-out-outline"
+            leftIcon="log-out"
             onPress={() => {
               setVisible(true);
             }}

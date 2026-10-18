@@ -12,7 +12,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { formatCurrency } from "@/core/i18n/utils";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import Button from "@/presentation/theme/components/button";
 import { usePaymentProofs } from "@/presentation/transactions/hooks/usePaymentProofs";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
@@ -260,7 +260,7 @@ export default function TransactionDetailView({
       {embedded && (
         <ThemedView style={tw`flex-row items-center px-4 pt-2`}>
           <IconButton
-            icon="close"
+            icon="x"
             accessibilityLabel={t("common:actions.close")}
             onPress={onClose}
             size={24}
@@ -294,15 +294,15 @@ export default function TransactionDetailView({
           style={tw`bg-surface rounded-2xl overflow-hidden p-6 gap-4`}
         >
           <DetailRow
-            icon="wallet-outline"
+            icon="wallet"
             label={t("common:transactions.paymentMethod")}
             value={transaction.paymentMethod.name}
           />
 
           {/* Account - editable for admin/cashier */}
           <ThemedView style={tw`flex-row items-center gap-4  py-3`}>
-            <Ionicons
-              name="business-outline"
+            <Icon
+              name="building"
               size={18}
               color={tw.color("on-surface")}
             />
@@ -317,7 +317,7 @@ export default function TransactionDetailView({
             </ThemedView>
             {canManage && (
               <IconButton
-                icon="create-outline"
+                icon="square-pen"
                 onPress={openAccountPicker}
                 variant="secondary"
               />
@@ -325,12 +325,12 @@ export default function TransactionDetailView({
           </ThemedView>
 
           <DetailRow
-            icon="pricetag-outline"
+            icon="tag"
             label={t("common:transactions.category")}
             value={transaction.category.name}
           />
           <DetailRow
-            icon="person-outline"
+            icon="user"
             label={t("common:transactions.createdBy")}
             value={getUserDisplayName(
               transaction.createdBy,
@@ -340,14 +340,14 @@ export default function TransactionDetailView({
           {transaction.description && (
             <>
               <DetailRow
-                icon="document-text-outline"
+                icon="file-text"
                 label={t("common:transactions.description")}
                 value={transaction.description}
               />
             </>
           )}
           <DetailRow
-            icon="calendar-outline"
+            icon="calendar"
             label={t("common:labels.date")}
             value={dayjs(new Date(transaction.createdAt)).format(
               "DD MMM YYYY, HH:mm",
@@ -453,7 +453,7 @@ export default function TransactionDetailView({
                           onPress={() => setSelectedImage(null)}
                           style={tw`absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 items-center justify-center`}
                         >
-                          <Ionicons name="close" size={18} color="white" />
+                          <Icon name="x" size={18} color="white" />
                         </Pressable>
                       </ThemedView>
                     </Pressable>
@@ -473,8 +473,8 @@ export default function TransactionDetailView({
                         pressed && tw`opacity-70 bg-gray-50`,
                       ]}
                     >
-                      <Ionicons
-                        name="images-outline"
+                      <Icon
+                        name="images"
                         size={20}
                         color={tw.color("gray-500")}
                       />
@@ -492,8 +492,8 @@ export default function TransactionDetailView({
                         pressed && tw`opacity-70 bg-gray-50`,
                       ]}
                     >
-                      <Ionicons
-                        name="camera-outline"
+                      <Icon
+                        name="camera"
                         size={20}
                         color={tw.color("gray-500")}
                       />
@@ -523,7 +523,7 @@ export default function TransactionDetailView({
               {canRejectTransaction && (
                 <Button
                   label={t("common:actions.reject")}
-                  leftIcon="close-outline"
+                  leftIcon="x"
                   variant="destructive"
                   onPress={handleRejectTransaction}
                   loading={isRejecting}
@@ -534,7 +534,7 @@ export default function TransactionDetailView({
               {canApproveTransaction && (
                 <Button
                   label={t("common:actions.approve")}
-                  leftIcon="checkmark-outline"
+                  leftIcon="check"
                   variant="primary"
                   onPress={openApproveModal}
                   style={tw`flex-1`}
@@ -566,7 +566,7 @@ export default function TransactionDetailView({
               {previewIndex + 1} / {allPreviewImages.length}
             </ThemedText>
             <Pressable onPress={() => setPreviewVisible(false)} hitSlop={8}>
-              <Ionicons name="close-outline" size={28} color="white" />
+              <Icon name="x" size={28} color="white" />
             </Pressable>
           </ThemedView>
           <ImageViewer
@@ -602,14 +602,14 @@ function DetailRow({
   label,
   value,
 }: {
-  icon: string;
+  icon: IconName;
   label: string;
   value: string;
 }) {
   return (
     <ThemedView style={tw`flex-row items-center gap-4`}>
-      <Ionicons
-        name={icon as any}
+      <Icon
+        name={icon}
         size={18}
         color={tw.color("text-on-surface")}
       />
@@ -630,37 +630,37 @@ function StatusBadge({ status }: { status: TransactionStatus }) {
 
   const config: Record<
     TransactionStatus,
-    { bg: string; text: string; label: string; icon: string }
+    { bg: string; text: string; label: string; icon: IconName }
   > = {
     [TransactionStatus.COMPLETED]: {
       bg: "bg-green-100",
       text: "text-green-700",
       label: t("common:transactions.status.completed"),
-      icon: "checkmark-circle-outline",
+      icon: "circle-check",
     },
     [TransactionStatus.PENDING_PROOF]: {
       bg: "bg-orange-100",
       text: "text-orange-700",
       label: t("common:transactions.status.pendingProof"),
-      icon: "document-attach-outline",
+      icon: "file-up",
     },
     [TransactionStatus.PENDING_APPROVAL]: {
       bg: "bg-yellow-100",
       text: "text-yellow-700",
       label: t("common:transactions.status.pendingApproval"),
-      icon: "time-outline",
+      icon: "clock",
     },
     [TransactionStatus.REJECTED]: {
       bg: "bg-red-100",
       text: "text-red-700",
       label: t("common:transactions.status.rejected"),
-      icon: "close-circle-outline",
+      icon: "circle-x",
     },
     [TransactionStatus.CANCELLED]: {
       bg: "bg-gray-100",
       text: "text-gray-700",
       label: t("common:transactions.status.cancelled"),
-      icon: "ban-outline",
+      icon: "ban",
     },
   };
 
@@ -670,8 +670,8 @@ function StatusBadge({ status }: { status: TransactionStatus }) {
     <ThemedView
       style={tw`flex-row items-center gap-1 px-3 py-1 rounded-full ${c.bg}`}
     >
-      <Ionicons
-        name={c.icon as any}
+      <Icon
+        name={c.icon}
         size={14}
         color={tw.color(c.text.replace("text-", "").replace("-700", "-600"))}
       />

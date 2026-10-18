@@ -7,17 +7,17 @@ export function useBillStatus(status: BillStatus) {
     [BillStatus.PAID]: {
       color: "success" as const,
       text: t("bills:details.paid"),
-      icon: "checkmark-circle-outline" as const,
+      icon: "circle-check" as const,
     },
     [BillStatus.PARTIALLY_PAID]: {
       color: "info" as const,
       text: t("bills:details.partiallyPaid"),
-      icon: "hourglass-outline" as const,
+      icon: "hourglass" as const,
     },
     [BillStatus.OPEN]: {
       color: "warning" as const,
       text: t("bills:details.unpaid"),
-      icon: "time-outline" as const,
+      icon: "clock" as const,
     },
   };
 

@@ -60,7 +60,7 @@ export default function OptionInventorySection({
         </ThemedView>
 
         <IconButton
-          icon="chevron-forward-outline"
+          icon="chevron-right"
           size={20}
           onPress={onOpen}
           accessibilityLabel={
@@ -77,7 +77,7 @@ export default function OptionInventorySection({
             ? t("optionInventory.switchToIngredients")
             : t("optionInventory.switchToWholeProduct")
         }
-        leftIcon="swap-horizontal-outline"
+        leftIcon="arrow-left-right"
         variant="outline"
         size="small"
         onPress={onSwitchMode}

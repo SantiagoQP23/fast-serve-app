@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { router } from "expo-router";
 import { toast } from "sonner-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import QRCode from "react-native-qrcode-svg";
 
 import tw from "@/presentation/theme/lib/tailwind";
@@ -77,8 +77,8 @@ export default function JoinRestaurantScreen() {
     <ScreenLayout style={tw`flex-1 px-6`}>
       <ThemedView style={tw`flex-1 justify-center items-center gap-6`}>
         <ThemedView style={tw`items-center gap-2`}>
-          <Ionicons
-            name="qr-code-outline"
+          <Icon
+            name="qr-code"
             size={64}
             color={tw.color("primary")}
           />
@@ -97,8 +97,8 @@ export default function JoinRestaurantScreen() {
             <ThemedView
               style={tw`w-[220px] h-[220px] items-center justify-center`}
             >
-              <Ionicons
-                name="refresh-outline"
+              <Icon
+                name="refresh-cw"
                 size={48}
                 color={tw.color("gray-400")}
               />
@@ -106,8 +106,8 @@ export default function JoinRestaurantScreen() {
           )}
 
           <ThemedView style={tw`flex-row items-center gap-2`}>
-            <Ionicons
-              name="time-outline"
+            <Icon
+              name="clock"
               size={16}
               color={
                 secondsLeft < 30 ? tw.color("red-500") : tw.color("gray-500")

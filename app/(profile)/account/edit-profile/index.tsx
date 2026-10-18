@@ -3,7 +3,8 @@ import { KeyboardAvoidingView, ScrollView, Pressable } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
+import GoogleLogo from "@/presentation/theme/components/google-logo";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { router } from "expo-router";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -97,7 +98,7 @@ export default function EditProfileScreen() {
               onPress={() => router.back()}
               style={({ pressed }) => tw.style(pressed && "opacity-70")}
             >
-              <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+              <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
             </Pressable>
             <ThemedText type="h2">Editar perfil</ThemedText>
           </ThemedView>
@@ -112,7 +113,7 @@ export default function EditProfileScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label="Nombre"
-                  icon="person-outline"
+                  icon="user"
                   onBlur={onBlur}
                   value={value}
                   onChangeText={onChange}
@@ -129,7 +130,7 @@ export default function EditProfileScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label="Apellido"
-                  icon="person-outline"
+                  icon="user"
                   onBlur={onBlur}
                   value={value}
                   onChangeText={onChange}
@@ -167,7 +168,7 @@ export default function EditProfileScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label="Telefono"
-                  icon="call-outline"
+                  icon="phone"
                   keyboardType="phone-pad"
                   onBlur={onBlur}
                   value={value}
@@ -198,8 +199,8 @@ export default function EditProfileScreen() {
               <ThemedView
                 style={tw`rounded-full bg-green-100 px-3 py-1 flex-row items-center gap-1`}
               >
-                <Ionicons
-                  name="checkmark-circle"
+                <Icon
+                  name="circle-check"
                   size={14}
                   color={tw.color("green-600")}
                 />
@@ -212,11 +213,7 @@ export default function EditProfileScreen() {
                 <ThemedView
                   style={tw`rounded-full bg-blue-100 px-3 py-1 flex-row items-center gap-1`}
                 >
-                  <Ionicons
-                    name="logo-google"
-                    size={14}
-                    color={tw.color("blue-600")}
-                  />
+                  <GoogleLogo size={14} />
                   <ThemedText type="small" style={tw`text-blue-700`}>
                     Google
                   </ThemedText>
@@ -225,11 +222,7 @@ export default function EditProfileScreen() {
                 <ThemedView
                   style={tw`rounded-full bg-gray-100 px-3 py-1 flex-row items-center gap-1`}
                 >
-                  <Ionicons
-                    name="logo-google"
-                    size={14}
-                    color={tw.color("gray-400")}
-                  />
+                  <GoogleLogo size={14} color={tw.color("gray-400")} />
                   <ThemedText type="small" style={tw`text-gray-400`}>
                     Google
                   </ThemedText>

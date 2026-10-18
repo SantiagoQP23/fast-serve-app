@@ -1,6 +1,6 @@
 import { ActivityIndicator, ScrollView } from "react-native";
 import { router } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -82,8 +82,8 @@ export default function RestaurantsScreen() {
           </ThemedView>
         </ThemedView>
         {isSelected && (
-          <Ionicons
-            name="checkmark-circle"
+          <Icon
+            name="circle-check"
             size={24}
             color={tw.color("primary")}
           />
@@ -118,7 +118,7 @@ export default function RestaurantsScreen() {
                   router.push("/(profile)/restaurant/create-branch")
                 }
                 variant="text"
-                leftIcon="git-branch-outline"
+                leftIcon="git-branch"
               />
             </ThemedView>
           )}
@@ -146,8 +146,8 @@ export default function RestaurantsScreen() {
             <ThemedView
               style={tw`w-12 h-12 rounded-full bg-primary/10 items-center justify-center`}
             >
-              <Ionicons
-                name="qr-code-outline"
+              <Icon
+                name="qr-code"
                 size={24}
                 color={tw.color("primary")}
               />

@@ -21,7 +21,7 @@ import { useUsers } from "@/presentation/users/hooks/useUsers";
 import DatePicker from "@/presentation/theme/components/date-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import dayjs from "dayjs";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { useTransactionsList } from "@/presentation/transactions/hooks/useTransactionsList";
 import TransactionCard from "@/presentation/transactions/components/transaction-card";
 import { formatCurrency } from "@/core/i18n/utils";
@@ -289,7 +289,7 @@ export default function IncomesScreen() {
           />
         </ThemedView>
         <IconButton
-          icon="filter"
+          icon="funnel"
           onPress={openFilterBottomSheet}
           style={tw``}
           variant={thereAreFiltersApplied ? "filled" : "text"}
@@ -310,7 +310,7 @@ export default function IncomesScreen() {
                   accountId: undefined,
                 })
               }
-              icon="close"
+              icon="x"
             />
           )}
           {filters.accountId && (
@@ -320,7 +320,7 @@ export default function IncomesScreen() {
               onPress={() =>
                 handleFiltersChange({ ...filters, accountId: undefined })
               }
-              icon="close"
+              icon="x"
             />
           )}
           {filters.createdById && (
@@ -333,7 +333,7 @@ export default function IncomesScreen() {
               onPress={() =>
                 handleFiltersChange({ ...filters, createdById: undefined })
               }
-              icon="close"
+              icon="x"
             />
           )}
           <Chip label={t("common:actions.clearAll")} onPress={removeFilters} />
@@ -364,8 +364,8 @@ export default function IncomesScreen() {
                   onPress={() => setShowNetIncome((prev) => !prev)}
                   hitSlop={8}
                 >
-                  <Ionicons
-                    name={showNetIncome ? "eye-off-outline" : "eye-outline"}
+                  <Icon
+                    name={showNetIncome ? "eye-off" : "eye"}
                     size={18}
                     color={tw.color("gray-500")}
                   />
@@ -393,8 +393,8 @@ export default function IncomesScreen() {
                     onPress={() => setShowAccounts((prev) => !prev)}
                     hitSlop={8}
                   >
-                    <Ionicons
-                      name={showAccounts ? "eye-off-outline" : "eye-outline"}
+                    <Icon
+                      name={showAccounts ? "eye-off" : "eye"}
                       size={18}
                       color={tw.color("gray-500")}
                     />
@@ -510,8 +510,8 @@ export default function IncomesScreen() {
                 </>
               ) : (
                 <ThemedView style={tw`py-20 items-center px-4`}>
-                  <Ionicons
-                    name="receipt-outline"
+                  <Icon
+                    name="receipt-text"
                     size={64}
                     color={tw.color("gray-300")}
                   />
@@ -536,8 +536,8 @@ export default function IncomesScreen() {
         {/* Empty state: no incomes for the selected date / filters */}
         {!transactionsLoading && count === 0 && (
           <ThemedView style={tw`py-20 items-center px-4`}>
-            <Ionicons
-              name="receipt-outline"
+            <Icon
+              name="receipt-text"
               size={64}
               color={tw.color("gray-300")}
             />
@@ -594,8 +594,8 @@ export default function IncomesScreen() {
           />
         ) : (
           <ThemedView style={tw`flex-1 items-center justify-center gap-4 px-8`}>
-            <Ionicons
-              name="swap-vertical-outline"
+            <Icon
+              name="arrow-up-down"
               size={64}
               color={tw.color("gray-400")}
             />

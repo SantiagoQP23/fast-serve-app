@@ -16,7 +16,7 @@ import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import {
   BottomSheetView,
   type BottomSheetMethods,
@@ -222,7 +222,7 @@ export default function HistoryScreen() {
                   onPress={() =>
                     handleFiltersChange({ ...filters, userId: undefined })
                   }
-                  icon="close"
+                  icon="x"
                 />
               )}
               <Chip
@@ -244,7 +244,7 @@ export default function HistoryScreen() {
           </ThemedView>
 
           <IconButton
-            icon="filter"
+            icon="funnel"
             onPress={handleOpenFilters}
             variant={hasActiveFilters ? "filled" : "text"}
           />
@@ -254,7 +254,7 @@ export default function HistoryScreen() {
           <ThemedView style={tw`flex-row items-center gap-2`}>
             <ThemedText type="h2">{displayedTotalAmount}</ThemedText>
             <IconButton
-              icon={showTotalAmount ? "eye-off-outline" : "eye-outline"}
+              icon={showTotalAmount ? "eye-off" : "eye"}
               onPress={() => setShowTotalAmount((prev) => !prev)}
               variant="text"
               size={18}
@@ -302,8 +302,8 @@ export default function HistoryScreen() {
             </ThemedView>
           ) : (
             <ThemedView style={tw`py-20 items-center px-4`}>
-              <Ionicons
-                name="receipt-outline"
+              <Icon
+                name="receipt-text"
                 size={64}
                 color={tw.color("gray-300")}
               />

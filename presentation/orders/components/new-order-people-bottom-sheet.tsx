@@ -36,7 +36,7 @@ const NewOrderPeopleBottomSheet = ({
 
         <ThemedView style={tw`flex-row justify-end gap-2`}>
           <Button
-            leftIcon="save-outline"
+            leftIcon="save"
             label={t("common:actions.confirm")}
             onPress={handleConfirm}
           />

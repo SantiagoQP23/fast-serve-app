@@ -9,7 +9,7 @@ import {
   ScrollView,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { getPaymentMethodTranslationKey } from "@/core/i18n/utils";
 import { usePaymentMethods } from "@/presentation/restaurant/hooks/usePaymentMethods";
@@ -114,17 +114,17 @@ export default function PaymentMethodEditScreen() {
             hitSlop={12}
             style={({ pressed }) => tw.style(pressed && "opacity-70")}
           >
-            <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+            <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
           </Pressable>
         </ThemedView>
         <ThemedView style={tw`items-center py-8 gap-3`}>
-          <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+          <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
           <ThemedText type="body1" style={tw`text-gray-500`}>
             {t("methods.notFound")}
           </ThemedText>
           <Button
             label={t("common:actions.goBack")}
-            leftIcon="arrow-back-outline"
+            leftIcon="arrow-left"
             variant="outline"
             onPress={() => router.back()}
           />
@@ -149,7 +149,7 @@ export default function PaymentMethodEditScreen() {
                 onPress={() => router.back()}
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
-                <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+                <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
               </Pressable>
               <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
                 {t("methods.editMethod")}
@@ -187,7 +187,7 @@ export default function PaymentMethodEditScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("methods.fields.name")}
-                  icon="card-outline"
+                  icon="credit-card"
                   placeholder={t("methods.placeholders.name")}
                   onBlur={onBlur}
                   value={value}

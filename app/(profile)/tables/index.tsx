@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import { router, useNavigation } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -128,7 +128,7 @@ export default function TablesSettingsScreen() {
           ? () => (
               <Button
                 label={t("settings.reorderTables")}
-                leftIcon="swap-vertical-outline"
+                leftIcon="arrow-up-down"
                 variant="surface"
                 size="extra-small"
                 onPress={() => router.push("/(profile)/tables/reorder")}
@@ -197,8 +197,8 @@ export default function TablesSettingsScreen() {
       >
         {isLoading && tables.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons
-              name="grid-outline"
+            <Icon
+              name="layout-grid"
               size={48}
               color={tw.color("gray-400")}
             />
@@ -210,8 +210,8 @@ export default function TablesSettingsScreen() {
 
         {isError && tables.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons
-              name="alert-circle-outline"
+            <Icon
+              name="circle-alert"
               size={48}
               color={tw.color("red-500")}
             />
@@ -228,8 +228,8 @@ export default function TablesSettingsScreen() {
 
         {!isLoading && !isError && tables.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons
-              name="grid-outline"
+            <Icon
+              name="layout-grid"
               size={48}
               color={tw.color("gray-400")}
             />
@@ -245,7 +245,7 @@ export default function TablesSettingsScreen() {
         {canManage && (
           <Button
             label={t("areas.manage")}
-            leftIcon="albums-outline"
+            leftIcon="gallery-vertical-end"
             variant="outline"
             size="small"
             onPress={() => router.push("/(profile)/tables/areas")}
@@ -304,11 +304,11 @@ export default function TablesSettingsScreen() {
                     style={table.isActive === false && tw`opacity-50`}
                   >
                     <ThemedView style={tw`gap-4`}>
-                      <Ionicons
+                      <Icon
                         name={
                           selectedIds.has(table.id)
-                            ? "checkmark-circle"
-                            : "grid-outline"
+                            ? "circle-check"
+                            : "layout-grid"
                         }
                         size={28}
                         color={tw.color(
@@ -343,7 +343,7 @@ export default function TablesSettingsScreen() {
       </ScrollView>
 
       {canManage && !isSelecting && (
-        <Fab icon="add" onPress={handleCreateTable} />
+        <Fab icon="plus" onPress={handleCreateTable} />
       )}
 
       {isSelecting && (
@@ -355,7 +355,7 @@ export default function TablesSettingsScreen() {
           </ThemedText>
           <Button
             label={t("areas.moveToArea")}
-            leftIcon="albums-outline"
+            leftIcon="gallery-vertical-end"
             size="small"
             loading={moveTables.isPending}
             disabled={moveTables.isPending}
@@ -408,8 +408,8 @@ export default function TablesSettingsScreen() {
               <IconButton
                 icon={
                   selectedTable.isActive !== false
-                    ? "eye-outline"
-                    : "eye-off-outline"
+                    ? "eye"
+                    : "eye-off"
                 }
                 variant="secondary"
                 onPress={handleToggleActive}
@@ -427,7 +427,7 @@ export default function TablesSettingsScreen() {
               />
               <Button
                 label={t("settings.edit")}
-                leftIcon="create"
+                leftIcon="square-pen"
                 variant="secondary"
                 style={tw`flex-1`}
                 onPress={() => {

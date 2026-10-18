@@ -3,7 +3,7 @@ import { Pressable, ScrollView } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useRef, useState } from "react";
@@ -65,16 +65,16 @@ export default function AccountScreen() {
             }
             onPress={handleChangeEmail}
           >
-            <Ionicons
-              name="mail-outline"
+            <Icon
+              name="mail"
               size={24}
               color={tw.color("primary")}
             />
             <ThemedText type="body1" style={tw`flex-1`}>
               {t("account.changeEmail")}
             </ThemedText>
-            <Ionicons
-              name="chevron-forward-outline"
+            <Icon
+              name="chevron-right"
               size={20}
               color={tw.color("gray-400")}
             />
@@ -91,16 +91,16 @@ export default function AccountScreen() {
             disabled={!hasLocalPassword}
             onPress={handleChangePassword}
           >
-            <Ionicons
-              name="lock-closed-outline"
+            <Icon
+              name="lock"
               size={24}
               color={tw.color("primary")}
             />
             <ThemedText type="body1" style={tw`flex-1`}>
               {t("account.changePassword")}
             </ThemedText>
-            <Ionicons
-              name="chevron-forward-outline"
+            <Icon
+              name="chevron-right"
               size={20}
               color={tw.color("gray-400")}
             />
@@ -116,16 +116,16 @@ export default function AccountScreen() {
               }
               onPress={handleSetCredentials}
             >
-              <Ionicons
-                name="key-outline"
+              <Icon
+                name="key-round"
                 size={24}
                 color={tw.color("primary")}
               />
               <ThemedText type="body1" style={tw`flex-1`}>
                 {t("account.setCredentials")}
               </ThemedText>
-              <Ionicons
-                name="chevron-forward-outline"
+              <Icon
+                name="chevron-right"
                 size={20}
                 color={tw.color("gray-400")}
               />
@@ -135,7 +135,7 @@ export default function AccountScreen() {
           <Button
             variant="destructive"
             label={t("account.deleteAccount")}
-            leftIcon="trash-outline"
+            leftIcon="trash"
             onPress={() => {
               handleOpenDeleteAccount();
             }}

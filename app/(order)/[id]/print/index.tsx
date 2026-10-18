@@ -162,7 +162,7 @@ export default function OrderPrintScreen() {
           <ThemedView style={tw`flex-row justify-center`}>
             <Button
               size="large"
-              leftIcon="print-outline"
+              leftIcon="printer"
               onPress={handlePrint}
               loading={isPrinting}
               disabled={isPrinting || !selectedPrinterId}

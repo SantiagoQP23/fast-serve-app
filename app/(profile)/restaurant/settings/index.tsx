@@ -6,7 +6,7 @@ import {
   RefreshControl,
   ScrollView,
 } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
@@ -88,7 +88,7 @@ export default function RestaurantSettingsScreen() {
         >
           {isLoading && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Ionicons name="settings-outline" size={48} color={tw.color("gray-400")} />
+              <Icon name="settings" size={48} color={tw.color("gray-400")} />
               <ThemedText type="body1" style={tw`text-gray-500`}>
                 {t("restaurantSettings.loading")}
               </ThemedText>
@@ -97,7 +97,7 @@ export default function RestaurantSettingsScreen() {
 
           {isError && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+              <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
               <ThemedText type="body1" style={tw`text-red-500`}>
                 {t("restaurantSettings.loadError")}
               </ThemedText>
@@ -163,7 +163,7 @@ export default function RestaurantSettingsScreen() {
                     {formatHour(lowStockEmailHour)}
                   </ThemedText>
                   {canEdit && (
-                    <Ionicons name="chevron-down" size={16} color={tw.color("gray-400")} />
+                    <Icon name="chevron-down" size={16} color={tw.color("gray-400")} />
                   )}
                 </Pressable>
               </Card>

@@ -238,7 +238,7 @@ export default function ManageScreen() {
           label={t("manage.manageOtherRestaurant")}
           onPress={() => router.push("/(profile)/restaurant/list")}
           variant="text"
-          leftIcon="storefront-outline"
+          leftIcon="store"
           style={tw`mt-4`}
           size="small"
         />
@@ -292,7 +292,7 @@ export default function ManageScreen() {
             label={t("manage.userInfo.openWebVersion")}
             onPress={handleOpenWeb}
             variant="text"
-            leftIcon="globe-outline"
+            leftIcon="globe"
             size="small"
             style={tw`mb-8`}
           />

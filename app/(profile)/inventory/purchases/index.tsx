@@ -19,7 +19,7 @@ export default function MenuInventoryPurchasesScreen() {
       <InventoryPurchasesTab />
 
       <Fab
-        icon="cart-outline"
+        icon="shopping-cart"
         label={t("purchases.register")}
         onPress={() =>
           router.push({ pathname: "/(profile)/inventory/purchases/items" })

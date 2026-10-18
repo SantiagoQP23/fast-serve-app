@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ScrollView, RefreshControl, Pressable } from "react-native";
 import { router } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -90,7 +90,7 @@ export default function MenuProductsScreen() {
           trailingIcon={
             searchQuery.length > 0 ? (
               <Pressable onPress={() => setSearchQuery("")} hitSlop={8}>
-                <Ionicons name="close-circle" size={20} color={tw.color("gray-400")} />
+                <Icon name="circle-x" size={20} color={tw.color("gray-400")} />
               </Pressable>
             ) : null
           }
@@ -112,7 +112,7 @@ export default function MenuProductsScreen() {
       >
         {isLoading && products.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="fast-food-outline" size={48} color={tw.color("gray-400")} />
+            <Icon name="hamburger" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`text-gray-500`}>
               {t("loading")}
             </ThemedText>
@@ -121,7 +121,7 @@ export default function MenuProductsScreen() {
 
         {isError && products.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+            <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
             <ThemedText type="body1" style={tw`text-red-500`}>
               {t("loadError")}
             </ThemedText>
@@ -135,7 +135,7 @@ export default function MenuProductsScreen() {
 
         {!isLoading && !isError && products.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="fast-food-outline" size={48} color={tw.color("gray-400")} />
+            <Icon name="hamburger" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`font-semibold`}>
               {t("products.noProducts")}
             </ThemedText>
@@ -150,7 +150,7 @@ export default function MenuProductsScreen() {
           products.length > 0 &&
           filteredProducts.length === 0 && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Ionicons name="search-outline" size={48} color={tw.color("gray-400")} />
+              <Icon name="search" size={48} color={tw.color("gray-400")} />
               <ThemedText
                 type="body2"
                 style={tw`text-center text-gray-500 px-4`}
@@ -178,8 +178,8 @@ export default function MenuProductsScreen() {
                 >
                   <ThemedView style={tw`flex-row items-center justify-between`}>
                     <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
-                      <Ionicons
-                        name="fast-food-outline"
+                      <Icon
+                        name="hamburger"
                         size={28}
                         color={tw.color("text-on-surface-variant")}
                       />
@@ -211,8 +211,8 @@ export default function MenuProductsScreen() {
                                   key={option.id}
                                   style={tw`flex-row items-center gap-1`}
                                 >
-                                  <Ionicons
-                                    name="cube-outline"
+                                  <Icon
+                                    name="package"
                                     size={12}
                                     color={tw.color(
                                       "text-on-surface-variant",
@@ -244,7 +244,7 @@ export default function MenuProductsScreen() {
         )}
       </ScrollView>
 
-      {canManage && <Fab icon="add" onPress={handleCreateProduct} />}
+      {canManage && <Fab icon="plus" onPress={handleCreateProduct} />}
 
       <DialogModal
         visible={!!productToDelete}

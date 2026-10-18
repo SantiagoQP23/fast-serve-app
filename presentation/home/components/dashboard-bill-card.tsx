@@ -3,7 +3,7 @@ import { Pressable } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { BillListItemDto } from "@/core/orders/dto/bill-list-response.dto";
 import { BillStatus } from "@/core/orders/models/bill.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -43,11 +43,11 @@ export default function DashboardBillCard({
               isPaid ? "bg-green-50" : "bg-orange-50"
             } items-center justify-center`}
           >
-            <Ionicons
+            <Icon
               name={
                 isPaid
                   ? getPaymentMethodIcon(bill.paymentMethod)
-                  : "time-outline"
+                  : "clock"
               }
               size={20}
               color={

@@ -66,7 +66,7 @@ function NoteBottomSheet(
 
         <ThemedView style={tw`flex-row justify-end gap-2`}>
           <Button
-            leftIcon="checkmark"
+            leftIcon="check"
             onPress={() => onSave(draft)}
             variant="secondary"
           />

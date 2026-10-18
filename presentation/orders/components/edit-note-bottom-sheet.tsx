@@ -57,7 +57,7 @@ const EditNoteBottomSheet = ({ order, onClose }: EditNoteBottomSheetProps) => {
 
         <ThemedView style={tw`flex-row justify-end gap-2`}>
           <Button
-            leftIcon="checkmark"
+            leftIcon="check"
             onPress={handleConfirm}
             variant="secondary"
           />

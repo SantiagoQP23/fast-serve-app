@@ -8,7 +8,7 @@ import {
   Platform,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { toast } from "sonner-native";
 import { useState } from "react";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -178,7 +178,7 @@ export default function PrinterFormScreen() {
                 onPress={() => router.back()}
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
-                <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+                <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
               </Pressable>
               <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
                 {isEditing ? t("editPrinter") : t("createPrinter")}
@@ -207,7 +207,7 @@ export default function PrinterFormScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("fields.name")}
-                  icon="print-outline"
+                  icon="printer"
                   placeholder={t("placeholders.name")}
                   onBlur={onBlur}
                   value={value}
@@ -237,7 +237,7 @@ export default function PrinterFormScreen() {
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
                     label={t("fields.ipAddress")}
-                    icon="globe-outline"
+                    icon="globe"
                     placeholder={t("placeholders.ipAddress")}
                     keyboardType="decimal-pad"
                     autoCapitalize="none"
@@ -256,7 +256,7 @@ export default function PrinterFormScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("fields.port")}
-                  icon="hardware-chip-outline"
+                  icon="cpu"
                   placeholder={t("placeholders.port")}
                   keyboardType="number-pad"
                   onBlur={onBlur}
@@ -269,7 +269,7 @@ export default function PrinterFormScreen() {
 
             <Button
               label={t(isTestingPrinter ? "testing" : "test")}
-              leftIcon="flash-outline"
+              leftIcon="zap"
               variant="outline"
               onPress={handleTestPrinter}
               loading={isTestingPrinter}

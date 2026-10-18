@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import { router } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -97,7 +97,7 @@ export default function ProductionAreasScreen() {
       >
         {isLoading && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="cube-outline" size={48} color={tw.color("gray-400")} />
+            <Icon name="package" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`text-gray-500`}>
               {t("loading")}
             </ThemedText>
@@ -106,7 +106,7 @@ export default function ProductionAreasScreen() {
 
         {isError && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+            <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
             <ThemedText type="body1" style={tw`text-red-500`}>
               {t("loadError")}
             </ThemedText>
@@ -120,7 +120,7 @@ export default function ProductionAreasScreen() {
 
         {!isLoading && !isError && productionAreas.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="cube-outline" size={48} color={tw.color("gray-400")} />
+            <Icon name="package" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`font-semibold`}>
               {t("noAreas")}
             </ThemedText>
@@ -144,8 +144,8 @@ export default function ProductionAreasScreen() {
                   {/* Area Name & Status */}
                   <ThemedView style={tw`flex-row items-center justify-between`}>
                     <ThemedView style={tw`gap-4 flex-1`}>
-                      <Ionicons
-                        name="cube-outline"
+                      <Icon
+                        name="package"
                         size={30}
                         color={tw.color("text-on-surface-variant")}
                       />
@@ -157,8 +157,8 @@ export default function ProductionAreasScreen() {
                           {area.name}
                         </ThemedText>
                         <ThemedView style={tw`flex-row items-center gap-2`}>
-                          <Ionicons
-                            name="print-outline"
+                          <Icon
+                            name="printer"
                             size={16}
                             color={tw.color("text-on-surface-variant")}
                           />
@@ -176,7 +176,7 @@ export default function ProductionAreasScreen() {
         )}
       </ScrollView>
 
-      {canManage && <Fab icon="add" onPress={handleCreateArea} />}
+      {canManage && <Fab icon="plus" onPress={handleCreateArea} />}
 
       <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
         {selectedArea && (
@@ -188,8 +188,8 @@ export default function ProductionAreasScreen() {
                 </ThemedText>
                 <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
                   <ThemedView style={tw`flex-row items-center gap-1`}>
-                    <Ionicons
-                      name="print-outline"
+                    <Icon
+                      name="printer"
                       size={16}
                       color={tw.color("text-gray-500")}
                     />
@@ -205,7 +205,7 @@ export default function ProductionAreasScreen() {
                 )}
               </ThemedView>
               <IconButton
-                icon={selectedArea.isActive ? "eye-outline" : "eye-off-outline"}
+                icon={selectedArea.isActive ? "eye" : "eye-off"}
                 variant="secondary"
                 onPress={handleToggleActive}
               />
@@ -222,7 +222,7 @@ export default function ProductionAreasScreen() {
               />
               <Button
                 label={t("edit")}
-                leftIcon="create"
+                leftIcon="square-pen"
                 variant="secondary"
                 style={tw`flex-1`}
                 onPress={() => {

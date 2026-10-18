@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { router } from "expo-router";
 import { Pressable, ActivityIndicator } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import {
   BottomSheetFlatList,
   BottomSheetView,
@@ -77,7 +77,7 @@ const InviteStaffBottomSheet = ({
 
       <TextInput
         bottomSheet
-        icon="search-outline"
+        icon="search"
         placeholder={t("staff.invite.searchPlaceholder")}
         value={search}
         onChangeText={handleChangeSearch}
@@ -136,8 +136,8 @@ const InviteStaffBottomSheet = ({
                   </ThemedText>
                 </ThemedView>
                 {isSelected && (
-                  <Ionicons
-                    name="checkmark-circle"
+                  <Icon
+                    name="circle-check"
                     size={22}
                     color={tw.color("primary")}
                   />
@@ -167,7 +167,7 @@ const InviteStaffBottomSheet = ({
         label={t("staff.invite.scanQr")}
         onPress={handleScanQr}
         variant="outline"
-        leftIcon="qr-code-outline"
+        leftIcon="qr-code"
       />
     </BottomSheetView>
   );

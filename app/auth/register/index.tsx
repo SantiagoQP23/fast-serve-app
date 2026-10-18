@@ -10,7 +10,7 @@ import Checkbox from "@/presentation/theme/components/checkbox";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { useState } from "react";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
@@ -149,7 +149,7 @@ const SignupScreen = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("auth:signup.firstName")}
-                  icon="person-outline"
+                  icon="user"
                   onBlur={onBlur}
                   value={value}
                   onChangeText={onChange}
@@ -166,7 +166,7 @@ const SignupScreen = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("auth:signup.lastName")}
-                  icon="person-outline"
+                  icon="user"
                   onBlur={onBlur}
                   value={value}
                   onChangeText={onChange}
@@ -181,7 +181,7 @@ const SignupScreen = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("auth:signup.username")}
-                  icon="at-outline"
+                  icon="at-sign"
                   autoCapitalize="none"
                   onBlur={onBlur}
                   value={value}
@@ -197,7 +197,7 @@ const SignupScreen = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("auth:signup.phone")}
-                  icon="call-outline"
+                  icon="phone"
                   keyboardType="phone-pad"
                   onBlur={onBlur}
                   value={value}
@@ -213,7 +213,7 @@ const SignupScreen = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("auth:signup.email")}
-                  icon="mail-outline"
+                  icon="mail"
                   keyboardType="email-address"
                   autoCapitalize="none"
                   onBlur={onBlur}
@@ -230,7 +230,7 @@ const SignupScreen = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("auth:signup.password")}
-                  icon="lock-closed-outline"
+                  icon="lock"
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
                   onBlur={onBlur}
@@ -242,9 +242,9 @@ const SignupScreen = () => {
                       <Pressable
                         onPress={() => setShowPassword((prev) => !prev)}
                       >
-                        <Ionicons
+                        <Icon
                           name={
-                            showPassword ? "eye-off-outline" : "eye-outline"
+                            showPassword ? "eye-off" : "eye"
                           }
                           size={20}
                           style={{ color: tw.color("gray-400") }}
@@ -262,7 +262,7 @@ const SignupScreen = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("auth:signup.confirmPassword")}
-                  icon="lock-closed-outline"
+                  icon="lock"
                   secureTextEntry={!showConfirmPassword}
                   autoCapitalize="none"
                   onBlur={onBlur}
@@ -278,11 +278,11 @@ const SignupScreen = () => {
                       <Pressable
                         onPress={() => setShowConfirmPassword((prev) => !prev)}
                       >
-                        <Ionicons
+                        <Icon
                           name={
                             showConfirmPassword
-                              ? "eye-off-outline"
-                              : "eye-outline"
+                              ? "eye-off"
+                              : "eye"
                           }
                           size={20}
                           style={{ color: tw.color("gray-400") }}

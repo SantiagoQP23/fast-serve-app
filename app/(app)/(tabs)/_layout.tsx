@@ -49,7 +49,7 @@ export function MyOrdersHeaderRight() {
     <View style={tw`flex-row items-center gap-4 mr-2`}>
       <ThemedView style={tw``}>
         <IconButton
-          icon="print-outline"
+          icon="printer"
           onPress={() => router.push("/(order)/unprinted-tickets")}
         />
         <NotificationBadge value={unprintedTicketsCount} />
@@ -58,7 +58,7 @@ export function MyOrdersHeaderRight() {
         <ThemedView style={tw``}>
           <IconButton
             icon={
-              unsynced.failed > 0 ? "alert-circle-outline" : "cloud-upload-outline"
+              unsynced.failed > 0 ? "circle-alert" : "cloud-upload"
             }
             onPress={() => router.push("/(order)/pending-changes")}
           />
@@ -71,7 +71,7 @@ export function MyOrdersHeaderRight() {
       {haveAnOpenOrder && (
         <ThemedView style={tw``}>
           <IconButton
-            icon="cart-outline"
+            icon="shopping-cart"
             onPress={() => router.push("/(new-order)/cart")}
           />
           <NotificationBadge value={details.length} />

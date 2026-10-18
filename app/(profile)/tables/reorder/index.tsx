@@ -1,7 +1,7 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, ScrollView } from "react-native";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import ReorderableList, {
   reorderItems,
   useReorderableDrag,
@@ -45,8 +45,8 @@ function DraggableRow({ row }: { row: Row }) {
         )
       }
     >
-      <Ionicons
-        name="reorder-three-outline"
+      <Icon
+        name="grip-horizontal"
         size={24}
         color={tw.color("text-on-surface-variant")}
       />
@@ -192,7 +192,7 @@ export default function TablesReorderScreen() {
             onPress={() => router.back()}
             style={({ pressed }) => tw.style(pressed && "opacity-70")}
           >
-            <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+            <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
           </Pressable>
           <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
             {isAreasMode ? t("reorder.areasTitle") : t("reorder.title")}

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { View, Animated, StyleSheet } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useSyncStore } from "@/presentation/sync/store/useSyncStore";
@@ -48,7 +48,7 @@ export function SyncIndicator() {
         style={tw`bg-inverse-surface px-3 py-2 rounded-full flex-row items-center shadow-lg`}
       >
         <Animated.View style={{ transform: [{ rotate }] }}>
-          <Ionicons name="sync-outline" size={20} color="white" />
+          <Icon name="refresh-ccw" size={20} color="white" />
         </Animated.View>
         <ThemedText type="small" style={tw`text-on-inverse-surface ml-2`}>
           {t("common:status.syncing")}

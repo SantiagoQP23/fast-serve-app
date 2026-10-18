@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import { ScrollView, RefreshControl, Alert } from "react-native";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
@@ -159,8 +159,8 @@ export default function DailyReportScreen() {
             </ThemedView>
           ) : (
             <ThemedView style={tw`py-12 items-center`}>
-              <Ionicons
-                name="person-outline"
+              <Icon
+                name="user"
                 size={60}
                 color={tw.color("gray-400")}
               />

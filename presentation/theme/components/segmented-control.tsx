@@ -68,13 +68,7 @@ export default function SegmentedControl<T extends string>({
         const iconColor = isActive
           ? tw.color("on-primary")
           : tw.color("on-surface-variant");
-        const iconName =
-          isActive && item.icon?.endsWith("-outline")
-            ? (item.icon.replace(
-                /-outline$/,
-                "",
-              ) as IconName)
-            : item.icon;
+        const iconName = item.icon;
         return (
           <Pressable
             key={item.value}

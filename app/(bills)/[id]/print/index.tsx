@@ -182,7 +182,7 @@ export default function BillPrintScreen() {
 
           <Button
             label={t("bills:print.printButton")}
-            leftIcon="print-outline"
+            leftIcon="printer"
             onPress={handlePrint}
             loading={isPrinting}
             disabled={isPrinting || !selectedPrinterId}

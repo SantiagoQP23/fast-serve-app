@@ -7,7 +7,7 @@ import {
   ScrollView,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -29,7 +29,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 
 const accountIcon = (type: AccountType) =>
-  type === AccountType.BANK ? "business-outline" : "cash-outline";
+  type === AccountType.BANK ? "building" : "banknote";
 
 export default function PaymentMethodAccountSelectScreen() {
   const { t } = useTranslation("paymentMethods");
@@ -144,17 +144,17 @@ export default function PaymentMethodAccountSelectScreen() {
             hitSlop={12}
             style={({ pressed }) => tw.style(pressed && "opacity-70")}
           >
-            <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+            <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
           </Pressable>
         </ThemedView>
         <ThemedView style={tw`items-center py-8 gap-3`}>
-          <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+          <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
           <ThemedText type="body1" style={tw`text-gray-500`}>
             {t("methods.notFound")}
           </ThemedText>
           <Button
             label={t("common:actions.goBack")}
-            leftIcon="arrow-back-outline"
+            leftIcon="arrow-left"
             variant="outline"
             onPress={() => router.back()}
           />
@@ -178,7 +178,7 @@ export default function PaymentMethodAccountSelectScreen() {
               onPress={() => router.back()}
               style={({ pressed }) => tw.style(pressed && "opacity-70")}
             >
-              <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+              <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
             </Pressable>
             <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
               {t("methods.selectAccount.title")}
@@ -205,8 +205,8 @@ export default function PaymentMethodAccountSelectScreen() {
               <ThemedView
                 style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
               >
-                <Ionicons
-                  name="wallet-outline"
+                <Icon
+                  name="wallet"
                   size={32}
                   color={tw.color("gray-400")}
                 />
@@ -228,7 +228,7 @@ export default function PaymentMethodAccountSelectScreen() {
                     onPress={() => attachAccount(account.id)}
                   >
                     <ThemedView style={tw`flex-row items-center gap-3`}>
-                      <Ionicons
+                      <Icon
                         name={accountIcon(account.type)}
                         size={26}
                         color={tw.color("text-on-surface-variant")}
@@ -241,8 +241,8 @@ export default function PaymentMethodAccountSelectScreen() {
                           {t(`accounts.types.${account.type}`)}
                         </ThemedText>
                       </ThemedView>
-                      <Ionicons
-                        name="add-circle-outline"
+                      <Icon
+                        name="circle-plus"
                         size={22}
                         color={tw.color("primary")}
                       />
@@ -256,7 +256,7 @@ export default function PaymentMethodAccountSelectScreen() {
               label={t("accounts.createAccount")}
               onPress={openAddAccountSheet}
               variant="outline"
-              leftIcon="add-outline"
+              leftIcon="plus"
             />
           </ThemedView>
         </ScrollView>

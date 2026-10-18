@@ -43,7 +43,7 @@ export default function CountFinishButton({
   return (
     <>
       <Button
-        leftIcon="checkmark-done-outline"
+        leftIcon="check-check"
         label={t("counts.finish")}
         variant={hasPending ? "outline" : "primary"}
         loading={complete.isPending && !confirmFinish}

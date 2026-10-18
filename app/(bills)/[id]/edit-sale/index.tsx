@@ -178,7 +178,7 @@ export default function EditSaleScreen() {
 
         <Button
           variant="outline"
-          leftIcon="add-outline"
+          leftIcon="plus"
           label={t("bills:editSale.addProducts")}
           onPress={openMenu}
         />
@@ -249,7 +249,7 @@ function EditSaleLineCard({
           </ThemedText>
         </ThemedView>
         <IconButton
-          icon="trash-outline"
+          icon="trash"
           onPress={onRemove}
           variant="destructive"
           style={tw`p-2`}
@@ -260,7 +260,7 @@ function EditSaleLineCard({
       >
         <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}>
           <IconButton
-            icon="remove-outline"
+            icon="minus"
             variant="outlined"
             onPress={() => onChange(line.quantity - 1)}
             disabled={line.quantity <= 1}
@@ -270,7 +270,7 @@ function EditSaleLineCard({
             {line.quantity}
           </ThemedText>
           <IconButton
-            icon="add-outline"
+            icon="plus"
             variant="outlined"
             onPress={() => onChange(line.quantity + 1)}
             style={tw`p-2`}

@@ -124,7 +124,7 @@ export default function CreateBranchDetailsScreen() {
             <TextInput
               label={t("createRestaurant.name")}
               placeholder={nextNameQuery.data?.name}
-              icon="business-outline"
+              icon="building"
               autoCapitalize="words"
               value={details.name}
               onChangeText={update("name")}
@@ -133,14 +133,14 @@ export default function CreateBranchDetailsScreen() {
             <TextInput
               label={t("createRestaurant.address")}
               placeholder={t("createRestaurant.addressPlaceholder")}
-              icon="location-outline"
+              icon="map-pin"
               value={details.address}
               onChangeText={update("address")}
             />
             <TextInput
               label={t("createRestaurant.phone")}
               placeholder={t("createRestaurant.phonePlaceholder")}
-              icon="call-outline"
+              icon="phone"
               keyboardType="phone-pad"
               value={details.phone}
               onChangeText={update("phone")}
@@ -148,7 +148,7 @@ export default function CreateBranchDetailsScreen() {
             <TextInput
               label={t("createRestaurant.email")}
               placeholder={t("createRestaurant.emailPlaceholder")}
-              icon="mail-outline"
+              icon="mail"
               keyboardType="email-address"
               autoCapitalize="none"
               value={details.email}

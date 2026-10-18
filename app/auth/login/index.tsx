@@ -9,7 +9,7 @@ import {
   Pressable,
   Linking,
 } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
@@ -156,7 +156,7 @@ const LoginScreen = () => {
             <TextInput
               autoCapitalize="none"
               label={t("login.username")}
-              icon="person-outline"
+              icon="user"
               onBlur={onBlur}
               value={value}
               onChangeText={onChange}
@@ -178,7 +178,7 @@ const LoginScreen = () => {
                 textContentType="none"
                 importantForAutofill="no"
                 secureTextEntry={!showPassword}
-                icon="lock-closed-outline"
+                icon="lock"
                 onBlur={onBlur}
                 value={value}
                 onChangeText={onChange}
@@ -186,8 +186,8 @@ const LoginScreen = () => {
                 trailingIcon={
                   value && (
                     <Pressable onPress={() => setShowPassword((prev) => !prev)}>
-                      <Ionicons
-                        name={showPassword ? "eye-off-outline" : "eye-outline"}
+                      <Icon
+                        name={showPassword ? "eye-off" : "eye"}
                         size={20}
                         style={{ color: tw.color("gray-400") }}
                       />

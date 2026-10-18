@@ -24,7 +24,7 @@ export default function ReportsLayout() {
           headerShadowVisible: false,
           headerLeft: () => (
             <IconButton
-              icon="arrow-back"
+              icon="arrow-left"
               onPress={() => router.back()}
               style={{ marginRight: 10 }}
             />
@@ -39,7 +39,7 @@ export default function ReportsLayout() {
           headerShadowVisible: false,
           headerLeft: () => (
             <IconButton
-              icon="arrow-back"
+              icon="arrow-left"
               onPress={() => router.back()}
               style={{ marginRight: 10 }}
             />
@@ -54,7 +54,7 @@ export default function ReportsLayout() {
           headerShadowVisible: false,
           headerLeft: () => (
             <IconButton
-              icon="arrow-back"
+              icon="arrow-left"
               onPress={() => router.back()}
               style={{ marginRight: 10 }}
             />
@@ -69,7 +69,7 @@ export default function ReportsLayout() {
           headerShadowVisible: false,
           headerLeft: () => (
             <IconButton
-              icon="arrow-back"
+              icon="arrow-left"
               onPress={() => router.back()}
               style={{ marginRight: 10 }}
             />
@@ -84,7 +84,7 @@ export default function ReportsLayout() {
           headerShadowVisible: false,
           headerLeft: () => (
             <IconButton
-              icon="arrow-back"
+              icon="arrow-left"
               onPress={() => router.back()}
               style={{ marginRight: 10 }}
             />

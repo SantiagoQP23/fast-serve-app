@@ -12,7 +12,7 @@ import { Transaction } from "@/core/transactions/models/transaction.model";
 import { PaymentProofStatus } from "@/core/transactions/models/payment-proof.model";
 import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
 import { formatCurrency } from "@/core/i18n/utils";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import Button from "@/presentation/theme/components/button";
 import { usePaymentProofs } from "@/presentation/transactions/hooks/usePaymentProofs";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
@@ -112,22 +112,22 @@ export default function TransactionDetailBottomSheet({
         {/* Details */}
         <ThemedView style={tw`gap-4 mb-6`}>
           <DetailRow
-            icon="wallet-outline"
+            icon="wallet"
             label={t("common:transactions.paymentMethod")}
             value={transaction.paymentMethod.name}
           />
           <DetailRow
-            icon="business-outline"
+            icon="building"
             label={t("common:transactions.account")}
             value={transaction.account.name}
           />
           <DetailRow
-            icon="pricetag-outline"
+            icon="tag"
             label={t("common:transactions.category")}
             value={transaction.category.name}
           />
           <DetailRow
-            icon="person-outline"
+            icon="user"
             label={t("common:transactions.createdBy")}
             value={getUserDisplayName(
               transaction.createdBy,
@@ -136,7 +136,7 @@ export default function TransactionDetailBottomSheet({
           />
           {transaction.description && (
             <DetailRow
-              icon="document-text-outline"
+              icon="file-text"
               label={t("common:transactions.description")}
               value={transaction.description}
             />
@@ -250,13 +250,13 @@ function DetailRow({
   label,
   value,
 }: {
-  icon: string;
+  icon: IconName;
   label: string;
   value: string;
 }) {
   return (
     <ThemedView style={tw`flex-row items-center gap-3`}>
-      <Ionicons name={icon as any} size={18} color={tw.color("gray-400")} />
+      <Icon name={icon} size={18} color={tw.color("gray-400")} />
       <ThemedView style={tw`flex-1`}>
         <ThemedText type="small" style={tw`text-gray-500`}>
           {label}
@@ -274,37 +274,37 @@ function StatusBadge({ status }: { status: TransactionStatus }) {
 
   const config: Record<
     TransactionStatus,
-    { bg: string; text: string; label: string; icon: string }
+    { bg: string; text: string; label: string; icon: IconName }
   > = {
     [TransactionStatus.COMPLETED]: {
       bg: "bg-green-100",
       text: "text-green-700",
       label: t("common:transactions.status.completed"),
-      icon: "checkmark-circle-outline",
+      icon: "circle-check",
     },
     [TransactionStatus.PENDING_PROOF]: {
       bg: "bg-orange-100",
       text: "text-orange-700",
       label: t("common:transactions.status.pendingProof"),
-      icon: "document-attach-outline",
+      icon: "file-up",
     },
     [TransactionStatus.PENDING_APPROVAL]: {
       bg: "bg-yellow-100",
       text: "text-yellow-700",
       label: t("common:transactions.status.pendingApproval"),
-      icon: "time-outline",
+      icon: "clock",
     },
     [TransactionStatus.REJECTED]: {
       bg: "bg-red-100",
       text: "text-red-700",
       label: t("common:transactions.status.rejected"),
-      icon: "close-circle-outline",
+      icon: "circle-x",
     },
     [TransactionStatus.CANCELLED]: {
       bg: "bg-gray-100",
       text: "text-gray-700",
       label: t("common:transactions.status.cancelled"),
-      icon: "ban-outline",
+      icon: "ban",
     },
   };
 
@@ -312,7 +312,7 @@ function StatusBadge({ status }: { status: TransactionStatus }) {
 
   return (
     <ThemedView style={tw`flex-row items-center gap-1 px-3 py-1 rounded-full ${c.bg}`}>
-      <Ionicons name={c.icon as any} size={14} color={tw.color(c.text.replace("text-", "").replace("-700", "-600"))} />
+      <Icon name={c.icon} size={14} color={tw.color(c.text.replace("text-", "").replace("-700", "-600"))} />
       <ThemedText type="small" style={tw`${c.text} font-medium`}>
         {c.label}
       </ThemedText>

@@ -143,13 +143,13 @@ export default function OrderConfirmationScreen() {
 
         <ThemedView style={tw`w-full flex-row gap-4 justify-center`}>
           <Button
-            leftIcon="home-outline"
+            leftIcon="house"
             label={t("orders:confirmation.goToHome")}
             onPress={goToHome}
             variant="outline"
           ></Button>
           <Button
-            leftIcon="pencil-outline"
+            leftIcon="pencil"
             label={t("orders:confirmation.editOrder")}
             onPress={() => router.replace("/(order)/[id]")}
             variant="primary"

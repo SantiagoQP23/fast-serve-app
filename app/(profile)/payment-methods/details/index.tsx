@@ -1,9 +1,7 @@
 import { useRef, useState } from "react";
 import { ScrollView, Pressable, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import Ionicons, {
-  type IoniconsIconName,
-} from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -31,13 +29,13 @@ import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.m
 
 const categoryIcons: Record<
   PaymentMethodCategory,
-  IoniconsIconName
+  IconName
 > = {
-  [PaymentMethodCategory.CASH]: "cash-outline",
-  [PaymentMethodCategory.CARD]: "card-outline",
-  [PaymentMethodCategory.TRANSFER]: "swap-horizontal-outline",
-  [PaymentMethodCategory.DIGITAL_WALLET]: "wallet-outline",
-  [PaymentMethodCategory.OTHER]: "ellipsis-horizontal-circle-outline",
+  [PaymentMethodCategory.CASH]: "banknote",
+  [PaymentMethodCategory.CARD]: "credit-card",
+  [PaymentMethodCategory.TRANSFER]: "arrow-left-right",
+  [PaymentMethodCategory.DIGITAL_WALLET]: "wallet",
+  [PaymentMethodCategory.OTHER]: "circle-ellipsis",
 };
 
 export default function PaymentMethodDetailsScreen() {
@@ -92,7 +90,7 @@ export default function PaymentMethodDetailsScreen() {
   };
 
   const accountIcon = (type: Account["type"]) =>
-    type === AccountType.BANK ? "business-outline" : "cash-outline";
+    type === AccountType.BANK ? "building" : "banknote";
 
   const handleOpenAccountActions = (account: Account) => {
     setSelectedAccount(account);
@@ -167,17 +165,17 @@ export default function PaymentMethodDetailsScreen() {
             hitSlop={12}
             style={({ pressed }) => tw.style(pressed && "opacity-70")}
           >
-            <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+            <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
           </Pressable>
         </ThemedView>
         <ThemedView style={tw`items-center py-8 gap-3`}>
-          <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+          <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
           <ThemedText type="body1" style={tw`text-gray-500`}>
             {t("methods.notFound")}
           </ThemedText>
           <Button
             label={t("common:actions.goBack")}
-            leftIcon="arrow-back-outline"
+            leftIcon="arrow-left"
             variant="outline"
             onPress={() => router.back()}
           />
@@ -201,7 +199,7 @@ export default function PaymentMethodDetailsScreen() {
             hitSlop={12}
             style={({ pressed }) => tw.style(pressed && "opacity-70")}
           >
-            <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+            <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
           </Pressable>
         </ThemedView>
 
@@ -224,7 +222,7 @@ export default function PaymentMethodDetailsScreen() {
             />
             <Label
               text={`${method.commissionPercentage}%`}
-              leftIcon="pricetag-outline"
+              leftIcon="tag"
             />
           </ThemedView>
 
@@ -255,7 +253,7 @@ export default function PaymentMethodDetailsScreen() {
                     <ThemedView
                       style={tw`flex-row items-center gap-3 bg-transparent`}
                     >
-                      <Ionicons
+                      <Icon
                         name={accountIcon(account.type)}
                         size={26}
                         color={
@@ -286,7 +284,7 @@ export default function PaymentMethodDetailsScreen() {
                         </ThemedText>
                       </ThemedView>
                       {isDefault && (
-                        <Ionicons
+                        <Icon
                           name="star"
                           size={18}
                           color={tw.color("on-secondary")}
@@ -304,7 +302,7 @@ export default function PaymentMethodDetailsScreen() {
                 onPress={handleAddAccount}
                 variant="outline"
                 size="small"
-                leftIcon="add-outline"
+                leftIcon="plus"
               />
             )}
           </ThemedView>
@@ -319,15 +317,15 @@ export default function PaymentMethodDetailsScreen() {
           <FloatingToolbar
             items={[
               {
-                icon: "create-outline",
+                icon: "square-pen",
                 onPress: handleEditMethod,
               },
               {
-                icon: method.isActive ? "eye-off-outline" : "eye-outline",
+                icon: method.isActive ? "eye-off" : "eye",
                 onPress: handleToggleActive,
               },
               {
-                icon: "trash-outline",
+                icon: "trash",
                 onPress: () => setDeleteVisible(true),
               },
             ]}
@@ -353,7 +351,7 @@ export default function PaymentMethodDetailsScreen() {
             title={selectedAccount.name}
             items={[
               {
-                icon: "create-outline",
+                icon: "square-pen",
                 label: t("edit"),
                 onPress: () => {
                   handleCloseAccountActions();
@@ -362,8 +360,8 @@ export default function PaymentMethodDetailsScreen() {
               },
               {
                 icon: selectedAccount.isActive
-                  ? "eye-off-outline"
-                  : "eye-outline",
+                  ? "eye-off"
+                  : "eye",
                 label: selectedAccount.isActive
                   ? t("deactivate")
                   : t("activate"),
@@ -372,7 +370,7 @@ export default function PaymentMethodDetailsScreen() {
               ...(method.defaultDestinationAccount?.id !== selectedAccount.id
                 ? [
                     {
-                      icon: "star-outline" as const,
+                      icon: "star" as const,
                       label: t("setDefaultAccount"),
                       onPress: handleSetDefaultAccount,
                     },
@@ -381,7 +379,7 @@ export default function PaymentMethodDetailsScreen() {
               ...(method.allowedDestinationAccounts.length > 1
                 ? [
                     {
-                      icon: "close-circle-outline" as const,
+                      icon: "circle-x" as const,
                       label: t("removeAccount"),
                       color: "text-red-500",
                       onPress: handleRemoveAccount,

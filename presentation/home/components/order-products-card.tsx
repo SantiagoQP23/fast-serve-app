@@ -17,7 +17,7 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import { useMarkOrderDelivered } from "@/presentation/orders/hooks/useMarkOrderDelivered";
@@ -160,8 +160,8 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
 
         <ThemedView style={tw`mt-6 flex-row items-center justify-between`}>
           <ThemedText type="body2" style={tw`text-gray-600`}>
-            <Ionicons
-              name="people-outline"
+            <Icon
+              name="users"
               size={18}
               color={tw.color("gray-600")}
             />{" "}

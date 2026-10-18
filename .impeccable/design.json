@@ -113,7 +113,7 @@
     "keyCharacteristics": [
       "One typeface (Plus Jakarta Sans), one accent hue, no display/body pairing.",
       "A single dominant radius (24px) unifies cards, buttons, inputs, and pickers; status Label pills and a couple of floating elements (FAB, dialogs) break from it — chips now sit at the system's small 6px radius instead of the pill shape they used to have.",
-      "Outline-weight Ionicons throughout — no filled icon set, no mixed families.",
+      "Outline-weight Lucide icons throughout — no filled icon set, no mixed families.",
       "Two-tier elevation: content surfaces sit nearly flat (most carry no shadow at all), overlays lift with real shadow."
     ],
     "rules": [
@@ -131,7 +131,7 @@
       "Do render an inactive record as its card at 50% opacity, not a separate badge-only treatment.",
       "Do put \"more options\" (edit/activate/delete) behind a single bottom sheet or popover with Edit → Activate/Deactivate → Delete in that order, delete in red.",
       "Do keep a blockable action enabled and show its specific reason inline when the relevant sheet/card opens, rather than disabling it or explaining the block through an Alert.",
-      "Do use outline-weight Ionicons exclusively, sized 18–28px depending on context.",
+      "Do use outline-weight Lucide icons exclusively, sized 18–28px depending on context.",
       "Do keep body text at medium weight (500); drop to regular only for explicitly secondary text (and the h2 headline)."
     ],
     "donts": [

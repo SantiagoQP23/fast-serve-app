@@ -17,7 +17,7 @@ import Button from "@/presentation/theme/components/button";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 interface DeleteAccountBottomSheetProps {
@@ -123,7 +123,7 @@ function DeleteAccountBottomSheet(
             </ThemedText>
           ) : (
             <>
-              <Ionicons name="trash-outline" size={20} color="#fff" />
+              <Icon name="trash" size={20} color="#fff" />
               <ThemedText type="body1" style={tw`text-white`}>
                 {t("common:actions.delete")}
               </ThemedText>

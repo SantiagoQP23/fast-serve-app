@@ -19,7 +19,7 @@ export default function MenuInventoryCountsScreen() {
       <InventoryCountsTab />
 
       <Fab
-        icon="clipboard-outline"
+        icon="clipboard"
         label={t("counts.new")}
         onPress={() =>
           router.push({ pathname: "/(profile)/inventory/counts/items" })

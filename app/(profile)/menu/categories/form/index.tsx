@@ -9,7 +9,7 @@ import {
   Platform,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
 import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuManagement";
@@ -115,7 +115,7 @@ export default function MenuCategoryFormScreen() {
                 onPress={() => router.back()}
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
-                <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+                <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
               </Pressable>
               <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
                 {isEditing
@@ -150,7 +150,7 @@ export default function MenuCategoryFormScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("categories.fields.name")}
-                  icon="pricetag"
+                  icon="tag"
                   placeholder={t("categories.placeholders.name")}
                   onBlur={onBlur}
                   value={value}
@@ -165,8 +165,8 @@ export default function MenuCategoryFormScreen() {
                 <ThemedView
                   style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
                 >
-                  <Ionicons
-                    name="list-outline"
+                  <Icon
+                    name="list"
                     size={32}
                     color={tw.color("gray-400")}
                   />
