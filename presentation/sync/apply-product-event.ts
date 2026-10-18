@@ -10,30 +10,52 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 type ProductEventData = Partial<Product> & { defaultVariantId?: number };
 
 export function applyProductEvent(event: SyncEventDto) {
+  applyProductEvents([event]);
+}
+
+/**
+ * Applies several product events with one update per store. A sale sends
+ * one event per product whose stock changed, often dozens at once; applying
+ * them one by one re-rendered and saved the menu and orders each time.
+ */
+export function applyProductEvents(events: SyncEventDto[]) {
   const menuState = useMenuStore.getState();
+  const pending = new Map<string, Product>();
+  const current = (id: string) =>
+    pending.get(id) ?? menuState.products.find((p) => p.id === id);
 
-  switch (event.operation) {
-    case SyncOperation.CREATED:
-    case SyncOperation.UPDATED: {
-      const { defaultVariantId, ...data } = event.data as ProductEventData;
-      const existing = menuState.products.find(
-        (p) => p.id === event.resourceId,
-      );
+  const flush = () => {
+    if (!pending.size) return;
+    const products = [...pending.values()];
+    pending.clear();
+    useMenuStore.getState().upsertProducts(products);
+    useOrdersStore.getState().updateProductsInOrders(products);
+  };
 
-      // A partial payload can't create a product the app doesn't have yet.
-      if (!existing && !data.category) return;
+  for (const event of events) {
+    switch (event.operation) {
+      case SyncOperation.CREATED:
+      case SyncOperation.UPDATED: {
+        const { defaultVariantId, ...data } = event.data as ProductEventData;
+        const existing = current(event.resourceId);
 
-      let product = existing ? { ...existing, ...data } : (data as Product);
-      if (defaultVariantId != null) {
-        product = withDefaultOption(product, defaultVariantId);
+        // A partial payload can't create a product the app doesn't have yet.
+        if (!existing && !data.category) break;
+
+        let product = existing ? { ...existing, ...data } : (data as Product);
+        if (defaultVariantId != null) {
+          product = withDefaultOption(product, defaultVariantId);
+        }
+
+        pending.set(event.resourceId, product);
+        break;
       }
-
-      menuState.upsertProduct(product);
-      useOrdersStore.getState().updateProductInOrders(product);
-      break;
+      case SyncOperation.DELETED:
+        flush();
+        useMenuStore.getState().removeProduct(event.resourceId);
+        break;
     }
-    case SyncOperation.DELETED:
-      menuState.removeProduct(event.resourceId);
-      break;
   }
+
+  flush();
 }
