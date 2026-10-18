@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ScrollView, RefreshControl, ActivityIndicator } from "react-native";
 import { router } from "expo-router";
-import Ionicons, {
-  type IoniconsIconName,
-} from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -29,13 +27,13 @@ import type { PaymentMethod } from "@/core/restaurant/models/payment-method.mode
 
 const paymentMethodIcons: Record<
   PaymentMethodCategory,
-  IoniconsIconName
+  IconName
 > = {
-  [PaymentMethodCategory.CASH]: "cash-outline",
-  [PaymentMethodCategory.CARD]: "card-outline",
-  [PaymentMethodCategory.TRANSFER]: "swap-horizontal-outline",
-  [PaymentMethodCategory.DIGITAL_WALLET]: "wallet-outline",
-  [PaymentMethodCategory.OTHER]: "ellipsis-horizontal-circle-outline",
+  [PaymentMethodCategory.CASH]: "banknote",
+  [PaymentMethodCategory.CARD]: "credit-card",
+  [PaymentMethodCategory.TRANSFER]: "arrow-left-right",
+  [PaymentMethodCategory.DIGITAL_WALLET]: "wallet",
+  [PaymentMethodCategory.OTHER]: "circle-ellipsis",
 };
 
 export default function PaymentMethodsSettingsScreen() {
@@ -188,8 +186,8 @@ export default function PaymentMethodsSettingsScreen() {
             <ThemedView
               style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
             >
-              <Ionicons
-                name="alert-circle-outline"
+              <Icon
+                name="circle-alert"
                 size={28}
                 color={tw.color("red-500")}
               />
@@ -211,8 +209,8 @@ export default function PaymentMethodsSettingsScreen() {
               <ThemedView
                 style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
               >
-                <Ionicons
-                  name="card-outline"
+                <Icon
+                  name="credit-card"
                   size={32}
                   color={tw.color("gray-400")}
                 />
@@ -240,7 +238,7 @@ export default function PaymentMethodsSettingsScreen() {
                       <ThemedView
                         style={tw`gap-3 flex-1 flex-row items-center`}
                       >
-                        <Ionicons
+                        <Icon
                           name={paymentMethodIcons[method.type]}
                           size={26}
                           color={tw.color("text-on-surface-variant")}
@@ -266,8 +264,8 @@ export default function PaymentMethodsSettingsScreen() {
                           </ThemedView>
                         </ThemedView>
                       </ThemedView>
-                      <Ionicons
-                        name="chevron-forward-outline"
+                      <Icon
+                        name="chevron-right"
                         size={18}
                         color={tw.color("gray-400")}
                       />
@@ -296,7 +294,7 @@ export default function PaymentMethodsSettingsScreen() {
                       ))}
                       {canManage && (
                         <IconButton
-                          icon="add-circle-outline"
+                          icon="circle-plus"
                           size={20}
                           variant="text"
                           onPress={() => handleAddAccount(method.id)}
@@ -311,7 +309,7 @@ export default function PaymentMethodsSettingsScreen() {
         </ThemedView>
       </ScrollView>
 
-      {canManage && <Fab icon="add" onPress={handleCreateMethod} />}
+      {canManage && <Fab icon="plus" onPress={handleCreateMethod} />}
 
       <ThemedBottomSheetModal ref={accountActionsSheetRef} enablePanDownToClose>
         {selectedAccountContext && (
@@ -319,7 +317,7 @@ export default function PaymentMethodsSettingsScreen() {
             title={selectedAccountContext.account.name}
             items={[
               {
-                icon: "create-outline",
+                icon: "square-pen",
                 label: t("edit"),
                 onPress: () => {
                   handleCloseAccountChipActions();
@@ -328,8 +326,8 @@ export default function PaymentMethodsSettingsScreen() {
               },
               {
                 icon: selectedAccountContext.account.isActive
-                  ? "eye-off-outline"
-                  : "eye-outline",
+                  ? "eye-off"
+                  : "eye",
                 label: selectedAccountContext.account.isActive
                   ? t("deactivate")
                   : t("activate"),
@@ -339,7 +337,7 @@ export default function PaymentMethodsSettingsScreen() {
                 ?.id !== selectedAccountContext.account.id
                 ? [
                     {
-                      icon: "star-outline" as const,
+                      icon: "star" as const,
                       label: t("setDefaultAccount"),
                       onPress: handleSetDefaultAccount,
                     },
@@ -349,7 +347,7 @@ export default function PaymentMethodsSettingsScreen() {
                 .length > 1
                 ? [
                     {
-                      icon: "close-circle-outline" as const,
+                      icon: "circle-x" as const,
                       label: t("removeAccount"),
                       color: "text-red-500",
                       onPress: handleRemoveAccount,

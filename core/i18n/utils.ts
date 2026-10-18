@@ -7,7 +7,7 @@ import "dayjs/locale/en";
 import { PaymentMethod } from "../orders/enums/payment-method";
 import { PaymentMethodCategory } from "../restaurant/models/payment-method.model";
 import { Roles } from "../auth/models/user.model";
-import type { IoniconsIconName } from "@react-native-vector-icons/ionicons/static";
+import type { IconName } from "@/presentation/theme/components/icon";
 
 // Extend dayjs with relativeTime plugin
 dayjs.extend(relativeTime);
@@ -141,7 +141,7 @@ i18n.on("languageChanged", (lng) => {
  */
 
 export interface PaymentMethodInfo {
-  icon: IoniconsIconName;
+  icon: IconName;
   translationKey: string;
   color: string;
   bgColor: string;
@@ -184,29 +184,29 @@ export const getPaymentMethodTranslationKey = (
  */
 export const getPaymentMethodIcon = (
   method: PaymentMethod | PaymentMethodCategory | string,
-): IoniconsIconName => {
+): IconName => {
   switch (method) {
     case PaymentMethod.CASH:
     case PaymentMethodCategory.CASH:
     case "CASH":
-      return "cash-outline";
+      return "banknote";
     case PaymentMethod.CREDIT_CARD:
     case "CREDIT_CARD":
     case PaymentMethodCategory.CARD:
     case "CARD":
-      return "card-outline";
+      return "credit-card";
     case PaymentMethod.TRANSFER:
     case PaymentMethodCategory.TRANSFER:
     case "TRANSFER":
-      return "swap-horizontal-outline";
+      return "arrow-left-right";
     case PaymentMethodCategory.DIGITAL_WALLET:
     case "DIGITAL_WALLET":
-      return "phone-portrait-outline";
+      return "smartphone";
     case PaymentMethodCategory.OTHER:
     case "OTHER":
-      return "wallet-outline";
+      return "wallet";
     default:
-      return "wallet-outline";
+      return "wallet";
   }
 };
 
@@ -221,7 +221,7 @@ export const getPaymentMethodInfo = (
     case PaymentMethodCategory.CASH:
     case "CASH":
       return {
-        icon: "cash-outline",
+        icon: "banknote",
         translationKey: "bills:paymentMethods.cash",
         color: "#10b981", // green-600
         bgColor: "bg-green-50",
@@ -229,7 +229,7 @@ export const getPaymentMethodInfo = (
     case PaymentMethod.CREDIT_CARD:
     case "CREDIT_CARD":
       return {
-        icon: "card-outline",
+        icon: "credit-card",
         translationKey: "bills:paymentMethods.creditCard",
         color: "#3b82f6", // blue-600
         bgColor: "bg-blue-50",
@@ -237,7 +237,7 @@ export const getPaymentMethodInfo = (
     case PaymentMethodCategory.CARD:
     case "CARD":
       return {
-        icon: "card-outline",
+        icon: "credit-card",
         translationKey: "bills:paymentMethods.card",
         color: "#3b82f6", // blue-600
         bgColor: "bg-blue-50",
@@ -246,7 +246,7 @@ export const getPaymentMethodInfo = (
     case PaymentMethodCategory.TRANSFER:
     case "TRANSFER":
       return {
-        icon: "swap-horizontal-outline",
+        icon: "arrow-left-right",
         translationKey: "bills:paymentMethods.transfer",
         color: "#8b5cf6", // purple-600
         bgColor: "bg-purple-50",
@@ -254,7 +254,7 @@ export const getPaymentMethodInfo = (
     case PaymentMethodCategory.DIGITAL_WALLET:
     case "DIGITAL_WALLET":
       return {
-        icon: "phone-portrait-outline",
+        icon: "smartphone",
         translationKey: "bills:paymentMethods.digitalWallet",
         color: "#f97316", // orange-600
         bgColor: "bg-orange-50",
@@ -262,14 +262,14 @@ export const getPaymentMethodInfo = (
     case PaymentMethodCategory.OTHER:
     case "OTHER":
       return {
-        icon: "wallet-outline",
+        icon: "wallet",
         translationKey: "bills:paymentMethods.other",
         color: "#64748b", // slate-600
         bgColor: "bg-slate-50",
       };
     default:
       return {
-        icon: "wallet-outline",
+        icon: "wallet",
         translationKey: "bills:paymentMethods.other",
         color: "#6b7280", // gray-600
         bgColor: "bg-gray-50",

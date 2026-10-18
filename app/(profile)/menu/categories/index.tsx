@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import { router } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -119,7 +119,7 @@ export default function MenuCategoriesScreen() {
       >
         {isLoading && categories.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="pricetag-outline" size={48} color={tw.color("gray-400")} />
+            <Icon name="tag" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`text-gray-500`}>
               {t("loading")}
             </ThemedText>
@@ -128,7 +128,7 @@ export default function MenuCategoriesScreen() {
 
         {isError && categories.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+            <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
             <ThemedText type="body1" style={tw`text-red-500`}>
               {t("loadError")}
             </ThemedText>
@@ -142,7 +142,7 @@ export default function MenuCategoriesScreen() {
 
         {!isLoading && !isError && categories.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="pricetag-outline" size={48} color={tw.color("gray-400")} />
+            <Icon name="tag" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`font-semibold`}>
               {t("categories.noCategories")}
             </ThemedText>
@@ -162,8 +162,8 @@ export default function MenuCategoriesScreen() {
               >
                 <ThemedView style={tw`flex-row items-center justify-between`}>
                   <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
-                    <Ionicons
-                      name="pricetag-outline"
+                    <Icon
+                      name="tag"
                       size={28}
                       color={tw.color("text-on-surface-variant")}
                     />
@@ -199,7 +199,7 @@ export default function MenuCategoriesScreen() {
         )}
       </ScrollView>
 
-      {canManage && <Fab icon="add" onPress={handleCreateCategory} />}
+      {canManage && <Fab icon="plus" onPress={handleCreateCategory} />}
 
       <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
         {selectedCategory && (
@@ -211,8 +211,8 @@ export default function MenuCategoriesScreen() {
                 </ThemedText>
                 <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
                   <ThemedView style={tw`flex-row items-center gap-1`}>
-                    <Ionicons
-                      name="list-outline"
+                    <Icon
+                      name="list"
                       size={16}
                       color={tw.color("text-gray-500")}
                     />
@@ -221,8 +221,8 @@ export default function MenuCategoriesScreen() {
                     </ThemedText>
                   </ThemedView>
                   <ThemedView style={tw`flex-row items-center gap-1`}>
-                    <Ionicons
-                      name="pricetag-outline"
+                    <Icon
+                      name="tag"
                       size={16}
                       color={tw.color("text-gray-500")}
                     />
@@ -236,7 +236,7 @@ export default function MenuCategoriesScreen() {
               </ThemedView>
               <IconButton
                 icon={
-                  selectedCategory.isActive ? "eye-outline" : "eye-off-outline"
+                  selectedCategory.isActive ? "eye" : "eye-off"
                 }
                 variant="secondary"
                 onPress={handleToggleActive}
@@ -254,7 +254,7 @@ export default function MenuCategoriesScreen() {
               />
               <Button
                 label={t("edit")}
-                leftIcon="create"
+                leftIcon="square-pen"
                 variant="secondary"
                 style={tw`flex-1`}
                 onPress={() => {

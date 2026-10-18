@@ -1,15 +1,13 @@
 import React from "react";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
-import Ionicons, {
-  type IoniconsIconName,
-} from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 
 interface StatsCardProps {
   title: string;
   value: string | number;
-  icon: IoniconsIconName;
+  icon: IconName;
   iconColor?: string;
   loading?: boolean;
 }
@@ -28,7 +26,7 @@ export default function StatsCard({
         <ThemedView
           style={tw`w-10 h-10 rounded-lg bg-surface items-center justify-center`}
         >
-          <Ionicons name={icon} size={24} color={tw.color("on-surface")} />
+          <Icon name={icon} size={24} color={tw.color("on-surface")} />
         </ThemedView>
         <ThemedView style={tw`flex-1 bg-transparent`}>
           <ThemedText

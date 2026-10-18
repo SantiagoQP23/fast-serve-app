@@ -3,7 +3,7 @@ import { Pressable, PressableProps } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { Transaction } from "@/core/transactions/models/transaction.model";
 import { TransactionType } from "@/core/transactions/models/transaction-category.model";
 import { formatCurrency, getRelativeTime } from "@/core/i18n/utils";
@@ -85,7 +85,7 @@ export default function TransactionCard({
             ? () => (
                 <ThemedView style={tw`justify-center items-center px-4 `}>
                   <IconButton
-                    icon="trash-outline"
+                    icon="trash"
                     variant="secondary"
                     onPress={onRemoveTransaction}
                     size={26}
@@ -105,8 +105,8 @@ export default function TransactionCard({
             <ThemedView style={tw`flex-row  gap-3 flex-1 items-center`}>
               {/* Category color circle */}
               <ThemedView style={[tw`w-10 h-10 rounded-full  items-center`, ,]}>
-                <Ionicons
-                  name="cash-outline"
+                <Icon
+                  name="banknote"
                   size={26}
                   color={tw.color(`gray-600`)}
                 />

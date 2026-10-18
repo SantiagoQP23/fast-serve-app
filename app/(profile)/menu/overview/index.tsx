@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RefreshControl, ScrollView } from "react-native";
 import { router } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -248,7 +248,7 @@ export default function MenuOverviewScreen() {
       <ThemedView
         style={tw`flex-1 px-4 pt-8 items-center justify-center gap-4`}
       >
-        <Ionicons name="restaurant-outline" size={64} color={tw.color("gray-400")} />
+        <Icon name="utensils" size={64} color={tw.color("gray-400")} />
         <ThemedView style={tw`gap-2 items-center`}>
           <ThemedText type="h2">{t("overview.noMenu.title")}</ThemedText>
           <ThemedText type="body2" style={tw`text-center text-gray-500 px-8`}>
@@ -263,7 +263,7 @@ export default function MenuOverviewScreen() {
                 ? t("overview.noMenu.loading")
                 : t("overview.noMenu.loadButton")
           }
-          leftIcon="cloud-download-outline"
+          leftIcon="cloud-download"
           onPress={handleLoadMenu}
           disabled={isLoadingMenu}
           loading={isLoadingMenu}
@@ -281,7 +281,7 @@ export default function MenuOverviewScreen() {
     <ScreenLayout fullWidth={isExpanded} style={tw`px-4 pt-2 flex-1 gap-4`}>
       {isLoading && sections.length === 0 && (
         <ThemedView style={tw`items-center py-8 gap-3`}>
-          <Ionicons name="restaurant-outline" size={48} color={tw.color("gray-400")} />
+          <Icon name="utensils" size={48} color={tw.color("gray-400")} />
           <ThemedText type="body1" style={tw`text-gray-500`}>
             {t("loading")}
           </ThemedText>
@@ -290,7 +290,7 @@ export default function MenuOverviewScreen() {
 
       {isError && sections.length === 0 && (
         <ThemedView style={tw`items-center py-8 gap-3`}>
-          <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+          <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
           <ThemedText type="body1" style={tw`text-red-500`}>
             {t("loadError")}
           </ThemedText>
@@ -306,11 +306,11 @@ export default function MenuOverviewScreen() {
         value={search}
         placeholder={t("products.searchPlaceholder")}
         onChangeText={setSearch}
-        icon="search-outline"
+        icon="search"
         trailingIcon={
           search && (
             <IconButton
-              icon="close-circle-outline"
+              icon="circle-x"
               onPress={() => setSearch("")}
             ></IconButton>
           )
@@ -339,7 +339,7 @@ export default function MenuOverviewScreen() {
             {canManage && (
               <Chip
                 label={t("overview.addSection")}
-                icon="add"
+                icon="plus"
                 onPress={handleAddSection}
               />
             )}
@@ -369,7 +369,7 @@ export default function MenuOverviewScreen() {
             {canManage && (
               <Chip
                 label={t("overview.addCategory")}
-                icon="add"
+                icon="plus"
                 onPress={handleAddCategory}
               />
             )}
@@ -391,14 +391,14 @@ export default function MenuOverviewScreen() {
           {canManage && (
             <Button
               label={t("products.newProduct")}
-              leftIcon="add"
+              leftIcon="plus"
               variant="outline"
               onPress={handleAddProduct}
             />
           )}
           {filteredProducts.length === 0 && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Ionicons name="fast-food-outline" size={40} color={tw.color("gray-400")} />
+              <Icon name="hamburger" size={40} color={tw.color("gray-400")} />
               <ThemedText
                 type="body2"
                 style={tw`text-center text-gray-500 px-4`}
@@ -420,7 +420,7 @@ export default function MenuOverviewScreen() {
             >
               <ThemedView style={tw`flex-row items-center justify-between`}>
                 <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
-                  {/* <Ionicons */}
+                  {/* <Icon */}
                   {/*   name="fast-food-outline" */}
                   {/*   size={28} */}
                   {/*   color={tw.color("text-on-surface-variant")} */}
@@ -453,8 +453,8 @@ export default function MenuOverviewScreen() {
                 <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
                   {selected.type === "section" ? (
                     <ThemedView style={tw`flex-row items-center gap-1`}>
-                      <Ionicons
-                        name="list-outline"
+                      <Icon
+                        name="list"
                         size={16}
                         color={tw.color("text-gray-500")}
                       />
@@ -467,8 +467,8 @@ export default function MenuOverviewScreen() {
                   ) : (
                     <>
                       <ThemedView style={tw`flex-row items-center gap-1`}>
-                        <Ionicons
-                          name="list-outline"
+                        <Icon
+                          name="list"
                           size={16}
                           color={tw.color("text-gray-500")}
                         />
@@ -477,8 +477,8 @@ export default function MenuOverviewScreen() {
                         </ThemedText>
                       </ThemedView>
                       <ThemedView style={tw`flex-row items-center gap-1`}>
-                        <Ionicons
-                          name="pricetag-outline"
+                        <Icon
+                          name="tag"
                           size={16}
                           color={tw.color("text-gray-500")}
                         />
@@ -494,7 +494,7 @@ export default function MenuOverviewScreen() {
               </ThemedView>
               <IconButton
                 icon={
-                  selected.item.isActive ? "eye-outline" : "eye-off-outline"
+                  selected.item.isActive ? "eye" : "eye-off"
                 }
                 variant="secondary"
                 onPress={handleToggleSelectedActive}
@@ -509,7 +509,7 @@ export default function MenuOverviewScreen() {
               />
               <Button
                 label={t("edit")}
-                leftIcon="create"
+                leftIcon="square-pen"
                 variant="secondary"
                 style={tw`flex-1`}
                 onPress={handleEditSelected}
@@ -566,8 +566,8 @@ export default function MenuOverviewScreen() {
           />
         ) : (
           <ThemedView style={tw`flex-1 items-center justify-center gap-4 px-8`}>
-            <Ionicons
-              name="fast-food-outline"
+            <Icon
+              name="hamburger"
               size={64}
               color={tw.color("gray-400")}
             />

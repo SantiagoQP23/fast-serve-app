@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ScrollView, Pressable } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -91,12 +91,12 @@ export default function MenuProductOptionInventoryScreen() {
           hitSlop={12}
           style={({ pressed }) => tw.style(pressed && "opacity-70")}
         >
-          <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+          <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
         </Pressable>
         {canManage && wholeProductItemId && (
           <Button
             label={t("trackMode.manage")}
-            leftIcon="settings-outline"
+            leftIcon="settings"
             variant="surface"
             size="extra-small"
             onPress={navigateToInventoryItem}
@@ -105,7 +105,7 @@ export default function MenuProductOptionInventoryScreen() {
         {canManage && isIngredientsMode && (
           <Button
             label={t("common:actions.edit")}
-            leftIcon="create-outline"
+            leftIcon="square-pen"
             variant="surface"
             size="extra-small"
             onPress={navigateToRecipeScreen}

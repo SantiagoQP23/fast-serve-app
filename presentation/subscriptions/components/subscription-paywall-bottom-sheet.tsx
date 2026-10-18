@@ -1,6 +1,6 @@
 import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
 import { useRouter } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import Button from "@/presentation/theme/components/button";
@@ -27,8 +27,8 @@ const SubscriptionPaywallBottomSheet = ({
       <ThemedView
         style={tw`w-20 h-20 rounded-full bg-primary/10 items-center justify-center`}
       >
-        <Ionicons
-          name="lock-closed-outline"
+        <Icon
+          name="lock"
           size={36}
           color={tw.color("primary")}
         />

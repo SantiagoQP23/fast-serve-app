@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { KeyboardAvoidingView, Pressable, ScrollView, Platform } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useAccountsManagement } from "@/presentation/restaurant/hooks/useAccountsManagement";
 import { AccountType } from "@/core/restaurant/models/account.model";
@@ -126,7 +126,7 @@ export default function AccountFormScreen() {
                 onPress={() => router.back()}
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
-                <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+                <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
               </Pressable>
               <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
                 {isEditing
@@ -170,7 +170,7 @@ export default function AccountFormScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("accounts.fields.name")}
-                  icon="wallet-outline"
+                  icon="wallet"
                   placeholder={t("accounts.placeholders.name")}
                   onBlur={onBlur}
                   value={value}
@@ -186,7 +186,7 @@ export default function AccountFormScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("accounts.fields.description")}
-                  icon="document-text-outline"
+                  icon="file-text"
                   placeholder={t("accounts.placeholders.description")}
                   onBlur={onBlur}
                   value={value}
@@ -202,7 +202,7 @@ export default function AccountFormScreen() {
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
                     label={t("accounts.fields.num")}
-                    icon="keypad-outline"
+                    icon="grid-3x3"
                     placeholder={t("accounts.placeholders.num")}
                     onBlur={onBlur}
                     value={value}

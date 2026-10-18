@@ -1,7 +1,7 @@
 import React from "react";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency, getPaymentMethodIcon, translatePaymentMethod } from "@/core/i18n/utils";
@@ -27,7 +27,7 @@ export default function PaymentMethodCard({ paymentMethodStats }: PaymentMethodC
           <ThemedView
             style={tw`w-12 h-12 rounded-full bg-primary-50 items-center justify-center mr-3`}
           >
-            <Ionicons
+            <Icon
               name={iconName}
               size={24}
               color={tw.color("primary")}

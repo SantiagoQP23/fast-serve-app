@@ -13,7 +13,7 @@ export default function OrderSyncLabel({ orderId }: { orderId?: string }) {
     <Label
       size="small"
       leftIcon={
-        syncState === "failed" ? "alert-circle-outline" : "cloud-upload-outline"
+        syncState === "failed" ? "circle-alert" : "cloud-upload"
       }
       color={syncState === "failed" ? "error" : "warning"}
       text={

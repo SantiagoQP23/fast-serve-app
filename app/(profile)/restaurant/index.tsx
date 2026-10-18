@@ -13,7 +13,7 @@ import { usePaymentMethods } from "@/presentation/restaurant/hooks/usePaymentMet
 import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
 import { useProductionAreas } from "@/presentation/production-areas/hooks/useProductionAreas";
 import { useProductionAreasStore } from "@/presentation/production-areas/store/useProductionAreasStore";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { useState } from "react";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 
@@ -193,7 +193,7 @@ export default function RestaurantOfflineDataScreen() {
           {/* Header */}
           <ThemedView style={tw`gap-2`}>
             <ThemedView style={tw`flex-row items-center gap-2 justify-center`}>
-              <Ionicons name="storefront-outline" color={tw.color("on-surface")} size={20} />
+              <Icon name="store" color={tw.color("on-surface")} size={20} />
               <ThemedText type="h2" style={tw``}>
                 {currentRestaurant?.name}
               </ThemedText>
@@ -203,7 +203,7 @@ export default function RestaurantOfflineDataScreen() {
           {/* Menu Section */}
           <ThemedView style={tw`gap-4`}>
             <ThemedView style={tw`flex-row items-center gap-2`}>
-              <Ionicons name="restaurant-outline" color={tw.color("on-surface")} size={24} />
+              <Icon name="utensils" color={tw.color("on-surface")} size={24} />
               <ThemedText type="h2">{t("offlineData:menu.title")}</ThemedText>
             </ThemedView>
 
@@ -212,7 +212,7 @@ export default function RestaurantOfflineDataScreen() {
                 {/* Menu Info */}
                 <ThemedView style={tw`gap-2`}>
                   <ThemedView style={tw`flex-row items-center gap-2`}>
-                    <Ionicons name="time-outline" color={tw.color("on-surface")} size={18} />
+                    <Icon name="clock" color={tw.color("on-surface")} size={18} />
                     <ThemedText type="body2" style={tw`text-gray-500`}>
                       {t("offlineData:lastUpdated")}:{" "}
                       {formatDate(menuLastUpdated)}
@@ -225,7 +225,7 @@ export default function RestaurantOfflineDataScreen() {
                   style={tw` rounded-lg p-4 gap-3 border border-border`}
                 >
                   <ThemedView style={tw`flex-row items-center gap-3`}>
-                    <Ionicons name="layers-outline" color={tw.color("on-surface")} size={20} />
+                    <Icon name="layers" color={tw.color("on-surface")} size={20} />
                     <ThemedView style={tw`flex-1`}>
                       <ThemedText type="body2" style={tw`text-gray-500`}>
                         {t("offlineData:menu.sections")}
@@ -235,7 +235,7 @@ export default function RestaurantOfflineDataScreen() {
                   </ThemedView>
 
                   <ThemedView style={tw`flex-row items-center gap-3`}>
-                    <Ionicons name="grid-outline" color={tw.color("on-surface")} size={20} />
+                    <Icon name="layout-grid" color={tw.color("on-surface")} size={20} />
                     <ThemedView style={tw`flex-1`}>
                       <ThemedText type="body2" style={tw`text-gray-500`}>
                         {t("offlineData:menu.categories")}
@@ -245,7 +245,7 @@ export default function RestaurantOfflineDataScreen() {
                   </ThemedView>
 
                   <ThemedView style={tw`flex-row items-center gap-3`}>
-                    <Ionicons name="fast-food-outline" color={tw.color("on-surface")} size={20} />
+                    <Icon name="hamburger" color={tw.color("on-surface")} size={20} />
                     <ThemedView style={tw`flex-1`}>
                       <ThemedText type="body2" style={tw`text-gray-500`}>
                         {t("offlineData:menu.products")}
@@ -263,7 +263,7 @@ export default function RestaurantOfflineDataScreen() {
                         ? t("offlineData:menu.refetching")
                         : t("offlineData:menu.refetch")
                     }
-                    leftIcon="refresh-outline"
+                    leftIcon="refresh-cw"
                     onPress={handleRefetchMenu}
                     disabled={isRefetchingMenu}
                     loading={isRefetchingMenu}
@@ -271,7 +271,7 @@ export default function RestaurantOfflineDataScreen() {
                   />
                   <Button
                     label={t("offlineData:menu.clearCache.button")}
-                    leftIcon="trash-outline"
+                    leftIcon="trash"
                     variant="outline"
                     onPress={handleClearMenu}
                   />
@@ -281,7 +281,7 @@ export default function RestaurantOfflineDataScreen() {
               <ThemedView
                 style={tw`items-center gap-3 py-6 bg-gray-50 rounded-lg`}
               >
-                <Ionicons name="restaurant-outline" size={48} color={tw.color("gray-400")} />
+                <Icon name="utensils" size={48} color={tw.color("gray-400")} />
                 <ThemedView style={tw`gap-1 items-center`}>
                   <ThemedText type="body1" style={tw`font-semibold`}>
                     {t("offlineData:menu.noCache")}
@@ -299,7 +299,7 @@ export default function RestaurantOfflineDataScreen() {
                       ? t("offlineData:menu.loading")
                       : t("offlineData:menu.loadButton")
                   }
-                  leftIcon="cloud-download-outline"
+                  leftIcon="cloud-download"
                   onPress={handleRefetchMenu}
                   disabled={isRefetchingMenu}
                   loading={isRefetchingMenu}
@@ -314,7 +314,7 @@ export default function RestaurantOfflineDataScreen() {
           {/* Tables Section */}
           <ThemedView style={tw`gap-4`}>
             <ThemedView style={tw`flex-row items-center gap-2`}>
-              <Ionicons name="grid-outline" color={tw.color("on-surface")} size={24} />
+              <Icon name="layout-grid" color={tw.color("on-surface")} size={24} />
               <ThemedText type="h2">{t("offlineData:tables.title")}</ThemedText>
             </ThemedView>
 
@@ -323,7 +323,7 @@ export default function RestaurantOfflineDataScreen() {
                 {/* Tables Info */}
                 <ThemedView style={tw`gap-2`}>
                   <ThemedView style={tw`flex-row items-center gap-2`}>
-                    <Ionicons name="time-outline" color={tw.color("on-surface")} size={18} />
+                    <Icon name="clock" color={tw.color("on-surface")} size={18} />
                     <ThemedText type="body2" style={tw`text-gray-500`}>
                       {t("offlineData:lastUpdated")}:{" "}
                       {formatDate(tablesLastUpdated)}
@@ -336,7 +336,7 @@ export default function RestaurantOfflineDataScreen() {
                   style={tw` rounded-lg p-4 gap-3 border border-border`}
                 >
                   <ThemedView style={tw`flex-row items-center gap-3`}>
-                    <Ionicons name="grid-outline" color={tw.color("on-surface")} size={20} />
+                    <Icon name="layout-grid" color={tw.color("on-surface")} size={20} />
                     <ThemedView style={tw`flex-1`}>
                       <ThemedText type="body2" style={tw`text-gray-500`}>
                         {t("offlineData:tables.totalTables")}
@@ -354,7 +354,7 @@ export default function RestaurantOfflineDataScreen() {
                         ? t("offlineData:tables.refetching")
                         : t("offlineData:tables.refetch")
                     }
-                    leftIcon="refresh-outline"
+                    leftIcon="refresh-cw"
                     onPress={handleRefetchTables}
                     disabled={isRefetchingTables}
                     loading={isRefetchingTables}
@@ -362,7 +362,7 @@ export default function RestaurantOfflineDataScreen() {
                   />
                   <Button
                     label={t("offlineData:tables.clearCache.button")}
-                    leftIcon="trash-outline"
+                    leftIcon="trash"
                     variant="outline"
                     onPress={handleClearTables}
                   />
@@ -372,7 +372,7 @@ export default function RestaurantOfflineDataScreen() {
               <ThemedView
                 style={tw`items-center gap-3 py-6 bg-gray-50 rounded-lg`}
               >
-                <Ionicons name="grid-outline" size={48} color={tw.color("gray-400")} />
+                <Icon name="layout-grid" size={48} color={tw.color("gray-400")} />
                 <ThemedView style={tw`gap-1 items-center`}>
                   <ThemedText type="body1" style={tw`font-semibold`}>
                     {t("offlineData:tables.noCache")}
@@ -390,7 +390,7 @@ export default function RestaurantOfflineDataScreen() {
                       ? t("offlineData:tables.loading")
                       : t("offlineData:tables.loadButton")
                   }
-                  leftIcon="cloud-download-outline"
+                  leftIcon="cloud-download"
                   onPress={handleRefetchTables}
                   disabled={isRefetchingTables}
                   loading={isRefetchingTables}
@@ -405,7 +405,7 @@ export default function RestaurantOfflineDataScreen() {
           {/* Payment Methods Section */}
           <ThemedView style={tw`gap-4`}>
             <ThemedView style={tw`flex-row items-center gap-2`}>
-              <Ionicons name="card-outline" color={tw.color("on-surface")} size={24} />
+              <Icon name="credit-card" color={tw.color("on-surface")} size={24} />
               <ThemedText type="h2">Payment Methods</ThemedText>
             </ThemedView>
 
@@ -413,7 +413,7 @@ export default function RestaurantOfflineDataScreen() {
               <ThemedView style={tw`gap-4`}>
                 {/* Payment Methods Info */}
                 <ThemedView style={tw`flex-row items-center gap-2`}>
-                  <Ionicons name="time-outline" color={tw.color("on-surface")} size={18} />
+                  <Icon name="clock" color={tw.color("on-surface")} size={18} />
                   <ThemedText type="body2" style={tw`text-gray-500`}>
                     Last updated: {formatDate(paymentMethodsLastUpdated)}
                   </ThemedText>
@@ -424,7 +424,7 @@ export default function RestaurantOfflineDataScreen() {
                   style={tw`rounded-lg p-4 gap-3 border border-border`}
                 >
                   <ThemedView style={tw`flex-row items-center gap-3`}>
-                    <Ionicons name="card-outline" color={tw.color("on-surface")} size={20} />
+                    <Icon name="credit-card" color={tw.color("on-surface")} size={20} />
                     <ThemedView style={tw`flex-1`}>
                       <ThemedText type="body2" style={tw`text-gray-500`}>
                         Total methods
@@ -434,7 +434,7 @@ export default function RestaurantOfflineDataScreen() {
                   </ThemedView>
 
                   <ThemedView style={tw`flex-row items-center gap-3`}>
-                    <Ionicons name="checkmark-circle-outline" color={tw.color("on-surface")} size={20} />
+                    <Icon name="circle-check" color={tw.color("on-surface")} size={20} />
                     <ThemedView style={tw`flex-1`}>
                       <ThemedText type="body2" style={tw`text-gray-500`}>
                         Active
@@ -452,7 +452,7 @@ export default function RestaurantOfflineDataScreen() {
                     label={
                       isRefetchingPaymentMethods ? "Refreshing..." : "Refresh"
                     }
-                    leftIcon="refresh-outline"
+                    leftIcon="refresh-cw"
                     onPress={handleRefetchPaymentMethods}
                     disabled={isRefetchingPaymentMethods}
                     loading={isRefetchingPaymentMethods}
@@ -460,7 +460,7 @@ export default function RestaurantOfflineDataScreen() {
                   />
                   <Button
                     label="Clear cache"
-                    leftIcon="trash-outline"
+                    leftIcon="trash"
                     variant="outline"
                     onPress={handleClearPaymentMethods}
                   />
@@ -470,7 +470,7 @@ export default function RestaurantOfflineDataScreen() {
               <ThemedView
                 style={tw`items-center gap-3 py-6 bg-gray-50 rounded-lg`}
               >
-                <Ionicons name="card-outline" size={48} color={tw.color("gray-400")} />
+                <Icon name="credit-card" size={48} color={tw.color("gray-400")} />
                 <ThemedView style={tw`gap-1 items-center`}>
                   <ThemedText type="body1" style={tw`font-semibold`}>
                     No payment methods cached
@@ -488,7 +488,7 @@ export default function RestaurantOfflineDataScreen() {
                       ? "Loading..."
                       : "Load payment methods"
                   }
-                  leftIcon="cloud-download-outline"
+                  leftIcon="cloud-download"
                   onPress={handleRefetchPaymentMethods}
                   disabled={isRefetchingPaymentMethods}
                   loading={isRefetchingPaymentMethods}
@@ -503,7 +503,7 @@ export default function RestaurantOfflineDataScreen() {
           {/* Production Areas Section */}
           <ThemedView style={tw`gap-4`}>
             <ThemedView style={tw`flex-row items-center gap-2`}>
-              <Ionicons name="construct-outline" color={tw.color("on-surface")} size={24} />
+              <Icon name="wrench" color={tw.color("on-surface")} size={24} />
               <ThemedText type="h2">{t("offlineData:productionAreas.title")}</ThemedText>
             </ThemedView>
 
@@ -512,7 +512,7 @@ export default function RestaurantOfflineDataScreen() {
                 {/* Production Areas Info */}
                 <ThemedView style={tw`gap-2`}>
                   <ThemedView style={tw`flex-row items-center gap-2`}>
-                    <Ionicons name="time-outline" color={tw.color("on-surface")} size={18} />
+                    <Icon name="clock" color={tw.color("on-surface")} size={18} />
                     <ThemedText type="body2" style={tw`text-gray-500`}>
                       {t("offlineData:lastUpdated")}:{" "}
                       {formatDate(productionAreasLastUpdated)}
@@ -525,7 +525,7 @@ export default function RestaurantOfflineDataScreen() {
                   style={tw` rounded-lg p-4 gap-3 border border-border`}
                 >
                   <ThemedView style={tw`flex-row items-center gap-3`}>
-                    <Ionicons name="construct-outline" color={tw.color("on-surface")} size={20} />
+                    <Icon name="wrench" color={tw.color("on-surface")} size={20} />
                     <ThemedView style={tw`flex-1`}>
                       <ThemedText type="body2" style={tw`text-gray-500`}>
                         {t("offlineData:productionAreas.totalAreas")}
@@ -543,7 +543,7 @@ export default function RestaurantOfflineDataScreen() {
                         ? t("offlineData:productionAreas.refetching")
                         : t("offlineData:productionAreas.refetch")
                     }
-                    leftIcon="refresh-outline"
+                    leftIcon="refresh-cw"
                     onPress={handleRefetchProductionAreas}
                     disabled={isRefetchingProductionAreas}
                     loading={isRefetchingProductionAreas}
@@ -551,7 +551,7 @@ export default function RestaurantOfflineDataScreen() {
                   />
                   <Button
                     label={t("offlineData:productionAreas.clearCache.button")}
-                    leftIcon="trash-outline"
+                    leftIcon="trash"
                     variant="outline"
                     onPress={handleClearProductionAreas}
                   />
@@ -561,7 +561,7 @@ export default function RestaurantOfflineDataScreen() {
               <ThemedView
                 style={tw`items-center gap-3 py-6 bg-gray-50 rounded-lg`}
               >
-                <Ionicons name="construct-outline" size={48} color={tw.color("gray-400")} />
+                <Icon name="wrench" size={48} color={tw.color("gray-400")} />
                 <ThemedView style={tw`gap-1 items-center`}>
                   <ThemedText type="body1" style={tw`font-semibold`}>
                     {t("offlineData:productionAreas.noCache")}
@@ -579,7 +579,7 @@ export default function RestaurantOfflineDataScreen() {
                       ? t("offlineData:productionAreas.loading")
                       : t("offlineData:productionAreas.loadButton")
                   }
-                  leftIcon="cloud-download-outline"
+                  leftIcon="cloud-download"
                   onPress={handleRefetchProductionAreas}
                   disabled={isRefetchingProductionAreas}
                   loading={isRefetchingProductionAreas}

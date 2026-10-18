@@ -61,14 +61,14 @@ export default function NewOrderLayout() {
       <ThemedView style={tw`flex-row items-center gap-2`}>
         <Button
           variant="surface"
-          leftIcon="trash-outline"
+          leftIcon="trash"
           size="extra-small"
           label={t("orders:newOrder.resetCart")}
           onPress={openResetCartDialog}
           disabled={details.length === 0}
         />
         <IconButton
-          icon="create-outline"
+          icon="square-pen"
           onPress={handlePresentModalPress}
           size={18}
           style={tw`bg-surface p-2`}
@@ -99,7 +99,7 @@ export default function NewOrderLayout() {
               ) : (
                 <ThemedView style={tw`relative`}>
                   <IconButton
-                    icon="cart-outline"
+                    icon="shopping-cart"
                     onPress={() => router.push("/(new-order)/cart")}
                   />
                   {details.length ? (
@@ -120,7 +120,7 @@ export default function NewOrderLayout() {
 
             headerLeft: () => (
               <IconButton
-                icon="arrow-back"
+                icon="arrow-left"
                 onPress={() => {
                   setActiveProduct(null);
                   setActiveDetail(null);

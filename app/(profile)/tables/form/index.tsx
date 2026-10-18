@@ -9,7 +9,7 @@ import {
   Platform,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useTablesManagement } from "@/presentation/tables/hooks/useTablesManagement";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
@@ -127,7 +127,7 @@ export default function TableSettingsFormScreen() {
                 onPress={() => router.back()}
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
-                <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+                <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
               </Pressable>
               <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
                 {isEditing
@@ -157,7 +157,7 @@ export default function TableSettingsFormScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("settings.fields.name")}
-                  icon="grid"
+                  icon="layout-grid"
                   placeholder={t("settings.placeholders.name")}
                   onBlur={onBlur}
                   value={value}
@@ -173,7 +173,7 @@ export default function TableSettingsFormScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("settings.fields.description")}
-                  icon="document-text"
+                  icon="file-text"
                   placeholder={t("settings.placeholders.description")}
                   onBlur={onBlur}
                   value={value}
@@ -189,7 +189,7 @@ export default function TableSettingsFormScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("settings.fields.chairs")}
-                  icon="people"
+                  icon="users"
                   placeholder={t("settings.placeholders.chairs")}
                   onBlur={onBlur}
                   value={value}

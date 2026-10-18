@@ -11,7 +11,7 @@ import {
   UIManager,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -346,7 +346,7 @@ export default function MenuProductFormScreen() {
                 onPress={() => router.back()}
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
-                <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+                <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
               </Pressable>
               <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
                 {isEditing
@@ -375,7 +375,7 @@ export default function MenuProductFormScreen() {
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
                     label={t("products.fields.name")}
-                    icon="fast-food"
+                    icon="hamburger"
                     placeholder={t("products.placeholders.name")}
                     onBlur={onBlur}
                     value={value}
@@ -391,7 +391,7 @@ export default function MenuProductFormScreen() {
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
                     label={t("products.fields.description")}
-                    icon="document-text"
+                    icon="file-text"
                     placeholder={t("products.placeholders.description")}
                     onBlur={onBlur}
                     value={value}
@@ -412,8 +412,8 @@ export default function MenuProductFormScreen() {
                     <ThemedView
                       style={tw`items-center py-6 gap-2 bg-surface-high rounded-3xl px-4`}
                     >
-                      <Ionicons
-                        name="pricetag-outline"
+                      <Icon
+                        name="tag"
                         size={32}
                         color={tw.color("gray-400")}
                       />
@@ -501,7 +501,7 @@ export default function MenuProductFormScreen() {
                     render={({ field: { onChange, onBlur, value } }) => (
                       <TextInput
                         label={t("products.fields.price")}
-                        icon="pricetag-outline"
+                        icon="tag"
                         placeholder={t("products.placeholders.price")}
                         onBlur={onBlur}
                         value={value}
@@ -517,8 +517,8 @@ export default function MenuProductFormScreen() {
                       <ThemedView
                         style={tw`items-center py-6 gap-2 bg-surface-high rounded-3xl px-4`}
                       >
-                        <Ionicons
-                          name="options-outline"
+                        <Icon
+                          name="sliders-horizontal"
                           size={28}
                           color={tw.color("gray-400")}
                         />
@@ -559,9 +559,9 @@ export default function MenuProductFormScreen() {
                                   )
                                 }
                               >
-                                <Ionicons
+                                <Icon
                                   name={
-                                    field.isDefault ? "star" : "star-outline"
+                                    field.isDefault ? "star" : "star"
                                   }
                                   size={22}
                                   color={tw.color("gray-400")}

@@ -5,7 +5,7 @@ import * as Haptics from "expo-haptics";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import Button from "@/presentation/theme/components/button";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -121,8 +121,8 @@ export default function BestSellingCategoriesScreen() {
           </ThemedView>
         ) : (
           <ThemedView style={tw`py-20 items-center`}>
-            <Ionicons
-              name="pricetags-outline"
+            <Icon
+              name="tags"
               size={64}
               color={tw.color("gray-300")}
             />

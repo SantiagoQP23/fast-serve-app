@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Pressable } from "react-native";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
@@ -42,8 +42,8 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
               <ThemedView
                 style={tw`w-12 h-12 rounded-full  items-center justify-center mr-3`}
               >
-                <Ionicons
-                  name="person"
+                <Icon
+                  name="user"
                   size={24}
                   color={tw.color("primary")}
                 />
@@ -55,7 +55,7 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
                 </ThemedText>
               </ThemedView>
             </ThemedView>
-            <Ionicons
+            <Icon
               name={isExpanded ? "chevron-up" : "chevron-down"}
               size={24}
               color={tw.color("gray-500")}

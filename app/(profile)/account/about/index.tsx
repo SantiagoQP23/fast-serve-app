@@ -58,7 +58,7 @@ export default function AboutScreen() {
           <Button
             variant="surface"
             size="small"
-            leftIcon="logo-github"
+            leftIcon="external-link"
             label={t("about.github")}
             onPress={() => openBrowserAsync(DEVELOPER.githubUrl)}
           />

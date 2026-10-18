@@ -11,7 +11,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import Button from "@/presentation/theme/components/button";
 import { useTableByStatus } from "@/presentation/orders/hooks/useTableByStatus";
 import { Table } from "@/core/tables/models/table.model";
@@ -118,7 +118,7 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
           style,
         )}
       >
-        <Ionicons name="grid-outline" size={64} color={tw.color("gray-400")} />
+        <Icon name="layout-grid" size={64} color={tw.color("gray-400")} />
         <ThemedView style={tw`gap-2 items-center`}>
           <ThemedText type="h2">{t("tables:noTables.title")}</ThemedText>
           <ThemedText type="body2" style={tw`text-center text-gray-500 px-8`}>
@@ -133,7 +133,7 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
                 ? t("tables:noTables.loading")
                 : t("tables:noTables.loadButton")
           }
-          leftIcon="cloud-download-outline"
+          leftIcon="cloud-download"
           onPress={handleLoadTables}
           disabled={isLoadingTables}
           loading={isLoadingTables}

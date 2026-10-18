@@ -131,14 +131,14 @@ export default function EditOrderDetailScreen() {
       headerRight: () => (
         <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}>
           <IconButton
-            icon="information-circle-outline"
+            icon="info"
             onPress={openActivityBottomSheet}
             size={24}
             accessibilityLabel={t("orders:details.activity")}
           />
           <Button
             label={t("orders:replaceItem.confirm")}
-            leftIcon="repeat-outline"
+            leftIcon="repeat"
             variant="surface"
             size="extra-small"
             onPress={openVariantBottomSheet}
@@ -146,7 +146,7 @@ export default function EditOrderDetailScreen() {
           {isAdmin && (
             <Button
               label={t("common:actions.edit")}
-              leftIcon="create-outline"
+              leftIcon="square-pen"
               variant="surface"
               size="extra-small"
               onPress={openCustomBottomSheet}
@@ -271,7 +271,7 @@ export default function EditOrderDetailScreen() {
                 size="small"
               />
               <Label
-                leftIcon="notifications-outline"
+                leftIcon="bell"
                 text={String(orderDetail.readyQuantity)}
                 size="small"
               />
@@ -380,14 +380,14 @@ export default function EditOrderDetailScreen() {
             <ThemedView style={tw`flex-row  justify-center gap-4 w-full `}>
               <ThemedView style={tw`flex-row items-center gap-6`}>
                 <IconButton
-                  icon="remove-outline"
+                  icon="minus"
                   onPress={decrement}
                   variant="secondary"
                   size={50}
                 />
                 <ThemedText type="h1">{counter}</ThemedText>
                 <IconButton
-                  icon="add"
+                  icon="plus"
                   onPress={increment}
                   variant="secondary"
                   size={50}
@@ -403,8 +403,8 @@ export default function EditOrderDetailScreen() {
                 }
                 icon={
                   orderDetail.typeOrderDetail === OrderType.IN_PLACE
-                    ? "restaurant-outline"
-                    : "bag-outline"
+                    ? "utensils"
+                    : "shopping-bag"
                 }
                 variant="filter"
                 onPress={() => typePickerRef.current?.present()}
@@ -414,7 +414,7 @@ export default function EditOrderDetailScreen() {
                 <Chip
                   variant="assist"
                   label={t("orders:newOrder.addNote")}
-                  icon="document-text-outline"
+                  icon="file-text"
                   onPress={openNoteBottomSheet}
                 />
               )}
@@ -429,7 +429,7 @@ export default function EditOrderDetailScreen() {
               <Button
                 label={t("orders:edit.saveChanges")}
                 onPress={onUpdateOrderDetail}
-                leftIcon="save-outline"
+                leftIcon="save"
                 style={tw`flex-1`}
               />
             </ThemedView>

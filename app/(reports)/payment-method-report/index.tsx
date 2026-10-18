@@ -2,7 +2,7 @@ import React, { useCallback, useState, useMemo } from "react";
 import { ScrollView, RefreshControl, Alert } from "react-native";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import {
@@ -193,8 +193,8 @@ export default function PaymentMethodReportScreen() {
           </ThemedView>
         ) : (
           <ThemedView style={tw`py-12 items-center`}>
-            <Ionicons
-              name="wallet-outline"
+            <Icon
+              name="wallet"
               size={60}
               color={tw.color("gray-400")}
             />

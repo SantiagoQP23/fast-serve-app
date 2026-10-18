@@ -28,7 +28,7 @@ function MyOrdersHeaderRight() {
       {haveAnOpenOrder && (
         <ThemedView style={tw``}>
           <IconButton
-            icon="cart-outline"
+            icon="shopping-cart"
             onPress={() => router.push("/(new-order)/cart")}
           />
           <NotificationBadge value={details.length} />
@@ -51,7 +51,7 @@ function AllOrdersHeaderRight() {
   return (
     <ThemedView style={tw`mr-4`}>
       <IconButton
-        icon="cart-outline"
+        icon="shopping-cart"
         onPress={() => router.push("/(new-order)/cart")}
       />
       <NotificationBadge value={details.length} />

@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { ScrollView, Pressable, View } from "react-native";
 import { router } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import {
   BottomSheetView,
   type BottomSheetMethods,
@@ -87,7 +87,7 @@ export default function MenuProductDetailView({
   const { t } = useTranslation("menuManagement");
   const Container = embedded ? ThemedView : ScreenLayout;
   const close = onClose ?? (() => router.back());
-  const backIcon = embedded ? "close" : "arrow-back-outline";
+  const backIcon = embedded ? "x" : "arrow-left";
   const { products, categories } = useMenu();
   const {
     updateProduct,
@@ -389,17 +389,17 @@ export default function MenuProductDetailView({
             hitSlop={12}
             style={({ pressed }) => tw.style(pressed && "opacity-70")}
           >
-            <Ionicons name={backIcon} color={tw.color("on-surface")} size={24} />
+            <Icon name={backIcon} color={tw.color("on-surface")} size={24} />
           </Pressable>
         </ThemedView>
         <ThemedView style={tw`items-center py-8 gap-3`}>
-          <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+          <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
           <ThemedText type="body1" style={tw`text-gray-500`}>
             {t("products.noProducts")}
           </ThemedText>
           <Button
             label={t("common:actions.goBack")}
-            leftIcon="arrow-back-outline"
+            leftIcon="arrow-left"
             variant="outline"
             onPress={close}
           />
@@ -421,7 +421,7 @@ export default function MenuProductDetailView({
             hitSlop={12}
             style={({ pressed }) => tw.style(pressed && "opacity-70")}
           >
-            <Ionicons name={backIcon} color={tw.color("on-surface")} size={24} />
+            <Icon name={backIcon} color={tw.color("on-surface")} size={24} />
           </Pressable>
         </ThemedView>
 
@@ -460,7 +460,7 @@ export default function MenuProductDetailView({
             <Chip
               variant="filter"
               label={product.category?.name ?? t("products.fields.category")}
-              icon="grid-outline"
+              icon="layout-grid"
               onPress={
                 canManage
                   ? () => categoryPickerRef.current?.present()
@@ -473,7 +473,7 @@ export default function MenuProductDetailView({
                 product.productionArea?.name ??
                 t("products.placeholders.productionArea")
               }
-              icon="construct-outline"
+              icon="wrench"
               onPress={
                 canManage
                   ? () => productionAreaPickerRef.current?.present()
@@ -501,8 +501,8 @@ export default function MenuProductDetailView({
                 <ThemedView
                   style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
                 >
-                  <Ionicons
-                    name="options-outline"
+                  <Icon
+                    name="sliders-horizontal"
                     size={28}
                     color={tw.color("gray-400")}
                   />
@@ -543,8 +543,8 @@ export default function MenuProductDetailView({
                             tw.style("p-2.5 -ml-2.5", pressed && "opacity-60")
                           }
                         >
-                          <Ionicons
-                            name={option.isDefault ? "star" : "star-outline"}
+                          <Icon
+                            name={option.isDefault ? "star" : "star"}
                             size={22}
                             color={tw.color("gray-400")}
                           />
@@ -612,19 +612,19 @@ export default function MenuProductDetailView({
           <FloatingToolbar
             items={[
               {
-                icon: "create-outline",
+                icon: "square-pen",
                 onPress: handleEditProduct,
               },
               {
-                icon: product.isActive ? "eye-off-outline" : "eye-outline",
+                icon: product.isActive ? "eye-off" : "eye",
                 onPress: handleToggleProductActive,
               },
               {
-                icon: "trash-outline",
+                icon: "trash",
                 onPress: () => setProductDeleteVisible(true),
               },
               {
-                icon: "ellipsis-horizontal-outline",
+                icon: "ellipsis",
                 onPress: handleOpenMoreProductActions,
               },
             ]}
@@ -714,7 +714,7 @@ export default function MenuProductDetailView({
           title={product.name}
           items={[
             {
-              icon: "copy-outline",
+              icon: "copy",
               label: t("products.duplicate"),
               onPress: handleDuplicateProduct,
             },
@@ -745,7 +745,7 @@ export default function MenuProductDetailView({
 
               <IconButton
                 icon={
-                  selectedOption.isActive ? "eye-outline" : "eye-off-outline"
+                  selectedOption.isActive ? "eye" : "eye-off"
                 }
                 onPress={handleToggleOptionActive}
                 variant="surface"
@@ -760,7 +760,7 @@ export default function MenuProductDetailView({
             ) : (
               <Button
                 label={t("products.variants.configureInventory")}
-                leftIcon="cube-outline"
+                leftIcon="package"
                 variant="outline"
                 onPress={handleOpenInventoryConfig}
               />
@@ -775,7 +775,7 @@ export default function MenuProductDetailView({
               />
               <Button
                 label={t("edit")}
-                leftIcon="create"
+                leftIcon="square-pen"
                 variant="secondary"
                 onPress={handleOpenEditOption}
                 size="small"

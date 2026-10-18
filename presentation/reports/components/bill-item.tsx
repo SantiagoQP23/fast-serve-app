@@ -1,7 +1,7 @@
 import React from "react";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency, getPaymentMethodInfo } from "@/core/i18n/utils";
@@ -45,7 +45,7 @@ export default function BillItem({ bill }: BillItemProps) {
             <ThemedView
               style={tw`w-7 h-7 rounded-full  items-center justify-center`}
             >
-              <Ionicons
+              <Icon
                 name={paymentInfo.icon}
                 size={16}
                 color={paymentInfo.color}
@@ -59,8 +59,8 @@ export default function BillItem({ bill }: BillItemProps) {
 
         {/* Time */}
         <ThemedView style={tw`flex-row items-center gap-1.5 bg-transparent`}>
-          <Ionicons
-            name="time-outline"
+          <Icon
+            name="clock"
             size={14}
             color={tw.color("gray-500")}
           />

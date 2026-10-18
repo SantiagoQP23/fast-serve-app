@@ -1,5 +1,5 @@
 import { Platform, ScrollView } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
@@ -81,7 +81,7 @@ export default function SubscriptionScreen() {
                 {subscription.status === "TRIAL" &&
                   subscription.trialEndsAt && (
                     <ThemedView style={tw`flex-row items-center gap-2`}>
-                      <Ionicons name="time-outline" color={tw.color("on-surface")} size={16} />
+                      <Icon name="clock" color={tw.color("on-surface")} size={16} />
                       <ThemedText type="body2" style={tw`text-gray-500`}>
                         {t("manage.subscription.trialEnds", {
                           date: new Date(
@@ -94,7 +94,7 @@ export default function SubscriptionScreen() {
 
                 {subscription.currentPeriodEnd && (
                   <ThemedView style={tw`flex-row items-center gap-2`}>
-                    <Ionicons name="calendar-outline" color={tw.color("on-surface")} size={16} />
+                    <Icon name="calendar" color={tw.color("on-surface")} size={16} />
                     <ThemedText type="body2" style={tw`text-gray-500`}>
                       {t("manage.subscription.periodEnds")}:{" "}
                       {new Date(
@@ -173,8 +173,8 @@ export default function SubscriptionScreen() {
                             key={limit.id}
                             style={tw`flex-row items-center gap-2`}
                           >
-                            <Ionicons
-                              name="checkmark-circle"
+                            <Icon
+                              name="circle-check"
                               size={18}
                               color={tw.color("green-500")}
                             />

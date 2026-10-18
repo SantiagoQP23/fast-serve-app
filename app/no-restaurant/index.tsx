@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { toast } from "sonner-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 
 import tw from "@/presentation/theme/lib/tailwind";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
@@ -33,8 +33,8 @@ export default function NoRestaurantScreen() {
     <ScreenLayout style={tw`flex-1 px-6`}>
       <ThemedView style={tw`flex-1 justify-center gap-8`}>
         <ThemedView style={tw`items-center gap-2`}>
-          <Ionicons
-            name="restaurant-outline"
+          <Icon
+            name="utensils"
             size={64}
             color={tw.color("primary")}
           />
@@ -52,8 +52,8 @@ export default function NoRestaurantScreen() {
               <ThemedView
                 style={tw`w-12 h-12 rounded-full bg-primary/10 items-center justify-center`}
               >
-                <Ionicons
-                  name="business-outline"
+                <Icon
+                  name="building"
                   size={24}
                   color={tw.color("primary")}
                 />
@@ -78,8 +78,8 @@ export default function NoRestaurantScreen() {
               <ThemedView
                 style={tw`w-12 h-12 rounded-full bg-primary/10 items-center justify-center`}
               >
-                <Ionicons
-                  name="qr-code-outline"
+                <Icon
+                  name="qr-code"
                   size={24}
                   color={tw.color("primary")}
                 />

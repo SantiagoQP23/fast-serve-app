@@ -13,7 +13,7 @@ import ProgressBar from "@/presentation/theme/components/progress-bar";
 import { getRelativeTime } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import dayjs from "dayjs";
 import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
@@ -85,14 +85,14 @@ export default function OrderCard({ order }: OrderCardProps) {
               <OrderSyncLabel orderId={order.id} />
             </ThemedView>
             <Label
-              leftIcon="time"
+              leftIcon="clock"
               text={dayjs(order.deliveryTime).format("HH:mm")}
               color="default"
               variant="solid"
               size="small"
             />
             {/* <ThemedView style={tw`flex-row items-center  gap-1`}> */}
-            {/*   <Ionicons name="time" size={14} color={tw.color("gray-500")} /> */}
+            {/*   <Icon name="time" size={14} color={tw.color("gray-500")} /> */}
             {/*   <ThemedText type="small"> */}
             {/*     {dayjs(order.deliveryTime).format("HH:mm")} */}
             {/*   </ThemedText> */}
@@ -159,7 +159,7 @@ export default function OrderCard({ order }: OrderCardProps) {
               {/*       • */}
               {/*     </ThemedText> */}
               {/*     <ThemedText type="body2" style={tw`text-gray-600`}> */}
-              {/*       <Ionicons */}
+              {/*       <Icon */}
               {/*         name="cart-outline" */}
               {/*         size={18} */}
               {/*         color={tw.color("gray-600")} */}
@@ -176,8 +176,8 @@ export default function OrderCard({ order }: OrderCardProps) {
               {/* </ThemedText> */}
 
               <ThemedText type="body2" style={tw`text-gray-600`}>
-                <Ionicons
-                  name="people-outline"
+                <Icon
+                  name="users"
                   size={18}
                   color={tw.color("gray-600")}
                 />{" "}

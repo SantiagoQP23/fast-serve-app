@@ -3,7 +3,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import Fab from "@/presentation/theme/components/fab";
 import { useTableOrders } from "@/presentation/orders/hooks/useTableOrders";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
@@ -114,8 +114,8 @@ export default function TableOrdersScreen() {
 
           {!hasOrders ? (
             <ThemedView style={tw`items-center justify-center flex-1 gap-4`}>
-              <Ionicons
-                name="restaurant-outline"
+              <Icon
+                name="utensils"
                 size={80}
                 color={tw.color("gray-500")}
               />
@@ -133,7 +133,7 @@ export default function TableOrdersScreen() {
           <NewOrderBottomSheet onCreateOrder={handleNavigate} />
         </ThemedBottomSheetModal>
       </ScreenLayout>
-      <Fab icon="add-outline" onPress={handlePresentModalPress} />
+      <Fab icon="plus" onPress={handlePresentModalPress} />
     </>
   );
 }

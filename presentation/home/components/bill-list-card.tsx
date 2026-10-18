@@ -2,7 +2,7 @@ import React from "react";
 import { Pressable } from "react-native";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useBillsList } from "@/presentation/orders/hooks/useBillsList";
@@ -50,8 +50,8 @@ export default function BillListCard({
             </ThemedView>
           )}
           <Pressable onPress={handleSeeAll} style={tw`p-1`}>
-            <Ionicons
-              name="chevron-forward"
+            <Icon
+              name="chevron-right"
               size={20}
               color={tw.color("gray-500")}
             />
@@ -92,8 +92,8 @@ export default function BillListCard({
         </ThemedView>
       ) : (
         <ThemedView style={tw`py-8 items-center`}>
-          <Ionicons
-            name="receipt-outline"
+          <Icon
+            name="receipt-text"
             size={48}
             color={tw.color("gray-300")}
           />

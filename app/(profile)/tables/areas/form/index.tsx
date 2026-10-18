@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { KeyboardAvoidingView, Platform, Pressable } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -63,7 +63,7 @@ export default function TableAreaFormScreen() {
               onPress={() => router.back()}
               style={({ pressed }) => tw.style(pressed && "opacity-70")}
             >
-              <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+              <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
             </Pressable>
             <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
               {isEditing ? t("areas.editArea") : t("areas.newArea")}
@@ -84,7 +84,7 @@ export default function TableAreaFormScreen() {
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               label={t("areas.name")}
-              icon="albums"
+              icon="gallery-vertical-end"
               placeholder={t("areas.namePlaceholder")}
               onBlur={onBlur}
               value={value}

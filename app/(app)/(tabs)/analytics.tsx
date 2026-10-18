@@ -3,7 +3,7 @@ import { ScrollView, RefreshControl, Alert, Pressable } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { router } from "expo-router";
@@ -225,8 +225,8 @@ export default function AnalyticsScreen() {
                     onPress={() => setShowTotalAmount((prev) => !prev)}
                     hitSlop={8}
                   >
-                    <Ionicons
-                      name={showTotalAmount ? "eye-off-outline" : "eye-outline"}
+                    <Icon
+                      name={showTotalAmount ? "eye-off" : "eye"}
                       size={18}
                       color={tw.color("gray-500")}
                     />
@@ -267,7 +267,7 @@ export default function AnalyticsScreen() {
               <StatsCard
                 title={t("common:stats.ordersQuantity")}
                 value={dashboardStats?.ordersQuantity ?? 0}
-                icon="receipt-outline"
+                icon="receipt-text"
                 loading={isLoadingStats}
               />
               <StatsCard
@@ -277,7 +277,7 @@ export default function AnalyticsScreen() {
                     (order) => order.paymentStatus !== OrderPaymentStatus.PAID,
                   ).length
                 }
-                icon="receipt-outline"
+                icon="receipt-text"
                 loading={isLoadingStats}
               />
             </ThemedView>
@@ -287,7 +287,7 @@ export default function AnalyticsScreen() {
               <StatsCard
                 title={t("common:stats.averageOrderAmount")}
                 value={formatCurrency(dashboardStats?.averageOrderAmount ?? 0)}
-                icon="calculator-outline"
+                icon="calculator"
                 loading={isLoadingStats}
               />
             </ThemedView>
@@ -297,13 +297,13 @@ export default function AnalyticsScreen() {
               <StatsCard
                 title={t("common:stats.salesQuantity")}
                 value={dashboardStats?.salesQuantity ?? 0}
-                icon="cash-outline"
+                icon="banknote"
                 loading={isLoadingStats}
               />
               <StatsCard
                 title={t("common:stats.totalSales")}
                 value={formatCurrency(dashboardStats?.totalSales ?? 0)}
-                icon="cash-outline"
+                icon="banknote"
                 loading={isLoadingStats}
               />
             </ThemedView>
@@ -385,8 +385,8 @@ export default function AnalyticsScreen() {
         <ThemedView style={tw`px-4`}>
           <Card onPress={() => router.push("/(profile)/history")}>
             <ThemedView style={tw`flex-row items-center gap-3`}>
-              <Ionicons
-                name="time-outline"
+              <Icon
+                name="clock"
                 size={22}
                 color={tw.color("gray-500")}
               />
@@ -395,8 +395,8 @@ export default function AnalyticsScreen() {
                   {t("common:stats.orderHistory")}
                 </ThemedText>
               </ThemedView>
-              <Ionicons
-                name="chevron-forward-outline"
+              <Icon
+                name="chevron-right"
                 size={20}
                 color={tw.color("gray-400")}
               />

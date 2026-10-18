@@ -1,5 +1,5 @@
 import { Pressable } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 
 interface Props {
@@ -10,8 +10,8 @@ interface Props {
 export default function PasswordVisibilityToggle({ visible, onToggle }: Props) {
   return (
     <Pressable onPress={onToggle}>
-      <Ionicons
-        name={visible ? "eye-off-outline" : "eye-outline"}
+      <Icon
+        name={visible ? "eye-off" : "eye"}
         size={20}
         style={{ color: tw.color("gray-400") }}
       />

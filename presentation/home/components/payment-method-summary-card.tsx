@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Pressable } from "react-native";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import {
@@ -70,8 +70,8 @@ export default function PaymentMethodSummaryCard({
           onPress={() => setShowTotalIncome((prev) => !prev)}
           hitSlop={8}
         >
-          <Ionicons
-            name={showTotalIncome ? "eye-off-outline" : "eye-outline"}
+          <Icon
+            name={showTotalIncome ? "eye-off" : "eye"}
             size={18}
             color={tw.color("gray-500")}
           />

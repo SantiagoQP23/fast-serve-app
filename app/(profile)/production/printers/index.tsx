@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { ScrollView, RefreshControl, ActivityIndicator } from "react-native";
 import { router } from "expo-router";
 import { toast } from "sonner-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -117,7 +117,7 @@ export default function PrintersScreen() {
       >
         {isLoading && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="print-outline" size={48} color={tw.color("gray-400")} />
+            <Icon name="printer" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`text-gray-500`}>
               {t("loading")}
             </ThemedText>
@@ -126,7 +126,7 @@ export default function PrintersScreen() {
 
         {isError && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+            <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
             <ThemedText type="body1" style={tw`text-red-500`}>
               {t("loadError")}
             </ThemedText>
@@ -140,7 +140,7 @@ export default function PrintersScreen() {
 
         {!isLoading && !isError && printers?.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="print-outline" size={48} color={tw.color("gray-400")} />
+            <Icon name="printer" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`font-semibold`}>
               {t("noPrinters")}
             </ThemedText>
@@ -166,8 +166,8 @@ export default function PrintersScreen() {
                   {/* Printer Name & Status */}
                   <ThemedView style={tw`flex-row items-center justify-between`}>
                     <ThemedView style={tw`flex-row  items-center gap-4 flex-1`}>
-                      <Ionicons
-                        name="print-outline"
+                      <Icon
+                        name="printer"
                         size={30}
                         color={tw.color("text-on-surface-variant")}
                       />
@@ -191,7 +191,7 @@ export default function PrintersScreen() {
                       />
                     ) : (
                       <IconButton
-                        icon="flash-outline"
+                        icon="zap"
                         onPress={() => handleTestPrinter(printer.id)}
                         disabled={!!testingPrinterId}
                       />
@@ -204,7 +204,7 @@ export default function PrintersScreen() {
         )}
       </ScrollView>
 
-      {canManage && <Fab icon="add" onPress={handleCreatePrinter} />}
+      {canManage && <Fab icon="plus" onPress={handleCreatePrinter} />}
 
       <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
         {selectedPrinter && (
@@ -216,8 +216,8 @@ export default function PrintersScreen() {
                 </ThemedText>
                 <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
                   <ThemedView style={tw`flex-row items-center gap-1`}>
-                    <Ionicons
-                      name="hardware-chip-outline"
+                    <Icon
+                      name="cpu"
                       size={16}
                       color={tw.color("text-gray-500")}
                     />
@@ -234,7 +234,7 @@ export default function PrintersScreen() {
               </ThemedView>
               <IconButton
                 icon={
-                  selectedPrinter.isActive ? "eye-outline" : "eye-off-outline"
+                  selectedPrinter.isActive ? "eye" : "eye-off"
                 }
                 variant="secondary"
                 onPress={handleToggleActive}
@@ -252,7 +252,7 @@ export default function PrintersScreen() {
               />
               <Button
                 label={t("edit")}
-                leftIcon="create"
+                leftIcon="square-pen"
                 variant="secondary"
                 style={tw`flex-1`}
                 onPress={() => {

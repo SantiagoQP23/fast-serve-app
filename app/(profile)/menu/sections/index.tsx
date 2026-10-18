@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import { router } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -112,7 +112,7 @@ export default function MenuSectionsScreen() {
       >
         {isLoading && sections.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="list-outline" size={48} color={tw.color("gray-400")} />
+            <Icon name="list" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`text-gray-500`}>
               {t("loading")}
             </ThemedText>
@@ -121,7 +121,7 @@ export default function MenuSectionsScreen() {
 
         {isError && sections.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+            <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
             <ThemedText type="body1" style={tw`text-red-500`}>
               {t("loadError")}
             </ThemedText>
@@ -135,7 +135,7 @@ export default function MenuSectionsScreen() {
 
         {!isLoading && !isError && sections.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="list-outline" size={48} color={tw.color("gray-400")} />
+            <Icon name="list" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`font-semibold`}>
               {t("sections.noSections")}
             </ThemedText>
@@ -158,8 +158,8 @@ export default function MenuSectionsScreen() {
                 >
                   <ThemedView style={tw`flex-row items-center justify-between`}>
                     <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
-                      <Ionicons
-                        name="list-outline"
+                      <Icon
+                        name="list"
                         size={28}
                         color={tw.color("text-on-surface-variant")}
                       />
@@ -189,7 +189,7 @@ export default function MenuSectionsScreen() {
         )}
       </ScrollView>
 
-      {canManage && <Fab icon="add" onPress={handleCreateSection} />}
+      {canManage && <Fab icon="plus" onPress={handleCreateSection} />}
 
       <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
         {selectedSection && (
@@ -201,8 +201,8 @@ export default function MenuSectionsScreen() {
                 </ThemedText>
                 <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
                   <ThemedView style={tw`flex-row items-center gap-1`}>
-                    <Ionicons
-                      name="list-outline"
+                    <Icon
+                      name="list"
                       size={16}
                       color={tw.color("text-gray-500")}
                     />
@@ -216,7 +216,7 @@ export default function MenuSectionsScreen() {
               </ThemedView>
               <IconButton
                 icon={
-                  selectedSection.isActive ? "eye-outline" : "eye-off-outline"
+                  selectedSection.isActive ? "eye" : "eye-off"
                 }
                 variant="secondary"
                 onPress={handleToggleActive}
@@ -234,7 +234,7 @@ export default function MenuSectionsScreen() {
               />
               <Button
                 label={t("edit")}
-                leftIcon="create"
+                leftIcon="square-pen"
                 variant="secondary"
                 style={tw`flex-1`}
                 onPress={() => {

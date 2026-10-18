@@ -36,7 +36,7 @@ export default function PurchaseLineCard({
       renderRightActions={() => (
         <ThemedView style={tw`justify-center items-center px-4`}>
           <IconButton
-            icon="trash-outline"
+            icon="trash"
             onPress={onRemove}
             variant="secondary"
             size={26}

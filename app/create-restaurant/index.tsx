@@ -5,7 +5,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 
 import tw from "@/presentation/theme/lib/tailwind";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
@@ -115,8 +115,8 @@ export default function CreateRestaurantScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <ThemedView style={tw`items-center gap-2`}>
-            <Ionicons
-              name="business-outline"
+            <Icon
+              name="building"
               size={64}
               color={tw.color("primary")}
             />
@@ -136,7 +136,7 @@ export default function CreateRestaurantScreen() {
                 <TextInput
                   label={t("createRestaurant.name")}
                   placeholder={t("createRestaurant.namePlaceholder")}
-                  icon="business-outline"
+                  icon="building"
                   autoCapitalize="words"
                   onBlur={onBlur}
                   value={value}
@@ -170,7 +170,7 @@ export default function CreateRestaurantScreen() {
                 <TextInput
                   label={t("createRestaurant.email")}
                   placeholder={t("createRestaurant.emailPlaceholder")}
-                  icon="mail-outline"
+                  icon="mail"
                   keyboardType="email-address"
                   autoCapitalize="none"
                   onBlur={onBlur}
@@ -188,7 +188,7 @@ export default function CreateRestaurantScreen() {
                 <TextInput
                   label={t("createRestaurant.address")}
                   placeholder={t("createRestaurant.addressPlaceholder")}
-                  icon="location-outline"
+                  icon="map-pin"
                   onBlur={onBlur}
                   value={value}
                   onChangeText={onChange}
@@ -204,7 +204,7 @@ export default function CreateRestaurantScreen() {
                 <TextInput
                   label={t("createRestaurant.tablesQuantity")}
                   placeholder={t("createRestaurant.tablesQuantityPlaceholder")}
-                  icon="grid-outline"
+                  icon="layout-grid"
                   keyboardType="number-pad"
                   onBlur={onBlur}
                   value={value?.toString()}

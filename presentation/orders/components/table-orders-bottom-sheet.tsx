@@ -108,7 +108,7 @@ const TableOrdersBottomSheet = ({
 
           <ThemedView>
             <Button
-              leftIcon="add-circle-outline"
+              leftIcon="circle-plus"
               label="Add order "
               onPress={() =>
                 validateNewOrder() && onCreateOrder && onCreateOrder()

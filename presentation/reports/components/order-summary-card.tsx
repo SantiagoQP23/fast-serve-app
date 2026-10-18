@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Pressable } from "react-native";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
@@ -59,8 +59,8 @@ export default function OrderSummaryCard({ order }: OrderSummaryCardProps) {
           <ThemedView
             style={tw`flex-row items-center gap-1 bg-green-50 px-2 rounded-full`}
           >
-            <Ionicons
-              name="checkmark-circle"
+            <Icon
+              name="circle-check"
               size={14}
               color={tw.color("green-600")}
             />
@@ -79,7 +79,7 @@ export default function OrderSummaryCard({ order }: OrderSummaryCardProps) {
               <ThemedText type="caption" style={tw`font-semibold `}>
                 {t("reports:billDetails.title", { count: order.bills.length })}
               </ThemedText>
-              <Ionicons
+              <Icon
                 name={billsExpanded ? "chevron-up" : "chevron-down"}
                 size={16}
                 color={tw.color("gray-500")}

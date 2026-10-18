@@ -13,7 +13,7 @@ export default function OrderDeliveryTimeLabel({
 
   return (
     <Label
-      leftIcon="time-outline"
+      leftIcon="clock"
       text={dayjs(deliveryTime).format("HH:mm")}
       color={shouldShow ? elapsedColor : "default"}
       variant={shouldShow ? "solid" : "soft"}

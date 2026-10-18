@@ -10,17 +10,17 @@ export function useOrderPaymentStatus(
     [OrderPaymentStatus.PAID]: {
       color: "success" as const,
       text: t("bills:details.paid"),
-      icon: "checkmark-circle-outline" as const,
+      icon: "circle-check" as const,
     },
     [OrderPaymentStatus.PARTIALLY_PAID]: {
       color: "info" as const,
       text: t("bills:details.partiallyPaid"),
-      icon: "hourglass-outline" as const,
+      icon: "hourglass" as const,
     },
     [OrderPaymentStatus.UNPAID]: {
       color: "warning" as const,
       text: t("bills:details.unpaid"),
-      icon: "time-outline" as const,
+      icon: "clock" as const,
     },
   };
 

@@ -15,7 +15,7 @@ export default function OrderElapsedTimeLabel({
 
   return (
     <Label
-      leftIcon="timer-outline"
+      leftIcon="timer"
       text={elapsedLabel}
       color={elapsedColor}
       variant="solid"

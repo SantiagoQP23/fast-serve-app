@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ScrollView, RefreshControl, Pressable } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { toast } from "sonner-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -216,7 +216,7 @@ export default function MenuProductOptionRecipeScreen() {
           onPress={() => router.back()}
           style={({ pressed }) => tw.style(pressed && "opacity-70")}
         >
-          <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+          <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
         </Pressable>
         {(params.productName || params.productOptionName) && (
           <ThemedView style={tw`gap-0.5`}>
@@ -262,7 +262,7 @@ export default function MenuProductOptionRecipeScreen() {
 
         {recipesQuery.isError && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="alert-circle-outline" size={48} color={tw.color("red-500")} />
+            <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
             <ThemedText type="body1" style={tw`text-red-500`}>
               {t("loadError")}
             </ThemedText>
@@ -278,7 +278,7 @@ export default function MenuProductOptionRecipeScreen() {
           !recipesQuery.isError &&
           lines.length === 0 && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Ionicons name="restaurant-outline" size={48} color={tw.color("gray-400")} />
+              <Icon name="utensils" size={48} color={tw.color("gray-400")} />
               <ThemedText type="body1" style={tw`font-semibold`}>
                 {t("recipe.empty")}
               </ThemedText>

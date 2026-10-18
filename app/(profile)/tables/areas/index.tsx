@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ScrollView } from "react-native";
 import { router, useNavigation } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -40,7 +40,7 @@ export default function TableAreasSettingsScreen() {
         ? () => (
             <Button
               label={t("areas.reorder")}
-              leftIcon="swap-vertical-outline"
+              leftIcon="arrow-up-down"
               variant="surface"
               size="extra-small"
               onPress={() =>
@@ -90,7 +90,7 @@ export default function TableAreasSettingsScreen() {
       >
         {sortedAreas.length === 0 ? (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Ionicons name="albums-outline" size={48} color={tw.color("gray-400")} />
+            <Icon name="gallery-vertical-end" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`font-semibold`}>
               {t("areas.noAreas")}
             </ThemedText>
@@ -109,8 +109,8 @@ export default function TableAreasSettingsScreen() {
               style={!area.isActive && tw`opacity-50`}
             >
               <ThemedView style={tw`flex-row items-center gap-4`}>
-                <Ionicons
-                  name="albums-outline"
+                <Icon
+                  name="gallery-vertical-end"
                   size={28}
                   color={tw.color("text-on-surface-variant")}
                 />
@@ -127,7 +127,7 @@ export default function TableAreasSettingsScreen() {
         )}
       </ScrollView>
 
-      <Fab icon="add" onPress={() => openForm()} />
+      <Fab icon="plus" onPress={() => openForm()} />
 
       <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
         {selectedArea && (
@@ -144,7 +144,7 @@ export default function TableAreasSettingsScreen() {
                 </ThemedText>
               </ThemedView>
               <IconButton
-                icon={selectedArea.isActive ? "eye-outline" : "eye-off-outline"}
+                icon={selectedArea.isActive ? "eye" : "eye-off"}
                 variant="secondary"
                 onPress={handleToggleActive}
               />
@@ -161,7 +161,7 @@ export default function TableAreasSettingsScreen() {
               />
               <Button
                 label={t("areas.edit")}
-                leftIcon="create"
+                leftIcon="square-pen"
                 variant="secondary"
                 style={tw`flex-1`}
                 onPress={() => {

@@ -4,7 +4,7 @@ import Card from "@/presentation/theme/components/card";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { router } from "expo-router";
 import React from "react";
 import { useOrderStatus } from "@/presentation/orders/hooks/useOrderStatus";
@@ -57,8 +57,8 @@ export default function ClosedOrderCard({ order }: ClosedOrderCardProps) {
           >
             <ThemedView style={tw`flex-row items-center bg-transparent gap-3`}>
               <ThemedText type="body2" style={tw`text-gray-600`}>
-                <Ionicons
-                  name="people-outline"
+                <Icon
+                  name="users"
                   size={18}
                   color={tw.color("gray-600")}
                 />{" "}

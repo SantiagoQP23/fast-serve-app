@@ -9,7 +9,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { router } from "expo-router";
 import { Text } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import { typography } from "@/constants/theme";
@@ -116,7 +116,7 @@ export default function OrderCompactCard({ order }: OrderCompactCardProps) {
             : t("common:labels.takeAway")}
         </ThemedText>
         {syncState && (
-          <Ionicons
+          <Icon
             accessibilityLabel={
               syncState === "failed"
                 ? t("orders:offline.syncFailed")
@@ -124,8 +124,8 @@ export default function OrderCompactCard({ order }: OrderCompactCardProps) {
             }
             name={
               syncState === "failed"
-                ? "alert-circle-outline"
-                : "cloud-upload-outline"
+                ? "circle-alert"
+                : "cloud-upload"
             }
             size={16}
             color={tw.color(
@@ -162,8 +162,8 @@ export default function OrderCompactCard({ order }: OrderCompactCardProps) {
 
             return (
               <ThemedView key={detail.id} style={tw`flex-row gap-2`}>
-                <Ionicons
-                  name={isReady ? "checkmark-circle-outline" : "ellipse-outline"}
+                <Icon
+                  name={isReady ? "circle-check" : "circle"}
                   size={16}
                   color={tw.color(isReady ? "emerald-600" : "gray-500")}
                   style={tw`mt-[2px]`}

@@ -21,7 +21,7 @@ export default function TablesLayout() {
           title: "",
           headerShadowVisible: false,
           headerLeft: () => (
-            <IconButton icon="arrow-back" onPress={() => router.back()} />
+            <IconButton icon="arrow-left" onPress={() => router.back()} />
           ),
         }}
       />

@@ -12,7 +12,7 @@ import { useRouter } from "expo-router";
 import DashboardBillCard from "@/presentation/home/components/dashboard-bill-card";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 
 import BillsFilterBottomSheet from "@/presentation/orders/components/bills-filter-bottom-sheet";
 import { BillListFiltersDto, BillStatusFilter } from "@/core/orders/dto/bill-list-filters.dto";
@@ -111,8 +111,8 @@ export default function BillsListScreen() {
               hasActiveFilters ? "bg-primary-50" : "bg-gray-100"
             }`}
           >
-            <Ionicons
-              name="filter"
+            <Icon
+              name="funnel"
               size={20}
               color={
                 hasActiveFilters
@@ -171,7 +171,7 @@ export default function BillsListScreen() {
                   <ThemedView
                     style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 border `}
                   >
-                    <Ionicons
+                    <Icon
                       name={getPaymentMethodIcon(
                         filters.paymentMethod as PaymentMethod,
                       )}
@@ -186,8 +186,8 @@ export default function BillsListScreen() {
                         filters.paymentMethod as PaymentMethod,
                       )}
                     </ThemedText>
-                    <Ionicons
-                      name="close-circle"
+                    <Icon
+                      name="circle-x"
                       size={16}
                       color={tw.color("primary")}
                     />
@@ -203,11 +203,11 @@ export default function BillsListScreen() {
                   <ThemedView
                     style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 border border-primary-300`}
                   >
-                    <Ionicons
+                    <Icon
                       name={
                         filters.status === BillStatusFilter.PAID
-                          ? "checkmark-circle-outline"
-                          : "time-outline"
+                          ? "circle-check"
+                          : "clock"
                       }
                       size={14}
                       color={tw.color("primary")}
@@ -220,8 +220,8 @@ export default function BillsListScreen() {
                         ? t("bills:filters.paid")
                         : t("bills:filters.unpaid")}
                     </ThemedText>
-                    <Ionicons
-                      name="close-circle"
+                    <Icon
+                      name="circle-x"
                       size={16}
                       color={tw.color("primary")}
                     />
@@ -237,8 +237,8 @@ export default function BillsListScreen() {
                   <ThemedView
                     style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 border border-primary-300`}
                   >
-                    <Ionicons
-                      name="person-outline"
+                    <Icon
+                      name="user"
                       size={14}
                       color={tw.color("primary")}
                     />
@@ -249,8 +249,8 @@ export default function BillsListScreen() {
                       {availableWaiters.find((w) => w.id === filters.ownerId)
                         ?.fullName || t("bills:filters.waiter")}
                     </ThemedText>
-                    <Ionicons
-                      name="close-circle"
+                    <Icon
+                      name="circle-x"
                       size={16}
                       color={tw.color("primary")}
                     />
@@ -263,8 +263,8 @@ export default function BillsListScreen() {
                 <ThemedView
                   style={tw`flex-row items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 border border-gray-300`}
                 >
-                  <Ionicons
-                    name="refresh-outline"
+                  <Icon
+                    name="refresh-cw"
                     size={14}
                     color={tw.color("gray-700")}
                   />
@@ -315,8 +315,8 @@ export default function BillsListScreen() {
           </ThemedView>
         ) : (
           <ThemedView style={tw`py-20 items-center px-4`}>
-            <Ionicons
-              name="receipt-outline"
+            <Icon
+              name="receipt-text"
               size={64}
               color={tw.color("gray-300")}
             />

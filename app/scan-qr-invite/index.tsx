@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { toast } from "sonner-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import {
   CameraView,
   useCameraPermissions,
@@ -112,7 +112,7 @@ export default function ScanQrInviteScreen() {
     return (
       <ScreenLayout style={tw`flex-1 px-6`}>
         <ThemedView style={tw`flex-1 justify-center items-center gap-4`}>
-          <Ionicons name="camera-outline" size={64} color={tw.color("gray-400")} />
+          <Icon name="camera" size={64} color={tw.color("gray-400")} />
           <ThemedText type="h2" style={tw`text-center`}>
             Permiso de camara
           </ThemedText>
@@ -177,8 +177,8 @@ export default function ScanQrInviteScreen() {
         ) : (
           <ThemedView style={tw`flex-1 px-6 justify-center gap-6`}>
             <ThemedView style={tw`items-center gap-2`}>
-              <Ionicons
-                name="person-circle-outline"
+              <Icon
+                name="circle-user"
                 size={80}
                 color={tw.color("primary")}
               />

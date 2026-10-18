@@ -9,7 +9,7 @@ import {
   ScrollView,
 } from "react-native";
 import { router } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import { toast } from "sonner-native";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
@@ -112,7 +112,7 @@ export default function SetCredentialsScreen() {
                 onPress={() => router.back()}
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
-                <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
+                <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
               </Pressable>
               <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
                 {t("account.setCredentialsTitle")}
@@ -141,7 +141,7 @@ export default function SetCredentialsScreen() {
                 <TextInput
                   label={t("account.username")}
                   autoCapitalize="none"
-                  icon="person-outline"
+                  icon="user"
                   onBlur={onBlur}
                   value={value}
                   onChangeText={onChange}
@@ -158,7 +158,7 @@ export default function SetCredentialsScreen() {
                   label={t("account.newPassword")}
                   autoCapitalize="none"
                   secureTextEntry={!showPassword}
-                  icon="lock-closed-outline"
+                  icon="lock"
                   onBlur={onBlur}
                   value={value}
                   onChangeText={onChange}
@@ -183,7 +183,7 @@ export default function SetCredentialsScreen() {
                   label={t("account.confirmNewPassword")}
                   autoCapitalize="none"
                   secureTextEntry={!showConfirmPassword}
-                  icon="lock-closed-outline"
+                  icon="lock"
                   onBlur={onBlur}
                   value={value}
                   onChangeText={onChange}

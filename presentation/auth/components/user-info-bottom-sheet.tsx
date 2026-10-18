@@ -67,7 +67,7 @@ function UserInfoBottomSheet(
         <Button
           label={t("manage.userInfo.editProfile")}
           onPress={handleEditProfile}
-          leftIcon="person-circle-outline"
+          leftIcon="circle-user"
           variant="secondary"
         />
       </BottomSheetView>
