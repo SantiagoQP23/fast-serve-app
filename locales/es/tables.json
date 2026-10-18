@@ -17,7 +17,6 @@
     "noOrdersDescription": "Esta mesa no tiene pedidos. Cree un nuevo pedido para comenzar.",
     "status": {
       "change": "Cambiar estado",
-      "title": "Estado de la mesa",
       "hasOrders": "Tiene pedidos abiertos. Ciérralos para poder ponerla disponible.",
       "offline": "Necesitas conexión para cambiar el estado de la mesa",
       "error": "No se pudo cambiar el estado de la mesa"

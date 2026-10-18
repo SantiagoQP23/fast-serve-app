@@ -17,7 +17,6 @@
     "noOrdersDescription": "This table has no orders. Create a new order to get started.",
     "status": {
       "change": "Change status",
-      "title": "Table status",
       "hasOrders": "It has open orders. Close them to make it available.",
       "offline": "You need a connection to change the table status",
       "error": "Couldn't change the table status"
