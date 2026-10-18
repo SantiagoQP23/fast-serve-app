@@ -210,6 +210,7 @@
     "title": "Order Detail Actions",
     "editQuantity": "Edit Quantity",
     "replaceItem": "Replace Item",
+    "addAgain": "Add Again",
     "deleteItem": "Delete Item",
     "statusTitle": "Status"
   },
@@ -333,6 +334,12 @@
       "updateItems_other": "Change {{count}} items",
       "removeItem": "Remove {{product}}",
       "updateOrder": "Change order details"
+    }
+  },
+  "addAgain": {
+    "reasons": {
+      "NOT_IN_MENU": "This product is no longer on the menu.",
+      "UNAVAILABLE": "This product isn't available right now."
     }
   }
 }

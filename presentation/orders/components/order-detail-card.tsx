@@ -4,10 +4,16 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { View, Pressable, PressableProps, Modal, Alert } from "react-native";
 import {
+  AddAgainBlockReason,
   OrderDetail,
   OrderDetailStatus,
+  getAddAgainBlockReason,
 } from "@/core/orders/models/order-detail.model";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
+import { OrderStatus } from "@/core/orders/enums/order-status.enum";
+import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
+import { useRestaurantSettings } from "@/presentation/restaurant/hooks/useRestaurantSettings";
+import { DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK } from "@/core/restaurant/models/restaurant-settings.model";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
 import { useOrders } from "../hooks/useOrders";
 import { useOrdersStore } from "../store/useOrdersStore";
@@ -57,7 +63,7 @@ export default function OrderDetailCard({
   onStartSelection,
   showAmount = true,
 }: OrderDetailCardProps) {
-  const { t } = useTranslation(["common", "orders"]);
+  const { t } = useTranslation(["common", "orders", "errors"]);
   const order = useOrdersStore((state) => state.activeOrder);
   const [visible, setVisible] = useState(false);
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
@@ -74,6 +80,11 @@ export default function OrderDetailCard({
   const { mutate: updateOrderDetail } = useOrders().updateOrderDetail;
 
   const { mutate: removeOrderDetail } = useOrders().removeOrderDetail;
+  const { mutate: addOrderDetailToOrder } = useOrders().addOrderDetailToOrder;
+  const menuProduct = useMenuStore((state) =>
+    state.products.find((product) => product.id === detail.product.id),
+  );
+  const { settings } = useRestaurantSettings();
   const { statusText, labelColor, statusIconColor } = useOrderDetailStatus(
     detail.status,
   );
@@ -82,8 +93,49 @@ export default function OrderDetailCard({
   // Delivered is gray, matching the "default" label color used for delivered orders.
   const checkboxColor = isDelivered ? "gray-500" : statusIconColor;
 
+  // A cancelled item can be added again while its order is still open.
+  const canAddAgain =
+    isCancelled &&
+    !!order &&
+    !order.isClosed &&
+    order.status !== OrderStatus.CANCELLED;
+
+  const getAddAgainBlockedHint = () => {
+    if (!canAddAgain) return undefined;
+    const blocksWithoutStock =
+      (settings?.ALLOW_ORDERS_WITHOUT_STOCK ??
+        DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK) === false;
+    const blocked = getAddAgainBlockReason(
+      detail,
+      menuProduct,
+      blocksWithoutStock,
+    );
+    if (!blocked) return undefined;
+    if (blocked.reason === AddAgainBlockReason.NO_STOCK)
+      return t("errors:codes.ORDER_INSUFFICIENT_STOCK", {
+        productName: detail.product.name,
+        available: blocked.remaining,
+      });
+    return t(`orders:addAgain.reasons.${blocked.reason}`);
+  };
+
+  const handleAddAgain = () => {
+    if (!order || !canAddAgain) return;
+
+    addOrderDetailToOrder({
+      orderId: order.id,
+      productId: detail.product.id,
+      productOptionId: detail.productOption?.id,
+      quantity: detail.quantity,
+      price: detail.price,
+      description: detail.description,
+      tagIds: detail.tags?.map((tag) => tag.id) ?? [],
+      typeOrderDetail: detail.typeOrderDetail,
+    });
+  };
+
   const handleOpenBottomSheet = () => {
-    if (isCancelled) return;
+    if (isCancelled && !canAddAgain) return;
     bottomSheetModalRef.current?.present();
   };
 
@@ -228,6 +280,8 @@ export default function OrderDetailCard({
           onEditQuantity={handleEditQuantity}
           onReplace={handleReplace}
           onDelete={onRemoveDetail}
+          onAddAgain={canAddAgain ? handleAddAgain : undefined}
+          addAgainBlockedHint={getAddAgainBlockedHint()}
           onClose={handleCloseBottomSheet}
         />
       </ThemedBottomSheetModal>
@@ -290,7 +344,9 @@ export default function OrderDetailCard({
           <Pressable
             onPress={
               isCancelled
-                ? undefined
+                ? canAddAgain
+                  ? handleOpenBottomSheet
+                  : undefined
                 : selectionMode
                   ? () => onToggleSelect?.(detail)
                   : onPress

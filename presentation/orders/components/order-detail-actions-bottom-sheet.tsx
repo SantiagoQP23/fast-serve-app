@@ -2,6 +2,7 @@ import { BottomSheetView } from "@expo/ui/community/bottom-sheet";
 import { Alert, Pressable } from "react-native";
 import {
   OrderDetail,
+  OrderDetailStatus,
   getReplaceBlockReason,
 } from "@/core/orders/models/order-detail.model";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -15,6 +16,9 @@ interface OrderDetailActionsBottomSheetProps {
   onEditQuantity?: () => void;
   onReplace?: () => void;
   onDelete?: () => void;
+  onAddAgain?: () => void;
+  // Why a cancelled item can't be added again; the option is disabled.
+  addAgainBlockedHint?: string;
   onClose?: () => void;
 }
 
@@ -32,6 +36,8 @@ const OrderDetailActionsBottomSheet = ({
   onEditQuantity,
   onReplace,
   onDelete,
+  onAddAgain,
+  addAgainBlockedHint,
   onClose,
 }: OrderDetailActionsBottomSheetProps) => {
   const { t } = useTranslation(["common", "orders"]);
@@ -60,7 +66,32 @@ const OrderDetailActionsBottomSheet = ({
     onReplace?.();
   };
 
-  const options: OptionItem[] = [
+  const handleAddAgain = () => {
+    if (addAgainBlockedHint) return;
+    onClose?.();
+    onAddAgain?.();
+  };
+
+  const productLabel = `${detail.quantity} × ${detail.product.name}${
+    detail.productOption && detail.product.options.length > 1
+      ? ` · ${detail.productOption.name}`
+      : ""
+  }`;
+
+  // A cancelled item can only be added again; everything else is for live items.
+  const cancelledOptions: OptionItem[] = onAddAgain
+    ? [
+        {
+          icon: "undo-2",
+          label: t("orders:detailActions.addAgain"),
+          hint: addAgainBlockedHint ?? productLabel,
+          onPress: handleAddAgain,
+          disabled: !!addAgainBlockedHint,
+        },
+      ]
+    : [];
+
+  const activeOptions: OptionItem[] = [
     {
       icon: "square-pen",
       label: t("orders:detailActions.editQuantity"),
@@ -86,6 +117,11 @@ const OrderDetailActionsBottomSheet = ({
       disabled: detail.qtyDelivered > 0,
     },
   ];
+
+  const options =
+    detail.status === OrderDetailStatus.CANCELLED
+      ? cancelledOptions
+      : activeOptions;
 
   return (
     <BottomSheetView style={tw`px-4 pb-6`}>
