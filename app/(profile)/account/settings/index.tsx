@@ -1,4 +1,4 @@
-import { ScrollView } from "react-native";
+import { Linking, ScrollView } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import Button from "@/presentation/theme/components/button";
@@ -21,6 +21,8 @@ import { toast } from "sonner-native";
 import { translateErrorCode } from "@/core/api/get-error-message";
 import Label from "@/presentation/theme/components/label";
 import Card from "@/presentation/theme/components/card";
+import Switch from "@/presentation/theme/components/switch";
+import { useNotificationsStore } from "@/presentation/shared/store/useNotificationsStore";
 import { useThemeStore } from "@/presentation/theme/store/useThemeStore";
 import { palettes, themeSwatches, type ThemeName } from "@/constants/theme";
 import BottomSheetPicker, {
@@ -30,12 +32,29 @@ import BottomSheetPicker, {
 export default function SettingsScreen() {
   const { t } = useTranslation("auth");
   const [visible, setVisible] = useState(false);
+  const [blockedVisible, setBlockedVisible] = useState(false);
   const { logout, updateLanguage } = useAuthStore();
   const language = useGlobalStore((state) => state.language);
   const languagePickerRef = useRef<BottomSheetPickerRef>(null);
   const theme = useThemeStore((state) => state.theme);
   const setTheme = useThemeStore((state) => state.setTheme);
   const themePickerRef = useRef<BottomSheetPickerRef>(null);
+  const notificationsEnabled = useNotificationsStore((state) => state.enabled);
+  const setNotificationsEnabled = useNotificationsStore(
+    (state) => state.setEnabled,
+  );
+  const notificationPermission = useNotificationsStore(
+    (state) => state.permission,
+  );
+  const canAskAgain = useNotificationsStore((state) => state.canAskAgain);
+  const requestNotificationPermission = useNotificationsStore(
+    (state) => state.requestPermission,
+  );
+  // Once the OS stops asking, only the system settings can allow them again.
+  const notificationsBlocked =
+    notificationPermission === "denied" && !canAskAgain;
+  const notificationsOn =
+    notificationsEnabled && notificationPermission === "granted";
   // Logging out drops the changes this phone hasn't sent yet.
   const unsyncedCount = useOutboxStore((state) => state.operations.length);
 
@@ -63,6 +82,25 @@ export default function SettingsScreen() {
       setTheme(pendingThemeRef.current);
     }
     pendingThemeRef.current = null;
+  };
+
+  const handleNotificationsChange = async (value: boolean) => {
+    if (!value) {
+      setNotificationsEnabled(false);
+      return;
+    }
+
+    if (notificationPermission !== "granted") {
+      if (notificationsBlocked) {
+        setBlockedVisible(true);
+        return;
+      }
+
+      const permission = await requestNotificationPermission();
+      if (permission !== "granted") return;
+    }
+
+    setNotificationsEnabled(true);
   };
 
   const handleLogout = async () => {
@@ -169,6 +207,25 @@ export default function SettingsScreen() {
             onDismiss={handleThemePickerDismiss}
           />
 
+          <Card style={tw`gap-2 p-4 rounded-3xl`}>
+            <Switch
+              label={t("settings.notificationsTitle")}
+              value={notificationsOn}
+              onValueChange={handleNotificationsChange}
+            />
+            <ThemedText type="small">
+              {t("settings.notificationsDescription")}
+            </ThemedText>
+            {notificationsBlocked && (
+              <ThemedView style={tw`flex-row items-center gap-2`}>
+                <Label
+                  text={t("settings.notificationsBlocked")}
+                  color="warning"
+                />
+              </ThemedView>
+            )}
+          </Card>
+
           <Card
             style={tw`gap-2 p-4 rounded-3xl`}
             onPress={() => router.push("/(profile)/account/about")}
@@ -195,6 +252,18 @@ export default function SettingsScreen() {
             }}
           />
         </ThemedView>
+
+        <DialogModal
+          visible={blockedVisible}
+          title={t("settings.notificationsBlockedTitle")}
+          message={t("settings.notificationsBlockedMessage")}
+          onCancel={() => setBlockedVisible(false)}
+          onConfirm={() => {
+            setBlockedVisible(false);
+            Linking.openSettings();
+          }}
+          confirmLabel={t("settings.notificationsOpenSettings")}
+        />
 
         <DialogModal
           visible={visible}
