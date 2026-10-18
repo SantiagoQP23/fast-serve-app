@@ -9,7 +9,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { isAdminLevelRole } from "@/core/auth/models/user.model";
+import { canManageInventory } from "@/core/auth/models/user.model";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
@@ -41,7 +41,7 @@ export default function InventoryItemDetailView({
 }: InventoryItemDetailViewProps) {
   const { t } = useTranslation("inventory");
   const { user } = useAuthStore();
-  const canManage = isAdminLevelRole(user?.role?.name);
+  const canManage = canManageInventory(user?.role?.name);
   const primaryColor = useThemeColor({}, "primary");
 
   const { item, itemQuery, movements, movementsQuery } =
