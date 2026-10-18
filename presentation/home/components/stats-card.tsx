@@ -1,13 +1,15 @@
 import React from "react";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Ionicons, {
+  type IoniconsIconName,
+} from "@react-native-vector-icons/ionicons/static";
 import tw from "@/presentation/theme/lib/tailwind";
 
 interface StatsCardProps {
   title: string;
   value: string | number;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: IoniconsIconName;
   iconColor?: string;
   loading?: boolean;
 }

@@ -1,14 +1,16 @@
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Ionicons, {
+  type IoniconsIconName,
+} from "@react-native-vector-icons/ionicons/static";
 import React from "react";
 import { Pressable, PressableProps } from "react-native";
 
 export interface PaymentMethod {
   name: string;
   value: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: IoniconsIconName;
 }
 
 interface PaymentMethodCardProps extends PressableProps {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Pressable } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -11,7 +11,7 @@ import tw from "../lib/tailwind";
 
 type FabProps = {
   onPress: () => void;
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: IconName;
   label?: string;
   expanded?: boolean;
   color?: string;
@@ -22,7 +22,7 @@ type FabProps = {
 
 export default function Fab({
   onPress,
-  icon = "add",
+  icon = "plus",
   label,
   expanded = true,
   color: colorProp,
@@ -60,7 +60,7 @@ export default function Fab({
         },
       ]}
     >
-      <Ionicons name={icon} size={hasLabel ? 24 : 30} color={color} />
+      <Icon name={icon} size={hasLabel ? 24 : 30} color={color} />
       {hasLabel && (
         <>
           <ThemedText

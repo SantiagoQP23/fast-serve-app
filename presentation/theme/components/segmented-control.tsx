@@ -1,5 +1,5 @@
 import { Pressable, View } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import tw from "../lib/tailwind";
 import { ThemedText, type ThemedTextProps } from "./themed-text";
 import { typography } from "@/constants/theme";
@@ -7,7 +7,7 @@ import { typography } from "@/constants/theme";
 export interface SegmentedControlItem<T extends string> {
   label: string;
   value: T;
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: IconName;
 }
 
 interface SegmentedControlProps<T extends string> {
@@ -73,7 +73,7 @@ export default function SegmentedControl<T extends string>({
             ? (item.icon.replace(
                 /-outline$/,
                 "",
-              ) as keyof typeof Ionicons.glyphMap)
+              ) as IconName)
             : item.icon;
         return (
           <Pressable
@@ -89,7 +89,7 @@ export default function SegmentedControl<T extends string>({
             }
           >
             {iconName && isActive && (
-              <Ionicons name={iconName} size={18} color={iconColor} />
+              <Icon name={iconName} size={18} color={iconColor} />
             )}
             <ThemedText
               type="body2"

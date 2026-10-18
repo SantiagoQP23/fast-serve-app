@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Pressable, ViewStyle } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -12,7 +12,7 @@ import { ThemedText } from "./themed-text";
 import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 export interface ToolbarItem {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: IconName;
   onPress: () => void;
   active?: boolean;
   disabled?: boolean;
@@ -62,7 +62,7 @@ function ToolbarButton({ item, size }: { item: ToolbarItem; size: number }) {
         item.disabled && tw`opacity-40`,
       ]}
     >
-      <Ionicons name={item.icon} size={iconSize} color={color} />
+      <Icon name={item.icon} size={iconSize} color={color} />
       {item.label && (
         <>
           {/* Off-screen measurement pass: lets the animated container below

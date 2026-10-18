@@ -7,7 +7,9 @@ import {
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Ionicons, {
+  type IoniconsIconName,
+} from "@react-native-vector-icons/ionicons/static";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 interface OrderDetailActionsBottomSheetProps {
@@ -19,7 +21,7 @@ interface OrderDetailActionsBottomSheetProps {
 }
 
 interface OptionItem {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: IoniconsIconName;
   label: string;
   hint?: string;
   color?: string;

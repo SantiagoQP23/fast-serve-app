@@ -6,7 +6,7 @@ import {
   StyleProp,
   ViewStyle,
 } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "../lib/tailwind";
 import { ThemedText } from "./themed-text";
 import { typography } from "@/constants/theme";
@@ -115,7 +115,7 @@ export default function Counter({
   return (
     <View style={[tw`flex-row items-center gap-3`, style]}>
       <IconButton
-        icon="remove"
+        icon="minus"
         variant="outlined"
         size={iconSize}
         disabled={!canDecrement}
@@ -163,7 +163,7 @@ export default function Counter({
               >
                 {unit}
               </ThemedText>
-              <Ionicons
+              <Icon
                 name="chevron-down"
                 size={12}
                 color={tw.color("on-surface-variant")}
@@ -184,7 +184,7 @@ export default function Counter({
       </View>
 
       <IconButton
-        icon="add"
+        icon="plus"
         variant="secondary"
         size={iconSize}
         disabled={!canIncrement}

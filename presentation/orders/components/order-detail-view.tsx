@@ -12,7 +12,9 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useNavigation } from "expo-router";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Ionicons, {
+  type IoniconsIconName,
+} from "@react-native-vector-icons/ionicons/static";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
@@ -76,7 +78,7 @@ import { orderNumberText } from "@/presentation/offline/local-order";
 dayjs.extend(relativeTime);
 
 interface MoreOptionItem {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: IoniconsIconName;
   label: string;
   onPress: () => void;
   disabled?: boolean;

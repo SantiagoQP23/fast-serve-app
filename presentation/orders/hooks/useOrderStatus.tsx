@@ -1,5 +1,5 @@
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import type { IoniconsIconName } from "@react-native-vector-icons/ionicons/static";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { LabelProps } from "@/presentation/theme/components/label";
 
@@ -38,7 +38,7 @@ export function useOrderStatus(status: OrderStatus) {
     [OrderStatus.CANCELLED]: "bg-red-500",
   };
 
-  const statusIcons: { [key in OrderStatus]: keyof typeof Ionicons.glyphMap } =
+  const statusIcons: { [key in OrderStatus]: IoniconsIconName } =
     {
       [OrderStatus.PENDING]: "time-outline",
       [OrderStatus.IN_PROGRESS]: "flame-outline",

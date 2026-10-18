@@ -2,7 +2,7 @@
 import React from "react";
 import { Pressable } from "react-native";
 import tw from "../lib/tailwind";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import { ThemedText } from "./themed-text";
 import { typography } from "@/constants/theme";
 import { usePalette } from "@/presentation/theme/store/useThemeStore";
@@ -22,7 +22,7 @@ type ChipProps = {
   disabled?: boolean;
   onPress?: () => void;
   onRemove?: () => void;
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: IconName;
   rightContent?: React.ReactNode;
   leftContent?: React.ReactNode;
 };
@@ -52,13 +52,13 @@ export default function Chip({
   // selected-state checkmark. An explicit `icon` always wins (e.g. a "close"
   // icon on an applied-filter chip means remove, not re-confirm selection).
   const resolvedIcon =
-    icon ?? (filled && !leftContent ? "checkmark" : undefined);
+    icon ?? (filled && !leftContent ? "check" : undefined);
 
   const trailingContent =
     rightContent ??
     (variant === "input" && onRemove ? (
       <Pressable onPress={onRemove} disabled={disabled} hitSlop={8}>
-        <Ionicons name="close" size={16} color={iconColor} />
+        <Icon name="x" size={16} color={iconColor} />
       </Pressable>
     ) : null);
 
@@ -78,7 +78,7 @@ export default function Chip({
     >
       {leftContent}
       {resolvedIcon && (
-        <Ionicons name={resolvedIcon} size={16} color={iconColor} />
+        <Icon name={resolvedIcon} size={16} color={iconColor} />
       )}
       <ThemedText
         type="body2"

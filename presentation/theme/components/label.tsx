@@ -6,7 +6,7 @@ import {
   PressableProps,
 } from "react-native";
 import tw from "../lib/tailwind";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import { typography } from "@/constants/theme";
 import { ThemedView } from "./themed-view";
 import { ThemedText } from "./themed-text";
@@ -15,8 +15,8 @@ export interface LabelProps extends PressableProps {
   label?: string;
   loading?: boolean;
   disabled?: boolean;
-  leftIcon?: keyof typeof Ionicons.glyphMap;
-  rightIcon?: keyof typeof Ionicons.glyphMap;
+  leftIcon?: IconName;
+  rightIcon?: IconName;
   color?:
     | "success"
     | "warning"
@@ -139,7 +139,7 @@ export default function Label({
       ]}
     >
       {icon && (
-        <Ionicons
+        <Icon
           name={icon}
           size={isSmall ? 14 : 18}
           color={tw.color(iconColors[color])}
@@ -155,7 +155,7 @@ export default function Label({
         {text}
       </ThemedText>
       {rightIcon && (
-        <Ionicons
+        <Icon
           name={rightIcon}
           size={isSmall ? 12 : 14}
           color={tw.color(iconColors[color])}

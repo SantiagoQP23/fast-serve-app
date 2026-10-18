@@ -7,7 +7,7 @@ import "dayjs/locale/en";
 import { PaymentMethod } from "../orders/enums/payment-method";
 import { PaymentMethodCategory } from "../restaurant/models/payment-method.model";
 import { Roles } from "../auth/models/user.model";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import type { IoniconsIconName } from "@react-native-vector-icons/ionicons/static";
 
 // Extend dayjs with relativeTime plugin
 dayjs.extend(relativeTime);
@@ -141,7 +141,7 @@ i18n.on("languageChanged", (lng) => {
  */
 
 export interface PaymentMethodInfo {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: IoniconsIconName;
   translationKey: string;
   color: string;
   bgColor: string;
@@ -184,7 +184,7 @@ export const getPaymentMethodTranslationKey = (
  */
 export const getPaymentMethodIcon = (
   method: PaymentMethod | PaymentMethodCategory | string,
-): keyof typeof Ionicons.glyphMap => {
+): IoniconsIconName => {
   switch (method) {
     case PaymentMethod.CASH:
     case PaymentMethodCategory.CASH:

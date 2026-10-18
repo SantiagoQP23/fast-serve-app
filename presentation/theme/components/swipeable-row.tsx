@@ -24,14 +24,14 @@ export default function SwipeableRow({
         <ThemedView style={tw`flex-row items-center gap-2 pl-2 bg-transparent`}>
           {onEdit && (
             <IconButton
-              icon="create-outline"
+              icon="square-pen"
               variant="outlined"
               onPress={onEdit}
             />
           )}
           {onDelete && (
             <IconButton
-              icon="trash-outline"
+              icon="trash"
               variant="destructive"
               onPress={onDelete}
             />

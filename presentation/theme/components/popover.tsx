@@ -9,7 +9,7 @@ import {
   ViewStyle,
   useWindowDimensions,
 } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import Label, { LabelProps } from "@/presentation/theme/components/label";
@@ -19,7 +19,7 @@ import { typography } from "@/constants/theme";
 export interface PopoverItem {
   label: string;
   value?: any;
-  icon?: keyof typeof Ionicons.glyphMap;
+  icon?: IconName;
   /** Renders the item as a soft status `Label` instead of the icon + text. */
   labelColor?: LabelProps["color"];
   onPress: () => void;
@@ -138,7 +138,7 @@ export function PopoverMenu({
             ) : (
               <>
                 {item.icon && (
-                  <Ionicons
+                  <Icon
                     name={item.icon}
                     size={18}
                     color={tw.color("text-on-surface-variant")}
@@ -157,8 +157,8 @@ export function PopoverMenu({
               </>
             )}
             {isSelected && (
-              <Ionicons
-                name="checkmark"
+              <Icon
+                name="check"
                 size={16}
                 color={textColor}
                 style={tw`ml-2`}

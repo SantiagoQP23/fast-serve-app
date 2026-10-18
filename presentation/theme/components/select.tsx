@@ -1,6 +1,6 @@
 import { useRef, useCallback, useState } from "react";
 import { Pressable, View } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "../lib/tailwind";
 import { ThemedText } from "./themed-text";
 import { typography } from "@/constants/theme";
@@ -124,7 +124,7 @@ export default function Select({
               </ThemedText>
             )}
           </View>
-          <Ionicons
+          <Icon
             name="chevron-down"
             size={18}
             style={{ marginLeft: 8, alignSelf: "center" }}

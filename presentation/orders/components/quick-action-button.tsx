@@ -1,12 +1,14 @@
 import { Pressable } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Ionicons, {
+  type IoniconsIconName,
+} from "@react-native-vector-icons/ionicons/static";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 
 interface QuickActionButtonProps {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: IoniconsIconName;
   label: string;
   onPress: () => void;
   disabled?: boolean;

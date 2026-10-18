@@ -6,7 +6,9 @@ import {
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Ionicons, {
+  type IoniconsIconName,
+} from "@react-native-vector-icons/ionicons/static";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { typography } from "@/constants/theme";
@@ -20,7 +22,7 @@ interface OrderDetailStatusModalProps {
 
 interface StatusOption {
   status: OrderDetailStatus;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: IoniconsIconName;
   labelKey: string;
   iconColor: string;
   disabled?: boolean;

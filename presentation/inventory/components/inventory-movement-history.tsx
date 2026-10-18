@@ -1,4 +1,6 @@
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Ionicons, {
+  type IoniconsIconName,
+} from "@react-native-vector-icons/ionicons/static";
 import dayjs from "dayjs";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -20,7 +22,7 @@ interface InventoryMovementHistoryProps {
 const MOVEMENT_VISUALS: Record<
   InventoryMovementType,
   {
-    icon: keyof typeof Ionicons.glyphMap;
+    icon: IoniconsIconName;
     iconColor: string;
     textColor: string;
   }
@@ -101,7 +103,7 @@ const INCREASE_TYPES = new Set<InventoryMovementType>([
 // Fallback for a movement type the frontend doesn't recognize (e.g. a type
 // the backend added that this map hasn't been updated for yet).
 const DEFAULT_VISUAL: {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: IoniconsIconName;
   iconColor: string;
   textColor: string;
 } = {

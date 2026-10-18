@@ -226,13 +226,13 @@ export default function FloatingSearchBar({
             ref={inputRef}
             value={value}
             onChangeText={onChangeText}
-            icon="search-outline"
+            icon="search"
             returnKeyType="search"
             autoCorrect={false}
             trailingIcon={
               value ? (
                 <IconButton
-                  icon="close-circle-outline"
+                  icon="circle-x"
                   onPress={() => {
                     onChangeText("");
                     // Keep typing after clearing.

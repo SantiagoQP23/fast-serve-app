@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Pressable, View } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
+import Icon from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 
@@ -43,8 +43,8 @@ export default function InfoTooltip({ text }: InfoTooltipProps) {
   return (
     <View style={{ position: "relative" }}>
       <Pressable onPress={toggle} hitSlop={8}>
-        <Ionicons
-          name="information-circle-outline"
+        <Icon
+          name="info"
           size={18}
           color={tw.color("gray-400")}
         />
