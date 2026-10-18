@@ -1,9 +1,8 @@
-import { FlatList, RefreshControl, ScrollView, View } from "react-native";
+import { RefreshControl } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 
-import TableCard from "@/presentation/home/components/table-card";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTables } from "@/presentation/tables/hooks/useTables";
@@ -17,14 +16,8 @@ import Button from "@/presentation/theme/components/button";
 import { useTableByStatus } from "@/presentation/orders/hooks/useTableByStatus";
 import { Table } from "@/core/tables/models/table.model";
 import { ViewStyle } from "react-native";
-import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
-import { useTableGroups } from "@/presentation/tables/hooks/useTableGroups";
 import { useTablesStore } from "@/presentation/tables/hooks/useTablesStore";
-
-const PHONE_NUM_COLUMNS = 4;
-const TABLET_MIN_ITEM_WIDTH = 120;
-const HORIZONTAL_PADDING = 16;
-const COLUMN_GAP = 8;
+import TablesGrid from "@/presentation/tables/components/tables-grid";
 
 interface TablesViewProps {
   onTablePress: (table: Table) => void;
@@ -45,15 +38,6 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
   const primaryColor = useThemeColor({}, "primary");
   const [isLoadingTables, setIsLoadingTables] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  // Measured, since the grid may sit in a side pane narrower than the window
-  const { width: windowWidth, isTablet, gridColumns } = useResponsiveLayout();
-  const [containerWidth, setContainerWidth] = useState(0);
-  const gridWidth = (containerWidth || windowWidth) - HORIZONTAL_PADDING * 2;
-  const numColumns = isTablet
-    ? gridColumns(TABLET_MIN_ITEM_WIDTH, COLUMN_GAP, gridWidth)
-    : PHONE_NUM_COLUMNS;
-  const itemWidth = (gridWidth - COLUMN_GAP * (numColumns - 1)) / numColumns;
-
   const tabs: { label: string; value: boolean | "all"; count: number }[] = [
     { label: t("list.filter.all"), value: "all", count: tables.length },
     {
@@ -114,11 +98,9 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
 
   const hasTables = tables.length > 0;
 
-  // Zonas: chips arriba (solo si el restaurante tiene zonas) y, con "Todas",
-  // un encabezado por zona. La zona elegida se recuerda en el teléfono.
-  const { groups, hasAreas, areas } = useTableGroups(filteredTables);
+  // Zonas: la zona elegida se recuerda en el teléfono y el grid muestra solo esa.
+  const areas = useTablesStore((state) => state.areas);
   const storedAreaId = useTablesStore((state) => state.selectedAreaId);
-  const setSelectedAreaId = useTablesStore((state) => state.setSelectedAreaId);
   const visibleAreas = useMemo(
     () =>
       areas.filter((area) => area.isActive).sort((a, b) => a.order - b.order),
@@ -127,35 +109,6 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
   const selectedAreaId = visibleAreas.some((a) => a.id === storedAreaId)
     ? storedAreaId
     : null;
-
-  const listItems = useMemo(() => {
-    const items: (
-      | { type: "header"; key: string; title: string; count: number }
-      | { type: "row"; key: string; tables: Table[] }
-    )[] = [];
-    const shown = selectedAreaId
-      ? groups.filter((group) => group.area?.id === selectedAreaId)
-      : groups;
-    for (const group of shown) {
-      const groupKey = group.area?.id ?? "no-area";
-      if (hasAreas && !selectedAreaId) {
-        items.push({
-          type: "header",
-          key: `header-${groupKey}`,
-          title: group.area?.name ?? t("tables:areas.noArea"),
-          count: group.tables.length,
-        });
-      }
-      for (let i = 0; i < group.tables.length; i += numColumns) {
-        items.push({
-          type: "row",
-          key: `row-${groupKey}-${i}`,
-          tables: group.tables.slice(i, i + numColumns),
-        });
-      }
-    }
-    return items;
-  }, [groups, hasAreas, selectedAreaId, numColumns, t]);
 
   if (!hasTables) {
     return (
@@ -195,10 +148,7 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
   }
 
   return (
-    <ThemedView
-      style={tw.style(`flex-1`, style)}
-      onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
-    >
+    <ThemedView style={tw.style(`flex-1`, style)}>
       {/* <ThemedView style={tw`flex-row mb-4 gap-2 px-4 pt-4`}> */}
       {/*   {tabs.map((tab) => { */}
       {/*     const isActive = tab.value === selectedStatus; */}
@@ -242,42 +192,11 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
       {/*     ))} */}
       {/*   </ScrollView> */}
       {/* )} */}
-      <FlatList
-        data={listItems}
-        keyExtractor={(item) => item.key}
-        renderItem={({ item }) =>
-          item.type === "header" ? (
-            <ThemedView
-              style={{
-                paddingHorizontal: HORIZONTAL_PADDING,
-                paddingTop: COLUMN_GAP,
-                paddingBottom: COLUMN_GAP,
-              }}
-            >
-              <ThemedText type="h4">{item.title} </ThemedText>
-            </ThemedView>
-          ) : (
-            <View
-              style={{
-                flexDirection: "row",
-                gap: COLUMN_GAP,
-                marginBottom: COLUMN_GAP,
-                paddingHorizontal: HORIZONTAL_PADDING,
-              }}
-            >
-              {item.tables.map((table) => (
-                <View key={table.id} style={{ width: itemWidth }}>
-                  <TableCard
-                    table={table}
-                    onPress={() => onTablePress(table)}
-                  />
-                </View>
-              ))}
-            </View>
-          )
-        }
+      <TablesGrid
+        tables={filteredTables}
+        areaId={selectedAreaId}
+        onTablePress={onTablePress}
         contentContainerStyle={tw`pb-20 pt-4`}
-        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

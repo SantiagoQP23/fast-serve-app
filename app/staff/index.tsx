@@ -10,7 +10,8 @@ import { useUsers } from "@/presentation/users/hooks/useUsers";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { translateRole } from "@/core/i18n/utils";
 
-import Button from "@/presentation/theme/components/button";
+import Avatar from "@/presentation/theme/components/avatar";
+import IconButton from "@/presentation/theme/components/icon-button";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
@@ -89,7 +90,16 @@ export default function StaffScreen() {
         <Pressable onPress={() => router.back()}>
           <Ionicons name="arrow-back-outline" color={tw.color("on-surface")} size={24} />
         </Pressable>
-        <ThemedText type="h2">{t("staff.title")}</ThemedText>
+        <ThemedText type="h2" style={tw`flex-1`}>
+          {t("staff.title")}
+        </ThemedText>
+        <IconButton
+          icon="user-plus"
+          size={22}
+          variant="filled"
+          onPress={handlePresentInvite}
+          accessibilityLabel={t("staff.addUser")}
+        />
       </ThemedView>
 
       <ScrollView
@@ -119,11 +129,7 @@ export default function StaffScreen() {
               style={tw`gap-3 flex-row items-center`}
               onPress={() => handlePresentChangeRole(staffMember)}
             >
-              <Ionicons
-                name="person-circle-outline"
-                size={40}
-                color={tw.color("gray-400")}
-              />
+              <Avatar name={staffMember.person?.firstName} size={40} />
               <ThemedView style={tw`flex-1 gap-1`}>
                 <ThemedText type="body1" style={tw``}>
                   {staffMember.person?.firstName} {staffMember.person?.lastName}
@@ -145,14 +151,6 @@ export default function StaffScreen() {
           ))}
         </ThemedView>
       </ScrollView>
-
-      <ThemedView style={tw`pb-6`}>
-        <Button
-          label={t("staff.addUser")}
-          onPress={handlePresentInvite}
-          leftIcon="add-circle-outline"
-        />
-      </ThemedView>
 
       <ThemedBottomSheetModal ref={inviteBottomSheetRef} enablePanDownToClose>
         <InviteStaffBottomSheet

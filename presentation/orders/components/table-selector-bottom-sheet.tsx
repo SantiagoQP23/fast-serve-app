@@ -1,66 +1,79 @@
 import { forwardRef, useImperativeHandle, useMemo, useRef } from "react";
+import {
+  BottomSheetFlatList,
+  BottomSheetView,
+  type BottomSheetMethods,
+} from "@expo/ui/community/bottom-sheet";
 import { Table } from "@/core/tables/models/table.model";
 import { useTablesStore } from "@/presentation/tables/hooks/useTablesStore";
-import { useTableGroups } from "@/presentation/tables/hooks/useTableGroups";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import BottomSheetPicker, {
-  type BottomSheetPickerRef,
-} from "@/presentation/theme/components/bottom-sheet-picker";
+import { typography } from "@/constants/theme";
+import tw from "@/presentation/theme/lib/tailwind";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import { ThemedText } from "@/presentation/theme/components/themed-text";
+import { ThemedView } from "@/presentation/theme/components/themed-view";
+import TablesGrid from "@/presentation/tables/components/tables-grid";
 
 interface TableSelectorBottomSheetProps {
   selectedTableId?: string;
   onSelectTable: (table: Table) => void;
 }
 
-export type TableSelectorBottomSheetRef = BottomSheetPickerRef;
+export type TableSelectorBottomSheetRef = {
+  present: () => void;
+  dismiss: () => void;
+};
 
 const TableSelectorBottomSheet = forwardRef<
   TableSelectorBottomSheetRef,
   TableSelectorBottomSheetProps
 >(({ selectedTableId, onSelectTable }, ref) => {
-  const { t } = useTranslation(["common", "orders", "tables"]);
+  const { t } = useTranslation(["orders"]);
   const tables = useTablesStore((state) => state.tables);
-  const pickerRef = useRef<BottomSheetPickerRef>(null);
+  const sheetRef = useRef<BottomSheetMethods>(null);
 
   useImperativeHandle(ref, () => ({
-    present: () => pickerRef.current?.present(),
-    dismiss: () => pickerRef.current?.dismiss(),
+    present: () => sheetRef.current?.present(),
+    dismiss: () => sheetRef.current?.dismiss(),
   }));
 
   const activeTables = useMemo(
     () => tables.filter((table) => table.isActive !== false),
     [tables],
   );
-  const { groups, hasAreas } = useTableGroups(activeTables);
 
-  // Mesas por zona y orden; encabezado de zona solo si el restaurante tiene zonas.
-  const options = useMemo(
-    () =>
-      groups.flatMap((group) =>
-        group.tables.map((table) => ({
-          label: t("tables:card.table", { name: table.name }),
-          value: table.id,
-          group: hasAreas
-            ? (group.area?.name ?? t("tables:areas.noArea"))
-            : undefined,
-        })),
-      ),
-    [groups, hasAreas, t],
-  );
-
-  const handleChange = (value: string | number) => {
-    const table = tables.find((t) => t.id === value);
-    if (table) onSelectTable(table);
+  const handleTablePress = (table: Table) => {
+    onSelectTable(table);
+    sheetRef.current?.dismiss();
   };
 
   return (
-    <BottomSheetPicker
-      ref={pickerRef}
-      title={t("orders:newOrder.selectTable")}
-      options={options}
-      value={selectedTableId}
-      onChange={handleChange}
-    />
+    <ThemedBottomSheetModal
+      ref={sheetRef}
+      enablePanDownToClose
+      snapPoints={["40%", "70%", "90%"]}
+    >
+      <BottomSheetView>
+        <ThemedView style={tw`px-4 mb-4`}>
+          <ThemedText
+            type="h2"
+            style={[tw`ml-3`, { fontFamily: typography.regular }]}
+            numberOfLines={1}
+          >
+            {t("orders:newOrder.selectTable")}
+          </ThemedText>
+        </ThemedView>
+        <ThemedView style={tw`max-h-[60vh]`}>
+          <TablesGrid
+            tables={activeTables}
+            selectedTableId={selectedTableId}
+            onTablePress={handleTablePress}
+            ListComponent={BottomSheetFlatList}
+            contentContainerStyle={tw`pb-10`}
+          />
+        </ThemedView>
+      </BottomSheetView>
+    </ThemedBottomSheetModal>
   );
 });
 

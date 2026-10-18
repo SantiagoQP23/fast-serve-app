@@ -14,6 +14,8 @@ import { labelSolidStyles } from "@/presentation/theme/components/label";
 
 interface TableCardProps extends PressableProps {
   table: Table;
+  /** Marks the table as the current choice (e.g. in the table selector). */
+  selected?: boolean;
 }
 
 function OrderStatusDot({ order }: { order: Order }) {
@@ -25,7 +27,11 @@ function OrderStatusDot({ order }: { order: Order }) {
   );
 }
 
-export default function TableCard({ table, onPress }: TableCardProps) {
+export default function TableCard({
+  table,
+  onPress,
+  selected = false,
+}: TableCardProps) {
   const { t } = useTranslation(["common", "tables"]);
   const { hasOrders, tableOrders } = useTableOrders(table.id);
   const { isOccupied } = useTableStatus(table.id);
@@ -47,6 +53,13 @@ export default function TableCard({ table, onPress }: TableCardProps) {
         ]}
         variant={isOccupied ? "elevated" : "default"}
       >
+        {/* Overlay instead of a border so selecting doesn't change the card size */}
+        {selected && (
+          <View
+            pointerEvents="none"
+            style={tw`absolute inset-0 rounded-lg border-2 border-primary`}
+          />
+        )}
         <ThemedView
           style={tw`flex-row items-center bg-transparent justify-center`}
         >
