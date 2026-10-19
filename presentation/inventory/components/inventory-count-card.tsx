@@ -17,22 +17,7 @@ import {
 import InventoryCardLines, {
   type InventoryCardLine,
 } from "./inventory-card-lines";
-
-const STATUS_ICONS: Record<
-  InventoryCountItemStatus,
-  Pick<InventoryCardLine, "icon" | "iconColor">
-> = {
-  [InventoryCountItemStatus.ADJUSTED]: {
-    icon: "pencil",
-    iconColor: tw.color("orange-500"),
-  },
-  [InventoryCountItemStatus.MATCHED]: {
-    icon: "circle-check",
-    iconColor: tw.color("emerald-600"),
-  },
-  [InventoryCountItemStatus.PENDING]: { icon: "circle" },
-  [InventoryCountItemStatus.SKIPPED]: { icon: "circle-minus" },
-};
+import { getCountStatusIcon } from "./count-status-icon";
 
 /** Answered lines show what was counted; adjusted ones also the correction. */
 function toCardLine(line: InventoryCountPreviewItem): InventoryCardLine {
@@ -46,12 +31,12 @@ function toCardLine(line: InventoryCountPreviewItem): InventoryCardLine {
     name: line.inventoryItem.name,
     unit: line.inventoryItem.unit,
     quantity: answered ? line.countedQuantity : null,
-    ...STATUS_ICONS[line.status],
+    ...getCountStatusIcon(line.status),
     trailing:
       line.status === InventoryCountItemStatus.ADJUSTED && difference !== 0
         ? {
             text: `${difference > 0 ? "+" : ""}${difference}`,
-            colorClass: difference > 0 ? "text-green-600" : "text-red-600",
+            colorClass: difference > 0 ? "text-emerald-700" : "text-red-700",
           }
         : undefined,
   };

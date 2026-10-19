@@ -310,7 +310,7 @@ export default function MenuInventoryCountRunScreen() {
         <ScrollView
           style={tw`flex-1`}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={tw`gap-3 pb-4`}
+          contentContainerStyle={tw`gap-1 pb-4`}
         >
           {lines.map((line) => (
             <CountLineCard

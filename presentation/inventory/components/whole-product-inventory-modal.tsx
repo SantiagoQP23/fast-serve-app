@@ -5,6 +5,9 @@ import {
   type BottomSheetMethods,
 } from "@expo/ui/community/bottom-sheet";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import BottomSheetPicker, {
+  type BottomSheetPickerRef,
+} from "@/presentation/theme/components/bottom-sheet-picker";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
@@ -13,7 +16,10 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { toast } from "sonner-native";
 import { queryClient } from "@/app/_layout";
-import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
+import {
+  inventoryItemsQueryKey,
+  useInventoryItems,
+} from "@/presentation/inventory/hooks/useInventoryItems";
 import { InventoryUnit } from "@/core/inventory/models/inventory-item.model";
 import { InventoryRecipeService } from "@/presentation/inventory/services/inventory-recipe.service";
 import { getErrorMessage } from "@/core/api/get-error-message";
@@ -28,6 +34,10 @@ interface WholeProductInventoryModalProps {
   onClose: () => void;
 }
 
+/**
+ * Opens a picker of existing unit items first; "Create new inventory item"
+ * moves on to the form that creates one named after the product.
+ */
 export default function WholeProductInventoryModal({
   visible,
   productOptionId,
@@ -36,35 +46,162 @@ export default function WholeProductInventoryModal({
   replaceExisting,
   onClose,
 }: WholeProductInventoryModalProps) {
-  const bottomSheetRef = useRef<BottomSheetMethods>(null);
+  const { t } = useTranslation("inventory");
+  const { items } = useInventoryItems();
+  const itemPickerRef = useRef<BottomSheetPickerRef>(null);
+  const formSheetRef = useRef<BottomSheetMethods>(null);
+  const [isCreatingNewItem, setIsCreatingNewItem] = useState(false);
+  // The picker dismisses itself before handing off to the form; this keeps
+  // that dismissal from closing the whole flow.
+  const isHandingOffToFormRef = useRef(false);
 
   useEffect(() => {
     if (visible) {
-      bottomSheetRef.current?.present();
+      itemPickerRef.current?.present();
     } else {
-      bottomSheetRef.current?.dismiss();
+      itemPickerRef.current?.dismiss();
+      formSheetRef.current?.dismiss();
     }
   }, [visible]);
 
+  useEffect(() => {
+    if (isCreatingNewItem) formSheetRef.current?.present();
+  }, [isCreatingNewItem]);
+
+  // Whole-product tracking is one unit per sale, so only unit items qualify.
+  const uncategorizedLabel = t("categories.uncategorized");
+  const itemOptions = items
+    .filter((item) => item.isActive && item.unit === InventoryUnit.UNIT)
+    .map((item) => ({
+      label: item.name,
+      value: item.id,
+      group: item.category?.name ?? uncategorizedLabel,
+    }))
+    .sort(
+      (a, b) =>
+        a.group.localeCompare(b.group) || a.label.localeCompare(b.label),
+    );
+
+  const handleClose = () => {
+    setIsCreatingNewItem(false);
+    onClose();
+  };
+
+  const handlePickerDismiss = () => {
+    if (isHandingOffToFormRef.current) {
+      isHandingOffToFormRef.current = false;
+      return;
+    }
+    handleClose();
+  };
+
+  const handleCreateNewItem = () => {
+    isHandingOffToFormRef.current = true;
+    setIsCreatingNewItem(true);
+  };
+
+  const handlePickExistingItem = (value: string | number) => {
+    linkExistingItem({
+      productOptionId,
+      inventoryItemId: String(value),
+      replaceExisting,
+      errorMessage: t("recipe.saveError"),
+      successMessage: t("recipe.saveSuccess"),
+    });
+  };
+
   return (
-    <ThemedBottomSheetModal
-      ref={bottomSheetRef}
-      enablePanDownToClose
-      onDismiss={onClose}
-    >
-      <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
-        {visible && (
-          <WholeProductInventoryForm
-            productOptionId={productOptionId}
-            productName={productName}
-            productOptionName={productOptionName}
-            replaceExisting={replaceExisting}
-            onClose={onClose}
-          />
-        )}
-      </BottomSheetView>
-    </ThemedBottomSheetModal>
+    <>
+      <BottomSheetPicker
+        ref={itemPickerRef}
+        title={
+          replaceExisting
+            ? t("wholeProduct.switchTitle")
+            : t("wholeProduct.configureTitle")
+        }
+        options={itemOptions}
+        onChange={handlePickExistingItem}
+        onDismiss={handlePickerDismiss}
+        headerAction={{
+          label: t("recipe.createNewItem"),
+          onPress: handleCreateNewItem,
+        }}
+      />
+
+      <ThemedBottomSheetModal
+        ref={formSheetRef}
+        enablePanDownToClose
+        onDismiss={handleClose}
+      >
+        <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
+          {visible && isCreatingNewItem && (
+            <WholeProductInventoryForm
+              productOptionId={productOptionId}
+              productName={productName}
+              productOptionName={productOptionName}
+              replaceExisting={replaceExisting}
+              onClose={handleClose}
+            />
+          )}
+        </BottomSheetView>
+      </ThemedBottomSheetModal>
+    </>
   );
+}
+
+interface LinkExistingItemParams {
+  productOptionId: number;
+  inventoryItemId: string;
+  replaceExisting?: boolean;
+  errorMessage: string;
+  successMessage: string;
+}
+
+// Runs after the picker has closed, so it takes everything it needs up front
+// instead of reading props that reset once the flow ends.
+async function linkExistingItem({
+  productOptionId,
+  inventoryItemId,
+  replaceExisting,
+  errorMessage,
+  successMessage,
+}: LinkExistingItemParams) {
+  try {
+    const previousLines = replaceExisting
+      ? await InventoryRecipeService.getByProductOption(productOptionId)
+      : [];
+    const existingLine = previousLines.find(
+      (line) =>
+        (line.inventoryItem?.id ?? line.inventoryItemId) === inventoryItemId,
+    );
+
+    // Link first so the option is never left untracked; the ingredient
+    // items themselves stay in the catalog.
+    if (existingLine) {
+      await InventoryRecipeService.update({ id: existingLine.id, quantity: 1 });
+    } else {
+      await InventoryRecipeService.create({
+        productOptionId,
+        inventoryItemId,
+        quantity: 1,
+      });
+    }
+
+    await Promise.all(
+      previousLines
+        .filter((line) => line.id !== existingLine?.id)
+        .map((line) => InventoryRecipeService.remove(line.id)),
+    );
+    toast.success(successMessage);
+  } catch (error) {
+    toast.error(getErrorMessage(error, { fallback: errorMessage }));
+  } finally {
+    queryClient.invalidateQueries({
+      queryKey: ["inventory-recipes", productOptionId],
+    });
+    queryClient.invalidateQueries({ queryKey: inventoryItemsQueryKey });
+    queryClient.invalidateQueries({ queryKey: ["menu"] });
+  }
 }
 
 interface WholeProductInventoryFormProps {

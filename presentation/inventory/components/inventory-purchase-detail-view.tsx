@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import dayjs from "dayjs";
 import { RefreshControl, ScrollView } from "react-native";
 import Icon from "@/presentation/theme/components/icon";
 import { toast } from "sonner-native";
@@ -6,12 +7,21 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatDateTime } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
-import Card from "@/presentation/theme/components/card";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
+import IconButton from "@/presentation/theme/components/icon-button";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import {
+  BottomSheetView,
+  type BottomSheetMethods,
+} from "@expo/ui/community/bottom-sheet";
 import InventoryScreenHeader from "@/presentation/inventory/components/screen-header";
+import InventoryDetailTitle, {
+  formatDetailMoment,
+} from "@/presentation/inventory/components/inventory-detail-title";
+import InventorySectionHeader from "@/presentation/inventory/components/inventory-section-header";
+import InventoryActivity from "@/presentation/inventory/components/inventory-activity";
 import PurchaseLineCard from "@/presentation/inventory/components/purchase-line-card";
 import PurchaseQuantityModal, {
   type PurchaseQuantityTarget,
@@ -43,9 +53,31 @@ export default function InventoryPurchaseDetailView({
   );
   const [lineToRemove, setLineToRemove] =
     useState<InventoryPurchaseItem | null>(null);
+  const hintSheetRef = useRef<BottomSheetMethods>(null);
 
   const lines = purchase?.items ?? [];
   const creator = purchase ? getPurchaseCreatorName(purchase) : null;
+
+  // Editing or removing a line is the only way a purchase changes after
+  // it's registered, so the latest touch on the purchase or any line counts.
+  const updatedAt = purchase
+    ? [purchase.updatedAt, ...lines.map((line) => line.updatedAt)]
+        .filter((date): date is string => !!date)
+        .sort()
+        .pop()
+    : undefined;
+  const wasUpdated =
+    !!purchase &&
+    !!updatedAt &&
+    !dayjs(updatedAt).isSame(purchase.createdAt, "minute");
+  const activity = purchase
+    ? [
+        { label: t("activity.registered"), date: purchase.createdAt },
+        ...(wasUpdated && updatedAt
+          ? [{ label: t("activity.updated"), date: updatedAt }]
+          : []),
+      ]
+    : [];
 
   // The item's stock already includes this line, so the preview starts
   // from the stock it would have without it.
@@ -91,15 +123,22 @@ export default function InventoryPurchaseDetailView({
     <Container style={tw`flex-1 bg-background`}>
       <ThemedView style={tw`px-4 pt-8 bg-transparent`}>
         <InventoryScreenHeader
-          title={t("purchases.detailTitle")}
           onBack={onClose}
           backIcon={embedded ? "x" : "arrow-left"}
+          right={
+            <IconButton
+              icon="info"
+              size={24}
+              accessibilityLabel={t("purchases.hintTitle")}
+              onPress={() => hintSheetRef.current?.present()}
+            />
+          }
         />
       </ThemedView>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`px-4 gap-4 pb-8 pt-6`}
+        contentContainerStyle={tw`px-4 gap-6 pb-10 pt-6`}
         refreshControl={
           <RefreshControl
             refreshing={purchaseQuery.isRefetching}
@@ -129,38 +168,64 @@ export default function InventoryPurchaseDetailView({
 
         {purchase && (
           <>
-            <Card>
+            <InventoryDetailTitle
+              icon="receipt-text"
+              title={t("purchases.name")}
+              subtitle={formatDetailMoment(purchase.createdAt)}
+              chips={
+                creator
+                  ? [
+                      {
+                        icon: "user",
+                        label: t("purchases.registeredBy", { name: creator }),
+                      },
+                    ]
+                  : []
+              }
+            />
+
+            {purchase.note && (
               <ThemedView style={tw`gap-2 bg-transparent`}>
-                <ThemedText type="h4">
-                  {formatDateTime(purchase.createdAt)}
-                </ThemedText>
-                <ThemedText type="small" style={tw`text-gray-500`}>
-                  {t("purchases.productsCount", { count: lines.length })}
-                </ThemedText>
-                {creator && (
-                  <ThemedText type="small" style={tw`text-gray-500`}>
-                    {t("purchases.registeredBy", { name: creator })}
+                <ThemedView
+                  style={tw`flex-row items-center gap-2 bg-transparent`}
+                >
+                  <Icon
+                    name="file-text"
+                    size={16}
+                    color={tw.color("gray-500")}
+                  />
+                  <ThemedText
+                    type="caption"
+                    style={tw`text-gray-500 font-semibold`}
+                  >
+                    {t("common:labels.notes")}
                   </ThemedText>
-                )}
-                {purchase.note && (
-                  <ThemedText type="body2">{purchase.note}</ThemedText>
-                )}
+                </ThemedView>
+                <ThemedText type="body1" style={tw`text-gray-700`}>
+                  {purchase.note}
+                </ThemedText>
               </ThemedView>
-            </Card>
+            )}
 
-            <ThemedText type="small" style={tw`text-gray-500 px-1`}>
-              {t("purchases.editHint")}
-            </ThemedText>
-
-            {lines.map((line) => (
-              <PurchaseLineCard
-                key={line.id}
-                item={line.inventoryItem}
-                quantity={line.quantity}
-                onPress={() => setLineToEdit(line)}
-                onRemove={() => handleRequestRemove(line)}
+            <ThemedView style={tw`gap-4 bg-transparent`}>
+              <InventorySectionHeader
+                title={t("purchases.products")}
+                count={lines.length}
               />
-            ))}
+              <ThemedView style={tw`gap-2 bg-transparent`}>
+                {lines.map((line) => (
+                  <PurchaseLineCard
+                    key={line.id}
+                    item={line.inventoryItem}
+                    quantity={line.quantity}
+                    onPress={() => setLineToEdit(line)}
+                    onRemove={() => handleRequestRemove(line)}
+                  />
+                ))}
+              </ThemedView>
+            </ThemedView>
+
+            <InventoryActivity entries={activity} />
           </>
         )}
       </ScrollView>
@@ -191,6 +256,15 @@ export default function InventoryPurchaseDetailView({
         onConfirm={handleConfirmRemove}
         onCancel={() => setLineToRemove(null)}
       />
+
+      <ThemedBottomSheetModal ref={hintSheetRef} enablePanDownToClose>
+        <BottomSheetView style={tw`px-4 pb-6 gap-2`}>
+          <ThemedText type="h3">{t("purchases.hintTitle")}</ThemedText>
+          <ThemedText type="body1" style={tw`text-gray-500`}>
+            {t("purchases.editHint")}
+          </ThemedText>
+        </BottomSheetView>
+      </ThemedBottomSheetModal>
     </Container>
   );
 }

@@ -301,7 +301,6 @@
     "emptyCart": "Add products to register the purchase",
     "quantityReceived": "Purchased quantity",
     "stockChange": "Stock: {{before}} → {{after}} {{unit}}",
-    "detailTitle": "Purchase detail",
     "registeredBy": "Registered by {{name}}",
     "editHint": "Tap a product to edit its quantity or swipe it to remove it. Stock is adjusted automatically.",
     "removeItemTitle": "Remove product",
@@ -313,7 +312,10 @@
     "updateItemSuccess": "Quantity updated",
     "updateItemError": "Could not update the quantity",
     "removeItemSuccess": "Product removed from the purchase",
-    "removeItemError": "Could not remove the product"
+    "removeItemError": "Could not remove the product",
+    "products": "Products",
+    "name": "Purchase",
+    "hintTitle": "How it works"
   },
   "shoppingList": {
     "title": "Shopping list",
@@ -360,13 +362,10 @@
     "saveQuantity": "Save",
     "adjustedBy": "Adjusted {{difference}} {{unit}}",
     "detailTitle": "Count detail",
-    "summaryLine": "{{products}} products · {{adjusted}} adjusted · {{unanswered}} not counted",
     "productsCount_one": "{{count}} product",
     "productsCount_other": "{{count}} products",
     "progressLine": "{{adjusted}} adjusted · {{unanswered}} not counted",
     "startedBy": "Started by {{name}}",
-    "finishedBy": "Finished by {{name}} on {{date}}",
-    "finishedAt": "Finished on {{date}}",
     "continue": "Continue count",
     "finish": "Finish",
     "summaryHint": "Tap a product to count it or change its answer.",
@@ -388,7 +387,12 @@
     "createError": "Couldn't start the count",
     "answerError": "Couldn't save the product's count",
     "addItemsError": "Couldn't add the products",
-    "completeError": "Couldn't finish the count"
+    "completeError": "Couldn't finish the count",
+    "toCount": "To count",
+    "reviewed": "Reviewed",
+    "adjustedCount_one": "{{count}} adjusted",
+    "adjustedCount_other": "{{count}} adjusted",
+    "name": "Count"
   },
   "tabs": {
     "inventory": "Items",
@@ -402,5 +406,13 @@
   },
   "cards": {
     "moreItems": "+{{count}} more"
+  },
+  "activity": {
+    "title": "Activity",
+    "started": "Started",
+    "finished": "Finished",
+    "finishedBy": "Finished by {{name}}",
+    "registered": "Registered",
+    "updated": "Updated"
   }
 }

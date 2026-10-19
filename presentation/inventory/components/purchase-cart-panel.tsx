@@ -10,6 +10,8 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import InventoryScreenHeader from "@/presentation/inventory/components/screen-header";
+import InventoryDetailTitle from "@/presentation/inventory/components/inventory-detail-title";
+import InventorySectionHeader from "@/presentation/inventory/components/inventory-section-header";
 import PurchaseLineCard from "@/presentation/inventory/components/purchase-line-card";
 import PurchaseQuantityModal, {
   type PurchaseQuantityTarget,
@@ -90,21 +92,28 @@ export default function PurchaseCartPanel({
 
   return (
     <Container style={tw`flex-1 px-4 pt-8 gap-4 bg-background`}>
-      <InventoryScreenHeader
-        title={t("purchases.summaryTitle")}
-        hideBack={embedded}
-      />
-
-      <ThemedText type="small" style={tw`text-gray-500`}>
-        {t("purchases.productsCount", { count: lines.length })}
-      </ThemedText>
+      {!embedded && <InventoryScreenHeader />}
 
       <FlatList
         style={tw`flex-1`}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`gap-4 pb-4`}
+        contentContainerStyle={tw`gap-2 pb-4`}
         data={lines}
         keyExtractor={(line) => line.item.id}
+        ListHeaderComponent={
+          <ThemedView style={tw`gap-6 pb-2 bg-transparent`}>
+            <InventoryDetailTitle
+              icon="shopping-cart"
+              title={t("purchases.summaryTitle")}
+            />
+            {lines.length > 0 && (
+              <InventorySectionHeader
+                title={t("purchases.products")}
+                count={lines.length}
+              />
+            )}
+          </ThemedView>
+        }
         renderItem={({ item: line }) => {
           const item = currentItem(line.item);
           return (
@@ -139,12 +148,12 @@ export default function PurchaseCartPanel({
           </ThemedView>
         }
         ListFooterComponent={
-          <ThemedView style={tw`gap-4 bg-transparent`}>
+          <ThemedView style={tw`gap-4 pt-2 bg-transparent`}>
             {!embedded && (
               <Button
                 leftIcon="plus"
                 label={t("purchases.addProduct")}
-                variant="secondary"
+                variant="text"
                 onPress={handleAddProduct}
               />
             )}

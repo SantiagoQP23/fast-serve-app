@@ -9,7 +9,8 @@ import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 interface InventoryScreenHeaderProps {
-  title: string;
+  /** Omit on detail screens, where the content carries its own title. */
+  title?: string;
   right?: ReactNode;
   /** Defaults to router.back(). */
   onBack?: () => void;
@@ -45,13 +46,17 @@ export default function InventoryScreenHeader({
           <Icon name={backIcon} color={tw.color("on-surface")} size={24} />
         </Pressable>
       )}
-      <ThemedText
-        type="h3"
-        style={{ fontFamily: typography.medium, flex: 1 }}
-        numberOfLines={1}
-      >
-        {title}
-      </ThemedText>
+      {title ? (
+        <ThemedText
+          type="h3"
+          style={{ fontFamily: typography.medium, flex: 1 }}
+          numberOfLines={1}
+        >
+          {title}
+        </ThemedText>
+      ) : (
+        <ThemedView style={tw`flex-1 bg-transparent`} />
+      )}
       {right}
     </ThemedView>
   );

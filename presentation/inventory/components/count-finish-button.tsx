@@ -1,7 +1,9 @@
 import { useState } from "react";
 import type { ViewStyle } from "react-native";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import Button from "@/presentation/theme/components/button";
+import Button, {
+  type ButtonProps,
+} from "@/presentation/theme/components/button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { useInventoryCount } from "@/presentation/inventory/hooks/useInventoryCounts";
 import {
@@ -12,12 +14,14 @@ import {
 interface CountFinishButtonProps {
   countId: string;
   style?: ViewStyle;
+  size?: ButtonProps["size"];
 }
 
 /** Finishes a count, confirming first when some products were never answered. */
 export default function CountFinishButton({
   countId,
   style,
+  size,
 }: CountFinishButtonProps) {
   const { t } = useTranslation("inventory");
   const { count, complete } = useInventoryCount(countId);
@@ -48,6 +52,7 @@ export default function CountFinishButton({
         variant={hasPending ? "outline" : "primary"}
         loading={complete.isPending && !confirmFinish}
         onPress={handleFinish}
+        size={size}
         style={style}
       />
       <DialogModal

@@ -301,7 +301,6 @@
     "emptyCart": "Agrega productos para registrar la compra",
     "quantityReceived": "Cantidad comprada",
     "stockChange": "Stock: {{before}} → {{after}} {{unit}}",
-    "detailTitle": "Detalle de compra",
     "registeredBy": "Registrada por {{name}}",
     "editHint": "Toca un producto para editar la cantidad o deslízalo para eliminarlo. El stock se ajusta automáticamente.",
     "removeItemTitle": "Eliminar producto",
@@ -313,7 +312,10 @@
     "updateItemSuccess": "Cantidad actualizada",
     "updateItemError": "No se pudo actualizar la cantidad",
     "removeItemSuccess": "Producto eliminado de la compra",
-    "removeItemError": "No se pudo eliminar el producto"
+    "removeItemError": "No se pudo eliminar el producto",
+    "products": "Productos",
+    "name": "Compra",
+    "hintTitle": "Cómo funciona"
   },
   "shoppingList": {
     "title": "Lista de compras",
@@ -360,13 +362,10 @@
     "saveQuantity": "Guardar",
     "adjustedBy": "Ajustado {{difference}} {{unit}}",
     "detailTitle": "Detalle del conteo",
-    "summaryLine": "{{products}} productos · {{adjusted}} ajustados · {{unanswered}} sin contar",
     "productsCount_one": "{{count}} producto",
     "productsCount_other": "{{count}} productos",
     "progressLine": "{{adjusted}} ajustados · {{unanswered}} sin contar",
     "startedBy": "Iniciado por {{name}}",
-    "finishedBy": "Finalizado por {{name}} el {{date}}",
-    "finishedAt": "Finalizado el {{date}}",
     "continue": "Continuar conteo",
     "finish": "Finalizar",
     "summaryHint": "Toca un producto para contarlo o corregir su respuesta.",
@@ -388,7 +387,12 @@
     "createError": "No se pudo iniciar el conteo",
     "answerError": "No se pudo guardar el conteo del producto",
     "addItemsError": "No se pudieron añadir los productos",
-    "completeError": "No se pudo finalizar el conteo"
+    "completeError": "No se pudo finalizar el conteo",
+    "toCount": "Por contar",
+    "reviewed": "Revisados",
+    "adjustedCount_one": "{{count}} ajustado",
+    "adjustedCount_other": "{{count}} ajustados",
+    "name": "Conteo"
   },
   "tabs": {
     "inventory": "Insumos",
@@ -402,5 +406,13 @@
   },
   "cards": {
     "moreItems": "+{{count}} más"
+  },
+  "activity": {
+    "title": "Actividad",
+    "started": "Iniciado",
+    "finished": "Finalizado",
+    "finishedBy": "Finalizado por {{name}}",
+    "registered": "Registrada",
+    "updated": "Actualizada"
   }
 }

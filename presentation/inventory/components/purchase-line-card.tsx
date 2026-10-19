@@ -1,10 +1,10 @@
+import { Pressable } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import IconButton from "@/presentation/theme/components/icon-button";
-import Card from "@/presentation/theme/components/card";
 import Label from "@/presentation/theme/components/label";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
 
@@ -18,7 +18,7 @@ interface PurchaseLineCardProps {
 }
 
 /**
- * One received item in a purchase — same swipe-to-remove card as
+ * One received item in a purchase — the same flat swipe-to-remove row as
  * NewOrderDetailCard, but with a decimal quantity in the item's unit.
  */
 export default function PurchaseLineCard({
@@ -34,32 +34,30 @@ export default function PurchaseLineCard({
   return (
     <Swipeable
       renderRightActions={() => (
-        <ThemedView style={tw`justify-center items-center px-4`}>
+        <ThemedView style={tw`justify-center items-center pl-4`}>
           <IconButton
             icon="trash"
             onPress={onRemove}
-            variant="secondary"
+            variant="destructive"
             size={26}
+            accessibilityLabel={t("common:actions.remove")}
           />
         </ThemedView>
       )}
     >
-      <Card onPress={onPress}>
-        <ThemedView style={tw`gap-3 bg-transparent`}>
-          <ThemedView
-            style={tw`flex-row bg-transparent justify-between items-start gap-2`}
-          >
-            <ThemedText type="h4" style={tw`flex-1`} numberOfLines={2}>
-              {item.name}
-            </ThemedText>
-            <Label
-              text={`+${t("quantityWithUnit", { quantity, unit })}`}
-              color="success"
-              size="small"
-            />
-          </ThemedView>
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        style={({ pressed }) =>
+          tw.style("flex-row items-start gap-4 py-2", pressed && "opacity-70")
+        }
+      >
+        <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+          <ThemedText type="body1" numberOfLines={2}>
+            {item.name}
+          </ThemedText>
           {stockPreview && (
-            <ThemedText type="small" style={tw`text-gray-500`}>
+            <ThemedText type="body2" style={tw`text-gray-500`}>
               {t("purchases.stockChange", {
                 before: Number(stockPreview.before.toFixed(3)),
                 after: Number(stockPreview.after.toFixed(3)),
@@ -68,7 +66,12 @@ export default function PurchaseLineCard({
             </ThemedText>
           )}
         </ThemedView>
-      </Card>
+        <Label
+          text={`+${t("quantityWithUnit", { quantity, unit })}`}
+          color="success"
+          size="small"
+        />
+      </Pressable>
     </Swipeable>
   );
 }

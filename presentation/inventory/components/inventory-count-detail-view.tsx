@@ -5,12 +5,16 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatDateTime } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
-import Card from "@/presentation/theme/components/card";
 import Label from "@/presentation/theme/components/label";
+import ProgressBar from "@/presentation/theme/components/progress-bar";
 import InventoryScreenHeader from "@/presentation/inventory/components/screen-header";
+import InventoryDetailTitle, {
+  formatDetailMoment,
+} from "@/presentation/inventory/components/inventory-detail-title";
+import InventorySectionHeader from "@/presentation/inventory/components/inventory-section-header";
+import InventoryActivity from "@/presentation/inventory/components/inventory-activity";
 import CountLineCard from "@/presentation/inventory/components/count-line-card";
 import CountFinishButton from "@/presentation/inventory/components/count-finish-button";
 import { useInventoryCount } from "@/presentation/inventory/hooks/useInventoryCounts";
@@ -18,7 +22,6 @@ import {
   InventoryCountItemStatus,
   InventoryCountStatus,
   getCountUserName,
-  isCountItemAnswered,
   type InventoryCountItem,
 } from "@/core/inventory/models/inventory-count.model";
 
@@ -44,15 +47,43 @@ export default function InventoryCountDetailView({
 
   const lines = count?.items ?? [];
   const inProgress = count?.status === InventoryCountStatus.IN_PROGRESS;
-  const unanswered = lines.filter((line) => !isCountItemAnswered(line));
-  const hasPending = lines.some(
+  const toCount = lines.filter(
     (line) => line.status === InventoryCountItemStatus.PENDING,
   );
+  const reviewed = lines.filter(
+    (line) => line.status !== InventoryCountItemStatus.PENDING,
+  );
+  const hasPending = toCount.length > 0;
   const adjustedCount = lines.filter(
     (line) => line.status === InventoryCountItemStatus.ADJUSTED,
   ).length;
   const creator = count ? getCountUserName(count.createdBy) : null;
   const finisher = count ? getCountUserName(count.completedBy) : null;
+
+  const chips = creator
+    ? [
+        {
+          icon: "user" as const,
+          label: t("counts.startedBy", { name: creator }),
+        },
+      ]
+    : [];
+
+  const activity = count
+    ? [
+        { label: t("activity.started"), date: count.createdAt },
+        ...(count.completedAt
+          ? [
+              {
+                label: finisher
+                  ? t("activity.finishedBy", { name: finisher })
+                  : t("activity.finished"),
+                date: count.completedAt,
+              },
+            ]
+          : []),
+      ]
+    : [];
 
   // As its own screen the summary is swapped for the run; embedded, the
   // run opens on top so the list stays underneath.
@@ -71,19 +102,44 @@ export default function InventoryCountDetailView({
       params: { countId },
     });
 
+  const renderLines = (group: InventoryCountItem[]) => (
+    <ThemedView style={tw`gap-2 bg-transparent`}>
+      {group.map((line) => (
+        <CountLineCard
+          key={line.id}
+          line={line}
+          onPress={inProgress ? () => openRun(line) : undefined}
+        />
+      ))}
+    </ThemedView>
+  );
+
+  // The tap-to-count hint goes under whichever group comes first
+  const hint = inProgress ? t("counts.summaryHint") : undefined;
+
   return (
     <Container style={tw`flex-1 bg-background`}>
       <ThemedView style={tw`px-4 pt-8 bg-transparent`}>
         <InventoryScreenHeader
-          title={t("counts.detailTitle")}
           onBack={onClose}
           backIcon={embedded ? "x" : "arrow-left"}
+          right={
+            inProgress ? (
+              <Button
+                leftIcon="plus"
+                label={t("counts.addProducts")}
+                variant="outline"
+                size="extra-small"
+                onPress={addProducts}
+              />
+            ) : undefined
+          }
         />
       </ThemedView>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`px-4 gap-4 pb-8 pt-6`}
+        contentContainerStyle={tw`px-4 gap-6 pb-10 pt-6`}
         refreshControl={
           <RefreshControl
             refreshing={countQuery.isRefetching}
@@ -113,82 +169,99 @@ export default function InventoryCountDetailView({
 
         {count && (
           <>
-            <Card>
-              <ThemedView style={tw`gap-2 bg-transparent`}>
-                <ThemedView
-                  style={tw`flex-row justify-between items-center gap-2 bg-transparent`}
-                >
-                  <ThemedText type="h4" style={tw`flex-1`}>
-                    {formatDateTime(count.createdAt)}
-                  </ThemedText>
+            <InventoryDetailTitle
+              icon="clipboard"
+              title={t("counts.name")}
+              subtitle={formatDetailMoment(count.createdAt)}
+              labels={
+                <>
                   <Label
                     text={t(`counts.countStatus.${count.status}`)}
                     color={inProgress ? "info" : "success"}
                     size="small"
                   />
+                  {adjustedCount > 0 && (
+                    <Label
+                      text={t("counts.adjustedCount", { count: adjustedCount })}
+                      color="warning"
+                      size="small"
+                    />
+                  )}
+                </>
+              }
+              chips={chips}
+            >
+              {inProgress && lines.length > 0 && (
+                <ThemedView
+                  style={tw`flex-row items-center gap-3 bg-transparent`}
+                >
+                  <ThemedView style={tw`flex-1 bg-transparent`}>
+                    <ProgressBar
+                      progress={reviewed.length / lines.length}
+                      height={1.5}
+                    />
+                  </ThemedView>
+                  <ThemedText
+                    type="small"
+                    style={[
+                      tw`text-on-surface-variant`,
+                      { fontVariant: ["tabular-nums"] },
+                    ]}
+                  >
+                    {reviewed.length}/{lines.length}
+                  </ThemedText>
                 </ThemedView>
-                <ThemedText type="small" style={tw`text-gray-500`}>
-                  {t("counts.summaryLine", {
-                    products: lines.length,
-                    adjusted: adjustedCount,
-                    unanswered: unanswered.length,
-                  })}
-                </ThemedText>
-                {creator && (
-                  <ThemedText type="small" style={tw`text-gray-500`}>
-                    {t("counts.startedBy", { name: creator })}
-                  </ThemedText>
-                )}
-                {count.completedAt && (
-                  <ThemedText type="small" style={tw`text-gray-500`}>
-                    {finisher
-                      ? t("counts.finishedBy", {
-                          name: finisher,
-                          date: formatDateTime(count.completedAt),
-                        })
-                      : t("counts.finishedAt", {
-                          date: formatDateTime(count.completedAt),
-                        })}
-                  </ThemedText>
-                )}
-              </ThemedView>
-            </Card>
+              )}
+            </InventoryDetailTitle>
 
-            {inProgress && (
-              <ThemedView style={tw`gap-3 bg-transparent`}>
-                {hasPending && (
-                  <Button
-                    leftIcon="play"
-                    label={t("counts.continue")}
-                    onPress={() => openRun()}
-                  />
-                )}
-                <ThemedView style={tw`flex-row gap-3 bg-transparent`}>
-                  <Button
-                    leftIcon="plus"
-                    label={t("counts.addProducts")}
-                    variant="outline"
-                    onPress={addProducts}
-                    style={tw`flex-1`}
-                  />
-                  <CountFinishButton countId={countId} style={tw`flex-1`} />
-                </ThemedView>
-                <ThemedText type="small" style={tw`text-gray-500 px-1`}>
-                  {t("counts.summaryHint")}
-                </ThemedText>
+            {hasPending && (
+              <ThemedView style={tw`gap-4 bg-transparent`}>
+                <InventorySectionHeader
+                  title={t("counts.toCount")}
+                  count={toCount.length}
+                  highlight
+                  hint={hint}
+                />
+                {renderLines(toCount)}
               </ThemedView>
             )}
 
-            {lines.map((line) => (
-              <CountLineCard
-                key={line.id}
-                line={line}
-                onPress={inProgress ? () => openRun(line) : undefined}
-              />
-            ))}
+            {reviewed.length > 0 && (
+              <ThemedView style={tw`gap-4 bg-transparent`}>
+                <InventorySectionHeader
+                  title={t("counts.reviewed")}
+                  count={reviewed.length}
+                  hint={hasPending ? undefined : hint}
+                />
+                {renderLines(reviewed)}
+              </ThemedView>
+            )}
+
+            <InventoryActivity entries={activity} />
           </>
         )}
       </ScrollView>
+
+      {inProgress && (
+        <ThemedView
+          style={tw`flex-row items-center gap-3 px-4 py-4 border-t border-border bg-background`}
+        >
+          <CountFinishButton
+            countId={countId}
+            size={hasPending ? "small" : "medium"}
+            style={tw`flex-1`}
+          />
+          {hasPending && (
+            <Button
+              leftIcon="play"
+              label={t("counts.continue")}
+              size="small"
+              onPress={() => openRun()}
+              style={tw`flex-[1.4]`}
+            />
+          )}
+        </ThemedView>
+      )}
     </Container>
   );
 }
