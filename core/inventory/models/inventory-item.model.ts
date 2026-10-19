@@ -47,3 +47,24 @@ export function getInventoryStockRatio(item: InventoryItem): number {
   if (item.minimumQuantity == null || item.minimumQuantity <= 0) return 1;
   return Math.min(Math.max(item.quantity / item.minimumQuantity, 0), 1);
 }
+
+/**
+ * Low stock for the shopping list: active, with a minimum set, and at or
+ * below it — the same items the Bajo/Crítico badges flag.
+ */
+export function isInventoryItemLow(item: InventoryItem): boolean {
+  const status = getInventoryStockStatus(item);
+  return status === "critical" || status === "low";
+}
+
+/**
+ * Amount needed to get back to the minimum, rounded up (whole units for
+ * UNIT, 2 decimals otherwise). 0 when the item is already at the minimum.
+ */
+export function getSuggestedPurchaseQuantity(item: InventoryItem): number {
+  if (item.minimumQuantity == null || item.minimumQuantity <= 0) return 0;
+  const missing = item.minimumQuantity - item.quantity;
+  if (missing <= 0) return 0;
+  if (item.unit === InventoryUnit.UNIT) return Math.ceil(missing - 1e-9);
+  return Math.ceil(missing * 100 - 1e-6) / 100;
+}

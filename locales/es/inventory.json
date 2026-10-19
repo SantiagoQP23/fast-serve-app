@@ -307,6 +307,19 @@
     "removeItemSuccess": "Producto eliminado de la compra",
     "removeItemError": "No se pudo eliminar el producto"
   },
+  "shoppingList": {
+    "title": "Lista de compras",
+    "lowCount_one": "{{count}} artículo con stock bajo",
+    "lowCount_other": "{{count}} artículos con stock bajo",
+    "allGood": "Todo en orden, nada con stock bajo",
+    "empty": "No hay artículos con stock bajo",
+    "emptyDescription": "Aquí aparecen los artículos con stock igual o menor a su mínimo.",
+    "stockAndMinimum": "Quedan {{stock}} · Mínimo {{minimum}}",
+    "suggested": "Comprar ≈ {{quantity}}",
+    "atMinimum": "En el mínimo",
+    "startPurchase": "Registrar compra con esta lista",
+    "share": "Compartir lista"
+  },
   "counts": {
     "title": "Conteos de inventario",
     "history": "Historial de conteos",

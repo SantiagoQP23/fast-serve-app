@@ -10,6 +10,7 @@ import { groupByDay } from "@/core/i18n/utils";
 import Button from "@/presentation/theme/components/button";
 import DaySectionHeader from "@/presentation/inventory/components/day-section-header";
 import InventoryPurchaseCard from "@/presentation/inventory/components/inventory-purchase-card";
+import ShoppingListCard from "@/presentation/inventory/components/shopping-list-card";
 import { useInventoryPurchases } from "@/presentation/inventory/hooks/useInventoryPurchases";
 import { type InventoryPurchase } from "@/core/inventory/models/inventory-purchase.model";
 
@@ -57,6 +58,8 @@ export default function InventoryPurchasesTab({
         />
       }
     >
+      <ShoppingListCard />
+
       {purchasesQuery.isLoading && !isLoadingMore && (
         <ThemedText type="body1" style={tw`text-gray-500 text-center py-8`}>
           {t("loading")}
