@@ -53,7 +53,17 @@ export interface InventoryCount {
   adjustedCount?: number;
   /** Lines not answered yet (pending or skipped). */
   pendingCount?: number;
+  /** List endpoint only: the first few lines, adjusted ones first. */
+  previewItems?: InventoryCountPreviewItem[];
 }
+
+/** A count line as the list endpoint sends it, for the history card. */
+export type InventoryCountPreviewItem = Pick<
+  InventoryCountItem,
+  "id" | "position" | "status" | "countedQuantity" | "difference"
+> & {
+  inventoryItem: Pick<InventoryItem, "id" | "name" | "unit">;
+};
 
 export function getCountUserName(
   user?: InventoryCountUser | null,

@@ -23,6 +23,15 @@ export interface InventoryPurchase {
   items?: InventoryPurchaseItem[];
   /** Only present on the list endpoint. */
   itemsCount?: number;
+  /** List endpoint only: the first few lines, by item name. */
+  previewItems?: InventoryPurchasePreviewItem[];
+}
+
+/** A purchase line as the list endpoint sends it, for the history card. */
+export interface InventoryPurchasePreviewItem {
+  id: string;
+  quantity: number;
+  inventoryItem: Pick<InventoryItem, "id" | "name" | "unit">;
 }
 
 export function getPurchaseCreatorName(

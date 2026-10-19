@@ -6,6 +6,7 @@ import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatTime } from "@/core/i18n/utils";
 import Card from "@/presentation/theme/components/card";
+import InventoryCardLines from "./inventory-card-lines";
 import {
   getPurchaseCreatorName,
   type InventoryPurchase,
@@ -18,7 +19,7 @@ interface InventoryPurchaseCardProps {
   active?: boolean;
 }
 
-/** One purchase in the purchases history: size, time, who registered it and its note. */
+/** One purchase in the purchases history: size, time, who registered it, its first items and its note. */
 export default function InventoryPurchaseCard({
   purchase,
   onPress,
@@ -66,6 +67,17 @@ export default function InventoryPurchaseCard({
           {formatTime(purchase.createdAt)}
         </ThemedText>
       </ThemedView>
+
+      <InventoryCardLines
+        total={purchase.itemsCount ?? 0}
+        lines={(purchase.previewItems ?? []).map((line) => ({
+          id: line.id,
+          name: line.inventoryItem.name,
+          unit: line.inventoryItem.unit,
+          quantity: line.quantity,
+          prefix: "+",
+        }))}
+      />
 
       {purchase.note && (
         <ThemedView style={tw`flex-row items-start gap-2 bg-transparent`}>
