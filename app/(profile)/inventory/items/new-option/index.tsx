@@ -19,10 +19,6 @@ export default function NewInventoryItemSelectOptionScreen() {
   const params = useLocalSearchParams<{
     productId: string;
     productName?: string;
-    mode?: string;
-    inventoryItemId?: string;
-    itemName?: string;
-    unit?: string;
   }>();
   const { products } = useMenu();
 
@@ -34,29 +30,12 @@ export default function NewInventoryItemSelectOptionScreen() {
   );
 
   const handleSelectOption = (option: ProductOption) => {
-    const productName = params.productName ?? product?.name ?? "";
-
-    if (params.mode === "track") {
-      router.push({
-        pathname: "/(profile)/menu/products/option-inventory",
-        params: {
-          productOptionId: String(option.id),
-          productOptionName: option.name,
-          productName,
-        },
-      });
-      return;
-    }
-
     router.push({
-      pathname: "/(profile)/inventory/items/new-quantity",
+      pathname: "/(profile)/menu/products/option-inventory",
       params: {
         productOptionId: String(option.id),
         productOptionName: option.name,
-        productName,
-        inventoryItemId: params.inventoryItemId,
-        itemName: params.itemName ?? "",
-        unit: params.unit ?? "",
+        productName: params.productName ?? product?.name ?? "",
       },
     });
   };

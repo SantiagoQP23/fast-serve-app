@@ -5,7 +5,7 @@ import type { ProductOptionInventoryItem } from "@/core/inventory/models/invento
 import type { CreateInventoryItemDto } from "../interfaces/dto/create-inventory-item.dto";
 import type { UpdateInventoryItemDto } from "../interfaces/dto/update-inventory-item.dto";
 import type { AdjustInventoryDto } from "../interfaces/dto/adjust-inventory.dto";
-import type { LinkProductOptionDto } from "../interfaces/dto/link-product-option.dto";
+import type { LinkProductOptionsDto } from "../interfaces/dto/link-product-option.dto";
 import type { FindAllInventoryItemsDto } from "../interfaces/dto/find-all-inventory-items.dto";
 
 export interface InventoryItemsPage {
@@ -85,12 +85,13 @@ export class InventoryService {
     });
   }
 
-  static async linkProductOption(
+  /** Links the item to several variants at once; all or nothing. */
+  static async linkProductOptions(
     itemId: string,
-    data: LinkProductOptionDto,
-  ): Promise<ProductOptionInventoryItem> {
-    const resp = await restaurantApi.post<ProductOptionInventoryItem>(
-      `/inventory/items/${itemId}/recipe-lines`,
+    data: LinkProductOptionsDto,
+  ): Promise<ProductOptionInventoryItem[]> {
+    const resp = await restaurantApi.post<ProductOptionInventoryItem[]>(
+      `/inventory/items/${itemId}/recipe-lines/bulk`,
       data,
     );
     return resp.data;
