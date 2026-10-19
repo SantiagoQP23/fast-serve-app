@@ -5,7 +5,13 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useEffect, useRef } from "react";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
-import { ActivityIndicator, Pressable, View } from "react-native";
+import {
+  ActivityIndicator,
+  ColorValue,
+  Pressable,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import {
   useOrderCreatedListener,
   useOrderDeletedListener,
@@ -84,6 +90,37 @@ export function MyOrdersHeaderRight() {
   );
 }
 
+// Bottom tab bar sizing. The bar sets its own height (instead of the default
+// 49pt + bottom inset) because the root SafeAreaView already keeps it above
+// the system navigation bar / home indicator, and the default height is too
+// short for the icon pill plus a label below it, which clipped the labels on
+// devices with a small bottom inset or a larger system font size.
+const TAB_BAR_PADDING_VERTICAL = 6;
+const TAB_ICON_PILL_HEIGHT = 32; // h-8
+const TAB_LABEL_MARGIN_TOP = 6;
+const TAB_LABEL_LINE_HEIGHT = 16; // ThemedText "small"
+const TAB_LABEL_MAX_FONT_SCALE = 1.3;
+
+function TabBarLabel({
+  color,
+  label,
+}: {
+  color: ColorValue;
+  label: string;
+}) {
+  return (
+    <ThemedText
+      type="small"
+      numberOfLines={1}
+      adjustsFontSizeToFit
+      maxFontSizeMultiplier={TAB_LABEL_MAX_FONT_SCALE}
+      style={{ color, marginTop: TAB_LABEL_MARGIN_TOP }}
+    >
+      {label}
+    </ThemedText>
+  );
+}
+
 export default function TabLayout() {
   const palette = usePalette();
   const { t } = useTranslation("common");
@@ -106,6 +143,15 @@ export default function TabLayout() {
   // Tablet in landscape (counter/POS): navigation rail on the left
   const { isTablet, isLandscape } = useResponsiveLayout();
   const isRail = isTablet && isLandscape;
+
+  const { fontScale } = useWindowDimensions();
+  const tabBarHeight =
+    TAB_BAR_PADDING_VERTICAL * 2 +
+    TAB_ICON_PILL_HEIGHT +
+    TAB_LABEL_MARGIN_TOP +
+    Math.ceil(
+      TAB_LABEL_LINE_HEIGHT * Math.min(fontScale, TAB_LABEL_MAX_FONT_SCALE),
+    );
 
   useEffect(() => {
     checkStatus();
@@ -166,8 +212,9 @@ export default function TabLayout() {
               }
             : {
                 backgroundColor: palette.surface,
-                paddingTop: 5,
-                paddingBottom: 0,
+                height: tabBarHeight,
+                paddingTop: TAB_BAR_PADDING_VERTICAL,
+                paddingBottom: TAB_BAR_PADDING_VERTICAL,
                 borderRadius: 20,
                 shadowColor: "transparent",
                 shadowOffset: { width: 0, height: 0 },
@@ -197,9 +244,7 @@ export default function TabLayout() {
           name="(orders-module)"
           options={{
             tabBarLabel: ({ color }) => (
-              <ThemedText type="small" style={{ color, marginTop: 6 }}>
-                {t("navigation.home")}
-              </ThemedText>
+              <TabBarLabel color={color} label={t("navigation.home")} />
             ),
             tabBarIcon: ({ color, focused }) => (
               <ThemedView
@@ -222,9 +267,7 @@ export default function TabLayout() {
           name="inventory"
           options={{
             tabBarLabel: ({ color }) => (
-              <ThemedText type="small" style={{ color, marginTop: 6 }}>
-                {t("navigation.inventory")}
-              </ThemedText>
+              <TabBarLabel color={color} label={t("navigation.inventory")} />
             ),
             tabBarIcon: ({ color, focused }) => (
               <ThemedView
@@ -243,9 +286,7 @@ export default function TabLayout() {
           name="analytics"
           options={{
             tabBarLabel: ({ color }) => (
-              <ThemedText type="small" style={{ color, marginTop: 6 }}>
-                {t("navigation.analytics")}
-              </ThemedText>
+              <TabBarLabel color={color} label={t("navigation.analytics")} />
             ),
             tabBarIcon: ({ color, focused }) => (
               <ThemedView
@@ -264,9 +305,7 @@ export default function TabLayout() {
           name="incomes"
           options={{
             tabBarLabel: ({ color }) => (
-              <ThemedText type="small" style={{ color, marginTop: 6 }}>
-                {t("navigation.incomes")}
-              </ThemedText>
+              <TabBarLabel color={color} label={t("navigation.incomes")} />
             ),
             tabBarIcon: ({ color, focused }) => (
               <ThemedView
@@ -286,9 +325,7 @@ export default function TabLayout() {
           name="manage"
           options={{
             tabBarLabel: ({ color }) => (
-              <ThemedText type="small" style={{ color, marginTop: 6 }}>
-                {t("navigation.manage")}
-              </ThemedText>
+              <TabBarLabel color={color} label={t("navigation.manage")} />
             ),
             tabBarIcon: ({ color, focused }) => (
               <ThemedView
