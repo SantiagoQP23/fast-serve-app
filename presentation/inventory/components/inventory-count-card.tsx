@@ -8,10 +8,54 @@ import Card from "@/presentation/theme/components/card";
 import Label from "@/presentation/theme/components/label";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
 import {
+  InventoryCountItemStatus,
   InventoryCountStatus,
   getCountUserName,
   type InventoryCount,
+  type InventoryCountPreviewItem,
 } from "@/core/inventory/models/inventory-count.model";
+import InventoryCardLines, {
+  type InventoryCardLine,
+} from "./inventory-card-lines";
+
+const STATUS_ICONS: Record<
+  InventoryCountItemStatus,
+  Pick<InventoryCardLine, "icon" | "iconColor">
+> = {
+  [InventoryCountItemStatus.ADJUSTED]: {
+    icon: "pencil",
+    iconColor: tw.color("orange-500"),
+  },
+  [InventoryCountItemStatus.MATCHED]: {
+    icon: "circle-check",
+    iconColor: tw.color("emerald-600"),
+  },
+  [InventoryCountItemStatus.PENDING]: { icon: "circle" },
+  [InventoryCountItemStatus.SKIPPED]: { icon: "circle-minus" },
+};
+
+/** Answered lines show what was counted; adjusted ones also the correction. */
+function toCardLine(line: InventoryCountPreviewItem): InventoryCardLine {
+  const difference = line.difference ?? 0;
+  const answered =
+    line.status === InventoryCountItemStatus.MATCHED ||
+    line.status === InventoryCountItemStatus.ADJUSTED;
+
+  return {
+    id: line.id,
+    name: line.inventoryItem.name,
+    unit: line.inventoryItem.unit,
+    quantity: answered ? line.countedQuantity : null,
+    ...STATUS_ICONS[line.status],
+    trailing:
+      line.status === InventoryCountItemStatus.ADJUSTED && difference !== 0
+        ? {
+            text: `${difference > 0 ? "+" : ""}${difference}`,
+            colorClass: difference > 0 ? "text-green-600" : "text-red-600",
+          }
+        : undefined,
+  };
+}
 
 interface InventoryCountCardProps {
   count: InventoryCount;
@@ -20,7 +64,7 @@ interface InventoryCountCardProps {
   active?: boolean;
 }
 
-/** One count in the counts history: size, status, who started it and how far along it is. */
+/** One count in the counts history: size, status, who started it, how far along it is and its first items. */
 export default function InventoryCountCard({
   count,
   onPress,
@@ -82,6 +126,11 @@ export default function InventoryCountCard({
           </ThemedText>
         </ThemedView>
       )}
+
+      <InventoryCardLines
+        total={total}
+        lines={(count.previewItems ?? []).map(toCardLine)}
+      />
 
       <ThemedText type="small" style={tw`text-gray-500`}>
         {t("counts.progressLine", {

@@ -378,5 +378,8 @@
     "selectItem": "Select a product to see its stock and movements.",
     "selectCount": "Select a count to see its products.",
     "selectPurchase": "Select a purchase to see its products."
+  },
+  "cards": {
+    "moreItems": "+{{count}} more"
   }
 }
