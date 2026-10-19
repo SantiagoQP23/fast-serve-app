@@ -1,6 +1,8 @@
 import { restaurantApi } from "@/core/api/restaurantApi";
 import { LoginResponseDto } from "@/core/auth/dto/login.response.dto";
 import { CreateRestaurantDto } from "@/core/restaurant/dto/create-restaurant.dto";
+import { UpdateRestaurantDto } from "@/core/restaurant/dto/update-restaurant.dto";
+import { Restaurant } from "@/core/common/models/restaurant.model";
 import {
   CreateBranchDto,
   NextBranchNameDto,
@@ -14,6 +16,14 @@ import {
 export class RestaurantService {
   static async create(data: CreateRestaurantDto) {
     const resp = await restaurantApi.post<LoginResponseDto>("restaurant", data);
+    return resp.data;
+  }
+
+  static async update(restaurantId: string, data: UpdateRestaurantDto) {
+    const resp = await restaurantApi.patch<Restaurant>(
+      `restaurant/${restaurantId}`,
+      data,
+    );
     return resp.data;
   }
 
