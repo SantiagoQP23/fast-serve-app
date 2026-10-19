@@ -1,6 +1,9 @@
 import { User } from "@/core/auth/models/user.model";
-import { ProductOption } from "@/core/menu/models/product-optionl.model";
-import { Product } from "@/core/menu/models/product.model";
+import {
+  ProductOption,
+  getProductOptionAvailableQuantity,
+} from "@/core/menu/models/product-optionl.model";
+import { Product, ProductStatus } from "@/core/menu/models/product.model";
 import { Tag } from "@/core/menu/models/tag.model";
 import { OrderType } from "../enums/order-type.enum";
 
@@ -77,3 +80,35 @@ export const canReplaceOrderDetail = (detail: OrderDetail): boolean =>
  */
 export const canChangeVariant = (detail: OrderDetail): boolean =>
   detail.qtyDelivered === 0;
+
+export enum AddAgainBlockReason {
+  NOT_IN_MENU = "NOT_IN_MENU",
+  UNAVAILABLE = "UNAVAILABLE",
+  NO_STOCK = "NO_STOCK",
+}
+
+/**
+ * A cancelled item can be added again as a new line only if its product and
+ * variant are still on the menu and available. With orders without stock
+ * blocked, the ingredients left must also cover its quantity (the server
+ * checks the same). `menuProduct` is the product as it is on the menu now.
+ */
+export const getAddAgainBlockReason = (
+  detail: OrderDetail,
+  menuProduct: Product | undefined,
+  blocksWithoutStock: boolean,
+): { reason: AddAgainBlockReason; remaining?: number } | null => {
+  const option = menuProduct?.options.find(
+    (o) => o.id === detail.productOption?.id,
+  );
+  if (!menuProduct || !menuProduct.isActive || !option || !option.isActive)
+    return { reason: AddAgainBlockReason.NOT_IN_MENU };
+  if (menuProduct.status !== ProductStatus.AVAILABLE)
+    return { reason: AddAgainBlockReason.UNAVAILABLE };
+  if (blocksWithoutStock) {
+    const remaining = getProductOptionAvailableQuantity(option);
+    if (remaining !== null && remaining < detail.quantity)
+      return { reason: AddAgainBlockReason.NO_STOCK, remaining };
+  }
+  return null;
+};

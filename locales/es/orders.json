@@ -210,6 +210,7 @@
     "title": "Acciones del Producto",
     "editQuantity": "Editar Cantidad",
     "replaceItem": "Reemplazar Producto",
+    "addAgain": "Volver a Agregar",
     "deleteItem": "Eliminar Producto",
     "statusTitle": "Estado"
   },
@@ -333,6 +334,12 @@
       "updateItems_other": "Modificar {{count}} productos",
       "removeItem": "Eliminar {{product}}",
       "updateOrder": "Modificar datos del pedido"
+    }
+  },
+  "addAgain": {
+    "reasons": {
+      "NOT_IN_MENU": "Este producto ya no está en el menú.",
+      "UNAVAILABLE": "Este producto no está disponible ahora."
     }
   }
 }
