@@ -235,7 +235,6 @@ export default function NewInventoryItemQuantityScreen() {
                   </ThemedText>
                   <IconButton
                     icon="x"
-                    variant="secondary"
                     size={18}
                     onPress={() => handleRemoveRow(row.productOptionId)}
                     style={tw`-mr-2 p-2`}
