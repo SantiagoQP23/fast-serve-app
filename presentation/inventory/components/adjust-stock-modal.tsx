@@ -70,19 +70,24 @@ interface AdjustStockFormProps {
 function AdjustStockForm({ item, mode, onClose }: AdjustStockFormProps) {
   const { t } = useTranslation("inventory");
   const { adjustStock } = useInventoryItems();
-  const [amount, setAmount] = useState(0);
+  const isDecrease = mode === "decrease";
+  // Restock: the counter is the amount to add. Decrease: the counter starts at
+  // the current quantity and is the resulting stock.
+  const [value, setValue] = useState(() =>
+    isDecrease ? Math.max(item.quantity, 0) : 0,
+  );
   const [note, setNote] = useState("");
   const step = item.unit === InventoryUnit.UNIT ? 1 : 0.1;
-  const newQuantity = Number(
-    (item.quantity + (mode === "restock" ? amount : -amount)).toFixed(2),
-  );
+  const delta = Number((isDecrease ? value - item.quantity : value).toFixed(2));
+  const newQuantity = Number((item.quantity + delta).toFixed(2));
+  const canSubmit = isDecrease ? delta < 0 : delta > 0;
 
   const handleSubmit = async () => {
-    if (amount <= 0) return;
+    if (!canSubmit) return;
 
     await adjustStock.mutateAsync({
       inventoryItemId: item.id,
-      delta: mode === "restock" ? amount : -amount,
+      delta,
       type:
         mode === "restock"
           ? InventoryMovementType.MANUAL_RESTOCK
@@ -100,16 +105,17 @@ function AdjustStockForm({ item, mode, onClose }: AdjustStockFormProps) {
 
       <View style={tw`gap-2`}>
         <Counter
-          value={amount}
-          onChangeValue={setAmount}
+          value={value}
+          onChangeValue={setValue}
           step={step}
           min={0}
+          max={isDecrease ? Math.max(item.quantity, 0) : undefined}
           unit={t(`units.${item.unit}`)}
         />
         <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
-          {t("newStock")}:{" "}
+          {t(isDecrease ? "currentStock" : "newStock")}:{" "}
           {t("quantityWithUnit", {
-            quantity: newQuantity,
+            quantity: isDecrease ? item.quantity : newQuantity,
             unit: t(`units.${item.unit}`),
           })}
         </ThemedText>
@@ -136,7 +142,7 @@ function AdjustStockForm({ item, mode, onClose }: AdjustStockFormProps) {
           label={t("confirm")}
           onPress={handleSubmit}
           loading={adjustStock.isPending}
-          disabled={amount <= 0}
+          disabled={!canSubmit}
           style={tw`flex-1`}
         />
       </View>
