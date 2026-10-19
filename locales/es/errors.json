@@ -134,6 +134,7 @@
     "INVENTORY_PURCHASE_LINE_NOT_FOUND": "No se encontró el ítem en la compra",
     "INVENTORY_PURCHASE_NEEDS_ITEMS": "Una compra debe tener al menos un ítem",
     "INVENTORY_PURCHASE_NOT_FOUND": "No se encontró la compra",
+    "INVENTORY_RECIPE_LINE_ALREADY_EXISTS": "Algunos productos ya están vinculados a este artículo",
     "INVENTORY_RECIPE_LINE_NOT_FOUND": "No se encontró el ingrediente de la receta",
     "INVOICE_NOT_FOUND": "No se encontró la factura",
     "MENU_CATEGORY_DUPLICATE_NAME": "Ya existe una categoría con ese nombre",

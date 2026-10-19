@@ -44,7 +44,7 @@
     "quantityLeft": "Quedan: {{quantity}} {{unit}}",
     "loadError": "No se pudo cargar el detalle del insumo",
     "movementsLoadError": "No se pudo cargar el historial de movimientos",
-    "linkToProduct": "Vincular a un producto",
+    "linkToProduct": "Vincular a productos",
     "linkedProducts": "Usado en",
     "noLinkedProducts": "Aún no está vinculado a ningún producto",
     "unknownProduct": "Producto desconocido"
@@ -269,7 +269,15 @@
     "noOptions": "Este producto no tiene variantes",
     "quantityTitle": "Cantidad utilizada",
     "quantityDescription": "¿Cuánto se usa de \"{{item}}\" por cada unidad entregada?",
-    "finish": "Finalizar"
+    "selectProductsTitle": "Selecciona productos",
+    "alreadyLinked": "Ya vinculado",
+    "allVariants": "Todas las variantes",
+    "checkedOfTotal": "{{checked}} de {{total}}",
+    "continueCount": "Continuar ({{count}})",
+    "sameQuantityForAll": "Misma cantidad para todos",
+    "zeroStockHint": "Este artículo no tiene stock y \"Permitir productos sin stock\" está desactivado: estos productos no se podrán vender hasta que lo repongas.",
+    "save": "Guardar",
+    "removeProduct": "Quitar producto"
   },
   "purchases": {
     "title": "Compras",

@@ -8,7 +8,7 @@ import { InventoryService } from "../services/inventory.service";
 import type { CreateInventoryItemDto } from "../interfaces/dto/create-inventory-item.dto";
 import type { UpdateInventoryItemDto } from "../interfaces/dto/update-inventory-item.dto";
 import type { AdjustInventoryDto } from "../interfaces/dto/adjust-inventory.dto";
-import type { LinkProductOptionDto } from "../interfaces/dto/link-product-option.dto";
+import type { LinkProductOptionsDto } from "../interfaces/dto/link-product-option.dto";
 import { getErrorMessage } from "@/core/api/get-error-message";
 
 export const inventoryItemsQueryKey = ["inventory-items"];
@@ -92,13 +92,13 @@ export const useInventoryItems = () => {
     },
   });
 
-  const linkProductOption = useMutation<
-    ProductOptionInventoryItem,
+  const linkProductOptions = useMutation<
+    ProductOptionInventoryItem[],
     Error,
-    { itemId: string; data: LinkProductOptionDto }
+    { itemId: string; data: LinkProductOptionsDto }
   >({
     mutationFn: ({ itemId, data }) =>
-      InventoryService.linkProductOption(itemId, data),
+      InventoryService.linkProductOptions(itemId, data),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["inventory-items", variables.itemId],
@@ -132,7 +132,7 @@ export const useInventoryItems = () => {
     deleteItem,
     bulkDeleteItems,
     bulkMoveItemsToCategory,
-    linkProductOption,
+    linkProductOptions,
     adjustStock,
   };
 };

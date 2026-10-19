@@ -12,6 +12,8 @@ import TextInput from "@/presentation/theme/components/text-input";
 import Chip from "@/presentation/theme/components/chip";
 import Button from "@/presentation/theme/components/button";
 import ProductCard from "@/presentation/restaurant-menu/product-card";
+import LinkProductRow from "@/presentation/inventory/components/link-product-row";
+import { useInventoryItemDetail } from "@/presentation/inventory/hooks/useInventoryItemDetail";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
 import { useProductSearch } from "@/presentation/restaurant-menu/hooks/useProductSearch";
 import type { Product } from "@/core/menu/models/product.model";
@@ -30,6 +32,22 @@ export default function NewInventoryItemSelectProductScreen() {
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [isLoadingMenu, setIsLoadingMenu] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Linking from an item picks several variants at once; "track" (from the
+  // menu side) still opens one variant per tap.
+  const isMultiSelect = params.mode !== "track" && !!params.inventoryItemId;
+  const { item } = useInventoryItemDetail(
+    isMultiSelect ? (params.inventoryItemId ?? "") : "",
+  );
+  const linkedIds = useMemo(
+    () =>
+      new Set(
+        (item?.productOptions ?? []).map((line) => line.productOptionId),
+      ),
+    [item],
+  );
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const categories = useMemo(
     () => allCategories.filter((c) => c.isActive),
@@ -66,33 +84,51 @@ export default function NewInventoryItemSelectProductScreen() {
   );
   const filteredProducts = useProductSearch(categoryProducts, search);
 
+  const handleToggleOptions = (optionIds: number[], selected: boolean) => {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      for (const id of optionIds) {
+        if (linkedIds.has(id)) continue;
+        if (selected) next.add(id);
+        else next.delete(id);
+      }
+      return next;
+    });
+  };
+
+  const handleToggleExpanded = (productId: string) => {
+    setExpandedIds((current) => {
+      const next = new Set(current);
+      if (next.has(productId)) next.delete(productId);
+      else next.add(productId);
+      return next;
+    });
+  };
+
+  const handleContinue = () => {
+    router.push({
+      pathname: "/(profile)/inventory/items/new-quantity",
+      params: {
+        optionIds: Array.from(selectedIds).join(","),
+        inventoryItemId: params.inventoryItemId ?? "",
+        itemName: params.itemName ?? "",
+        unit: params.unit ?? "",
+      },
+    });
+  };
+
   const handleSelectProduct = (product: Product) => {
     const activeOptions = product.options.filter((option) => option.isActive);
 
     if (activeOptions.length === 1) {
       const option = activeOptions[0];
 
-      if (params.mode === "track") {
-        router.push({
-          pathname: "/(profile)/menu/products/option-inventory",
-          params: {
-            productOptionId: String(option.id),
-            productOptionName: option.name,
-            productName: product.name,
-          },
-        });
-        return;
-      }
-
       router.push({
-        pathname: "/(profile)/inventory/items/new-quantity",
+        pathname: "/(profile)/menu/products/option-inventory",
         params: {
           productOptionId: String(option.id),
           productOptionName: option.name,
           productName: product.name,
-          inventoryItemId: params.inventoryItemId ?? "",
-          itemName: params.itemName ?? "",
-          unit: params.unit ?? "",
         },
       });
       return;
@@ -103,10 +139,6 @@ export default function NewInventoryItemSelectProductScreen() {
       params: {
         productId: product.id,
         productName: product.name,
-        mode: params.mode ?? "",
-        inventoryItemId: params.inventoryItemId ?? "",
-        itemName: params.itemName ?? "",
-        unit: params.unit ?? "",
       },
     });
   };
@@ -127,7 +159,9 @@ export default function NewInventoryItemSelectProductScreen() {
           style={{ fontFamily: typography.regular }}
           numberOfLines={1}
         >
-          {t("linkedItem.selectProductTitle")}
+          {isMultiSelect
+            ? t("linkedItem.selectProductsTitle")
+            : t("linkedItem.selectProductTitle")}
         </ThemedText>
       </ThemedView>
 
@@ -228,14 +262,37 @@ export default function NewInventoryItemSelectProductScreen() {
             </ThemedView>
           )}
 
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onPress={() => handleSelectProduct(product)}
-            />
-          ))}
+          {filteredProducts.map((product) =>
+            isMultiSelect ? (
+              <LinkProductRow
+                key={product.id}
+                product={product}
+                options={product.options.filter((option) => option.isActive)}
+                selectedIds={selectedIds}
+                linkedIds={linkedIds}
+                expanded={expandedIds.has(product.id)}
+                onToggleExpanded={() => handleToggleExpanded(product.id)}
+                onToggleOptions={handleToggleOptions}
+              />
+            ) : (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onPress={() => handleSelectProduct(product)}
+              />
+            ),
+          )}
         </ScrollView>
+
+        {isMultiSelect && selectedIds.size > 0 && (
+          <ThemedView style={tw`pt-2 pb-6`}>
+            <Button
+              label={t("linkedItem.continueCount", { count: selectedIds.size })}
+              rightIcon="arrow-right"
+              onPress={handleContinue}
+            />
+          </ThemedView>
+        )}
       </ThemedView>
     </ScreenLayout>
   );

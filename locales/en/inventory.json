@@ -44,7 +44,7 @@
     "quantityLeft": "Left: {{quantity}} {{unit}}",
     "loadError": "Could not load the item detail",
     "movementsLoadError": "Could not load the movement history",
-    "linkToProduct": "Link to a product",
+    "linkToProduct": "Link to products",
     "linkedProducts": "Used in",
     "noLinkedProducts": "Not linked to any product yet",
     "unknownProduct": "Unknown product"
@@ -269,7 +269,15 @@
     "noOptions": "This product has no variants",
     "quantityTitle": "Quantity used",
     "quantityDescription": "How much \"{{item}}\" is used for each unit delivered?",
-    "finish": "Finish"
+    "selectProductsTitle": "Select products",
+    "alreadyLinked": "Already linked",
+    "allVariants": "All variants",
+    "checkedOfTotal": "{{checked}} of {{total}}",
+    "continueCount": "Continue ({{count}})",
+    "sameQuantityForAll": "Same quantity for all",
+    "zeroStockHint": "This item is out of stock and \"Allow products without stock\" is off: these products can't be sold until you restock it.",
+    "save": "Save",
+    "removeProduct": "Remove product"
   },
   "purchases": {
     "title": "Purchases",
