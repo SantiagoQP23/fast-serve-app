@@ -110,6 +110,12 @@ export default function ManageScreen() {
 
   const restaurantOptions: ManageOption[] = [
     {
+      key: "restaurantInfo",
+      icon: "store",
+      label: t("manage.restaurantInfo"),
+      onPress: () => router.push("/(profile)/restaurant/edit"),
+    },
+    {
       key: "tables",
       icon: "layout-grid",
       label: t("manage.tables"),

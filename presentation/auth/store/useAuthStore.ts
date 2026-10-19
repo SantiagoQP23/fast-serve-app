@@ -72,6 +72,11 @@ export interface AuthState {
     email?: string,
     numPhone?: string,
   ) => Promise<{ success: boolean; errorCode?: string }>;
+  /**
+   * Merges edited restaurant info into the current restaurant and into the
+   * user's restaurant list, so Manage and "Mis restaurantes" show it at once.
+   */
+  updateCurrentRestaurantInfo: (info: Partial<Restaurant>) => void;
   updateLanguage: (
     language: LanguageCode,
   ) => Promise<{ success: boolean; errorCode?: string }>;
@@ -374,6 +379,23 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     });
 
     return { success: true };
+  },
+
+  updateCurrentRestaurantInfo: (info: Partial<Restaurant>) => {
+    const { user, currentRestaurant } = get();
+    if (!currentRestaurant) return;
+
+    set({
+      currentRestaurant: { ...currentRestaurant, ...info },
+      user: user && {
+        ...user,
+        restaurantRoles: (user.restaurantRoles ?? []).map((rr) =>
+          rr.restaurant.id === currentRestaurant.id
+            ? { ...rr, restaurant: { ...rr.restaurant, ...info } }
+            : rr,
+        ),
+      },
+    });
   },
 
   updateLanguage: async (language: LanguageCode) => {

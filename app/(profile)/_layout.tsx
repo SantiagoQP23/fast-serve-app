@@ -100,6 +100,15 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="restaurant/edit/index"
+          options={{
+            headerShown: true,
+            title: t("manage.restaurantInfo"),
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
           name="restaurant/settings/index"
           options={{
             headerShown: true,
