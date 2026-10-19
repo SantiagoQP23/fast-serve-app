@@ -31,9 +31,7 @@ export default function PrintersScreen() {
 
   const [testingPrinterId, setTestingPrinterId] = useState<string | null>(null);
   const [printerToDelete, setPrinterToDelete] = useState<Printer | null>(null);
-  const [selectedPrinter, setSelectedPrinter] = useState<Printer | null>(
-    null,
-  );
+  const [selectedPrinter, setSelectedPrinter] = useState<Printer | null>(null);
   const actionsSheetRef = useRef<BottomSheetMethods>(null);
 
   const handleTestPrinter = async (printerId: string) => {
@@ -233,16 +231,13 @@ export default function PrintersScreen() {
                 </ThemedView>
               </ThemedView>
               <IconButton
-                icon={
-                  selectedPrinter.isActive ? "eye" : "eye-off"
-                }
+                icon={selectedPrinter.isActive ? "eye" : "eye-off"}
                 variant="secondary"
                 onPress={handleToggleActive}
               />
             </ThemedView>
-            <ThemedView style={tw`flex-row gap-4 items-center`}>
+            <ThemedView style={tw`flex-row gap-4 items-center justify-between`}>
               <Button
-                label={t("delete")}
                 leftIcon="trash"
                 variant="destructive"
                 onPress={() => {
@@ -254,7 +249,6 @@ export default function PrintersScreen() {
                 label={t("edit")}
                 leftIcon="square-pen"
                 variant="secondary"
-                style={tw`flex-1`}
                 onPress={() => {
                   handleClosePrinterActions();
                   handleEditPrinter(selectedPrinter);

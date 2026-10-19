@@ -1,9 +1,11 @@
 import { useMemo } from "react";
-import { useScopedOrders } from "./useScopedOrders";
+import { useOrdersStore } from "../store/useOrdersStore";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 
+// Tables always show every order, regardless of the "my orders / all orders"
+// scope.
 export const useTableOrders = (tableId: string) => {
-  const orders = useScopedOrders();
+  const orders = useOrdersStore((state) => state.orders);
 
   const tableOrders = useMemo(
     () => orders.filter((order) => order.table?.id === tableId),

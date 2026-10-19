@@ -64,6 +64,7 @@ export default function MyOrdersScreen() {
     (b.deliveryTime ? new Date(b.deliveryTime).getTime() : Infinity);
 
   const orders = useScopedOrders().slice().sort(byDeliveryTime);
+  const allOrders = useOrdersStore((state) => state.orders);
   const ordersScope = useOrdersViewStore((state) => state.ordersScope);
   const setOrdersScope = useOrdersViewStore((state) => state.setOrdersScope);
   const router = useRouter();
@@ -164,7 +165,10 @@ export default function MyOrdersScreen() {
   }, [refetchOrders, t]);
 
   const handleTablePress = (table: Table) => {
-    const tableOrders = orders.filter((order) => order.table?.id === table.id);
+    // The tables view ignores the orders scope
+    const tableOrders = allOrders.filter(
+      (order) => order.table?.id === table.id,
+    );
     const tableHasOrders = tableOrders.length > 0;
 
     // Tablet: a table with a single order opens it straight in the pane
@@ -262,13 +266,15 @@ export default function MyOrdersScreen() {
         </ThemedView>
         {activeModule === "orders" && (
           <ThemedView style={tw` flex-row items-center justify-end gap-2 `}>
-            <ButtonGroup
-              size="small"
-              iconOnly
-              options={scopeOptions}
-              selected={ordersScope}
-              onChange={setOrdersScope}
-            />
+            {activeView !== "tables" && (
+              <ButtonGroup
+                size="small"
+                iconOnly
+                options={scopeOptions}
+                selected={ordersScope}
+                onChange={setOrdersScope}
+              />
+            )}
             <Button
               variant="surface"
               size="small"
