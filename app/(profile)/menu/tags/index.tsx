@@ -11,7 +11,6 @@ import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
-import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
 import TextInput from "@/presentation/theme/components/text-input";
 import TagNameSheet from "@/presentation/menu-management/components/tag-name-sheet";
@@ -77,7 +76,7 @@ export default function MenuTagsScreen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`px-4 gap-3 pb-28 pt-4`}
+        contentContainerStyle={tw`px-4 pb-28 pt-4`}
         refreshControl={
           <RefreshControl
             refreshing={tagsQuery.isFetching && !tagsQuery.isLoading}
@@ -131,28 +130,25 @@ export default function MenuTagsScreen() {
         )}
 
         {filteredTags.map((tag) => (
-          <Card key={tag.id} onPress={() => openTag(tag.id)}>
-            <ThemedView style={tw`flex-row items-center gap-4 bg-transparent`}>
-              <Icon
-                name="tag"
-                size={22}
-                color={tw.color("text-on-surface-variant")}
-              />
-              <ThemedView style={tw`flex-1 gap-0.5 bg-transparent`}>
-                <ThemedText type="h4" numberOfLines={1}>
-                  {tag.name}
-                </ThemedText>
-                <ThemedText type="body2" style={tw`text-gray-500`}>
-                  {t("tags.productCount", { count: tag.productIds.length })}
-                </ThemedText>
-              </ThemedView>
-              <Icon
-                name="chevron-right"
-                size={18}
-                color={tw.color("gray-400")}
-              />
-            </ThemedView>
-          </Card>
+          <Pressable
+            key={tag.id}
+            onPress={() => openTag(tag.id)}
+            accessibilityRole="button"
+            style={({ pressed }) =>
+              tw.style(
+                "flex-row items-center gap-4 py-3",
+                pressed && "opacity-70",
+              )
+            }
+          >
+            <ThemedText
+              style={[tw`flex-1`, { fontFamily: typography.medium }]}
+              numberOfLines={1}
+            >
+              {tag.name}
+            </ThemedText>
+            <Icon name="chevron-right" size={20} color={tw.color("gray-400")} />
+          </Pressable>
         ))}
       </ScrollView>
 

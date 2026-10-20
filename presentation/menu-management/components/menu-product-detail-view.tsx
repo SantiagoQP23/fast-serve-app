@@ -489,8 +489,6 @@ export default function MenuProductDetailView({
             </Card>
           ) : null}
 
-          <ProductTagsSection product={product} canManage={canManage} />
-
           {(canManage || product.options.length > 0) && (
             <ThemedView style={tw`gap-3 mt-4`}>
               <ThemedText type="caption">
@@ -586,6 +584,8 @@ export default function MenuProductDetailView({
               )}
             </ThemedView>
           )}
+
+          <ProductTagsSection product={product} canManage={canManage} />
         </ScrollView>
       </Container>
 

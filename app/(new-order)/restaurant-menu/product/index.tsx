@@ -473,8 +473,8 @@ export default function ProductScreen() {
                     <ThemedView key={option.id}>
                       <Card
                         onPress={() => onChangeSelectedOption(option)}
-                        variant="outline"
-                        style={tw`min-w-36 p-4 gap-2 rounded-3xl ${isSelected ? "border-2 border-primary" : "border-none"}`}
+                        variant={isSelected ? "default" : "outline"}
+                        style={tw`min-w-36 p-4 gap-2  ${isSelected ? "border-2 border-primary" : "border-none"}`}
                       >
                         <ThemedView
                           style={tw`flex-row items-center justify-between gap-2`}
@@ -600,9 +600,7 @@ export default function ProductScreen() {
                         })
                 }
                 onPress={onAddProduct}
-                leftIcon={
-                  isReplaceMode ? "arrow-left-right" : "shopping-cart"
-                }
+                leftIcon={isReplaceMode ? "arrow-left-right" : "shopping-cart"}
                 disabled={
                   isUnavailable ||
                   blockedByStock ||

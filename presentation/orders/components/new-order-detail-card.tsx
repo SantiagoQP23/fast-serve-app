@@ -71,7 +71,7 @@ export default function NewOrderDetailCard({
         </ThemedView>
       )}
     >
-      <Pressable style={tw`flex-col `} onPress={onPress}>
+      <Pressable style={tw`flex-col gap-2`} onPress={onPress}>
         {/* <ThemedView */}
         {/*   style={tw`absolute  rounded-full items-center justify-center  z-10 right-0 top-0`} */}
         {/* ></ThemedView> */}
@@ -100,23 +100,23 @@ export default function NewOrderDetailCard({
             />
           </ThemedView>
         </ThemedView>
-        <ThemedView
-          style={tw`flex-row bg-transparent justify-between items-start gap-2`}
-        >
-          <ThemedView>
-            {detail.description && (
-              <ThemedText type="body2" style={tw`mt-2`}>
-                {detail.description}
-              </ThemedText>
-            )}
-          </ThemedView>
-        </ThemedView>
+        {detail.description && (
+          <ThemedText type="body2" style={tw`mt-2`}>
+            {detail.description}
+          </ThemedText>
+        )}
         {detail.tagIds && detail.tagIds.length > 0 && (
           <ThemedView style={tw`flex-row flex-wrap gap-2 bg-transparent`}>
             {detail.product.tags
               .filter((tag) => detail.tagIds!.includes(tag.id))
               .map((tag) => (
-                <Label key={tag.id} text={tag.name} color="default" />
+                <Label
+                  key={tag.id}
+                  text={tag.name}
+                  color="default"
+                  variant="solid"
+                  size="small"
+                />
               ))}
           </ThemedView>
         )}

@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { Pressable } from "react-native";
 import {
   BottomSheetView,
   type BottomSheetMethods,
@@ -8,6 +7,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Chip from "@/presentation/theme/components/chip";
 import Button from "@/presentation/theme/components/button";
+import IconButton from "@/presentation/theme/components/icon-button";
 import TextInput from "@/presentation/theme/components/text-input";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -94,12 +94,22 @@ export default function ProductTagsSection({
 
   return (
     <ThemedView style={tw`gap-3 mt-4`}>
-      <ThemedView style={tw`gap-1 bg-transparent`}>
-        <ThemedText type="caption">{t("tags.title")}</ThemedText>
+      <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
+        <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+          <ThemedText type="caption">{t("tags.title")}</ThemedText>
+          {canManage && (
+            <ThemedText type="small" style={tw`text-gray-500`}>
+              {t("tags.productHint")}
+            </ThemedText>
+          )}
+        </ThemedView>
         {canManage && (
-          <ThemedText type="small" style={tw`text-gray-500`}>
-            {t("tags.productHint")}
-          </ThemedText>
+          <IconButton
+            icon="plus"
+            variant="outlined"
+            onPress={openSheet}
+            accessibilityLabel={t("tags.addToProduct")}
+          />
         )}
       </ThemedView>
 
@@ -115,17 +125,6 @@ export default function ProductTagsSection({
             />
           ))}
         </ThemedView>
-      )}
-
-      {canManage && (
-        <Pressable
-          onPress={openSheet}
-          style={({ pressed }) => tw.style("py-3", pressed && "opacity-60")}
-        >
-          <ThemedText type="body1" style={tw`text-gray-400`}>
-            {t("tags.addToProduct")}
-          </ThemedText>
-        </Pressable>
       )}
 
       <ThemedBottomSheetModal ref={sheetRef} enablePanDownToClose>
