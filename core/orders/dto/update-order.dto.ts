@@ -100,5 +100,6 @@ export interface UpdateOrderDetailsDto {
     qtyDelivered?: number;
     quantity?: number;
     description?: string;
+    typeOrderDetail?: OrderType;
   }[];
 }

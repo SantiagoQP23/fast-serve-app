@@ -341,5 +341,10 @@
       "NOT_IN_MENU": "This product is no longer on the menu.",
       "UNAVAILABLE": "This product isn't available right now."
     }
+  },
+  "changeItemsType": {
+    "title": "Which items also change to {{type}}?",
+    "subtitle": "Checked items change type along with the order.",
+    "all": "All ({{count}})"
   }
 }
