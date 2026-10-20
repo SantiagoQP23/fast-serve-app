@@ -5,10 +5,10 @@ import { Product } from "@/core/menu/models/product.model";
 import { Account } from "@/core/restaurant/models/account.model";
 import { PaymentMethod } from "@/core/restaurant/models/payment-method.model";
 import { Transaction } from "@/core/transactions/models/transaction.model";
-import { AsyncStorageAdapter } from "@/helpers/adapters/async-storage.adapter";
+import { createThrottledStorage } from "@/helpers/adapters/throttled-storage";
 import { useTablesStore } from "@/presentation/tables/hooks/useTablesStore";
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
+import { persist } from "zustand/middleware";
 
 export interface PendingProofImage {
   uri: string;
@@ -169,7 +169,7 @@ export const useOrdersStore = create<OrdersState>()(
     }),
     {
       name: "ordersStore",
-      storage: createJSONStorage(() => AsyncStorageAdapter),
+      storage: createThrottledStorage(),
     },
   ),
 );

@@ -154,7 +154,9 @@ export default function TabLayout() {
     );
 
   useEffect(() => {
-    checkStatus();
+    // Right after login or a restaurant switch the session was just
+    // confirmed and its data loaded; checking again would repeat it all.
+    if (useAuthStore.getState().status === "checking") checkStatus();
   }, [checkStatus]);
 
   if (status === "checking" || bootstrapStatus === "loading") {

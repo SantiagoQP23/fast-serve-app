@@ -13,4 +13,6 @@ export enum SyncResourceType {
   PRINTER = "printer",
   SETTINGS = "settings",
   TICKET = "ticket",
+  /** Ingredients whose stock changed: `{ items: InventoryItem[] }`. */
+  INVENTORY_STOCK = "inventory_stock",
 }

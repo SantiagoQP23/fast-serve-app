@@ -4,8 +4,8 @@ import { Section } from "@/core/menu/models/section.model";
 import { Category } from "@/core/menu/models/category.model";
 import { Menu } from "@/core/menu/models/menu.model";
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
-import { AsyncStorageAdapter } from "@/helpers/adapters/async-storage.adapter";
+import { persist } from "zustand/middleware";
+import { createThrottledStorage } from "@/helpers/adapters/throttled-storage";
 
 export interface MenuState {
   // Menu data
@@ -195,7 +195,7 @@ export const useMenuStore = create<MenuState & MenuActions>()(
     }),
     {
       name: "menuStore",
-      storage: createJSONStorage(() => AsyncStorageAdapter),
+      storage: createThrottledStorage(),
     },
   ),
 );

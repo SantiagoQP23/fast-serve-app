@@ -1,8 +1,8 @@
 import { Table } from "@/core/tables/models/table.model";
 import { TableArea } from "@/core/tables/models/table-area.model";
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
-import { AsyncStorageAdapter } from "@/helpers/adapters/async-storage.adapter";
+import { persist } from "zustand/middleware";
+import { createThrottledStorage } from "@/helpers/adapters/throttled-storage";
 
 export interface TablesState {
   // Table data
@@ -113,7 +113,7 @@ export const useTablesStore = create<TablesState & TablesActions>()(
     }),
     {
       name: "tablesStore",
-      storage: createJSONStorage(() => AsyncStorageAdapter),
+      storage: createThrottledStorage(),
     },
   ),
 );

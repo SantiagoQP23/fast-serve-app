@@ -1,7 +1,7 @@
 import { ProductionArea } from "@/core/menu/models/producion-area.model";
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
-import { AsyncStorageAdapter } from "@/helpers/adapters/async-storage.adapter";
+import { persist } from "zustand/middleware";
+import { createThrottledStorage } from "@/helpers/adapters/throttled-storage";
 
 export interface ProductionAreasState {
   productionAreas: ProductionArea[];
@@ -67,7 +67,7 @@ export const useProductionAreasStore = create<
     }),
     {
       name: "productionAreasStore",
-      storage: createJSONStorage(() => AsyncStorageAdapter),
+      storage: createThrottledStorage(),
     },
   ),
 );

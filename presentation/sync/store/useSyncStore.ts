@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
-import { AsyncStorageAdapter } from "@/helpers/adapters/async-storage.adapter";
+import { persist } from "zustand/middleware";
+import { createThrottledStorage } from "@/helpers/adapters/throttled-storage";
 
 export type SyncStatus = "idle" | "syncing" | "synced" | "error";
 
@@ -54,7 +54,7 @@ export const useSyncStore = create<SyncState & SyncActions>()(
     }),
     {
       name: "syncStore",
-      storage: createJSONStorage(() => AsyncStorageAdapter),
+      storage: createThrottledStorage(),
     },
   ),
 );
