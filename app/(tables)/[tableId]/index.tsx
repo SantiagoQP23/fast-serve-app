@@ -93,7 +93,6 @@ export default function TableOrdersScreen() {
                   <Label
                     text={statusText}
                     color={isOccupied ? "error" : "success"}
-                    variant="soft"
                   />
                 </ThemedView>
               }

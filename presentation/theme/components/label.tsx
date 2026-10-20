@@ -25,10 +25,6 @@ export interface LabelProps extends PressableProps {
     | "default"
     | "outline"
     | "primary";
-  /** "soft" (default) is a tinted fill; "solid" is the pastel badge treatment with a leading status dot. */
-  variant?: "soft" | "solid";
-  /** Show the leading status dot on the solid variant. Defaults to true. */
-  showDot?: boolean;
   size?: "medium" | "small";
   text: string;
 }
@@ -68,42 +64,12 @@ export default function Label({
   leftIcon: icon,
   rightIcon,
   color = "default",
-  variant = "soft",
-  showDot: showDotProp = true,
   size = "medium",
   text,
   style,
   hitSlop,
   accessibilityLabel,
 }: LabelProps) {
-  const baseStyle = " rounded-xl flex-row justify-center items-center";
-
-  const variants = {
-    primary: "bg-primary",
-    secondary: "bg-gray-100",
-    outline: "border border-gray-200 bg-transparent",
-  };
-
-  const bgColors = {
-    success: "bg-green-500",
-    warning: "bg-orange-500",
-    error: "bg-red-500",
-    info: "bg-blue-500",
-    default: "bg-gray-500",
-    outline: "bg-transparent",
-    primary: "bg-surface-bright",
-  };
-
-  const textColors = {
-    success: "text-green-600",
-    warning: "text-orange-500",
-    error: "text-red-600",
-    info: "text-blue-600",
-    default: "text-gray-600",
-    outline: "text-on-surface-variant",
-    primary: "text-primary",
-  };
-
   const iconColors = {
     success: "green-500",
     warning: "orange-400",
@@ -116,14 +82,9 @@ export default function Label({
 
   const isOutline = color === "outline";
   const isSmall = size === "small";
-  const isSolid = variant === "solid" && !isOutline;
   const solid = labelSolidStyles[color];
 
-  const containerBg = isOutline
-    ? "border border-border"
-    : isSolid
-      ? solid.bg
-      : `${bgColors[color]}/10`;
+  const containerBg = isOutline ? "border border-border" : solid.bg;
 
   return (
     <Pressable
@@ -148,8 +109,8 @@ export default function Label({
       <ThemedText
         type={isSmall ? "small" : "body2"}
         style={[
-          tw`${isSolid ? solid.text : textColors[color]} `,
-          { fontFamily: isSolid ? typography.bold : typography.semibold },
+          tw`${solid.text}`,
+          { fontFamily: isOutline ? typography.semibold : typography.bold },
         ]}
       >
         {text}

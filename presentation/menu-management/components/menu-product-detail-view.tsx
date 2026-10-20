@@ -429,7 +429,6 @@ export default function MenuProductDetailView({
           <ThemedView style={tw`gap-1`}>
             <ThemedView style={tw`flex-row items-center gap-2`}>
               <Label
-                variant="solid"
                 text={product.isActive ? t("active") : t("inactive")}
                 color={product.isActive ? "success" : "default"}
               />

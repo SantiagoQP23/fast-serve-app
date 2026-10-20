@@ -132,7 +132,6 @@ export function PopoverMenu({
                 <Label
                   text={item.label}
                   color={item.labelColor}
-                  variant="soft"
                 />
               </View>
             ) : (

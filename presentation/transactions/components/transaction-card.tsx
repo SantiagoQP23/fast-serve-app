@@ -137,9 +137,7 @@ export default function TransactionCard({
                 </ThemedView>
               </ThemedView>
               <Label
-                variant="solid"
                 color={amountLabelColor}
-                showDot={false}
                 text={formatCurrency(transaction.amount)}
               />
             </ThemedView>

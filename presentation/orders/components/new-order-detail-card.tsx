@@ -114,7 +114,6 @@ export default function NewOrderDetailCard({
                   key={tag.id}
                   text={tag.name}
                   color="default"
-                  variant="solid"
                   size="small"
                 />
               ))}

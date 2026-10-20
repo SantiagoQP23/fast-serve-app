@@ -416,7 +416,6 @@ export default function ProductScreen() {
                   {/* Products with variants show stock on each variant card instead. */}
                   {selectedStock && (
                     <Label
-                      variant="solid"
                       size="small"
                       leftIcon="package"
                       color={STOCK_LABEL_COLOR[selectedStock.level]}

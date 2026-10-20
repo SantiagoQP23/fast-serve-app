@@ -16,7 +16,6 @@ export default function OrderDeliveryTimeLabel({
       leftIcon="clock"
       text={dayjs(deliveryTime).format("HH:mm")}
       color={shouldShow ? elapsedColor : "default"}
-      variant={shouldShow ? "solid" : "soft"}
       size="small"
     />
   );

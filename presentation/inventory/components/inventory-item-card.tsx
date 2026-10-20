@@ -123,7 +123,6 @@ export default function InventoryItemCard({
               quantity: item.quantity,
               unit: t(`units.${item.unit}`),
             })}
-            variant="solid"
             color={quantityLabelColor}
           />
           <ThemedText

@@ -116,12 +116,7 @@ export default function OrderListByStatus({
         <ThemedView style={tw`px-4`}>
           {filteredOrders.map((order) => (
             <ThemedView key={order.id}>
-              {showProducts && order.status !== OrderStatus.DELIVERED ? (
-                <OrderProductsCard order={order} />
-              ) : (
-                <OrderCard order={order} />
-              )}
-              {/* <OrderCard order={order} /> */}
+              <OrderProductsCard order={order} />
             </ThemedView>
           ))}
         </ThemedView>
@@ -129,11 +124,7 @@ export default function OrderListByStatus({
         <ThemedView
           style={tw`items-center justify-center flex-1 gap-4 px-4 my-8`}
         >
-          <Icon
-            name="file-text"
-            size={80}
-            color={tw.color("gray-500")}
-          />
+          <Icon name="file-text" size={80} color={tw.color("gray-500")} />
           <ThemedText type="h3">{t("orders:list.noOrders")}</ThemedText>
           <ThemedText type="body2" style={tw`text-center max-w-xs`}>
             {t("orders:list.noOrdersDescription")}

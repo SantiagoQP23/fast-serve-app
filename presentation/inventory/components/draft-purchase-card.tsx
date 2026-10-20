@@ -62,7 +62,6 @@ export default function DraftPurchaseCard() {
           <Label
             text={t("purchases.inProgress")}
             color="info"
-            variant="solid"
             size="small"
           />
         </ThemedView>

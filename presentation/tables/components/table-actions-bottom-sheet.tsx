@@ -112,7 +112,6 @@ const TableActionsBottomSheet = ({
             <Label
               text={statusText}
               color={isOccupied ? "error" : "success"}
-              variant="soft"
               rightIcon="chevron-down"
               hitSlop={10}
               disabled={setTableAvailability.isPending}

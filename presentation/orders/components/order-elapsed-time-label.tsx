@@ -18,7 +18,6 @@ export default function OrderElapsedTimeLabel({
       leftIcon="timer"
       text={elapsedLabel}
       color={elapsedColor}
-      variant="solid"
     />
   );
 }

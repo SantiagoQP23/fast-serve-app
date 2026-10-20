@@ -88,7 +88,6 @@ export default function OrderCard({ order }: OrderCardProps) {
               leftIcon="clock"
               text={dayjs(order.deliveryTime).format("HH:mm")}
               color="default"
-              variant="solid"
               size="small"
             />
             {/* <ThemedView style={tw`flex-row items-center  gap-1`}> */}

@@ -69,7 +69,6 @@ export default function BillCard({ onPress, bill, active }: BillCardProps) {
             size="small"
             text={status.text}
             leftIcon={status.icon}
-            variant="solid"
           />
           {bill.order && (
             <ThemedText type="caption" style={tw`text-gray-500 text-sx`}>

@@ -13,7 +13,6 @@ import { getRelativeTime } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
 import OrderDetailCard from "@/presentation/orders/components/order-detail-card";
 import OrderDeliveryTimeLabel from "@/presentation/orders/components/order-delivery-time-label";
-import IconButton from "@/presentation/theme/components/icon-button";
 import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
@@ -23,6 +22,7 @@ import Checkbox from "@/presentation/theme/components/checkbox";
 import { useMarkOrderDelivered } from "@/presentation/orders/hooks/useMarkOrderDelivered";
 import { typography } from "@/constants/theme";
 import { useIsOrderPaneActive } from "@/presentation/orders/context/order-pane.context";
+import { OrderStatus } from "@/core/orders/enums/order-status.enum";
 
 interface OrderProductsCardProps {
   order: Order;
@@ -56,6 +56,13 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
       )
     : [];
   const allDelivered = hasDetails && deliverableDetails.length === 0;
+  const pendingDetails = hasDetails
+    ? order.details.filter(
+        (detail) =>
+          detail.quantity !== detail.qtyDelivered &&
+          detail.status !== OrderDetailStatus.CANCELLED,
+      )
+    : [];
 
   const handleMarkAllDelivered = () => {
     if (deliverableDetails.length === 0) return;
@@ -99,11 +106,13 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
         <ThemedView style={tw`mb-6 `}>
           <ThemedView style={tw`flex-row justify-between items-center`}>
             <ThemedView style={tw`flex-row items-center bg-transparent gap-2`}>
-              <Checkbox
-                value={allDelivered}
-                disabled={allDelivered}
-                onValueChange={handleMarkAllDelivered}
-              />
+              {order.status !== OrderStatus.DELIVERED && (
+                <Checkbox
+                  value={allDelivered}
+                  disabled={allDelivered}
+                  onValueChange={handleMarkAllDelivered}
+                />
+              )}
               <Label
                 text={statusText}
                 color={labelColor}
@@ -136,14 +145,9 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
             <OrderDeliveryTimeLabel deliveryTime={order.deliveryTime} />
           </ThemedView>
         </ThemedView>
-        <ThemedView style={tw`gap-6`}>
-          {order.details
-            .filter(
-              (detail) =>
-                detail.quantity !== detail.qtyDelivered &&
-                detail.status !== OrderDetailStatus.CANCELLED,
-            )
-            .map((detail) => (
+        {pendingDetails.length > 0 && (
+          <ThemedView style={tw`gap-6 mb-6`}>
+            {pendingDetails.map((detail) => (
               <OrderDetailCard
                 key={detail.id}
                 detail={detail}
@@ -156,15 +160,12 @@ export default function OrderProductsCard({ order }: OrderProductsCardProps) {
                 }
               />
             ))}
-        </ThemedView>
+          </ThemedView>
+        )}
 
-        <ThemedView style={tw`mt-6 flex-row items-center justify-between`}>
+        <ThemedView style={tw`flex-row items-center justify-between`}>
           <ThemedText type="body2" style={tw`text-gray-600`}>
-            <Icon
-              name="users"
-              size={18}
-              color={tw.color("gray-600")}
-            />{" "}
+            <Icon name="users" size={18} color={tw.color("gray-600")} />{" "}
             {order.people}
           </ThemedText>
           <ThemedView style={tw`flex-row items-center gap-2 `}>

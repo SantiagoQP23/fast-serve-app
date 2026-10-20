@@ -430,7 +430,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
 
             if (row.kind === "chips") {
               return (
-                <ThemedView style={tw`bg-background pb-4`}>
+                <ThemedView style={tw`bg-background pb-4 gap-2`}>
                   <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
@@ -484,15 +484,17 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
                         onPress={openTimePicker}
                       />
                     )}
-                    {!withNotes && (
+                  </ScrollView>
+                  {!withNotes && (
+                    <ThemedView style={tw`flex-row`}>
                       <Chip
                         variant="assist"
                         icon="file-text"
                         label={t("orders:form.addNote")}
                         onPress={() => setWithNotes(true)}
                       />
-                    )}
-                  </ScrollView>
+                    </ThemedView>
+                  )}
                 </ThemedView>
               );
             }

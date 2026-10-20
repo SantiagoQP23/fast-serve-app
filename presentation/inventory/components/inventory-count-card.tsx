@@ -90,7 +90,6 @@ export default function InventoryCountCard({
         <Label
           text={t(`counts.countStatus.${count.status}`)}
           color={inProgress ? "info" : "success"}
-          variant="solid"
           size="small"
         />
       </ThemedView>
