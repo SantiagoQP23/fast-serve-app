@@ -589,7 +589,9 @@ export default function OrderDetailView({
     if (!dto.typeOrder) return;
     const items = itemsToChangeType(
       order.details.filter(
-        (detail) => detail.status !== OrderDetailStatus.CANCELLED,
+        (detail) =>
+          detail.status !== OrderDetailStatus.CANCELLED &&
+          detail.status !== OrderDetailStatus.DELIVERED,
       ),
       dto.typeOrder,
       order.type,
@@ -714,13 +716,17 @@ export default function OrderDetailView({
           label: t("common:actions.edit"),
           onPress: handleEditFromMenu,
         },
-        {
-          icon: "arrow-left-right",
-          label: t("orders:options.changeType", {
-            type: otherOrderTypeLabel,
-          }),
-          onPress: handleChangeTypeFromMenu,
-        },
+        ...(order.status !== OrderStatus.DELIVERED
+          ? [
+              {
+                icon: "arrow-left-right" as const,
+                label: t("orders:options.changeType", {
+                  type: otherOrderTypeLabel,
+                }),
+                onPress: handleChangeTypeFromMenu,
+              },
+            ]
+          : []),
         ...(order.type === OrderType.IN_PLACE
           ? [
               {
@@ -1394,6 +1400,7 @@ export default function OrderDetailView({
             order={order}
             onOrderUpdated={closeEditBottomSheet}
             onTypeChange={handleEditTypeChange}
+            canChangeType={order.status !== OrderStatus.DELIVERED}
           />
         )}
       </ThemedBottomSheetModal>

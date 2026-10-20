@@ -30,6 +30,8 @@ interface EditOrderBottomSheetProps {
    * ask which items also change type before saving.
    */
   onTypeChange?: (dto: UpdateOrderDto) => void;
+  /** Hides the type selector (e.g. once the order is delivered). */
+  canChangeType?: boolean;
 }
 
 interface EditOrder {
@@ -45,6 +47,7 @@ const EditOrderBottomSheet = ({
   buttonProps,
   onOrderUpdated,
   onTypeChange,
+  canChangeType = true,
 }: EditOrderBottomSheetProps) => {
   const { t } = useTranslation(["orders", "tables", "common"]);
   const orderTypesOptions = useOrderTypes();
@@ -134,13 +137,15 @@ const EditOrderBottomSheet = ({
         <ThemedText type="h2" style={tw`text-center`}>
           {t("orders:edit.title")}
         </ThemedText>
-        <ButtonGroup
-          options={orderTypesOptions}
-          selected={form.orderType}
-          onChange={(value: OrderType) =>
-            setForm({ ...form, orderType: value })
-          }
-        />
+        {canChangeType && (
+          <ButtonGroup
+            options={orderTypesOptions}
+            selected={form.orderType}
+            onChange={(value: OrderType) =>
+              setForm({ ...form, orderType: value })
+            }
+          />
+        )}
 
         {form.orderType === OrderType.IN_PLACE && (
           <Select
