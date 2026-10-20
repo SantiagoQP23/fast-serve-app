@@ -317,7 +317,7 @@ export default function EditOrderDetailScreen() {
             )}
 
             {orderDetail.quantity > 1 && (
-              <Card style={tw`gap-1`}>
+              <Card style={tw`gap-1`} variant="outline">
                 <ThemedView style={tw`flex-row items-center justify-between`}>
                   <ThemedText type="body2" style={tw`text-gray-500`}>
                     {t("common:status.delivered")}
@@ -380,14 +380,14 @@ export default function EditOrderDetailScreen() {
                 <IconButton
                   icon="minus"
                   onPress={decrement}
-                  variant="secondary"
+                  variant="surface"
                   size={50}
                 />
                 <ThemedText type="h1">{counter}</ThemedText>
                 <IconButton
                   icon="plus"
                   onPress={increment}
-                  variant="secondary"
+                  variant="surface"
                   size={50}
                 />
               </ThemedView>

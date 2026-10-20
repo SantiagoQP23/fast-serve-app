@@ -31,7 +31,7 @@ export default function Slider({
   step = 1,
   disabled = false,
   height = 16,
-  bgColor = "bg-secondary",
+  bgColor = "bg-surface",
   progressColor = "bg-primary",
   thumbColor = "bg-primary",
   style = "",

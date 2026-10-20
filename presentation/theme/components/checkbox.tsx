@@ -40,9 +40,7 @@ export default function Checkbox({
       style={({ pressed }) => [
         tw.style(
           "justify-center items-center border rounded-3xl",
-          value
-            ? "bg-primary border-primary"
-            : " border-border border-2",
+          value ? "bg-primary border-primary" : " border-primary border-2",
           pressed && !disabled && "opacity-80",
           disabled && "opacity-50",
           error && !value && "border-red-500",
@@ -58,7 +56,11 @@ export default function Checkbox({
       ]}
     >
       {value && (
-        <Icon name="check" size={checkboxSize.icon} color={tw.color("on-primary")} />
+        <Icon
+          name="check"
+          size={checkboxSize.icon}
+          color={tw.color("on-primary")}
+        />
       )}
     </Pressable>
   );

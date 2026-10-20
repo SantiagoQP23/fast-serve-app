@@ -33,12 +33,13 @@ export default function PaymentMethodCard({
           pressed && tw`opacity-80`,
           active && tw`border-primary `,
         ]}
+        variant="outline"
       >
         <Icon name={paymentMethod.icon} size={22} color={tw.color("text")} />
         <ThemedText type="h4" style={tw`flex-1 ml-3`}>
           {paymentMethod.name}
         </ThemedText>
-        {/* <Icon name="chevron-right" size={18} color={tw.color("gray-400")} /> */}
+        <Icon name="chevron-right" size={18} color={tw.color("text")} />
       </Card>
     );
   }

@@ -79,14 +79,7 @@ export default function Chip({
       {resolvedIcon && <Icon name={resolvedIcon} size={16} color={iconColor} />}
       <ThemedText
         type="body2"
-        style={[
-          filled
-            ? tw`text-on-secondary`
-            : variant === "assist"
-              ? tw`text-text`
-              : tw`text-on-surface-variant`,
-          { fontFamily: typography.medium },
-        ]}
+        style={[tw`text-primary`, { fontFamily: typography.medium }]}
       >
         {label}
       </ThemedText>

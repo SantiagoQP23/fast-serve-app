@@ -548,7 +548,7 @@ export default function PaymentMethodScreen() {
       <ScreenLayout style={tw`flex-1 px-4 pt-6`}>
         {/* Amount to Pay */}
         <ThemedView style={tw`items-center mb-4`}>
-          <ThemedText type="caption" style={tw`text-gray-500 mb-2`}>
+          <ThemedText type="caption" style={tw`text-text mb-2`}>
             {t("bills:details.totalAmount")}
           </ThemedText>
           <TextInput
@@ -589,7 +589,7 @@ export default function PaymentMethodScreen() {
         </ThemedView>
 
         {/* Payment method list */}
-        <ThemedText type="body2" style={tw`text-gray-500 mb-3`}>
+        <ThemedText type="body2" style={tw` mb-3`}>
           {t("bills:details.paymentMethod")}
         </ThemedText>
         <ScrollView

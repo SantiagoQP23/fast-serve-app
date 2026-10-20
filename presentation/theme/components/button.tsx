@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Pressable,
   Text,
@@ -49,7 +48,7 @@ export default function Button({
     primary: "bg-primary",
     secondary: "bg-secondary",
     surface: "bg-surface",
-    outline: "border border-border bg-transparent",
+    outline: "border border-primary bg-transparent",
     text: "bg-transparent",
     destructive: "bg-red-100",
   };
@@ -97,7 +96,7 @@ export default function Button({
   const textColors = {
     primary: "text-on-primary",
     secondary: "text-on-secondary",
-    outline: "text-on-surface-variant",
+    outline: "text-primary",
     text: "text-primary",
     surface: "text-on-surface-variant",
     destructive: "text-red-800",
@@ -106,7 +105,7 @@ export default function Button({
   const iconColors = {
     primary: palette.onPrimary,
     secondary: palette.onSecondary,
-    outline: palette.onSurfaceVariant,
+    outline: palette.primary,
     text: palette.primary,
     surface: palette.onSurfaceVariant,
     destructive: tw.color("red-900"),
@@ -164,7 +163,7 @@ export default function Button({
       onPress={onPress}
       style={({ pressed }) => [
         tw.style(
-          `rounded-3xl flex-row justify-center items-center ${variants[variant]} ${sizeStyles[size]} `,
+          `rounded-md flex-row justify-center items-center ${variants[variant]} ${sizeStyles[size]} `,
           pressed && "opacity-80",
           disabled && "opacity-50",
         ),

@@ -4,7 +4,7 @@ import tw from "../lib/tailwind";
 export default function ProgressBar({
   progress = 0, // number from 0 to 1
   height = 3,
-  bgColor = "bg-secondary",
+  bgColor = "bg-surface",
   progressColor = "bg-primary",
   style = "",
   variant = "default", // "default" | "segmented"

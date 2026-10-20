@@ -4,20 +4,20 @@ description: Fast, simple restaurant ordering, built for the floor.
 colors:
   primary: "#1C1B19"
   on-primary: "#FFFFFF"
-  primary-container: "#E8E6E1"
+  primary-container: "#E8E8E8"
   on-primary-container: "#1C1B19"
-  secondary: "#DCE4EE"
-  on-secondary: "#233A57"
-  surface: "#F0EEE9"
-  surface-high: "#E9E6E0"
-  surface-container-low: "#F5F4F0"
-  on-surface-variant: "#4A4743"
-  background: "#FAF9F6"
+  secondary: "#8FAFC4"
+  on-secondary: "#1C1B19"
+  surface: "#F2F2F2"
+  surface-high: "#ECECEC"
+  surface-container-low: "#F7F7F7"
+  on-surface-variant: "#4A4A4A"
+  background: "#FFFFFF"
   text: "#1C1B19"
-  icon: "#75716A"
-  border: "#D9D5CD"
-  outline-variant: "#D9D5CD"
-  divider: "#EFECE6"
+  icon: "#737373"
+  border: "#DCDCDC"
+  outline-variant: "#DCDCDC"
+  divider: "#EEEEEE"
   success: "#22C55E"
   warning: "#F97316"
   error: "#EF4444"
@@ -107,26 +107,26 @@ The Material-shaped color roles (`primary` / `onPrimary` / `primaryContainer` / 
 
 ## Colors
 
-Paper and ink: a warm, near-white page with ink-black as the one accent, and a pale ink-blue wash for "selected". Everything else is a warm neutral, so screens read like a printed menu or a notebook rather than a tech dashboard.
+Paper and ink: a white page with neutral gray surfaces with ink-black as the one accent, and a pale ink-blue wash for "selected". Everything else is a warm neutral, so screens read like a printed menu or a notebook rather than a tech dashboard.
 
 ### Primary
 - **Ink Black** (`#1C1B19`): the app's only accent. Primary buttons, the FAB, switches, active nav indicators, links, selection checkmarks/borders, refresh spinners, and the price/primary-value emphasis on detail screens. A warm black, never pure `#000`.
 - **On Ink** (`#FFFFFF`): text/icons on top of Ink Black fills.
-- **Ink Container** (`#E8E6E1` / on: `#1C1B19`): the pale containment tone for primary-tinted surfaces (e.g. a `Label`'s `primary` color).
+- **Ink Container** (`#E8E8E8` / on: `#1C1B19`): the pale containment tone for primary-tinted surfaces (e.g. a `Label`'s `primary` color).
 
 ### Secondary
-- **Ink-Blue Wash** (`#DCE4EE`, text `#233A57`): the selected/active fill for chips, the active tab pill, segmented choices, button groups, selected order cards and the wheel-picker band. This is what "selected" looks like everywhere in the app — never the primary color itself.
+- **Ink-Blue Wash** (`#8FAFC4`, text `#1C1B19`): the selected/active fill for chips, the active tab pill, segmented choices, button groups, selected order cards and the wheel-picker band. This is what "selected" looks like everywhere in the app — never the primary color itself.
 - **Deep Ink Blue** (`#2C4566`, text `#FFFFFF`): `secondaryContainer`, the stronger selected fill used by the active `SegmentedControl` segment (text uses `on-secondary-container`).
 
 ### Neutral
-- **Paper White** (`#FAF9F6`): app canvas / screen background.
-- **Paper Surface** (`#F0EEE9`): cards, list rows, and input fields sit on this, one step darker than the canvas.
-- **Paper Surface High** (`#E9E6E0`): a slightly higher-contrast surface variant (reserve for a surface that needs to read as "raised" relative to Paper Surface).
+- **Paper White** (`#FFFFFF`): app canvas / screen background.
+- **Paper Surface** (`#F2F2F2`, neutral gray): cards, list rows, and input fields sit on this, one step darker than the canvas.
+- **Paper Surface High** (`#ECECEC`): a slightly higher-contrast surface variant (reserve for a surface that needs to read as "raised" relative to Paper Surface).
 - **Ink** (`#1C1B19`): primary text.
-- **Graphite Icon** (`#75716A`): default icon tint on neutral surfaces.
-- **Hairline Border** (`#D9D5CD`): default borders and outlines — including the bordered (`outline`) `Card` variant, the most common treatment for list-row cards (orders, bills, inventory items).
-- **Faint Divider** (`#EFECE6`): the lightest separator, for hairlines inside a card/list rather than around it.
-- Tailwind's `gray` scale is swapped for the warm-neutral `neutral` scale on Light (`stone` on Paper), so `text-gray-500` doesn't lean cool blue.
+- **Graphite Icon** (`#737373`): default icon tint on neutral surfaces.
+- **Hairline Border** (`#DCDCDC`): default borders and outlines — including the bordered (`outline`) `Card` variant, the most common treatment for list-row cards (orders, bills, inventory items).
+- **Faint Divider** (`#EEEEEE`): the lightest separator, for hairlines inside a card/list rather than around it.
+- Tailwind's `gray` scale is swapped for the `neutral` scale on Light (500 darkened to `#6B6B6B` so labels keep 4.5:1 on Paper Surface) (`stone` on Paper), so `text-gray-500` doesn't lean cool blue.
 
 ### Semantic
 - **Success** (`#22C55E`), **Warning** (`#F97316`), **Error** (`#EF4444`), **Info** (`#3B82F6`): status labels and states (active/inactive, visible/hidden, stock, form errors). These come from the standard Tailwind palette rather than the primary token set — keep them as the semantic layer; don't recruit Ink Black or the ink-blue wash for status meaning.
@@ -138,8 +138,8 @@ Paper and ink: a warm, near-white page with ink-black as the one accent, and a p
 
 ### Themes
 The user picks a theme per device in Settings → Appearance (`useThemeStore`). Values for every role live in `palettes`:
-- **Light** (default): fresh white printer paper — the palette described above.
-- **Paper**: aged cream notebook paper — warm off-white canvas (`#F4EFE6`), sand surfaces (`#EAE4D8`), warm ink text and accent (`#24211D`, text on it `#FBF8F2`), ink-blue wash for selected (`#D8E0EA`). Tailwind's `gray` scale is swapped for the warm `stone` scale.
+- **Light** (default): white page, neutral gray surfaces — the palette described above.
+- **Paper**: aged cream notebook paper — warm off-white canvas (`#F4EFE6`), sand surfaces (`#EAE4D8`), warm ink text and accent (`#24211D`, text on it `#FBF8F2`), ink-blue wash for selected (`#8FAFC4`, ink text `#24211D`). Tailwind's `gray` scale is swapped for the warm `stone` scale.
 - **Black** (labelled "Dark"/"Oscuro"): dark paper — warm charcoal canvas (`#141311`), surfaces `#1E1C19` / `#262420`, ivory text, and ivory ink as the accent (`#EDE8DF`, text on it `#141311`); selected is a deep ink-blue (`#1F2A38`, text `#DCE4EE`). Tailwind scales are remapped (`colorScaleOverrides`): `gray` becomes a warm charcoal ramp, pale shades (50–300) of the other scales become dark fills and dark text shades (700+) become light, so `bg-red-100 text-red-800` still reads as a soft label.
 
 The One Accent Rule holds in every theme. Printed receipts and QR codes stay black on white.
@@ -181,7 +181,7 @@ Two tiers, correlated to whether an element sits in the content flow or floats a
 - **Popover** (`offset 0/4px, opacity 0.12, radius 12px, Android elevation 8`): the one place the system defines an exact, hand-tuned shadow rather than reaching for a preset — used for the anchored options popover.
 
 ### Named Rules
-**The Two-Tier Rule.** A surface is either resting (no shadow, or the near-flat `shadow-xs` on a `GroupedList` row) or floating (pronounced, `shadow-lg` or the tuned popover shadow). Nothing sits in between — don't invent an intermediate shadow weight for a "somewhat important" card. (`Card`'s `elevated` variant is the one sanctioned resting lift: an opaque Surface Container Low fill (`#F5F4F0`) with a hand-tuned Material level-1 shadow — offset 0/1px, opacity 0.12, radius 3px, Android elevation 2 — used for empty table cards on the home grid. The fill is mandatory: a transparent elevated surface renders no shadow or radius on Android. Don't reach for further in-between weights.)
+**The Two-Tier Rule.** A surface is either resting (no shadow, or the near-flat `shadow-xs` on a `GroupedList` row) or floating (pronounced, `shadow-lg` or the tuned popover shadow). Nothing sits in between — don't invent an intermediate shadow weight for a "somewhat important" card. (`Card`'s `elevated` variant is the one sanctioned resting lift: an opaque Surface Container Low fill (`#F7F7F7`) with a hand-tuned Material level-1 shadow — offset 0/1px, opacity 0.12, radius 3px, Android elevation 2 — used for empty table cards on the home grid. The fill is mandatory: a transparent elevated surface renders no shadow or radius on Android. Don't reach for further in-between weights.)
 
 ## Shapes
 
@@ -248,7 +248,7 @@ A scrollable, haptic, iOS-style value picker (`WheelColumn` primitive) for fast,
 
 ### Do:
 - **Do** use 24px radius (`rounded-3xl`) as the default for any new card, button, input, or picker trigger.
-- **Do** use the Ink-Blue Wash (`#DCE4EE`) for selected/active chip and filter state — never a tint of the primary.
+- **Do** use the Ink-Blue Wash (`#8FAFC4`) for selected/active chip and filter state — never a tint of the primary.
 - **Do** use the 6px chip radius (`rounded-md`) for any new chip — the pill shape belongs to status `Label`s now, not chips.
 - **Do** render an inactive record as its card at 50% opacity, not a separate badge-only treatment.
 - **Do** put "more options" (edit/activate/delete) behind a single bottom sheet or popover with Edit → Activate/Deactivate → Delete in that order, delete in red.

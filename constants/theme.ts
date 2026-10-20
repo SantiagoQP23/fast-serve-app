@@ -37,32 +37,31 @@ export interface Palette {
   onInverseSurface: string;
 }
 
-/** Fresh white printer paper: neutral warm white, ink-black accent. */
+/** White page with neutral gray surfaces and an ink-black accent. */
 const light: Palette = {
   primary: "#1C1B19",
   onPrimary: "#FFFFFF",
-  primaryContainer: "#E8E6E1",
+  primaryContainer: "#E8E8E8",
   onPrimaryContainer: "#1C1B19",
-  secondary: "#DCE4EE",
-  onSecondary: "#233A57",
+  secondary: "#8FAFC4",
+  onSecondary: "#1C1B19",
   secondaryContainer: "#2C4566",
   onSecondaryContainer: "#FFFFFF",
-
-  background: "#FAF9F6",
-  surface: "#F0EEE9",
-  surfaceHigh: "#E9E6E0",
-  surfaceContainerLow: "#F5F4F0",
+  background: "#FFFFFF",
+  surface: "#F2F2F2",
+  surfaceHigh: "#ECECEC",
+  surfaceContainerLow: "#F7F7F7",
   surfaceBright: "#FFFFFF",
 
   text: "#1C1B19",
   onSurface: "#1C1B19",
-  onSurfaceVariant: "#4A4743",
-  icon: "#75716A",
-  border: "#D9D5CD",
-  outlineVariant: "#D9D5CD",
-  divider: "#EFECE6",
-  inverseSurface: "#3A3835",
-  onInverseSurface: "#FAF9F6",
+  onSurfaceVariant: "#4A4A4A",
+  icon: "#737373",
+  border: "#DCDCDC",
+  outlineVariant: "#DCDCDC",
+  divider: "#EEEEEE",
+  inverseSurface: "#3A3A3A",
+  onInverseSurface: "#FFFFFF",
 };
 
 /** Warm off-white, like a paper notebook. Warm ink-black accent. */
@@ -71,8 +70,8 @@ const paper: Palette = {
   onPrimary: "#FBF8F2",
   primaryContainer: "#E3DCCE",
   onPrimaryContainer: "#24211D",
-  secondary: "#D8E0EA",
-  onSecondary: "#233A57",
+  secondary: "#8FAFC4",
+  onSecondary: "#24211D",
   secondaryContainer: "#2C4566",
   onSecondaryContainer: "#FFFFFF",
 
@@ -243,14 +242,14 @@ const tailwindScales = {
 };
 
 // Tailwind's `neutral` scale, used as `gray` on light: the default gray
-// leans cool blue, which doesn't read as paper.
+// leans cool blue. 500 is a step darker so labels keep 4.5:1 on `surface`.
 const neutral = {
   50: "#fafafa",
   100: "#f5f5f5",
   200: "#e5e5e5",
   300: "#d4d4d4",
   400: "#a3a3a3",
-  500: "#737373",
+  500: "#6B6B6B",
   600: "#525252",
   700: "#404040",
   800: "#262626",

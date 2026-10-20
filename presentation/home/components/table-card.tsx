@@ -49,9 +49,9 @@ export default function TableCard({
         style={tw`p-2 rounded-lg`}
         containerStyle={[
           tw`rounded-lg`,
-          isOccupied && tw`border border-transparent bg-light-surface-variant`,
+          isOccupied && tw` bg-surface-container-low`,
         ]}
-        variant="default"
+        variant="outline"
       >
         {/* Overlay instead of a border so selecting doesn't change the card size */}
         {selected && (

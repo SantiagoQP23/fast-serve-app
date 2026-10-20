@@ -79,22 +79,22 @@ const styles = StyleSheet.create({
     fontSize: 32,
     lineHeight: 40,
     height: 40,
-    fontFamily: typography.medium,
+    fontFamily: typography.semibold,
   },
   h2: {
     fontSize: 28,
     lineHeight: 36,
-    fontFamily: typography.regular,
+    fontFamily: typography.semibold,
   },
   h3: {
     fontSize: 22,
     lineHeight: 28,
-    fontFamily: typography.medium,
+    fontFamily: typography.semibold,
   },
   h4: {
     fontSize: 18,
     lineHeight: 24,
-    fontFamily: typography.medium,
+    fontFamily: typography.semibold,
   },
   body1: {
     fontSize: 16,
