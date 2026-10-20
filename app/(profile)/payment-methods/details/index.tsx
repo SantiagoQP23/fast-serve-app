@@ -242,20 +242,11 @@ export default function PaymentMethodDetailsScreen() {
                         ? () => handleOpenAccountActions(account)
                         : undefined
                     }
-                    style={isDefault && tw`bg-secondary`}
                   >
                     <ThemedView
                       style={tw`flex-row items-center gap-3 bg-transparent`}
                     >
-                      <Icon
-                        name={accountIcon(account.type)}
-                        size={26}
-                        color={
-                          isDefault
-                            ? tw.color("on-secondary")
-                            : tw.color("text-on-surface-variant")
-                        }
-                      />
+                      <Icon name={accountIcon(account.type)} size={26} />
                       <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
                         <ThemedText
                           type="body1"

@@ -25,7 +25,7 @@ export function GroupedList<T>({
   style,
 }: GroupedListProps<T>) {
   return (
-    <ThemedView style={[tw`gap-0.5`, style]}>
+    <ThemedView style={[tw`gap-1`, style]}>
       {data.map((item, index) => {
         const isFirst = index === 0;
         const isLast = index === data.length - 1;
@@ -34,9 +34,9 @@ export function GroupedList<T>({
           <ThemedView
             key={keyExtractor(item, index)}
             style={tw.style(
-              "bg-surface-container-low shadow-xs overflow-hidden",
-              isFirst ? "rounded-t-3xl" : "rounded-t-md",
-              isLast ? "rounded-b-3xl" : "rounded-b-md",
+              "overflow-hidden",
+              isFirst ? "rounded-t-md" : "rounded-t-md",
+              isLast ? "rounded-b-md" : "rounded-b-md",
               getItemClassName?.(item, index),
             )}
           >
@@ -46,7 +46,7 @@ export function GroupedList<T>({
               onLongPress={
                 onItemLongPress ? () => onItemLongPress(item, index) : undefined
               }
-              style={(state) => tw.style("p-4", state.pressed && "opacity-80")}
+              style={(state) => tw.style("py-4", state.pressed && "opacity-80")}
             >
               {renderItem(item, index)}
             </Pressable>

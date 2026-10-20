@@ -109,7 +109,7 @@ export default function StaffScreen() {
         }
         contentContainerStyle={tw`pb-8`}
       >
-        <ThemedView style={tw`rounded-lg  gap-2`}>
+        <ThemedView style={tw`rounded-lg  gap-6 px-2`}>
           {staffMembers.length === 0 && !isLoading && (
             <ThemedView style={tw`items-center py-12 gap-3`}>
               <Icon name="users" size={48} color={tw.color("gray-400")} />
@@ -120,12 +120,16 @@ export default function StaffScreen() {
           )}
 
           {staffMembers.map((staffMember) => (
-            <Card
+            <Pressable
               key={staffMember.id}
-              style={tw`gap-3 flex-row items-center`}
+              style={tw`gap-4 flex-row items-center`}
               onPress={() => handlePresentChangeRole(staffMember)}
             >
-              <Avatar name={staffMember.person?.firstName} size={40} />
+              <Avatar
+                name={staffMember.person?.firstName}
+                size={40}
+                variant="outlined"
+              />
               <ThemedView style={tw`flex-1 gap-1`}>
                 <ThemedText type="body1" style={tw``}>
                   {staffMember.person?.firstName} {staffMember.person?.lastName}
@@ -140,7 +144,7 @@ export default function StaffScreen() {
                 {/*   {staffMember.email} */}
                 {/* </ThemedText> */}
               </ThemedView>
-            </Card>
+            </Pressable>
           ))}
         </ThemedView>
       </ScrollView>

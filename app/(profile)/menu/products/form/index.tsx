@@ -385,7 +385,6 @@ export default function MenuProductFormScreen() {
                     value={value}
                     onChangeText={onChange}
                     error={errors.name?.message}
-                    variant="outlined"
                   />
                 )}
               />
@@ -405,7 +404,6 @@ export default function MenuProductFormScreen() {
                     numberOfLines={3}
                     textAlignVertical="top"
                     error={errors.description?.message}
-                    variant="outlined"
                   />
                 )}
               />
@@ -440,7 +438,6 @@ export default function MenuProductFormScreen() {
                           value={value}
                           onChange={(v) => onChange(String(v))}
                           placeholder={t("products.placeholders.category")}
-                          variant="outlined"
                         />
                       )}
                     />
@@ -464,7 +461,6 @@ export default function MenuProductFormScreen() {
                         label: t("productionAreas:newArea"),
                         onPress: handleCreateProductionArea,
                       }}
-                      variant="outlined"
                     />
                   )}
                 />
@@ -512,7 +508,6 @@ export default function MenuProductFormScreen() {
                         onChangeText={onChange}
                         keyboardType="decimal-pad"
                         error={errors.price?.message}
-                        variant="outlined"
                       />
                     )}
                   />

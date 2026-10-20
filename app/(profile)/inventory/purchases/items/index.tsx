@@ -105,7 +105,6 @@ export default function MenuInventoryPurchaseItemsScreen() {
           value={search}
           onChangeText={setSearch}
           returnKeyType="search"
-          variant="outlined"
         />
 
         {categories.length > 0 && (

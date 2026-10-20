@@ -540,7 +540,6 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
                       placeholder={t("orders:newOrder.notesPlaceholder")}
                       onChangeText={setNotes}
                       value={notes}
-                      variant="outlined"
                       containerStyle={tw`bg-transparent border-0 p-0`}
                     />
                   )}

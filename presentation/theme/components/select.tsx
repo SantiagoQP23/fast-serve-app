@@ -47,7 +47,7 @@ export default function Select({
   snapPoints = ["40%", "70%", "90%"],
   headerAction,
   footerAction,
-  variant = "filled",
+  variant = "outlined",
 }: SelectProps) {
   const bottomSheetPickerRef = useRef<BottomSheetPickerRef>(null);
   const [isPressed, setIsPressed] = useState(false);

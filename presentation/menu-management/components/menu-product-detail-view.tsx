@@ -670,7 +670,6 @@ export default function MenuProductDetailView({
 
           <TextInput
             bottomSheet
-            variant="outlined"
             label={t("products.variants.fields.name")}
             placeholder={t("products.variants.placeholders.name")}
             value={newOptionName}
@@ -679,7 +678,6 @@ export default function MenuProductDetailView({
 
           <TextInput
             bottomSheet
-            variant="outlined"
             label={t("products.variants.fields.price")}
             placeholder={t("products.variants.placeholders.price")}
             value={newOptionPrice}
@@ -793,7 +791,6 @@ export default function MenuProductDetailView({
 
           <TextInput
             bottomSheet
-            variant="outlined"
             label={t("products.variants.fields.name")}
             placeholder={t("products.variants.placeholders.name")}
             value={editOptionName}
@@ -802,7 +799,6 @@ export default function MenuProductDetailView({
 
           <TextInput
             bottomSheet
-            variant="outlined"
             label={t("products.variants.fields.price")}
             placeholder={t("products.variants.placeholders.price")}
             value={editOptionPrice}

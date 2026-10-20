@@ -153,7 +153,6 @@ const BottomSheetPicker = forwardRef<
                     </Pressable>
                   ) : null
                 }
-                variant="outlined"
               />
             </View>
           )}

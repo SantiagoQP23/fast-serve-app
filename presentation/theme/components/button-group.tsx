@@ -56,7 +56,7 @@ export default function ButtonGroup({
                 isSmall ? "px-3 py-[8px]" : "flex-1 py-2",
                 "rounded-3xl",
                 showIcon && "flex-row items-center justify-center gap-2",
-                isActive ? "bg-secondary" : "bg-transparent",
+                isActive ? "bg-white" : "bg-transparent",
                 pressed && "opacity-80",
               )
             }

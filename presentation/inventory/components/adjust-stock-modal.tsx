@@ -123,7 +123,6 @@ function AdjustStockForm({ item, mode, onClose }: AdjustStockFormProps) {
 
       <TextInput
         bottomSheet
-        variant="outlined"
         label={t("reasonOptional")}
         value={note}
         onChangeText={setNote}

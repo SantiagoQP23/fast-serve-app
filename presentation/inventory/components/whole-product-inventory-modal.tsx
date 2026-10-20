@@ -296,7 +296,6 @@ function WholeProductInventoryForm({
         <View style={tw`flex-1`}>
           <TextInput
             bottomSheet
-            variant="outlined"
             label={t("wholeProduct.fields.currentQuantity")}
             placeholder={t("placeholders.quantity")}
             value={quantity}
@@ -307,7 +306,6 @@ function WholeProductInventoryForm({
         <View style={tw`flex-1`}>
           <TextInput
             bottomSheet
-            variant="outlined"
             label={t("fields.minimumQuantity")}
             placeholder={t("placeholders.minimumQuantity")}
             value={minimumQuantity}

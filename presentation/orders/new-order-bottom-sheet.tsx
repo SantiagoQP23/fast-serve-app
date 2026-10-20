@@ -75,7 +75,6 @@ const NewOrderBottomSheet = ({
               value: table.id,
               label: t("details.table") + " " + table.name,
             }))}
-            variant="outlined"
             value={table?.id}
             onChange={(value) =>
               setTable(tables.find((t) => t.id === value) || null)

@@ -24,6 +24,7 @@ import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-s
 import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.model";
 import type { Account } from "@/core/restaurant/models/account.model";
 import type { PaymentMethod } from "@/core/restaurant/models/payment-method.model";
+import Chip from "@/presentation/theme/components/chip";
 
 const paymentMethodIcons: Record<PaymentMethodCategory, IconName> = {
   [PaymentMethodCategory.CASH]: "banknote",
@@ -237,13 +238,13 @@ export default function PaymentMethodsSettingsScreen() {
                           color={tw.color("text-on-surface-variant")}
                         />
                         <ThemedView style={tw`flex-1 gap-2`}>
-                          <ThemedText type="body1" style={tw`font-semibold`}>
+                          <ThemedText type="h4" style={tw``}>
                             {method.name}
                           </ThemedText>
                           <ThemedView
                             style={tw`flex-row items-center gap-2 flex-wrap`}
                           >
-                            <ThemedText type="small" style={tw`text-gray-500`}>
+                            <ThemedText type="small" style={tw``}>
                               {t(getPaymentMethodTranslationKey(method.type))}
                             </ThemedText>
                             {method.type === PaymentMethodCategory.CARD && (
@@ -268,15 +269,9 @@ export default function PaymentMethodsSettingsScreen() {
                       style={tw`flex-row items-center gap-2 flex-wrap`}
                     >
                       {method.allowedDestinationAccounts.map((account) => (
-                        <Label
+                        <Chip
                           key={account.id}
-                          text={account.name}
-                          size="small"
-                          color={
-                            method.defaultDestinationAccount?.id === account.id
-                              ? "default"
-                              : "outline"
-                          }
+                          label={account.name}
                           onPress={
                             canManage
                               ? () =>
@@ -285,14 +280,14 @@ export default function PaymentMethodsSettingsScreen() {
                           }
                         />
                       ))}
-                      {canManage && (
-                        <IconButton
-                          icon="circle-plus"
-                          size={20}
-                          variant="text"
-                          onPress={() => handleAddAccount(method.id)}
-                        />
-                      )}
+                      {/* {canManage && ( */}
+                      {/*   <IconButton */}
+                      {/*     icon="circle-plus" */}
+                      {/*     size={20} */}
+                      {/*     variant="text" */}
+                      {/*     onPress={() => handleAddAccount(method.id)} */}
+                      {/*   /> */}
+                      {/* )} */}
                     </ThemedView>
                   </ThemedView>
                 </Card>

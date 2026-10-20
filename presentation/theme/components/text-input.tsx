@@ -49,7 +49,7 @@ function TextInput(
     bottomSheet,
     containerStyle,
     style,
-    variant = "filled",
+    variant = "outlined",
     editable = true,
     value,
     defaultValue,

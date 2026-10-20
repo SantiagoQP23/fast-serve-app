@@ -158,7 +158,6 @@ export default function PurchaseCartPanel({
               />
             )}
             <TextInput
-              variant="outlined"
               label={t("purchases.noteOptional")}
               placeholder={t("purchases.notePlaceholder")}
               value={note}

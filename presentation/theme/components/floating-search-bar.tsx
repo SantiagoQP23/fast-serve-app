@@ -223,7 +223,6 @@ export default function FloatingSearchBar({
         {/* Elevation needs a filled background on the shadow-casting view. */}
         <View style={tw`rounded-3xl bg-surface-bright shadow-sm`}>
           <TextInput
-            variant="outlined"
             ref={inputRef}
             value={value}
             onChangeText={onChangeText}

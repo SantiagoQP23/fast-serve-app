@@ -6,8 +6,15 @@ import { ThemedView } from "./themed-view";
 import { ThemedText } from "./themed-text";
 import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
+type AvatarVariant = "dynamic" | "primary" | "outlined";
+
 export interface AvatarProps {
   name?: string;
+  /**
+   * `dynamic` colors by initial; `primary` fills with the theme's primary
+   * color; `outlined` draws a primary border on a transparent background.
+   */
+  variant?: AvatarVariant;
   size?: number;
   style?: ViewStyle;
   onPress?: () => void;
@@ -31,24 +38,46 @@ function getAvatarColor(initial: string): string {
   return AVATAR_COLORS[initial.charCodeAt(0) % AVATAR_COLORS.length];
 }
 
-export default function Avatar({ name, size = 40, style, onPress }: AvatarProps) {
+export default function Avatar({
+  name,
+  variant = "dynamic",
+  size = 40,
+  style,
+  onPress,
+}: AvatarProps) {
   const palette = usePalette();
   const initial = name?.trim()?.charAt(0)?.toUpperCase() || "?";
-  const backgroundColor =
-    initial === "?" ? palette.primary : getAvatarColor(initial);
+  const isOutlined = variant === "outlined";
+  const isPrimary = variant === "primary" || (!isOutlined && initial === "?");
+  const backgroundColor = isOutlined
+    ? "transparent"
+    : isPrimary
+      ? palette.primary
+      : getAvatarColor(initial);
+  // Primary flips to ivory in dark themes, so pair it with its own on-color.
+  const textColor = isOutlined
+    ? palette.primary
+    : isPrimary
+      ? palette.onPrimary
+      : "#FFFFFF";
 
   const content = (
     <ThemedView
       style={[
-        tw`items-center justify-center rounded-full`,
-        { width: size, height: size, backgroundColor },
+        tw`items-center justify-center`,
+        // Explicit radius: Android can draw `rounded-full` + border as a square.
+        { width: size, height: size, borderRadius: size / 2, backgroundColor },
+        isOutlined && { borderWidth: 1.5, borderColor: palette.primary },
         style,
       ]}
     >
       <ThemedText
         style={[
-          tw`text-white`,
-          { fontFamily: typography.semibold, fontSize: size * 0.45 },
+          {
+            color: textColor,
+            fontFamily: typography.semibold,
+            fontSize: size * 0.45,
+          },
         ]}
       >
         {initial}

@@ -304,7 +304,6 @@ export default function MenuOverviewScreen() {
       )}
 
       <TextInput
-        variant="outlined"
         value={search}
         placeholder={t("products.searchPlaceholder")}
         onChangeText={setSearch}

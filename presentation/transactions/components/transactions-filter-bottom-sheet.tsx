@@ -192,7 +192,6 @@ export default function TransactionsFilterBottomSheet({
             options={userOptions}
             value={createdById}
             onChange={(value) => setCreatedById(value as string)}
-            variant="outlined"
           />
         )}
 

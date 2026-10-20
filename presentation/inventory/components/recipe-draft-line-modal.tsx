@@ -272,7 +272,6 @@ function AddIngredientForm({
         <Select
           label={t("recipe.fields.inventoryItem")}
           options={itemOptions}
-          variant="outlined"
           value={selectedItemId}
           onChange={(v) => setSelectedItemId(String(v))}
           headerAction={{
@@ -288,7 +287,6 @@ function AddIngredientForm({
             <View style={tw`flex-1`}>
               <TextInput
                 bottomSheet
-                variant="outlined"
                 label={t("recipe.fields.newItemName")}
                 value={newItemName}
                 onChangeText={setNewItemName}
@@ -299,7 +297,6 @@ function AddIngredientForm({
               <Select
                 label={t("fields.unit")}
                 options={unitOptions}
-                variant="outlined"
                 value={newItemUnit}
                 onChange={(v) => setNewItemUnit(v as InventoryUnit)}
               />
@@ -309,7 +306,6 @@ function AddIngredientForm({
           <Select
             label={t("fields.category")}
             options={categoryOptions}
-            variant="outlined"
             value={newItemCategoryId}
             onChange={(v) => setNewItemCategoryId(String(v))}
             headerAction={{
@@ -322,7 +318,6 @@ function AddIngredientForm({
             <View style={tw`flex-1`}>
               <TextInput
                 bottomSheet
-                variant="outlined"
                 label={t("wholeProduct.fields.currentQuantity")}
                 value={newItemQuantity}
                 onChangeText={setNewItemQuantity}
@@ -333,7 +328,6 @@ function AddIngredientForm({
             <View style={tw`flex-1`}>
               <TextInput
                 bottomSheet
-                variant="outlined"
                 label={t("fields.minimumQuantity")}
                 value={newItemMinimumQuantity}
                 onChangeText={setNewItemMinimumQuantity}
