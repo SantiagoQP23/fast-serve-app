@@ -138,14 +138,12 @@ export default function EditOrderDetailScreen() {
           />
           <Button
             label={t("orders:replaceItem.confirm")}
-            leftIcon="repeat"
             variant="surface"
             size="extra-small"
             onPress={openVariantBottomSheet}
           />
           {isAdmin && (
             <Button
-              label={t("common:actions.edit")}
               leftIcon="square-pen"
               variant="surface"
               size="extra-small"

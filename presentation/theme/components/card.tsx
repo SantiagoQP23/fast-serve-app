@@ -17,11 +17,11 @@ type CardProps = PressableProps & {
 };
 
 const containerVariantStyles: Record<CardVariant, string> = {
-  default: " bg-surface-container-low rounded-3xl",
-  outline: "border border-border rounded-3xl bg-transparent",
+  default: " bg-surface-container-low rounded-md",
+  outline: "border border-primary rounded-md bg-transparent",
   // Elevation needs an opaque fill: Android casts the shadow from the
   // background outline, and iOS would otherwise shadow the children.
-  elevated: "bg-surface-container-low rounded-3xl",
+  elevated: "bg-surface-container-low rounded-md",
 };
 
 export default function Card({
@@ -44,7 +44,7 @@ export default function Card({
         {...rest}
         style={(state) =>
           [
-            tw`p-6 rounded-3xl bg-transparent`,
+            tw`p-6 rounded-md bg-transparent`,
             state.pressed && onPress && tw`opacity-80`,
             typeof style === "function" ? style(state) : style,
           ].filter(Boolean)

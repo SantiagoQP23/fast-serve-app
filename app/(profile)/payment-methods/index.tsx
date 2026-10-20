@@ -153,8 +153,8 @@ export default function PaymentMethodsSettingsScreen() {
           <RefreshControl
             refreshing={paymentMethodsQuery.isRefetching}
             onRefresh={onRefresh}
-            tintColor={tw.color("blue-500")}
-            colors={[tw.color("blue-500") || "#3b82f6"]}
+            tintColor={tw.color("primary")}
+            colors={[tw.color("primary") as string]}
           />
         }
       >
@@ -172,7 +172,7 @@ export default function PaymentMethodsSettingsScreen() {
             <ThemedView
               style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
             >
-              <ActivityIndicator color={tw.color("blue-500")} />
+              <ActivityIndicator color={tw.color("primary")} />
               <ThemedText type="small" style={tw`text-gray-500`}>
                 {t("loading")}
               </ThemedText>

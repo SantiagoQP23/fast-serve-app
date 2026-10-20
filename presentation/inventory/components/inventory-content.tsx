@@ -313,8 +313,8 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
             <RefreshControl
               refreshing={catalogQuery.isFetching}
               onRefresh={handleRefresh}
-              tintColor={tw.color("blue-500")}
-              colors={[tw.color("blue-500") || "#3b82f6"]}
+              tintColor={tw.color("primary")}
+              colors={[tw.color("primary") as string]}
             />
           }
         >

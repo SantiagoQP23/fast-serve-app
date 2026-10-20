@@ -96,7 +96,7 @@ export default function TicketCard({
       onLongPress={() => !selectionMode && onLongPress?.(ticket)}
       style={tw.style(
         "p-4 bg-surface-bright",
-        selected && "border-2 border-blue-500",
+        selected && "border-2 border-primary",
       )}
     >
       {order && (
@@ -111,7 +111,7 @@ export default function TicketCard({
             <Icon
               name={selected ? "circle-check" : "circle"}
               size={22}
-              color={selected ? tw.color("blue-500") : tw.color("gray-400")}
+              color={selected ? tw.color("primary") : tw.color("gray-400")}
               style={tw`mr-2`}
             />
           )}

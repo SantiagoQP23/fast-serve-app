@@ -47,7 +47,7 @@ export default function InventoryItemRow({
         <Icon
           name={selected ? "circle-check" : "circle"}
           size={22}
-          color={selected ? tw.color("blue-500") : tw.color("gray-400")}
+          color={selected ? tw.color("primary") : tw.color("gray-400")}
         />
       )}
       <ThemedText
@@ -58,8 +58,8 @@ export default function InventoryItemRow({
         {item.name}
       </ThemedText>
       <ThemedText
-        type="body1"
-        style={[{ fontFamily: typography.semibold }, tw`${quantityColor}`]}
+        type="body2"
+        style={[{ fontFamily: typography.medium }, tw`${quantityColor}`]}
       >
         {t("quantityWithUnit", {
           quantity: item.quantity,

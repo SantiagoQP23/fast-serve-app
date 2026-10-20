@@ -104,7 +104,7 @@ export default function InventoryItemCard({
           " gap-3 p-4",
           isInactive && "opacity-50 border border-dashed border-border",
           active && !selectionMode && "bg-secondary",
-          selected && "border border-blue-500 bg-blue-50",
+          selected && "border border-primary bg-secondary",
           pressed && (onPress || selectionMode) && "opacity-80",
         )
       }
@@ -114,7 +114,7 @@ export default function InventoryItemCard({
           <Icon
             name={selected ? "circle-check" : "circle"}
             size={22}
-            color={selected ? tw.color("blue-500") : tw.color("gray-400")}
+            color={selected ? tw.color("primary") : tw.color("gray-400")}
           />
         )}
         <ThemedView style={tw`flex-1 gap-1 flex-row`}>

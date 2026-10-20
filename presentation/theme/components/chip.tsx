@@ -51,8 +51,7 @@ export default function Chip({
   // When filled and nothing else occupies the leading slot, show the M3
   // selected-state checkmark. An explicit `icon` always wins (e.g. a "close"
   // icon on an applied-filter chip means remove, not re-confirm selection).
-  const resolvedIcon =
-    icon ?? (filled && !leftContent ? "check" : undefined);
+  const resolvedIcon = icon ?? (filled && !leftContent ? "check" : undefined);
 
   const trailingContent =
     rightContent ??
@@ -70,16 +69,14 @@ export default function Chip({
         filled
           ? tw`bg-secondary`
           : variant === "input"
-            ? tw`bg-surface-container-low border border-border`
-            : tw`border border-border`,
+            ? tw`bg-surface-container-low border border-primary`
+            : tw`border border-primary`,
         pressed && tw`opacity-75`,
         disabled && tw`opacity-50`,
       ]}
     >
       {leftContent}
-      {resolvedIcon && (
-        <Icon name={resolvedIcon} size={16} color={iconColor} />
-      )}
+      {resolvedIcon && <Icon name={resolvedIcon} size={16} color={iconColor} />}
       <ThemedText
         type="body2"
         style={[

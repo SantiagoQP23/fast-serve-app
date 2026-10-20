@@ -364,7 +364,7 @@ export default function OrderDetailCard({
                 <Icon
                   name={selected ? "circle-check" : "circle"}
                   size={20}
-                  color={selected ? tw.color("blue-500") : tw.color("gray-400")}
+                  color={selected ? tw.color("primary") : tw.color("gray-400")}
                   style={tw`mt-1`}
                 />
               )}

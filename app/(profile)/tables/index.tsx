@@ -190,8 +190,8 @@ export default function TablesSettingsScreen() {
           <RefreshControl
             refreshing={isRefetching}
             onRefresh={refetch}
-            tintColor={tw.color("blue-500")}
-            colors={[tw.color("blue-500") || "#3b82f6"]}
+            tintColor={tw.color("primary")}
+            colors={[tw.color("primary") as string]}
           />
         }
       >

@@ -76,10 +76,7 @@ export default function Fab({
           <Animated.View style={[{ overflow: "hidden" }, labelContainerStyle]}>
             <ThemedText
               numberOfLines={1}
-              style={[
-                tw`text-sm font-semibold`,
-                { color, width: labelWidth },
-              ]}
+              style={[tw`text-sm font-semibold`, { color, width: labelWidth }]}
             >
               {label}
             </ThemedText>

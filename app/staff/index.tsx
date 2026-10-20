@@ -86,19 +86,19 @@ export default function StaffScreen() {
 
   return (
     <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
-      <ThemedView style={tw`flex-row items-center gap-3 mb-4`}>
+      <ThemedView style={tw`flex-row items-center gap-6 mb-4`}>
         <Pressable onPress={() => router.back()}>
           <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
         </Pressable>
-        <ThemedText type="h2" style={tw`flex-1`}>
+        <ThemedText type="h3" style={tw`flex-1`}>
           {t("staff.title")}
         </ThemedText>
         <IconButton
           icon="user-plus"
-          size={22}
-          variant="filled"
+          size={20}
           onPress={handlePresentInvite}
           accessibilityLabel={t("staff.addUser")}
+          variant="surface"
         />
       </ThemedView>
 
@@ -112,11 +112,7 @@ export default function StaffScreen() {
         <ThemedView style={tw`rounded-lg  gap-2`}>
           {staffMembers.length === 0 && !isLoading && (
             <ThemedView style={tw`items-center py-12 gap-3`}>
-              <Icon
-                name="users"
-                size={48}
-                color={tw.color("gray-400")}
-              />
+              <Icon name="users" size={48} color={tw.color("gray-400")} />
               <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
                 {t("staff.empty")}
               </ThemedText>
@@ -136,10 +132,7 @@ export default function StaffScreen() {
                 </ThemedText>
                 <ThemedText
                   type="body2"
-                  style={[
-                    tw`text-primary`,
-                    { fontFamily: typography.medium },
-                  ]}
+                  style={[tw`text-gray-600`, { fontFamily: typography.medium }]}
                 >
                   {getRoleName(staffMember) || ""}
                 </ThemedText>

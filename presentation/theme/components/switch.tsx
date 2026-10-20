@@ -30,7 +30,7 @@ export default function Switch({
       )}
       <RNSwitch
         trackColor={{ false: tw.color("gray-300"), true: palette.primary }}
-        thumbColor={value ? "#fff" : "#f4f3f4"}
+        thumbColor={value ? palette.onPrimary : "#f4f3f4"}
         ios_backgroundColor={tw.color("gray-300")}
         onValueChange={onValueChange}
         value={value}

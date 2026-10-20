@@ -62,7 +62,7 @@ export default function InventoryStockSummary({
           >
             <ThemedView
               style={[
-                tw`bg-surface rounded-3xl p-3.5 gap-2`,
+                tw`bg-surface-container-low rounded-3xl p-3.5 gap-2`,
                 isSelected && {
                   borderWidth: 2,
                   borderColor: tw.color(tile.color),
@@ -75,22 +75,11 @@ export default function InventoryStockSummary({
                 <ThemedText type="small" style={tw`text-gray-500`}>
                   {tile.label}
                 </ThemedText>
-                <Icon
-                  name={tile.icon}
-                  size={16}
-                  color={tw.color(tile.color)}
-                />
+                <Icon name={tile.icon} size={16} color={tw.color(tile.color)} />
               </ThemedView>
               <ThemedView style={tw`bg-transparent`}>
                 <ThemedText type="h3" style={{ fontFamily: typography.bold }}>
                   {tile.count}
-                </ThemedText>
-                <ThemedText
-                  type="small"
-                  numberOfLines={1}
-                  style={[{ fontFamily: typography.semibold }]}
-                >
-                  {tile.description}
                 </ThemedText>
               </ThemedView>
             </ThemedView>

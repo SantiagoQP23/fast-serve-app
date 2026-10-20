@@ -108,8 +108,8 @@ export default function PrintersScreen() {
           <RefreshControl
             refreshing={isRefetching}
             onRefresh={refetch}
-            tintColor={tw.color("blue-500")}
-            colors={[tw.color("blue-500") || "#3b82f6"]}
+            tintColor={tw.color("primary")}
+            colors={[tw.color("primary") as string]}
           />
         }
       >
@@ -184,7 +184,7 @@ export default function PrintersScreen() {
                     {testingPrinterId === printer.id ? (
                       <ActivityIndicator
                         size="small"
-                        color={tw.color("blue-500")}
+                        color={tw.color("primary")}
                         style={tw`p-3`}
                       />
                     ) : (

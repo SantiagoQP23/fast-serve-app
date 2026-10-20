@@ -37,42 +37,43 @@ export interface Palette {
   onInverseSurface: string;
 }
 
+/** Fresh white printer paper: neutral warm white, ink-black accent. */
 const light: Palette = {
-  primary: "#38608F",
+  primary: "#1C1B19",
   onPrimary: "#FFFFFF",
-  primaryContainer: "#D2E4FF",
-  onPrimaryContainer: "#1C4975",
-  secondary: "#D7E3F8",
-  onSecondary: "#3C4858",
-  secondaryContainer: "#535F70",
+  primaryContainer: "#E8E6E1",
+  onPrimaryContainer: "#1C1B19",
+  secondary: "#DCE4EE",
+  onSecondary: "#233A57",
+  secondaryContainer: "#2C4566",
   onSecondaryContainer: "#FFFFFF",
 
-  background: "#F8F9FF",
-  surface: "#ECEEF4",
-  surfaceHigh: "#E7E8EE",
-  surfaceContainerLow: "#F2F3FA",
+  background: "#FAF9F6",
+  surface: "#F0EEE9",
+  surfaceHigh: "#E9E6E0",
+  surfaceContainerLow: "#F5F4F0",
   surfaceBright: "#FFFFFF",
 
-  text: "#191C20",
-  onSurface: "#191C20",
-  onSurfaceVariant: "#43474E",
-  icon: "#64748b",
-  border: "#C3C6CF",
-  outlineVariant: "#C3C6CF",
-  divider: "#f1f5f9",
-  inverseSurface: "#6b7280",
-  onInverseSurface: "#FFFFFF",
+  text: "#1C1B19",
+  onSurface: "#1C1B19",
+  onSurfaceVariant: "#4A4743",
+  icon: "#75716A",
+  border: "#D9D5CD",
+  outlineVariant: "#D9D5CD",
+  divider: "#EFECE6",
+  inverseSurface: "#3A3835",
+  onInverseSurface: "#FAF9F6",
 };
 
-/** Warm off-white, like a paper notebook. Same accent family, deeper. */
+/** Warm off-white, like a paper notebook. Warm ink-black accent. */
 const paper: Palette = {
-  primary: "#2F4A6B",
-  onPrimary: "#FFFFFF",
-  primaryContainer: "#D9E2EC",
-  onPrimaryContainer: "#1E3550",
-  secondary: "#DCE3EA",
-  onSecondary: "#2F3E50",
-  secondaryContainer: "#56606B",
+  primary: "#24211D",
+  onPrimary: "#FBF8F2",
+  primaryContainer: "#E3DCCE",
+  onPrimaryContainer: "#24211D",
+  secondary: "#D8E0EA",
+  onSecondary: "#233A57",
+  secondaryContainer: "#2C4566",
   onSecondaryContainer: "#FFFFFF",
 
   background: "#F4EFE6",
@@ -81,43 +82,43 @@ const paper: Palette = {
   surfaceContainerLow: "#F0EADF",
   surfaceBright: "#FBF8F2",
 
-  text: "#2A2722",
-  onSurface: "#2A2722",
+  text: "#24211D",
+  onSurface: "#24211D",
   onSurfaceVariant: "#4A453D",
   icon: "#7A7266",
   border: "#D6CEBF",
   outlineVariant: "#D6CEBF",
   divider: "#EBE4D7",
-  inverseSurface: "#78716c",
-  onInverseSurface: "#FFFFFF",
+  inverseSurface: "#3A3631",
+  onInverseSurface: "#FBF8F2",
 };
 
-/** True black canvas with near-black surfaces and a bright blue accent. */
+/** Dark paper: warm charcoal canvas with ivory ink as the accent. */
 const black: Palette = {
-  primary: "#5C9DFF",
-  onPrimary: "#00214A",
-  primaryContainer: "#163C78",
-  onPrimaryContainer: "#D6E4FF",
-  secondary: "#1E3352",
-  onSecondary: "#D6E4FF",
-  secondaryContainer: "#B4C8E8",
-  onSecondaryContainer: "#1A2C45",
+  primary: "#EDE8DF",
+  onPrimary: "#141311",
+  primaryContainer: "#34312C",
+  onPrimaryContainer: "#EDE8DF",
+  secondary: "#1F2A38",
+  onSecondary: "#DCE4EE",
+  secondaryContainer: "#B9C8DB",
+  onSecondaryContainer: "#1A2636",
 
-  background: "#000000",
-  surface: "#121212",
-  surfaceHigh: "#1C1C1E",
-  surfaceContainerLow: "#0A0A0A",
-  surfaceBright: "#161616",
+  background: "#141311",
+  surface: "#1E1C19",
+  surfaceHigh: "#262420",
+  surfaceContainerLow: "#181715",
+  surfaceBright: "#211F1C",
 
-  text: "#F2F2F2",
-  onSurface: "#F2F2F2",
-  onSurfaceVariant: "#C4C6CF",
-  icon: "#8E8E93",
-  border: "#2C2C2E",
-  outlineVariant: "#3A3A3C",
-  divider: "#1A1A1A",
-  inverseSurface: "#3A3A3C",
-  onInverseSurface: "#F2F2F2",
+  text: "#EDE8DF",
+  onSurface: "#EDE8DF",
+  onSurfaceVariant: "#C9C3B8",
+  icon: "#948D82",
+  border: "#34312C",
+  outlineVariant: "#3D3A34",
+  divider: "#221F1C",
+  inverseSurface: "#3D3A34",
+  onInverseSurface: "#EDE8DF",
 };
 
 export const palettes = {
@@ -241,6 +242,22 @@ const tailwindScales = {
   },
 };
 
+// Tailwind's `neutral` scale, used as `gray` on light: the default gray
+// leans cool blue, which doesn't read as paper.
+const neutral = {
+  50: "#fafafa",
+  100: "#f5f5f5",
+  200: "#e5e5e5",
+  300: "#d4d4d4",
+  400: "#a3a3a3",
+  500: "#737373",
+  600: "#525252",
+  700: "#404040",
+  800: "#262626",
+  900: "#171717",
+  950: "#0a0a0a",
+};
+
 // Tailwind's warm `stone` scale, used as `gray` on paper.
 const stone = {
   50: "#fafaf9",
@@ -256,20 +273,20 @@ const stone = {
   950: "#0c0a09",
 };
 
-// Neutral gray for black: light shades (backgrounds, borders) become dark
+// Warm charcoal gray for black: light shades (backgrounds, borders) become dark
 // and dark shades (text) become light, keeping the order of emphasis.
 const blackGray = {
-  50: "#0F0F0F",
-  100: "#1A1A1A",
-  200: "#262626",
-  300: "#3A3A3A",
-  400: "#8A8A8A",
-  500: "#A3A3A3",
-  600: "#BDBDBD",
-  700: "#D4D4D4",
-  800: "#E5E5E5",
-  900: "#F2F2F2",
-  950: "#FAFAFA",
+  50: "#171614",
+  100: "#1F1D1A",
+  200: "#2A2824",
+  300: "#3D3A35",
+  400: "#8C867C",
+  500: "#A39D92",
+  600: "#BDB7AC",
+  700: "#D3CEC4",
+  800: "#E4DFD6",
+  900: "#EDE8DF",
+  950: "#F7F4EE",
 };
 
 // On black, pale fills (50-300) take the deep end of the scale, solid
@@ -304,7 +321,7 @@ export const colorScaleOverrides: Record<
   ThemeName,
   Record<string, Record<string, string>>
 > = {
-  light: {},
+  light: { gray: neutral },
   paper: { gray: stone },
   black: {
     gray: blackGray,
@@ -319,9 +336,9 @@ export const colorScaleOverrides: Record<
 
 /** Colors the theme picker shows as a preview swatch. */
 export const themeSwatches: Record<ThemeName, string[]> = {
-  light: [light.background, light.surface, light.primary],
-  paper: [paper.background, paper.surface, paper.primary],
-  black: [black.background, black.surface, black.primary],
+  light: [light.background, light.surface, light.primary, light.secondary],
+  paper: [paper.background, paper.surface, paper.primary, paper.secondary],
+  black: [black.background, black.surface, black.primary, black.secondary],
 };
 
 export const Fonts = Platform.select({

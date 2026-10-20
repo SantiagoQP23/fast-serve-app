@@ -66,7 +66,7 @@ export default function SegmentedControl<T extends string>({
       {items.map((item) => {
         const isActive = value === item.value;
         const iconColor = isActive
-          ? tw.color("on-primary")
+          ? tw.color("on-secondary-container")
           : tw.color("on-surface-variant");
         const iconName =
           isActive && item.icon?.endsWith("-outline")
@@ -91,7 +91,9 @@ export default function SegmentedControl<T extends string>({
               type="body2"
               style={[
                 tw.style(
-                  isActive ? "text-on-primary" : "text-on-surface-variant",
+                  isActive
+                    ? "text-on-secondary-container"
+                    : "text-on-surface-variant",
                 ),
                 { fontFamily: typography.medium },
               ]}
