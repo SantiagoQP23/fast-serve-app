@@ -107,7 +107,8 @@ const black: Palette = {
   surface: "#1E1C19",
   surfaceHigh: "#262420",
   surfaceContainerLow: "#181715",
-  surfaceBright: "#211F1C",
+  // Lighter than surfaceHigh: on a dark theme the raised surface is the bright one.
+  surfaceBright: "#2E2B27",
 
   text: "#EDE8DF",
   onSurface: "#EDE8DF",
