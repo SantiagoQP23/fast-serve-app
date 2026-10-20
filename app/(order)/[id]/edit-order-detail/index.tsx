@@ -1,4 +1,5 @@
 import { ThemedText } from "@/presentation/theme/components/themed-text";
+import { getSelectableTags } from "@/core/menu/models/tag.model";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -338,21 +339,18 @@ export default function EditOrderDetailScreen() {
               </Card>
             )}
 
-            {product.tags?.filter((tag) => tag.isActive && !tag.isArchived)
-              .length > 0 && (
+            {getSelectableTags(product.tags).length > 0 && (
               <ThemedView style={tw`flex-row flex-wrap gap-2 `}>
-                {product.tags
-                  .filter((tag) => tag.isActive && !tag.isArchived)
-                  .map((tag) => (
-                    <Label
-                      key={tag.id}
-                      text={tag.name}
-                      color={
-                        selectedTagIds.includes(tag.id) ? "default" : "outline"
-                      }
-                      onPress={() => toggleTag(tag.id)}
-                    />
-                  ))}
+                {getSelectableTags(product.tags).map((tag) => (
+                  <Label
+                    key={tag.id}
+                    text={tag.name}
+                    color={
+                      selectedTagIds.includes(tag.id) ? "default" : "outline"
+                    }
+                    onPress={() => toggleTag(tag.id)}
+                  />
+                ))}
               </ThemedView>
             )}
           </ThemedView>

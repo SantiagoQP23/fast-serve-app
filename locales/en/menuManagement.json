@@ -191,5 +191,49 @@
   "active": "Active",
   "inactive": "Inactive",
   "activate": "Activate",
-  "deactivate": "Deactivate"
+  "deactivate": "Deactivate",
+  "tags": {
+    "title": "Tags",
+    "newTag": "New tag",
+    "create": "Create",
+    "save": "Save",
+    "rename": "Rename",
+    "delete": "Delete tag",
+    "searchPlaceholder": "Search tags...",
+    "noResults": "No tags found",
+    "loadError": "Couldn't load the tags",
+    "empty": "No tags yet",
+    "emptyDescription": "Create tags like Shrimp or Orange and link them to your products to pick them when taking an order.",
+    "emptyInSheet": "No tags yet. Type a new one below.",
+    "notFound": "Tag not found",
+    "productCount_one": "{{count}} product",
+    "productCount_other": "{{count}} products",
+    "linkedProducts": "Products",
+    "noLinkedProducts": "This tag isn't on any product yet.",
+    "linkProducts": "Link products",
+    "unlinkProduct": "Remove from {{name}}",
+    "allCategories": "All",
+    "saveProductsCount_one": "Save ({{count}} product)",
+    "saveProductsCount_other": "Save ({{count}} products)",
+    "deleteTitle": "Delete tag",
+    "deleteMessage": "“{{name}}” will be removed from every product. Past orders still show it.",
+    "productHint": "The waiter can pick one or more when ordering this product.",
+    "addToProduct": "Add tags...",
+    "productSheetTitle": "Product tags",
+    "createNamed": "Create “{{name}}”",
+    "selectExisting": "Pick “{{name}}”",
+    "createError": "Couldn't create the tag",
+    "updateError": "Couldn't save the tags",
+    "deleteError": "Couldn't delete the tag",
+    "deleteSuccess": "Tag deleted",
+    "fields": {
+      "name": "Name"
+    },
+    "placeholders": {
+      "name": "E.g. Shrimp"
+    },
+    "validations": {
+      "nameMinLength": "The name must be at least 2 characters"
+    }
+  }
 }

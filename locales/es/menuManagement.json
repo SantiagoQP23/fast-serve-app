@@ -191,5 +191,49 @@
   "active": "Activo",
   "inactive": "Inactivo",
   "activate": "Activar",
-  "deactivate": "Desactivar"
+  "deactivate": "Desactivar",
+  "tags": {
+    "title": "Etiquetas",
+    "newTag": "Nueva etiqueta",
+    "create": "Crear",
+    "save": "Guardar",
+    "rename": "Cambiar nombre",
+    "delete": "Eliminar etiqueta",
+    "searchPlaceholder": "Buscar etiquetas...",
+    "noResults": "No se encontraron etiquetas",
+    "loadError": "No se pudieron cargar las etiquetas",
+    "empty": "Todavía no hay etiquetas",
+    "emptyDescription": "Crea etiquetas como Camarón o Naranja y vincúlalas a tus productos para elegirlas al tomar el pedido.",
+    "emptyInSheet": "Todavía no hay etiquetas. Escribe una nueva abajo.",
+    "notFound": "No se encontró la etiqueta",
+    "productCount_one": "{{count}} producto",
+    "productCount_other": "{{count}} productos",
+    "linkedProducts": "Productos",
+    "noLinkedProducts": "Esta etiqueta no está en ningún producto todavía.",
+    "linkProducts": "Vincular productos",
+    "unlinkProduct": "Quitar de {{name}}",
+    "allCategories": "Todas",
+    "saveProductsCount_one": "Guardar ({{count}} producto)",
+    "saveProductsCount_other": "Guardar ({{count}} productos)",
+    "deleteTitle": "Eliminar etiqueta",
+    "deleteMessage": "Se quitará «{{name}}» de todos los productos. Los pedidos anteriores la siguen mostrando.",
+    "productHint": "El mesero puede elegir una o varias al pedir este producto.",
+    "addToProduct": "Agregar etiquetas...",
+    "productSheetTitle": "Etiquetas del producto",
+    "createNamed": "Crear «{{name}}»",
+    "selectExisting": "Elegir «{{name}}»",
+    "createError": "No se pudo crear la etiqueta",
+    "updateError": "No se pudieron guardar las etiquetas",
+    "deleteError": "No se pudo eliminar la etiqueta",
+    "deleteSuccess": "Etiqueta eliminada",
+    "fields": {
+      "name": "Nombre"
+    },
+    "placeholders": {
+      "name": "Ej. Camarón"
+    },
+    "validations": {
+      "nameMinLength": "El nombre debe tener al menos 2 caracteres"
+    }
+  }
 }

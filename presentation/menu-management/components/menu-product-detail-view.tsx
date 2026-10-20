@@ -41,6 +41,7 @@ import { typography } from "@/constants/theme";
 import { getWholeProductLine } from "@/core/inventory/models/inventory-recipe.model";
 import OptionInventorySection from "@/presentation/inventory/components/option-inventory-section";
 import WholeProductInventoryModal from "@/presentation/inventory/components/whole-product-inventory-modal";
+import ProductTagsSection from "@/presentation/menu-management/components/product-tags-section";
 
 const STOCK_TEXT_COLOR = {
   ok: "text-gray-500",
@@ -490,6 +491,8 @@ export default function MenuProductDetailView({
               <ThemedText type="body2">{product.description}</ThemedText>
             </Card>
           ) : null}
+
+          <ProductTagsSection product={product} canManage={canManage} />
 
           {(canManage || product.options.length > 0) && (
             <ThemedView style={tw`gap-3 mt-4`}>

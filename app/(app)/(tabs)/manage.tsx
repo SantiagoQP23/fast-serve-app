@@ -63,6 +63,16 @@ export default function ManageScreen() {
       label: t("manage.menu.overview"),
       onPress: () => router.push("/(profile)/menu/overview"),
     },
+    ...(isAdmin
+      ? [
+          {
+            key: "tags",
+            icon: "tag" as IconName,
+            label: t("manage.menu.tags"),
+            onPress: () => router.push("/(profile)/menu/tags"),
+          },
+        ]
+      : []),
     {
       key: "productionAreas",
       icon: "package",
