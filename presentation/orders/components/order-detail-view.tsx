@@ -43,6 +43,11 @@ import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enu
 import { useOrderPrint } from "@/presentation/orders/hooks/useOrderPrint";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bottom-sheet";
+import ChangeItemsTypeBottomSheet, {
+  itemsToChangeType,
+  type ChangeItemsTypeBottomSheetRef,
+} from "@/presentation/orders/components/change-items-type-bottom-sheet";
+import { UpdateOrderDto } from "@/core/orders/dto/update-order.dto";
 import ReassignOrderBottomSheet, {
   type ReassignOrderBottomSheetRef,
 } from "@/presentation/orders/components/reassign-order-bottom-sheet";
@@ -105,6 +110,8 @@ export default function OrderDetailView({
   const init = useEditOrderCartStore((state) => state.init);
   const { mutate: updateOrder, isOnline, isLoading } = useOrders().updateOrder;
   const { mutate: deleteOrder } = useOrders().deleteOrder;
+  const { mutate: updateOrderDetails } = useOrders().updateOrderDetails;
+  const updateOrderInStore = useOrdersStore((state) => state.updateOrder);
   const { mutate: mergeOrder } = useOrders().mergeOrder;
   const hasOtherOpenOrders = useOrdersStore((state) =>
     state.orders.some((o) => o.id !== order?.id && !o.isClosed),
@@ -165,6 +172,10 @@ export default function OrderDetailView({
   const mergeOrderBottomSheetRef = useRef<MergeOrderBottomSheetRef>(null);
   const editNoteBottomSheetRef = useRef<BottomSheetMethods>(null);
   const moreOptionsSheetRef = useRef<BottomSheetMethods>(null);
+  const typeTableSelectorRef = useRef<TableSelectorBottomSheetRef>(null);
+  const changeItemsTypeSheetRef = useRef<ChangeItemsTypeBottomSheetRef>(null);
+  // The order change waiting for the "which items also change" answer.
+  const pendingTypeChangeRef = useRef<UpdateOrderDto | null>(null);
 
   const closeEditBottomSheet = () => {
     editBottomSheetRef.current?.close();
@@ -535,19 +546,83 @@ export default function OrderDetailView({
     handlePresentEditModal();
   };
 
+  /**
+   * Saves a type change, then gives the chosen items the new type. Both
+   * actions queue offline in this order when there's no connection.
+   */
+  const applyTypeChange = (dto: UpdateOrderDto, itemIds: string[]) => {
+    const typeOrderDetail = dto.typeOrder;
+    updateOrder(dto, {
+      onSuccess: () => {
+        if (!itemIds.length || !typeOrderDetail) return;
+        updateOrderDetails(
+          {
+            orderId: dto.id,
+            details: itemIds.map((id) => ({ id, typeOrderDetail })),
+          },
+          {
+            onSuccess: (resp) => {
+              // Online the server answers { order }; the outbox answers the order.
+              const data = resp.data as unknown as
+                | Order
+                | { order?: Order }
+                | undefined;
+              const updated: Order | undefined =
+                data && "order" in data ? data.order : (data as Order);
+              if (!updated?.id) return;
+              updateOrderInStore(updated);
+              if (useOrdersStore.getState().activeOrder?.id === updated.id) {
+                setActiveOrder(updated);
+              }
+            },
+            onError: (resp) => {
+              Alert.alert("Error", resp.msg);
+            },
+          },
+        );
+      },
+    });
+  };
+
+  /** Asks which items also change type, unless none has the old one. */
+  const startTypeChange = (dto: UpdateOrderDto) => {
+    if (!dto.typeOrder) return;
+    const items = itemsToChangeType(
+      order.details.filter(
+        (detail) => detail.status !== OrderDetailStatus.CANCELLED,
+      ),
+      dto.typeOrder,
+      order.type,
+    );
+    if (items.length === 0) {
+      applyTypeChange(dto, []);
+      return;
+    }
+    pendingTypeChangeRef.current = dto;
+    changeItemsTypeSheetRef.current?.present(items, dto.typeOrder);
+  };
+
+  const handleConfirmItemsType = (itemIds: string[]) => {
+    const dto = pendingTypeChangeRef.current;
+    pendingTypeChangeRef.current = null;
+    if (dto) applyTypeChange(dto, itemIds);
+  };
+
   const handleChangeTypeFromMenu = () => {
     moreOptionsSheetRef.current?.dismiss();
 
-    const nextType =
-      order.type === OrderType.IN_PLACE
-        ? OrderType.TAKE_AWAY
-        : OrderType.IN_PLACE;
+    if (order.type === OrderType.TAKE_AWAY) {
+      // An in-place order needs a table: pick it first.
+      typeTableSelectorRef.current?.present();
+      return;
+    }
 
-    updateOrder({
-      id: order.id,
-      typeOrder: nextType,
-      tableId: nextType === OrderType.IN_PLACE ? order.table?.id : undefined,
-    });
+    startTypeChange({ id: order.id, typeOrder: OrderType.TAKE_AWAY });
+  };
+
+  const handleEditTypeChange = (dto: UpdateOrderDto) => {
+    closeEditBottomSheet();
+    startTypeChange(dto);
   };
 
   const handleChangeTableFromMenu = () => {
@@ -1318,6 +1393,7 @@ export default function OrderDetailView({
           <EditOrderBottomSheet
             order={order}
             onOrderUpdated={closeEditBottomSheet}
+            onTypeChange={handleEditTypeChange}
           />
         )}
       </ThemedBottomSheetModal>
@@ -1350,6 +1426,22 @@ export default function OrderDetailView({
           if (selected.id === order.table?.id) return;
           updateOrder({ id: order.id, tableId: selected.id });
         }}
+      />
+
+      <TableSelectorBottomSheet
+        ref={typeTableSelectorRef}
+        onSelectTable={(selected) =>
+          startTypeChange({
+            id: order.id,
+            typeOrder: OrderType.IN_PLACE,
+            tableId: selected.id,
+          })
+        }
+      />
+
+      <ChangeItemsTypeBottomSheet
+        ref={changeItemsTypeSheetRef}
+        onConfirm={handleConfirmItemsType}
       />
 
       <MergeOrderBottomSheet

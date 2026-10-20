@@ -341,5 +341,10 @@
       "NOT_IN_MENU": "Este producto ya no está en el menú.",
       "UNAVAILABLE": "Este producto no está disponible ahora."
     }
+  },
+  "changeItemsType": {
+    "title": "¿Qué productos también cambian a {{type}}?",
+    "subtitle": "Los productos marcados cambian de tipo junto con el pedido.",
+    "all": "Todos ({{count}})"
   }
 }

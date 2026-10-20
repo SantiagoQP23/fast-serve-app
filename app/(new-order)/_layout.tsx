@@ -1,4 +1,6 @@
-import NewOrderBottomSheet from "@/presentation/orders/new-order-bottom-sheet";
+import CartOptionsBottomSheet, {
+  type CartOptionsBottomSheetRef,
+} from "@/presentation/orders/components/cart-options-bottom-sheet";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
@@ -15,8 +17,6 @@ import { ROUTES } from "@/constants/routes";
 import { router, Stack } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
-import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { typography } from "@/constants/theme";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 import { usePalette } from "@/presentation/theme/store/useThemeStore";
@@ -24,7 +24,7 @@ import { usePalette } from "@/presentation/theme/store/useThemeStore";
 export default function NewOrderLayout() {
   const palette = usePalette();
   const { t } = useTranslation(["common", "menu"]);
-  const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
+  const cartOptionsSheetRef = useRef<CartOptionsBottomSheetRef>(null);
   const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
   const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
   const cartType = useNewOrderStore((state) => state.cartType);
@@ -44,13 +44,8 @@ export default function NewOrderLayout() {
     router.replace(ROUTES.APP.MY_ORDERS);
   };
 
-  const closeBottomSheet = () => {
-    bottomSheetModalRef.current?.close(); // Close sheet before navigating
-  };
-
-  // callbacks
   const handlePresentModalPress = useCallback(() => {
-    bottomSheetModalRef.current?.present();
+    cartOptionsSheetRef.current?.present();
   }, []);
 
   const { isExpanded } = useResponsiveLayout();
@@ -155,12 +150,7 @@ export default function NewOrderLayout() {
         confirmVariant="destructive"
       />
 
-      <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
-        <NewOrderBottomSheet
-          onCreateOrder={closeBottomSheet}
-          buttonProps={{ label: t("common:actions.saveChanges") }}
-        />
-      </ThemedBottomSheetModal>
+      <CartOptionsBottomSheet ref={cartOptionsSheetRef} />
     </>
   );
 }

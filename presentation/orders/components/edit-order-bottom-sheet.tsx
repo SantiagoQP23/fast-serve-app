@@ -25,6 +25,11 @@ interface EditOrderBottomSheetProps {
   order: Order;
   buttonProps?: ButtonProps;
   onOrderUpdated?: () => void;
+  /**
+   * Called instead of saving when the order type changed, so the screen can
+   * ask which items also change type before saving.
+   */
+  onTypeChange?: (dto: UpdateOrderDto) => void;
 }
 
 interface EditOrder {
@@ -39,6 +44,7 @@ const EditOrderBottomSheet = ({
   order,
   buttonProps,
   onOrderUpdated,
+  onTypeChange,
 }: EditOrderBottomSheetProps) => {
   const { t } = useTranslation(["orders", "tables", "common"]);
   const orderTypesOptions = useOrderTypes();
@@ -81,6 +87,11 @@ const EditOrderBottomSheet = ({
         form.orderType === OrderType.IN_PLACE ? form.table?.id : undefined,
       deliveryTime: form.deliveryTime,
     };
+
+    if (onTypeChange && form.orderType !== order.type) {
+      onTypeChange(updateOrderDto);
+      return;
+    }
 
     console.log("UpdateOrderDto to be sent:", updateOrderDto);
 
