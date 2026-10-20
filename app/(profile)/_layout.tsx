@@ -252,6 +252,13 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="inventory/items/list/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
           name="inventory/categories/index"
           options={{
             headerShown: false,

@@ -1,5 +1,6 @@
 {
   "title": "Inventory",
+  "allItems": "All items",
   "loading": "Loading...",
   "loadError": "Failed to load inventory items",
   "retry": "Retry",
@@ -158,6 +159,10 @@
     "empty": "No categories yet",
     "emptyDescription": "Create a category to organize your inventory items.",
     "none": "No category",
+    "itemCount": "{{count}} item",
+    "itemCount_plural": "{{count}} items",
+    "emptyFolder": "No items in this category",
+    "emptyFolderDescription": "Assign items to this category when you edit or create them.",
     "all": "All",
     "uncategorized": "Uncategorized",
     "manageCategories": "Manage categories",

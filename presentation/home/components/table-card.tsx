@@ -51,7 +51,7 @@ export default function TableCard({
           tw`rounded-lg`,
           isOccupied && tw`border border-transparent bg-light-surface-variant`,
         ]}
-        variant={isOccupied ? "elevated" : "default"}
+        variant="default"
       >
         {/* Overlay instead of a border so selecting doesn't change the card size */}
         {selected && (

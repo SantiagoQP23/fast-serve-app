@@ -1,5 +1,6 @@
 {
   "title": "Inventario",
+  "allItems": "Todos los artículos",
   "loading": "Cargando...",
   "loadError": "Error al cargar los artículos de inventario",
   "retry": "Reintentar",
@@ -158,6 +159,10 @@
     "empty": "Aún no hay categorías",
     "emptyDescription": "Crea una categoría para organizar tus artículos de inventario.",
     "none": "Sin categoría",
+    "itemCount": "{{count}} artículo",
+    "itemCount_plural": "{{count}} artículos",
+    "emptyFolder": "No hay artículos en esta categoría",
+    "emptyFolderDescription": "Asigna artículos a esta categoría al editarlos o crearlos.",
     "all": "Todas",
     "uncategorized": "Sin categoría",
     "manageCategories": "Gestionar categorías",

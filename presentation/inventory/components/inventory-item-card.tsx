@@ -1,4 +1,3 @@
-import { Pressable } from "react-native";
 import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -12,7 +11,6 @@ import {
   type InventoryItem,
   type InventoryStockStatus,
 } from "@/core/inventory/models/inventory-item.model";
-import ProgressBar from "@/presentation/theme/components/progress-bar";
 import Card from "@/presentation/theme/components/card";
 
 interface InventoryItemCardProps {
@@ -119,22 +117,22 @@ export default function InventoryItemCard({
             color={selected ? tw.color("blue-500") : tw.color("gray-400")}
           />
         )}
-        <ThemedView style={tw`flex-1 gap-1`}>
+        <ThemedView style={tw`flex-1 gap-1 flex-row`}>
+          <Label
+            text={t("quantityWithUnit", {
+              quantity: item.quantity,
+              unit: t(`units.${item.unit}`),
+            })}
+            variant="solid"
+            color={quantityLabelColor}
+          />
           <ThemedText
             type="body1"
-            style={[
-              { fontFamily: typography.semibold },
-              tw`text-on-surface`,
-            ]}
+            style={[{ fontFamily: typography.semibold }, tw`text-on-surface`]}
             numberOfLines={2}
           >
             {item.name}
           </ThemedText>
-          {item.category && (
-            <ThemedText type="small" style={tw`text-gray-500`}>
-              {item.category.name}
-            </ThemedText>
-          )}
         </ThemedView>
       </ThemedView>
 
@@ -147,14 +145,6 @@ export default function InventoryItemCard({
           ) : (
             <ThemedView></ThemedView>
           )}
-          <Label
-            text={t("quantityWithUnit", {
-              quantity: item.quantity,
-              unit: t(`units.${item.unit}`),
-            })}
-            variant="solid"
-            color={quantityLabelColor}
-          />
         </ThemedView>
         {/* {showStockBar && ( */}
         {/*   <ProgressBar */}

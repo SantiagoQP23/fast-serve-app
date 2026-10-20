@@ -173,7 +173,6 @@ export default function ManageScreen() {
           <IconButton
             onPress={() => router.push("/(profile)/account/settings")}
             icon="settings"
-            variant="secondary"
           ></IconButton>
         </ThemedView>
       </ThemedView>

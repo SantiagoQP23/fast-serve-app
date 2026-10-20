@@ -9,6 +9,9 @@ interface GroupedListProps<T> {
   keyExtractor: (item: T, index: number) => string;
   renderItem: (item: T, index: number) => ReactNode;
   onItemPress?: (item: T, index: number) => void;
+  onItemLongPress?: (item: T, index: number) => void;
+  /** Extra Tailwind classes for a row's container, e.g. a highlight background. */
+  getItemClassName?: (item: T, index: number) => string | undefined;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -17,6 +20,8 @@ export function GroupedList<T>({
   keyExtractor,
   renderItem,
   onItemPress,
+  onItemLongPress,
+  getItemClassName,
   style,
 }: GroupedListProps<T>) {
   return (
@@ -32,11 +37,15 @@ export function GroupedList<T>({
               "bg-surface shadow-xs overflow-hidden",
               isFirst ? "rounded-t-3xl" : "rounded-t-md",
               isLast ? "rounded-b-3xl" : "rounded-b-md",
+              getItemClassName?.(item, index),
             )}
           >
             <Pressable
-              disabled={!onItemPress}
+              disabled={!onItemPress && !onItemLongPress}
               onPress={onItemPress ? () => onItemPress(item, index) : undefined}
+              onLongPress={
+                onItemLongPress ? () => onItemLongPress(item, index) : undefined
+              }
               style={(state) => tw.style("p-4", state.pressed && "opacity-80")}
             >
               {renderItem(item, index)}

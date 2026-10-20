@@ -99,14 +99,14 @@ export default function PaymentMethodScreen() {
   const isAdmin = isAdminLevelRole(user?.role?.name);
 
   useEffect(() => {
-    navigation.setOptions({
-      headerRight: () =>
-        isRefetching ? (
-          <ActivityIndicator size="small" style={{ marginRight: 4 }} />
-        ) : (
-          <IconButton icon="refresh-cw" onPress={() => refetch()} />
-        ),
-    });
+    // navigation.setOptions({
+    //   headerRight: () =>
+    //     isRefetching ? (
+    //       <ActivityIndicator size="small" style={{ marginRight: 4 }} />
+    //     ) : (
+    //       <IconButton icon="refresh-cw" onPress={() => refetch()} />
+    //     ),
+    // });
   }, [isRefetching, refetch, navigation]);
 
   useEffect(() => {
@@ -379,11 +379,7 @@ export default function PaymentMethodScreen() {
                     pressed && tw`opacity-70 bg-gray-100`,
                   ]}
                 >
-                  <Icon
-                    name="images"
-                    size={24}
-                    color={tw.color("gray-400")}
-                  />
+                  <Icon name="images" size={24} color={tw.color("gray-400")} />
                   <ThemedText
                     type="small"
                     style={tw`text-gray-500 text-center`}
@@ -398,11 +394,7 @@ export default function PaymentMethodScreen() {
                     pressed && tw`opacity-70 bg-gray-100`,
                   ]}
                 >
-                  <Icon
-                    name="camera"
-                    size={24}
-                    color={tw.color("gray-400")}
-                  />
+                  <Icon name="camera" size={24} color={tw.color("gray-400")} />
                   <ThemedText
                     type="small"
                     style={tw`text-gray-500 text-center`}
@@ -564,8 +556,8 @@ export default function PaymentMethodScreen() {
             value={payAmount}
             onChangeText={setPayAmount}
             placeholder="0.00"
-            style={tw`text-5xl font-bold text-center`}
-            containerStyle={tw`w-full`}
+            style={tw`text-5xl text-center`}
+            containerStyle={tw`w-full bg-transparent`}
           />
         </ThemedView>
 
@@ -602,7 +594,7 @@ export default function PaymentMethodScreen() {
         </ThemedText>
         <ScrollView
           style={tw`flex-1`}
-          contentContainerStyle={tw`gap-4 pb-6`}
+          contentContainerStyle={tw`gap-4 pb-4`}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >

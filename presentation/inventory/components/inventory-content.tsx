@@ -1,5 +1,10 @@
 import { useMemo, useRef, useState } from "react";
-import { ScrollView, RefreshControl, Pressable, View } from "react-native";
+import {
+  ScrollView,
+  RefreshControl,
+  Pressable,
+  View,
+} from "react-native";
 import { router } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 import {
@@ -14,27 +19,29 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { canManageInventory } from "@/core/auth/models/user.model";
 import Button from "@/presentation/theme/components/button";
-import DialogModal from "@/presentation/theme/components/dialog-modal";
 import TextInput from "@/presentation/theme/components/text-input";
-import Chip from "@/presentation/theme/components/chip";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Card from "@/presentation/theme/components/card";
-import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import FloatingToolbar, {
   ToolbarItem,
 } from "@/presentation/theme/components/floating-toolbar";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
-import { useInventoryItemsBrowser } from "@/presentation/inventory/hooks/useInventoryItemsBrowser";
 import { useInventoryItemsSummary } from "@/presentation/inventory/hooks/useInventoryItemsSummary";
 import { useInventoryItemCategories } from "@/presentation/inventory/hooks/useInventoryItemCategories";
-import AdjustStockModal from "@/presentation/inventory/components/adjust-stock-modal";
 import AddToInventoryOptions from "@/presentation/inventory/components/add-to-inventory-options";
-import InventoryItemCard from "@/presentation/inventory/components/inventory-item-card";
+import InventoryCategoryFolder, {
+  NewCategoryFolder,
+  type InventoryFolderHealth,
+} from "@/presentation/inventory/components/inventory-category-folder";
+import InventoryItemsView from "@/presentation/inventory/components/inventory-items-view";
 import InventoryStockSummary from "@/presentation/inventory/components/inventory-stock-summary";
 import InventoryCountsTab from "@/presentation/inventory/components/inventory-counts-tab";
 import InventoryPurchasesTab from "@/presentation/inventory/components/inventory-purchases-tab";
-import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
+import {
+  getInventoryStockStatus,
+  type InventoryItem,
+} from "@/core/inventory/models/inventory-item.model";
 import { InventoryItemStockStatusFilter } from "@/presentation/inventory/interfaces/dto/find-all-inventory-items.dto";
 import InventoryItemDetailView from "@/presentation/inventory/components/inventory-item-detail-view";
 import InventoryCountDetailView from "@/presentation/inventory/components/inventory-count-detail-view";
@@ -46,11 +53,21 @@ type InventoryTab = "inventory" | "counts" | "purchases";
 /** What the detail pane next to the list shows (tablet). */
 type PaneSelection = { kind: "item" | "count" | "purchase"; id: string };
 
-const LIST_PANE_WIDTH = 440;
+/** What a folder (or summary card) opens: a slice of the item list. */
+interface ItemsScope {
+  categoryId: string | null;
+  uncategorized: boolean;
+  title: string;
+  status: InventoryItemStockStatusFilter | null;
+}
 
-// Sentinel for the "No category" chip — category ids are UUIDs, so this
-// never collides with a real category.
-const UNCATEGORIZED_FILTER = "uncategorized";
+const LIST_PANE_WIDTH = 440;
+const FOLDER_MIN_WIDTH = 150;
+const FOLDER_GAP = 12;
+
+// Key of the "No category" bucket in the folder stats — category ids are
+// UUIDs, so this never collides with a real category.
+const UNCATEGORIZED_KEY = "uncategorized";
 
 interface InventoryContentProps {
   onBack?: () => void;
@@ -60,54 +77,23 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   const { t } = useTranslation("inventory");
   const { user } = useAuthStore();
   const canManage = canManageInventory(user?.role?.name);
-  const {
-    items: catalogItems,
-    itemsQuery: catalogQuery,
-    deleteItem,
-    updateItem,
-    bulkDeleteItems,
-    bulkMoveItemsToCategory,
-  } = useInventoryItems();
-  const { categories } = useInventoryItemCategories();
-  const [itemToDelete, setItemToDelete] = useState<InventoryItem | null>(null);
-  const [itemToAdjust, setItemToAdjust] = useState<InventoryItem | null>(null);
-  const [itemForOptions, setItemForOptions] = useState<InventoryItem | null>(
-    null,
-  );
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
-    null,
-  );
-  // Default to the first category once categories load, rather than in an
-  // effect — see https://react.dev/learn/you-might-not-need-an-effect
-  // ("Resetting all state when a prop changes"). Only applies once, so it
-  // never overrides an explicit "All" selection made afterward.
-  const [hasAppliedDefaultCategory, setHasAppliedDefaultCategory] =
-    useState(false);
-  if (!hasAppliedDefaultCategory && categories.length > 0) {
-    setHasAppliedDefaultCategory(true);
-    setSelectedCategoryId(categories[0].id);
-  }
-  const [selectedStatus, setSelectedStatus] =
-    useState<InventoryItemStockStatusFilter | null>(null);
-  const optionsSheetRef = useRef<BottomSheetMethods>(null);
+  const { items: catalogItems, itemsQuery: catalogQuery } = useInventoryItems();
+  const { categories, categoriesQuery } = useInventoryItemCategories();
   const addSheetRef = useRef<BottomSheetMethods>(null);
-  const moveCategorySheetRef = useRef<BottomSheetMethods>(null);
   const [activeTab, setActiveTab] = useState<InventoryTab>("inventory");
-  const [isSelectionMode, setIsSelectionMode] = useState(false);
-  const [selectedItemIds, setSelectedItemIds] = useState<Set<string>>(
-    new Set(),
-  );
-  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
 
   // Tablet landscape: details open in a pane next to the list instead of
-  // pushing a screen.
-  const { isExpanded } = useResponsiveLayout();
+  // pushing a screen, and folders open in place of the folder grid.
+  const { isExpanded, gridColumns } = useResponsiveLayout();
   const [selection, setSelection] = useState<PaneSelection | null>(null);
+  const [folderView, setFolderView] = useState<ItemsScope | null>(null);
+  const [gridWidth, setGridWidth] = useState(0);
   const activeId = isExpanded ? selection?.id : undefined;
 
   const changeTab = (tab: InventoryTab) => {
     setActiveTab(tab);
     setSelection(null);
+    setFolderView(null);
   };
 
   const openItem = (item: InventoryItem) => {
@@ -121,49 +107,48 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     });
   };
 
-  const categoryFilter =
-    selectedCategoryId && selectedCategoryId !== UNCATEGORIZED_FILTER
-      ? selectedCategoryId
-      : null;
-  const isUncategorizedFilter = selectedCategoryId === UNCATEGORIZED_FILTER;
+  // Global stock counts for the summary cards: they open the item list
+  // already filtered by that status, rather than filtering this screen.
+  const { summaryQuery, counts: summaryCounts } = useInventoryItemsSummary();
 
-  const {
-    items: browsedItems,
-    itemsQuery: browserQuery,
-    hasMore,
-    isLoadingMore,
-    loadMore,
-  } = useInventoryItemsBrowser({
-    categoryId: categoryFilter,
-    uncategorized: isUncategorizedFilter,
-    status: selectedStatus,
-  });
-
-  // The backend returns items ordered by name ASC, so consecutive items
-  // sharing a first letter are already adjacent — this just segments that
-  // existing order into groups rather than re-sorting.
-  const groupedItems = useMemo(() => {
-    const groups: { letter: string; items: InventoryItem[] }[] = [];
-    for (const item of browsedItems) {
-      const letter = item.name.trim().charAt(0).toUpperCase() || "#";
-      const lastGroup = groups[groups.length - 1];
-      if (lastGroup?.letter === letter) {
-        lastGroup.items.push(item);
-      } else {
-        groups.push({ letter, items: [item] });
+  // The backend has no per-category count, so folders are tallied from the
+  // full catalog (already loaded for pickers).
+  const folderStats = useMemo(() => {
+    const stats = new Map<
+      string,
+      { count: number; health: InventoryFolderHealth }
+    >();
+    for (const item of catalogItems) {
+      const key = item.category?.id ?? UNCATEGORIZED_KEY;
+      const entry = stats.get(key) ?? { count: 0, health: null };
+      entry.count += 1;
+      const status = getInventoryStockStatus(item);
+      if (status === "critical") {
+        entry.health = "critical";
+      } else if (status === "low" && entry.health !== "critical") {
+        entry.health = "low";
       }
+      stats.set(key, entry);
     }
-    return groups;
-  }, [browsedItems]);
+    return stats;
+  }, [catalogItems]);
 
-  // The summary tiles count by status, independent of selectedStatus, so
-  // they're fetched separately scoped by category only. Computed by the
-  // backend over all matching rows — the browse list above is paginated,
-  // so it can't be summed client-side for an accurate total.
-  const { counts: summaryCounts } = useInventoryItemsSummary({
-    categoryId: categoryFilter,
-    uncategorized: isUncategorizedFilter,
-  });
+  const openItems = (scope: ItemsScope) => {
+    if (isExpanded) {
+      setFolderView(scope);
+      return;
+    }
+    router.push({
+      pathname: "/(profile)/inventory/items/list",
+      params: {
+        ...(scope.categoryId
+          ? { categoryId: scope.categoryId, name: scope.title }
+          : {}),
+        ...(scope.uncategorized ? { uncategorized: "true" } : {}),
+        ...(scope.status ? { status: scope.status } : {}),
+      },
+    });
+  };
 
   const handleOpenSearch = () => {
     router.push({ pathname: "/(profile)/inventory/search" });
@@ -194,22 +179,6 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     });
   };
 
-  const handleEditItem = (item: InventoryItem) => {
-    router.push({
-      pathname: "/(profile)/inventory/items/form",
-      params: {
-        itemId: item.id,
-        name: item.name,
-        unit: item.unit,
-        quantity: String(item.quantity),
-        minimumQuantity:
-          item.minimumQuantity != null ? String(item.minimumQuantity) : "",
-        isActive: String(item.isActive),
-        categoryId: item.category?.id ?? "",
-      },
-    });
-  };
-
   const handleNewCount = () => {
     addSheetRef.current?.dismiss();
     router.push({ pathname: "/(profile)/inventory/counts/items" });
@@ -228,68 +197,27 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     router.push({ pathname: "/(profile)/inventory/categories/form" });
   };
 
-  const handleConfirmDelete = async () => {
-    if (!itemToDelete) return;
-    await deleteItem.mutateAsync(itemToDelete.id);
-    if (selection?.id === itemToDelete.id) setSelection(null);
-    setItemToDelete(null);
+  const handleRefresh = () =>
+    Promise.all([
+      catalogQuery.refetch(),
+      categoriesQuery.refetch(),
+      summaryQuery.refetch(),
+    ]);
+
+  const handleItemsRemoved = (ids: string[]) => {
+    if (selection && ids.includes(selection.id)) setSelection(null);
   };
 
-  const handleOpenOptions = (item: InventoryItem) => {
-    setItemForOptions(item);
-    optionsSheetRef.current?.present();
-  };
-
-  const handleToggleActive = async (item: InventoryItem) => {
-    optionsSheetRef.current?.dismiss();
-    await updateItem.mutateAsync({ id: item.id, isActive: !item.isActive });
-  };
-
-  const handleReactivate = (item: InventoryItem) => {
-    updateItem.mutate({ id: item.id, isActive: true });
-  };
-
-  const handleEnterSelectionMode = (item: InventoryItem) => {
-    if (isSelectionMode) return;
-    setIsSelectionMode(true);
-    setSelectedItemIds(new Set([item.id]));
-  };
-
-  const handleToggleSelectItem = (item: InventoryItem) => {
-    setSelectedItemIds((current) => {
-      const next = new Set(current);
-      if (next.has(item.id)) {
-        next.delete(item.id);
-      } else {
-        next.add(item.id);
-      }
-      return next;
-    });
-  };
-
-  const handleCancelSelectionMode = () => {
-    setIsSelectionMode(false);
-    setSelectedItemIds(new Set());
-  };
-
-  const handleOpenMoveCategorySheet = () => {
-    moveCategorySheetRef.current?.present();
-  };
-
-  const handleConfirmBulkMove = async (categoryId: string | null) => {
-    moveCategorySheetRef.current?.dismiss();
-    await bulkMoveItemsToCategory.mutateAsync({
-      ids: Array.from(selectedItemIds),
-      categoryId,
-    });
-    handleCancelSelectionMode();
-  };
-
-  const handleConfirmBulkDelete = async () => {
-    await bulkDeleteItems.mutateAsync(Array.from(selectedItemIds));
-    setShowBulkDeleteConfirm(false);
-    handleCancelSelectionMode();
-  };
+  const folderColumns = Math.max(
+    2,
+    gridColumns(FOLDER_MIN_WIDTH, FOLDER_GAP, gridWidth),
+  );
+  const folderWidth =
+    gridWidth > 0
+      ? (gridWidth - FOLDER_GAP * (folderColumns - 1)) / folderColumns
+      : undefined;
+  const uncategorizedStats = folderStats.get(UNCATEGORIZED_KEY);
+  const hasContent = catalogItems.length > 0 || categories.length > 0;
 
   const toolbarItems: ToolbarItem[] = [
     {
@@ -373,58 +301,6 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                 pointerEvents="none"
               />
             </Pressable>
-
-            {(categories.length > 0 || canManage) && (
-              <ThemedView
-                style={tw`flex-row items-center gap-2 bg-transparent`}
-              >
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={tw`gap-2 items-center`}
-                  style={tw`flex-1`}
-                >
-                  {/* <Chip */}
-                  {/*   label={t("categories.all")} */}
-                  {/*   selected={selectedCategoryId === null} */}
-                  {/*   onPress={() => setSelectedCategoryId(null)} */}
-                  {/* /> */}
-                  {categories.map((category) => (
-                    <Chip
-                      key={category.id}
-                      label={category.name}
-                      selected={selectedCategoryId === category.id}
-                      onPress={() =>
-                        setSelectedCategoryId((current) =>
-                          current === category.id ? null : category.id,
-                        )
-                      }
-                    />
-                  ))}
-                  <Chip
-                    label={t("categories.none")}
-                    selected={selectedCategoryId === UNCATEGORIZED_FILTER}
-                    onPress={() =>
-                      setSelectedCategoryId((current) =>
-                        current === UNCATEGORIZED_FILTER
-                          ? null
-                          : UNCATEGORIZED_FILTER,
-                      )
-                    }
-                  />
-
-                  {canManage && (
-                    <IconButton
-                      icon="plus"
-                      variant="outlined"
-                      size={18}
-                      onPress={handleCreateCategory}
-                      style={tw`p-1.5`}
-                    />
-                  )}
-                </ScrollView>
-              </ThemedView>
-            )}
           </>
         )}
       </ThemedView>
@@ -435,14 +311,14 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
           contentContainerStyle={tw`px-4 gap-6 pb-28 pt-6`}
           refreshControl={
             <RefreshControl
-              refreshing={browserQuery.isFetching}
-              onRefresh={browserQuery.refetch}
+              refreshing={catalogQuery.isFetching}
+              onRefresh={handleRefresh}
               tintColor={tw.color("blue-500")}
               colors={[tw.color("blue-500") || "#3b82f6"]}
             />
           }
         >
-          {browserQuery.isLoading && !isLoadingMore && (
+          {catalogQuery.isLoading && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
               <ThemedText type="body1" style={tw`text-gray-500`}>
                 {t("loading")}
@@ -450,7 +326,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
             </ThemedView>
           )}
 
-          {browserQuery.isError && (
+          {catalogQuery.isError && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
               <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
               <ThemedText type="body1" style={tw`text-red-500`}>
@@ -458,95 +334,105 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
               </ThemedText>
               <Button
                 label={t("retry")}
-                onPress={() => browserQuery.refetch()}
+                onPress={() => catalogQuery.refetch()}
                 variant="outline"
               />
             </ThemedView>
           )}
 
-          {!browserQuery.isLoading &&
-            !browserQuery.isError &&
-            catalogItems.length === 0 && (
-              <ThemedView style={tw`items-center py-8 gap-3`}>
-                <Icon name="package" size={48} color={tw.color("gray-400")} />
-                <ThemedText type="body1" style={tw`font-semibold`}>
-                  {t("empty")}
-                </ThemedText>
-                <ThemedText
-                  type="body2"
-                  style={tw`text-center text-gray-500 px-4`}
-                >
-                  {t("emptyDescription")}
-                </ThemedText>
-              </ThemedView>
-            )}
+          {!catalogQuery.isLoading && !catalogQuery.isError && !hasContent && (
+            <ThemedView style={tw`items-center py-8 gap-3`}>
+              <Icon name="package" size={48} color={tw.color("gray-400")} />
+              <ThemedText type="body1" style={tw`font-semibold`}>
+                {t("empty")}
+              </ThemedText>
+              <ThemedText
+                type="body2"
+                style={tw`text-center text-gray-500 px-4`}
+              >
+                {t("emptyDescription")}
+              </ThemedText>
+            </ThemedView>
+          )}
 
           {!catalogQuery.isLoading &&
             !catalogQuery.isError &&
             catalogItems.length > 0 && (
               <InventoryStockSummary
                 counts={summaryCounts}
-                selectedStatus={selectedStatus}
-                onSelectStatus={setSelectedStatus}
+                selectedStatus={null}
+                onSelectStatus={(status) =>
+                  status &&
+                  openItems({
+                    categoryId: null,
+                    uncategorized: false,
+                    title: t("allItems"),
+                    status,
+                  })
+                }
               />
             )}
 
-          {!browserQuery.isLoading &&
-            !browserQuery.isError &&
-            catalogItems.length > 0 &&
-            browsedItems.length === 0 && (
-              <ThemedView style={tw`items-center py-8 gap-3`}>
-                <Icon name="search" size={40} color={tw.color("gray-400")} />
-                <ThemedText type="body1" style={tw`font-semibold`}>
-                  {t("noResults")}
-                </ThemedText>
-                <ThemedText
-                  type="body2"
-                  style={tw`text-center text-gray-500 px-4`}
-                >
-                  {t("noResultsDescription")}
-                </ThemedText>
-              </ThemedView>
-            )}
-
-          {browsedItems.length > 0 && (
-            <ThemedView style={tw`gap-6 bg-transparent`}>
-              {groupedItems.map((group) => (
-                <ThemedView key={group.letter} style={tw`gap-3 bg-transparent`}>
-                  <ThemedText
-                    type="caption"
-                    style={tw`text-gray-500 font-semibold`}
-                  >
-                    {group.letter}
-                  </ThemedText>
-                  <ThemedView style={tw`gap-3.5 bg-transparent`}>
-                    {group.items.map((item) => (
-                      <InventoryItemCard
-                        key={item.id}
-                        item={item}
-                        canManage={canManage}
-                        onPress={openItem}
-                        active={activeId === item.id}
-                        onOptionsPress={handleOpenOptions}
-                        onAdjustPress={setItemToAdjust}
-                        onReactivatePress={handleReactivate}
-                        selectionMode={isSelectionMode}
-                        selected={selectedItemIds.has(item.id)}
-                        onLongPress={handleEnterSelectionMode}
-                        onToggleSelect={handleToggleSelectItem}
-                      />
+          {!catalogQuery.isLoading && !catalogQuery.isError && hasContent && (
+            <ThemedView style={tw`gap-3 bg-transparent`}>
+              <ThemedText
+                type="caption"
+                style={tw`text-gray-500 font-semibold`}
+              >
+                {t("categories.title")}
+              </ThemedText>
+              <View
+                style={[
+                  tw`flex-row flex-wrap`,
+                  { gap: FOLDER_GAP },
+                ]}
+                onLayout={(e) => setGridWidth(e.nativeEvent.layout.width)}
+              >
+                {folderWidth !== undefined && (
+                  <>
+                    {categories.map((category) => (
+                      <View key={category.id} style={{ width: folderWidth }}>
+                        <InventoryCategoryFolder
+                          name={category.name}
+                          itemCount={folderStats.get(category.id)?.count ?? 0}
+                          health={folderStats.get(category.id)?.health}
+                          onPress={() =>
+                            openItems({
+                              categoryId: category.id,
+                              uncategorized: false,
+                              title: category.name,
+                              status: null,
+                            })
+                          }
+                        />
+                      </View>
                     ))}
-                  </ThemedView>
-                </ThemedView>
-              ))}
-              {hasMore && (
-                <Button
-                  label={t("common:actions.loadMore")}
-                  variant="outline"
-                  loading={isLoadingMore}
-                  onPress={loadMore}
-                />
-              )}
+                    {uncategorizedStats && (
+                      <View style={{ width: folderWidth }}>
+                        <InventoryCategoryFolder
+                          name={t("categories.none")}
+                          itemCount={uncategorizedStats.count}
+                          health={uncategorizedStats.health}
+                          isUncategorized
+                          onPress={() =>
+                            openItems({
+                              categoryId: null,
+                              uncategorized: true,
+                              title: t("categories.none"),
+                              status: null,
+                            })
+                          }
+                        />
+                      </View>
+                    )}
+                    {canManage && (
+                      <View style={{ width: folderWidth }}>
+                        <NewCategoryFolder onPress={handleCreateCategory} />
+                      </View>
+                    )}
+                  </>
+                )}
+              </View>
             </ThemedView>
           )}
         </ScrollView>
@@ -576,86 +462,25 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
       )}
 
       <View style={tw`absolute bottom-6 left-0 right-0 items-center`}>
-        {isSelectionMode ? (
-          <ThemedView
-            style={tw`flex-row items-center gap-3 bg-surface rounded-full shadow-sm px-3 py-2`}
-          >
+        <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
+          <FloatingToolbar items={toolbarItems} />
+          {canManage && (
             <IconButton
-              icon="x"
-              variant="text"
-              onPress={handleCancelSelectionMode}
-              accessibilityLabel={t("selection.cancel")}
+              icon="plus"
+              size={40}
+              variant="filled"
+              onPress={handleOpenAddSelector}
+              accessibilityLabel={
+                activeTab === "counts"
+                  ? t("counts.new")
+                  : activeTab === "purchases"
+                    ? t("purchases.register")
+                    : t("createItem")
+              }
             />
-            <ThemedText type="body1" style={{ fontFamily: typography.medium }}>
-              {t("selection.count", { count: selectedItemIds.size })}
-            </ThemedText>
-            <IconButton
-              icon="folder"
-              variant="secondary"
-              onPress={handleOpenMoveCategorySheet}
-              disabled={selectedItemIds.size === 0}
-              accessibilityLabel={t("selection.move")}
-            />
-            <IconButton
-              icon="trash"
-              variant="destructive"
-              onPress={() => setShowBulkDeleteConfirm(true)}
-              disabled={selectedItemIds.size === 0}
-              accessibilityLabel={t("selection.delete")}
-            />
-          </ThemedView>
-        ) : (
-          <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
-            <FloatingToolbar items={toolbarItems} />
-            {canManage && (
-              <IconButton
-                icon="plus"
-                size={40}
-                variant="filled"
-                onPress={handleOpenAddSelector}
-                accessibilityLabel={
-                  activeTab === "counts"
-                    ? t("counts.new")
-                    : activeTab === "purchases"
-                      ? t("purchases.register")
-                      : t("createItem")
-                }
-              />
-            )}
-          </ThemedView>
-        )}
+          )}
+        </ThemedView>
       </View>
-
-      <DialogModal
-        visible={!!itemToDelete}
-        title={t("deleteTitle")}
-        message={t("deleteMessage")}
-        confirmLabel={t("confirm")}
-        cancelLabel={t("cancel")}
-        confirmVariant="destructive"
-        loading={deleteItem.isPending}
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setItemToDelete(null)}
-      />
-
-      <DialogModal
-        visible={showBulkDeleteConfirm}
-        title={t("selection.deleteTitle")}
-        message={t("selection.deleteMessage", {
-          count: selectedItemIds.size,
-        })}
-        confirmLabel={t("confirm")}
-        cancelLabel={t("cancel")}
-        confirmVariant="destructive"
-        loading={bulkDeleteItems.isPending}
-        onConfirm={handleConfirmBulkDelete}
-        onCancel={() => setShowBulkDeleteConfirm(false)}
-      />
-
-      <AdjustStockModal
-        item={itemToAdjust}
-        onClose={() => setItemToAdjust(null)}
-      />
 
       <ThemedBottomSheetModal ref={addSheetRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6`}>
@@ -716,64 +541,26 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
           </ThemedView>
         </BottomSheetView>
       </ThemedBottomSheetModal>
-
-      <ThemedBottomSheetModal ref={optionsSheetRef} enablePanDownToClose>
-        {itemForOptions && (
-          <ActionsBottomSheet
-            title={t("manageItem")}
-            subtitle={itemForOptions.name}
-            items={[
-              {
-                icon: "square-pen",
-                label: t("editItem"),
-                onPress: () => {
-                  optionsSheetRef.current?.dismiss();
-                  handleEditItem(itemForOptions);
-                },
-              },
-              {
-                icon: "power",
-                label: itemForOptions.isActive
-                  ? t("deactivateItem")
-                  : t("activateItem"),
-                onPress: () => handleToggleActive(itemForOptions),
-              },
-              {
-                icon: "trash",
-                label: t("deleteItem"),
-                color: "text-red-600",
-                onPress: () => {
-                  optionsSheetRef.current?.dismiss();
-                  setItemToDelete(itemForOptions);
-                },
-              },
-            ]}
-          />
-        )}
-      </ThemedBottomSheetModal>
-
-      <ThemedBottomSheetModal ref={moveCategorySheetRef} enablePanDownToClose>
-        <ActionsBottomSheet
-          title={t("selection.moveTitle")}
-          subtitle={t("selection.count", { count: selectedItemIds.size })}
-          items={[
-            ...categories.map((category) => ({
-              icon: "folder" as const,
-              label: category.name,
-              onPress: () => handleConfirmBulkMove(category.id),
-            })),
-            {
-              icon: "folder-open" as const,
-              label: t("categories.none"),
-              onPress: () => handleConfirmBulkMove(null),
-            },
-          ]}
-        />
-      </ThemedBottomSheetModal>
     </>
   );
 
   if (!isExpanded) return content;
+
+  const listPane = folderView ? (
+    <InventoryItemsView
+      key={`${folderView.categoryId}-${folderView.uncategorized}-${folderView.status}`}
+      categoryId={folderView.categoryId}
+      uncategorized={folderView.uncategorized}
+      title={folderView.title}
+      initialStatus={folderView.status}
+      onBack={() => setFolderView(null)}
+      onOpenItem={openItem}
+      activeId={activeId}
+      onItemsRemoved={handleItemsRemoved}
+    />
+  ) : (
+    content
+  );
 
   const closePane = () => setSelection(null);
   const emptyPane = {
@@ -784,7 +571,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
 
   return (
     <ThemedView style={tw`flex-1 flex-row bg-transparent`}>
-      <View style={{ width: LIST_PANE_WIDTH }}>{content}</View>
+      <View style={{ width: LIST_PANE_WIDTH }}>{listPane}</View>
       <ThemedView style={tw`flex-1 border-l border-outline-variant`}>
         {selection?.kind === "item" && (
           <InventoryItemDetailView

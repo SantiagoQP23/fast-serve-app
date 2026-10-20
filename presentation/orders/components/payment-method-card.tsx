@@ -4,6 +4,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import React from "react";
 import { Pressable, PressableProps } from "react-native";
+import Card from "@/presentation/theme/components/card";
 
 export interface PaymentMethod {
   name: string;
@@ -25,32 +26,20 @@ export default function PaymentMethodCard({
 }: PaymentMethodCardProps) {
   if (variant === "vertical") {
     return (
-      <Pressable
+      <Card
         onPress={onPress}
         style={({ pressed }) => [
-          tw`flex-row items-center p-6 rounded-2xl border border-border`,
+          tw`flex-row items-center `,
           pressed && tw`opacity-80`,
           active && tw`border-primary `,
         ]}
       >
-        <ThemedView
-          style={tw`w-10 h-10 rounded-full bg-primary-container items-center justify-center`}
-        >
-          <Icon
-            name={paymentMethod.icon}
-            size={22}
-            color={tw.color("on-primary-container")}
-          />
-        </ThemedView>
+        <Icon name={paymentMethod.icon} size={22} color={tw.color("text")} />
         <ThemedText type="h4" style={tw`flex-1 ml-3`}>
           {paymentMethod.name}
         </ThemedText>
-        <Icon
-          name="chevron-right"
-          size={18}
-          color={tw.color("gray-400")}
-        />
-      </Pressable>
+        {/* <Icon name="chevron-right" size={18} color={tw.color("gray-400")} /> */}
+      </Card>
     );
   }
 
@@ -63,11 +52,7 @@ export default function PaymentMethodCard({
         active && tw`border-primary bg-gray-100`,
       ]}
     >
-      <Icon
-        name={paymentMethod.icon}
-        size={30}
-        color={tw.color("gray-700")}
-      />
+      <Icon name={paymentMethod.icon} size={30} color={tw.color("gray-700")} />
       <ThemedView style={tw`flex-row items-center bg-transparent`}>
         <ThemedText type="h4">{paymentMethod.name}</ThemedText>
       </ThemedView>
