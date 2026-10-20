@@ -17,6 +17,7 @@ import { useSyncStore } from "../store/useSyncStore";
 import { shouldSkipOrderSyncEvent } from "@/presentation/offline/pending-orders";
 import { applyTicketEvent } from "../apply-ticket-event";
 import { applyProductEvents } from "../apply-product-event";
+import { applyStockEvents } from "../apply-stock-event";
 import { applyTableAreaEvent } from "../apply-table-area-event";
 
 function applyOrderEvent(event: SyncEventDto) {
@@ -150,11 +151,6 @@ export const useSyncEventListener = () => {
     OrderSocketEvent.syncEvent,
     ({ data: event }) => {
       if (!event) return;
-      console.log(
-        "[useSyncEventListener] Received sync event",
-        event.resourceType,
-        event.operation,
-      );
 
       const restaurantId = currentRestaurant?.id;
       if (!restaurantId) return;
@@ -194,6 +190,9 @@ export const useSyncEventListener = () => {
           break;
         case SyncResourceType.TICKET:
           applyTicketEvent(event);
+          break;
+        case SyncResourceType.INVENTORY_STOCK:
+          applyStockEvents([event]);
           break;
         case SyncResourceType.BILL:
         case SyncResourceType.RESTAURANT:

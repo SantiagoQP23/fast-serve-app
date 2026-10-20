@@ -1,7 +1,7 @@
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
+import { persist } from "zustand/middleware";
 import { Ticket } from "@/core/tickets/models/ticket.model";
-import { AsyncStorageAdapter } from "@/helpers/adapters/async-storage.adapter";
+import { createThrottledStorage } from "@/helpers/adapters/throttled-storage";
 
 const isPending = (ticket: Ticket) => !ticket.printed && !ticket.skipped;
 
@@ -47,7 +47,7 @@ export const useUnprintedTicketsStore = create<UnprintedTicketsState>()(
     }),
     {
       name: "unprintedTicketsStore",
-      storage: createJSONStorage(() => AsyncStorageAdapter),
+      storage: createThrottledStorage(),
       partialize: (state) => ({ tickets: state.tickets }),
     },
   ),

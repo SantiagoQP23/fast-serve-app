@@ -34,7 +34,6 @@ import { Order } from "@/core/orders/models/order.model";
 import { MyOrdersHeaderRight } from "../_layout";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
-import { useSyncStore } from "@/presentation/sync/store/useSyncStore";
 import SalesContent from "@/presentation/orders/components/sales-content";
 // import IconButton from "@/presentation/theme/components/icon-button";
 import Button from "@/presentation/theme/components/button";
@@ -58,7 +57,6 @@ export default function MyOrdersScreen() {
     "tables",
     "bills",
   ]);
-  const lastSequence = useSyncStore((state) => state.lastSequence);
   const byDeliveryTime = (a: Order, b: Order) =>
     (a.deliveryTime ? new Date(a.deliveryTime).getTime() : Infinity) -
     (b.deliveryTime ? new Date(b.deliveryTime).getTime() : Infinity);

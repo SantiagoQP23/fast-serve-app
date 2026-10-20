@@ -27,6 +27,13 @@ export const switchRestaurantMutation = () => {
         `[switchRestaurant] Switching to restaurant: ${data.currentRestaurant?.name} (${data.currentRestaurant?.id})`,
       );
 
+      // Reset state from the previous restaurant first: changing the
+      // restaurant starts the new restaurant's sync right away, and resetting
+      // after it could wipe the orders that sync already loaded.
+      resetOrders();
+      setActiveProduct(null);
+      resetNewOrder(); // Clear draft order from previous restaurant
+
       // Update auth state with new restaurant. This also triggers bootstrap to
       // load menu, payment methods, production areas, printers, and tables for
       // the new restaurant.
@@ -38,12 +45,6 @@ export const switchRestaurantMutation = () => {
       console.log(
         "[switchRestaurant] Auth state updated and bootstrap completed",
       );
-
-      // Reset UI-only state from the previous restaurant
-      resetOrders();
-      setActiveProduct(null);
-      resetNewOrder(); // Clear draft order from previous restaurant
-      console.log("[switchRestaurant] UI stores reset");
 
       // Reconnect socket to join new restaurant room
       if (socket?.connected) {

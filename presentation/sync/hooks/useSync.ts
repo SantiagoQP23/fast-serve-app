@@ -33,6 +33,7 @@ import {
   shouldSkipOrderSyncEvent,
 } from "@/presentation/offline/pending-orders";
 import { applyTicketEvent } from "../apply-ticket-event";
+import { applyStockEvents } from "../apply-stock-event";
 import { applyProductEvents } from "../apply-product-event";
 import { applyTableAreaEvent } from "../apply-table-area-event";
 import { TableArea } from "@/core/tables/models/table-area.model";
@@ -112,11 +113,6 @@ async function applyIncremental(response: IncrementalSyncResponseDto) {
       continue;
     }
     flushProducts();
-    console.log(
-      "[useSync] Applying sync event",
-      event.resourceType,
-      event.operation,
-    );
     applyEvent(event);
   }
   flushProducts();
@@ -161,6 +157,9 @@ function applyEvent(event: SyncEventDto) {
     case SyncResourceType.TICKET:
       applyTicketEvent(event);
       break;
+    case SyncResourceType.INVENTORY_STOCK:
+      applyStockEvents([event]);
+      break;
     case SyncResourceType.SETTINGS:
       // Another phone changed a setting (e.g. products without stock).
       queryClient.invalidateQueries({
@@ -187,9 +186,7 @@ function applyOrderEvent(event: SyncEventDto) {
       ordersState.addOrder(order);
       break;
     case SyncOperation.UPDATED:
-      console.log("[useSync] Order updated", order.id, order.status);
       if (order.isClosed) {
-        console.log("[useSync] Order closed, removing from state", order.id);
         ordersState.deleteOrder(order.id);
         return;
       }
@@ -334,8 +331,12 @@ async function applySyncResponse(
 
 export const useSync = () => {
   const { currentRestaurant } = useAuthStore();
-  const { restaurantId, setRestaurantId, startSync, setSynced, setError } =
-    useSyncStore();
+  // Selectors, so sync status changes don't re-render every screen using it.
+  const restaurantId = useSyncStore((state) => state.restaurantId);
+  const setRestaurantId = useSyncStore((state) => state.setRestaurantId);
+  const startSync = useSyncStore((state) => state.startSync);
+  const setSynced = useSyncStore((state) => state.setSynced);
+  const setError = useSyncStore((state) => state.setError);
 
   // Detect restaurant switches and reset the sync cursor so the next sync
   // starts from a fresh snapshot.
@@ -360,7 +361,6 @@ export const useSync = () => {
           currentRestaurant.id,
           since || undefined,
         );
-        console.log(JSON.stringify(response, null, 2));
         const finalSequence = await applySyncResponse(
           response,
           currentRestaurant.id,
@@ -376,6 +376,9 @@ export const useSync = () => {
     staleTime: 0,
   });
 
+  // Several screens mount useSync, and each one reacts to reconnects and
+  // the app coming back; cancelRefetch: false joins a sync already running
+  // instead of cancelling it and starting another one per screen.
   // Catch up with what changed while the connection was down. The first
   // connection doesn't count, the initial query already covers it, unless
   // that query failed (e.g. the app opened offline).
@@ -391,8 +394,7 @@ export const useSync = () => {
     if (!currentRestaurant?.id || syncQuery.isFetching) return;
 
     if (isReconnect || useSyncStore.getState().status === "error") {
-      console.log("[useSync] Socket reconnected, refetching sync");
-      void syncQuery.refetch();
+      void syncQuery.refetch({ cancelRefetch: false });
     }
     // Only react to connection changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -400,8 +402,7 @@ export const useSync = () => {
 
   useAppForeground(() => {
     if (currentRestaurant?.id && !syncQuery.isFetching) {
-      console.log("[useSync] App foregrounded, refetching sync");
-      void syncQuery.refetch();
+      void syncQuery.refetch({ cancelRefetch: false });
     }
   });
 

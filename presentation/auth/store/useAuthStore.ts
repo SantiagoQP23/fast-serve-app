@@ -174,6 +174,67 @@ const restoreOfflineSession = async (
   return true;
 };
 
+/**
+ * Opens the app with the saved session when the menu for its restaurant is
+ * already stored (the app ran before with this restaurant). Returns false
+ * on a first start, so that one still waits for the server.
+ */
+const openFromCache = async (
+  set: SetAuthState,
+): Promise<boolean> => {
+  const token = await SecureStorageAdapter.getItem("token");
+  if (!token) return false;
+
+  const session = await loadSessionCache();
+  const restaurantId = session?.currentRestaurant?.id;
+  if (!session || !restaurantId) return false;
+
+  await new Promise<void>((resolve) => {
+    const unsubscribe = useMenuStore.persist.onFinishHydration(() => {
+      unsubscribe();
+      resolve();
+    });
+    if (useMenuStore.persist.hasHydrated()) {
+      unsubscribe();
+      resolve();
+    }
+  });
+  if (useMenuStore.getState().restaurantId !== restaurantId) return false;
+
+  set({
+    status: "authenticated",
+    token,
+    user: session.user,
+    currentRestaurant: session.currentRestaurant,
+    bootstrapStatus: "idle",
+    bootstrapError: null,
+    isOfflineSession: false,
+  });
+  syncUserLanguage(session.user);
+  return true;
+};
+
+let checkStatusInFlight: Promise<void> | null = null;
+
+const runCheckStatus = async (
+  set: SetAuthState,
+  get: GetAuthState,
+): Promise<void> => {
+  // With the restaurant's data already on the phone, open the app right
+  // away and confirm the session in the background, like the offline mode
+  // does, instead of a spinner until every request returns.
+  const openedFromCache = await openFromCache(set);
+
+  const resp = await authCheckStatus();
+
+  // No internet: open with the saved session instead of logging out.
+  if (resp.offline && (await restoreOfflineSession(set, get))) return;
+
+  await get().changeStatus(resp.token, resp.user, resp.currentRestaurant, {
+    background: openedFromCache,
+  });
+};
+
 export const useAuthStore = create<AuthState>()((set, get) => ({
   // Properties
   status: "checking",
@@ -452,13 +513,13 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     }
   },
 
-  checkStatus: async () => {
-    const resp = await authCheckStatus();
-
-    // No internet: open with the saved session instead of logging out.
-    if (resp.offline && (await restoreOfflineSession(set, get))) return;
-
-    get().changeStatus(resp.token, resp.user, resp.currentRestaurant);
+  checkStatus: () => {
+    // Several screens can ask at once (the tabs layout can mount more than
+    // once at startup); they share one check instead of repeating it.
+    checkStatusInFlight ??= runCheckStatus(set, get).finally(() => {
+      checkStatusInFlight = null;
+    });
+    return checkStatusInFlight;
   },
 
   revalidateSession: async () => {

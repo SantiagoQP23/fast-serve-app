@@ -61,6 +61,13 @@ const withOutbox = <TData, TVariables>(
 export const useOrders = () => {
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const updateOrder = useOrdersStore((state) => state.updateOrder);
+  // Only replaces the open order when the answer is for it, so a late
+  // answer never switches the screen to another order.
+  const setActiveOrderIfOpen = (order: Order) => {
+    if (useOrdersStore.getState().activeOrder?.id === order.id) {
+      setActiveOrder(order);
+    }
+  };
   const { printComanda } = usePrintComanda();
   const outbox = useOrderOutbox();
 
@@ -140,8 +147,13 @@ export const useOrders = () => {
     onSuccess: (resp) => {
       const data = resp.data;
 
-      if (data?.order && data?.ticket) {
+      if (data?.order) {
         updateOrder(data.order);
+        // The cart navigates to the order screen, which reads activeOrder,
+        // so show the new items right away instead of after the next sync.
+        setActiveOrderIfOpen(data.order);
+      }
+      if (data?.order && data?.ticket) {
         printComanda(data.order, data.ticket);
       }
     },
@@ -166,9 +178,10 @@ export const useOrders = () => {
   >(OrderSocketEvent.deleteOrderDetail, {
     onSuccess: (resp) => {
       const data = resp.data;
-      // if (data?.order) {
-      //   setActiveOrder(data.order);
-      // }
+      if (data?.order) {
+        updateOrder(data.order);
+        setActiveOrderIfOpen(data.order);
+      }
       if (data?.order && data?.ticket) {
         printComanda(data.order, data.ticket);
       }

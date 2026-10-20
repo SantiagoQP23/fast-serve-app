@@ -8,6 +8,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useTables } from "@/presentation/tables/hooks/useTables";
 import Chip from "@/presentation/theme/components/chip";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { syncQueryKey } from "@/presentation/sync/hooks/useSync";
 import { useQueryClient } from "@tanstack/react-query";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
@@ -85,8 +86,9 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
     try {
       setRefreshing(true);
       await Promise.all([
+        // Orders and tables come from the sync query.
         queryClient.refetchQueries({
-          queryKey: ["activeOrders", currentRestaurant?.id],
+          queryKey: syncQueryKey(currentRestaurant?.id),
         }),
       ]);
     } catch (error) {
