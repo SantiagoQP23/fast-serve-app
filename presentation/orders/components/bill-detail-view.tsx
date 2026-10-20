@@ -446,7 +446,7 @@ export default function BillDetailView({
                 <ThemedView style={tw`mb-6 items-center`}>
                   {/* <Button */}
                   {/*   label={t("bills:details.addDiscount")} */}
-                  {/*   variant="secondary" */}
+                  {/*   variant="surface" */}
                   {/*   onPress={handleOpenDiscountSheet} */}
                   {/* /> */}
                 </ThemedView>

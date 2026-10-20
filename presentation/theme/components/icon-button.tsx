@@ -4,7 +4,6 @@ import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
-
 interface IconButtonProps {
   icon: IconName;
   size?: number;
@@ -54,7 +53,7 @@ export default function IconButton({
     secondary: palette.onSecondary,
     surface: palette.onSurfaceVariant,
     outlined: palette.onSurfaceVariant,
-    text: palette.onSurfaceVariant,
+    text: palette.text,
     destructive: tw.color("red-600") as string,
   };
 

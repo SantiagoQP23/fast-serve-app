@@ -245,7 +245,7 @@ export default function TicketCard({
           )}
           <ThemedView style={tw`flex-1`}>
             <Button
-              variant={ticket.printed ? "text" : "secondary"}
+              variant={ticket.printed ? "text" : "surface"}
               leftIcon="printer"
               label={
                 ticket.printed

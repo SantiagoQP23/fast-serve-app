@@ -86,7 +86,7 @@ export default function TransactionCard({
                 <ThemedView style={tw`justify-center items-center px-4 `}>
                   <IconButton
                     icon="trash"
-                    variant="secondary"
+                    variant="surface"
                     onPress={onRemoveTransaction}
                     size={26}
                   />

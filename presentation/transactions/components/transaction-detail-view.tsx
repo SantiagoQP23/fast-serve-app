@@ -319,7 +319,7 @@ export default function TransactionDetailView({
               <IconButton
                 icon="square-pen"
                 onPress={openAccountPicker}
-                variant="secondary"
+                variant="surface"
               />
             )}
           </ThemedView>

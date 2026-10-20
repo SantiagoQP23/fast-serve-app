@@ -299,7 +299,7 @@ export default function InventoryItemsView({
             </ThemedText>
             <IconButton
               icon="folder"
-              variant="secondary"
+              variant="surface"
               onPress={handleOpenMoveCategorySheet}
               disabled={selectedItemIds.size === 0}
               accessibilityLabel={t("selection.move")}

@@ -213,9 +213,9 @@ export default function AnalyticsScreen() {
             <OrderCardSkeleton />
           </ThemedView>
         ) : (
-          <ThemedView style={tw`px-4 gap-4`}>
+          <ThemedView style={tw`px-4 gap-8`}>
             {/* Total Amount */}
-            <ThemedView style={tw`gap-4 rounded-lg`}>
+            <ThemedView style={tw`gap-4 rounded-lg mt-4`}>
               <ThemedView style={tw`bg-transparent gap-1`}>
                 <ThemedView style={tw`flex-row items-center gap-2`}>
                   <ThemedText type="small">
@@ -385,11 +385,7 @@ export default function AnalyticsScreen() {
         <ThemedView style={tw`px-4`}>
           <Card onPress={() => router.push("/(profile)/history")}>
             <ThemedView style={tw`flex-row items-center gap-3`}>
-              <Icon
-                name="clock"
-                size={22}
-                color={tw.color("gray-500")}
-              />
+              <Icon name="clock" size={22} color={tw.color("gray-500")} />
               <ThemedView style={tw`flex-1`}>
                 <ThemedText type="body1">
                   {t("common:stats.orderHistory")}

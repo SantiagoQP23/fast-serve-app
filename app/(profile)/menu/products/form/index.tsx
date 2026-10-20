@@ -346,7 +346,11 @@ export default function MenuProductFormScreen() {
                 onPress={() => router.back()}
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
-                <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
+                <Icon
+                  name="arrow-left"
+                  color={tw.color("on-surface")}
+                  size={24}
+                />
               </Pressable>
               <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
                 {isEditing
@@ -381,6 +385,7 @@ export default function MenuProductFormScreen() {
                     value={value}
                     onChangeText={onChange}
                     error={errors.name?.message}
+                    variant="outlined"
                   />
                 )}
               />
@@ -400,6 +405,7 @@ export default function MenuProductFormScreen() {
                     numberOfLines={3}
                     textAlignVertical="top"
                     error={errors.description?.message}
+                    variant="outlined"
                   />
                 )}
               />
@@ -412,11 +418,7 @@ export default function MenuProductFormScreen() {
                     <ThemedView
                       style={tw`items-center py-6 gap-2 bg-surface-high rounded-3xl px-4`}
                     >
-                      <Icon
-                        name="tag"
-                        size={32}
-                        color={tw.color("gray-400")}
-                      />
+                      <Icon name="tag" size={32} color={tw.color("gray-400")} />
                       <ThemedText type="body2" style={tw`font-semibold`}>
                         {t("products.noCategoriesAvailable")}
                       </ThemedText>
@@ -438,6 +440,7 @@ export default function MenuProductFormScreen() {
                           value={value}
                           onChange={(v) => onChange(String(v))}
                           placeholder={t("products.placeholders.category")}
+                          variant="outlined"
                         />
                       )}
                     />
@@ -461,6 +464,7 @@ export default function MenuProductFormScreen() {
                         label: t("productionAreas:newArea"),
                         onPress: handleCreateProductionArea,
                       }}
+                      variant="outlined"
                     />
                   )}
                 />
@@ -508,6 +512,7 @@ export default function MenuProductFormScreen() {
                         onChangeText={onChange}
                         keyboardType="decimal-pad"
                         error={errors.price?.message}
+                        variant="outlined"
                       />
                     )}
                   />
@@ -560,9 +565,7 @@ export default function MenuProductFormScreen() {
                                 }
                               >
                                 <Icon
-                                  name={
-                                    field.isDefault ? "star" : "star"
-                                  }
+                                  name={field.isDefault ? "star" : "star"}
                                   size={22}
                                   color={tw.color("gray-400")}
                                 />

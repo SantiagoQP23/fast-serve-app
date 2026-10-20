@@ -1259,7 +1259,7 @@ export default function OrderDetailView({
                 onPress={toggleSelectAllDetails}
               />
               <Button
-                variant="secondary"
+                variant="surface"
                 size="small"
                 leftIcon="check-check"
                 label={t("orders:details.selection.deliver")}
@@ -1305,7 +1305,7 @@ export default function OrderDetailView({
                   }
                   icon={activeTab === "products" ? "plus" : "credit-card"}
                   size={40}
-                  variant="secondary"
+                  variant="surface"
                 ></IconButton>
               )}
             </ThemedView>

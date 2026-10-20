@@ -210,7 +210,7 @@ export default function ScanQrInviteScreen() {
               <Button
                 label="Escanear otro codigo"
                 onPress={handleReset}
-                variant="secondary"
+                variant="surface"
               />
             </ThemedView>
           </ThemedView>

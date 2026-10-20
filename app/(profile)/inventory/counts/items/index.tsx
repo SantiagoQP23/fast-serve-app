@@ -35,7 +35,9 @@ export default function MenuInventoryCountItemsScreen() {
   const createCount = useCreateInventoryCount();
   const idempotencyKey = useRef(generateIdempotencyKey()).current;
   const [search, setSearch] = useState("");
-  const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [pickedCategoryId, setCategoryId] = useState<string | null>(null);
+  // No "All" chip: until the user picks one, the first category is active.
+  const categoryId = pickedCategoryId ?? categories[0]?.id ?? null;
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const alreadyInCount = useMemo(
@@ -44,13 +46,14 @@ export default function MenuInventoryCountItemsScreen() {
   );
 
   // The whole catalog is already loaded (useInventoryItems), so search and
-  // category filtering happen locally — no request per keystroke.
+  // category filtering happen locally — no request per keystroke. A search
+  // term spans every category so items outside the active one stay findable.
   const visibleItems = useMemo(() => {
     const term = search.trim().toLowerCase();
     return items.filter(
       (item) =>
         item.isActive &&
-        (!categoryId || item.category?.id === categoryId) &&
+        (!!term || !categoryId || item.category?.id === categoryId) &&
         (!term || item.name.toLowerCase().includes(term)),
     );
   }, [items, search, categoryId]);
@@ -118,21 +121,12 @@ export default function MenuInventoryCountItemsScreen() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={tw`gap-2 items-center`}
           >
-            <Chip
-              label={t("categories.all")}
-              selected={categoryId === null}
-              onPress={() => setCategoryId(null)}
-            />
             {categories.map((category) => (
               <Chip
                 key={category.id}
                 label={category.name}
                 selected={categoryId === category.id}
-                onPress={() =>
-                  setCategoryId((current) =>
-                    current === category.id ? null : category.id,
-                  )
-                }
+                onPress={() => setCategoryId(category.id)}
               />
             ))}
           </ScrollView>

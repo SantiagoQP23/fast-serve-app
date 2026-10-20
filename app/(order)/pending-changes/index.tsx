@@ -137,7 +137,7 @@ export default function PendingChangesScreen() {
                     onPress={() => setToDiscard(op)}
                   />
                   <Button
-                    variant="secondary"
+                    variant="surface"
                     size="small"
                     leftIcon="refresh-cw"
                     label={t("orders:offline.retry")}

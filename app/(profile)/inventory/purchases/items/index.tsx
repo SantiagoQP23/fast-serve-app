@@ -36,7 +36,9 @@ export default function MenuInventoryPurchaseItemsScreen() {
   const lines = usePurchaseCartStore((state) => state.lines);
   const setLine = usePurchaseCartStore((state) => state.setLine);
   const [search, setSearch] = useState("");
-  const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [pickedCategoryId, setCategoryId] = useState<string | null>(null);
+  // No "All" chip: until the user picks one, the first category is active.
+  const categoryId = pickedCategoryId ?? categories[0]?.id ?? null;
   const [target, setTarget] = useState<PurchaseQuantityTarget | null>(null);
 
   // Tablet landscape: the cart lives in a side pane next to the picker, and
@@ -55,13 +57,14 @@ export default function MenuInventoryPurchaseItemsScreen() {
   );
 
   // The whole catalog is already loaded (useInventoryItems), so search and
-  // category filtering happen locally — no request per keystroke.
+  // category filtering happen locally — no request per keystroke. A search
+  // term spans every category so items outside the active one stay findable.
   const visibleItems = useMemo(() => {
     const term = search.trim().toLowerCase();
     return items.filter(
       (item) =>
         item.isActive &&
-        (!categoryId || item.category?.id === categoryId) &&
+        (!!term || !categoryId || item.category?.id === categoryId) &&
         (!term || item.name.toLowerCase().includes(term)),
     );
   }, [items, search, categoryId]);
@@ -102,6 +105,7 @@ export default function MenuInventoryPurchaseItemsScreen() {
           value={search}
           onChangeText={setSearch}
           returnKeyType="search"
+          variant="outlined"
         />
 
         {categories.length > 0 && (
@@ -110,21 +114,12 @@ export default function MenuInventoryPurchaseItemsScreen() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={tw`gap-2 items-center`}
           >
-            <Chip
-              label={t("categories.all")}
-              selected={categoryId === null}
-              onPress={() => setCategoryId(null)}
-            />
             {categories.map((category) => (
               <Chip
                 key={category.id}
                 label={category.name}
                 selected={categoryId === category.id}
-                onPress={() =>
-                  setCategoryId((current) =>
-                    current === category.id ? null : category.id,
-                  )
-                }
+                onPress={() => setCategoryId(category.id)}
               />
             ))}
           </ScrollView>

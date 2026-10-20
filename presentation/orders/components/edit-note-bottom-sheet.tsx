@@ -59,7 +59,7 @@ const EditNoteBottomSheet = ({ order, onClose }: EditNoteBottomSheetProps) => {
           <Button
             leftIcon="check"
             onPress={handleConfirm}
-            variant="secondary"
+            variant="surface"
           />
         </ThemedView>
       </ThemedView>

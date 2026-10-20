@@ -68,7 +68,7 @@ function NoteBottomSheet(
           <Button
             leftIcon="check"
             onPress={() => onSave(draft)}
-            variant="secondary"
+            variant="surface"
           />
         </ThemedView>
       </BottomSheetView>

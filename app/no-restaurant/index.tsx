@@ -94,7 +94,7 @@ export default function NoRestaurantScreen() {
             <Button
               label={t("noRestaurant.joinButton")}
               onPress={() => router.push("/join-restaurant")}
-              variant="secondary"
+              variant="surface"
             />
           </Card>
         </ThemedView>

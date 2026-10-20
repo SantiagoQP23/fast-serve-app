@@ -35,7 +35,8 @@ import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLa
 const PRODUCT_PANE_WIDTH = 600;
 
 type SelectedEntity =
-  { type: "section"; item: Section } | { type: "category"; item: Category };
+  | { type: "section"; item: Section }
+  | { type: "category"; item: Category };
 
 export default function MenuOverviewScreen() {
   const { t } = useTranslation("menuManagement");
@@ -303,6 +304,7 @@ export default function MenuOverviewScreen() {
       )}
 
       <TextInput
+        variant="outlined"
         value={search}
         placeholder={t("products.searchPlaceholder")}
         onChangeText={setSearch}
@@ -493,10 +495,8 @@ export default function MenuOverviewScreen() {
                 </ThemedView>
               </ThemedView>
               <IconButton
-                icon={
-                  selected.item.isActive ? "eye" : "eye-off"
-                }
-                variant="secondary"
+                icon={selected.item.isActive ? "eye" : "eye-off"}
+                variant="surface"
                 onPress={handleToggleSelectedActive}
               />
             </ThemedView>
@@ -510,7 +510,7 @@ export default function MenuOverviewScreen() {
               <Button
                 label={t("edit")}
                 leftIcon="square-pen"
-                variant="secondary"
+                variant="surface"
                 style={tw`flex-1`}
                 onPress={handleEditSelected}
               />
@@ -566,11 +566,7 @@ export default function MenuOverviewScreen() {
           />
         ) : (
           <ThemedView style={tw`flex-1 items-center justify-center gap-4 px-8`}>
-            <Icon
-              name="hamburger"
-              size={64}
-              color={tw.color("gray-400")}
-            />
+            <Icon name="hamburger" size={64} color={tw.color("gray-400")} />
             <ThemedText type="h3">{t("overview.pane.emptyTitle")}</ThemedText>
             <ThemedText type="body2" style={tw`text-center max-w-xs`}>
               {t("overview.pane.emptyDescription")}

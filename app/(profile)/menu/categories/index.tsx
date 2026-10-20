@@ -238,7 +238,7 @@ export default function MenuCategoriesScreen() {
                 icon={
                   selectedCategory.isActive ? "eye" : "eye-off"
                 }
-                variant="secondary"
+                variant="surface"
                 onPress={handleToggleActive}
               />
             </ThemedView>
@@ -255,7 +255,7 @@ export default function MenuCategoriesScreen() {
               <Button
                 label={t("edit")}
                 leftIcon="square-pen"
-                variant="secondary"
+                variant="surface"
                 style={tw`flex-1`}
                 onPress={() => {
                   handleCloseCategoryActions();

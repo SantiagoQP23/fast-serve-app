@@ -167,12 +167,13 @@ export default function ManageScreen() {
         <ThemedView style={tw`items-center gap-3 flex-row`}>
           <Avatar
             name={user?.person?.firstName}
-            size={42}
+            size={36}
             onPress={() => userInfoSheetRef.current?.present()}
           />
           <IconButton
             onPress={() => router.push("/(profile)/account/settings")}
             icon="settings"
+            size={22}
           ></IconButton>
         </ThemedView>
       </ThemedView>

@@ -145,7 +145,7 @@ export default function TableAreasSettingsScreen() {
               </ThemedView>
               <IconButton
                 icon={selectedArea.isActive ? "eye" : "eye-off"}
-                variant="secondary"
+                variant="surface"
                 onPress={handleToggleActive}
               />
             </ThemedView>
@@ -162,7 +162,7 @@ export default function TableAreasSettingsScreen() {
               <Button
                 label={t("areas.edit")}
                 leftIcon="square-pen"
-                variant="secondary"
+                variant="surface"
                 style={tw`flex-1`}
                 onPress={() => {
                   actionsSheetRef.current?.dismiss();

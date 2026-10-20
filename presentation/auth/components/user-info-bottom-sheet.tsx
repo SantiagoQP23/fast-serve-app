@@ -68,7 +68,7 @@ function UserInfoBottomSheet(
           label={t("manage.userInfo.editProfile")}
           onPress={handleEditProfile}
           leftIcon="circle-user"
-          variant="secondary"
+          variant="surface"
         />
       </BottomSheetView>
     </ThemedBottomSheetModal>

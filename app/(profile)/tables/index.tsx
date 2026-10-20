@@ -411,7 +411,7 @@ export default function TablesSettingsScreen() {
                     ? "eye"
                     : "eye-off"
                 }
-                variant="secondary"
+                variant="surface"
                 onPress={handleToggleActive}
               />
             </ThemedView>
@@ -428,7 +428,7 @@ export default function TablesSettingsScreen() {
               <Button
                 label={t("settings.edit")}
                 leftIcon="square-pen"
-                variant="secondary"
+                variant="surface"
                 style={tw`flex-1`}
                 onPress={() => {
                   handleCloseTableActions();

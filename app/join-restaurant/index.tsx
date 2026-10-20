@@ -130,7 +130,7 @@ export default function JoinRestaurantScreen() {
             onPress={generateToken}
             loading={isLoading}
             disabled={isLoading}
-            variant="secondary"
+            variant="surface"
           />
           <Button
             label={t("joinRestaurant.backButton")}

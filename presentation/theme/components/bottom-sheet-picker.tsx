@@ -153,6 +153,7 @@ const BottomSheetPicker = forwardRef<
                     </Pressable>
                   ) : null
                 }
+                variant="outlined"
               />
             </View>
           )}
@@ -163,7 +164,7 @@ const BottomSheetPicker = forwardRef<
                 leftIcon="plus"
                 label={headerAction.label}
                 variant={
-                  value !== undefined && value !== "" ? "outline" : "secondary"
+                  value !== undefined && value !== "" ? "outline" : "surface"
                 }
                 onPress={handleHeaderAction}
               />
@@ -204,8 +205,8 @@ const BottomSheetPicker = forwardRef<
                       onPress={() => handleSelect(item.value)}
                       style={({ pressed }) =>
                         tw.style(
-                          "flex-row items-center justify-between p-6 rounded-3xl bg-surface",
-                          item.value === value && "bg-secondary ",
+                          "flex-row items-center justify-between p-4 rounded-md ",
+                          item.value === value && "bg-secondary p-4",
                           pressed && "bg-gray-100 ",
                         )
                       }
@@ -213,10 +214,7 @@ const BottomSheetPicker = forwardRef<
                       <ThemedText
                         type="body1"
                         style={{
-                          fontFamily:
-                            value === item.value
-                              ? typography.bold
-                              : typography.medium,
+                          fontFamily: typography.medium,
                           color:
                             value === item.value
                               ? tw.color("on-secondary")
@@ -239,11 +237,7 @@ const BottomSheetPicker = forwardRef<
             </BottomSheetView>
           ) : (
             <View style={tw`py-12 items-center`}>
-              <Icon
-                name="search"
-                size={48}
-                color={tw.color("gray-300")}
-              />
+              <Icon name="search" size={48} color={tw.color("gray-300")} />
               <Text style={tw`text-gray-400 mt-3 text-base`}>
                 No results found
               </Text>

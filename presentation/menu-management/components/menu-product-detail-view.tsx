@@ -776,7 +776,7 @@ export default function MenuProductDetailView({
               <Button
                 label={t("edit")}
                 leftIcon="square-pen"
-                variant="secondary"
+                variant="surface"
                 onPress={handleOpenEditOption}
                 size="small"
               />

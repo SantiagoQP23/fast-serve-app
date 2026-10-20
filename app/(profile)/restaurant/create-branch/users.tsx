@@ -178,7 +178,7 @@ export default function CreateBranchUsersScreen() {
             </ThemedText>
             <Button
               label={t("createBranch.users.retry")}
-              variant="secondary"
+              variant="surface"
               size="small"
               onPress={() => usersQuery.refetch()}
             />

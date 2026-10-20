@@ -2,6 +2,7 @@ import React from "react";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import Icon, { type IconName } from "@/presentation/theme/components/icon";
+import Card from "@/presentation/theme/components/card";
 import tw from "@/presentation/theme/lib/tailwind";
 
 interface StatsCardProps {
@@ -19,12 +20,12 @@ export default function StatsCard({
   loading = false,
 }: StatsCardProps) {
   return (
-    <ThemedView style={tw`flex-1 rounded-3xl  p-4  bg-surface`}>
+    <Card variant="outline" containerStyle={tw`flex-1`} style={tw`p-4`}>
       <ThemedView
         style={tw`flex-row items-center justify-between bg-transparent gap-2`}
       >
         <ThemedView
-          style={tw`w-10 h-10 rounded-lg bg-surface items-center justify-center`}
+          style={tw`w-10 h-10 rounded-lg bg-transparent items-center justify-center`}
         >
           <Icon name={icon} size={24} color={tw.color("on-surface")} />
         </ThemedView>
@@ -44,6 +45,6 @@ export default function StatsCard({
           )}
         </ThemedView>
       </ThemedView>
-    </ThemedView>
+    </Card>
   );
 }

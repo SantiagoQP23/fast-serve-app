@@ -232,7 +232,7 @@ export default function PrintersScreen() {
               </ThemedView>
               <IconButton
                 icon={selectedPrinter.isActive ? "eye" : "eye-off"}
-                variant="secondary"
+                variant="surface"
                 onPress={handleToggleActive}
               />
             </ThemedView>
@@ -248,7 +248,7 @@ export default function PrintersScreen() {
               <Button
                 label={t("edit")}
                 leftIcon="square-pen"
-                variant="secondary"
+                variant="surface"
                 onPress={() => {
                   handleClosePrinterActions();
                   handleEditPrinter(selectedPrinter);

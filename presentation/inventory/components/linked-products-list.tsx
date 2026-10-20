@@ -31,7 +31,7 @@ export default function LinkedProductsList({
         {onAddPress && (
           <IconButton
             icon="plus"
-            variant="secondary"
+            variant="surface"
             size={20}
             onPress={onAddPress}
             style={tw`-mr-2 p-2`}

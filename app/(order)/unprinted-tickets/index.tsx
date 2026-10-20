@@ -189,7 +189,7 @@ export default function UnprintedTicketsScreen() {
               onPress={toggleSelectAll}
             />
             <Button
-              variant="secondary"
+              variant="surface"
               size="small"
               leftIcon="eye-off"
               label={t("orders:tickets.skip")}

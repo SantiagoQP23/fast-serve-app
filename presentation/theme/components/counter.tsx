@@ -185,7 +185,7 @@ export default function Counter({
 
       <IconButton
         icon="plus"
-        variant="secondary"
+        variant="surface"
         size={iconSize}
         disabled={!canIncrement}
         onPress={handleIncrement}

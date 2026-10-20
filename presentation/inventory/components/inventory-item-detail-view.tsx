@@ -218,7 +218,7 @@ export default function InventoryItemDetailView({
             <Button
               label={t("decrease")}
               leftIcon="minus"
-              variant="secondary"
+              variant="surface"
               onPress={() => setAdjustMode("decrease")}
               style={tw`flex-1`}
             />

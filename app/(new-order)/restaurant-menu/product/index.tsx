@@ -529,14 +529,14 @@ export default function ProductScreen() {
                 <IconButton
                   icon="minus"
                   onPress={decrement}
-                  variant="secondary"
+                  variant="surface"
                   size={40}
                 />
                 <ThemedText type="h1">{counter}</ThemedText>
                 <IconButton
                   icon="plus"
                   onPress={increment}
-                  variant="secondary"
+                  variant="surface"
                   size={40}
                   disabled={atStockLimit}
                 />

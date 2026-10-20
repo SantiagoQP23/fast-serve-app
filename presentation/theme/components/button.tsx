@@ -98,7 +98,7 @@ export default function Button({
     secondary: "text-on-secondary",
     outline: "text-primary",
     text: "text-primary",
-    surface: "text-on-surface-variant",
+    surface: "text-primary",
     destructive: "text-red-800",
   };
 
@@ -107,7 +107,7 @@ export default function Button({
     secondary: palette.onSecondary,
     outline: palette.primary,
     text: palette.primary,
-    surface: palette.onSurfaceVariant,
+    surface: palette.primary,
     destructive: tw.color("red-900"),
   };
 
