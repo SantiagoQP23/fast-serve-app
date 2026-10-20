@@ -43,7 +43,7 @@ const light: Palette = {
   onPrimary: "#FFFFFF",
   primaryContainer: "#E8E8E8",
   onPrimaryContainer: "#1C1B19",
-  secondary: "#8FAFC4",
+  secondary: "#DCE7EE",
   onSecondary: "#1C1B19",
   secondaryContainer: "#2C4566",
   onSecondaryContainer: "#FFFFFF",

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { router } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -7,6 +8,8 @@ import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import Card from "@/presentation/theme/components/card";
 import Label from "@/presentation/theme/components/label";
+import Button from "@/presentation/theme/components/button";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
 import InventoryCardLines from "./inventory-card-lines";
 import { usePurchaseCartStore } from "@/presentation/inventory/store/purchaseCartStore";
 
@@ -18,71 +21,102 @@ export default function DraftPurchaseCard() {
   const { t } = useTranslation("inventory");
   const lines = usePurchaseCartStore((state) => state.lines);
   const note = usePurchaseCartStore((state) => state.note);
+  const reset = usePurchaseCartStore((state) => state.reset);
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
 
   if (lines.length === 0) return null;
 
+  const handleDiscard = () => {
+    setConfirmDiscard(false);
+    reset();
+  };
+
   return (
-    <Card
-      variant="outline"
-      onPress={() =>
-        router.push({ pathname: "/(profile)/inventory/purchases/items" })
-      }
-      accessibilityRole="button"
-      style={tw`gap-3 p-4`}
-    >
-      <ThemedView
-        style={tw`flex-row items-start justify-between gap-3 bg-transparent`}
+    <>
+      <Card
+        variant="outline"
+        onPress={() =>
+          router.push({ pathname: "/(profile)/inventory/purchases/items" })
+        }
+        accessibilityRole="button"
+        style={tw`gap-3 p-4`}
       >
-        <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-          <ThemedText
-            type="body1"
-            style={[
-              { fontFamily: typography.semibold },
-              tw`text-on-surface`,
-            ]}
-          >
-            {t("purchases.productsCount", { count: lines.length })}
-          </ThemedText>
-          <ThemedText type="small" style={tw`text-gray-500`} numberOfLines={1}>
-            {t("purchases.draftHint")}
-          </ThemedText>
-        </ThemedView>
-        <Label
-          text={t("purchases.inProgress")}
-          color="info"
-          variant="solid"
-          size="small"
-        />
-      </ThemedView>
-
-      <InventoryCardLines
-        total={lines.length}
-        lines={lines.slice(0, PREVIEW_LINES).map((line) => ({
-          id: line.item.id,
-          name: line.item.name,
-          unit: line.item.unit,
-          quantity: line.quantity,
-          prefix: "+",
-        }))}
-      />
-
-      {!!note && (
-        <ThemedView style={tw`flex-row items-start gap-2 bg-transparent`}>
-          <Icon
-            name="file-text"
-            size={16}
-            color={tw.color("gray-400")}
-            style={tw`mt-0.5`}
+        <ThemedView
+          style={tw`flex-row items-start justify-between gap-3 bg-transparent`}
+        >
+          <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+            <ThemedText
+              type="body1"
+              style={[{ fontFamily: typography.semibold }, tw`text-on-surface`]}
+            >
+              {t("purchases.productsCount", { count: lines.length })}
+            </ThemedText>
+            <ThemedText
+              type="small"
+              style={tw`text-gray-500`}
+              numberOfLines={1}
+            >
+              {t("purchases.draftHint")}
+            </ThemedText>
+          </ThemedView>
+          <Label
+            text={t("purchases.inProgress")}
+            color="info"
+            variant="solid"
+            size="small"
           />
-          <ThemedText
-            type="body2"
-            style={tw`flex-1 text-on-surface-variant`}
-            numberOfLines={2}
-          >
-            {note}
-          </ThemedText>
         </ThemedView>
-      )}
-    </Card>
+
+        <InventoryCardLines
+          total={lines.length}
+          lines={lines.slice(0, PREVIEW_LINES).map((line) => ({
+            id: line.item.id,
+            name: line.item.name,
+            unit: line.item.unit,
+            quantity: line.quantity,
+            prefix: "+",
+          }))}
+        />
+
+        {!!note && (
+          <ThemedView style={tw`flex-row items-start gap-2 bg-transparent`}>
+            <Icon
+              name="file-text"
+              size={16}
+              color={tw.color("gray-400")}
+              style={tw`mt-0.5`}
+            />
+            <ThemedText
+              type="body2"
+              style={tw`flex-1 text-on-surface-variant`}
+              numberOfLines={2}
+            >
+              {note}
+            </ThemedText>
+          </ThemedView>
+        )}
+
+        <ThemedView style={tw`flex-row justify-end bg-transparent`}>
+          <Button
+            label={t("purchases.discardDraft")}
+            leftIcon="trash"
+            variant="destructive"
+            size="extra-small"
+            onPress={() => setConfirmDiscard(true)}
+          />
+        </ThemedView>
+      </Card>
+
+      <DialogModal
+        visible={confirmDiscard}
+        title={t("purchases.discardDraftTitle")}
+        message={t("purchases.discardDraftMessage")}
+        confirmLabel={t("purchases.discardDraft")}
+        cancelLabel={t("cancel")}
+        confirmVariant="destructive"
+        onConfirm={handleDiscard}
+        onCancel={() => setConfirmDiscard(false)}
+      />
+    </>
   );
 }

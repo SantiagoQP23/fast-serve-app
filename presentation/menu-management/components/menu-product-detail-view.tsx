@@ -27,7 +27,6 @@ import TextInput from "@/presentation/theme/components/text-input";
 import BottomSheetPicker, {
   type BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
-import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { formatCurrency } from "@/core/i18n/utils";
@@ -103,7 +102,6 @@ export default function MenuProductDetailView({
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
   const [productDeleteVisible, setProductDeleteVisible] = useState(false);
-  const productActionsSheetRef = useRef<BottomSheetMethods>(null);
   const categoryPickerRef = useRef<BottomSheetPickerRef>(null);
   const productionAreaPickerRef = useRef<BottomSheetPickerRef>(null);
   const addOptionSheetRef = useRef<BottomSheetMethods>(null);
@@ -163,13 +161,8 @@ export default function MenuProductDetailView({
     updateProduct.mutate({ id: product.id, isActive: !product.isActive });
   };
 
-  const handleOpenMoreProductActions = () => {
-    productActionsSheetRef.current?.present();
-  };
-
   const handleDuplicateProduct = () => {
     if (!product) return;
-    productActionsSheetRef.current?.dismiss();
     duplicateProduct.mutate(product.id, {
       onSuccess: (newProduct) => {
         if (onOpenProduct) {
@@ -427,11 +420,15 @@ export default function MenuProductDetailView({
 
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={tw`gap-4 pb-8`}
+          contentContainerStyle={tw.style(
+            "gap-4",
+            canManage ? "pb-28" : "pb-8",
+          )}
         >
           <ThemedView style={tw`gap-1`}>
             <ThemedView style={tw`flex-row items-center gap-2`}>
               <Label
+                variant="solid"
                 text={product.isActive ? t("active") : t("inactive")}
                 color={product.isActive ? "success" : "default"}
               />
@@ -514,90 +511,75 @@ export default function MenuProductDetailView({
                   </ThemedText>
                 </ThemedView>
               ) : (
-                <ThemedView>
+                <ThemedView style={tw`gap-3`}>
                   {product.options.map((option, index) => (
-                    <ThemedView
+                    <Card
                       key={option.id ?? index}
-                      style={tw.style(
-                        "flex-row items-center gap-1 bg-transparent",
-                        !option.isActive && "opacity-50",
-                      )}
+                      containerStyle={!option.isActive && tw`opacity-50`}
+                      onPress={
+                        canManage
+                          ? () => handleOpenOptionActions(option)
+                          : undefined
+                      }
                     >
-                      {canManage || option.isDefault ? (
-                        <Pressable
-                          onPress={() => handleMakeDefaultFromRow(option)}
-                          disabled={
-                            !canManage ||
-                            option.isDefault ||
-                            setDefaultProductOption.isPending
-                          }
-                          hitSlop={6}
-                          accessibilityRole="button"
-                          accessibilityLabel={
-                            option.isDefault
-                              ? t("products.variants.fields.isDefault")
-                              : t("products.variants.makeDefault")
-                          }
-                          accessibilityState={{ selected: option.isDefault }}
-                          style={({ pressed }) =>
-                            tw.style("p-2.5 -ml-2.5", pressed && "opacity-60")
-                          }
-                        >
-                          <Icon
-                            name={option.isDefault ? "star" : "star"}
-                            size={22}
-                            color={tw.color("gray-400")}
-                          />
-                        </Pressable>
-                      ) : (
-                        <ThemedView style={tw`w-[22px] h-[22px] mr-2.5`} />
-                      )}
-                      <Pressable
-                        onPress={
-                          canManage
-                            ? () => handleOpenOptionActions(option)
-                            : undefined
-                        }
-                        style={({ pressed }) =>
-                          tw.style(
-                            "flex-1 flex-row items-center justify-between gap-4 py-3",
-                            pressed && "opacity-60",
-                          )
-                        }
+                      <ThemedView
+                        style={tw`flex-row items-center gap-3 bg-transparent`}
                       >
-                        <ThemedView style={tw`flex-1 gap-0.5 bg-transparent`}>
+                        <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
                           <ThemedText
                             type="body1"
-                            style={{ fontFamily: typography.semibold }}
+                            style={tw`font-semibold`}
                             numberOfLines={1}
                           >
                             {option.name}
                           </ThemedText>
+                          <ThemedText type="small" style={tw`text-gray-500`}>
+                            {formatCurrency(option.price)}
+                          </ThemedText>
                           <OptionStockLeft option={option} />
                         </ThemedView>
-                        <ThemedText
-                          type="body1"
-                          style={{ fontFamily: typography.regular }}
-                        >
-                          {formatCurrency(option.price)}
-                        </ThemedText>
-                      </Pressable>
-                    </ThemedView>
+                        {option.isDefault ? (
+                          <Icon
+                            name="star"
+                            size={18}
+                            color={tw.color("on-secondary")}
+                          />
+                        ) : canManage ? (
+                          <Pressable
+                            onPress={() => handleMakeDefaultFromRow(option)}
+                            disabled={setDefaultProductOption.isPending}
+                            hitSlop={10}
+                            accessibilityRole="button"
+                            accessibilityLabel={t(
+                              "products.variants.makeDefault",
+                            )}
+                            style={({ pressed }) =>
+                              tw.style(pressed && "opacity-60")
+                            }
+                          >
+                            <Icon
+                              name="star"
+                              size={18}
+                              color={tw.color("gray-300")}
+                            />
+                          </Pressable>
+                        ) : null}
+                      </ThemedView>
+                    </Card>
                   ))}
                 </ThemedView>
               )}
 
               {canManage && (
-                <Pressable
-                  onPress={openAddOptionSheet}
-                  style={({ pressed }) =>
-                    tw.style("py-3", pressed && "opacity-60")
-                  }
-                >
-                  <ThemedText type="body1" style={tw`text-gray-400`}>
-                    {t("products.variants.addPlaceholder")}
-                  </ThemedText>
-                </Pressable>
+                <ThemedView style={tw`flex-row`}>
+                  <Button
+                    label={t("products.variants.addVariant")}
+                    onPress={openAddOptionSheet}
+                    variant="outline"
+                    size="small"
+                    leftIcon="plus"
+                  />
+                </ThemedView>
               )}
             </ThemedView>
           )}
@@ -620,12 +602,13 @@ export default function MenuProductDetailView({
                 onPress: handleToggleProductActive,
               },
               {
-                icon: "trash",
-                onPress: () => setProductDeleteVisible(true),
+                icon: "copy",
+                onPress: handleDuplicateProduct,
+                disabled: duplicateProduct.isPending,
               },
               {
-                icon: "ellipsis",
-                onPress: handleOpenMoreProductActions,
+                icon: "trash",
+                onPress: () => setProductDeleteVisible(true),
               },
             ]}
           />
@@ -707,19 +690,6 @@ export default function MenuProductDetailView({
         </BottomSheetView>
       </ThemedBottomSheetModal>
 
-      <ThemedBottomSheetModal ref={productActionsSheetRef} enablePanDownToClose>
-        <ActionsBottomSheet
-          title={product.name}
-          items={[
-            {
-              icon: "copy",
-              label: t("products.duplicate"),
-              onPress: handleDuplicateProduct,
-            },
-          ]}
-        />
-      </ThemedBottomSheetModal>
-
       <ThemedBottomSheetModal ref={optionActionsSheetRef} enablePanDownToClose>
         {selectedOption && (
           <ThemedView style={tw`px-4 pb-4 gap-6`}>
@@ -742,9 +712,7 @@ export default function MenuProductDetailView({
               </ThemedView>
 
               <IconButton
-                icon={
-                  selectedOption.isActive ? "eye" : "eye-off"
-                }
+                icon={selectedOption.isActive ? "eye" : "eye-off"}
                 onPress={handleToggleOptionActive}
                 variant="surface"
               />

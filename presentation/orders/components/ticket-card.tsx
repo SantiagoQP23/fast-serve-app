@@ -94,10 +94,8 @@ export default function TicketCard({
       disabled={!selectionMode && !onLongPress}
       onPress={() => selectionMode && onToggleSelect?.(ticket)}
       onLongPress={() => !selectionMode && onLongPress?.(ticket)}
-      style={tw.style(
-        "p-4 bg-surface-bright",
-        selected && "border-2 border-primary",
-      )}
+      style={tw.style("p-4", selected && "border-2 border-primary")}
+      variant="outline"
     >
       {order && (
         <Pressable

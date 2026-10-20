@@ -76,7 +76,7 @@ export default function Select({
           onPressOut={() => setIsPressed(false)}
           style={[
             tw.style(
-              "flex-row rounded-xl px-3",
+              "flex-row rounded-md px-3",
               variant === "filled" ? "bg-surface-high" : "bg-transparent",
             ),
             {

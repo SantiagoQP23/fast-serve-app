@@ -322,7 +322,10 @@
     "name": "Compra",
     "hintTitle": "Cómo funciona",
     "inProgress": "En curso",
-    "draftHint": "Aún no registrada"
+    "draftHint": "Aún no registrada",
+    "discardDraft": "Descartar",
+    "discardDraftTitle": "Descartar compra",
+    "discardDraftMessage": "Se quitarán los productos agregados a esta compra. El stock no cambia."
   },
   "shoppingList": {
     "title": "Lista de compras",
@@ -330,10 +333,8 @@
     "lowCount_other": "{{count}} artículos con stock bajo",
     "allGood": "Todo en orden, nada con stock bajo",
     "empty": "No hay artículos con stock bajo",
-    "emptyDescription": "Aquí aparecen los artículos con stock igual o menor a su mínimo.",
+    "emptyDescription": "Aquí aparecen los artículos con stock menor a su mínimo.",
     "stockAndMinimum": "Quedan {{stock}} · Mínimo {{minimum}}",
-    "suggested": "Comprar ≈ {{quantity}}",
-    "atMinimum": "En el mínimo",
     "startPurchase": "Registrar compra con esta lista",
     "share": "Compartir lista"
   },

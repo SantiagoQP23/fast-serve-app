@@ -322,7 +322,10 @@
     "name": "Purchase",
     "hintTitle": "How it works",
     "inProgress": "In progress",
-    "draftHint": "Not registered yet"
+    "draftHint": "Not registered yet",
+    "discardDraft": "Discard",
+    "discardDraftTitle": "Discard purchase",
+    "discardDraftMessage": "The products added to this purchase will be removed. Stock is not affected."
   },
   "shoppingList": {
     "title": "Shopping list",
@@ -330,10 +333,8 @@
     "lowCount_other": "{{count}} items low on stock",
     "allGood": "All good, nothing low on stock",
     "empty": "No items low on stock",
-    "emptyDescription": "Items at or below their minimum stock show up here.",
+    "emptyDescription": "Items below their minimum stock show up here.",
     "stockAndMinimum": "{{stock}} left · Minimum {{minimum}}",
-    "suggested": "Buy ≈ {{quantity}}",
-    "atMinimum": "At the minimum",
     "startPurchase": "Start a purchase with this list",
     "share": "Share list"
   },

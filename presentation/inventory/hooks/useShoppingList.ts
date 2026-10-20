@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import {
-  isInventoryItemLow,
+  isInventoryItemBelowMinimum,
   type InventoryItem,
 } from "@/core/inventory/models/inventory-item.model";
 import { useInventoryItems } from "./useInventoryItems";
@@ -9,7 +9,7 @@ const stockRatio = (item: InventoryItem) =>
   item.quantity / (item.minimumQuantity as number);
 
 /**
- * Low-stock items for the shopping list, most urgent (lowest stock to
+ * Items below their minimum for the shopping list, most urgent (lowest stock to
  * minimum ratio) first. Built from the full catalog query, so it also
  * works offline from the cached catalog.
  */
@@ -19,7 +19,7 @@ export const useShoppingList = () => {
   const lowItems = useMemo(
     () =>
       items
-        .filter(isInventoryItemLow)
+        .filter(isInventoryItemBelowMinimum)
         .sort(
           (a, b) =>
             stockRatio(a) - stockRatio(b) || a.name.localeCompare(b.name),

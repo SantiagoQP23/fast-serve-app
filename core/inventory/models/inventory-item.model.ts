@@ -49,12 +49,16 @@ export function getInventoryStockRatio(item: InventoryItem): number {
 }
 
 /**
- * Low stock for the shopping list: active, with a minimum set, and at or
- * below it — the same items the Bajo/Crítico badges flag.
+ * Items for the shopping list: active, with a minimum set, and strictly
+ * below it — an item sitting exactly at its minimum has nothing to buy.
  */
-export function isInventoryItemLow(item: InventoryItem): boolean {
-  const status = getInventoryStockStatus(item);
-  return status === "critical" || status === "low";
+export function isInventoryItemBelowMinimum(item: InventoryItem): boolean {
+  return (
+    item.isActive &&
+    item.minimumQuantity != null &&
+    item.minimumQuantity > 0 &&
+    item.quantity < item.minimumQuantity
+  );
 }
 
 /**
