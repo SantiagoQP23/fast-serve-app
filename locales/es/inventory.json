@@ -320,7 +320,9 @@
     "removeItemError": "No se pudo eliminar el producto",
     "products": "Productos",
     "name": "Compra",
-    "hintTitle": "Cómo funciona"
+    "hintTitle": "Cómo funciona",
+    "inProgress": "En curso",
+    "draftHint": "Aún no registrada"
   },
   "shoppingList": {
     "title": "Lista de compras",

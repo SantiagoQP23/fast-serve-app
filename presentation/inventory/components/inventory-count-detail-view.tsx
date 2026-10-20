@@ -60,18 +60,14 @@ export default function InventoryCountDetailView({
   const creator = count ? getCountUserName(count.createdBy) : null;
   const finisher = count ? getCountUserName(count.completedBy) : null;
 
-  const chips = creator
-    ? [
-        {
-          icon: "user" as const,
-          label: t("counts.startedBy", { name: creator }),
-        },
-      ]
-    : [];
-
   const activity = count
     ? [
-        { label: t("activity.started"), date: count.createdAt },
+        {
+          label: creator
+            ? t("counts.startedBy", { name: creator })
+            : t("activity.started"),
+          date: count.createdAt,
+        },
         ...(count.completedAt
           ? [
               {
@@ -189,7 +185,6 @@ export default function InventoryCountDetailView({
                   )}
                 </>
               }
-              chips={chips}
             >
               {inProgress && lines.length > 0 && (
                 <ThemedView

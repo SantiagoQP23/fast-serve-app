@@ -320,7 +320,9 @@
     "removeItemError": "Could not remove the product",
     "products": "Products",
     "name": "Purchase",
-    "hintTitle": "How it works"
+    "hintTitle": "How it works",
+    "inProgress": "In progress",
+    "draftHint": "Not registered yet"
   },
   "shoppingList": {
     "title": "Shopping list",

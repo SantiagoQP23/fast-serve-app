@@ -98,7 +98,7 @@ const ChangeUserRoleBottomSheet = ({
       <Button
         label={t("staff.removeUser.title")}
         onPress={handleRemove}
-        variant="destructive"
+        variant="text"
         leftIcon="trash"
       />
     </BottomSheetView>

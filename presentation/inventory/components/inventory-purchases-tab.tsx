@@ -8,6 +8,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { groupByDay } from "@/core/i18n/utils";
 import Button from "@/presentation/theme/components/button";
+import DraftPurchaseCard from "@/presentation/inventory/components/draft-purchase-card";
 import DaySectionHeader from "@/presentation/inventory/components/day-section-header";
 import InventoryPurchaseCard from "@/presentation/inventory/components/inventory-purchase-card";
 import ShoppingListCard from "@/presentation/inventory/components/shopping-list-card";
@@ -58,6 +59,7 @@ export default function InventoryPurchasesTab({
         />
       }
     >
+      <DraftPurchaseCard />
       <ShoppingListCard />
 
       {purchasesQuery.isLoading && !isLoadingMore && (

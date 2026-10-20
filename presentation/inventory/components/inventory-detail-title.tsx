@@ -1,7 +1,5 @@
 import type { ReactNode } from "react";
-import { ScrollView } from "react-native";
 import Icon, { type IconName } from "@/presentation/theme/components/icon";
-import Chip from "@/presentation/theme/components/chip";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -18,8 +16,6 @@ interface InventoryDetailTitleProps {
   subtitle?: string;
   /** Status labels shown under the title. */
   labels?: ReactNode;
-  /** Who and when, as a row of chips under the title. */
-  chips?: { icon: IconName; label: string }[];
   /** Anything that belongs with the title block, e.g. a progress bar. */
   children?: ReactNode;
 }
@@ -30,7 +26,6 @@ export default function InventoryDetailTitle({
   title,
   subtitle,
   labels,
-  chips = [],
   children,
 }: InventoryDetailTitleProps) {
   return (
@@ -56,18 +51,6 @@ export default function InventoryDetailTitle({
         >
           {labels}
         </ThemedView>
-      )}
-
-      {chips.length > 0 && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={tw`gap-2`}
-        >
-          {chips.map((chip) => (
-            <Chip key={chip.label} icon={chip.icon} label={chip.label} />
-          ))}
-        </ScrollView>
       )}
 
       {children}

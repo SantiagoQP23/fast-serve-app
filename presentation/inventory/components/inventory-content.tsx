@@ -1,10 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import {
-  ScrollView,
-  RefreshControl,
-  Pressable,
-  View,
-} from "react-native";
+import { ScrollView, RefreshControl, Pressable, View } from "react-native";
 import { router } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 import {
@@ -19,7 +14,6 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { canManageInventory } from "@/core/auth/models/user.model";
 import Button from "@/presentation/theme/components/button";
-import TextInput from "@/presentation/theme/components/text-input";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Card from "@/presentation/theme/components/card";
 import FloatingToolbar, {
@@ -257,7 +251,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   const content = (
     <>
       <ThemedView style={tw`px-4 pt-8 gap-4 bg-transparent`}>
-        <ThemedView style={tw`items-center gap-3 flex-row bg-transparent`}>
+        <ThemedView style={tw`items-center gap-6 flex-row bg-transparent`}>
           {onBack && (
             <Pressable
               onPress={onBack}
@@ -265,7 +259,11 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
               accessibilityLabel={t("common:actions.goBack")}
               style={({ pressed }) => tw.style(pressed && "opacity-70")}
             >
-              <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
+              <Icon
+                name="arrow-left"
+                color={tw.color("on-surface")}
+                size={24}
+              />
             </Pressable>
           )}
           <ThemedText
@@ -275,34 +273,17 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
           >
             {screenTitle}
           </ThemedText>
-          {canManage && activeTab === "inventory" && (
+          {activeTab === "inventory" && (
             <Pressable
-              onPress={handleManageCategories}
+              onPress={handleOpenSearch}
               style={({ pressed }) => tw.style(pressed && "opacity-70")}
-              accessibilityLabel={t("categories.title")}
+              accessibilityLabel={t("searchPlaceholder")}
               accessibilityRole="button"
             >
-              <Icon name="folder" color={tw.color("on-surface")} size={22} />
+              <Icon name="search" color={tw.color("on-surface")} size={22} />
             </Pressable>
           )}
         </ThemedView>
-
-        {activeTab === "inventory" && (
-          <>
-            <Pressable
-              onPress={handleOpenSearch}
-              accessibilityRole="button"
-              accessibilityLabel={t("searchPlaceholder")}
-            >
-              <TextInput
-                placeholder={t("searchPlaceholder")}
-                icon="search"
-                editable={false}
-                pointerEvents="none"
-              />
-            </Pressable>
-          </>
-        )}
       </ThemedView>
 
       {activeTab === "inventory" && (
@@ -375,17 +356,28 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
 
           {!catalogQuery.isLoading && !catalogQuery.isError && hasContent && (
             <ThemedView style={tw`gap-3 bg-transparent`}>
-              <ThemedText
-                type="caption"
-                style={tw`text-gray-500 font-semibold`}
+              <ThemedView
+                style={tw`flex-row items-center justify-between bg-transparent`}
               >
-                {t("categories.title")}
-              </ThemedText>
+                <ThemedText
+                  type="caption"
+                  style={tw`text-gray-500 font-semibold`}
+                >
+                  {t("categories.title")}
+                </ThemedText>
+                {canManage && (
+                  <IconButton
+                    icon="folder-cog"
+                    size={18}
+                    variant="surface"
+                    style={tw`p-2`}
+                    onPress={handleManageCategories}
+                    accessibilityLabel={t("categories.manageCategories")}
+                  />
+                )}
+              </ThemedView>
               <View
-                style={[
-                  tw`flex-row flex-wrap`,
-                  { gap: FOLDER_GAP },
-                ]}
+                style={[tw`flex-row flex-wrap`, { gap: FOLDER_GAP }]}
                 onLayout={(e) => setGridWidth(e.nativeEvent.layout.width)}
               >
                 {folderWidth !== undefined && (

@@ -20,7 +20,7 @@ interface CountLineCardProps {
 
 /**
  * One counted product as a flat row, like an order's items: a status icon,
- * the name and, when answered, system vs counted amounts.
+ * the name and, when the count is off, system vs counted amounts.
  */
 export default function CountLineCard({
   line,
@@ -30,6 +30,9 @@ export default function CountLineCard({
   const { t } = useTranslation("inventory");
   const unit = t(`units.${line.inventoryItem.unit}`);
   const difference = line.difference ?? 0;
+  const answered = isCountItemAnswered(line);
+  // Matching lines are just the name; the quantities only matter when off.
+  const hasDifference = difference !== 0;
   const { icon, iconColor } = getCountStatusIcon(line.status);
 
   return (
@@ -52,25 +55,29 @@ export default function CountLineCard({
         <ThemedText type="body1" numberOfLines={2}>
           {line.inventoryItem.name}
         </ThemedText>
-        <ThemedText type="body2" style={tw`text-gray-500`}>
-          {isCountItemAnswered(line)
-            ? t("counts.lineQuantities", {
+        {answered ? (
+          hasDifference && (
+            <ThemedText type="body2" style={tw`text-gray-500`}>
+              {t("counts.lineQuantities", {
                 expected: line.expectedQuantity,
                 counted: line.countedQuantity,
                 unit,
-              })
-            : line.status === InventoryCountItemStatus.SKIPPED
+              })}
+              <ThemedText
+                type="body2"
+                style={tw`${difference > 0 ? "text-emerald-700" : "text-red-700"}`}
+              >
+                {` (${difference > 0 ? "+" : ""}${difference})`}
+              </ThemedText>
+            </ThemedText>
+          )
+        ) : (
+          <ThemedText type="body2" style={tw`text-gray-500`}>
+            {line.status === InventoryCountItemStatus.SKIPPED
               ? t("counts.status.SKIPPED")
               : t("counts.notCounted")}
-          {isCountItemAnswered(line) && difference !== 0 && (
-            <ThemedText
-              type="body2"
-              style={tw`${difference > 0 ? "text-emerald-700" : "text-red-700"}`}
-            >
-              {` (${difference > 0 ? "+" : ""}${difference})`}
-            </ThemedText>
-          )}
-        </ThemedText>
+          </ThemedText>
+        )}
       </ThemedView>
     </Pressable>
   );

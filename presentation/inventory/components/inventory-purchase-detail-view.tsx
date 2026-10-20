@@ -72,7 +72,12 @@ export default function InventoryPurchaseDetailView({
     !dayjs(updatedAt).isSame(purchase.createdAt, "minute");
   const activity = purchase
     ? [
-        { label: t("activity.registered"), date: purchase.createdAt },
+        {
+          label: creator
+            ? t("purchases.registeredBy", { name: creator })
+            : t("activity.registered"),
+          date: purchase.createdAt,
+        },
         ...(wasUpdated && updatedAt
           ? [{ label: t("activity.updated"), date: updatedAt }]
           : []),
@@ -172,16 +177,6 @@ export default function InventoryPurchaseDetailView({
               icon="receipt-text"
               title={t("purchases.name")}
               subtitle={formatDetailMoment(purchase.createdAt)}
-              chips={
-                creator
-                  ? [
-                      {
-                        icon: "user",
-                        label: t("purchases.registeredBy", { name: creator }),
-                      },
-                    ]
-                  : []
-              }
             />
 
             {purchase.note && (

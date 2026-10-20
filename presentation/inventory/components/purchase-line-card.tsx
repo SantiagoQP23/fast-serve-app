@@ -5,7 +5,6 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import IconButton from "@/presentation/theme/components/icon-button";
-import Label from "@/presentation/theme/components/label";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
 
 interface PurchaseLineCardProps {
@@ -66,11 +65,9 @@ export default function PurchaseLineCard({
             </ThemedText>
           )}
         </ThemedView>
-        <Label
-          text={`+${t("quantityWithUnit", { quantity, unit })}`}
-          color="success"
-          size="small"
-        />
+        <ThemedText type="body1">
+          {`+${t("quantityWithUnit", { quantity, unit })}`}
+        </ThemedText>
       </Pressable>
     </Swipeable>
   );
