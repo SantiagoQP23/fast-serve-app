@@ -5,14 +5,18 @@ import { useRouter } from "expo-router";
 import IconButton from "@/presentation/theme/components/icon-button";
 import NotificationBadge from "@/presentation/theme/components/notification-badge";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
-import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
+import {
+  selectDraftDetails,
+  useNewOrderStore,
+} from "@/presentation/orders/store/newOrderStore";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import useOrdersModuleContext from "./orders-module.context";
 
 function MyOrdersHeaderRight() {
   const router = useRouter();
-  const details = useNewOrderStore((state) => state.details);
+  const details = useNewOrderStore(selectDraftDetails("order"));
+  const openDraft = useNewOrderStore((state) => state.openDraft);
   const haveAnOpenOrder = details.length > 0;
   const { openViewPopover } = useOrdersModuleContext();
   const moreButtonRef = useRef<View>(null);
@@ -29,7 +33,10 @@ function MyOrdersHeaderRight() {
         <ThemedView style={tw``}>
           <IconButton
             icon="shopping-cart"
-            onPress={() => router.push("/(new-order)/cart")}
+            onPress={() => {
+              openDraft("order");
+              router.push("/(new-order)/cart");
+            }}
           />
           <NotificationBadge value={details.length} />
         </ThemedView>
@@ -43,7 +50,8 @@ function MyOrdersHeaderRight() {
 
 function AllOrdersHeaderRight() {
   const router = useRouter();
-  const details = useNewOrderStore((state) => state.details);
+  const details = useNewOrderStore(selectDraftDetails("order"));
+  const openDraft = useNewOrderStore((state) => state.openDraft);
   const haveAnOpenOrder = details.length > 0;
 
   if (!haveAnOpenOrder) return null;
@@ -52,7 +60,10 @@ function AllOrdersHeaderRight() {
     <ThemedView style={tw`mr-4`}>
       <IconButton
         icon="shopping-cart"
-        onPress={() => router.push("/(new-order)/cart")}
+        onPress={() => {
+          openDraft("order");
+          router.push("/(new-order)/cart");
+        }}
       />
       <NotificationBadge value={details.length} />
     </ThemedView>

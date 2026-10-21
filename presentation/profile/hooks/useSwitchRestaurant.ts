@@ -15,7 +15,7 @@ export const switchRestaurantMutation = () => {
   const { changeStatus } = useAuthStore();
   const resetOrders = useOrdersStore((state) => state.reset);
   const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
-  const resetNewOrder = useNewOrderStore((state) => state.reset);
+  const resetNewOrder = useNewOrderStore((state) => state.resetAll);
   const { socket, desconectarSocket, conectarSocket } =
     useContext(SocketContext);
 

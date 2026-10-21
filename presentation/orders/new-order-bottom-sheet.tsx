@@ -17,11 +17,19 @@ import PeopleSelector from "./components/people-selector";
 
 interface NewOrderBottomSheetProps {
   onCreateOrder?: () => void;
+  /**
+   * Replaces opening the order draft once type, table and people are valid,
+   * e.g. to turn the sale draft into the order.
+   */
+  onConfirm?: () => void;
+  title?: string;
   buttonProps?: ButtonProps;
 }
 
 const NewOrderBottomSheet = ({
   onCreateOrder,
+  onConfirm,
+  title,
   buttonProps,
 }: NewOrderBottomSheetProps) => {
   const { t } = useTranslation("orders");
@@ -29,7 +37,7 @@ const NewOrderBottomSheet = ({
   const { orderType, setOrderType, table, setTable, people, setPeople } =
     useNewOrderStore();
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
-  const setCartType = useNewOrderStore((state) => state.setCartType);
+  const openDraft = useNewOrderStore((state) => state.openDraft);
   const { tables } = useTables();
 
   const validateNewOrder = () => {
@@ -52,7 +60,11 @@ const NewOrderBottomSheet = ({
     const isValidOrder = validateNewOrder();
     if (!isValidOrder) return;
 
-    setCartType("order");
+    if (onConfirm) {
+      onConfirm();
+      return;
+    }
+    openDraft("order");
     onCreateOrder && onCreateOrder();
   };
 
@@ -60,7 +72,7 @@ const NewOrderBottomSheet = ({
     <BottomSheetView style={tw`p-4 items-center justify-center `}>
       <ThemedView style={tw`w-full gap-6`}>
         <ThemedText type="h2" style={tw`text-center inter-semibold`}>
-          {t("newOrder.title")}
+          {title ?? t("newOrder.title")}
         </ThemedText>
         <ButtonGroup
           options={orderTypes}
@@ -82,12 +94,7 @@ const NewOrderBottomSheet = ({
           />
         )}
         <ThemedView style={tw`gap-2`}>
-          <ThemedText
-            style={[
-              tw` ml-2 `,
-              { fontFamily: typography.medium },
-            ]}
-          >
+          <ThemedText style={[tw` ml-2 `, { fontFamily: typography.medium }]}>
             {t("newOrder.people")}
           </ThemedText>
           <PeopleSelector value={people} onChange={setPeople} />

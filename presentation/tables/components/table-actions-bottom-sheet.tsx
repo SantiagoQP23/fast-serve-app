@@ -51,7 +51,7 @@ const TableActionsBottomSheet = ({
   const setPeople = useNewOrderStore((state) => state.setPeople);
   const setTable = useNewOrderStore((state) => state.setTable);
   const setOrderType = useNewOrderStore((state) => state.setOrderType);
-  const setCartType = useNewOrderStore((state) => state.setCartType);
+  const openDraft = useNewOrderStore((state) => state.openDraft);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
 
   const handleCreateOrder = () => {
@@ -62,7 +62,7 @@ const TableActionsBottomSheet = ({
     setTable(table);
     setOrderType(OrderType.IN_PLACE);
     setActiveOrder(null);
-    setCartType("order");
+    openDraft("order");
     onCreateOrder();
   };
 

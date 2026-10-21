@@ -65,7 +65,7 @@ export default function SalesContent({
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
   const [fabExpanded, setFabExpanded] = useState(true);
   const lastScrollY = useRef(0);
-  const { setCartType: setType } = useNewOrderStore();
+  const openDraft = useNewOrderStore((state) => state.openDraft);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const { currentRestaurant, user } = useAuthStore();
 
@@ -206,8 +206,8 @@ export default function SalesContent({
 
   const onNewSale = () => {
     setActiveOrder(null);
+    openDraft("sale");
     router.push("/(new-order)/restaurant-menu");
-    setType("sale");
   };
 
   return (

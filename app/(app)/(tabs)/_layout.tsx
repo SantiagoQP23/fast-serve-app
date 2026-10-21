@@ -26,7 +26,11 @@ import { useOutboxCounts } from "@/presentation/offline/hooks/useOrderSyncState"
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import IconButton from "@/presentation/theme/components/icon-button";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
+import {
+  type CartType,
+  selectDraftDetails,
+  useNewOrderStore,
+} from "@/presentation/orders/store/newOrderStore";
 import useOrdersModuleContext from "./(orders-module)/orders-module.context";
 import NotificationBadge from "@/presentation/theme/components/notification-badge";
 import { ROUTES } from "@/constants/routes";
@@ -35,9 +39,11 @@ import { useUnprintedTickets } from "@/presentation/orders/hooks/useUnprintedTic
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
-export function MyOrdersHeaderRight() {
+/** `cart`: which draft the cart icon shows (Pedidos: order, Ventas: sale). */
+export function MyOrdersHeaderRight({ cart = "order" }: { cart?: CartType }) {
   const router = useRouter();
-  const details = useNewOrderStore((state) => state.details);
+  const details = useNewOrderStore(selectDraftDetails(cart));
+  const openDraft = useNewOrderStore((state) => state.openDraft);
   const haveAnOpenOrder = details.length > 0;
   const unprintedTicketsCount = useUnprintedTickets().length;
   const restaurantId = useAuthStore((state) => state.currentRestaurant?.id);
@@ -63,9 +69,7 @@ export function MyOrdersHeaderRight() {
       {unsynced.total > 0 && (
         <ThemedView style={tw``}>
           <IconButton
-            icon={
-              unsynced.failed > 0 ? "circle-alert" : "cloud-upload"
-            }
+            icon={unsynced.failed > 0 ? "circle-alert" : "cloud-upload"}
             onPress={() => router.push("/(order)/pending-changes")}
           />
           <NotificationBadge
@@ -78,7 +82,10 @@ export function MyOrdersHeaderRight() {
         <ThemedView style={tw``}>
           <IconButton
             icon="shopping-cart"
-            onPress={() => router.push("/(new-order)/cart")}
+            onPress={() => {
+              openDraft(cart);
+              router.push("/(new-order)/cart");
+            }}
           />
           <NotificationBadge value={details.length} />
         </ThemedView>
@@ -101,13 +108,7 @@ const TAB_LABEL_MARGIN_TOP = 6;
 const TAB_LABEL_LINE_HEIGHT = 16; // ThemedText "small"
 const TAB_LABEL_MAX_FONT_SCALE = 1.3;
 
-function TabBarLabel({
-  color,
-  label,
-}: {
-  color: ColorValue;
-  label: string;
-}) {
+function TabBarLabel({ color, label }: { color: ColorValue; label: string }) {
   return (
     <ThemedText
       type="small"
@@ -252,11 +253,7 @@ export default function TabLayout() {
               <ThemedView
                 style={tw`items-center justify-center ${focused ? "bg-secondary" : ""} w-15 h-8 rounded-full`}
               >
-                <Icon
-                  color={color}
-                  name="house"
-                  size={24}
-                />
+                <Icon color={color} name="house" size={24} />
               </ThemedView>
             ),
             headerShown: false,
@@ -275,11 +272,7 @@ export default function TabLayout() {
               <ThemedView
                 style={tw`items-center justify-center ${focused ? "bg-secondary" : ""} w-15 h-8 rounded-full`}
               >
-                <Icon
-                  color={color}
-                  name="package"
-                  size={24}
-                />
+                <Icon color={color} name="package" size={24} />
               </ThemedView>
             ),
           }}
@@ -294,11 +287,7 @@ export default function TabLayout() {
               <ThemedView
                 style={tw`items-center justify-center ${focused ? "bg-secondary" : ""} w-15 h-8 rounded-full`}
               >
-                <Icon
-                  color={color}
-                  name="trending-up"
-                  size={24}
-                />
+                <Icon color={color} name="trending-up" size={24} />
               </ThemedView>
             ),
           }}
@@ -313,11 +302,7 @@ export default function TabLayout() {
               <ThemedView
                 style={tw`items-center justify-center ${focused ? "bg-secondary" : ""} w-15 h-8 rounded-full`}
               >
-                <Icon
-                  color={color}
-                  name="chart-column"
-                  size={24}
-                />
+                <Icon color={color} name="chart-column" size={24} />
               </ThemedView>
             ),
             href: isAdmin ? "/incomes" : null,
@@ -333,11 +318,7 @@ export default function TabLayout() {
               <ThemedView
                 style={tw`items-center justify-center ${focused ? "bg-secondary" : ""} w-15 h-8 rounded-full`}
               >
-                <Icon
-                  color={color}
-                  name="grip"
-                  size={24}
-                />
+                <Icon color={color} name="grip" size={24} />
               </ThemedView>
             ),
           }}

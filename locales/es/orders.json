@@ -346,5 +346,20 @@
     "title": "¿Qué productos también cambian a {{type}}?",
     "subtitle": "Los productos marcados cambian de tipo junto con el pedido.",
     "all": "Todos ({{count}})"
+  },
+  "draft": {
+    "options": "Opciones del carrito",
+    "convertToSale": "Convertir en venta",
+    "convertToOrder": "Convertir en pedido",
+    "clear": "Vaciar carrito",
+    "clearSaleMessage": "¿Vaciar el carrito? Se quitarán todos los productos de la venta.",
+    "existingOrderTitle": "Ya tienes un pedido en curso",
+    "existingSaleTitle": "Ya tienes una venta en curso",
+    "existingMessage_one": "Tiene {{count}} producto. Puedes combinarlo con estos productos o reemplazarlo.",
+    "existingMessage_other": "Tiene {{count}} productos. Puedes combinarlos con estos productos o reemplazarlos.",
+    "combine": "Combinar",
+    "replace": "Reemplazar",
+    "convert": "Convertir",
+    "saleDropsOrderData": "La venta no guarda mesa, notas ni hora de entrega."
   }
 }

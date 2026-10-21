@@ -258,7 +258,9 @@ export default function MyOrdersScreen() {
               onChange={setActiveModule}
             />
           </ThemedView>
-          <MyOrdersHeaderRight />
+          <MyOrdersHeaderRight
+            cart={activeModule === "sales" ? "sale" : "order"}
+          />
         </ThemedView>
         {activeModule === "orders" && (
           <ThemedView style={tw` flex-row items-center justify-end gap-2 `}>

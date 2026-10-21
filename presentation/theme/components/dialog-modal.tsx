@@ -15,6 +15,9 @@ interface DialogModalProps {
   confirmLabel: string;
   cancelLabel?: string;
   confirmVariant?: ButtonProps["variant"];
+  /** A third choice, shown between cancel and confirm. */
+  secondaryLabel?: string;
+  onSecondary?: () => void;
   loading?: boolean;
 }
 
@@ -27,6 +30,8 @@ export default function DialogModal({
   confirmLabel,
   cancelLabel,
   confirmVariant = "text",
+  secondaryLabel,
+  onSecondary,
   loading = false,
 }: DialogModalProps) {
   const { t } = useTranslation(["common"]);
@@ -39,7 +44,9 @@ export default function DialogModal({
       onRequestClose={onCancel}
     >
       <View style={tw`flex-1 bg-black/50 items-center justify-center`}>
-        <View style={tw`bg-surface-bright rounded-2xl w-4/5 max-w-md p-6 shadow-lg`}>
+        <View
+          style={tw`bg-surface-bright rounded-2xl w-4/5 max-w-md p-6 shadow-lg`}
+        >
           <ThemedText type="h3" style={{ fontFamily: typography.medium }}>
             {title}
           </ThemedText>
@@ -58,6 +65,15 @@ export default function DialogModal({
               size="small"
               disabled={loading}
             />
+            {secondaryLabel && onSecondary && (
+              <Button
+                label={secondaryLabel}
+                onPress={onSecondary}
+                variant="text"
+                size="small"
+                disabled={loading}
+              />
+            )}
             <Button
               label={confirmLabel}
               onPress={onConfirm}
