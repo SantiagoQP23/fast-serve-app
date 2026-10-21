@@ -40,26 +40,21 @@ function DraggableRow({ row }: { row: Row }) {
       delayLongPress={200}
       style={({ pressed }) =>
         tw.style(
-          "flex-row items-center gap-4 px-4 py-4 mb-2 rounded-2xl bg-surface",
+          "flex-row items-center gap-4 px-4 py-4 mb-2 rounded-2xl ",
           pressed && "opacity-80",
         )
       }
     >
+      <ThemedView style={tw`flex-1 bg-transparent`}>
+        <ThemedText type="body1" style={{ fontFamily: typography.medium }}>
+          {row.title}
+        </ThemedText>
+      </ThemedView>
       <Icon
         name="grip-horizontal"
         size={24}
         color={tw.color("text-on-surface-variant")}
       />
-      <ThemedView style={tw`flex-1 bg-transparent`}>
-        <ThemedText type="body1" style={{ fontFamily: typography.medium }}>
-          {row.title}
-        </ThemedText>
-        {!!row.subtitle && (
-          <ThemedText type="small" style={tw`text-gray-500`}>
-            {row.subtitle}
-          </ThemedText>
-        )}
-      </ThemedView>
     </Pressable>
   );
 }
@@ -202,15 +197,15 @@ export default function TablesReorderScreen() {
           label={t("reorder.save")}
           size="small"
           onPress={handleSave}
-          variant="text"
+          variant="primary"
           loading={isSaving}
           disabled={isSaving || (isDirty && !online)}
         />
       </ThemedView>
 
-      <ThemedText type="small" style={tw`text-gray-500`}>
-        {isDirty && !online ? t("reorder.offline") : t("reorder.hint")}
-      </ThemedText>
+      {/* <ThemedText type="small" style={tw`text-gray-500`}> */}
+      {/*   {isDirty && !online ? t("reorder.offline") : t("reorder.hint")} */}
+      {/* </ThemedText> */}
 
       {showAreaChips && (
         <ScrollView

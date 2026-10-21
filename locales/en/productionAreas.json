@@ -70,6 +70,15 @@
     "selectedCount_other": "{{count}} selected",
     "moveToArea": "Move to another area",
     "moveSheetTitle": "Move to",
-    "notFound": "Area not found"
+    "notFound": "Area not found",
+    "addProducts": "Add products",
+    "addTitle": "Add products",
+    "searchPlaceholder": "Search products...",
+    "allCategories": "All",
+    "noResults": "No products found",
+    "nothingToAdd": "Every product is already in this area",
+    "noArea": "No area",
+    "addCount_one": "Add ({{count}} product)",
+    "addCount_other": "Add ({{count}} products)"
   }
 }

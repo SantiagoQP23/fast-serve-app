@@ -288,6 +288,20 @@ export default function ProductionAreaDetailScreen() {
             })}
           </>
         )}
+
+        {canManage && !isSelecting && (
+          <Button
+            label={t("products.addProducts")}
+            leftIcon="plus"
+            variant="outline"
+            onPress={() =>
+              router.push({
+                pathname: "/(profile)/production/areas/products",
+                params: { areaId },
+              })
+            }
+          />
+        )}
       </ScrollView>
 
       {isSelecting && (

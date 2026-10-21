@@ -70,6 +70,15 @@
     "selectedCount_other": "{{count}} seleccionados",
     "moveToArea": "Mover a otra área",
     "moveSheetTitle": "Mover a",
-    "notFound": "No se encontró el área"
+    "notFound": "No se encontró el área",
+    "addProducts": "Agregar productos",
+    "addTitle": "Agregar productos",
+    "searchPlaceholder": "Buscar productos...",
+    "allCategories": "Todas",
+    "noResults": "No se encontraron productos",
+    "nothingToAdd": "Todos los productos ya están en esta área",
+    "noArea": "Sin área",
+    "addCount_one": "Agregar ({{count}} producto)",
+    "addCount_other": "Agregar ({{count}} productos)"
   }
 }
