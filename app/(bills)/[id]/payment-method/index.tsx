@@ -39,7 +39,7 @@ import { usePaymentStore } from "@/presentation/payment/store/usePaymentStore";
 import { roundTo } from "@/core/common/utils/format.util";
 import * as ImagePicker from "expo-image-picker";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
-import Checkbox from "@/presentation/theme/components/checkbox";
+import Switch from "@/presentation/theme/components/switch";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 
@@ -118,7 +118,7 @@ export default function PaymentMethodScreen() {
   );
   const [receivedAmount, setReceivedAmount] = useState("");
   const [transferNote, setTransferNote] = useState("");
-  const [requestApproval, setRequestApproval] = useState(true);
+  const [alreadyConfirmed, setAlreadyConfirmed] = useState(false);
   const [selectedProofImage, setSelectedProofImage] =
     useState<ImagePicker.ImagePickerAsset | null>(null);
   const [pendingNavigationMethod, setPendingNavigationMethod] =
@@ -266,8 +266,11 @@ export default function PaymentMethodScreen() {
   const handleContinueTransfer = () => {
     if (!selectedMethod) return;
     setBillTransferNote(transferNote);
-    setBillRequestApproval(isAdmin ? requestApproval : true);
-    if (selectedProofImage) {
+    // Only admin-level roles can mark a transfer as already confirmed; it then
+    // skips approval, so no proof image is attached.
+    const skipApproval = isAdmin && alreadyConfirmed;
+    setBillRequestApproval(!skipApproval);
+    if (selectedProofImage && !skipApproval) {
       setPendingProofImage({
         uri: selectedProofImage.uri,
         fileName: selectedProofImage.fileName || "proof.jpg",
@@ -286,7 +289,7 @@ export default function PaymentMethodScreen() {
     setSelectedMethod(method);
     setReceivedAmount("");
     setTransferNote("");
-    setRequestApproval(true);
+    setAlreadyConfirmed(false);
 
     if (+payAmount <= 0) {
       toast.error(t("errors:validation.amountMustBeGreaterThanZero"));
@@ -346,77 +349,87 @@ export default function PaymentMethodScreen() {
           {/*   bottomSheet */}
           {/* /> */}
 
-          {/* Proof image upload section */}
-          <ThemedView style={tw`gap-3`}>
-            <ThemedText type="body2" style={tw`text-gray-500`}>
-              {t("bills:proofUpload.uploadTitle")}
-            </ThemedText>
-
-            {selectedProofImage ? (
-              <ThemedView style={tw`gap-3`}>
-                <ThemedView
-                  style={tw`rounded-xl border border-gray-200 overflow-hidden`}
-                >
-                  <Image
-                    source={{ uri: selectedProofImage.uri }}
-                    style={tw`w-full h-32`}
-                    resizeMode="cover"
-                  />
-                </ThemedView>
-                <Button
-                  label={t("common:actions.change")}
-                  variant="outline"
-                  size="small"
-                  onPress={removeSelectedImage}
-                />
-              </ThemedView>
-            ) : (
-              <ThemedView style={tw`flex-row gap-3`}>
-                <Pressable
-                  onPress={() => pickProofImage("gallery")}
-                  style={({ pressed }) => [
-                    tw`flex-1 items-center justify-center p-4 rounded-xl border-2 border-dashed border-border  bg-surface gap-2`,
-                    pressed && tw`opacity-70 bg-gray-100`,
-                  ]}
-                >
-                  <Icon name="images" size={24} color={tw.color("gray-400")} />
-                  <ThemedText
-                    type="small"
-                    style={tw`text-gray-500 text-center`}
-                  >
-                    {t("bills:proofUpload.fromGallery")}
-                  </ThemedText>
-                </Pressable>
-                <Pressable
-                  onPress={() => pickProofImage("camera")}
-                  style={({ pressed }) => [
-                    tw`flex-1 items-center justify-center p-4 rounded-xl border-2 border-dashed border-border  bg-surface gap-2`,
-                    pressed && tw`opacity-70 bg-gray-100`,
-                  ]}
-                >
-                  <Icon name="camera" size={24} color={tw.color("gray-400")} />
-                  <ThemedText
-                    type="small"
-                    style={tw`text-gray-500 text-center`}
-                  >
-                    {t("bills:proofUpload.fromCamera")}
-                  </ThemedText>
-                </Pressable>
-              </ThemedView>
-            )}
-          </ThemedView>
-
           {isAdmin && (
             <ThemedView style={tw`gap-1`}>
-              <Checkbox
-                value={requestApproval}
-                onValueChange={setRequestApproval}
-                label={t("bills:proofUpload.requestApproval")}
+              <Switch
+                value={alreadyConfirmed}
+                onValueChange={setAlreadyConfirmed}
+                label={t("bills:proofUpload.alreadyConfirmed")}
               />
-              {!requestApproval && (
-                <ThemedText type="small" style={tw`text-gray-500 ml-9`}>
+              {alreadyConfirmed && (
+                <ThemedText type="small" style={tw`text-gray-500`}>
                   {t("bills:proofUpload.autoApproveHint")}
                 </ThemedText>
+              )}
+            </ThemedView>
+          )}
+
+          {/* Proof image upload section — not needed once confirmed */}
+          {!(isAdmin && alreadyConfirmed) && (
+            <ThemedView style={tw`gap-3`}>
+              <ThemedText type="body2" style={tw`text-gray-500`}>
+                {t("bills:proofUpload.uploadTitle")}
+              </ThemedText>
+
+              {selectedProofImage ? (
+                <ThemedView style={tw`gap-3`}>
+                  <ThemedView
+                    style={tw`rounded-xl border border-gray-200 overflow-hidden`}
+                  >
+                    <Image
+                      source={{ uri: selectedProofImage.uri }}
+                      style={tw`w-full h-32`}
+                      resizeMode="cover"
+                    />
+                  </ThemedView>
+                  <Button
+                    label={t("common:actions.change")}
+                    variant="outline"
+                    size="small"
+                    onPress={removeSelectedImage}
+                  />
+                </ThemedView>
+              ) : (
+                <ThemedView style={tw`flex-row gap-3`}>
+                  <Pressable
+                    onPress={() => pickProofImage("gallery")}
+                    style={({ pressed }) => [
+                      tw`flex-1 items-center justify-center p-4 rounded-xl border-2 border-dashed border-border  bg-surface gap-2`,
+                      pressed && tw`opacity-70 bg-gray-100`,
+                    ]}
+                  >
+                    <Icon
+                      name="images"
+                      size={24}
+                      color={tw.color("gray-400")}
+                    />
+                    <ThemedText
+                      type="small"
+                      style={tw`text-gray-500 text-center`}
+                    >
+                      {t("bills:proofUpload.fromGallery")}
+                    </ThemedText>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => pickProofImage("camera")}
+                    style={({ pressed }) => [
+                      tw`flex-1 items-center justify-center p-4 rounded-xl border-2 border-dashed border-border  bg-surface gap-2`,
+                      pressed && tw`opacity-70 bg-gray-100`,
+                    ]}
+                  >
+                    <Icon
+                      name="camera"
+                      size={24}
+                      color={tw.color("gray-400")}
+                    />
+                    <ThemedText
+                      type="small"
+                      style={tw`text-gray-500 text-center`}
+                    >
+                      {t("bills:proofUpload.fromCamera")}
+                    </ThemedText>
+                  </Pressable>
+                </ThemedView>
               )}
             </ThemedView>
           )}

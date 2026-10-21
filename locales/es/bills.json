@@ -142,7 +142,7 @@
     "uploadedBy": "Subido por",
     "rejectReasonPlaceholder": "Ingresa el motivo del rechazo",
     "uploading": "Subiendo comprobante...",
-    "requestApproval": "Enviar solicitud de aprobación",
+    "alreadyConfirmed": "Ya confirmado",
     "autoApproveHint": "El pago se aprobará automáticamente",
     "autoApproved": "Transferencia aprobada"
   },
