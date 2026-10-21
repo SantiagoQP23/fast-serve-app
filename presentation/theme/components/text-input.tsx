@@ -29,6 +29,9 @@ const LABEL_REST_SIZE = 16;
 const LABEL_FLOAT_SIZE = 11;
 const INPUT_MARGIN_TOP = 25;
 const ERROR_ICON_SIZE = 22;
+const PADDING_HORIZONTAL = 12;
+const BORDER_WIDTH = 1;
+const FOCUSED_BORDER_WIDTH = 2;
 
 interface Props extends TextInputProps {
   label?: string;
@@ -106,6 +109,16 @@ function TextInput(
         ? tw.color("primary")
         : "transparent";
 
+  const borderWidth =
+    variant === "outlined"
+      ? isFocused
+        ? FOCUSED_BORDER_WIDTH
+        : BORDER_WIDTH
+      : 0;
+  // Takes the extra focused border out of the padding so the text and label
+  // don't shift when the border thickens.
+  const borderInset = Math.max(borderWidth - BORDER_WIDTH, 0);
+
   const handleFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
     setIsFocused(true);
     onFocus?.(e);
@@ -126,13 +139,14 @@ function TextInput(
       <View
         style={[
           tw.style(
-            "flex-row rounded-md px-3",
+            "flex-row rounded-md",
             variant === "filled" ? "bg-surface-high" : "bg-transparent",
             !editable && "opacity-50",
           ),
           {
             minHeight: CONTAINER_HEIGHT,
-            borderWidth: variant === "outlined" ? 1 : 0,
+            paddingHorizontal: PADDING_HORIZONTAL - borderInset,
+            borderWidth,
             borderColor,
           },
           containerStyle,
@@ -149,7 +163,12 @@ function TextInput(
             color={tw.color("on-surface-variant")}
           />
         )}
-        <View style={[tw`flex-1`, { alignSelf: "stretch" }]}>
+        <View
+          style={[
+            tw`flex-1`,
+            { alignSelf: "stretch", marginVertical: -borderInset },
+          ]}
+        >
           {label && (
             <Animated.Text
               numberOfLines={1}
