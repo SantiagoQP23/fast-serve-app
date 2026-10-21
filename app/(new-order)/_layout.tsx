@@ -51,19 +51,19 @@ export default function NewOrderLayout() {
     !isEditMode && (
       <ThemedView style={tw`flex-row items-center gap-2`}>
         <Button
-          variant="surface"
+          variant="text"
           leftIcon="trash"
           size="extra-small"
-          label={t("orders:newOrder.resetCart")}
+          // label={t("orders:newOrder.resetCart")}
           onPress={openResetCartDialog}
           disabled={details.length === 0}
         />
-        <IconButton
-          icon="square-pen"
-          onPress={handlePresentModalPress}
-          size={18}
-          style={tw`bg-surface p-2`}
-        ></IconButton>
+        {/* <IconButton */}
+        {/*   icon="square-pen" */}
+        {/*   onPress={handlePresentModalPress} */}
+        {/*   size={18} */}
+        {/*   style={tw`bg-surface p-2`} */}
+        {/* ></IconButton> */}
       </ThemedView>
     );
 
