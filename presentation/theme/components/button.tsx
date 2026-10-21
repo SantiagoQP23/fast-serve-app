@@ -53,6 +53,10 @@ export default function Button({
     destructive: "bg-red-100",
   };
 
+  // Disabled primary turns gray so it doesn't read as a faded active button.
+  const background =
+    disabled && variant === "primary" ? "bg-gray-400" : variants[variant];
+
   const sizeStyles = {
     "extra-small": "px-3 py-[6px]",
     small: "px-4 py-[10px]",
@@ -131,7 +135,7 @@ export default function Button({
       >
         <ThemedView
           style={tw.style(
-            `rounded-full items-center justify-center ${variants[variant]} ${verticalSizeStyles[size]}`,
+            `rounded-full items-center justify-center ${background} ${verticalSizeStyles[size]}`,
           )}
         >
           {loading ? (
@@ -163,7 +167,7 @@ export default function Button({
       onPress={onPress}
       style={({ pressed }) => [
         tw.style(
-          `rounded-md flex-row justify-center items-center ${variants[variant]} ${sizeStyles[size]} `,
+          `rounded-md flex-row justify-center items-center ${background} ${sizeStyles[size]} `,
           pressed && "opacity-80",
           disabled && "opacity-50",
         ),
