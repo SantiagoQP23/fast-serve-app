@@ -9,6 +9,7 @@ import {
   ScrollView,
   Platform,
   UIManager,
+  type TextInput as RNTextInput,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
@@ -34,6 +35,11 @@ import Select from "@/presentation/theme/components/select";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import type { ProductOption } from "@/core/menu/models/product-optionl.model";
+import type { Product } from "@/core/menu/models/product.model";
+import CopyVariantsSheet, {
+  type VariantSetOption,
+} from "@/presentation/menu-management/components/copy-variants-sheet";
+import { useMenuFormStore } from "@/presentation/menu-management/store/useMenuFormStore";
 
 if (
   Platform.OS === "android" &&
@@ -93,6 +99,33 @@ const buildProductSchema = (t: (key: string) => string) =>
 type ProductFormData = z.infer<ReturnType<typeof buildProductSchema>>;
 type VariantDraft = { name: string; price: string; isDefault: boolean };
 
+/**
+ * Area to preselect for a new product: the one most used by the category's
+ * products, else the last one used on this phone, else the only area.
+ */
+const getDefaultProductionAreaId = (
+  categoryId: string,
+  products: Product[],
+  areas: { id: number }[],
+  lastAreaId: number | null,
+): string => {
+  const areaIds = new Set(areas.map((area) => area.id));
+  const counts = new Map<number, number>();
+  products.forEach((product) => {
+    const areaId = product.productionArea?.id;
+    if (product.category?.id !== categoryId || !areaIds.has(areaId)) return;
+    counts.set(areaId, (counts.get(areaId) ?? 0) + 1);
+  });
+  let bestId: number | null = null;
+  counts.forEach((count, areaId) => {
+    if (bestId === null || count > counts.get(bestId)!) bestId = areaId;
+  });
+  if (bestId !== null) return String(bestId);
+  if (lastAreaId !== null && areaIds.has(lastAreaId)) return String(lastAreaId);
+  if (areas.length === 1) return String(areas[0].id);
+  return "";
+};
+
 const emptyVariantDraft: VariantDraft = {
   name: "",
   price: "",
@@ -115,10 +148,14 @@ export default function MenuProductFormScreen() {
   const isEditing = !!params.productId;
   const hasPresetCategory = !isEditing && !!params.categoryId;
 
-  const { categories } = useMenu();
+  const { categories, products } = useMenu();
+  const { lastProductionAreaId, setLastProductionAreaId } = useMenuFormStore();
   const { createProduct, updateProduct, deleteProduct } = useMenuManagement();
   const { getAllQuery: productionAreasQuery } = useProductionAreas();
-  const productionAreas = productionAreasQuery.data ?? [];
+  const productionAreas = useMemo(
+    () => productionAreasQuery.data ?? [],
+    [productionAreasQuery.data],
+  );
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [editingVariantIndex, setEditingVariantIndex] = useState<number | null>(
@@ -127,6 +164,14 @@ export default function MenuProductFormScreen() {
   const [variantDraft, setVariantDraft] =
     useState<VariantDraft>(emptyVariantDraft);
   const variantSheetRef = useRef<BottomSheetMethods>(null);
+  const copyVariantsSheetRef = useRef<BottomSheetMethods>(null);
+  const scrollRef = useRef<ScrollView>(null);
+  const nameInputRef = useRef<RNTextInput>(null);
+  // Names created with "Save and add another" while this form stayed open.
+  const [createdNames, setCreatedNames] = useState<string[]>([]);
+  const [isAddingAnother, setIsAddingAnother] = useState(false);
+  // Once the user picks an area, stop replacing it with the suggested one.
+  const areaChosenRef = useRef(isEditing || !!params.productionAreaId);
 
   const schema = buildProductSchema(t);
 
@@ -149,6 +194,7 @@ export default function MenuProductFormScreen() {
     control,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormData>({
     resolver: zodResolver(schema),
@@ -170,6 +216,23 @@ export default function MenuProductFormScreen() {
     name: "options",
   });
   const pricingMode = useWatch({ control, name: "pricingMode" });
+  const categoryId = useWatch({ control, name: "categoryId" });
+
+  useEffect(() => {
+    if (areaChosenRef.current) return;
+    setValue(
+      "productionAreaId",
+      getDefaultProductionAreaId(
+        categoryId,
+        products,
+        productionAreas,
+        lastProductionAreaId,
+      ),
+    );
+    // Products change after every save; the suggestion only follows the
+    // category and the list of areas.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryId, productionAreas, setValue]);
 
   // Areas known when the user left to create one; the first area missing from
   // this set once they come back is the new one.
@@ -188,6 +251,7 @@ export default function MenuProductFormScreen() {
     );
     if (!createdArea) return;
     knownAreaIdsRef.current = null;
+    areaChosenRef.current = true;
     setValue("productionAreaId", String(createdArea.id), {
       shouldValidate: true,
     });
@@ -267,7 +331,19 @@ export default function MenuProductFormScreen() {
     closeVariantSheet();
   };
 
-  const onSubmit = async (data: ProductFormData) => {
+  const handleCopyVariants = (options: VariantSetOption[]) => {
+    animateLayout();
+    setValue("pricingMode", "variants");
+    replace(
+      options.map((option) => ({
+        name: option.name,
+        price: String(option.price),
+        isDefault: option.isDefault,
+      })),
+    );
+  };
+
+  const onSubmit = async (data: ProductFormData, addAnother = false) => {
     const hasVariants =
       data.pricingMode === "variants" && data.options.length > 0;
 
@@ -298,9 +374,38 @@ export default function MenuProductFormScreen() {
       });
     } else {
       await createProduct.mutateAsync(payload);
+      setLastProductionAreaId(payload.productionAreaId);
+    }
+
+    if (addAnother) {
+      // Keep category, area, price type and variants for the next product.
+      setCreatedNames((names) => [...names, payload.name]);
+      reset({
+        ...data,
+        name: "",
+        description: "",
+        price: data.pricingMode === "unique" ? "" : data.price,
+      });
+      return;
     }
 
     router.back();
+  };
+
+  // After "Save and add another", go back to the top, ready for the next name.
+  useEffect(() => {
+    if (createdNames.length === 0) return;
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
+    nameInputRef.current?.focus();
+  }, [createdNames]);
+
+  const handleCreateAndAddAnother = async () => {
+    setIsAddingAnother(true);
+    try {
+      await handleSubmit((data) => onSubmit(data, true))();
+    } finally {
+      setIsAddingAnother(false);
+    }
   };
 
   const handleConfirmDelete = async () => {
@@ -337,6 +442,7 @@ export default function MenuProductFormScreen() {
     >
       <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
         <ScrollView
+          ref={scrollRef}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={tw`${!isEditing ? "pb-32" : "pb-8"}`}
         >
@@ -362,7 +468,7 @@ export default function MenuProductFormScreen() {
               <Button
                 label={t("products.save")}
                 size="small"
-                onPress={handleSubmit(onSubmit)}
+                onPress={handleSubmit((data) => onSubmit(data))}
                 loading={isSubmitting || updateProduct.isPending}
                 disabled={isSubmitting || updateProduct.isPending}
               />
@@ -371,6 +477,21 @@ export default function MenuProductFormScreen() {
 
           <ThemedView style={tw`my-6`} />
 
+          {createdNames.length > 0 && (
+            <ThemedView style={tw`flex-row items-center gap-2 mb-4 px-2`}>
+              <Icon
+                name="circle-check"
+                size={18}
+                color={tw.color("gray-500")}
+              />
+              <ThemedText type="body2" style={tw`flex-1 text-gray-500`}>
+                {t("products.createdList", {
+                  names: createdNames.join(", "),
+                })}
+              </ThemedText>
+            </ThemedView>
+          )}
+
           <ThemedView style={tw`gap-4`}>
             <Card style={tw`gap-4`}>
               <Controller
@@ -378,6 +499,7 @@ export default function MenuProductFormScreen() {
                 name="name"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
+                    ref={nameInputRef}
                     label={t("products.fields.name")}
                     icon="hamburger"
                     placeholder={t("products.placeholders.name")}
@@ -456,7 +578,10 @@ export default function MenuProductFormScreen() {
                       label={t("products.fields.productionArea")}
                       options={productionAreaOptions}
                       value={value}
-                      onChange={(v) => onChange(String(v))}
+                      onChange={(v) => {
+                        areaChosenRef.current = true;
+                        onChange(String(v));
+                      }}
                       headerAction={{
                         label: t("productionAreas:newArea"),
                         onPress: handleCreateProductionArea,
@@ -610,6 +735,21 @@ export default function MenuProductFormScreen() {
                         {t("products.variants.addPlaceholder")}
                       </ThemedText>
                     </Pressable>
+
+                    <Pressable
+                      onPress={() => copyVariantsSheetRef.current?.present()}
+                      style={({ pressed }) =>
+                        tw.style(
+                          "flex-row items-center gap-2 py-2",
+                          pressed && "opacity-60",
+                        )
+                      }
+                    >
+                      <Icon name="copy" size={18} color={tw.color("primary")} />
+                      <ThemedText type="body2" style={tw`text-primary`}>
+                        {t("products.variants.copy.button")}
+                      </ThemedText>
+                    </Pressable>
                   </ThemedView>
                 )}
               </Card>
@@ -622,11 +762,20 @@ export default function MenuProductFormScreen() {
         <ThemedView
           style={tw`absolute bottom-0 left-0 right-0 bg-background  px-4 py-4`}
         >
-          <ThemedView style={tw`flex-row justify-end`}>
+          <ThemedView style={tw`flex-row justify-end gap-3`}>
+            <Button
+              label={t("products.saveAndAddAnother")}
+              variant="outline"
+              onPress={handleCreateAndAddAnother}
+              loading={isAddingAnother}
+              disabled={isCreateDisabled}
+            />
             <Button
               label={t("products.create")}
-              onPress={handleSubmit(onSubmit)}
-              loading={isSubmitting || createProduct.isPending}
+              onPress={handleSubmit((data) => onSubmit(data))}
+              loading={
+                !isAddingAnother && (isSubmitting || createProduct.isPending)
+              }
               disabled={isCreateDisabled}
             />
           </ThemedView>
@@ -642,6 +791,14 @@ export default function MenuProductFormScreen() {
         onConfirm={handleConfirmDelete}
         onCancel={() => setShowDeleteConfirm(false)}
       />
+
+      {!isEditing && (
+        <CopyVariantsSheet
+          sheetRef={copyVariantsSheetRef}
+          products={products}
+          onSelect={handleCopyVariants}
+        />
+      )}
 
       <ThemedBottomSheetModal ref={variantSheetRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6 gap-4`}>
