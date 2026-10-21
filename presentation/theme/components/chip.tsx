@@ -74,7 +74,7 @@ export default function Chip({
         filled
           ? tw`bg-secondary`
           : variant === "input"
-            ? tw`bg-surface-container-low border border-primary`
+            ? tw` border border-primary`
             : tw`border border-primary`,
         pressed && tw`opacity-75`,
         disabled && tw`opacity-50`,

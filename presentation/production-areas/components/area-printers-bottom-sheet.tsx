@@ -160,6 +160,18 @@ const AreaPrintersBottomSheet = forwardRef<AreaPrintersBottomSheetRef>(
                       />
                     </Pressable>
                   ))}
+                  <Pressable
+                    onPress={handleAddPrinter}
+                    style={({ pressed }) => [
+                      tw`p-4 rounded-2xl border border-dashed border-border flex-row items-center gap-3`,
+                      pressed && tw`opacity-80`,
+                    ]}
+                  >
+                    <Icon name="plus" size={22} color={tw.color("primary")} />
+                    <ThemedText type="body1" style={tw`flex-1 text-primary`}>
+                      {t("productionAreas:printersSheet.addPrinter")}
+                    </ThemedText>
+                  </Pressable>
                 </BottomSheetScrollView>
               </ThemedView>
 

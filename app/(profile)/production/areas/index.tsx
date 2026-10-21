@@ -23,6 +23,10 @@ import { typography } from "@/constants/theme";
 import AreaPrintersBottomSheet, {
   type AreaPrintersBottomSheetRef,
 } from "@/presentation/production-areas/components/area-printers-bottom-sheet";
+import PrinterActionsBottomSheet, {
+  type PrinterActionsBottomSheetRef,
+} from "@/presentation/printers/components/printer-actions-bottom-sheet";
+import type { Printer } from "@/core/common/models/printer.model";
 
 export default function ProductionAreasScreen() {
   const { t } = useTranslation("productionAreas");
@@ -40,6 +44,7 @@ export default function ProductionAreasScreen() {
   const [selectedArea, setSelectedArea] = useState<ProductionArea | null>(null);
   const actionsSheetRef = useRef<BottomSheetMethods>(null);
   const printersSheetRef = useRef<AreaPrintersBottomSheetRef>(null);
+  const printerActionsSheetRef = useRef<PrinterActionsBottomSheetRef>(null);
 
   const handleCreateArea = () => {
     router.push("/(profile)/production/areas/form");
@@ -70,6 +75,11 @@ export default function ProductionAreasScreen() {
     if (!selectedArea) return;
     handleCloseAreaActions();
     printersSheetRef.current?.present(selectedArea);
+  };
+
+  const handleOpenPrinterActions = (printer: Printer) => {
+    handleCloseAreaActions();
+    printerActionsSheetRef.current?.present(printer);
   };
 
   const handleRemoveAreaPrinter = (printerId: string) => {
@@ -196,7 +206,9 @@ export default function ProductionAreasScreen() {
                                 onPress={
                                   canManage
                                     ? () =>
-                                        printersSheetRef.current?.present(area)
+                                        printerActionsSheetRef.current?.present(
+                                          printer,
+                                        )
                                     : undefined
                                 }
                               />
@@ -232,6 +244,15 @@ export default function ProductionAreasScreen() {
               </Card>
             ))}
           </ThemedView>
+        )}
+
+        {!isLoading && !isError && (
+          <Button
+            label={t("managePrinters")}
+            leftIcon="printer"
+            variant="outline"
+            onPress={() => router.push("/(profile)/production/printers")}
+          />
         )}
       </ScrollView>
 
@@ -282,6 +303,7 @@ export default function ProductionAreasScreen() {
                       icon="printer"
                       label={printer.name}
                       disabled={updateProductionArea.isPending}
+                      onPress={() => handleOpenPrinterActions(printer)}
                       onRemove={() => handleRemoveAreaPrinter(printer.id)}
                     />
                   ))}
@@ -318,6 +340,7 @@ export default function ProductionAreasScreen() {
       </ThemedBottomSheetModal>
 
       <AreaPrintersBottomSheet ref={printersSheetRef} />
+      <PrinterActionsBottomSheet ref={printerActionsSheetRef} />
 
       <DialogModal
         visible={!!areaToDelete}

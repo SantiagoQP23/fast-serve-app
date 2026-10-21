@@ -218,6 +218,7 @@
   "deactivate": "Desactivar",
   "tags": {
     "title": "Etiquetas",
+    "manage": "Administrar etiquetas",
     "newTag": "Nueva etiqueta",
     "create": "Crear",
     "save": "Guardar",

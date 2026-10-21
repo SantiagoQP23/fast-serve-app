@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { router } from "expo-router";
 import {
   BottomSheetView,
   type BottomSheetMethods,
@@ -86,6 +87,11 @@ export default function ProductTagsSection({
     sheetRef.current?.dismiss();
   };
 
+  const handleManageTags = () => {
+    sheetRef.current?.dismiss();
+    router.push("/(profile)/menu/tags");
+  };
+
   const handleRemove = (tagId: string) =>
     setProductTags.mutate({
       productId: product.id,
@@ -96,7 +102,7 @@ export default function ProductTagsSection({
     <ThemedView style={tw`gap-3 mt-4`}>
       <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
         <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-          <ThemedText type="caption">{t("tags.title")}</ThemedText>
+          <ThemedText type="body1">{t("tags.title")}</ThemedText>
           {canManage && (
             <ThemedText type="small" style={tw`text-gray-500`}>
               {t("tags.productHint")}
@@ -129,11 +135,21 @@ export default function ProductTagsSection({
 
       <ThemedBottomSheetModal ref={sheetRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
-          <ThemedView style={tw`gap-1 bg-transparent`}>
-            <ThemedText type="h3">{t("tags.productSheetTitle")}</ThemedText>
-            <ThemedText type="body2" style={tw`text-gray-500`}>
-              {product.name}
-            </ThemedText>
+          <ThemedView style={tw`flex-row items-start gap-3 bg-transparent`}>
+            <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+              <ThemedText type="h3">{t("tags.productSheetTitle")}</ThemedText>
+              <ThemedText type="body2" style={tw`text-gray-500`}>
+                {product.name}
+              </ThemedText>
+            </ThemedView>
+            <Button
+              label={t("tags.manage")}
+              leftIcon="tag"
+              variant="text"
+              size="extra-small"
+              style={tw`-mr-3`}
+              onPress={handleManageTags}
+            />
           </ThemedView>
 
           {allTags.length > 0 ? (

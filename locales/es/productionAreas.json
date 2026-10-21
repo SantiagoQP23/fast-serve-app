@@ -46,6 +46,7 @@
   "deactivate": "Desactivar",
   "printerCount_one": "{{count}} impresora",
   "printerCount_other": "{{count}} impresoras",
+  "managePrinters": "Administrar impresoras",
   "setUpPrinter": "Configurar impresora",
   "noPrintersAssigned": "Aún no hay impresoras asignadas",
   "noPrintersAvailable": "No hay impresoras disponibles",

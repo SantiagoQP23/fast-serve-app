@@ -9,6 +9,7 @@ import type { CreatePrinterDto } from "../interfaces/dto/create-printer.dto";
 import type { UpdatePrinterDto } from "../interfaces/dto/update-printer.dto";
 import { useEffect } from "react";
 import { getErrorMessage } from "@/core/api/get-error-message";
+import { queryClient } from "@/app/_layout";
 
 const getPrintersQueryKey = (restaurantId?: string) => [
   "printers",
@@ -69,6 +70,8 @@ export const usePrinters = () => {
     mutationFn: (data: UpdatePrinterDto) => PrintersService.update(data),
     onSuccess: () => {
       getAllQuery.refetch();
+      // Areas embed printer snapshots (chips show name/state).
+      queryClient.invalidateQueries({ queryKey: ["production-areas"] });
     },
     onError: (error) => {
       console.log("Error updating printer", error);
@@ -81,6 +84,8 @@ export const usePrinters = () => {
     onSuccess: () => {
       toast.success(t("deleteSuccess"));
       getAllQuery.refetch();
+      // Areas embed printer snapshots (chips show name/state).
+      queryClient.invalidateQueries({ queryKey: ["production-areas"] });
     },
     onError: (error) => {
       console.log("Error deleting printer", error);

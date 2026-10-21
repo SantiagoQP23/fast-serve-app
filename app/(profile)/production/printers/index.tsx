@@ -3,7 +3,6 @@ import { ScrollView, RefreshControl, ActivityIndicator } from "react-native";
 import { router } from "expo-router";
 import { toast } from "sonner-native";
 import Icon from "@/presentation/theme/components/icon";
-import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -16,23 +15,20 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import Fab from "@/presentation/theme/components/fab";
-import DialogModal from "@/presentation/theme/components/dialog-modal";
-import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import IconButton from "@/presentation/theme/components/icon-button";
-import type { Printer } from "@/core/common/models/printer.model";
-import { typography } from "@/constants/theme";
+import PrinterActionsBottomSheet, {
+  type PrinterActionsBottomSheetRef,
+} from "@/presentation/printers/components/printer-actions-bottom-sheet";
 
 export default function PrintersScreen() {
   const { t } = useTranslation("printers");
-  const { getAll, updatePrinter, deletePrinter } = usePrinters();
+  const { getAll } = usePrinters();
   const { data: printers, isLoading, isError, refetch, isRefetching } = getAll;
   const { currentRestaurant, user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
 
   const [testingPrinterId, setTestingPrinterId] = useState<string | null>(null);
-  const [printerToDelete, setPrinterToDelete] = useState<Printer | null>(null);
-  const [selectedPrinter, setSelectedPrinter] = useState<Printer | null>(null);
-  const actionsSheetRef = useRef<BottomSheetMethods>(null);
+  const actionsSheetRef = useRef<PrinterActionsBottomSheetRef>(null);
 
   const handleTestPrinter = async (printerId: string) => {
     const printer = printers?.find((p) => p.id === printerId);
@@ -55,48 +51,6 @@ export default function PrintersScreen() {
 
   const handleCreatePrinter = () => {
     router.push("/(profile)/production/printers/form");
-  };
-
-  const handleEditPrinter = (printer: Printer) => {
-    router.push({
-      pathname: "/(profile)/production/printers/form",
-      params: {
-        printerId: printer.id,
-        name: printer.name,
-        connectionType: printer.connectionType,
-        ipAddress: printer.ipAddress || "",
-        port: String(printer.port),
-        isActive: String(printer.isActive),
-      },
-    });
-  };
-
-  const handleOpenPrinterActions = (printer: Printer) => {
-    setSelectedPrinter(printer);
-    actionsSheetRef.current?.present();
-  };
-
-  const handleClosePrinterActions = () => {
-    actionsSheetRef.current?.dismiss();
-  };
-
-  const handleToggleActive = () => {
-    if (!selectedPrinter) return;
-    updatePrinter.mutate({
-      id: selectedPrinter.id,
-      name: selectedPrinter.name,
-      connectionType: selectedPrinter.connectionType,
-      ipAddress: selectedPrinter.ipAddress,
-      port: selectedPrinter.port,
-      isActive: !selectedPrinter.isActive,
-    });
-    handleClosePrinterActions();
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!printerToDelete) return;
-    await deletePrinter.mutateAsync(printerToDelete.id);
-    setPrinterToDelete(null);
   };
 
   return (
@@ -155,7 +109,7 @@ export default function PrintersScreen() {
                 key={printer.id}
                 onPress={
                   canManage
-                    ? () => handleOpenPrinterActions(printer)
+                    ? () => actionsSheetRef.current?.present(printer)
                     : undefined
                 }
                 style={!printer.isActive && tw`opacity-50`}
@@ -205,72 +159,7 @@ export default function PrintersScreen() {
 
       {canManage && <Fab icon="plus" onPress={handleCreatePrinter} />}
 
-      <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
-        {selectedPrinter && (
-          <ThemedView style={tw`px-4 py-4 gap-6`}>
-            <ThemedView style={tw`flex-row justify-between items-start gap-3`}>
-              <ThemedView style={tw`flex-1 gap-2`}>
-                <ThemedText type="h2" style={{ fontFamily: typography.medium }}>
-                  {selectedPrinter.name}
-                </ThemedText>
-                <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
-                  <ThemedView style={tw`flex-row items-center gap-1`}>
-                    <Icon
-                      name="cpu"
-                      size={16}
-                      color={tw.color("text-gray-500")}
-                    />
-                    <ThemedText type="small" style={tw`text-gray-500`}>
-                      {selectedPrinter.connectionType === "TCP" &&
-                      selectedPrinter.ipAddress
-                        ? `${selectedPrinter.ipAddress}:${selectedPrinter.port}`
-                        : t(
-                            `connectionTypes.${selectedPrinter.connectionType}`,
-                          )}
-                    </ThemedText>
-                  </ThemedView>
-                </ThemedView>
-              </ThemedView>
-              <IconButton
-                icon={selectedPrinter.isActive ? "eye" : "eye-off"}
-                variant="surface"
-                onPress={handleToggleActive}
-              />
-            </ThemedView>
-            <ThemedView style={tw`flex-row gap-4 items-center justify-between`}>
-              <Button
-                leftIcon="trash"
-                variant="destructive"
-                onPress={() => {
-                  handleClosePrinterActions();
-                  setPrinterToDelete(selectedPrinter);
-                }}
-              />
-              <Button
-                label={t("edit")}
-                leftIcon="square-pen"
-                variant="surface"
-                onPress={() => {
-                  handleClosePrinterActions();
-                  handleEditPrinter(selectedPrinter);
-                }}
-              />
-            </ThemedView>
-          </ThemedView>
-        )}
-      </ThemedBottomSheetModal>
-
-      <DialogModal
-        visible={!!printerToDelete}
-        title={t("deleteTitle")}
-        message={t("deleteMessage")}
-        confirmLabel={t("confirm")}
-        cancelLabel={t("cancel")}
-        confirmVariant="destructive"
-        loading={deletePrinter.isPending}
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setPrinterToDelete(null)}
-      />
+      <PrinterActionsBottomSheet ref={actionsSheetRef} />
     </ScreenLayout>
   );
 }

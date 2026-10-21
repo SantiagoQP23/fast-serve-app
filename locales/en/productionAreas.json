@@ -46,6 +46,7 @@
   "deactivate": "Deactivate",
   "printerCount_one": "{{count}} printer",
   "printerCount_other": "{{count}} printers",
+  "managePrinters": "Manage printers",
   "setUpPrinter": "Set up printer",
   "noPrintersAssigned": "No printers assigned yet",
   "noPrintersAvailable": "No printers available",

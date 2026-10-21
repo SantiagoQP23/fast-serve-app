@@ -62,16 +62,16 @@ export default function ManageScreen() {
       label: t("manage.menu.overview"),
       onPress: () => router.push("/(profile)/menu/overview"),
     },
-    ...(isAdmin
-      ? [
-          {
-            key: "tags",
-            icon: "tag" as IconName,
-            label: t("manage.menu.tags"),
-            onPress: () => router.push("/(profile)/menu/tags"),
-          },
-        ]
-      : []),
+    // ...(isAdmin
+    //   ? [
+    //       {
+    //         key: "tags",
+    //         icon: "tag" as IconName,
+    //         label: t("manage.menu.tags"),
+    //         onPress: () => router.push("/(profile)/menu/tags"),
+    //       },
+    //     ]
+    //   : []),
     {
       key: "productionAreas",
       icon: "package",
@@ -120,12 +120,6 @@ export default function ManageScreen() {
       icon: "credit-card",
       label: t("manage.paymentMethods"),
       onPress: () => router.push("/(profile)/payment-methods"),
-    },
-    {
-      key: "printers",
-      icon: "printer",
-      label: t("manage.printers"),
-      onPress: () => router.push("/(profile)/production/printers"),
     },
     {
       key: "restaurantSettings",
