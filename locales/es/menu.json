@@ -45,6 +45,10 @@
   },
   "cart": {
     "title": "Carrito",
+    "tabs": {
+      "products": "Productos",
+      "information": "Información"
+    },
     "products": "Productos:",
     "table": "Mesa",
     "takeAway": "Para Llevar",

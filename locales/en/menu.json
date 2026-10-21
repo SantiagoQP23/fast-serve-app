@@ -45,6 +45,10 @@
   },
   "cart": {
     "title": "Cart",
+    "tabs": {
+      "products": "Products",
+      "information": "Information"
+    },
     "products": "Products:",
     "table": "Table",
     "takeAway": "Take Away",

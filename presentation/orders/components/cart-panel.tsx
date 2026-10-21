@@ -1,8 +1,4 @@
-import { Platform, Pressable, ScrollView } from "react-native";
 import Animated from "react-native-reanimated";
-import dayjs from "dayjs";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { toast } from "sonner-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -38,17 +34,15 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { hasActiveSubscription } from "@/core/common/models/restaurant.model";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import SubscriptionPaywallBottomSheet from "@/presentation/subscriptions/components/subscription-paywall-bottom-sheet";
-import Chip from "@/presentation/theme/components/chip";
-import TextInput from "@/presentation/theme/components/text-input";
-import NewOrderPeopleBottomSheet from "@/presentation/orders/components/new-order-people-bottom-sheet";
-import TableSelectorBottomSheet, {
-  type TableSelectorBottomSheetRef,
-} from "@/presentation/orders/components/table-selector-bottom-sheet";
+import TabBar from "@/presentation/theme/components/tab-bar";
+import CartInformation from "@/presentation/orders/components/cart-information";
+
+type CartTab = "products" | "information";
 
 type CartRow =
   | { kind: "title" }
-  | { kind: "chips" }
-  | { kind: "extras" }
+  | { kind: "tabs" }
+  | { kind: "information" }
   | { kind: "item"; detail: NewOrderDetail; key: string };
 
 interface CartPanelProps {
@@ -61,15 +55,8 @@ interface CartPanelProps {
 
 export default function CartPanel({ embedded = false }: CartPanelProps) {
   const { t } = useTranslation(["common", "menu"]);
-  const people = useNewOrderStore((state) => state.people);
   const cartType = useNewOrderStore((state) => state.cartType);
   const orderType = useNewOrderStore((state) => state.orderType);
-  const table = useNewOrderStore((state) => state.table);
-  const setTable = useNewOrderStore((state) => state.setTable);
-  const notes = useNewOrderStore((state) => state.notes);
-  const setNotes = useNewOrderStore((state) => state.setNotes);
-  const deliveryTime = useNewOrderStore((state) => state.deliveryTime);
-  const setDeliveryTime = useNewOrderStore((state) => state.setDeliveryTime);
   const details = useNewOrderStore((state) => state.details);
   const resetNewOrder = useNewOrderStore((state) => state.reset);
   const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
@@ -93,7 +80,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
 
   const [total, setTotal] = useState(0);
   const [printOnCreate, setPrintOnCreate] = useState(false);
-  const [withNotes, setWithNotes] = useState<boolean>(!!notes);
+  const [activeTab, setActiveTab] = useState<CartTab>("products");
   const router = useRouter();
   const navigation = useNavigation();
   const { scrollY, scrollHandler } = useCollapsibleHeaderScroll();
@@ -101,52 +88,6 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
   const currentRestaurant = useAuthStore((state) => state.currentRestaurant);
   const paywallSheetRef = useRef<BottomSheetMethods>(null);
   const closePaywall = () => paywallSheetRef.current?.close();
-
-  const peopleSelectorSheetRef = useRef<BottomSheetMethods>(null);
-  const closePeopleSelector = () => peopleSelectorSheetRef.current?.close();
-  const handlePresentPeopleSelector = () =>
-    peopleSelectorSheetRef.current?.present();
-
-  const tableSelectorSheetRef = useRef<TableSelectorBottomSheetRef>(null);
-  const handlePresentTableSelector = () =>
-    tableSelectorSheetRef.current?.present();
-
-  const [showTimePicker, setShowTimePicker] = useState(false);
-  const [pickerValue, setPickerValue] = useState(new Date());
-
-  const openTimePicker = () => {
-    setPickerValue(deliveryTime ?? new Date());
-    setShowTimePicker(true);
-  };
-  const closeTimePicker = () => setShowTimePicker(false);
-
-  const commitDeliveryTime = (selectedDate: Date) => {
-    if (!dayjs(selectedDate).isAfter(dayjs())) {
-      toast.error(t("orders:alerts.deliveryTimeInPast"));
-      return;
-    }
-    setDeliveryTime(selectedDate);
-    closeTimePicker();
-  };
-
-  // On iOS the spinner stays inline and fires onChange continuously as the
-  // user scrolls, so we only track the selection locally and commit it on
-  // "Confirm". Android's native dialog is a single-shot pick that commits
-  // and closes immediately.
-  const handleTimeChange = (_: unknown, selectedDate?: Date) => {
-    if (!selectedDate) return;
-
-    setPickerValue(selectedDate);
-
-    if (Platform.OS === "android") {
-      setShowTimePicker(false);
-      commitDeliveryTime(selectedDate);
-    }
-  };
-
-  const handleConfirmTime = () => {
-    commitDeliveryTime(pickerValue);
-  };
 
   const editOrderId = useEditOrderCartStore((state) => state.orderId);
   const newItems = useEditOrderCartStore((state) => state.newItems);
@@ -391,7 +332,6 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
     );
   }
 
-  const hasExtras = showTimePicker || withNotes;
   const detailRows: CartRow[] = details.map((detail, index) => ({
     kind: "item",
     detail,
@@ -399,13 +339,13 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
   }));
   // Embedded: the title stays fixed above the list instead of scrolling away
   const titleRows: CartRow[] = embedded ? [] : [{ kind: "title" }];
+  const showProducts = cartType !== "order" || activeTab === "products";
   const cartListData: CartRow[] =
     cartType === "order"
       ? [
           ...titleRows,
-          { kind: "chips" },
-          ...(hasExtras ? [{ kind: "extras" } as const] : []),
-          ...detailRows,
+          { kind: "tabs" },
+          ...(showProducts ? detailRows : [{ kind: "information" } as const]),
         ]
       : [...titleRows, ...detailRows];
   const cartSubtitle = `${t("menu:cart.products")} ${details.length}`;
@@ -428,125 +368,31 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
               return renderTitle(cartSubtitle);
             }
 
-            if (row.kind === "chips") {
+            if (row.kind === "tabs") {
               return (
-                <ThemedView style={tw`bg-background pb-4 gap-2`}>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={tw`gap-2`}
-                  >
-                    <Chip
-                      icon={
-                        orderType === OrderType.IN_PLACE
-                          ? "utensils"
-                          : "shopping-bag"
-                      }
-                      label={
-                        orderType === OrderType.IN_PLACE
-                          ? `${t("common:labels.table")} ${table?.name}`
-                          : t("common:labels.takeAway")
-                      }
-                      onPress={
-                        orderType === OrderType.IN_PLACE
-                          ? handlePresentTableSelector
-                          : undefined
-                      }
-                    />
-                    <Chip
-                      icon="users"
-                      label={String(people)}
-                      onPress={handlePresentPeopleSelector}
-                    />
-                    {deliveryTime ? (
-                      <Chip
-                        icon="clock"
-                        label={dayjs(deliveryTime).format("HH:mm")}
-                        onPress={openTimePicker}
-                        rightContent={
-                          <Pressable
-                            onPress={() => setDeliveryTime(null)}
-                            hitSlop={8}
-                          >
-                            <Icon
-                              name="x"
-                              size={16}
-                              color={tw.color("gray-600")}
-                            />
-                          </Pressable>
-                        }
-                      />
-                    ) : (
-                      <Chip
-                        variant="assist"
-                        icon="clock"
-                        label={t("orders:form.addDeliveryTime")}
-                        onPress={openTimePicker}
-                      />
-                    )}
-                  </ScrollView>
-                  {!withNotes && (
-                    <ThemedView style={tw`flex-row`}>
-                      <Chip
-                        variant="assist"
-                        icon="file-text"
-                        label={t("orders:form.addNote")}
-                        onPress={() => setWithNotes(true)}
-                      />
-                    </ThemedView>
-                  )}
+                <ThemedView style={tw`bg-background pb-2`}>
+                  <TabBar
+                    tabs={[
+                      {
+                        label: t("menu:cart.tabs.products"),
+                        value: "products" as const,
+                        count: details.length,
+                      },
+                      {
+                        label: t("menu:cart.tabs.information"),
+                        value: "information" as const,
+                      },
+                    ]}
+                    activeTab={activeTab}
+                    onChange={setActiveTab}
+                    fullWidth={false}
+                  />
                 </ThemedView>
               );
             }
 
-            if (row.kind === "extras") {
-              return (
-                <ThemedView style={tw`gap-4`}>
-                  {showTimePicker && (
-                    <ThemedView>
-                      {Platform.OS === "ios" && (
-                        <ThemedView
-                          style={tw`border border-gray-300 rounded-2xl overflow-hidden`}
-                        >
-                          <DateTimePicker
-                            value={pickerValue}
-                            mode="time"
-                            display="spinner"
-                            onChange={handleTimeChange}
-                          />
-                          <Button
-                            label={t("common:actions.confirm")}
-                            onPress={handleConfirmTime}
-                            variant="primary"
-                            size="small"
-                          />
-                        </ThemedView>
-                      )}
-                      {Platform.OS === "android" && (
-                        <DateTimePicker
-                          value={pickerValue}
-                          mode="time"
-                          is24Hour
-                          display="default"
-                          onChange={handleTimeChange}
-                        />
-                      )}
-                    </ThemedView>
-                  )}
-                  {withNotes && (
-                    <TextInput
-                      numberOfLines={5}
-                      multiline
-                      scrollEnabled
-                      style={tw`max-h-32`}
-                      placeholder={t("orders:newOrder.notesPlaceholder")}
-                      onChangeText={setNotes}
-                      value={notes}
-                      containerStyle={tw`bg-transparent border-0 p-0`}
-                    />
-                  )}
-                </ThemedView>
-              );
+            if (row.kind === "information") {
+              return <CartInformation />;
             }
 
             // Extra spacing between consecutive products on top of the list gap
@@ -563,7 +409,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
             );
           }}
           ListFooterComponent={
-            !embedded ? (
+            !showProducts ? null : !embedded ? (
               <Button
                 leftIcon="plus"
                 label={t("menu:cart.addProduct")}
@@ -645,16 +491,6 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
       >
         <SubscriptionPaywallBottomSheet onDismiss={closePaywall} />
       </ThemedBottomSheetModal>
-
-      <ThemedBottomSheetModal ref={peopleSelectorSheetRef} enablePanDownToClose>
-        <NewOrderPeopleBottomSheet onClose={closePeopleSelector} />
-      </ThemedBottomSheetModal>
-
-      <TableSelectorBottomSheet
-        ref={tableSelectorSheetRef}
-        selectedTableId={table?.id}
-        onSelectTable={(selected) => setTable(selected)}
-      />
     </>
   );
 }

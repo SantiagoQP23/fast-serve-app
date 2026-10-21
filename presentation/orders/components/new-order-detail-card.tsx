@@ -88,7 +88,6 @@ export default function NewOrderDetailCard({
               onPress={decrement}
               style={tw`p-1`}
               size={20}
-              variant="surface"
             />
             <ThemedText>{counter}</ThemedText>
             <IconButton
@@ -96,7 +95,6 @@ export default function NewOrderDetailCard({
               onPress={increment}
               style={tw`p-1`}
               size={20}
-              variant="surface"
             />
           </ThemedView>
         </ThemedView>

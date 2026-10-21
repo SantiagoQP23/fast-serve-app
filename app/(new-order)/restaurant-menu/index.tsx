@@ -6,7 +6,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import ProductCard from "@/presentation/restaurant-menu/product-card";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Chip from "@/presentation/theme/components/chip";
-import SegmentedControl from "@/presentation/theme/components/segmented-control";
+import TabBar from "@/presentation/theme/components/tab-bar";
 import { useRouter } from "expo-router";
 import FloatingSearchBar from "@/presentation/theme/components/floating-search-bar";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
@@ -244,17 +244,12 @@ export default function RestaurantMenuScreen() {
         </ThemedView>
       )}
       {!search && (
-        <ThemedView>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <SegmentedControl
-              variant="text"
-              textType="h4"
-              items={sections.map((s) => ({ label: s.name, value: s.id }))}
-              value={section}
-              onChange={onChangeSection}
-            />
-          </ScrollView>
-        </ThemedView>
+        <TabBar
+          scrollable
+          tabs={sections.map((s) => ({ label: s.name, value: s.id }))}
+          activeTab={section}
+          onChange={onChangeSection}
+        />
       )}
       <ThemedView style={tw`flex-row gap-2 flex-1`}>
         {!search && (
