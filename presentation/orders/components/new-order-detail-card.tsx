@@ -82,7 +82,9 @@ export default function NewOrderDetailCard({
             {showProductOptionName && detail.productOption.name}
           </ThemedText>
 
-          <ThemedView style={tw`flex-row items-center gap-4 bg-transparent`}>
+          <ThemedView
+            style={tw`flex-row items-center gap-4 bg-transparent border border-primary rounded-md p-1`}
+          >
             <IconButton
               icon="minus"
               onPress={decrement}

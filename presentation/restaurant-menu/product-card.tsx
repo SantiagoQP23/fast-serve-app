@@ -10,7 +10,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Icon from "@/presentation/theme/components/icon";
 import Label from "@/presentation/theme/components/label";
 import tw from "@/presentation/theme/lib/tailwind";
-import { PressableProps } from "react-native";
+import { Pressable, PressableProps } from "react-native";
 import Animated from "react-native-reanimated";
 import { useCountPop } from "@/presentation/shared/hooks/useCountPop";
 import Card from "../theme/components/card";
@@ -19,8 +19,12 @@ interface ProductCardProps extends PressableProps {
   product: Product;
   /** Units of this product already in the cart, shown as a count. */
   inCartCount?: number;
-  /** What a tap does, hinted at the trailing edge: add one unit or open it. */
-  tapAction?: "add" | "open";
+  /** Adds one unit; shown as a + button. Tapping the card itself opens it. */
+  onAdd?: () => void;
+  /** Hints with a chevron that tapping opens the product. */
+  showOpenHint?: boolean;
+  /** Edits what's already in the cart; makes the count tappable. */
+  onPressCount?: () => void;
 }
 
 const STOCK_TEXT_COLOR = {
@@ -30,10 +34,17 @@ const STOCK_TEXT_COLOR = {
 };
 
 /** Ink count of units already in the cart; pops when it goes up. */
-function InCartCount({ count }: { count: number }) {
+function InCartCount({
+  count,
+  onPress,
+}: {
+  count: number;
+  onPress?: () => void;
+}) {
+  const { t } = useTranslation(["menu"]);
   const popStyle = useCountPop(count);
 
-  return (
+  const badge = (
     <Animated.View
       style={[
         tw`min-w-9 h-9 px-2 rounded-full bg-secondary items-center justify-center`,
@@ -45,6 +56,21 @@ function InCartCount({ count }: { count: number }) {
       </ThemedText>
     </Animated.View>
   );
+
+  if (!onPress) return badge;
+
+  return (
+    <Pressable
+      onPress={onPress}
+      hitSlop={8}
+      accessibilityRole="button"
+      accessibilityLabel={t("menu:inCart", { count })}
+      accessibilityHint={t("menu:editInCart")}
+      style={({ pressed }) => pressed && tw`opacity-60`}
+    >
+      {badge}
+    </Pressable>
+  );
 }
 
 export default function ProductCard({
@@ -52,7 +78,9 @@ export default function ProductCard({
   onPress,
   onLongPress,
   inCartCount = 0,
-  tapAction,
+  onAdd,
+  showOpenHint = false,
+  onPressCount,
 }: ProductCardProps) {
   const { t } = useTranslation(["menu"]);
   const activeOptions = product.options.filter((option) => option.isActive);
@@ -97,16 +125,38 @@ export default function ProductCard({
         ? formatCurrency(minPrice)
         : `${formatCurrency(minPrice)} – ${formatCurrency(maxPrice)}`;
 
-  const trailing =
-    inCartCount > 0 ? (
-      <InCartCount count={inCartCount} />
-    ) : tapAction && !isUnavailable ? (
-      <ThemedView
-        style={tw`w-9 h-9 rounded-full bg-surface items-center justify-center`}
-      >
-        <Icon name={tapAction === "add" ? "plus" : "chevron-right"} size={18} />
-      </ThemedView>
-    ) : null;
+  const canAdd = !!onAdd && !isUnavailable;
+  const trailing = (
+    <ThemedView style={tw`bg-transparent flex-row items-center gap-2`}>
+      {inCartCount > 0 && (
+        <InCartCount count={inCartCount} onPress={onPressCount} />
+      )}
+      {canAdd ? (
+        <Pressable
+          onPress={onAdd}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={t("menu:addOne", { product: product.name })}
+          style={({ pressed }) => [
+            tw`w-9 h-9 rounded-full bg-surface items-center justify-center`,
+            pressed && tw`opacity-60`,
+          ]}
+        >
+          <Icon name="plus" size={18} />
+        </Pressable>
+      ) : (
+        showOpenHint &&
+        !isUnavailable &&
+        inCartCount === 0 && (
+          <ThemedView
+            style={tw`w-9 h-9 rounded-full bg-surface items-center justify-center`}
+          >
+            <Icon name="chevron-right" size={18} />
+          </ThemedView>
+        )
+      )}
+    </ThemedView>
+  );
 
   return (
     <Card
@@ -123,9 +173,6 @@ export default function ProductCard({
       ]
         .filter(Boolean)
         .join(", ")}
-      accessibilityHint={
-        tapAction === "add" ? t("menu:quickAddHint") : undefined
-      }
       variant="outline"
     >
       <ThemedView style={tw`bg-transparent gap-2`}>

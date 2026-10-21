@@ -32,7 +32,7 @@ import {
   getProductOptionAvailableQuantity,
   getProductOptionStockLevel,
 } from "@/core/menu/models/product-optionl.model";
-import Icon from "@/presentation/theme/components/icon";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import {
   BottomSheetView,
   type BottomSheetMethods,
@@ -41,17 +41,24 @@ import BottomSheetPicker, {
   BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import Animated, {
   Easing,
   FadeIn,
-  SlideInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
 import Chip from "@/presentation/theme/components/chip";
-import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 /** Material caps sheets at 640dp on large screens. */
 const SHEET_MAX_WIDTH = 640;
@@ -80,6 +87,42 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
+/** A quiet, tappable setting row: icon, label, current value, chevron. */
+function OptionRow({
+  icon,
+  label,
+  value,
+  onPress,
+}: {
+  icon: IconName;
+  label: string;
+  value: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${label}: ${value}`}
+      style={({ pressed }) => [
+        tw`flex-row items-center gap-3 min-h-12`,
+        pressed && tw`opacity-60`,
+      ]}
+    >
+      <Icon name={icon} size={18} color={tw.color("gray-500")} />
+      <ThemedText>{label}</ThemedText>
+      <ThemedText
+        type="body2"
+        numberOfLines={1}
+        style={tw`flex-1 text-right text-gray-600`}
+      >
+        {value}
+      </ThemedText>
+      <Icon name="chevron-right" size={18} color={tw.color("gray-400")} />
+    </Pressable>
+  );
+}
+
 /**
  * Product picked from the menu, shown as a sheet over it: choose the variant,
  * extras, quantity and note, then add it. Also edits a line already in the
@@ -87,8 +130,21 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
  */
 export default function ProductScreen() {
   const { t } = useTranslation(["menu", "orders", "common", "bills"]);
-  const palette = usePalette();
   const insets = useSafeAreaInsets();
+  const { height: windowHeight } = useWindowDimensions();
+  // Slide in with a transform: a layout-based entering animation pins the
+  // sheet to its first measured top, so content that grows a frame later
+  // (e.g. many variants) pushed the footer off-screen.
+  const sheetOffset = useSharedValue(windowHeight);
+  useEffect(() => {
+    sheetOffset.value = withTiming(0, {
+      duration: 320,
+      easing: Easing.out(Easing.exp),
+    });
+  }, [sheetOffset]);
+  const sheetSlideStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: sheetOffset.value }],
+  }));
   const customPriceSheetRef = useRef<BottomSheetMethods>(null);
   const noteSheetRef = useRef<BottomSheetMethods>(null);
   const typePickerRef = useRef<BottomSheetPickerRef>(null);
@@ -355,15 +411,11 @@ export default function ProductScreen() {
     setPrice(String(option.price));
   };
 
-  const addLabel = isSaleEditMode
-    ? t("bills:editSale.addToSale")
-    : isReplaceMode
-      ? t("orders:replaceItem.confirm")
-      : activeOrderDetail?.id
-        ? t("menu:product.updateLine")
-        : order
-          ? t("menu:product.addToOrder")
-          : t("menu:product.addToCart");
+  const addLabel = isReplaceMode
+    ? t("orders:replaceItem.confirm")
+    : activeOrderDetail?.id
+      ? t("common:actions.update")
+      : t("common:actions.add");
 
   const hasNote = notes.trim() !== "";
 
@@ -383,8 +435,8 @@ export default function ProductScreen() {
         </Animated.View>
 
         <Animated.View
-          entering={SlideInDown.duration(320).easing(Easing.out(Easing.exp))}
           style={[
+            sheetSlideStyle,
             tw`bg-background rounded-t-3xl w-full self-center`,
             {
               maxWidth: SHEET_MAX_WIDTH,
@@ -409,7 +461,7 @@ export default function ProductScreen() {
                     {formatCurrency(selectedOption.price)}
                   </ThemedText>
                   {/* Products with variants show stock on each variant instead. */}
-                  {selectedStock && (
+                  {selectedStock && selectedStock.level !== "ok" && (
                     <Label
                       size="small"
                       leftIcon="package"
@@ -425,15 +477,27 @@ export default function ProductScreen() {
                   )}
                 </ThemedView>
               )}
+              {hasNote && (
+                <Pressable
+                  onPress={() => noteSheetRef.current?.present()}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${t("menu:product.editNote")}: ${notes}`}
+                  hitSlop={8}
+                  style={({ pressed }) => [
+                    tw`flex-row items-start gap-1.5 py-4`,
+                    pressed && tw`opacity-60`,
+                  ]}
+                >
+                  <ThemedText
+                    type="body2"
+                    numberOfLines={2}
+                    style={tw`flex-1 `}
+                  >
+                    {notes}
+                  </ThemedText>
+                </Pressable>
+              )}
             </ThemedView>
-            {isAdmin && (
-              <IconButton
-                icon="circle-dollar-sign"
-                size={22}
-                onPress={() => customPriceSheetRef.current?.present()}
-                accessibilityLabel={t("orders:newOrder.customPrice")}
-              />
-            )}
             <IconButton
               icon="x"
               size={22}
@@ -495,10 +559,10 @@ export default function ProductScreen() {
                           .filter(Boolean)
                           .join(", ")}
                         style={({ pressed }) => [
-                          tw`rounded-md px-4 py-3 gap-1 min-h-16`,
+                          tw`rounded-md px-4 py-3 gap-1 min-h-16 justify-center`,
                           { width: "48.5%" },
                           isSelected
-                            ? tw`bg-secondary border border-secondary`
+                            ? tw`bg-surface border border-primary`
                             : tw`border border-primary`,
                           pressed && tw`opacity-75`,
                         ]}
@@ -511,13 +575,6 @@ export default function ProductScreen() {
                           >
                             {option.name}
                           </ThemedText>
-                          {isSelected && (
-                            <Icon
-                              name="check"
-                              size={16}
-                              color={palette.onSecondary}
-                            />
-                          )}
                         </ThemedView>
                         <ThemedView
                           style={tw`flex-row items-center justify-between gap-2 bg-transparent`}
@@ -528,7 +585,7 @@ export default function ProductScreen() {
                           >
                             {formatCurrency(option.price)}
                           </ThemedText>
-                          {optionStock && (
+                          {optionStock && optionStock.level !== "ok" && (
                             <ThemedText
                               type="small"
                               style={tw`${STOCK_TEXT_COLOR[optionStock.level]}`}
@@ -545,7 +602,7 @@ export default function ProductScreen() {
             )}
 
             {selectableTags.length > 0 && (
-              <Section title={t("menu:product.extras")}>
+              <Section title={""}>
                 <ThemedView style={tw`flex-row flex-wrap gap-2`}>
                   {selectableTags.map((tag) => (
                     <Chip
@@ -559,79 +616,59 @@ export default function ProductScreen() {
               </Section>
             )}
 
-            {hasNote && (
-              <Section title={t("menu:product.note")}>
-                <Pressable
-                  onPress={() => noteSheetRef.current?.present()}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${t("menu:product.editNote")}: ${notes}`}
-                  style={({ pressed }) => [
-                    tw`flex-row items-center gap-3 rounded-md border border-primary pl-4 pr-1 py-1 min-h-12`,
-                    pressed && tw`opacity-75`,
-                  ]}
-                >
-                  <Icon name="file-text" size={18} />
-                  <ThemedText
-                    type="body2"
-                    numberOfLines={3}
-                    style={tw`flex-1 py-2`}
-                  >
-                    {notes}
-                  </ThemedText>
-                  <IconButton
-                    icon="x"
-                    size={20}
-                    onPress={() => setNotes("")}
-                    accessibilityLabel={t("menu:product.removeNote")}
-                  />
-                </Pressable>
-              </Section>
-            )}
-          </ScrollView>
-
-          <ThemedView style={tw`px-4 pt-3 gap-4 border-t border-divider`}>
-            {!isSaleEditMode && (
-              <ThemedView style={tw`flex-row flex-wrap items-center gap-2`}>
+            {!hasNote && (
+              <ThemedView style={tw`flex-row`}>
                 <Chip
-                  label={
-                    typeOrderDetail === OrderType.IN_PLACE
-                      ? t("common:orderType.inPlace")
-                      : t("common:orderType.takeAway")
-                  }
+                  variant="assist"
+                  label={t("menu:product.addNote")}
+                  icon="file-text"
+                  onPress={() => noteSheetRef.current?.present()}
+                />
+              </ThemedView>
+            )}
+
+            <View>
+              {!isSaleEditMode && (
+                <OptionRow
                   icon={
                     typeOrderDetail === OrderType.IN_PLACE
                       ? "utensils"
                       : "shopping-bag"
                   }
-                  variant="assist"
-                  rightContent={<Icon name="chevron-down" size={16} />}
+                  label={t("menu:product.serve")}
+                  value={
+                    typeOrderDetail === OrderType.IN_PLACE
+                      ? t("common:orderType.inPlace")
+                      : t("common:orderType.takeAway")
+                  }
                   onPress={() => typePickerRef.current?.present()}
                 />
+              )}
+              {isAdmin && (
+                <OptionRow
+                  icon="circle-dollar-sign"
+                  label={t("menu:product.price")}
+                  value={formatCurrency(effectivePrice)}
+                  onPress={() => customPriceSheetRef.current?.present()}
+                />
+              )}
+            </View>
+          </ScrollView>
 
-                {!hasNote && (
-                  <Chip
-                    variant="assist"
-                    label={t("orders:newOrder.addNote")}
-                    icon="file-text"
-                    onPress={() => noteSheetRef.current?.present()}
-                  />
-                )}
-              </ThemedView>
-            )}
-
-            <ThemedView style={tw`flex-row items-center justify-between`}>
-              <ThemedView style={tw`flex-row items-center gap-2`}>
+          <ThemedView style={tw`px-4 pt-3 gap-2 `}>
+            <ThemedView style={tw`flex-row items-center gap-3`}>
+              <ThemedView style={tw`flex-row items-center gap-1`}>
                 <IconButton
                   icon="minus"
                   onPress={decrement}
                   variant="surface"
-                  size={24}
+                  size={22}
                   disabled={counter <= 1}
                   accessibilityLabel={t("menu:product.decrease")}
                 />
                 <ThemedText
-                  type="h3"
-                  style={tw`min-w-10 text-center`}
+                  type="h4"
+                  style={tw`min-w-8 text-center`}
                   accessibilityLiveRegion="polite"
                   accessibilityLabel={t("menu:product.quantityValue", {
                     count: counter,
@@ -643,21 +680,28 @@ export default function ProductScreen() {
                   icon="plus"
                   onPress={increment}
                   variant="surface"
-                  size={24}
+                  size={22}
                   disabled={atStockLimit}
                   accessibilityLabel={t("menu:product.increase")}
                 />
               </ThemedView>
-              <ThemedView style={tw`items-end`}>
-                <ThemedText type="small">{t("menu:cart.total")}</ThemedText>
-                <ThemedText type="h4">
-                  {formatCurrency(counter * effectivePrice)}
-                </ThemedText>
-              </ThemedView>
+              <Button
+                style={tw`flex-1`}
+                label={`${addLabel} · ${formatCurrency(counter * effectivePrice)}`}
+                onPress={onAddProduct}
+                loading={isReplacing}
+                disabled={
+                  isUnavailable ||
+                  blockedByStock ||
+                  isReplacing ||
+                  requiresOptionSelection ||
+                  (!selectedOption && !isReplaceMode)
+                }
+              />
             </ThemedView>
 
             {exceedsStock && (
-              <ThemedView style={tw`flex-row items-center gap-1.5 -mt-2`}>
+              <ThemedView style={tw`flex-row items-center gap-1.5`}>
                 <Icon
                   name="circle-alert"
                   size={16}
@@ -672,20 +716,6 @@ export default function ProductScreen() {
                 </ThemedText>
               </ThemedView>
             )}
-
-            <Button
-              label={addLabel}
-              onPress={onAddProduct}
-              leftIcon={isReplaceMode ? "arrow-left-right" : "shopping-cart"}
-              loading={isReplacing}
-              disabled={
-                isUnavailable ||
-                blockedByStock ||
-                isReplacing ||
-                requiresOptionSelection ||
-                (!selectedOption && !isReplaceMode)
-              }
-            />
           </ThemedView>
         </Animated.View>
       </View>

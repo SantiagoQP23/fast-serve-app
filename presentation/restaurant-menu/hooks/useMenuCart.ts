@@ -241,6 +241,15 @@ export function useMenuCart() {
     });
   };
 
+  /**
+   * Lines of this product that the product screen can edit in place: cart
+   * and edit-order lines. Sale lines aren't edited from the menu.
+   */
+  const editableLines = (productId: string): NewOrderDetail[] =>
+    (mode === "edit" ? editNewItems : mode === "cart" ? cartDetails : []).filter(
+      (detail) => detail.product.id === productId,
+    );
+
   return {
     mode,
     order,
@@ -251,5 +260,6 @@ export function useMenuCart() {
     addLine,
     canQuickAdd: (product: Product) => getQuickAddOption(product) !== null,
     quickAdd,
+    editableLines,
   };
 }

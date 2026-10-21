@@ -36,6 +36,7 @@
     "updateLine": "Update item",
     "extras": "Extras",
     "note": "Note",
+    "serve": "Serve",
     "editNote": "Edit note",
     "removeNote": "Remove note",
     "increase": "Increase quantity",
@@ -73,7 +74,8 @@
   "backToSale": "Back to sale",
   "lineAdded": "{{item}} added",
   "inCart_one": "{{count}} in cart",
+  "addOne": "Add {{product}}",
+  "editInCart": "Edit in cart",
   "inCart_other": "{{count}} in cart",
-  "quickAddHint": "Adds one. Long press for options.",
   "noResults": "No products match “{{search}}”"
 }

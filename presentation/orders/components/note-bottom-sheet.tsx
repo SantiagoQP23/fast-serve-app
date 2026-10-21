@@ -64,11 +64,24 @@ function NoteBottomSheet(
           containerStyle={tw`bg-transparent border-0 p-0`}
         />
 
-        <ThemedView style={tw`flex-row justify-end gap-2`}>
+        <ThemedView style={tw`flex-row items-center justify-end gap-2`}>
+          {draft.trim() !== "" && (
+            <Button
+              label={t("common:actions.clear")}
+              leftIcon="x"
+              variant="text"
+              onPress={() => {
+                setDraft("");
+                inputRef.current?.focus();
+              }}
+              style={tw`mr-auto`}
+              size="extra-small"
+            />
+          )}
           <Button
             leftIcon="check"
             onPress={() => onSave(draft)}
-            variant="surface"
+            variant="outline"
           />
         </ThemedView>
       </BottomSheetView>

@@ -34,6 +34,12 @@ import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 import CartPanel from "@/presentation/orders/components/cart-panel";
 import { typography } from "@/constants/theme";
+import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
+import { NewOrderDetail } from "@/core/orders/dto/new-order-detail.dto";
+import { OrderType } from "@/core/orders/enums/order-type.enum";
+import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 
 const PRODUCT_MIN_WIDTH = 200;
 const PRODUCT_GAP = 12;
@@ -46,7 +52,7 @@ const CATEGORY_SPY_RATIO = 0.3;
 const CATEGORY_SCROLL_LOCK_MS = 600;
 
 export default function RestaurantMenuScreen() {
-  const { t } = useTranslation(["menu", "orders", "bills"]);
+  const { t } = useTranslation(["menu", "orders", "bills", "common"]);
   const primaryColor = useThemeColor({}, "primary");
   const [selectedSection, setSection] = useState("");
   const [selectedCategory, setCategory] = useState("");
@@ -96,6 +102,7 @@ export default function RestaurantMenuScreen() {
     ? selectedCategory
     : (sectionCategories[0]?.id ?? "");
   const { setActiveProduct } = useMenuStore();
+  const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
   // Where picked products go (cart, order being edited, sale being edited…)
   const cart = useMenuCart();
   const { order } = cart;
@@ -161,8 +168,55 @@ export default function RestaurantMenuScreen() {
     router.push("/(new-order)/restaurant-menu/product");
   };
 
-  // Products with nothing to choose go straight in; the rest open.
-  const onPressProduct = (product: Product) => {
+  const editLine = (detail: NewOrderDetail) => {
+    Keyboard.dismiss();
+    setActiveDetail(detail);
+    setActiveProduct(detail.product);
+    router.push("/(new-order)/restaurant-menu/product");
+  };
+
+  // Tapping the count edits the product's cart line, asking which one first
+  // when it's in the cart more than once (another variant, note or type).
+  const lineSheetRef = useRef<BottomSheetMethods>(null);
+  const [lineSheetProductId, setLineSheetProductId] = useState<string | null>(
+    null,
+  );
+  const lineSheetLines = lineSheetProductId
+    ? cart.editableLines(lineSheetProductId)
+    : [];
+  useEffect(() => {
+    if (lineSheetProductId) lineSheetRef.current?.present();
+  }, [lineSheetProductId]);
+  const onPressCount = (product: Product) => {
+    const lines = cart.editableLines(product.id);
+    if (lines.length === 1) {
+      editLine(lines[0]);
+    } else if (lines.length > 1) {
+      Keyboard.dismiss();
+      setLineSheetProductId(product.id);
+    }
+  };
+  const describeLine = (detail: NewOrderDetail) => {
+    const hasVariants =
+      detail.product.options.filter((option) => option.isActive).length > 1;
+    return [
+      `${detail.quantity} × ${
+        hasVariants && detail.productOption
+          ? detail.productOption.name
+          : detail.product.name
+      }`,
+      detail.typeOrderDetail !== cart.defaultOrderType &&
+        (detail.typeOrderDetail === OrderType.IN_PLACE
+          ? t("common:orderType.inPlace")
+          : t("common:orderType.takeAway")),
+      detail.description?.trim(),
+    ]
+      .filter(Boolean)
+      .join(" · ");
+  };
+
+  // The + button adds one unit when there's nothing to choose.
+  const onAddProduct = (product: Product) => {
     if (!cart.quickAdd(product)) openProduct(product);
   };
 
@@ -260,10 +314,19 @@ export default function RestaurantMenuScreen() {
         >
           <ProductCard
             product={product}
-            onPress={() => onPressProduct(product)}
-            onLongPress={() => openProduct(product)}
+            onPress={() => openProduct(product)}
+            onAdd={
+              cart.canQuickAdd(product)
+                ? () => onAddProduct(product)
+                : undefined
+            }
+            showOpenHint
+            onPressCount={
+              cart.mode === "cart" || cart.mode === "edit"
+                ? () => onPressCount(product)
+                : undefined
+            }
             inCartCount={cart.countByProduct.get(product.id) ?? 0}
-            tapAction={cart.canQuickAdd(product) ? "add" : "open"}
           />
         </View>
       ))}
@@ -429,6 +492,27 @@ export default function RestaurantMenuScreen() {
             )
           ))}
       </FloatingSearchBar>
+
+      <ThemedBottomSheetModal
+        ref={lineSheetRef}
+        enablePanDownToClose
+        onChange={(index) => {
+          if (index < 0) setLineSheetProductId(null);
+        }}
+      >
+        <ActionsBottomSheet
+          title={lineSheetLines[0]?.product.name}
+          subtitle={t("menu:editInCart")}
+          items={lineSheetLines.map((detail) => ({
+            icon: "pencil",
+            label: describeLine(detail),
+            onPress: () => {
+              lineSheetRef.current?.dismiss();
+              editLine(detail);
+            },
+          }))}
+        />
+      </ThemedBottomSheetModal>
     </ScreenLayout>
   );
 
