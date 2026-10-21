@@ -30,6 +30,8 @@ import {
 } from "@/core/menu/models/product.model";
 import { typography } from "@/constants/theme";
 import MenuProductDetailView from "@/presentation/menu-management/components/menu-product-detail-view";
+import MenuNamesSheet from "@/presentation/menu-management/components/menu-names-sheet";
+import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 
 const PRODUCT_PANE_WIDTH = 600;
@@ -43,9 +45,16 @@ export default function MenuOverviewScreen() {
   const primaryColor = useThemeColor({}, "primary");
   const { sections, categories, products, menuQuery } = useMenu();
   const { isLoading, isError, refetch, isRefetching } = menuQuery;
-  const { updateSection, deleteSection, updateCategory, deleteCategory } =
-    useMenuManagement();
-  const { user } = useAuthStore();
+  const {
+    createSection,
+    updateSection,
+    deleteSection,
+    createCategory,
+    updateCategory,
+    deleteCategory,
+  } = useMenuManagement();
+  const { user, currentRestaurant } = useAuthStore();
+  const menuRestaurantId = useMenuStore((state) => state.restaurantId);
   const canManage = isAdminLevelRole(user?.role?.name);
 
   const [sectionId, setSectionId] = useState("");
@@ -60,6 +69,8 @@ export default function MenuOverviewScreen() {
     null,
   );
   const actionsSheetRef = useRef<BottomSheetMethods>(null);
+  const sectionSheetRef = useRef<BottomSheetMethods>(null);
+  const categorySheetRef = useRef<BottomSheetMethods>(null);
 
   // Tablet landscape: the selected product opens in a pane next to the menu
   const { isExpanded } = useResponsiveLayout();
@@ -150,14 +161,15 @@ export default function MenuOverviewScreen() {
   };
 
   const handleAddSection = () => {
-    router.push("/(profile)/menu/sections/form");
+    sectionSheetRef.current?.present();
   };
 
   const handleAddCategory = () => {
-    router.push({
-      pathname: "/(profile)/menu/categories/form",
-      params: sectionId ? { sectionId } : undefined,
-    });
+    if (!sectionId) {
+      handleAddSection();
+      return;
+    }
+    categorySheetRef.current?.present();
   };
 
   const handleAddProduct = () => {
@@ -243,6 +255,69 @@ export default function MenuOverviewScreen() {
 
   const hasMenu =
     sections.length > 0 || categories.length > 0 || products.length > 0;
+  // The menu came back from the server (snapshot, sync or this screen's
+  // query) and it really is empty, as opposed to never loaded.
+  const isMenuLoaded =
+    menuQuery.isSuccess ||
+    (!!currentRestaurant?.id && menuRestaurantId === currentRestaurant.id);
+
+  const nameSheets = canManage && (
+    <>
+      <MenuNamesSheet
+        sheetRef={sectionSheetRef}
+        title={t("overview.addSection")}
+        label={t("sections.fields.name")}
+        placeholder={t("overview.namesSheet.sectionPlaceholder")}
+        existingNames={sections.map((section) => section.name)}
+        createOne={(name) => createSection.mutateAsync({ name })}
+        onCreated={(created) => {
+          setSearch("");
+          setSectionId(created[0].id);
+        }}
+      />
+      <MenuNamesSheet
+        sheetRef={categorySheetRef}
+        title={t("overview.addCategory")}
+        subtitle={t("overview.namesSheet.inSection", {
+          section: getSectionName(sectionId),
+        })}
+        label={t("categories.fields.name")}
+        placeholder={t("overview.namesSheet.categoryPlaceholder")}
+        existingNames={categories.map((category) => category.name)}
+        createOne={(name) => createCategory.mutateAsync({ name, sectionId })}
+        onCreated={(created) => {
+          setSearch("");
+          setCategoryId(created[0].id);
+        }}
+      />
+    </>
+  );
+
+  if (!hasMenu && isMenuLoaded && !menuQuery.isError) {
+    return (
+      <ThemedView
+        style={tw`flex-1 px-4 pt-8 items-center justify-center gap-4`}
+      >
+        <Icon name="utensils" size={64} color={tw.color("gray-400")} />
+        <ThemedView style={tw`gap-2 items-center`}>
+          <ThemedText type="h2">{t("overview.empty.title")}</ThemedText>
+          <ThemedText type="body2" style={tw`text-center text-gray-500 px-8`}>
+            {canManage
+              ? t("overview.empty.description")
+              : t("overview.empty.descriptionReadOnly")}
+          </ThemedText>
+        </ThemedView>
+        {canManage && (
+          <Button
+            label={t("overview.empty.createFirstSection")}
+            leftIcon="plus"
+            onPress={handleAddSection}
+          />
+        )}
+        {nameSheets}
+      </ThemedView>
+    );
+  }
 
   if (!hasMenu) {
     return (
@@ -517,6 +592,8 @@ export default function MenuOverviewScreen() {
           </ThemedView>
         )}
       </ThemedBottomSheetModal>
+
+      {nameSheets}
 
       <DialogModal
         visible={!!sectionToDelete}

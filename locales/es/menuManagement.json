@@ -14,6 +14,22 @@
     "pane": {
       "emptyTitle": "Selecciona un producto",
       "emptyDescription": "Toca un producto para ver sus variantes, inventario y ajustes aquí."
+    },
+    "empty": {
+      "title": "Tu menú está vacío",
+      "description": "Crea una sección para empezar, por ejemplo Platos o Bebidas.",
+      "descriptionReadOnly": "Aún no hay nada en el menú.",
+      "createFirstSection": "Crear primera sección"
+    },
+    "namesSheet": {
+      "hint": "Escribe un nombre por línea para crear varias a la vez.",
+      "createCount": "Crear {{count}}",
+      "inSection": "En {{section}}",
+      "sectionPlaceholder": "ej. Platos\nBebidas",
+      "categoryPlaceholder": "ej. Arroces\nPescados\nMariscos",
+      "nameMinLength": "Cada nombre debe tener al menos 2 caracteres",
+      "nameMaxLength": "Cada nombre debe tener máximo 60 caracteres",
+      "alreadyExists": "Ya existe: {{names}}"
     }
   },
   "sections": {
@@ -176,8 +192,16 @@
       "deleteTitle": "Eliminar variante",
       "deleteMessage": "¿Estás seguro de que deseas eliminar esta variante?",
       "configureInventory": "Configurar inventario",
-      "editInventory": "Editar inventario"
-    }
+      "editInventory": "Editar inventario",
+      "copy": {
+        "button": "Copiar de otro producto",
+        "title": "Copiar variantes",
+        "empty": "Aún no hay productos con dos o más variantes.",
+        "andMore": "{{names}} y {{count}} más"
+      }
+    },
+    "saveAndAddAnother": "Guardar y crear otro",
+    "createdList": "Creados: {{names}}"
   },
   "loading": "Cargando...",
   "loadError": "Error al cargar el menú",

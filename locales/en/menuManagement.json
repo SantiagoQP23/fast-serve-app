@@ -14,6 +14,22 @@
     "pane": {
       "emptyTitle": "Select a product",
       "emptyDescription": "Tap a product to see its variants, inventory and settings here."
+    },
+    "empty": {
+      "title": "Your menu is empty",
+      "description": "Create a section to get started, for example Dishes or Drinks.",
+      "descriptionReadOnly": "There is nothing on the menu yet.",
+      "createFirstSection": "Create first section"
+    },
+    "namesSheet": {
+      "hint": "Write one name per line to create several at once.",
+      "createCount": "Create {{count}}",
+      "inSection": "In {{section}}",
+      "sectionPlaceholder": "e.g. Dishes\nDrinks",
+      "categoryPlaceholder": "e.g. Rice\nFish\nSeafood",
+      "nameMinLength": "Each name must be at least 2 characters",
+      "nameMaxLength": "Each name must be at most 60 characters",
+      "alreadyExists": "Already exists: {{names}}"
     }
   },
   "sections": {
@@ -176,8 +192,16 @@
       "deleteTitle": "Delete variant",
       "deleteMessage": "Are you sure you want to delete this variant?",
       "configureInventory": "Configure inventory",
-      "editInventory": "Edit inventory"
-    }
+      "editInventory": "Edit inventory",
+      "copy": {
+        "button": "Copy from another product",
+        "title": "Copy variants",
+        "empty": "No products with two or more variants yet.",
+        "andMore": "{{names}} and {{count}} more"
+      }
+    },
+    "saveAndAddAnother": "Save and add another",
+    "createdList": "Created: {{names}}"
   },
   "loading": "Loading...",
   "loadError": "Failed to load the menu",
