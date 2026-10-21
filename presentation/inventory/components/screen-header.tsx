@@ -35,6 +35,7 @@ export default function InventoryScreenHeader({
       {!hideBack && (
         <Pressable
           onPress={onBack ?? (() => router.back())}
+          hitSlop={12}
           accessibilityRole="button"
           accessibilityLabel={
             backIcon === "x"

@@ -239,7 +239,9 @@ export default function InventoryPurchaseDetailView({
           lineToRemove
             ? t("purchases.removeItemMessage", {
                 quantity: lineToRemove.quantity,
-                unit: t(`units.${lineToRemove.inventoryItem.unit}`),
+                unit: t(`units.${lineToRemove.inventoryItem.unit}`, {
+                  count: lineToRemove.quantity,
+                }),
                 name: lineToRemove.inventoryItem.name,
               })
             : ""

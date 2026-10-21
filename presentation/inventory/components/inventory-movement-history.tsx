@@ -6,7 +6,9 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { GroupedList } from "@/presentation/theme/components/grouped-list";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
+import InventorySectionHeader from "./inventory-section-header";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import type { InventoryUnit } from "@/core/inventory/models/inventory-item.model";
 import { groupByDay } from "@/core/i18n/utils";
 import DaySectionHeader from "@/presentation/inventory/components/day-section-header";
 import {
@@ -17,7 +19,7 @@ import {
 
 interface InventoryMovementHistoryProps {
   movements: InventoryMovement[];
-  unit: string;
+  unit: InventoryUnit;
 }
 
 const MOVEMENT_VISUALS: Record<
@@ -35,13 +37,13 @@ const MOVEMENT_VISUALS: Record<
   },
   [InventoryMovementType.MANUAL_ADJUSTMENT]: {
     icon: "minus",
-    iconColor: "red-500",
-    textColor: "text-red-600",
+    iconColor: "gray-500",
+    textColor: "text-on-surface",
   },
   [InventoryMovementType.ORDER_DELIVERED]: {
     icon: "trending-down",
-    iconColor: "blue-500",
-    textColor: "text-blue-600",
+    iconColor: "gray-500",
+    textColor: "text-on-surface",
   },
   [InventoryMovementType.ORDER_DELIVERY_REVERSED]: {
     icon: "undo-2",
@@ -50,8 +52,8 @@ const MOVEMENT_VISUALS: Record<
   },
   [InventoryMovementType.ORDER_CREATED]: {
     icon: "trending-down",
-    iconColor: "blue-500",
-    textColor: "text-blue-600",
+    iconColor: "gray-500",
+    textColor: "text-on-surface",
   },
   [InventoryMovementType.ORDER_CREATED_REVERSED]: {
     icon: "undo-2",
@@ -60,8 +62,8 @@ const MOVEMENT_VISUALS: Record<
   },
   [InventoryMovementType.SALE_DIRECT]: {
     icon: "trending-down",
-    iconColor: "blue-500",
-    textColor: "text-blue-600",
+    iconColor: "gray-500",
+    textColor: "text-on-surface",
   },
   [InventoryMovementType.SALE_DIRECT_CANCELLED]: {
     icon: "undo-2",
@@ -75,18 +77,20 @@ const MOVEMENT_VISUALS: Record<
   },
   [InventoryMovementType.PURCHASE_REVERSED]: {
     icon: "undo-2",
-    iconColor: "red-500",
-    textColor: "text-red-600",
+    iconColor: "gray-500",
+    textColor: "text-on-surface",
   },
   [InventoryMovementType.INVENTORY_COUNT_INCREASE]: {
     icon: "clipboard",
     iconColor: "emerald-500",
     textColor: "text-emerald-600",
   },
+  // A count shortage is stock that went missing — worth a warning, unlike
+  // routine decreases (sales, orders, manual), which stay neutral ink.
   [InventoryMovementType.INVENTORY_COUNT_DECREASE]: {
     icon: "clipboard",
-    iconColor: "red-500",
-    textColor: "text-red-600",
+    iconColor: "orange-500",
+    textColor: "text-orange-700",
   },
 };
 
@@ -125,23 +129,20 @@ export default function InventoryMovementHistory({
   );
 
   return (
-    <ThemedView style={tw`gap-3 bg-transparent mt-4`}>
-      <ThemedText type="body1" style={[{}, tw`px-1`]}>
-        {t("detail.movementHistory")}
-      </ThemedText>
+    <ThemedView style={tw`gap-4 bg-transparent`}>
+      <InventorySectionHeader
+        title={t("detail.movementHistory")}
+        count={movements.length}
+      />
 
       {movements.length === 0 ? (
-        <ThemedView style={tw`bg-surface-bright rounded-3xl p-6 shadow-xs`}>
-          <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
-            {t("detail.noMovements")}
-          </ThemedText>
-        </ThemedView>
+        <ThemedText type="body2" style={tw`text-gray-500`}>
+          {t("detail.noMovements")}
+        </ThemedText>
       ) : (
         days.map(({ day, items }) => (
           <ThemedView key={day} style={tw`gap-2 bg-transparent`}>
-            <ThemedView style={tw`px-1 bg-transparent`}>
-              <DaySectionHeader day={day} />
-            </ThemedView>
+            <DaySectionHeader day={day} />
             <GroupedList
               data={items}
               keyExtractor={(movement) => movement.id}
@@ -164,7 +165,7 @@ export default function InventoryMovementHistory({
                       style={tw`flex-row items-center gap-3 flex-1 bg-transparent`}
                     >
                       <ThemedView
-                        style={tw`w-9 h-9 rounded-full bg-background items-center justify-center shadow-xs`}
+                        style={tw`w-9 h-9 rounded-full bg-surface-container-low items-center justify-center`}
                       >
                         <Icon
                           name={visual.icon}
@@ -209,11 +210,21 @@ export default function InventoryMovementHistory({
                         ]}
                       >
                         {isIncrease ? "+" : "-"}
-                        {Math.abs(movement.quantity)} {unit}
+                        {t("quantityWithUnit", {
+                          quantity: Math.abs(movement.quantity),
+                          unit: t(`units.${unit}`, {
+                            count: Math.abs(movement.quantity),
+                          }),
+                        })}
                       </ThemedText>
                       {movement.quantityAfter != null && (
                         <ThemedText type="small" style={tw`text-gray-500`}>
-                          {movement.quantityAfter} {unit}
+                          {t("quantityWithUnit", {
+                            quantity: movement.quantityAfter,
+                            unit: t(`units.${unit}`, {
+                              count: movement.quantityAfter,
+                            }),
+                          })}
                         </ThemedText>
                       )}
                     </ThemedView>

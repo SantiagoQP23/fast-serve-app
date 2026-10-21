@@ -193,7 +193,7 @@ export default function NewInventoryItemQuantityScreen() {
 
           {showZeroStockHint && (
             <ThemedView
-              style={tw`flex-row items-start gap-2 rounded-2xl bg-orange-100 p-3`}
+              style={tw`flex-row items-start gap-2 rounded-md bg-orange-100 p-3`}
             >
               <Icon
                 name="triangle-alert"
@@ -216,7 +216,7 @@ export default function NewInventoryItemQuantityScreen() {
                 onChangeValue={handleSameQuantity}
                 step={quantityStep}
                 min={0}
-                unit={t(`units.${unit}`)}
+                unit={t(`units.${unit}`, { count: sameQuantity })}
               />
             </View>
           )}
@@ -225,7 +225,7 @@ export default function NewInventoryItemQuantityScreen() {
             {sortedRows.map((row) => (
               <ThemedView
                 key={row.productOptionId}
-                style={tw`rounded-2xl bg-surface-container-low p-4 gap-3`}
+                style={tw`rounded-md bg-surface-container-low p-4 gap-3`}
               >
                 <ThemedView
                   style={tw`flex-row items-center justify-between gap-2 bg-transparent`}
@@ -248,7 +248,7 @@ export default function NewInventoryItemQuantityScreen() {
                   }
                   step={quantityStep}
                   min={0}
-                  unit={t(`units.${unit}`)}
+                  unit={t(`units.${unit}`, { count: row.quantity })}
                   size="small"
                 />
               </ThemedView>

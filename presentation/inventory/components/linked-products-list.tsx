@@ -6,12 +6,14 @@ import { GroupedList } from "@/presentation/theme/components/grouped-list";
 import IconButton from "@/presentation/theme/components/icon-button";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
+import InventorySectionHeader from "./inventory-section-header";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import type { InventoryUnit } from "@/core/inventory/models/inventory-item.model";
 import type { ProductOptionInventoryItem } from "@/core/inventory/models/inventory-recipe.model";
 
 interface LinkedProductsListProps {
   lines: ProductOptionInventoryItem[];
-  unit: string;
+  unit: InventoryUnit;
   onAddPress?: () => void;
 }
 
@@ -23,29 +25,27 @@ export default function LinkedProductsList({
   const { t } = useTranslation("inventory");
 
   return (
-    <ThemedView style={tw`gap-3 bg-transparent mt-4`}>
-      <ThemedView
-        style={tw`flex-row items-center justify-between bg-transparent px-1`}
-      >
-        <ThemedText type="body1">{t("detail.linkedProducts")}</ThemedText>
-        {onAddPress && (
-          <IconButton
-            icon="plus"
-            variant="surface"
-            size={20}
-            onPress={onAddPress}
-            style={tw`-mr-2 p-2`}
-            accessibilityLabel={t("detail.linkToProduct")}
-          />
-        )}
-      </ThemedView>
+    <ThemedView style={tw`gap-4 bg-transparent`}>
+      <InventorySectionHeader
+        title={t("detail.linkedProducts")}
+        count={lines.length}
+        right={
+          onAddPress ? (
+            <IconButton
+              icon="plus"
+              variant="surface"
+              size={20}
+              onPress={onAddPress}
+              accessibilityLabel={t("detail.linkToProduct")}
+            />
+          ) : undefined
+        }
+      />
 
       {lines.length === 0 ? (
-        <ThemedView style={tw`bg-surface-bright rounded-3xl p-6 shadow-xs`}>
-          <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
-            {t("detail.noLinkedProducts")}
-          </ThemedText>
-        </ThemedView>
+        <ThemedText type="body2" style={tw`text-gray-500`}>
+          {t("detail.noLinkedProducts")}
+        </ThemedText>
       ) : (
         <GroupedList
           data={lines}
@@ -81,7 +81,10 @@ export default function LinkedProductsList({
                     {label || t("detail.unknownProduct")}
                   </ThemedText>
                   <ThemedText type="small" style={tw`text-gray-500`}>
-                    {t("quantityWithUnit", { quantity: line.quantity, unit })}
+                    {t("quantityWithUnit", {
+                      quantity: line.quantity,
+                      unit: t(`units.${unit}`, { count: line.quantity }),
+                    })}
                   </ThemedText>
                 </ThemedView>
                 <Icon

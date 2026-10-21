@@ -58,6 +58,14 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="restaurant/info/index"
+          options={{
+            headerShown: true,
+            title: "",
+            headerShadowVisible: false,
+          }}
+        />
+        <Stack.Screen
           name="restaurant/subscription/index"
           options={{
             headerShown: true,

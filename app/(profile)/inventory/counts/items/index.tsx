@@ -21,6 +21,9 @@ import {
   useInventoryCount,
 } from "@/presentation/inventory/hooks/useInventoryCounts";
 
+/** Chip id for the items that have no category. */
+const NO_CATEGORY = "__no_category__";
+
 /**
  * Picks the items to count. Without `countId` it starts a new count; with
  * it, the picked items are added to that count in progress.
@@ -37,7 +40,13 @@ export default function MenuInventoryCountItemsScreen() {
   const [search, setSearch] = useState("");
   const [pickedCategoryId, setCategoryId] = useState<string | null>(null);
   // No "All" chip: until the user picks one, the first category is active.
+  // Items without a category get their own chip (NO_CATEGORY) so browsing
+  // reaches them too, not only search.
   const categoryId = pickedCategoryId ?? categories[0]?.id ?? null;
+  const hasUncategorized = useMemo(
+    () => items.some((item) => item.isActive && !item.category),
+    [items],
+  );
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const alreadyInCount = useMemo(
@@ -53,7 +62,11 @@ export default function MenuInventoryCountItemsScreen() {
     return items.filter(
       (item) =>
         item.isActive &&
-        (!!term || !categoryId || item.category?.id === categoryId) &&
+        (!!term ||
+          !categoryId ||
+          (categoryId === NO_CATEGORY
+            ? !item.category
+            : item.category?.id === categoryId)) &&
         (!term || item.name.toLowerCase().includes(term)),
     );
   }, [items, search, categoryId]);
@@ -129,6 +142,13 @@ export default function MenuInventoryCountItemsScreen() {
                 onPress={() => setCategoryId(category.id)}
               />
             ))}
+            {hasUncategorized && (
+              <Chip
+                label={t("categories.uncategorized")}
+                selected={categoryId === NO_CATEGORY}
+                onPress={() => setCategoryId(NO_CATEGORY)}
+              />
+            )}
           </ScrollView>
         )}
 
@@ -193,7 +213,7 @@ export default function MenuInventoryCountItemsScreen() {
                     {t("currentStock")}:{" "}
                     {t("quantityWithUnit", {
                       quantity: item.quantity,
-                      unit: t(`units.${item.unit}`),
+                      unit: t(`units.${item.unit}`, { count: item.quantity }),
                     })}
                   </ThemedText>
                 </ThemedView>

@@ -99,7 +99,7 @@ export default function EditRestaurantScreen() {
 
     try {
       await updateMutation.mutateAsync(payload);
-      // No success toast: Manage already shows the new info.
+      // No success toast: the info screen already shows the new info.
       updateCurrentRestaurantInfo({
         ...payload,
         capacity: payload.capacity ?? undefined,

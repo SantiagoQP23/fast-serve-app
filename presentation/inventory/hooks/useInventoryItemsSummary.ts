@@ -33,6 +33,11 @@ export const useInventoryItemsSummary = (
 
   return {
     summaryQuery,
-    counts: summaryQuery.data ?? { critical: 0, low: 0, optimal: 0 },
+    counts: summaryQuery.data ?? {
+      critical: 0,
+      low: 0,
+      optimal: 0,
+      noMinimum: 0,
+    },
   };
 };

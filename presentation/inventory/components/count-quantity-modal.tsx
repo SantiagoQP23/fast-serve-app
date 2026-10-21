@@ -75,7 +75,7 @@ function CountQuantityForm({
   const systemQuantity = Math.max(item.quantity, 0);
   const [quantity, setQuantity] = useState(systemQuantity);
   const step = item.unit === InventoryUnit.UNIT ? 1 : 0.1;
-  const unit = t(`units.${item.unit}`);
+  const unitFor = (count: number) => t(`units.${item.unit}`, { count });
   const difference = Number((quantity - item.quantity).toFixed(3));
 
   return (
@@ -95,14 +95,17 @@ function CountQuantityForm({
           onChangeValue={setQuantity}
           step={step}
           min={0}
-          unit={unit}
+          unit={unitFor(quantity)}
         />
         <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
-          {t("counts.systemQuantity", { quantity: item.quantity, unit })}
+          {t("counts.systemQuantity", {
+            quantity: item.quantity,
+            unit: unitFor(item.quantity),
+          })}
           {" · "}
           {t("counts.difference", {
             difference: difference > 0 ? `+${difference}` : difference,
-            unit,
+            unit: unitFor(difference),
           })}
         </ThemedText>
       </View>

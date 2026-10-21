@@ -20,6 +20,7 @@ const QUANTITY_TEXT_COLOR: Record<InventoryStockStatus, string> = {
   critical: "text-red-600",
   low: "text-orange-600",
   optimal: "text-emerald-600",
+  noMinimum: "text-on-surface-variant",
   inactive: "text-gray-500",
 };
 
@@ -31,10 +32,10 @@ export default function InventoryItemRow({
 }: InventoryItemRowProps) {
   const { t } = useTranslation("inventory");
   const status = getInventoryStockStatus(item);
-  const quantityColor =
-    item.quantity <= 0 && status !== "inactive"
-      ? QUANTITY_TEXT_COLOR.critical
-      : QUANTITY_TEXT_COLOR[status];
+  const quantityText = t("quantityWithUnit", {
+    quantity: item.quantity,
+    unit: t(`units.${item.unit}`, { count: item.quantity }),
+  });
 
   return (
     <ThemedView
@@ -59,12 +60,14 @@ export default function InventoryItemRow({
       </ThemedText>
       <ThemedText
         type="body2"
-        style={[{ fontFamily: typography.medium }, tw`${quantityColor}`]}
+        // The color alone carries the stock status, so say it out loud too
+        accessibilityLabel={`${quantityText}, ${t(`status.${status}`)}`}
+        style={[
+          { fontFamily: typography.medium },
+          tw`${QUANTITY_TEXT_COLOR[status]}`,
+        ]}
       >
-        {t("quantityWithUnit", {
-          quantity: item.quantity,
-          unit: t(`units.${item.unit}`),
-        })}
+        {quantityText}
       </ThemedText>
     </ThemedView>
   );

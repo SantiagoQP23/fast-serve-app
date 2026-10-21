@@ -56,7 +56,7 @@ export default function LinkProductRow({
           onToggleOptions([option.id], !selectedIds.has(option.id))
         }
         style={({ pressed }) => [
-          tw`p-4 rounded-2xl bg-surface-container-low flex-row items-center gap-3`,
+          tw`p-4 rounded-md bg-surface-container-low flex-row items-center gap-3`,
           pressed && tw`opacity-80`,
         ]}
       >
@@ -80,9 +80,7 @@ export default function LinkProductRow({
   }
 
   return (
-    <ThemedView
-      style={tw`rounded-2xl bg-surface-container-low overflow-hidden`}
-    >
+    <ThemedView style={tw`rounded-md bg-surface-container-low overflow-hidden`}>
       <Pressable
         onPress={onToggleExpanded}
         accessibilityState={{ expanded }}

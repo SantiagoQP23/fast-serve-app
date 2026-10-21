@@ -57,9 +57,14 @@ export default function IconButton({
     destructive: tw.color("red-600") as string,
   };
 
+  // p-3 around the icon; grow the touch area (not the look) to Android's
+  // 48dp minimum when the icon is small.
+  const slop = Math.max(0, (48 - (size + 24)) / 2);
+
   return (
     <Pressable
       onPress={onPress}
+      hitSlop={slop}
       style={({ pressed }) => [
         tw`rounded-3xl p-3 ${pressed ? "opacity-80" : "opacity-100"} ${disabled ? "opacity-50" : ""} bg-transparent ${variantStyles[variant]} ${variants[variant]} `,
         style,

@@ -199,10 +199,7 @@ export default function InventoryItemsView({
             <ThemedText type="body1" style={tw`font-semibold`}>
               {t("categories.emptyFolder")}
             </ThemedText>
-            <ThemedText
-              type="body2"
-              style={tw`text-center text-gray-500 px-4`}
-            >
+            <ThemedText type="body2" style={tw`text-center text-gray-500 px-4`}>
               {t("categories.emptyFolderDescription")}
             </ThemedText>
           </ThemedView>
@@ -222,10 +219,7 @@ export default function InventoryItemsView({
             <ThemedText type="body1" style={tw`font-semibold`}>
               {t("noResults")}
             </ThemedText>
-            <ThemedText
-              type="body2"
-              style={tw`text-center text-gray-500 px-4`}
-            >
+            <ThemedText type="body2" style={tw`text-center text-gray-500 px-4`}>
               {t("noResultsDescription")}
             </ThemedText>
           </ThemedView>
@@ -253,7 +247,7 @@ export default function InventoryItemsView({
                   getItemClassName={(item) =>
                     isSelectionMode
                       ? selectedItemIds.has(item.id)
-                        ? "bg-blue-50"
+                        ? "bg-secondary"
                         : undefined
                       : activeId === item.id
                         ? "bg-secondary"

@@ -13,7 +13,7 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import { typography } from "@/constants/theme";
 import Label from "@/presentation/theme/components/label";
-import { isAdminLevelRole, Roles } from "@/core/auth/models/user.model";
+import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { toast } from "sonner-native";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { GroupedList } from "@/presentation/theme/components/grouped-list";
@@ -53,7 +53,6 @@ export default function ManageScreen() {
   };
 
   const isAdmin = isAdminLevelRole(user?.role?.name);
-  const isOwner = user?.role?.name === Roles.OWNER;
   const subscription = currentRestaurant?.subscription;
 
   const menuOptions: ManageOption[] = [
@@ -109,22 +108,7 @@ export default function ManageScreen() {
     // },
   ];
 
-  const subscriptionOptions: ManageOption[] = [
-    {
-      key: "subscription",
-      icon: "ribbon",
-      label: t("manage.subscription.menuItem"),
-      onPress: () => router.push("/(profile)/restaurant/subscription"),
-    },
-  ];
-
   const restaurantOptions: ManageOption[] = [
-    {
-      key: "restaurantInfo",
-      icon: "store",
-      label: t("manage.restaurantInfo"),
-      onPress: () => router.push("/(profile)/restaurant/edit"),
-    },
     {
       key: "tables",
       icon: "layout-grid",
@@ -174,7 +158,7 @@ export default function ManageScreen() {
   return (
     <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
       <ThemedView style={tw`items-center gap-2 flex-row justify-between`}>
-        <ThemedText type="h2">{t("manage.title")}</ThemedText>
+        <ThemedText type="h3">Teikio</ThemedText>
         <ThemedView style={tw`items-center gap-3 flex-row`}>
           <Avatar
             name={user?.person?.firstName}
@@ -192,73 +176,44 @@ export default function ManageScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <ThemedView style={tw`my-4`} />
 
-        {/* Subscription Banner */}
-        {subscription && (
-          <ThemedView>
-            <ThemedView style={tw`flex  items-center gap-2`}>
-              {/* <Icon */}
-              {/*   name={ */}
-              {/*     subscription.status === "ACTIVE" */}
-              {/*       ? "shield-checkmark-outline" */}
-              {/*       : subscription.status === "TRIAL" */}
-              {/*         ? "time-outline" */}
-              {/*         : "alert-circle-outline" */}
-              {/*   } */}
-              {/*   size={20} */}
-              {/*   color={ */}
-              {/*     subscription.status === "ACTIVE" */}
-              {/*       ? tw.color("green-500") */}
-              {/*       : subscription.status === "TRIAL" */}
-              {/*         ? tw.color("orange-500") */}
-              {/*         : tw.color("red-500") */}
-              {/*   } */}
-              {/* /> */}
-              <ThemedText type="h1">{currentRestaurant?.name}</ThemedText>
-              {currentRestaurant?.parentRestaurant && (
-                <ThemedText type="body2" style={tw`text-gray-500`}>
-                  {t("createBranch.branchOf", {
-                    name: currentRestaurant.parentRestaurant.name,
-                  })}
-                </ThemedText>
-              )}
-              <ThemedView style={tw`flex-row items-center gap-2`}>
-                <ThemedText
-                  type="body2"
-                  style={[{ fontFamily: typography.medium }]}
-                >
-                  Plan: {subscription.plan?.name}
-                </ThemedText>
-                {subscription.plan && (
-                  <Label
-                    text={t(
-                      `manage.subscription.${subscription.status.toLowerCase()}`,
-                    )}
-                    color="default"
-                    size="small"
-                  />
-                )}
-              </ThemedView>
-            </ThemedView>
-            {subscription.status === "TRIAL" && subscription.trialEndsAt && (
+        {/* Restaurant summary */}
+        <ThemedView style={tw` gap-2`}>
+          <ThemedText type="h1">{currentRestaurant?.name}</ThemedText>
+          {currentRestaurant?.parentRestaurant && (
+            <ThemedText type="body2" style={tw`text-gray-500`}>
+              {t("createBranch.branchOf", {
+                name: currentRestaurant.parentRestaurant.name,
+              })}
+            </ThemedText>
+          )}
+          {subscription?.plan && (
+            <ThemedView style={tw`flex-row items-center gap-2`}>
               <ThemedText
-                type="small"
-                style={tw`text-gray-500 self-center mt-1`}
+                type="body2"
+                style={[{ fontFamily: typography.medium }]}
               >
-                {t("manage.subscription.trialEnds", {
-                  date: new Date(subscription.trialEndsAt).toLocaleDateString(),
-                })}
+                {t("manage.subscription.plan")}: {subscription.plan.name}
               </ThemedText>
-            )}
-          </ThemedView>
-        )}
-        <Button
-          label={t("manage.manageOtherRestaurant")}
-          onPress={() => router.push("/(profile)/restaurant/list")}
-          variant="text"
-          leftIcon="store"
-          style={tw`mt-4`}
-          size="small"
-        />
+              <Label
+                text={t(
+                  `manage.subscription.${subscription.status.toLowerCase()}`,
+                )}
+                color="default"
+                size="small"
+              />
+            </ThemedView>
+          )}
+        </ThemedView>
+        <ThemedView style={tw`flex-row mb-8`}>
+          <Button
+            label={t("manage.restaurantInfo")}
+            onPress={() => router.push("/(profile)/restaurant/info")}
+            variant="outline"
+            leftIcon="store"
+            size="extra-small"
+            style={tw`mt-4`}
+          />
+        </ThemedView>
 
         <ThemedView style={tw`my-6 gap-6`}>
           {/* Menu */}
@@ -273,21 +228,6 @@ export default function ManageScreen() {
               renderItem={renderManageOption}
             />
           </ThemedView>
-
-          {/* Subscription (owner only) */}
-          {isOwner && (
-            <ThemedView style={tw`gap-2`}>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {t("manage.subscription.title")}
-              </ThemedText>
-              <GroupedList
-                data={subscriptionOptions}
-                keyExtractor={(option) => option.key}
-                onItemPress={(option) => option.onPress()}
-                renderItem={renderManageOption}
-              />
-            </ThemedView>
-          )}
 
           {/* Restaurant */}
           <ThemedView style={tw`gap-2`}>

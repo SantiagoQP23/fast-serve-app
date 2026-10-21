@@ -28,7 +28,6 @@ export default function CountLineCard({
   active,
 }: CountLineCardProps) {
   const { t } = useTranslation("inventory");
-  const unit = t(`units.${line.inventoryItem.unit}`);
   const difference = line.difference ?? 0;
   const answered = isCountItemAnswered(line);
   // Matching lines are just the name; the quantities only matter when off.
@@ -44,7 +43,7 @@ export default function CountLineCard({
       // highlight and the press area get room around it.
       style={({ pressed }) =>
         tw.style(
-          "flex-row gap-4 -mx-3 px-3 py-2 rounded-2xl",
+          "flex-row gap-4 -mx-3 px-3 py-2 rounded-md",
           active && "bg-secondary",
           pressed && "opacity-70",
         )
@@ -61,7 +60,9 @@ export default function CountLineCard({
               {t("counts.lineQuantities", {
                 expected: line.expectedQuantity,
                 counted: line.countedQuantity,
-                unit,
+                unit: t(`units.${line.inventoryItem.unit}`, {
+                  count: line.countedQuantity ?? 0,
+                }),
               })}
               <ThemedText
                 type="body2"

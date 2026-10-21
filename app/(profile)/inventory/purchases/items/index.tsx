@@ -25,6 +25,9 @@ import type { InventoryItem } from "@/core/inventory/models/inventory-item.model
 import PurchaseCartPanel from "@/presentation/inventory/components/purchase-cart-panel";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 
+/** Chip id for the items that have no category. */
+const NO_CATEGORY = "__no_category__";
+
 const ITEM_MIN_WIDTH = 260;
 const ITEM_GAP = 12;
 const CART_PANEL_WIDTH = 400;
@@ -38,7 +41,13 @@ export default function MenuInventoryPurchaseItemsScreen() {
   const [search, setSearch] = useState("");
   const [pickedCategoryId, setCategoryId] = useState<string | null>(null);
   // No "All" chip: until the user picks one, the first category is active.
+  // Items without a category get their own chip (NO_CATEGORY) so browsing
+  // reaches them too, not only search.
   const categoryId = pickedCategoryId ?? categories[0]?.id ?? null;
+  const hasUncategorized = useMemo(
+    () => items.some((item) => item.isActive && !item.category),
+    [items],
+  );
   const [target, setTarget] = useState<PurchaseQuantityTarget | null>(null);
 
   // Tablet landscape: the cart lives in a side pane next to the picker, and
@@ -64,7 +73,11 @@ export default function MenuInventoryPurchaseItemsScreen() {
     return items.filter(
       (item) =>
         item.isActive &&
-        (!!term || !categoryId || item.category?.id === categoryId) &&
+        (!!term ||
+          !categoryId ||
+          (categoryId === NO_CATEGORY
+            ? !item.category
+            : item.category?.id === categoryId)) &&
         (!term || item.name.toLowerCase().includes(term)),
     );
   }, [items, search, categoryId]);
@@ -92,7 +105,13 @@ export default function MenuInventoryPurchaseItemsScreen() {
           right={
             isExpanded ? undefined : (
               <ThemedView style={tw`relative bg-transparent`}>
-                <IconButton icon="shopping-cart" onPress={openCart} />
+                <IconButton
+                  icon="shopping-cart"
+                  onPress={openCart}
+                  accessibilityLabel={t("purchases.viewSummary", {
+                    count: lines.length,
+                  })}
+                />
                 {lines.length > 0 && <NotificationBadge value={lines.length} />}
               </ThemedView>
             )
@@ -121,6 +140,13 @@ export default function MenuInventoryPurchaseItemsScreen() {
                 onPress={() => setCategoryId(category.id)}
               />
             ))}
+            {hasUncategorized && (
+              <Chip
+                label={t("categories.uncategorized")}
+                selected={categoryId === NO_CATEGORY}
+                onPress={() => setCategoryId(NO_CATEGORY)}
+              />
+            )}
           </ScrollView>
         )}
 
@@ -158,7 +184,6 @@ export default function MenuInventoryPurchaseItemsScreen() {
 
         {visibleItems.map((item) => {
           const quantity = quantities.get(item.id);
-          const unit = t(`units.${item.unit}`);
           return (
             <ThemedView
               key={item.id}
@@ -178,12 +203,18 @@ export default function MenuInventoryPurchaseItemsScreen() {
                     </ThemedText>
                     <ThemedText type="small" style={tw`text-gray-500`}>
                       {t("currentStock")}:{" "}
-                      {t("quantityWithUnit", { quantity: item.quantity, unit })}
+                      {t("quantityWithUnit", {
+                        quantity: item.quantity,
+                        unit: t(`units.${item.unit}`, { count: item.quantity }),
+                      })}
                     </ThemedText>
                   </ThemedView>
                   {quantity ? (
                     <Label
-                      text={`+${t("quantityWithUnit", { quantity, unit })}`}
+                      text={`+${t("quantityWithUnit", {
+                        quantity,
+                        unit: t(`units.${item.unit}`, { count: quantity }),
+                      })}`}
                       color="success"
                       size="small"
                     />

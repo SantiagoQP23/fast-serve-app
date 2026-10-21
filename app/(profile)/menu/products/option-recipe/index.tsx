@@ -302,7 +302,9 @@ export default function MenuProductOptionRecipeScreen() {
                   name={getDraftLineName(line)}
                   quantity={t("quantityWithUnit", {
                     quantity: line.quantity,
-                    unit: t(`units.${getDraftLineUnit(line)}`),
+                    unit: t(`units.${getDraftLineUnit(line)}`, {
+                      count: line.quantity,
+                    }),
                   })}
                   onPress={canManage ? () => setLineToEdit(line) : undefined}
                 />

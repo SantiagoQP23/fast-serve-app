@@ -66,7 +66,9 @@ export default function MenuInventoryCountRunScreen() {
   const activeId = currentId ?? startLine?.id ?? null;
   const currentIndex = lines.findIndex((line) => line.id === activeId);
   const current = currentIndex >= 0 ? lines[currentIndex] : null;
-  const doneCount = lines.filter((line) => !isPending(line)).length;
+  // Answers only — a skipped line still needs one. Matches the history
+  // card, the count detail and the finish confirmation.
+  const doneCount = lines.filter(isCountItemAnswered).length;
 
   const openSummary = () =>
     router.replace({
@@ -125,7 +127,8 @@ export default function MenuInventoryCountRunScreen() {
     ? answerItem.variables?.answer
     : undefined;
   const item = current?.inventoryItem;
-  const unit = item ? t(`units.${item.unit}`) : "";
+  const unitFor = (quantity: number) =>
+    item ? t(`units.${item.unit}`, { count: quantity }) : "";
   const answered = current ? isCountItemAnswered(current) : false;
 
   const progress = lines.length > 0 && (
@@ -156,8 +159,16 @@ export default function MenuInventoryCountRunScreen() {
           right={
             isExpanded ? undefined : (
               <ThemedView style={tw`flex-row gap-1 bg-transparent`}>
-                <IconButton icon="plus" onPress={addProducts} />
-                <IconButton icon="list" onPress={openSummary} />
+                <IconButton
+                  icon="plus"
+                  onPress={addProducts}
+                  accessibilityLabel={t("counts.addProducts")}
+                />
+                <IconButton
+                  icon="list"
+                  onPress={openSummary}
+                  accessibilityLabel={t("counts.viewSummary")}
+                />
               </ThemedView>
             )
           }
@@ -194,11 +205,7 @@ export default function MenuInventoryCountRunScreen() {
           <>
             <Card style={tw`p-6`}>
               <ThemedView style={tw`gap-3 items-center bg-transparent`}>
-                <Icon
-                  name="package"
-                  size={40}
-                  color={tw.color("gray-400")}
-                />
+                <Icon name="package" size={40} color={tw.color("gray-400")} />
                 <ThemedText
                   type="h2"
                   style={[{ fontFamily: typography.medium }, tw`text-center`]}
@@ -212,7 +219,10 @@ export default function MenuInventoryCountRunScreen() {
                   {t("counts.systemSays")}
                 </ThemedText>
                 <ThemedText type="h1" style={{ fontFamily: typography.medium }}>
-                  {t("quantityWithUnit", { quantity: item.quantity, unit })}
+                  {t("quantityWithUnit", {
+                    quantity: item.quantity,
+                    unit: unitFor(item.quantity),
+                  })}
                 </ThemedText>
                 {answered && (
                   <Label
@@ -221,7 +231,7 @@ export default function MenuInventoryCountRunScreen() {
                         ? t("counts.status.MATCHED")
                         : t("counts.adjustedBy", {
                             difference: formatDifference(current.difference),
-                            unit,
+                            unit: unitFor(current.difference ?? 0),
                           })
                     }
                     color={

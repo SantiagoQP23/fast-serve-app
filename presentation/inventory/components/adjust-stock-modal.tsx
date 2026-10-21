@@ -110,13 +110,15 @@ function AdjustStockForm({ item, mode, onClose }: AdjustStockFormProps) {
           step={step}
           min={0}
           max={isDecrease ? Math.max(item.quantity, 0) : undefined}
-          unit={t(`units.${item.unit}`)}
+          unit={t(`units.${item.unit}`, { count: value })}
         />
         <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
           {t(isDecrease ? "currentStock" : "newStock")}:{" "}
           {t("quantityWithUnit", {
             quantity: isDecrease ? item.quantity : newQuantity,
-            unit: t(`units.${item.unit}`),
+            unit: t(`units.${item.unit}`, {
+              count: isDecrease ? item.quantity : newQuantity,
+            }),
           })}
         </ThemedText>
       </View>

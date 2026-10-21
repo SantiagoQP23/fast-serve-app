@@ -45,7 +45,10 @@ export default function InventoryCardLines({
   const formatQuantity = (quantity: number, unit: InventoryUnit) =>
     unit === InventoryUnit.UNIT
       ? `${quantity}×`
-      : t("quantityWithUnit", { quantity, unit: t(`units.${unit}`) });
+      : t("quantityWithUnit", {
+          quantity,
+          unit: t(`units.${unit}`, { count: quantity }),
+        });
 
   return (
     <ThemedView style={tw`gap-2 bg-transparent`}>

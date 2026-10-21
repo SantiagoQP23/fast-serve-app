@@ -82,7 +82,7 @@ function PurchaseQuantityForm({
   const { item, baseStock } = target;
   const [quantity, setQuantity] = useState(target.quantity);
   const step = item.unit === InventoryUnit.UNIT ? 1 : 0.1;
-  const unit = t(`units.${item.unit}`);
+  const unitFor = (count: number) => t(`units.${item.unit}`, { count });
   const newStock = Number((baseStock + quantity).toFixed(3));
 
   return (
@@ -102,13 +102,13 @@ function PurchaseQuantityForm({
           onChangeValue={setQuantity}
           step={step}
           min={0}
-          unit={unit}
+          unit={unitFor(quantity)}
         />
         <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
           {t("purchases.stockChange", {
             before: Number(baseStock.toFixed(3)),
             after: newStock,
-            unit,
+            unit: unitFor(newStock),
           })}
         </ThemedText>
       </View>

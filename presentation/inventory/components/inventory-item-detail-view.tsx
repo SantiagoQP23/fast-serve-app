@@ -1,12 +1,11 @@
 import { useCallback, useRef, useState } from "react";
-import { ScrollView, Pressable, RefreshControl, View } from "react-native";
+import { ScrollView, RefreshControl } from "react-native";
 import { router } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 import { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { canManageInventory } from "@/core/auth/models/user.model";
@@ -22,6 +21,8 @@ import AdjustStockModal from "@/presentation/inventory/components/adjust-stock-m
 import InventoryDetailSummaryCard from "@/presentation/inventory/components/inventory-detail-summary-card";
 import InventoryMovementHistory from "@/presentation/inventory/components/inventory-movement-history";
 import LinkedProductsList from "@/presentation/inventory/components/linked-products-list";
+import InventoryScreenHeader from "@/presentation/inventory/components/screen-header";
+import IconButton from "@/presentation/theme/components/icon-button";
 
 interface InventoryItemDetailViewProps {
   itemId: string;
@@ -113,48 +114,27 @@ export default function InventoryItemDetailView({
 
   return (
     <Container style={tw`flex-1 bg-background`}>
-      <ThemedView
-        style={tw`items-center gap-2 flex-row justify-between px-4 pt-8 pb-2 bg-transparent`}
-      >
-        <ThemedView
-          style={tw`items-center gap-4 flex-row flex-1 bg-transparent`}
-        >
-          <Pressable
-            onPress={close}
-            accessibilityRole="button"
-            accessibilityLabel={
-              embedded ? t("common:actions.close") : t("common:actions.goBack")
-            }
-            style={({ pressed }) => tw.style(pressed && "opacity-70")}
-          >
-            <Icon
-              name={embedded ? "x" : "arrow-left"} color={tw.color("on-surface")}
-              size={24}
-            />
-          </Pressable>
-          <ThemedText
-            type="h3"
-            style={{ fontFamily: typography.regular, flex: 1 }}
-            numberOfLines={1}
-          >
-            {t("detail.title")}
-          </ThemedText>
-        </ThemedView>
-        {canManage && item && (
-          <Pressable
-            onPress={() => optionsSheetRef.current?.present()}
-            style={({ pressed }) => tw.style(pressed && "opacity-70")}
-            accessibilityLabel={t("options")}
-            accessibilityRole="button"
-          >
-            <Icon name="ellipsis-vertical" color={tw.color("on-surface")} size={22} />
-          </Pressable>
-        )}
+      <ThemedView style={tw`px-4 pt-8 bg-transparent`}>
+        {/* The item's name leads the content, so the header stays bare */}
+        <InventoryScreenHeader
+          onBack={close}
+          backIcon={embedded ? "x" : "arrow-left"}
+          right={
+            canManage && item ? (
+              <IconButton
+                icon="ellipsis-vertical"
+                onPress={() => optionsSheetRef.current?.present()}
+                accessibilityLabel={t("options")}
+                style={tw`-mr-3`}
+              />
+            ) : undefined
+          }
+        />
       </ThemedView>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`px-4 gap-4 pt-2 pb-28`}
+        contentContainerStyle={tw`px-4 gap-8 pt-6 pb-10`}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -192,14 +172,11 @@ export default function InventoryItemDetailView({
 
             <LinkedProductsList
               lines={item.productOptions ?? []}
-              unit={t(`units.${item.unit}`)}
+              unit={item.unit}
               onAddPress={canManage ? handleLinkToProduct : undefined}
             />
 
-            <InventoryMovementHistory
-              movements={movements}
-              unit={t(`units.${item.unit}`)}
-            />
+            <InventoryMovementHistory movements={movements} unit={item.unit} />
             {movementsQuery.isError && (
               <ThemedText type="small" style={tw`text-red-500 text-center`}>
                 {t("detail.movementsLoadError")}
@@ -209,28 +186,26 @@ export default function InventoryItemDetailView({
         )}
       </ScrollView>
 
-      {/* Floating Actions — stock movements are open to every role */}
+      {/* Pinned like the count detail's footer — stock movements are open
+          to every role */}
       {item && (
-        <View style={tw`absolute bottom-6 left-4 right-4`}>
-          <ThemedView
-            style={tw`flex-row gap-3 bg-surface rounded-3xl p-2 shadow-sm`}
-          >
-            <Button
-              label={t("decrease")}
-              leftIcon="minus"
-              variant="surface"
-              onPress={() => setAdjustMode("decrease")}
-              style={tw`flex-1`}
-            />
-            <Button
-              label={t("restock")}
-              leftIcon="plus"
-              variant="primary"
-              onPress={() => setAdjustMode("restock")}
-              style={tw`flex-1`}
-            />
-          </ThemedView>
-        </View>
+        <ThemedView
+          style={tw`flex-row items-center gap-3 px-4 py-4 border-t border-border bg-background`}
+        >
+          <Button
+            label={t("decrease")}
+            leftIcon="minus"
+            variant="outline"
+            onPress={() => setAdjustMode("decrease")}
+            style={tw`flex-1`}
+          />
+          <Button
+            label={t("restock")}
+            leftIcon="plus"
+            onPress={() => setAdjustMode("restock")}
+            style={tw`flex-1`}
+          />
+        </ThemedView>
       )}
 
       <AdjustStockModal

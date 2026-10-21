@@ -144,7 +144,7 @@ function EditQuantityForm({
           onChangeValue={setValue}
           step={step}
           min={0}
-          unit={unit ? t(`units.${unit}`) : undefined}
+          unit={unit ? t(`units.${unit}`, { count: value }) : undefined}
           size="medium"
         />
       </View>
@@ -353,7 +353,11 @@ function AddIngredientForm({
           onChangeValue={setQuantity}
           step={quantityStep}
           min={0}
-          unit={activeUnit ? t(`units.${activeUnit}`) : undefined}
+          unit={
+            activeUnit
+              ? t(`units.${activeUnit}`, { count: quantity })
+              : undefined
+          }
           size="medium"
         />
       </View>

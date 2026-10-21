@@ -45,9 +45,13 @@ export default function MenuInventorySearchScreen() {
     });
   };
 
+  // From a search with no match, the form starts with what was typed
   const handleCreateItem = () => {
     addSheetRef.current?.dismiss();
-    router.push({ pathname: "/(profile)/inventory/items/form" });
+    router.push({
+      pathname: "/(profile)/inventory/items/form",
+      params: search.trim() ? { name: search.trim() } : {},
+    });
   };
 
   return (
@@ -55,6 +59,7 @@ export default function MenuInventorySearchScreen() {
       <ThemedView style={tw`items-center gap-3 flex-row mb-6`}>
         <Pressable
           onPress={() => router.back()}
+          hitSlop={12}
           accessibilityRole="button"
           accessibilityLabel={t("common:actions.goBack")}
           style={({ pressed }) => tw.style(pressed && "opacity-70")}
@@ -66,7 +71,7 @@ export default function MenuInventorySearchScreen() {
           style={{ fontFamily: typography.medium, flex: 1 }}
           numberOfLines={1}
         >
-          {t("title")}
+          {t("searchTitle")}
         </ThemedText>
       </ThemedView>
 

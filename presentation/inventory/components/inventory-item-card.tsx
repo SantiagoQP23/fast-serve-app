@@ -58,6 +58,12 @@ export const INVENTORY_STATUS_STYLES: Record<
     badgeBg: "bg-emerald-100",
     badgeText: "text-emerald-800",
   },
+  noMinimum: {
+    icon: "circle-dashed",
+    color: "gray-400",
+    badgeBg: "bg-gray-100",
+    badgeText: "text-gray-600",
+  },
   inactive: {
     icon: "archive",
     color: "gray-400",
@@ -71,6 +77,7 @@ const QUANTITY_LABEL_COLOR: Record<InventoryStockStatus, LabelProps["color"]> =
     critical: "error",
     low: "warning",
     optimal: "success",
+    noMinimum: "default",
     inactive: "default",
   };
 
@@ -90,8 +97,7 @@ export default function InventoryItemCard({
   const isInactive = status === "inactive";
   const showStockBar =
     !isInactive && !!item.minimumQuantity && item.minimumQuantity > 0;
-  const quantityLabelColor: LabelProps["color"] =
-    item.quantity <= 0 ? "error" : QUANTITY_LABEL_COLOR[status];
+  const quantityLabelColor = QUANTITY_LABEL_COLOR[status];
 
   return (
     <Card
@@ -121,7 +127,7 @@ export default function InventoryItemCard({
           <Label
             text={t("quantityWithUnit", {
               quantity: item.quantity,
-              unit: t(`units.${item.unit}`),
+              unit: t(`units.${item.unit}`, { count: item.quantity }),
             })}
             color={quantityLabelColor}
           />

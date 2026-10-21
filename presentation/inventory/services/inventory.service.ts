@@ -17,6 +17,8 @@ export interface InventoryStockSummaryCounts {
   critical: number;
   low: number;
   optimal: number;
+  /** In stock with no minimum set — outside the three health buckets. */
+  noMinimum?: number;
 }
 
 export class InventoryService {

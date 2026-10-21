@@ -28,7 +28,7 @@ export default function PurchaseLineCard({
   onRemove,
 }: PurchaseLineCardProps) {
   const { t } = useTranslation("inventory");
-  const unit = t(`units.${item.unit}`);
+  const unitFor = (count: number) => t(`units.${item.unit}`, { count });
 
   return (
     <Swipeable
@@ -60,13 +60,13 @@ export default function PurchaseLineCard({
               {t("purchases.stockChange", {
                 before: Number(stockPreview.before.toFixed(3)),
                 after: Number(stockPreview.after.toFixed(3)),
-                unit,
+                unit: unitFor(stockPreview.after),
               })}
             </ThemedText>
           )}
         </ThemedView>
         <ThemedText type="body1">
-          {`+${t("quantityWithUnit", { quantity, unit })}`}
+          {`+${t("quantityWithUnit", { quantity, unit: unitFor(quantity) })}`}
         </ThemedText>
       </Pressable>
     </Swipeable>

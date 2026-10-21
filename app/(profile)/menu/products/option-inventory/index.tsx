@@ -80,7 +80,7 @@ export default function MenuProductOptionInventoryScreen() {
   const formatLineQuantity = (quantity: number, unit?: InventoryUnit): string =>
     t("quantityWithUnit", {
       quantity,
-      unit: unit ? t(`units.${unit}`) : "",
+      unit: unit ? t(`units.${unit}`, { count: quantity }) : "",
     });
 
   return (

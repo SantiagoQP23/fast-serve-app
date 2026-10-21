@@ -202,6 +202,9 @@ function TextInput(
             defaultValue={defaultValue}
             placeholder={!label || isFocused ? placeholder : undefined}
             placeholderTextColor={tw.color("on-surface-variant")}
+            // Ink caret and selection instead of the platform's teal
+            cursorColor={tw.color("primary")}
+            selectionColor={tw.color("primary")}
             editable={editable}
             onFocus={handleFocus as (e: any) => void}
             onBlur={handleBlur as (e: any) => void}

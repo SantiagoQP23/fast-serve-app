@@ -12,6 +12,7 @@ import Button from "@/presentation/theme/components/button";
 import Chip from "@/presentation/theme/components/chip";
 import IconButton from "@/presentation/theme/components/icon-button";
 import InventoryScreenHeader from "@/presentation/inventory/components/screen-header";
+import InventorySectionHeader from "@/presentation/inventory/components/inventory-section-header";
 import { useShoppingList } from "@/presentation/inventory/hooks/useShoppingList";
 import { usePurchaseCartStore } from "@/presentation/inventory/store/purchaseCartStore";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
@@ -25,32 +26,30 @@ const formatQuantity = (quantity: number) => Number(quantity.toFixed(3));
 
 export default function InventoryShoppingListScreen() {
   const { t } = useTranslation("inventory");
-  const { lowItems, itemsQuery } = useShoppingList();
+  const { lowItems, outWithoutMinimum, itemsQuery } = useShoppingList();
   const currentRestaurant = useAuthStore((state) => state.currentRestaurant);
   const [categoryId, setCategoryId] = useState<string | null>(null);
 
   const categories = useMemo(() => {
     const byId = new Map<string, string>();
-    for (const item of lowItems) {
+    for (const item of [...lowItems, ...outWithoutMinimum]) {
       if (item.category) byId.set(item.category.id, item.category.name);
     }
     return [...byId.entries()]
       .map(([id, name]) => ({ id, name }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [lowItems]);
+  }, [lowItems, outWithoutMinimum]);
 
-  const visibleItems = useMemo(
-    () =>
-      categoryId
-        ? lowItems.filter((item) => item.category?.id === categoryId)
-        : lowItems,
-    [lowItems, categoryId],
-  );
+  const inCategory = (item: InventoryItem) =>
+    !categoryId || item.category?.id === categoryId;
+  const visibleItems = lowItems.filter(inCategory);
+  const visibleOutWithoutMinimum = outWithoutMinimum.filter(inCategory);
+  const isEmpty = lowItems.length === 0 && outWithoutMinimum.length === 0;
 
   const withUnit = (item: InventoryItem, quantity: number) =>
     t("quantityWithUnit", {
       quantity: formatQuantity(quantity),
-      unit: t(`units.${item.unit}`),
+      unit: t(`units.${item.unit}`, { count: quantity }),
     });
 
   const openItem = (item: InventoryItem) =>
@@ -146,7 +145,7 @@ export default function InventoryShoppingListScreen() {
           </ThemedText>
         )}
 
-        {itemsQuery.isError && lowItems.length === 0 && (
+        {itemsQuery.isError && isEmpty && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
             <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
             <ThemedText type="body1" style={tw`text-red-500`}>
@@ -160,26 +159,21 @@ export default function InventoryShoppingListScreen() {
           </ThemedView>
         )}
 
-        {!itemsQuery.isLoading &&
-          !itemsQuery.isError &&
-          lowItems.length === 0 && (
-            <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Icon
-                name="circle-check"
-                size={48}
-                color={tw.color("emerald-500")}
-              />
-              <ThemedText type="body1" style={tw`font-semibold`}>
-                {t("shoppingList.empty")}
-              </ThemedText>
-              <ThemedText
-                type="body2"
-                style={tw`text-center text-gray-500 px-4`}
-              >
-                {t("shoppingList.emptyDescription")}
-              </ThemedText>
-            </ThemedView>
-          )}
+        {!itemsQuery.isLoading && !itemsQuery.isError && isEmpty && (
+          <ThemedView style={tw`items-center py-8 gap-3`}>
+            <Icon
+              name="circle-check"
+              size={48}
+              color={tw.color("emerald-500")}
+            />
+            <ThemedText type="body1" style={tw`font-semibold`}>
+              {t("shoppingList.empty")}
+            </ThemedText>
+            <ThemedText type="body2" style={tw`text-center text-gray-500 px-4`}>
+              {t("shoppingList.emptyDescription")}
+            </ThemedText>
+          </ThemedView>
+        )}
 
         {visibleItems.map((item) => (
           <Pressable
@@ -190,7 +184,7 @@ export default function InventoryShoppingListScreen() {
             // area gets room around it.
             style={({ pressed }) =>
               tw.style(
-                "flex-row items-start gap-4 -mx-3 px-3 py-2 rounded-2xl",
+                "flex-row items-start gap-4 -mx-3 px-3 py-2 rounded-md",
                 pressed && "opacity-70",
               )
             }
@@ -206,11 +200,62 @@ export default function InventoryShoppingListScreen() {
                 })}
               </ThemedText>
             </ThemedView>
-            <ThemedText type="body1">
-              {withUnit(item, getSuggestedPurchaseQuantity(item))}
-            </ThemedText>
+            <ThemedView style={tw`items-end gap-1 bg-transparent`}>
+              <ThemedText type="small" style={tw`text-gray-500`}>
+                {t("shoppingList.toBuy")}
+              </ThemedText>
+              <ThemedText type="body1">
+                {withUnit(item, getSuggestedPurchaseQuantity(item))}
+              </ThemedText>
+            </ThemedView>
           </Pressable>
         ))}
+
+        {visibleOutWithoutMinimum.length > 0 && (
+          <ThemedView
+            style={tw.style(
+              "gap-1 bg-transparent",
+              visibleItems.length > 0 && "pt-6",
+            )}
+          >
+            <ThemedView style={tw`pb-2 bg-transparent`}>
+              <InventorySectionHeader
+                title={t("shoppingList.outWithoutMinimum")}
+                count={visibleOutWithoutMinimum.length}
+                hint={t("shoppingList.outWithoutMinimumHint")}
+              />
+            </ThemedView>
+            {visibleOutWithoutMinimum.map((item) => (
+              <Pressable
+                key={item.id}
+                onPress={() => openItem(item)}
+                accessibilityRole="button"
+                style={({ pressed }) =>
+                  tw.style(
+                    "flex-row items-center gap-4 -mx-3 px-3 py-2 rounded-md",
+                    pressed && "opacity-70",
+                  )
+                }
+              >
+                <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+                  <ThemedText type="body1" numberOfLines={2}>
+                    {item.name}
+                  </ThemedText>
+                  <ThemedText type="body2" style={tw`text-red-600`}>
+                    {t("shoppingList.remaining", {
+                      stock: withUnit(item, item.quantity),
+                    })}
+                  </ThemedText>
+                </ThemedView>
+                <Icon
+                  name="chevron-right"
+                  size={20}
+                  color={tw.color("gray-400")}
+                />
+              </Pressable>
+            ))}
+          </ThemedView>
+        )}
       </ScrollView>
 
       {visibleItems.length > 0 && (

@@ -15,7 +15,6 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { canManageInventory } from "@/core/auth/models/user.model";
 import Button from "@/presentation/theme/components/button";
 import IconButton from "@/presentation/theme/components/icon-button";
-import Card from "@/presentation/theme/components/card";
 import FloatingToolbar, {
   ToolbarItem,
 } from "@/presentation/theme/components/floating-toolbar";
@@ -174,12 +173,10 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   };
 
   const handleNewCount = () => {
-    addSheetRef.current?.dismiss();
     router.push({ pathname: "/(profile)/inventory/counts/items" });
   };
 
   const handleRegisterPurchase = () => {
-    addSheetRef.current?.dismiss();
     router.push({ pathname: "/(profile)/inventory/purchases/items" });
   };
 
@@ -255,6 +252,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
           {onBack && (
             <Pressable
               onPress={onBack}
+              hitSlop={12}
               accessibilityRole="button"
               accessibilityLabel={t("common:actions.goBack")}
               style={({ pressed }) => tw.style(pressed && "opacity-70")}
@@ -276,6 +274,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
           {activeTab === "inventory" && (
             <Pressable
               onPress={handleOpenSearch}
+              hitSlop={13}
               style={({ pressed }) => tw.style(pressed && "opacity-70")}
               accessibilityLabel={t("searchPlaceholder")}
               accessibilityRole="button"
@@ -370,7 +369,6 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                     icon="folder-cog"
                     size={18}
                     variant="surface"
-                    style={tw`p-2`}
                     onPress={handleManageCategories}
                     accessibilityLabel={t("categories.manageCategories")}
                   />
@@ -480,57 +478,6 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
             onTrackMenuProduct={handleTrackMenuProduct}
             onCreateItem={handleCreateItem}
           />
-
-          <ThemedView style={tw`gap-3 mt-6`}>
-            <ThemedText type="caption" style={tw`text-gray-500 font-semibold`}>
-              {t("inventoryControl")}
-            </ThemedText>
-            <Card onPress={handleRegisterPurchase}>
-              <ThemedView
-                style={tw`flex-row items-center gap-3 bg-transparent`}
-              >
-                <Icon
-                  name="shopping-cart"
-                  size={26}
-                  color={tw.color("text-on-surface-variant")}
-                />
-                <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-                  <ThemedText
-                    type="body1"
-                    style={{ fontFamily: typography.medium }}
-                  >
-                    {t("purchases.register")}
-                  </ThemedText>
-                  <ThemedText type="small" style={tw`text-gray-500`}>
-                    {t("purchases.registerDescription")}
-                  </ThemedText>
-                </ThemedView>
-              </ThemedView>
-            </Card>
-
-            <Card onPress={handleNewCount}>
-              <ThemedView
-                style={tw`flex-row items-center gap-3 bg-transparent`}
-              >
-                <Icon
-                  name="clipboard"
-                  size={26}
-                  color={tw.color("text-on-surface-variant")}
-                />
-                <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-                  <ThemedText
-                    type="body1"
-                    style={{ fontFamily: typography.medium }}
-                  >
-                    {t("counts.new")}
-                  </ThemedText>
-                  <ThemedText type="small" style={tw`text-gray-500`}>
-                    {t("counts.newDescription")}
-                  </ThemedText>
-                </ThemedView>
-              </ThemedView>
-            </Card>
-          </ThemedView>
         </BottomSheetView>
       </ThemedBottomSheetModal>
     </>

@@ -22,6 +22,7 @@ import {
   InventoryCountItemStatus,
   InventoryCountStatus,
   getCountUserName,
+  isCountItemAnswered,
   type InventoryCountItem,
 } from "@/core/inventory/models/inventory-count.model";
 
@@ -54,6 +55,9 @@ export default function InventoryCountDetailView({
     (line) => line.status !== InventoryCountItemStatus.PENDING,
   );
   const hasPending = toCount.length > 0;
+  // Progress counts answers only — skipped lines still need one, matching
+  // the count card's pendingCount and the finish confirmation.
+  const answeredCount = lines.filter(isCountItemAnswered).length;
   const adjustedCount = lines.filter(
     (line) => line.status === InventoryCountItemStatus.ADJUSTED,
   ).length;
@@ -192,7 +196,7 @@ export default function InventoryCountDetailView({
                 >
                   <ThemedView style={tw`flex-1 bg-transparent`}>
                     <ProgressBar
-                      progress={reviewed.length / lines.length}
+                      progress={answeredCount / lines.length}
                       height={1.5}
                     />
                   </ThemedView>
@@ -203,7 +207,7 @@ export default function InventoryCountDetailView({
                       { fontVariant: ["tabular-nums"] },
                     ]}
                   >
-                    {reviewed.length}/{lines.length}
+                    {answeredCount}/{lines.length}
                   </ThemedText>
                 </ThemedView>
               )}

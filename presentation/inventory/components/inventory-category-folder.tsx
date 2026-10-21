@@ -39,7 +39,14 @@ export default function InventoryCategoryFolder({
     <Card
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${name}, ${t("categories.itemCount", { count: itemCount })}`}
+      // The dot is color only; say the worst status out loud too
+      accessibilityLabel={[
+        name,
+        t("categories.itemCount", { count: itemCount }),
+        health ? t(`summary.${health}`) : null,
+      ]
+        .filter(Boolean)
+        .join(", ")}
       style={tw`p-4 gap-3`}
       variant="outline"
     >
