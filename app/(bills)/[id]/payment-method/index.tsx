@@ -557,7 +557,7 @@ export default function PaymentMethodScreen() {
             onChangeText={setPayAmount}
             placeholder="0.00"
             style={tw`text-5xl text-center`}
-            containerStyle={tw`w-full bg-transparent`}
+            containerStyle={tw`w-full bg-transparent border-0`}
           />
         </ThemedView>
 

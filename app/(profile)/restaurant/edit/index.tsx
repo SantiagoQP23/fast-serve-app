@@ -1,5 +1,5 @@
 import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,6 +34,8 @@ export default function EditRestaurantScreen() {
   const { user, currentRestaurant, updateCurrentRestaurantInfo } =
     useAuthStore();
   const canEdit = isAdminLevelRole(user?.role?.name);
+  // Set by the info screen's "Add" links to open on the empty field.
+  const { focus } = useLocalSearchParams<{ focus?: string }>();
 
   const updateMutation = useMutation({
     mutationFn: (data: UpdateRestaurantDto) =>
@@ -152,6 +154,7 @@ export default function EditRestaurantScreen() {
             name="phone"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
+                autoFocus={canEdit && focus === "phone"}
                 label={t("createRestaurant.phone")}
                 placeholder={t("createRestaurant.phonePlaceholder")}
                 icon="phone"
@@ -170,6 +173,7 @@ export default function EditRestaurantScreen() {
             name="email"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
+                autoFocus={canEdit && focus === "email"}
                 label={t("createRestaurant.email")}
                 placeholder={t("createRestaurant.emailPlaceholder")}
                 icon="mail"
@@ -189,6 +193,7 @@ export default function EditRestaurantScreen() {
             name="address"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
+                autoFocus={canEdit && focus === "address"}
                 label={t("createRestaurant.address")}
                 placeholder={t("createRestaurant.addressPlaceholder")}
                 icon="map-pin"
@@ -207,6 +212,7 @@ export default function EditRestaurantScreen() {
             name="identification"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
+                autoFocus={canEdit && focus === "identification"}
                 label={t("editRestaurant.identification")}
                 icon="id-card"
                 editable={canEdit}
@@ -223,6 +229,7 @@ export default function EditRestaurantScreen() {
             name="capacity"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
+                autoFocus={canEdit && focus === "capacity"}
                 label={t("editRestaurant.capacity")}
                 icon="users"
                 keyboardType="number-pad"

@@ -12,7 +12,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import { typography } from "@/constants/theme";
-import Label from "@/presentation/theme/components/label";
+import SubscriptionStatusLabel from "@/presentation/subscriptions/components/subscription-status-label";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { toast } from "sonner-native";
 import IconButton from "@/presentation/theme/components/icon-button";
@@ -189,13 +189,7 @@ export default function ManageScreen() {
               >
                 {t("manage.subscription.plan")}: {subscription.plan.name}
               </ThemedText>
-              <Label
-                text={t(
-                  `manage.subscription.${subscription.status.toLowerCase()}`,
-                )}
-                color="default"
-                size="small"
-              />
+              <SubscriptionStatusLabel status={subscription.status} />
             </ThemedView>
           )}
         </ThemedView>

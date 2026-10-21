@@ -1,41 +1,212 @@
-import { useEffect } from "react";
-import { Pressable, ScrollView } from "react-native";
+import { useEffect, type ReactNode } from "react";
+import { ActivityIndicator, Linking, Pressable, ScrollView } from "react-native";
 import { router, useNavigation } from "expo-router";
+import { toast } from "sonner-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import Icon from "@/presentation/theme/components/icon";
+import Icon, { type IconName } from "@/presentation/theme/components/icon";
+import IconButton from "@/presentation/theme/components/icon-button";
 import Button from "@/presentation/theme/components/button";
-import Label from "@/presentation/theme/components/label";
+import { labelSolidStyles } from "@/presentation/theme/components/label";
+import SubscriptionStatusLabel from "@/presentation/subscriptions/components/subscription-status-label";
+import {
+  SUBSCRIPTION_STATUS_COLOR,
+  getSubscriptionDateLine,
+  hasSubscriptionProblem,
+} from "@/presentation/subscriptions/utils/subscription-status";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { formatDate } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { isAdminLevelRole, Roles } from "@/core/auth/models/user.model";
+import type { Subscription } from "@/core/common/models/restaurant.model";
+import { typography } from "@/constants/theme";
+
+type EditableField =
+  | "phone"
+  | "email"
+  | "address"
+  | "identification"
+  | "capacity";
+
+/** Opens the edit form with `field` focused, so filling a gap is one tap. */
+const editField = (field: EditableField) =>
+  router.push({
+    pathname: "/(profile)/restaurant/edit",
+    params: { focus: field },
+  });
+
+/** Titled group of rows. */
+function InfoSection({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <ThemedView>
+      <ThemedText
+        type="body2"
+        accessibilityRole="header"
+        style={[tw`text-primary`, { fontFamily: typography.semibold }]}
+      >
+        {title}
+      </ThemedText>
+      {children}
+    </ThemedView>
+  );
+}
 
 interface InfoRowProps {
   label: string;
   value?: string | number | null;
+  /** Shown when the value is empty and there's no `onAdd`. */
   placeholder: string;
+  /** Turns an empty value into an "Add" link. */
+  onAdd?: () => void;
+  addLabel: string;
+  /** Trailing shortcut for a filled value, e.g. call or email. */
+  action?: { icon: IconName; label: string; onPress: () => void };
 }
 
-/** Read-only label/value row; muted placeholder when the value is empty. */
-function InfoRow({ label, value, placeholder }: InfoRowProps) {
+/** Label stacked over its value; values are selectable so they can be copied. */
+function InfoRow({
+  label,
+  value,
+  placeholder,
+  onAdd,
+  addLabel,
+  action,
+}: InfoRowProps) {
   const hasValue = value !== undefined && value !== null && value !== "";
 
-  return (
-    <ThemedView style={tw`flex-row items-center gap-3 min-h-12`}>
-      <ThemedText>{label}</ThemedText>
-      <ThemedText
-        type="body2"
-        style={[
-          tw`flex-1 text-right`,
-          { color: tw.color(hasValue ? "gray-600" : "gray-400") },
+  if (!hasValue && onAdd) {
+    return (
+      <Pressable
+        onPress={onAdd}
+        accessibilityRole="button"
+        accessibilityLabel={`${label}, ${addLabel}`}
+        style={({ pressed }) => [
+          tw`min-h-16 justify-center gap-0.5`,
+          pressed && tw`opacity-60`,
         ]}
       >
-        {hasValue ? String(value) : placeholder}
-      </ThemedText>
+        <ThemedText type="small">{label}</ThemedText>
+        <ThemedView style={tw`flex-row items-center gap-1.5`}>
+          <Icon name="plus" size={16} color={tw.color("primary")} />
+          <ThemedText
+            style={[tw`text-primary`, { fontFamily: typography.semibold }]}
+          >
+            {addLabel}
+          </ThemedText>
+        </ThemedView>
+      </Pressable>
+    );
+  }
+
+  return (
+    <ThemedView style={tw`flex-row items-center gap-3 min-h-16`}>
+      <ThemedView
+        accessible
+        accessibilityLabel={`${label}, ${hasValue ? value : placeholder}`}
+        style={tw`flex-1 gap-0.5`}
+      >
+        <ThemedText type="small">{label}</ThemedText>
+        {hasValue ? (
+          <ThemedText selectable>{String(value)}</ThemedText>
+        ) : (
+          <ThemedText style={tw`text-gray-500`}>{placeholder}</ThemedText>
+        )}
+      </ThemedView>
+      {hasValue && action && (
+        <IconButton
+          icon={action.icon}
+          variant="surface"
+          accessibilityLabel={action.label}
+          onPress={action.onPress}
+        />
+      )}
     </ThemedView>
+  );
+}
+
+/** Plan and status, the date that matters for that status, and why it needs attention. */
+function SubscriptionSummary({
+  subscription,
+  isOwner,
+}: {
+  subscription: Subscription;
+  isOwner: boolean;
+}) {
+  const { t } = useTranslation("auth");
+  const { status, plan } = subscription;
+
+  const statusText = t(`manage.subscription.${status.toLowerCase()}`);
+  const dateLine = getSubscriptionDateLine(subscription);
+  const dateText =
+    dateLine &&
+    t(`manage.subscription.${dateLine.key}`, {
+      date: formatDate(dateLine.date),
+    });
+  // Staff can see the problem but not fix it, so tell them who can.
+  const reason = hasSubscriptionProblem(status)
+    ? [
+        t(`manage.subscription.reasons.${status.toLowerCase()}`),
+        !isOwner && t("manage.subscription.ownerOnly"),
+      ]
+        .filter(Boolean)
+        .join(" ")
+    : null;
+  // Same hue as the status pill, so the reason reads as part of it.
+  const reasonColor = tw.style(
+    labelSolidStyles[SUBSCRIPTION_STATUS_COLOR[status]].text,
+  );
+
+  const accessibilityLabel = [plan?.name, statusText, dateText, reason]
+    .filter(Boolean)
+    .join(". ");
+
+  const content = (
+    <ThemedView style={tw`flex-row items-center gap-3 min-h-16 py-2`}>
+      <ThemedView style={tw`flex-1 gap-1`}>
+        <ThemedView style={tw`flex-row flex-wrap items-center gap-2`}>
+          {plan?.name && <ThemedText>{plan.name}</ThemedText>}
+          <SubscriptionStatusLabel status={status} />
+        </ThemedView>
+        {dateText && <ThemedText type="small">{dateText}</ThemedText>}
+        {reason && (
+          <ThemedView style={tw`flex-row items-start gap-2 mt-1`}>
+            {/* mt-0.5 centers the icon on the first 20px line */}
+            <Icon
+              name="circle-alert"
+              size={16}
+              color={reasonColor.color as string}
+              style={tw`mt-0.5`}
+            />
+            <ThemedText type="body2" style={[tw`flex-1`, reasonColor]}>
+              {reason}
+            </ThemedText>
+          </ThemedView>
+        )}
+      </ThemedView>
+      {isOwner && <Icon name="chevron-right" size={18} />}
+    </ThemedView>
+  );
+
+  if (!isOwner) {
+    return (
+      <ThemedView accessible accessibilityLabel={accessibilityLabel}>
+        {content}
+      </ThemedView>
+    );
+  }
+
+  return (
+    <Pressable
+      onPress={() => router.push("/(profile)/restaurant/subscription")}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      style={({ pressed }) => [pressed && tw`opacity-60`]}
+    >
+      {content}
+    </Pressable>
   );
 }
 
@@ -47,7 +218,6 @@ export default function RestaurantInfoScreen() {
   const canEdit = isAdminLevelRole(user?.role?.name);
   const isOwner = user?.role?.name === Roles.OWNER;
   const subscription = currentRestaurant?.subscription;
-  const notSet = t("manage.notSet");
 
   useEffect(() => {
     navigation.setOptions({
@@ -65,48 +235,33 @@ export default function RestaurantInfoScreen() {
     });
   }, [navigation, canEdit, t]);
 
-  const subscriptionContent = subscription && (
-    <ThemedView style={tw`flex-row items-center gap-3 min-h-12`}>
-      <ThemedView style={tw`flex-1 gap-1`}>
-        <ThemedView style={tw`flex-row items-center gap-2`}>
-          <ThemedText>
-            {t("manage.subscription.plan")}: {subscription.plan?.name ?? notSet}
-          </ThemedText>
-          <Label
-            text={t(`manage.subscription.${subscription.status.toLowerCase()}`)}
-            color="default"
-            size="small"
-          />
-        </ThemedView>
-        {subscription.status === "TRIAL" && subscription.trialEndsAt ? (
-          <ThemedText type="small" style={tw`text-gray-500`}>
-            {t("manage.subscription.trialEnds", {
-              date: new Date(subscription.trialEndsAt).toLocaleDateString(),
-            })}
-          </ThemedText>
-        ) : (
-          subscription.currentPeriodEnd && (
-            <ThemedText type="small" style={tw`text-gray-500`}>
-              {t("manage.subscription.periodEnds")}{" "}
-              {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
-            </ThemedText>
-          )
-        )}
-      </ThemedView>
-      {isOwner && (
-        <Icon name="chevron-right" size={18} color={tw.color("gray-400")} />
-      )}
-    </ThemedView>
-  );
+  // Not loaded yet: a spinner instead of five false "Not set" rows.
+  if (!currentRestaurant) {
+    return (
+      <ScreenLayout style={tw`flex-1 items-center justify-center`}>
+        <ActivityIndicator color={tw.color("primary")} />
+      </ScreenLayout>
+    );
+  }
+
+  const openUrl = (url: string) =>
+    Linking.openURL(url).catch(() => toast.error(t("manage.info.openFailed")));
+
+  // Editors get an "Add" link on empty values; everyone else sees "Not set".
+  const emptyProps = (field: EditableField) => ({
+    placeholder: t("manage.notSet"),
+    addLabel: t("manage.info.add"),
+    onAdd: canEdit ? () => editField(field) : undefined,
+  });
 
   return (
     <ScreenLayout style={tw`flex-1 px-4 pt-2`}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <ThemedView style={tw`gap-6 pb-8`}>
+        <ThemedView style={tw`gap-8 pb-8`}>
           {/* Title */}
           <ThemedView style={tw`gap-1`}>
-            <ThemedText type="h1">{currentRestaurant?.name}</ThemedText>
-            {currentRestaurant?.parentRestaurant && (
+            <ThemedText type="h1">{currentRestaurant.name}</ThemedText>
+            {currentRestaurant.parentRestaurant && (
               <ThemedText type="body2" style={tw`text-gray-500`}>
                 {t("createBranch.branchOf", {
                   name: currentRestaurant.parentRestaurant.name,
@@ -115,56 +270,56 @@ export default function RestaurantInfoScreen() {
             )}
           </ThemedView>
 
-          {/* Details */}
-          <ThemedView>
+          {subscription && (
+            <InfoSection title={t("manage.subscription.title")}>
+              <SubscriptionSummary
+                subscription={subscription}
+                isOwner={isOwner}
+              />
+            </InfoSection>
+          )}
+
+          <InfoSection title={t("manage.info.contact")}>
             <InfoRow
               label={t("createRestaurant.phone")}
-              value={currentRestaurant?.phone}
-              placeholder={notSet}
+              value={currentRestaurant.phone}
+              action={{
+                icon: "phone",
+                label: t("manage.info.call"),
+                onPress: () =>
+                  openUrl(`tel:${currentRestaurant.phone.replace(/\s+/g, "")}`),
+              }}
+              {...emptyProps("phone")}
             />
             <InfoRow
               label={t("createRestaurant.email")}
-              value={currentRestaurant?.email}
-              placeholder={notSet}
+              value={currentRestaurant.email}
+              action={{
+                icon: "mail",
+                label: t("manage.info.sendEmail"),
+                onPress: () => openUrl(`mailto:${currentRestaurant.email}`),
+              }}
+              {...emptyProps("email")}
             />
             <InfoRow
               label={t("createRestaurant.address")}
-              value={currentRestaurant?.address}
-              placeholder={notSet}
+              value={currentRestaurant.address}
+              {...emptyProps("address")}
             />
+          </InfoSection>
+
+          <InfoSection title={t("manage.info.business")}>
             <InfoRow
               label={t("editRestaurant.identification")}
-              value={currentRestaurant?.identification}
-              placeholder={notSet}
+              value={currentRestaurant.identification}
+              {...emptyProps("identification")}
             />
             <InfoRow
               label={t("editRestaurant.capacity")}
-              value={currentRestaurant?.capacity}
-              placeholder={notSet}
+              value={currentRestaurant.capacity}
+              {...emptyProps("capacity")}
             />
-          </ThemedView>
-
-          {/* Subscription */}
-          {subscription && (
-            <ThemedView style={tw`gap-1`}>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {t("manage.subscription.title")}
-              </ThemedText>
-              {isOwner ? (
-                <Pressable
-                  onPress={() =>
-                    router.push("/(profile)/restaurant/subscription")
-                  }
-                  accessibilityRole="button"
-                  style={({ pressed }) => [pressed && tw`opacity-60`]}
-                >
-                  {subscriptionContent}
-                </Pressable>
-              ) : (
-                subscriptionContent
-              )}
-            </ThemedView>
-          )}
+          </InfoSection>
 
           <Button
             label={t("manage.manageOtherRestaurant")}

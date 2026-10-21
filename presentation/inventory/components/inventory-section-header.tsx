@@ -32,7 +32,7 @@ export default function InventorySectionHeader({
         >
           <ThemedText
             type="body2"
-            style={[tw`text-gray-500`, { fontFamily: typography.semibold }]}
+            style={[tw`text-primary`, { fontFamily: typography.semibold }]}
           >
             {title}
           </ThemedText>

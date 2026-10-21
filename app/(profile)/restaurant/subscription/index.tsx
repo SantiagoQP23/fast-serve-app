@@ -5,6 +5,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Card from "@/presentation/theme/components/card";
 import Label from "@/presentation/theme/components/label";
+import SubscriptionStatusLabel from "@/presentation/subscriptions/components/subscription-status-label";
 import Button from "@/presentation/theme/components/button";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -16,19 +17,6 @@ import {
   PlanLimitResource,
   type Plan,
 } from "@/core/common/models/restaurant.model";
-
-const STATUS_COLOR: Record<
-  string,
-  "success" | "info" | "error" | "default"
-> = {
-  ACTIVE: "success",
-  TRIAL: "info",
-  GRACE_PERIOD: "info",
-  ON_HOLD: "error",
-  PAUSED: "default",
-  EXPIRED: "error",
-  CANCELLED: "error",
-};
 
 export default function SubscriptionScreen() {
   const { t } = useTranslation("auth");
@@ -69,13 +57,7 @@ export default function SubscriptionScreen() {
                   style={tw`flex-row items-center justify-between`}
                 >
                   <ThemedText type="h3">{subscription.plan?.name}</ThemedText>
-                  <Label
-                    text={t(
-                      `manage.subscription.${subscription.status.toLowerCase()}`,
-                    )}
-                    color={STATUS_COLOR[subscription.status] ?? "default"}
-                    size="small"
-                  />
+                  <SubscriptionStatusLabel status={subscription.status} />
                 </ThemedView>
 
                 {subscription.status === "TRIAL" &&
