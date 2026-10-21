@@ -22,6 +22,8 @@ import type { CreateProductOptionDto } from "../interfaces/dto/create-product-op
 import type { UpdateProductOptionDto } from "../interfaces/dto/update-product-option.dto";
 import { getErrorMessage } from "@/core/api/get-error-message";
 
+const MOVE_BATCH_SIZE = 4;
+
 export const useMenuManagement = () => {
   const { t } = useTranslation("menuManagement");
   const {
@@ -127,6 +129,44 @@ export const useMenuManagement = () => {
     mutationFn: (data) => ProductsService.update(data),
     onSuccess: (product) => {
       upsertProduct(product);
+    },
+    onError: (error) => {
+      toast.error(
+        getErrorMessage(error, { fallback: t("products.updateError") }),
+      );
+    },
+  });
+
+  // One PATCH per product (there is no bulk route); a few at a time so a
+  // long list doesn't flood the server. Products that fail keep their area.
+  const moveProductsToArea = useMutation<
+    { moved: number; failed: number },
+    Error,
+    { productIds: string[]; productionAreaId: number }
+  >({
+    mutationFn: async ({ productIds, productionAreaId }) => {
+      let moved = 0;
+      let failed = 0;
+      for (let i = 0; i < productIds.length; i += MOVE_BATCH_SIZE) {
+        const batch = productIds.slice(i, i + MOVE_BATCH_SIZE);
+        const results = await Promise.allSettled(
+          batch.map((id) => ProductsService.update({ id, productionAreaId })),
+        );
+        for (const result of results) {
+          if (result.status === "fulfilled") {
+            upsertProduct(result.value);
+            moved++;
+          } else {
+            failed++;
+          }
+        }
+      }
+      return { moved, failed };
+    },
+    onSuccess: ({ failed }) => {
+      if (failed > 0) {
+        toast.error(t("products.moveAreaPartialError", { count: failed }));
+      }
     },
     onError: (error) => {
       toast.error(
@@ -269,6 +309,7 @@ export const useMenuManagement = () => {
     deleteCategory,
     createProduct,
     updateProduct,
+    moveProductsToArea,
     deleteProduct,
     duplicateProduct,
     createProductOption,

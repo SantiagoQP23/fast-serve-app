@@ -201,7 +201,9 @@
       }
     },
     "saveAndAddAnother": "Save and add another",
-    "createdList": "Created: {{names}}"
+    "createdList": "Created: {{names}}",
+    "moveAreaPartialError_one": "Couldn't move {{count}} product",
+    "moveAreaPartialError_other": "Couldn't move {{count}} products"
   },
   "loading": "Loading...",
   "loadError": "Failed to load the menu",
