@@ -8,6 +8,7 @@ import TextInput from "@/presentation/theme/components/text-input";
 import Button from "@/presentation/theme/components/button";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Label from "@/presentation/theme/components/label";
+import OptionRow from "@/presentation/theme/components/option-row";
 import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { useMenuCart } from "@/presentation/restaurant-menu/hooks/useMenuCart";
@@ -32,7 +33,7 @@ import {
   getProductOptionAvailableQuantity,
   getProductOptionStockLevel,
 } from "@/core/menu/models/product-optionl.model";
-import Icon, { type IconName } from "@/presentation/theme/components/icon";
+import Icon from "@/presentation/theme/components/icon";
 import {
   BottomSheetView,
   type BottomSheetMethods,
@@ -81,45 +82,9 @@ const STOCK_TEXT_COLOR: Record<ProductOptionStockLevel, string> = {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <ThemedView style={tw`gap-2`}>
-      <ThemedText type="small">{title}</ThemedText>
+      {title ? <ThemedText type="small">{title}</ThemedText> : null}
       {children}
     </ThemedView>
-  );
-}
-
-/** A quiet, tappable setting row: icon, label, current value, chevron. */
-function OptionRow({
-  icon,
-  label,
-  value,
-  onPress,
-}: {
-  icon: IconName;
-  label: string;
-  value: string;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={`${label}: ${value}`}
-      style={({ pressed }) => [
-        tw`flex-row items-center gap-3 min-h-12`,
-        pressed && tw`opacity-60`,
-      ]}
-    >
-      <Icon name={icon} size={18} color={tw.color("gray-500")} />
-      <ThemedText>{label}</ThemedText>
-      <ThemedText
-        type="body2"
-        numberOfLines={1}
-        style={tw`flex-1 text-right text-gray-600`}
-      >
-        {value}
-      </ThemedText>
-      <Icon name="chevron-right" size={18} color={tw.color("gray-400")} />
-    </Pressable>
   );
 }
 
@@ -441,7 +406,7 @@ export default function ProductScreen() {
             {
               maxWidth: SHEET_MAX_WIDTH,
               maxHeight: "92%",
-              paddingBottom: insets.bottom + 16,
+              paddingBottom: insets.bottom + 12,
             },
           ]}
         >
@@ -508,7 +473,7 @@ export default function ProductScreen() {
 
           <ScrollView
             style={tw`flex-shrink`}
-            contentContainerStyle={tw`px-4 pb-4 gap-5`}
+            contentContainerStyle={tw`px-4 pt-3 pb-2 gap-6`}
             showsVerticalScrollIndicator={false}
           >
             {activeProduct.description ? (
@@ -616,42 +581,45 @@ export default function ProductScreen() {
               </Section>
             )}
 
-            {!hasNote && (
-              <ThemedView style={tw`flex-row`}>
-                <Chip
-                  variant="assist"
-                  label={t("menu:product.addNote")}
-                  icon="file-text"
-                  onPress={() => noteSheetRef.current?.present()}
-                />
-              </ThemedView>
-            )}
+            {/* Note chip and the line's settings read as one group. */}
+            <View style={tw`gap-2`}>
+              {!hasNote && (
+                <ThemedView style={tw`flex-row`}>
+                  <Chip
+                    variant="assist"
+                    label={t("menu:product.addNote")}
+                    icon="file-text"
+                    onPress={() => noteSheetRef.current?.present()}
+                  />
+                </ThemedView>
+              )}
 
-            <View>
-              {!isSaleEditMode && (
-                <OptionRow
-                  icon={
-                    typeOrderDetail === OrderType.IN_PLACE
-                      ? "utensils"
-                      : "shopping-bag"
-                  }
-                  label={t("menu:product.serve")}
-                  value={
-                    typeOrderDetail === OrderType.IN_PLACE
-                      ? t("common:orderType.inPlace")
-                      : t("common:orderType.takeAway")
-                  }
-                  onPress={() => typePickerRef.current?.present()}
-                />
-              )}
-              {isAdmin && (
-                <OptionRow
-                  icon="circle-dollar-sign"
-                  label={t("menu:product.price")}
-                  value={formatCurrency(effectivePrice)}
-                  onPress={() => customPriceSheetRef.current?.present()}
-                />
-              )}
+              <View>
+                {!isSaleEditMode && (
+                  <OptionRow
+                    icon={
+                      typeOrderDetail === OrderType.IN_PLACE
+                        ? "utensils"
+                        : "shopping-bag"
+                    }
+                    label={t("menu:product.serve")}
+                    value={
+                      typeOrderDetail === OrderType.IN_PLACE
+                        ? t("common:orderType.inPlace")
+                        : t("common:orderType.takeAway")
+                    }
+                    onPress={() => typePickerRef.current?.present()}
+                  />
+                )}
+                {isAdmin && (
+                  <OptionRow
+                    icon="circle-dollar-sign"
+                    label={t("menu:product.price")}
+                    value={formatCurrency(effectivePrice)}
+                    onPress={() => customPriceSheetRef.current?.present()}
+                  />
+                )}
+              </View>
             </View>
           </ScrollView>
 

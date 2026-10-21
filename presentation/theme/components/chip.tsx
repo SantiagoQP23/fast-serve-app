@@ -70,7 +70,7 @@ export default function Chip({
         ...(variant === "filter" && { selected: !!selected }),
       }}
       style={({ pressed }) => [
-        tw`flex-row items-center px-4 py-[6px] rounded-md gap-2`,
+        tw`flex-row items-center px-4 py-[6px]  gap-2`,
         filled
           ? tw`bg-secondary`
           : variant === "input"

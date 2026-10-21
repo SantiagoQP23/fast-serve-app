@@ -76,7 +76,7 @@ export default function NewOrderDetailCard({
         {/*   style={tw`absolute  rounded-full items-center justify-center  z-10 right-0 top-0`} */}
         {/* ></ThemedView> */}
 
-        <ThemedView style={tw`flex-row justify-between gap-4 items-center`}>
+        <ThemedView style={tw`flex-row justify-between gap-4 items-start`}>
           <ThemedText type="body1" style={{ fontFamily: typography.medium }}>
             {detail.product.name}{" "}
             {showProductOptionName && detail.productOption.name}

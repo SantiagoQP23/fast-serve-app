@@ -121,12 +121,10 @@ const ChangeItemsTypeBottomSheet = forwardRef<
   };
 
   return (
-    <ThemedBottomSheetModal
-      ref={sheetRef}
-      enablePanDownToClose
-      snapPoints={["60%", "90%"]}
-    >
-      <BottomSheetView style={tw`flex-1 px-4 pb-6 gap-4`}>
+    // Sized to its content with the list capped below, so the list scrolls to
+    // its end and the button stays visible (snap points hid both).
+    <ThemedBottomSheetModal ref={sheetRef} enablePanDownToClose>
+      <BottomSheetView style={tw`px-4 pb-6 gap-4`}>
         <ThemedView style={tw`gap-1 px-2`}>
           <ThemedText type="h3">
             {t("orders:changeItemsType.title", { type: typeLabel(newType) })}
@@ -144,43 +142,48 @@ const ChangeItemsTypeBottomSheet = forwardRef<
           />
         </ThemedView>
 
-        <BottomSheetScrollView contentContainerStyle={tw`gap-2`}>
-          {items.map((item) => (
-            <Pressable
-              key={item.id}
-              onPress={() => toggle(item.id, !selected.has(item.id))}
-              style={({ pressed }) => [
-                tw`p-4 rounded-2xl bg-surface-container-low flex-row items-center gap-3`,
-                pressed && tw`opacity-80`,
-              ]}
-            >
-              <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-                <ThemedText type="body1" numberOfLines={2}>
-                  {item.quantity} × {item.name}
-                </ThemedText>
-                {item.variant ? (
-                  <ThemedText type="body2" style={tw`text-gray-600`}>
-                    {item.variant}
+        <ThemedView style={tw`max-h-[50vh]`}>
+          <BottomSheetScrollView
+            contentContainerStyle={tw`gap-2`}
+            showsVerticalScrollIndicator={false}
+          >
+            {items.map((item) => (
+              <Pressable
+                key={item.id}
+                onPress={() => toggle(item.id, !selected.has(item.id))}
+                style={({ pressed }) => [
+                  tw`p-4 rounded-2xl bg-surface-container-low flex-row items-center gap-3`,
+                  pressed && tw`opacity-80`,
+                ]}
+              >
+                <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+                  <ThemedText type="body1" numberOfLines={2}>
+                    {item.quantity} × {item.name}
                   </ThemedText>
-                ) : null}
-                <ThemedView style={tw`flex-row bg-transparent`}>
-                  <Label
-                    leftIcon={
-                      item.type === OrderType.IN_PLACE
-                        ? "utensils"
-                        : "shopping-bag"
-                    }
-                    text={typeLabel(item.type)}
-                  />
+                  {item.variant ? (
+                    <ThemedText type="body2" style={tw`text-gray-600`}>
+                      {item.variant}
+                    </ThemedText>
+                  ) : null}
+                  <ThemedView style={tw`flex-row bg-transparent`}>
+                    <Label
+                      leftIcon={
+                        item.type === OrderType.IN_PLACE
+                          ? "utensils"
+                          : "shopping-bag"
+                      }
+                      text={typeLabel(item.type)}
+                    />
+                  </ThemedView>
                 </ThemedView>
-              </ThemedView>
-              <Checkbox
-                value={selected.has(item.id)}
-                onValueChange={(value) => toggle(item.id, value)}
-              />
-            </Pressable>
-          ))}
-        </BottomSheetScrollView>
+                <Checkbox
+                  value={selected.has(item.id)}
+                  onValueChange={(value) => toggle(item.id, value)}
+                />
+              </Pressable>
+            ))}
+          </BottomSheetScrollView>
+        </ThemedView>
 
         <Button
           label={t("orders:options.changeType", { type: typeLabel(newType) })}

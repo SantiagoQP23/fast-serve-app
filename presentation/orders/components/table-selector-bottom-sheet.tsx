@@ -48,11 +48,9 @@ const TableSelectorBottomSheet = forwardRef<
   };
 
   return (
-    <ThemedBottomSheetModal
-      ref={sheetRef}
-      enablePanDownToClose
-      snapPoints={["40%", "70%", "90%"]}
-    >
+    // Sized to its content with the grid capped below (like BottomSheetPicker):
+    // with snap points, the half-open sheet hides the end of the list.
+    <ThemedBottomSheetModal ref={sheetRef} enablePanDownToClose>
       <BottomSheetView>
         <ThemedView style={tw`px-4 mb-4`}>
           <ThemedText

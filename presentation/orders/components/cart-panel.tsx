@@ -57,6 +57,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
   const { t } = useTranslation(["common", "menu"]);
   const cartType = useNewOrderStore((state) => state.cartType);
   const orderType = useNewOrderStore((state) => state.orderType);
+  const table = useNewOrderStore((state) => state.table);
   const details = useNewOrderStore((state) => state.details);
   const resetNewOrder = useNewOrderStore((state) => state.reset);
   const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
@@ -99,19 +100,36 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
 
   const Container = embedded ? ThemedView : ScreenLayout;
 
+  // Editing an existing order keeps the plain "Cart" title.
+  const title = isEditMode
+    ? t("menu:cart.title")
+    : cartType === "sale"
+      ? t("bills:list.newSale")
+      : t("orders:newOrder.title");
+
   const renderTitle = (subtitle: string) =>
     embedded ? (
       <ThemedView style={tw`gap-1`}>
-        <ThemedText type="h3">{t("menu:cart.title")}</ThemedText>
+        <ThemedText type="h3">{title}</ThemedText>
         <ThemedText type="small">{subtitle}</ThemedText>
       </ThemedView>
     ) : (
       <CollapsibleLargeTitle
         scrollY={scrollY}
-        title={t("menu:cart.title")}
+        title={title}
         subtitle={<ThemedText type="small">{subtitle}</ThemedText>}
       />
     );
+
+  // Order carts say where the order goes; sales just count products.
+  const cartSubtitle =
+    cartType === "order"
+      ? orderType === OrderType.TAKE_AWAY
+        ? t("common:labels.takeAway")
+        : table
+          ? `${t("common:labels.table")} ${table.name}`
+          : t("orders:newOrder.selectTable")
+      : `${t("menu:cart.products")} ${details.length}`;
 
   useEffect(() => {
     // Embedded in another screen: that screen owns the header
@@ -119,13 +137,13 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
 
     const subtitle = isEditMode
       ? `${t("orders:editCart.newItems")} ${newItems.length}`
-      : `${t("menu:cart.products")} ${details.length}`;
+      : cartSubtitle;
 
     navigation.setOptions({
       headerTitle: () => (
         <CollapsibleHeaderTitle
           scrollY={scrollY}
-          title={t("menu:cart.title")}
+          title={title}
           subtitle={subtitle}
         />
       ),
@@ -135,9 +153,10 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
     navigation,
     scrollY,
     t,
+    title,
     isEditMode,
     newItems.length,
-    details.length,
+    cartSubtitle,
   ]);
 
   const openProduct = (orderDetail: NewOrderDetail) => {
@@ -348,7 +367,6 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
           ...(showProducts ? detailRows : [{ kind: "information" } as const]),
         ]
       : [...titleRows, ...detailRows];
-  const cartSubtitle = `${t("menu:cart.products")} ${details.length}`;
 
   return (
     <>
