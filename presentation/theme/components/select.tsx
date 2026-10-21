@@ -64,7 +64,7 @@ export default function Select({
   const borderColor = isPressed
     ? tw.color("primary")
     : variant === "outlined"
-      ? tw.color("border")
+      ? tw.color("primary")
       : "transparent";
 
   return (

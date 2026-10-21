@@ -7,6 +7,7 @@
   "saveArea": "Guardar área de producción",
   "save": "Guardar",
   "create": "Crear",
+  "add": "Agregar",
   "noAreas": "No se encontraron áreas de producción",
   "noAreasDescription": "No hay áreas de producción configuradas para este restaurante.",
   "loading": "Cargando áreas de producción...",
@@ -45,6 +46,13 @@
   "deactivate": "Desactivar",
   "printerCount": "{{count}} impresora",
   "printerCount_plural": "{{count}} impresoras",
+  "setUpPrinter": "Configurar impresora",
+  "noPrintersAssigned": "Aún no hay impresoras asignadas",
   "noPrintersAvailable": "No hay impresoras disponibles",
-  "noPrintersDescription": "Agrega una impresora primero para asignarla a esta área."
+  "noPrintersDescription": "Agrega una impresora primero para asignarla a esta área.",
+  "printersSheet": {
+    "title": "Configurar impresoras",
+    "subtitle": "Elige dónde se imprimen los pedidos de {{area}}.",
+    "addPrinter": "Agregar impresora"
+  }
 }

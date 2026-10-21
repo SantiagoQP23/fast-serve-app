@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { Fragment, useMemo, useRef, useState } from "react";
 import type { IFuseOptions } from "fuse.js";
 import { ScrollView, RefreshControl, Pressable } from "react-native";
 import { router } from "expo-router";
@@ -22,6 +22,27 @@ import type { TagWithProducts } from "@/core/menu/models/tag.model";
 
 const TAG_SEARCH_OPTIONS: IFuseOptions<TagWithProducts> = { keys: ["name"] };
 
+/** "Á" files under "A"; digits and symbols share one "#" group. */
+const letterOf = (name: string) => {
+  const letter = name
+    .trim()
+    .charAt(0)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase();
+  return /[A-Z]/.test(letter) ? letter : "#";
+};
+
+/** Consecutive runs of tags sharing a first letter; `tags` is already sorted by name. */
+const groupByLetter = (tags: TagWithProducts[]) =>
+  tags.reduce<{ letter: string; tags: TagWithProducts[] }[]>((groups, tag) => {
+    const letter = letterOf(tag.name);
+    const last = groups[groups.length - 1];
+    if (last?.letter === letter) last.tags.push(tag);
+    else groups.push({ letter, tags: [tag] });
+    return groups;
+  }, []);
+
 export default function MenuTagsScreen() {
   const { t } = useTranslation("menuManagement");
   const { user } = useAuthStore();
@@ -31,6 +52,14 @@ export default function MenuTagsScreen() {
   const createSheetRef = useRef<BottomSheetMethods>(null);
 
   const filteredTags = useFuzzySearch(tags, search, TAG_SEARCH_OPTIONS);
+  // Search results keep their relevance order, so letters only group the full list.
+  const tagGroups = useMemo(
+    () =>
+      search.trim()
+        ? [{ letter: null, tags: filteredTags }]
+        : groupByLetter(filteredTags),
+    [filteredTags, search],
+  );
 
   const openTag = (tagId: string) =>
     router.push({
@@ -129,26 +158,46 @@ export default function MenuTagsScreen() {
           </ThemedView>
         )}
 
-        {filteredTags.map((tag) => (
-          <Pressable
-            key={tag.id}
-            onPress={() => openTag(tag.id)}
-            accessibilityRole="button"
-            style={({ pressed }) =>
-              tw.style(
-                "flex-row items-center gap-4 py-3",
-                pressed && "opacity-70",
-              )
-            }
-          >
-            <ThemedText
-              style={[tw`flex-1`, { fontFamily: typography.medium }]}
-              numberOfLines={1}
-            >
-              {tag.name}
-            </ThemedText>
-            <Icon name="chevron-right" size={20} color={tw.color("gray-400")} />
-          </Pressable>
+        {tagGroups.map((group, index) => (
+          <Fragment key={group.letter ?? "results"}>
+            {group.letter && (
+              <ThemedText
+                type="body2"
+                accessibilityRole="header"
+                style={[
+                  tw.style("text-gray-500 pb-1", index > 0 && "pt-4"),
+                  { fontFamily: typography.semibold },
+                ]}
+              >
+                {group.letter}
+              </ThemedText>
+            )}
+            {group.tags.map((tag) => (
+              <Pressable
+                key={tag.id}
+                onPress={() => openTag(tag.id)}
+                accessibilityRole="button"
+                style={({ pressed }) =>
+                  tw.style(
+                    "flex-row items-center gap-4 py-3",
+                    pressed && "opacity-70",
+                  )
+                }
+              >
+                <ThemedText
+                  style={[tw`flex-1`, { fontFamily: typography.medium }]}
+                  numberOfLines={1}
+                >
+                  {tag.name}
+                </ThemedText>
+                <Icon
+                  name="chevron-right"
+                  size={20}
+                  color={tw.color("gray-400")}
+                />
+              </Pressable>
+            ))}
+          </Fragment>
         ))}
       </ScrollView>
 

@@ -7,6 +7,7 @@
   "saveArea": "Save production area",
   "save": "Save",
   "create": "Create",
+  "add": "Add",
   "noAreas": "No production areas found",
   "noAreasDescription": "There are no production areas configured for this restaurant.",
   "loading": "Loading production areas...",
@@ -45,6 +46,13 @@
   "deactivate": "Deactivate",
   "printerCount": "{{count}} printer",
   "printerCount_plural": "{{count}} printers",
+  "setUpPrinter": "Set up printer",
+  "noPrintersAssigned": "No printers assigned yet",
   "noPrintersAvailable": "No printers available",
-  "noPrintersDescription": "Add a printer first to assign it to this area."
+  "noPrintersDescription": "Add a printer first to assign it to this area.",
+  "printersSheet": {
+    "title": "Set up printers",
+    "subtitle": "Choose where {{area}} orders are printed.",
+    "addPrinter": "Add printer"
+  }
 }

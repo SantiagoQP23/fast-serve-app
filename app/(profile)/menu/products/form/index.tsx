@@ -729,31 +729,21 @@ export default function MenuProductFormScreen() {
                       </ThemedView>
                     )}
 
-                    <Pressable
+                    <Button
+                      label={t("products.variants.addVariant")}
+                      leftIcon="plus"
+                      variant="outline"
                       onPress={openAddVariant}
-                      style={({ pressed }) =>
-                        tw.style("py-3", pressed && "opacity-60")
-                      }
-                    >
-                      <ThemedText type="body1" style={tw`text-gray-400`}>
-                        {t("products.variants.addPlaceholder")}
-                      </ThemedText>
-                    </Pressable>
+                      size="small"
+                    />
 
-                    <Pressable
+                    <Button
+                      label={t("products.variants.copy.button")}
+                      leftIcon="copy"
+                      variant="text"
                       onPress={() => copyVariantsSheetRef.current?.present()}
-                      style={({ pressed }) =>
-                        tw.style(
-                          "flex-row items-center gap-2 py-2",
-                          pressed && "opacity-60",
-                        )
-                      }
-                    >
-                      <Icon name="copy" size={18} color={tw.color("primary")} />
-                      <ThemedText type="body2" style={tw`text-primary`}>
-                        {t("products.variants.copy.button")}
-                      </ThemedText>
-                    </Pressable>
+                      size="small"
+                    />
                   </ThemedView>
                 )}
               </ThemedView>

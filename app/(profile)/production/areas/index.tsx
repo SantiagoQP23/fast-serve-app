@@ -13,26 +13,33 @@ import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
+import Chip from "@/presentation/theme/components/chip";
 import Fab from "@/presentation/theme/components/fab";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import IconButton from "@/presentation/theme/components/icon-button";
 import type { ProductionArea } from "@/core/menu/models/producion-area.model";
 import { typography } from "@/constants/theme";
+import AreaPrintersBottomSheet, {
+  type AreaPrintersBottomSheetRef,
+} from "@/presentation/production-areas/components/area-printers-bottom-sheet";
 
 export default function ProductionAreasScreen() {
   const { t } = useTranslation("productionAreas");
-  const { getAllQuery, productionAreas, updateProductionArea, deleteProductionArea } =
-    useProductionAreas();
+  const {
+    getAllQuery,
+    productionAreas,
+    updateProductionArea,
+    deleteProductionArea,
+  } = useProductionAreas();
   const { isLoading, isError, refetch, isRefetching } = getAllQuery;
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
 
   const [areaToDelete, setAreaToDelete] = useState<ProductionArea | null>(null);
-  const [selectedArea, setSelectedArea] = useState<ProductionArea | null>(
-    null,
-  );
+  const [selectedArea, setSelectedArea] = useState<ProductionArea | null>(null);
   const actionsSheetRef = useRef<BottomSheetMethods>(null);
+  const printersSheetRef = useRef<AreaPrintersBottomSheetRef>(null);
 
   const handleCreateArea = () => {
     router.push("/(profile)/production/areas/form");
@@ -57,6 +64,30 @@ export default function ProductionAreasScreen() {
 
   const handleCloseAreaActions = () => {
     actionsSheetRef.current?.dismiss();
+  };
+
+  const handleOpenAreaPrinters = () => {
+    if (!selectedArea) return;
+    handleCloseAreaActions();
+    printersSheetRef.current?.present(selectedArea);
+  };
+
+  const handleRemoveAreaPrinter = (printerId: string) => {
+    if (!selectedArea) return;
+    const printers = (selectedArea.printers ?? []).filter(
+      (p) => p.id !== printerId,
+    );
+    updateProductionArea.mutate(
+      {
+        id: selectedArea.id,
+        name: selectedArea.name,
+        description: selectedArea.description,
+        isActive: selectedArea.isActive,
+        printerIds: printers.map((p) => p.id),
+      },
+      // Keep the open sheet in sync; the list refetches on its own.
+      { onSuccess: () => setSelectedArea({ ...selectedArea, printers }) },
+    );
   };
 
   const handleToggleActive = () => {
@@ -139,6 +170,7 @@ export default function ProductionAreasScreen() {
                   canManage ? () => handleOpenAreaActions(area) : undefined
                 }
                 style={!area.isActive && tw`opacity-50`}
+                variant="outline"
               >
                 <ThemedView style={tw`gap-4`}>
                   {/* Area Name & Status */}
@@ -147,25 +179,52 @@ export default function ProductionAreasScreen() {
                       <Icon
                         name="package"
                         size={30}
-                        color={tw.color("text-on-surface-variant")}
+                        color={tw.color("text-primary")}
                       />
                       <ThemedView style={tw`flex-1 gap-2`}>
-                        <ThemedText
-                          type="h4"
-                          style={tw`text-on-surface-variant`}
-                        >
+                        <ThemedText type="h4" style={tw`text-primary`}>
                           {area.name}
                         </ThemedText>
-                        <ThemedView style={tw`flex-row items-center gap-2`}>
-                          <Icon
-                            name="printer"
-                            size={16}
-                            color={tw.color("text-on-surface-variant")}
+                        {area.printers?.length ? (
+                          <ThemedView style={tw`flex-row flex-wrap gap-2`}>
+                            {area.printers.map((printer) => (
+                              <Chip
+                                key={printer.id}
+                                variant="assist"
+                                icon="printer"
+                                label={printer.name}
+                                onPress={
+                                  canManage
+                                    ? () =>
+                                        printersSheetRef.current?.present(area)
+                                    : undefined
+                                }
+                              />
+                            ))}
+                          </ThemedView>
+                        ) : canManage ? (
+                          <Button
+                            label={t("setUpPrinter")}
+                            leftIcon="printer"
+                            variant="text"
+                            size="extra-small"
+                            style={tw`self-start -ml-3`}
+                            onPress={() =>
+                              printersSheetRef.current?.present(area)
+                            }
                           />
-                          <ThemedText type="small" style={tw``}>
-                            {getPrinterCountText(area.printers?.length || 0)}
-                          </ThemedText>
-                        </ThemedView>
+                        ) : (
+                          <ThemedView style={tw`flex-row items-center gap-2`}>
+                            <Icon
+                              name="printer"
+                              size={16}
+                              color={tw.color("text-on-surface-variant")}
+                            />
+                            <ThemedText type="small" style={tw``}>
+                              {getPrinterCountText(area.printers?.length || 0)}
+                            </ThemedText>
+                          </ThemedView>
+                        )}
                       </ThemedView>
                     </ThemedView>
                   </ThemedView>
@@ -186,18 +245,6 @@ export default function ProductionAreasScreen() {
                 <ThemedText type="h2" style={{ fontFamily: typography.medium }}>
                   {selectedArea.name}
                 </ThemedText>
-                <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
-                  <ThemedView style={tw`flex-row items-center gap-1`}>
-                    <Icon
-                      name="printer"
-                      size={16}
-                      color={tw.color("text-gray-500")}
-                    />
-                    <ThemedText type="small" style={tw`text-gray-500`}>
-                      {getPrinterCountText(selectedArea.printers?.length || 0)}
-                    </ThemedText>
-                  </ThemedView>
-                </ThemedView>
                 {!!selectedArea.description && (
                   <ThemedText type="body2" style={tw`text-gray-500`}>
                     {selectedArea.description}
@@ -209,6 +256,41 @@ export default function ProductionAreasScreen() {
                 variant="surface"
                 onPress={handleToggleActive}
               />
+            </ThemedView>
+
+            {/* Printers */}
+            <ThemedView style={tw`gap-3`}>
+              <ThemedView style={tw`flex-row items-center justify-between`}>
+                <ThemedText type="body1" style={tw`font-semibold`}>
+                  {t("fields.printers")}
+                </ThemedText>
+                <Button
+                  label={t("add")}
+                  leftIcon="plus"
+                  variant="text"
+                  size="extra-small"
+                  style={tw`-mr-3`}
+                  onPress={handleOpenAreaPrinters}
+                />
+              </ThemedView>
+              {selectedArea.printers?.length ? (
+                <ThemedView style={tw`flex-row flex-wrap gap-2`}>
+                  {selectedArea.printers.map((printer) => (
+                    <Chip
+                      key={printer.id}
+                      variant="input"
+                      icon="printer"
+                      label={printer.name}
+                      disabled={updateProductionArea.isPending}
+                      onRemove={() => handleRemoveAreaPrinter(printer.id)}
+                    />
+                  ))}
+                </ThemedView>
+              ) : (
+                <ThemedText type="body2" style={tw`text-gray-500`}>
+                  {t("noPrintersAssigned")}
+                </ThemedText>
+              )}
             </ThemedView>
             <ThemedView style={tw`flex-row gap-4 items-center`}>
               <Button
@@ -234,6 +316,8 @@ export default function ProductionAreasScreen() {
           </ThemedView>
         )}
       </ThemedBottomSheetModal>
+
+      <AreaPrintersBottomSheet ref={printersSheetRef} />
 
       <DialogModal
         visible={!!areaToDelete}

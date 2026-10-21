@@ -159,6 +159,7 @@ export default function PrintersScreen() {
                     : undefined
                 }
                 style={!printer.isActive && tw`opacity-50`}
+                variant="outline"
               >
                 <ThemedView style={tw`gap-4`}>
                   {/* Printer Name & Status */}

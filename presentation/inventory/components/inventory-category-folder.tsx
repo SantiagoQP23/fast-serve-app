@@ -41,6 +41,7 @@ export default function InventoryCategoryFolder({
       accessibilityRole="button"
       accessibilityLabel={`${name}, ${t("categories.itemCount", { count: itemCount })}`}
       style={tw`p-4 gap-3`}
+      variant="outline"
     >
       <ThemedView
         style={tw`flex-row items-start justify-between bg-transparent`}
@@ -48,7 +49,10 @@ export default function InventoryCategoryFolder({
         <Icon name={icon} size={30} color={tw.color("primary")} />
         {health && (
           <View
-            style={tw.style("w-2.5 h-2.5 rounded-full", HEALTH_DOT_COLOR[health])}
+            style={tw.style(
+              "w-2.5 h-2.5 rounded-full",
+              HEALTH_DOT_COLOR[health],
+            )}
           />
         )}
       </ThemedView>

@@ -166,7 +166,6 @@
     "variants": {
       "title": "Variantes",
       "addVariant": "Agregar variante",
-      "addPlaceholder": "Agregar una variante...",
       "editVariant": "Editar variante",
       "makeDefault": "Hacer predeterminada",
       "empty": "Aún no hay variantes. Agrega una si este producto tiene distintas opciones (tamaños, sabores, etc.).",
