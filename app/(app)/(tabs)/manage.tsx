@@ -195,7 +195,7 @@ export default function ManageScreen() {
         </ThemedView>
         <ThemedView style={tw`flex-row mb-8`}>
           <Button
-            label={t("manage.restaurantInfo")}
+            label={t("manage.manageRestaurant")}
             onPress={() => router.push("/(profile)/restaurant/info")}
             variant="outline"
             leftIcon="store"
