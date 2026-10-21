@@ -87,7 +87,8 @@
     "remove": "Remove",
     "close": "Close",
     "updateOrder": "Update Order",
-    "newOrder": "New Order"
+    "newOrder": "New Order",
+    "resumeOrder": "Resume Order"
   },
   "form": {
     "people": "People",

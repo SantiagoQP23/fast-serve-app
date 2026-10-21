@@ -9,11 +9,18 @@ import Button, { ButtonProps } from "../theme/components/button";
 import { ThemedText } from "../theme/components/themed-text";
 import { useTables } from "../tables/hooks/useTables";
 import { useOrdersStore } from "./store/useOrdersStore";
+import { useRef } from "react";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useOrderTypes } from "./hooks/useOrderTypes";
 import { typography } from "@/constants/theme";
-import { toast } from "sonner-native";
+import { Table } from "@/core/tables/models/table.model";
+import BottomSheetPicker, {
+  type BottomSheetPickerRef,
+} from "../theme/components/bottom-sheet-picker";
 import PeopleSelector from "./components/people-selector";
+import PeopleBottomSheet, {
+  type PeopleBottomSheetRef,
+} from "./components/people-bottom-sheet";
 
 interface NewOrderBottomSheetProps {
   onCreateOrder?: () => void;
@@ -39,16 +46,28 @@ const NewOrderBottomSheet = ({
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const openDraft = useNewOrderStore((state) => state.openDraft);
   const { tables } = useTables();
+  const peopleSheetRef = useRef<PeopleBottomSheetRef>(null);
+  const tablePickerRef = useRef<BottomSheetPickerRef>(null);
+  // Table chosen in the picker a missing table opened; the order carries on
+  // once that sheet has closed, so the next sheet doesn't open over it
+  const pickedTableRef = useRef<Table | null>(null);
 
-  const validateNewOrder = () => {
-    if (orderType === OrderType.IN_PLACE && !table) {
-      toast.error(t("alerts.selectTable"));
-      // i18nAlert(t("alerts.selectTable"));
+  const tableOptions = tables.map((table) => ({
+    value: table.id,
+    label: t("details.table") + " " + table.name,
+  }));
+
+  const validateNewOrder = (
+    selectedTable: Table | null,
+    peopleCount: number,
+  ) => {
+    // A missing table or people is asked for, not just warned about
+    if (orderType === OrderType.IN_PLACE && !selectedTable) {
+      tablePickerRef.current?.present();
       return false;
     }
-    if (people <= 0) {
-      toast.error(t("alerts.inputPeople"));
-      // i18nAlert(t("alerts.inputPeople"));
+    if (peopleCount <= 0) {
+      peopleSheetRef.current?.present();
       return false;
     }
     setActiveOrder(null); // Reset active order
@@ -56,8 +75,13 @@ const NewOrderBottomSheet = ({
     return true;
   };
 
-  const createOrder = () => {
-    const isValidOrder = validateNewOrder();
+  // The store values aren't updated yet when a sheet hands over its pick, so
+  // that pick comes in here
+  const createOrder = ({
+    table: selectedTable = table,
+    people: peopleCount = people,
+  }: { table?: Table | null; people?: number } = {}) => {
+    const isValidOrder = validateNewOrder(selectedTable, peopleCount);
     if (!isValidOrder) return;
 
     if (onConfirm) {
@@ -66,6 +90,24 @@ const NewOrderBottomSheet = ({
     }
     openDraft("order");
     onCreateOrder && onCreateOrder();
+  };
+
+  const handleTablePicked = (id: string | number) => {
+    const picked = tables.find((t) => t.id === id) || null;
+    setTable(picked);
+    pickedTableRef.current = picked;
+  };
+
+  // Picking the missing table or people carries on with the order
+  const handleTablePickerDismiss = () => {
+    const picked = pickedTableRef.current;
+    pickedTableRef.current = null;
+    if (picked) createOrder({ table: picked });
+  };
+
+  const handlePeopleDone = (count: number) => {
+    setPeople(count);
+    createOrder({ people: count });
   };
 
   return (
@@ -83,10 +125,7 @@ const NewOrderBottomSheet = ({
         {orderType === OrderType.IN_PLACE && (
           <Select
             label={t("newOrder.selectTable")}
-            options={tables.map((table) => ({
-              value: table.id,
-              label: t("details.table") + " " + table.name,
-            }))}
+            options={tableOptions}
             value={table?.id}
             onChange={(value) =>
               setTable(tables.find((t) => t.id === value) || null)
@@ -103,11 +142,24 @@ const NewOrderBottomSheet = ({
         <ThemedView style={tw`w-full `}>
           <Button
             label={t("newOrder.selectProducts")}
-            onPress={createOrder}
+            onPress={() => createOrder()}
             {...buttonProps}
           />
         </ThemedView>
       </ThemedView>
+      <BottomSheetPicker
+        ref={tablePickerRef}
+        title={t("newOrder.selectTable")}
+        options={tableOptions}
+        value={table?.id}
+        onChange={handleTablePicked}
+        onDismiss={handleTablePickerDismiss}
+      />
+      <PeopleBottomSheet
+        ref={peopleSheetRef}
+        value={people}
+        onDone={handlePeopleDone}
+      />
     </BottomSheetView>
   );
 };

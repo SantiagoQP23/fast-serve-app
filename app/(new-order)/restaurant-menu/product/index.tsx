@@ -35,6 +35,7 @@ import {
 } from "@/core/menu/models/product-optionl.model";
 import Icon from "@/presentation/theme/components/icon";
 import {
+  BottomSheetScrollView,
   BottomSheetView,
   type BottomSheetMethods,
 } from "@expo/ui/community/bottom-sheet";
@@ -42,27 +43,10 @@ import BottomSheetPicker, {
   BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  useWindowDimensions,
-  View,
-} from "react-native";
-import Animated, {
-  Easing,
-  FadeIn,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Pressable, useWindowDimensions, View } from "react-native";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
 import Chip from "@/presentation/theme/components/chip";
-
-/** Material caps sheets at 640dp on large screens. */
-const SHEET_MAX_WIDTH = 640;
 
 const STOCK_LABEL_COLOR: Record<
   ProductOptionStockLevel,
@@ -95,21 +79,10 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
  */
 export default function ProductScreen() {
   const { t } = useTranslation(["menu", "orders", "common", "bills"]);
-  const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
-  // Slide in with a transform: a layout-based entering animation pins the
-  // sheet to its first measured top, so content that grows a frame later
-  // (e.g. many variants) pushed the footer off-screen.
-  const sheetOffset = useSharedValue(windowHeight);
-  useEffect(() => {
-    sheetOffset.value = withTiming(0, {
-      duration: 320,
-      easing: Easing.out(Easing.exp),
-    });
-  }, [sheetOffset]);
-  const sheetSlideStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: sheetOffset.value }],
-  }));
+  const sheetRef = useRef<BottomSheetMethods>(null);
+  // Set when the sheet should take the whole menu flow with it on close.
+  const exitsFlowRef = useRef(false);
   const customPriceSheetRef = useRef<BottomSheetMethods>(null);
   const noteSheetRef = useRef<BottomSheetMethods>(null);
   const typePickerRef = useRef<BottomSheetPickerRef>(null);
@@ -270,7 +243,19 @@ export default function ProductScreen() {
     [setActiveProduct, setActiveDetail],
   );
 
-  const goToMenu = () => router.back();
+  // The route is just a host for the native sheet: open it on arrival, and
+  // pop the route once it has closed, however it closed (button, scrim,
+  // swipe down, system back).
+  useEffect(() => {
+    sheetRef.current?.present();
+  }, []);
+
+  const goToMenu = () => sheetRef.current?.dismiss();
+
+  const handleSheetDismissed = () => {
+    if (exitsFlowRef.current) navigation.getParent()?.goBack();
+    else router.back();
+  };
 
   if (!activeProduct) {
     return null;
@@ -347,7 +332,8 @@ export default function ProductScreen() {
         onSuccess: () => {
           resetReplace();
           // Close the whole menu flow and land back on the order.
-          navigation.getParent()?.goBack();
+          exitsFlowRef.current = true;
+          sheetRef.current?.dismiss();
         },
       },
     );
@@ -386,32 +372,14 @@ export default function ProductScreen() {
 
   return (
     <>
-      <View style={tw`flex-1 justify-end`}>
-        <Animated.View
-          entering={FadeIn.duration(200)}
-          style={[StyleSheet.absoluteFill, tw`bg-black/40`]}
-        >
-          <Pressable
-            style={tw`flex-1`}
-            onPress={goToMenu}
-            accessibilityRole="button"
-            accessibilityLabel={t("common:actions.close")}
-          />
-        </Animated.View>
-
-        <Animated.View
-          style={[
-            sheetSlideStyle,
-            tw`bg-background rounded-t-3xl w-full self-center`,
-            {
-              maxWidth: SHEET_MAX_WIDTH,
-              maxHeight: "92%",
-              paddingBottom: insets.bottom + 12,
-            },
-          ]}
-        >
+      <ThemedBottomSheetModal
+        ref={sheetRef}
+        enablePanDownToClose
+        onDismiss={handleSheetDismissed}
+      >
+        <BottomSheetView style={tw`pb-6`}>
           <ThemedView
-            style={tw`flex-row items-start gap-2 pl-4 pr-2 pt-4 pb-2 bg-transparent`}
+            style={tw`flex-row items-start gap-2 pl-4 pr-2 pt-2 pb-2 bg-transparent`}
           >
             <ThemedView style={tw`flex-1 gap-1 pt-1 bg-transparent`}>
               <ThemedText type="h3" accessibilityRole="header">
@@ -471,8 +439,8 @@ export default function ProductScreen() {
             />
           </ThemedView>
 
-          <ScrollView
-            style={tw`flex-shrink`}
+          <BottomSheetScrollView
+            style={{ maxHeight: windowHeight * 0.6 }}
             contentContainerStyle={tw`px-4 pt-3 pb-2 gap-6`}
             showsVerticalScrollIndicator={false}
           >
@@ -621,7 +589,7 @@ export default function ProductScreen() {
                 )}
               </View>
             </View>
-          </ScrollView>
+          </BottomSheetScrollView>
 
           <ThemedView style={tw`px-4 pt-3 gap-2 `}>
             <ThemedView style={tw`flex-row items-center gap-3`}>
@@ -685,8 +653,8 @@ export default function ProductScreen() {
               </ThemedView>
             )}
           </ThemedView>
-        </Animated.View>
-      </View>
+        </BottomSheetView>
+      </ThemedBottomSheetModal>
 
       <BottomSheetPicker
         ref={typePickerRef}

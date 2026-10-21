@@ -78,12 +78,13 @@ export default function NewOrderLayout() {
                 : null,
           }}
         />
-        {/* A sheet over the menu: the menu stays visible behind it. */}
+        {/* Host for a native bottom sheet over the menu: the screen itself is
+            transparent and doesn't animate, the sheet brings its own. */}
         <Stack.Screen
           name="restaurant-menu/product/index"
           options={{
             presentation: "transparentModal",
-            animation: "fade",
+            animation: "none",
           }}
         />
         <Stack.Screen

@@ -42,6 +42,10 @@ import { useScopedOrders } from "@/presentation/orders/hooks/useScopedOrders";
 import { useOrdersViewStore } from "@/presentation/orders/store/useOrdersViewStore";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import {
+  selectDraftDetails,
+  useNewOrderStore,
+} from "@/presentation/orders/store/newOrderStore";
 import { OrderPaneContext } from "@/presentation/orders/context/order-pane.context";
 import OrderDetailView from "@/presentation/orders/components/order-detail-view";
 import BillDetailView from "@/presentation/orders/components/bill-detail-view";
@@ -98,6 +102,10 @@ export default function MyOrdersScreen() {
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const [selectedBillId, setSelectedBillId] = useState<number | null>(null);
 
+  const hasDraftOrder =
+    useNewOrderStore(selectDraftDetails("order")).length > 0;
+  const openDraft = useNewOrderStore((state) => state.openDraft);
+
   const [fabExpanded, setFabExpanded] = useState(true);
   const lastScrollY = useRef(0);
 
@@ -141,6 +149,11 @@ export default function MyOrdersScreen() {
   const handlePresentModalPress = useCallback(() => {
     bottomSheetModalRef.current?.present();
   }, []);
+
+  const handleResumeOrder = useCallback(() => {
+    openDraft("order");
+    router.push("/(new-order)/restaurant-menu");
+  }, [openDraft, router]);
 
   const handleSheetChanges = useCallback((index: number) => {
     console.log("handleSheetChanges", index);
@@ -406,10 +419,16 @@ export default function MyOrdersScreen() {
             ]}
           />
           <Fab
-            icon="plus"
-            label={t("orders:actions.newOrder")}
+            icon={hasDraftOrder ? "shopping-cart" : "plus"}
+            label={
+              hasDraftOrder
+                ? t("orders:actions.resumeOrder")
+                : t("orders:actions.newOrder")
+            }
             expanded={fabExpanded}
-            onPress={handlePresentModalPress}
+            onPress={
+              hasDraftOrder ? handleResumeOrder : handlePresentModalPress
+            }
           />
         </>
       )}

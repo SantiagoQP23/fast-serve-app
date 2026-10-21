@@ -45,11 +45,13 @@ const PeopleBottomSheet = forwardRef<
   const { t } = useTranslation(["common", "orders"]);
   const sheetRef = useRef<BottomSheetMethods>(null);
   const options = useMemo(() => range(1, MAX_PEOPLE), []);
-  const [pending, setPending] = useState(value);
+  // The wheel starts at 1 when there are no people yet, so Done commits that
+  const initial = value > 0 ? value : options[0];
+  const [pending, setPending] = useState(initial);
 
   useImperativeHandle(ref, () => ({
     present: () => {
-      setPending(value);
+      setPending(initial);
       sheetRef.current?.present();
     },
     dismiss: () => sheetRef.current?.dismiss(),
