@@ -5,11 +5,9 @@ import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { useEditSaleStore } from "@/presentation/orders/store/editSaleStore";
-import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Button from "@/presentation/theme/components/button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
-import NotificationBadge from "@/presentation/theme/components/notification-badge";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ROUTES } from "@/constants/routes";
@@ -25,8 +23,6 @@ export default function NewOrderLayout() {
   const palette = usePalette();
   const { t } = useTranslation(["common", "menu"]);
   const cartOptionsSheetRef = useRef<CartOptionsBottomSheetRef>(null);
-  const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
-  const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
   const cartType = useNewOrderStore((state) => state.cartType);
   const order = useOrdersStore((state) => state.activeOrder);
   const { details } = useNewOrderStore();
@@ -87,42 +83,20 @@ export default function NewOrderLayout() {
             headerShown: true,
             title: t("menu:title"),
             headerShadowVisible: false,
+            // On phones the cart bar docked above the search leads to the
+            // cart; beside the side-pane cart, offer its actions here.
             headerRight: () =>
-              order || isSaleEditMode ? null : isExpanded ? (
-                // Cart is shown beside the menu, so offer its actions here
-                renderCartActions()
-              ) : (
-                <ThemedView style={tw`relative`}>
-                  <IconButton
-                    icon="shopping-cart"
-                    onPress={() => router.push("/(new-order)/cart")}
-                  />
-                  {details.length ? (
-                    <NotificationBadge value={details.length} />
-                  ) : (
-                    <></>
-                  )}
-                </ThemedView>
-              ),
+              !order && !isSaleEditMode && isExpanded
+                ? renderCartActions()
+                : null,
           }}
         />
+        {/* A sheet over the menu: the menu stays visible behind it. */}
         <Stack.Screen
           name="restaurant-menu/product/index"
           options={{
-            headerShown: true,
-            title: "",
-            headerShadowVisible: false,
-
-            headerLeft: () => (
-              <IconButton
-                icon="arrow-left"
-                onPress={() => {
-                  setActiveProduct(null);
-                  setActiveDetail(null);
-                  router.back();
-                }}
-              />
-            ),
+            presentation: "transparentModal",
+            animation: "fade",
           }}
         />
         <Stack.Screen

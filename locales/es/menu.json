@@ -32,7 +32,16 @@
       "noneLeft": "No queda stock de este producto",
       "exceeds_one": "Solo queda {{count}} en stock",
       "exceeds_other": "Solo quedan {{count}} en stock"
-    }
+    },
+    "updateLine": "Actualizar producto",
+    "extras": "Extras",
+    "note": "Nota",
+    "editNote": "Editar nota",
+    "removeNote": "Quitar nota",
+    "increase": "Aumentar cantidad",
+    "decrease": "Disminuir cantidad",
+    "quantityValue": "Cantidad {{count}}",
+    "noOptions": "Sin variantes disponibles"
   },
   "cart": {
     "title": "Carrito",
@@ -55,5 +64,11 @@
     "loading": "Cargando...",
     "retry": "Reintentar",
     "error": "Error al cargar el menú. Por favor, inténtelo de nuevo."
-  }
+  },
+  "backToSale": "Volver a la venta",
+  "lineAdded": "Agregado: {{item}}",
+  "inCart_one": "{{count}} en el carrito",
+  "inCart_other": "{{count}} en el carrito",
+  "quickAddHint": "Agrega uno. Mantén presionado para ver opciones.",
+  "noResults": "Ningún producto coincide con “{{search}}”"
 }

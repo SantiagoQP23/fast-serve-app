@@ -11,7 +11,7 @@ export const useCounter = (
 
   const increment = () => {
     setCounter((value) => {
-      const newValue = counter !== max ? counter + step : counter;
+      const newValue = value !== max ? value + step : value;
       onChange && onChange(newValue);
       return newValue;
     });

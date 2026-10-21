@@ -5,6 +5,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist, PersistStorage } from "zustand/middleware";
 import { AsyncStorageAdapter } from "@/helpers/adapters/async-storage.adapter";
 import { generateIdempotencyKey } from "@/helpers/idempotency";
+import { isSameOrderLine } from "@/presentation/orders/utils/same-order-line";
 
 export type CartType = "order" | "sale";
 
@@ -32,7 +33,8 @@ interface NewOrderActions {
   setTotalProducts: (totalProducts: number) => void;
   setNotes: (notes: string) => void;
   setDeliveryTime: (deliveryTime: Date | null) => void;
-  addDetail: (detail: NewOrderDetail) => void;
+  /** Adds the line, or raises the quantity of an identical one. Returns its id. */
+  addDetail: (detail: NewOrderDetail) => string;
   removeDetail: (detail: NewOrderDetail) => void;
   updateDetail: (detail: NewOrderDetail) => void;
   setActiveDetail: (detail: NewOrderDetail | null) => void;
@@ -66,14 +68,24 @@ export const useNewOrderStore = create<NewOrderState & NewOrderActions>()(
 
       addDetail: (detail: NewOrderDetail) => {
         const details = get().details;
+        const line = {
+          ...detail,
+          typeOrderDetail: detail.typeOrderDetail ?? get().orderType,
+        };
+        const existing = details.find((d) => isSameOrderLine(d, line));
+        if (existing?.id) {
+          set({
+            details: details.map((d) =>
+              d === existing
+                ? { ...d, quantity: d.quantity + line.quantity }
+                : d,
+            ),
+          });
+          return existing.id;
+        }
         const id = Math.random().toString(36).slice(2);
-        const orderType = get().orderType;
-        set({
-          details: [
-            ...details,
-            { ...detail, id, typeOrderDetail: detail.typeOrderDetail ?? orderType },
-          ],
-        });
+        set({ details: [...details, { ...line, id }] });
+        return id;
       },
 
       removeDetail: (detail: NewOrderDetail) => {

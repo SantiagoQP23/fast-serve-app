@@ -16,11 +16,11 @@ import { Category } from "@/core/menu/models/category.model";
 import { Product } from "@/core/menu/models/product.model";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import Button from "@/presentation/theme/components/button";
-import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
-import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { useReplaceOrderDetailStore } from "@/presentation/orders/store/replaceOrderDetailStore";
 import { useEditSaleStore } from "@/presentation/orders/store/editSaleStore";
+import { useMenuCart } from "@/presentation/restaurant-menu/hooks/useMenuCart";
+import MenuCartBar from "@/presentation/restaurant-menu/components/menu-cart-bar";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import Icon from "@/presentation/theme/components/icon";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
@@ -32,9 +32,10 @@ const PRODUCT_MIN_WIDTH = 200;
 const PRODUCT_GAP = 12;
 const CART_PANEL_WIDTH = 400;
 const CATEGORY_COLUMN_WIDTH = 200;
+const CATEGORY_COLUMN_WIDTH_COMPACT = 120;
 
 export default function RestaurantMenuScreen() {
-  const { t } = useTranslation(["menu", "orders"]);
+  const { t } = useTranslation(["menu", "orders", "bills"]);
   const primaryColor = useThemeColor({}, "primary");
   const [section, setSection] = useState("");
   const [category, setCategory] = useState("");
@@ -70,30 +71,19 @@ export default function RestaurantMenuScreen() {
     [search, searchResults, products, category],
   );
   const { setActiveProduct } = useMenuStore();
-  const details = useNewOrderStore((state) => state.details);
-  // Editing a direct sale: products are added to it, not to an order or cart.
-  const isSaleEditMode = useEditSaleStore((state) => state.billId !== null);
+  // Where picked products go (cart, order being edited, sale being edited…)
+  const cart = useMenuCart();
+  const { order } = cart;
+  const isSaleEditMode = cart.mode === "sale";
+  const isReplaceMode = cart.mode === "replace";
   const saleBillNum = useEditSaleStore((state) => state.billNum);
-  const newSaleLineCount = useEditSaleStore(
-    (state) => state.lines.filter((line) => !line.billDetailId).length,
-  );
-  const activeOrder = useOrdersStore((state) => state.activeOrder);
-  const order = isSaleEditMode ? null : activeOrder;
   const editOrderId = useEditOrderCartStore((state) => state.orderId);
-  const newItemCount = useEditOrderCartStore((state) =>
-    state.getNewItemCount(),
-  );
   const initEditCart = useEditOrderCartStore((state) => state.init);
   const [isLoadingMenu, setIsLoadingMenu] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const isEditMode = !!order && editOrderId === order.id;
-
-  const replaceOrderId = useReplaceOrderDetailStore((state) => state.orderId);
   const replacingDetail = useReplaceOrderDetailStore((state) => state.detail);
   const resetReplace = useReplaceOrderDetailStore((state) => state.reset);
-  const isReplaceMode =
-    !!order && !!replacingDetail && replaceOrderId === order.id;
 
   // Leaving the menu ends replace mode, however the user leaves it.
   useEffect(() => resetReplace, [resetReplace]);
@@ -144,6 +134,11 @@ export default function RestaurantMenuScreen() {
     Keyboard.dismiss();
     setActiveProduct(product);
     router.push("/(new-order)/restaurant-menu/product");
+  };
+
+  // Products with nothing to choose go straight in; the rest open.
+  const onPressProduct = (product: Product) => {
+    if (!cart.quickAdd(product)) openProduct(product);
   };
 
   const onChangeCategory = useCallback((value: string) => {
@@ -223,7 +218,7 @@ export default function RestaurantMenuScreen() {
     <ScreenLayout fullWidth style={tw`px-4 pt-2 flex-1 gap-4`}>
       {isSaleEditMode && (
         <ThemedView
-          style={tw`flex-row items-center gap-3 p-3 rounded-xl bg-gray-100`}
+          style={tw`flex-row items-center gap-3 p-3 rounded-md bg-surface`}
         >
           <Icon name="receipt-text" size={20} color={tw.color("gray-700")} />
           <ThemedText type="body2" style={tw`flex-1`}>
@@ -231,9 +226,9 @@ export default function RestaurantMenuScreen() {
           </ThemedText>
         </ThemedView>
       )}
-      {isReplaceMode && (
+      {isReplaceMode && replacingDetail && (
         <ThemedView
-          style={tw`flex-row items-center gap-3 p-3 rounded-xl bg-gray-100`}
+          style={tw`flex-row items-center gap-3 p-3 rounded-md bg-surface`}
         >
           <Icon
             name="arrow-left-right"
@@ -264,11 +259,13 @@ export default function RestaurantMenuScreen() {
       <ThemedView style={tw`flex-row gap-2 flex-1`}>
         {!search && (
           <ScrollView
-            style={
-              isExpanded
-                ? { width: CATEGORY_COLUMN_WIDTH, flexGrow: 0 }
-                : tw`w-30 flex-shrink-0`
-            }
+            style={{
+              width: isExpanded
+                ? CATEGORY_COLUMN_WIDTH
+                : CATEGORY_COLUMN_WIDTH_COMPACT,
+              flexGrow: 0,
+              flexShrink: 0,
+            }}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={tw`gap-2`}
           >
@@ -283,7 +280,7 @@ export default function RestaurantMenuScreen() {
           </ScrollView>
         )}
         <ScrollView
-          style={tw`${search || isExpanded ? "flex-1" : "w-[70%] flex-shrink-0"}`}
+          style={tw`flex-1`}
           onLayout={(e) => setProductsWidth(e.nativeEvent.layout.width)}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
@@ -307,11 +304,22 @@ export default function RestaurantMenuScreen() {
               style={productWidth ? { width: productWidth } : tw`w-full`}
             >
               <ProductCard
-                onPress={() => openProduct(product)}
                 product={product}
-              ></ProductCard>
+                onPress={() => onPressProduct(product)}
+                onLongPress={() => openProduct(product)}
+                inCartCount={cart.countByProduct.get(product.id) ?? 0}
+                tapAction={cart.canQuickAdd(product) ? "add" : "open"}
+              />
             </ThemedView>
           ))}
+          {search.trim() !== "" && filteredProducts.length === 0 && (
+            <ThemedView style={tw`w-full items-center gap-2 pt-12 px-6`}>
+              <Icon name="search-x" size={32} color={tw.color("gray-400")} />
+              <ThemedText type="body2" style={tw`text-center text-gray-500`}>
+                {t("menu:noResults", { search: search.trim() })}
+              </ThemedText>
+            </ThemedView>
+          )}
         </ScrollView>
       </ThemedView>
 
@@ -324,58 +332,28 @@ export default function RestaurantMenuScreen() {
       >
         {/* Hidden while searching so it doesn't crowd the keyboard, and
             when the cart is already visible in the side pane. */}
-        {!isSearchFocused && isSaleEditMode && newSaleLineCount > 0 && (
-          <ThemedView
-            style={tw`flex-row justify-end items-center bg-transparent`}
-          >
-            <Button
-              label={t("bills:editSale.backToSale", {
-                count: newSaleLineCount,
-              })}
-              leftIcon="receipt-text"
+        {!isSearchFocused &&
+          cart.count > 0 &&
+          (isSaleEditMode ? (
+            <MenuCartBar
+              label={t("menu:backToSale")}
+              icon="receipt-text"
+              count={cart.count}
+              total={cart.total}
               onPress={() => router.back()}
             />
-          </ThemedView>
-        )}
-
-        {!showCartPanel &&
-          !isSearchFocused &&
-          !order &&
-          !isSaleEditMode &&
-          details.length > 0 && (
-            <ThemedView
-              style={tw`flex-row justify-end items-center bg-transparent`}
-            >
-              <Button
+          ) : (
+            !showCartPanel &&
+            (cart.mode === "cart" || cart.mode === "edit") && (
+              <MenuCartBar
                 label={t("menu:goToCart")}
-                leftIcon="shopping-cart"
+                icon="shopping-cart"
+                count={cart.count}
+                total={cart.total}
                 onPress={() => router.push("/(new-order)/cart")}
               />
-            </ThemedView>
-          )}
-
-        {!showCartPanel &&
-          !isSearchFocused &&
-          isEditMode &&
-          !isReplaceMode &&
-          newItemCount > 0 && (
-            <ThemedView
-              style={tw`flex-row justify-end items-center bg-transparent gap-2`}
-            >
-              <ThemedView
-                style={tw`bg-primary-600 rounded-full w-8 h-8 items-center justify-center`}
-              >
-                <ThemedText style={tw`text-white font-bold text-sm`}>
-                  {newItemCount}
-                </ThemedText>
-              </ThemedView>
-              <Button
-                label={t("menu:goToCart")}
-                leftIcon="shopping-cart"
-                onPress={() => router.push("/(new-order)/cart")}
-              />
-            </ThemedView>
-          )}
+            )
+          ))}
       </FloatingSearchBar>
     </ScreenLayout>
   );

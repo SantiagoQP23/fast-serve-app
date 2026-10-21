@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { NewOrderDetail } from "@/core/orders/dto/new-order-detail.dto";
 import { OrderDetail } from "@/core/orders/models/order-detail.model";
 import { Order } from "@/core/orders/models/order.model";
+import { isSameOrderLine } from "@/presentation/orders/utils/same-order-line";
 
 export interface EditOrderCartState {
   orderId: string | null;
@@ -13,7 +14,8 @@ export interface EditOrderCartState {
 
 export interface EditOrderCartActions {
   init: (order: Order) => void;
-  addNewItem: (detail: NewOrderDetail) => void;
+  /** Adds the line, or raises the quantity of an identical one. Returns its id. */
+  addNewItem: (detail: NewOrderDetail) => string;
   updateNewItem: (id: string, detail: Partial<NewOrderDetail>) => void;
   removeNewItem: (id: string) => void;
   modifyExistingItem: (id: string, changes: Partial<OrderDetail>) => void;
@@ -52,8 +54,20 @@ export const useEditOrderCartStore = create<EditOrderCartState & EditOrderCartAc
 
     addNewItem: (detail: NewOrderDetail) => {
       const current = get().newItems;
+      const existing = current.find((item) => isSameOrderLine(item, detail));
+      if (existing?.id) {
+        set({
+          newItems: current.map((item) =>
+            item === existing
+              ? { ...item, quantity: item.quantity + detail.quantity }
+              : item,
+          ),
+        });
+        return existing.id;
+      }
       const id = Math.random().toString(36).slice(2);
       set({ newItems: [...current, { ...detail, id }] });
+      return id;
     },
 
     updateNewItem: (id: string, changes: Partial<NewOrderDetail>) => {

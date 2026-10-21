@@ -32,7 +32,16 @@
       "noneLeft": "No stock left for this item",
       "exceeds_one": "Only {{count}} left in stock",
       "exceeds_other": "Only {{count}} left in stock"
-    }
+    },
+    "updateLine": "Update item",
+    "extras": "Extras",
+    "note": "Note",
+    "editNote": "Edit note",
+    "removeNote": "Remove note",
+    "increase": "Increase quantity",
+    "decrease": "Decrease quantity",
+    "quantityValue": "Quantity {{count}}",
+    "noOptions": "No variants available"
   },
   "cart": {
     "title": "Cart",
@@ -56,5 +65,11 @@
     "loading": "Loading...",
     "retry": "Retry",
     "error": "Failed to load menu. Please try again."
-  }
+  },
+  "backToSale": "Back to sale",
+  "lineAdded": "{{item}} added",
+  "inCart_one": "{{count}} in cart",
+  "inCart_other": "{{count}} in cart",
+  "quickAddHint": "Adds one. Long press for options.",
+  "noResults": "No products match “{{search}}”"
 }

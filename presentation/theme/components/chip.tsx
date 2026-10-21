@@ -64,6 +64,11 @@ export default function Chip({
   return (
     <Pressable
       onPress={() => !disabled && onPress && onPress()}
+      accessibilityRole="button"
+      accessibilityState={{
+        disabled: !!disabled,
+        ...(variant === "filter" && { selected: !!selected }),
+      }}
       style={({ pressed }) => [
         tw`flex-row items-center px-4 py-[6px] rounded-md gap-2`,
         filled

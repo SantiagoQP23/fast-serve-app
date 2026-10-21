@@ -2,7 +2,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { getSelectableTags } from "@/core/menu/models/tag.model";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { router, useNavigation } from "expo-router";
 import TextInput from "@/presentation/theme/components/text-input";
 import Button from "@/presentation/theme/components/button";
@@ -10,8 +10,8 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import Label from "@/presentation/theme/components/label";
 import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
+import { useMenuCart } from "@/presentation/restaurant-menu/hooks/useMenuCart";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
-import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { useReplaceOrderDetailStore } from "@/presentation/orders/store/replaceOrderDetailStore";
 import { useEditSaleStore } from "@/presentation/orders/store/editSaleStore";
@@ -26,7 +26,6 @@ import {
   getProductDefaultOption,
   ProductStatus,
 } from "@/core/menu/models/product.model";
-import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import {
   ProductOption,
   ProductOptionStockLevel,
@@ -42,11 +41,20 @@ import BottomSheetPicker, {
   BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
-import { KeyboardAvoidingView, ScrollView } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import Animated, {
+  Easing,
+  FadeIn,
+  SlideInDown,
+} from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
-import Card from "@/presentation/theme/components/card";
 import Chip from "@/presentation/theme/components/chip";
+import { usePalette } from "@/presentation/theme/store/useThemeStore";
+
+/** Material caps sheets at 640dp on large screens. */
+const SHEET_MAX_WIDTH = 640;
 
 const STOCK_LABEL_COLOR: Record<
   ProductOptionStockLevel,
@@ -63,28 +71,43 @@ const STOCK_TEXT_COLOR: Record<ProductOptionStockLevel, string> = {
   out: "text-red-700",
 };
 
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <ThemedView style={tw`gap-2`}>
+      <ThemedText type="small">{title}</ThemedText>
+      {children}
+    </ThemedView>
+  );
+}
+
+/**
+ * Product picked from the menu, shown as a sheet over it: choose the variant,
+ * extras, quantity and note, then add it. Also edits a line already in the
+ * cart, and confirms the new product when replacing an order line.
+ */
 export default function ProductScreen() {
-  const { t } = useTranslation(["menu", "orders", "inventory"]);
-  const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
+  const { t } = useTranslation(["menu", "orders", "common", "bills"]);
+  const palette = usePalette();
+  const insets = useSafeAreaInsets();
+  const customPriceSheetRef = useRef<BottomSheetMethods>(null);
   const noteSheetRef = useRef<BottomSheetMethods>(null);
   const typePickerRef = useRef<BottomSheetPickerRef>(null);
   const activeOrderDetail = useNewOrderStore((state) => state.activeDetail);
   const orderType = useNewOrderStore((state) => state.orderType);
+
+  const cart = useMenuCart();
+  const { order } = cart;
   // While a direct sale is being edited, products go to that sale, never to
   // an order or the cart, whatever order is still marked active.
-  const isSaleEditMode = useEditSaleStore((state) => state.billId !== null);
+  const isSaleEditMode = cart.mode === "sale";
+  const isReplaceMode = cart.mode === "replace";
+  const isEditMode = cart.mode === "edit";
   const saleLines = useEditSaleStore((state) => state.lines);
-  const addSaleLine = useEditSaleStore((state) => state.addLine);
-  const activeOrder = useOrdersStore((state) => state.activeOrder);
-  const order = isSaleEditMode ? null : activeOrder;
-  const replaceOrderId = useReplaceOrderDetailStore((state) => state.orderId);
   const replacingDetail = useReplaceOrderDetailStore((state) => state.detail);
   const resetReplace = useReplaceOrderDetailStore((state) => state.reset);
-  const isReplaceMode =
-    !!order && !!replacingDetail && replaceOrderId === order.id;
   const { counter, increment, decrement } = useCounter(
     activeOrderDetail?.quantity ??
-      (isReplaceMode ? replacingDetail.quantity : undefined),
+      (isReplaceMode ? replacingDetail?.quantity : undefined),
     1,
     20,
     1,
@@ -100,44 +123,10 @@ export default function ProductScreen() {
     [activeProduct],
   );
 
-  const [selectedOption, setSelectedOption] = useState<ProductOption | null>(
-    activeOrderDetail
-      ? activeOrderDetail.productOption
-      : activeOptions.find((option) => option.isDefault) || null,
-  );
-
-  const [price, setPrice] = useState(
-    String(activeOrderDetail ? activeOrderDetail.price : selectedOption?.price),
-  );
-
-  const navigation = useNavigation();
-  const { user } = useAuthStore();
-  const isAdmin = isAdminLevelRole(user?.role?.name);
-
-  const [typeOrderDetail, setTypeOrderDetail] = useState<OrderType>(
-    activeOrderDetail
-      ? activeOrderDetail.typeOrderDetail
-      : isReplaceMode
-        ? replacingDetail.typeOrderDetail
-        : order
-          ? order.type
-          : orderType,
-  );
-
-  const toggleTag = (id: string) => {
-    setSelectedTagIds((prev) =>
-      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
-    );
-  };
-
-  const addDetail = useNewOrderStore((state) => state.addDetail);
-  const updateDetail = useNewOrderStore((state) => state.updateDetail);
   const setActiveProduct = useMenuStore((state) => state.setActiveProduct);
   const setActiveDetail = useNewOrderStore((state) => state.setActiveDetail);
-  const editOrderId = useEditOrderCartStore((state) => state.orderId);
-  const addEditItem = useEditOrderCartStore((state) => state.addNewItem);
+  const updateDetail = useNewOrderStore((state) => state.updateDetail);
   const updateEditItem = useEditOrderCartStore((state) => state.updateNewItem);
-  const isEditMode = !!order && editOrderId === order.id;
   const cartDetails = useNewOrderStore((state) => state.details);
   const editNewItems = useEditOrderCartStore((state) => state.newItems);
 
@@ -194,6 +183,51 @@ export default function ProductScreen() {
       level: getProductOptionStockLevel(option, remaining)!,
     };
   };
+
+  // Open on a variant that can actually be sold: the default one if it has
+  // stock left, otherwise the first one that does.
+  const [selectedOption, setSelectedOption] = useState<ProductOption | null>(
+    () => {
+      if (activeOrderDetail) return activeOrderDetail.productOption;
+      const hasStock = (option: ProductOption) => {
+        const stock = getOptionStock(option);
+        return !stock || stock.remaining > 0;
+      };
+      const defaultOption = activeOptions.find((option) => option.isDefault);
+      if (defaultOption && hasStock(defaultOption)) return defaultOption;
+      return (
+        activeOptions.find(hasStock) ??
+        defaultOption ??
+        activeOptions[0] ??
+        null
+      );
+    },
+  );
+
+  const [price, setPrice] = useState(
+    String(activeOrderDetail ? activeOrderDetail.price : selectedOption?.price),
+  );
+
+  const navigation = useNavigation();
+  const { user } = useAuthStore();
+  const isAdmin = isAdminLevelRole(user?.role?.name);
+
+  const [typeOrderDetail, setTypeOrderDetail] = useState<OrderType>(
+    activeOrderDetail
+      ? activeOrderDetail.typeOrderDetail
+      : isReplaceMode && replacingDetail
+        ? replacingDetail.typeOrderDetail
+        : order
+          ? order.type
+          : orderType,
+  );
+
+  const toggleTag = (id: string) => {
+    setSelectedTagIds((prev) =>
+      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
+    );
+  };
+
   const { settings } = useRestaurantSettings();
   // With the setting off, the server rejects anything beyond the stock left,
   // so don't let the waiter ask for it.
@@ -201,48 +235,21 @@ export default function ProductScreen() {
     (settings?.ALLOW_ORDERS_WITHOUT_STOCK ??
       DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK) === false;
 
-  const {
-    isLoading,
-    isOnline,
-    mutate: addOrderDetailToOrder,
-  } = useOrders().addOrderDetailToOrder;
+  const { mutate: addOrderDetailToOrder } = useOrders().addOrderDetailToOrder;
   const { isLoading: isReplacing, mutate: replaceOrderDetail } =
     useOrders().replaceOrderDetail;
 
-  const goToMenu = () => {
-    setActiveProduct(null);
-    setActiveDetail(null);
-    router.back();
-  };
+  // However the sheet closes (button, scrim, system back), the product and
+  // the line being edited stop being active.
+  useEffect(
+    () => () => {
+      setActiveProduct(null);
+      setActiveDetail(null);
+    },
+    [setActiveProduct, setActiveDetail],
+  );
 
-  const openCustomBottomSheet = () => {
-    bottomSheetModalRef.current?.present();
-  };
-
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: () =>
-        isAdmin ? (
-          <IconButton
-            icon="square-pen"
-            onPress={openCustomBottomSheet}
-            size={24}
-          />
-        ) : null,
-    });
-  }, [navigation, openCustomBottomSheet, isAdmin]);
-
-  const closeCustomBottomSheet = () => {
-    bottomSheetModalRef.current?.dismiss();
-  };
-
-  const openNoteBottomSheet = () => {
-    noteSheetRef.current?.present();
-  };
-
-  const closeNoteBottomSheet = () => {
-    noteSheetRef.current?.dismiss();
-  };
+  const goToMenu = () => router.back();
 
   if (!activeProduct) {
     return null;
@@ -266,46 +273,33 @@ export default function ProductScreen() {
       getProductDefaultOption(activeProduct)?.price ??
       0);
 
-  const addProductToOrder = () => {
-    if (activeProduct && order)
-      addOrderDetailToOrder(
-        {
-          productId: activeProduct!.id,
-          quantity: counter,
-          price: effectivePrice,
-          description: notes,
-          orderId: order!.id,
-          tagIds: selectedTagIds,
-          productOptionId: selectedOption!.id,
-          typeOrderDetail: typeOrderDetail || order!.type,
-        },
-        {},
-      );
-  };
+  const selectableTags = getSelectableTags(activeProduct.tags);
 
-  const addProductToCart = () => {
-    if (!activeOrderDetail) {
-      addDetail({
+  const newLine = () => ({
+    quantity: counter,
+    product: activeProduct,
+    description: notes,
+    price: effectivePrice,
+    tagIds: selectedTagIds,
+    productOption: selectedOption!,
+    typeOrderDetail: typeOrderDetail || order?.type || orderType,
+  });
+
+  const addProductToOrder = () => {
+    if (!order) return;
+    addOrderDetailToOrder(
+      {
+        productId: activeProduct.id,
         quantity: counter,
-        product: activeProduct!,
-        description: notes,
         price: effectivePrice,
-        tagIds: selectedTagIds,
-        productOption: selectedOption!,
-        typeOrderDetail,
-      });
-    } else {
-      updateDetail({
-        id: activeOrderDetail.id,
-        quantity: counter,
-        product: activeProduct!,
         description: notes,
-        price: effectivePrice,
+        orderId: order.id,
         tagIds: selectedTagIds,
-        productOption: selectedOption!,
-        typeOrderDetail,
-      });
-    }
+        productOptionId: selectedOption!.id,
+        typeOrderDetail: typeOrderDetail || order.type,
+      },
+      {},
+    );
   };
 
   const requiresOptionSelection =
@@ -319,7 +313,7 @@ export default function ProductScreen() {
         orderId: order.id,
         detailId: replacingDetail.id,
         newDetail: {
-          productId: activeProduct!.id,
+          productId: activeProduct.id,
           quantity: counter,
           price: effectivePrice,
           description: notes,
@@ -330,8 +324,6 @@ export default function ProductScreen() {
       },
       {
         onSuccess: () => {
-          setActiveProduct(null);
-          setActiveDetail(null);
           resetReplace();
           // Close the whole menu flow and land back on the order.
           navigation.getParent()?.goBack();
@@ -341,48 +333,19 @@ export default function ProductScreen() {
   };
 
   const onAddProduct = () => {
-    if (isSaleEditMode) {
-      addSaleLine({
-        product: activeProduct!,
-        productOption: selectedOption!,
-        price: effectivePrice,
-        quantity: counter,
-      });
-      goToMenu();
-      return;
-    }
-
     if (isReplaceMode) {
       replaceProductInOrder();
       return;
     }
 
-    if (isEditMode) {
-      if (activeOrderDetail?.id) {
-        updateEditItem(activeOrderDetail.id, {
-          quantity: counter,
-          product: activeProduct!,
-          description: notes,
-          price: effectivePrice,
-          tagIds: selectedTagIds,
-          productOption: selectedOption!,
-          typeOrderDetail: typeOrderDetail || order!.type,
-        });
-      } else {
-        addEditItem({
-          quantity: counter,
-          product: activeProduct!,
-          description: notes,
-          price: effectivePrice,
-          tagIds: selectedTagIds,
-          productOption: selectedOption!,
-          typeOrderDetail: typeOrderDetail || order!.type,
-        });
-      }
-    } else if (order) {
+    if (activeOrderDetail?.id && isEditMode) {
+      updateEditItem(activeOrderDetail.id, newLine());
+    } else if (activeOrderDetail?.id && cart.mode === "cart") {
+      updateDetail({ ...newLine(), id: activeOrderDetail.id });
+    } else if (cart.mode === "order") {
       addProductToOrder();
     } else {
-      addProductToCart();
+      cart.addLine(newLine());
     }
     goToMenu();
   };
@@ -392,28 +355,60 @@ export default function ProductScreen() {
     setPrice(String(option.price));
   };
 
+  const addLabel = isSaleEditMode
+    ? t("bills:editSale.addToSale")
+    : isReplaceMode
+      ? t("orders:replaceItem.confirm")
+      : activeOrderDetail?.id
+        ? t("menu:product.updateLine")
+        : order
+          ? t("menu:product.addToOrder")
+          : t("menu:product.addToCart");
+
+  const hasNote = notes.trim() !== "";
+
   return (
     <>
-      <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
-        <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
-          <ThemedView style={tw`flex-1`} />
-          <ThemedView style={tw` text-center mb-4 gap-4`}>
-            <ThemedView style={tw`gap-2`}>
-              <ThemedView
-                style={tw`flex-row items-center justify-between gap-2`}
-              >
-                <ThemedText type="h2">{activeProduct.name}</ThemedText>
-                <ThemedText>
-                  {formatCurrency(counter * effectivePrice)}
-                </ThemedText>
-              </ThemedView>
+      <View style={tw`flex-1 justify-end`}>
+        <Animated.View
+          entering={FadeIn.duration(200)}
+          style={[StyleSheet.absoluteFill, tw`bg-black/40`]}
+        >
+          <Pressable
+            style={tw`flex-1`}
+            onPress={goToMenu}
+            accessibilityRole="button"
+            accessibilityLabel={t("common:actions.close")}
+          />
+        </Animated.View>
+
+        <Animated.View
+          entering={SlideInDown.duration(320).easing(Easing.out(Easing.exp))}
+          style={[
+            tw`bg-background rounded-t-3xl w-full self-center`,
+            {
+              maxWidth: SHEET_MAX_WIDTH,
+              maxHeight: "92%",
+              paddingBottom: insets.bottom + 16,
+            },
+          ]}
+        >
+          <ThemedView
+            style={tw`flex-row items-start gap-2 pl-4 pr-2 pt-4 pb-2 bg-transparent`}
+          >
+            <ThemedView style={tw`flex-1 gap-1 pt-1 bg-transparent`}>
+              <ThemedText type="h3" accessibilityRole="header">
+                {activeProduct.name}
+              </ThemedText>
               {activeOptions.length === 1 && selectedOption && (
-                <ThemedView style={tw`flex-row items-center gap-3 flex-wrap`}>
+                <ThemedView
+                  style={tw`flex-row items-center gap-3 flex-wrap bg-transparent`}
+                >
                   <ThemedText type="body2" style={tw`text-gray-500`}>
                     {selectedOption.name} ·{" "}
                     {formatCurrency(selectedOption.price)}
                   </ThemedText>
-                  {/* Products with variants show stock on each variant card instead. */}
+                  {/* Products with variants show stock on each variant instead. */}
                   {selectedStock && (
                     <Label
                       size="small"
@@ -430,28 +425,36 @@ export default function ProductScreen() {
                   )}
                 </ThemedView>
               )}
-              {activeProduct.description && (
-                <ThemedText type="body1" style={tw`text-gray-600`}>
-                  {activeProduct.description}
-                </ThemedText>
-              )}
             </ThemedView>
-
-            {notes.trim() && (
-              <TextInput
-                numberOfLines={4}
-                multiline
-                value={notes}
-                onChangeText={setNotes}
-                placeholder={t("orders:newOrder.addNote")}
-                pointerEvents="none"
+            {isAdmin && (
+              <IconButton
+                icon="circle-dollar-sign"
+                size={22}
+                onPress={() => customPriceSheetRef.current?.present()}
+                accessibilityLabel={t("orders:newOrder.customPrice")}
               />
             )}
+            <IconButton
+              icon="x"
+              size={22}
+              onPress={goToMenu}
+              accessibilityLabel={t("common:actions.close")}
+            />
+          </ThemedView>
+
+          <ScrollView
+            style={tw`flex-shrink`}
+            contentContainerStyle={tw`px-4 pb-4 gap-5`}
+            showsVerticalScrollIndicator={false}
+          >
+            {activeProduct.description ? (
+              <ThemedText type="body2" style={tw`text-gray-600`}>
+                {activeProduct.description}
+              </ThemedText>
+            ) : null}
 
             {isUnavailable && (
-              <ThemedView
-                style={tw`flex-row items-center gap-2 flex-wrap my-2 `}
-              >
+              <ThemedView style={tw`flex-row`}>
                 <Label
                   text={t(`menu:product.status.${activeProduct.status}`)}
                   color={statusLabelColor}
@@ -460,105 +463,135 @@ export default function ProductScreen() {
             )}
 
             {activeOptions.length > 1 && (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={tw`gap-3`}
-              >
-                {activeOptions.map((option) => {
-                  const isSelected = selectedOption?.id === option.id;
-                  const optionStock = getOptionStock(option);
-                  return (
-                    <ThemedView key={option.id}>
-                      <Card
+              <Section title={t("menu:variants")}>
+                <ThemedView
+                  accessibilityRole="radiogroup"
+                  style={[
+                    tw`flex-row flex-wrap justify-between`,
+                    { rowGap: 8 },
+                  ]}
+                >
+                  {activeOptions.map((option) => {
+                    const isSelected = selectedOption?.id === option.id;
+                    const optionStock = getOptionStock(option);
+                    const stockText = optionStock
+                      ? optionStock.level === "out"
+                        ? t("menu:product.stock.out")
+                        : t("menu:product.stock.left", {
+                            count: optionStock.remaining,
+                          })
+                      : null;
+                    return (
+                      <Pressable
+                        key={option.id}
                         onPress={() => onChangeSelectedOption(option)}
-                        variant={isSelected ? "default" : "outline"}
-                        style={tw`min-w-36 p-4 gap-2  ${isSelected ? "border-2 border-primary" : "border-none"}`}
+                        accessibilityRole="radio"
+                        accessibilityState={{ checked: isSelected }}
+                        accessibilityLabel={[
+                          option.name,
+                          formatCurrency(option.price),
+                          stockText,
+                        ]
+                          .filter(Boolean)
+                          .join(", ")}
+                        style={({ pressed }) => [
+                          tw`rounded-md px-4 py-3 gap-1 min-h-16`,
+                          { width: "48.5%" },
+                          isSelected
+                            ? tw`bg-secondary border border-secondary`
+                            : tw`border border-primary`,
+                          pressed && tw`opacity-75`,
+                        ]}
                       >
                         <ThemedView
-                          style={tw`flex-row items-center justify-between gap-2`}
+                          style={tw`flex-row items-center gap-2 bg-transparent`}
                         >
-                          <ThemedText type="body1" style={tw``}>
+                          <ThemedText
+                            style={tw`flex-1 ${isSelected ? "text-on-secondary" : ""}`}
+                          >
                             {option.name}
                           </ThemedText>
-                          {optionStock ? (
+                          {isSelected && (
+                            <Icon
+                              name="check"
+                              size={16}
+                              color={palette.onSecondary}
+                            />
+                          )}
+                        </ThemedView>
+                        <ThemedView
+                          style={tw`flex-row items-center justify-between gap-2 bg-transparent`}
+                        >
+                          <ThemedText
+                            type="body2"
+                            style={tw`${isSelected ? "text-on-secondary" : ""}`}
+                          >
+                            {formatCurrency(option.price)}
+                          </ThemedText>
+                          {optionStock && (
                             <ThemedText
                               type="small"
                               style={tw`${STOCK_TEXT_COLOR[optionStock.level]}`}
                             >
-                              {optionStock.level === "out"
-                                ? t("menu:product.stock.out")
-                                : t("menu:product.stock.left", {
-                                    count: optionStock.remaining,
-                                  })}
+                              {stockText}
                             </ThemedText>
-                          ) : null}
+                          )}
                         </ThemedView>
-                        <ThemedText type="body2" style={tw``}>
-                          {formatCurrency(option.price)}
-                        </ThemedText>
-                      </Card>
-                    </ThemedView>
-                  );
-                })}
-              </ScrollView>
-            )}
-            {getSelectableTags(activeProduct.tags).length > 0 && (
-              <ThemedView style={tw`flex-row flex-wrap gap-2 `}>
-                {getSelectableTags(activeProduct.tags).map((tag) => (
-                  <Label
-                    key={tag.id}
-                    text={tag.name}
-                    color={
-                      selectedTagIds.includes(tag.id) ? "default" : "outline"
-                    }
-                    onPress={() => toggleTag(tag.id)}
-                  />
-                ))}
-              </ThemedView>
-            )}
-          </ThemedView>
-
-          <ThemedView style={tw`gap-8`}>
-            <ThemedView style={tw`items-center gap-3 w-full`}>
-              <ThemedView style={tw`flex-row items-center gap-6`}>
-                <IconButton
-                  icon="minus"
-                  onPress={decrement}
-                  variant="surface"
-                  size={40}
-                />
-                <ThemedText type="h1">{counter}</ThemedText>
-                <IconButton
-                  icon="plus"
-                  onPress={increment}
-                  variant="surface"
-                  size={40}
-                  disabled={atStockLimit}
-                />
-              </ThemedView>
-              {exceedsStock && (
-                <ThemedView style={tw`flex-row items-center gap-1.5`}>
-                  <Icon
-                    name="circle-alert"
-                    size={16}
-                    color={tw.color("orange-700")}
-                  />
-                  <ThemedText type="small" style={tw`text-orange-700`}>
-                    {selectedStock!.remaining === 0
-                      ? t("menu:product.stock.noneLeft")
-                      : t("menu:product.stock.exceeds", {
-                          count: selectedStock!.remaining,
-                        })}
-                  </ThemedText>
+                      </Pressable>
+                    );
+                  })}
                 </ThemedView>
-              )}
-            </ThemedView>
+              </Section>
+            )}
 
+            {selectableTags.length > 0 && (
+              <Section title={t("menu:product.extras")}>
+                <ThemedView style={tw`flex-row flex-wrap gap-2`}>
+                  {selectableTags.map((tag) => (
+                    <Chip
+                      key={tag.id}
+                      label={tag.name}
+                      selected={selectedTagIds.includes(tag.id)}
+                      onPress={() => toggleTag(tag.id)}
+                    />
+                  ))}
+                </ThemedView>
+              </Section>
+            )}
+
+            {hasNote && (
+              <Section title={t("menu:product.note")}>
+                <Pressable
+                  onPress={() => noteSheetRef.current?.present()}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${t("menu:product.editNote")}: ${notes}`}
+                  style={({ pressed }) => [
+                    tw`flex-row items-center gap-3 rounded-md border border-primary pl-4 pr-1 py-1 min-h-12`,
+                    pressed && tw`opacity-75`,
+                  ]}
+                >
+                  <Icon name="file-text" size={18} />
+                  <ThemedText
+                    type="body2"
+                    numberOfLines={3}
+                    style={tw`flex-1 py-2`}
+                  >
+                    {notes}
+                  </ThemedText>
+                  <IconButton
+                    icon="x"
+                    size={20}
+                    onPress={() => setNotes("")}
+                    accessibilityLabel={t("menu:product.removeNote")}
+                  />
+                </Pressable>
+              </Section>
+            )}
+          </ScrollView>
+
+          <ThemedView style={tw`px-4 pt-3 gap-4 border-t border-divider`}>
             {!isSaleEditMode && (
-              <ThemedView
-                style={tw`flex-row items-center justify-center gap-2 `}
-              >
+              <ThemedView style={tw`flex-row flex-wrap items-center gap-2`}>
                 <Chip
                   label={
                     typeOrderDetail === OrderType.IN_PLACE
@@ -570,49 +603,92 @@ export default function ProductScreen() {
                       ? "utensils"
                       : "shopping-bag"
                   }
-                  variant="filter"
+                  variant="assist"
+                  rightContent={<Icon name="chevron-down" size={16} />}
                   onPress={() => typePickerRef.current?.present()}
                 />
 
-                {!notes.trim() && (
+                {!hasNote && (
                   <Chip
                     variant="assist"
                     label={t("orders:newOrder.addNote")}
                     icon="file-text"
-                    onPress={openNoteBottomSheet}
+                    onPress={() => noteSheetRef.current?.present()}
                   />
                 )}
               </ThemedView>
             )}
 
-            <ThemedView style={tw`flex-row gap-5  mb-4`}>
-              <Button
-                label={
-                  isSaleEditMode
-                    ? t("bills:editSale.addToSale")
-                    : isReplaceMode
-                      ? t("orders:replaceItem.confirm")
-                      : t("menu:product.addToOrderOrCart", {
-                          type: order
-                            ? t("menu:product.order")
-                            : t("menu:product.cart"),
-                        })
-                }
-                onPress={onAddProduct}
-                leftIcon={isReplaceMode ? "arrow-left-right" : "shopping-cart"}
-                disabled={
-                  isUnavailable ||
-                  blockedByStock ||
-                  isReplacing ||
-                  requiresOptionSelection ||
-                  (isSaleEditMode && !selectedOption)
-                }
-                style={tw`flex-1`}
-              />
+            <ThemedView style={tw`flex-row items-center justify-between`}>
+              <ThemedView style={tw`flex-row items-center gap-2`}>
+                <IconButton
+                  icon="minus"
+                  onPress={decrement}
+                  variant="surface"
+                  size={24}
+                  disabled={counter <= 1}
+                  accessibilityLabel={t("menu:product.decrease")}
+                />
+                <ThemedText
+                  type="h3"
+                  style={tw`min-w-10 text-center`}
+                  accessibilityLiveRegion="polite"
+                  accessibilityLabel={t("menu:product.quantityValue", {
+                    count: counter,
+                  })}
+                >
+                  {counter}
+                </ThemedText>
+                <IconButton
+                  icon="plus"
+                  onPress={increment}
+                  variant="surface"
+                  size={24}
+                  disabled={atStockLimit}
+                  accessibilityLabel={t("menu:product.increase")}
+                />
+              </ThemedView>
+              <ThemedView style={tw`items-end`}>
+                <ThemedText type="small">{t("menu:cart.total")}</ThemedText>
+                <ThemedText type="h4">
+                  {formatCurrency(counter * effectivePrice)}
+                </ThemedText>
+              </ThemedView>
             </ThemedView>
+
+            {exceedsStock && (
+              <ThemedView style={tw`flex-row items-center gap-1.5 -mt-2`}>
+                <Icon
+                  name="circle-alert"
+                  size={16}
+                  color={tw.color("orange-700")}
+                />
+                <ThemedText type="small" style={tw`text-orange-700`}>
+                  {selectedStock!.remaining === 0
+                    ? t("menu:product.stock.noneLeft")
+                    : t("menu:product.stock.exceeds", {
+                        count: selectedStock!.remaining,
+                      })}
+                </ThemedText>
+              </ThemedView>
+            )}
+
+            <Button
+              label={addLabel}
+              onPress={onAddProduct}
+              leftIcon={isReplaceMode ? "arrow-left-right" : "shopping-cart"}
+              loading={isReplacing}
+              disabled={
+                isUnavailable ||
+                blockedByStock ||
+                isReplacing ||
+                requiresOptionSelection ||
+                (!selectedOption && !isReplaceMode)
+              }
+            />
           </ThemedView>
-        </ScreenLayout>
-      </KeyboardAvoidingView>
+        </Animated.View>
+      </View>
 
       <BottomSheetPicker
         ref={typePickerRef}
@@ -625,10 +701,11 @@ export default function ProductScreen() {
         onChange={(value) => setTypeOrderDetail(value as OrderType)}
       />
 
-      <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
+      <ThemedBottomSheetModal ref={customPriceSheetRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
+          <ThemedText type="h4">{t("orders:newOrder.customPrice")}</ThemedText>
           <TextInput
-            label={t("orders:newOrder.customPrice")}
+            label={t("menu:product.price")}
             value={price}
             onChangeText={setPrice}
             keyboardType="decimal-pad"
@@ -636,8 +713,8 @@ export default function ProductScreen() {
           />
 
           <Button
-            label={t("menu:product.saveDetails")}
-            onPress={closeCustomBottomSheet}
+            label={t("common:actions.done")}
+            onPress={() => customPriceSheetRef.current?.dismiss()}
           />
         </BottomSheetView>
       </ThemedBottomSheetModal>
@@ -646,8 +723,8 @@ export default function ProductScreen() {
         ref={noteSheetRef}
         initialValue={notes}
         onSave={(note) => {
-          setNotes(note);
-          closeNoteBottomSheet();
+          setNotes(note.trim());
+          noteSheetRef.current?.dismiss();
         }}
         placeholder={t("orders:newOrder.addNote")}
       />

@@ -25,7 +25,6 @@ import Popover, {
 } from "@/presentation/theme/components/popover";
 import OrderListByStatus from "@/presentation/orders/molecules/order-list-by-status";
 import OrderCardSkeleton from "@/presentation/home/components/order-card-skeleton";
-import SegmentedControl from "@/presentation/theme/components/segmented-control";
 import TablesView from "@/presentation/tables/components/tables-view";
 import TableActionsBottomSheet from "@/presentation/tables/components/table-actions-bottom-sheet";
 import { Table } from "@/core/tables/models/table.model";
@@ -253,10 +252,9 @@ export default function MyOrdersScreen() {
       <ThemedView style={tw`px-4  `}>
         <ThemedView style={tw`flex-row items-center justify-between pt-8 mb-2`}>
           <ThemedView style={tw`flex-1 mr-3`}>
-            <SegmentedControl
-              variant="text"
-              items={moduleTabs}
-              value={activeModule}
+            <ButtonGroup
+              options={moduleTabs}
+              selected={activeModule}
               onChange={setActiveModule}
             />
           </ThemedView>
