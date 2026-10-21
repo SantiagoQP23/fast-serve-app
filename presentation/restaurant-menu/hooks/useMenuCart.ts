@@ -1,8 +1,6 @@
 import { useMemo } from "react";
 import * as Haptics from "expo-haptics";
-import { toast } from "sonner-native";
 
-import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { Product, ProductStatus } from "@/core/menu/models/product.model";
 import { getProductOptionAvailableQuantity } from "@/core/menu/models/product-optionl.model";
 import { NewOrderDetail } from "@/core/orders/dto/new-order-detail.dto";
@@ -27,15 +25,11 @@ export type MenuCartMode = "cart" | "edit" | "sale" | "replace" | "order";
 
 type NewLine = Omit<NewOrderDetail, "id">;
 
-const ADDED_TOAST_ID = "menu-line-added";
-
 /**
  * The lines the menu is currently adding to, whichever store holds them, plus
- * one way to add to them that merges identical lines and offers an undo.
+ * one way to add to them that merges identical lines.
  */
 export function useMenuCart() {
-  const { t } = useTranslation(["menu", "common"]);
-
   const isSaleEditMode = useEditSaleStore((state) => state.billId !== null);
   const saleLines = useEditSaleStore((state) => state.lines);
   const activeOrder = useOrdersStore((state) => state.activeOrder);
@@ -170,36 +164,13 @@ export function useMenuCart() {
   };
 
   /**
-   * Adds the line and confirms it with a haptic tick and an undo toast.
+   * Adds the line and confirms it with a haptic tick.
    * Returns false when the current mode doesn't take lines this way.
    */
   const addLine = (line: NewLine) => {
-    const undo = insertLine(line);
-    if (!undo) return false;
+    if (!insertLine(line)) return false;
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    const showsVariant =
-      line.product.options.filter((option) => option.isActive).length > 1;
-    const name = showsVariant
-      ? `${line.product.name} ${line.productOption.name}`
-      : line.product.name;
-    // One toast that each add replaces, so its undo is always the last add.
-    toast.success(
-      t("menu:lineAdded", {
-        item: line.quantity > 1 ? `${line.quantity} × ${name}` : name,
-      }),
-      {
-        id: ADDED_TOAST_ID,
-        duration: 5000,
-        action: {
-          label: t("common:actions.undo"),
-          onClick: () => {
-            undo();
-            toast.dismiss(ADDED_TOAST_ID);
-          },
-        },
-      },
-    );
     return true;
   };
 

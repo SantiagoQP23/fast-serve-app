@@ -260,7 +260,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
           <Animated.FlatList
             style={tw`flex-1`}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={tw`gap-12 pb-4`}
+            contentContainerStyle={tw`gap-4 pb-4`}
             onScroll={scrollHandler}
             scrollEventThrottle={16}
             data={newItems}
@@ -417,7 +417,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
             const followsItem = cartListData[index - 1]?.kind === "item";
 
             return (
-              <ThemedView style={tw.style(followsItem && "mt-4")}>
+              <ThemedView style={tw.style(followsItem && "")}>
                 <NewOrderDetailCard
                   orderType={orderType}
                   detail={row.detail}

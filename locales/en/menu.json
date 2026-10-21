@@ -72,7 +72,6 @@
     "error": "Failed to load menu. Please try again."
   },
   "backToSale": "Back to sale",
-  "lineAdded": "{{item}} added",
   "inCart_one": "{{count}} in cart",
   "addOne": "Add {{product}}",
   "editInCart": "Edit in cart",

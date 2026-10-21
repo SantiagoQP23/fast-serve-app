@@ -71,7 +71,6 @@
     "error": "Error al cargar el menú. Por favor, inténtelo de nuevo."
   },
   "backToSale": "Volver a la venta",
-  "lineAdded": "Agregado: {{item}}",
   "inCart_one": "{{count}} en el carrito",
   "addOne": "Agregar {{product}}",
   "editInCart": "Editar en el carrito",

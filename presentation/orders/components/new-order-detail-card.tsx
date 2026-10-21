@@ -96,89 +96,98 @@ export default function NewOrderDetailCard({
         </ThemedView>
       )}
     >
-      <Pressable style={tw`flex-col gap-2`} onPress={onPress}>
-        {/* <ThemedView */}
-        {/*   style={tw`absolute  rounded-full items-center justify-center  z-10 right-0 top-0`} */}
-        {/* ></ThemedView> */}
+      <Card variant="outline" style={tw`p-4 bg-transparent`}>
+        <Pressable style={tw`flex-col gap-2`} onPress={onPress}>
+          {/* <ThemedView */}
+          {/*   style={tw`absolute  rounded-full items-center justify-center  z-10 right-0 top-0`} */}
+          {/* ></ThemedView> */}
 
-        <ThemedView style={tw`flex-row justify-between gap-4 items-start`}>
-          <ThemedText type="body1" style={{ fontFamily: typography.medium }}>
-            {detail.product.name}{" "}
-            {showProductOptionName && detail.productOption.name}
-          </ThemedText>
+          <ThemedView style={tw`flex-row justify-between gap-4 items-center`}>
+            <ThemedText
+              type="body1"
+              style={{ fontFamily: typography.medium, flex: 1 }}
+            >
+              {detail.product.name}{" "}
+              {showProductOptionName && detail.productOption.name}
+            </ThemedText>
 
-          <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}>
-            <IconButton
-              icon="minus"
-              onPress={decrement}
-              style={tw`p-1`}
-              size={20}
-            />
-            <TextInput
-              variant="filled"
-              inputMode="numeric"
-              keyboardType="number-pad"
-              returnKeyType="done"
-              maxLength={2}
-              selectTextOnFocus
-              value={quantityInput}
-              onChangeText={(text) => setQuantityInput(text.replace(/\D/g, ""))}
-              onBlur={commitQuantityInput}
-              onSubmitEditing={commitQuantityInput}
-              containerStyle={tw`w-15 px-1 min-h-8`}
-              style={tw`h-8 mt-0 text-center`}
-            />
-            <IconButton
-              icon="plus"
-              onPress={increment}
-              style={tw`p-1`}
-              size={20}
-            />
+            <ThemedView
+              style={tw`flex-row items-center gap-2 bg-transparent flex-shrink-0`}
+            >
+              <IconButton
+                icon="minus"
+                onPress={decrement}
+                style={tw`p-1`}
+                size={20}
+              />
+              <TextInput
+                variant="filled"
+                inputMode="numeric"
+                keyboardType="number-pad"
+                returnKeyType="done"
+                maxLength={2}
+                selectTextOnFocus
+                value={quantityInput}
+                onChangeText={(text) =>
+                  setQuantityInput(text.replace(/\D/g, ""))
+                }
+                onBlur={commitQuantityInput}
+                onSubmitEditing={commitQuantityInput}
+                containerStyle={tw`w-15 px-1 min-h-8`}
+                style={tw`h-8 mt-0 text-center`}
+              />
+              <IconButton
+                icon="plus"
+                onPress={increment}
+                style={tw`p-1`}
+                size={20}
+              />
+            </ThemedView>
           </ThemedView>
-        </ThemedView>
-        {detail.description && (
-          <ThemedText type="body2" style={tw`mt-2`}>
-            {detail.description}
-          </ThemedText>
-        )}
-        {detail.tagIds && detail.tagIds.length > 0 && (
-          <ThemedView style={tw`flex-row flex-wrap gap-2 bg-transparent`}>
-            {detail.product.tags
-              .filter((tag) => detail.tagIds!.includes(tag.id))
-              .map((tag) => (
-                <Label
-                  key={tag.id}
-                  text={tag.name}
-                  color="default"
-                  size="small"
-                />
-              ))}
-          </ThemedView>
-        )}
-        {detail.typeOrderDetail && detail.typeOrderDetail !== orderType && (
-          <ThemedView style={tw`flex-row gap-2 bg-transparent`}>
-            <Label
-              text={
-                detail.typeOrderDetail === OrderType.IN_PLACE
-                  ? t("common:orderType.inPlace")
-                  : t("common:orderType.takeAway")
-              }
-              leftIcon={
-                detail.typeOrderDetail === OrderType.IN_PLACE
-                  ? "utensils"
-                  : "shopping-bag"
-              }
-              color="outline"
-              size="small"
-            />
-          </ThemedView>
-        )}
-        {/* <ThemedView style={tw`flex-row justify-between gap-4 items-center`}> */}
-        {/*   <ThemedText type="body1" style={tw`text-gray-500`}> */}
-        {/*     ${(detail.price ?? detail.productOption?.price ?? 0) * counter} */}
-        {/*   </ThemedText> */}
-        {/* </ThemedView> */}
-      </Pressable>
+          {detail.description && (
+            <ThemedText type="body2" style={tw`mt-2`}>
+              {detail.description}
+            </ThemedText>
+          )}
+          {detail.tagIds && detail.tagIds.length > 0 && (
+            <ThemedView style={tw`flex-row flex-wrap gap-2 bg-transparent`}>
+              {detail.product.tags
+                .filter((tag) => detail.tagIds!.includes(tag.id))
+                .map((tag) => (
+                  <Label
+                    key={tag.id}
+                    text={tag.name}
+                    color="default"
+                    size="small"
+                  />
+                ))}
+            </ThemedView>
+          )}
+          {detail.typeOrderDetail && detail.typeOrderDetail !== orderType && (
+            <ThemedView style={tw`flex-row gap-2 bg-transparent`}>
+              <Label
+                text={
+                  detail.typeOrderDetail === OrderType.IN_PLACE
+                    ? t("common:orderType.inPlace")
+                    : t("common:orderType.takeAway")
+                }
+                leftIcon={
+                  detail.typeOrderDetail === OrderType.IN_PLACE
+                    ? "utensils"
+                    : "shopping-bag"
+                }
+                color="outline"
+                size="small"
+              />
+            </ThemedView>
+          )}
+          {/* <ThemedView style={tw`flex-row justify-between gap-4 items-center`}> */}
+          {/*   <ThemedText type="body1" style={tw`text-gray-500`}> */}
+          {/*     ${(detail.price ?? detail.productOption?.price ?? 0) * counter} */}
+          {/*   </ThemedText> */}
+          {/* </ThemedView> */}
+        </Pressable>
+      </Card>
     </Swipeable>
   );
 }
