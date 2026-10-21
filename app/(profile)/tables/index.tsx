@@ -212,8 +212,10 @@ export default function TablesSettingsScreen() {
               : undefined
         }
         onLongPress={canSelect ? () => toggleSelected(table.id) : undefined}
-        containerStyle={[tw`flex-1`, isSelected && tw`border-2 border-primary`]}
-        style={[tw`flex-1 p-3`, table.isActive === false && tw`opacity-50`]}
+        // `grow`, not `flex-1`: a zero flex-basis collapses the row after a
+        // re-render (selecting a table), while content sizing keeps it intact.
+        containerStyle={[tw`grow`, isSelected && tw`border-2 border-primary`]}
+        style={[tw`grow p-3`, table.isActive === false && tw`opacity-50`]}
         variant="outline"
       >
         <ThemedView style={tw`gap-3`}>
@@ -246,8 +248,8 @@ export default function TablesSettingsScreen() {
       onPress={() => handleCreateTable(areaId)}
       accessibilityRole="button"
       accessibilityLabel={t("settings.newTable")}
-      containerStyle={[tw`flex-1 border-dashed border-border`]}
-      style={tw`flex-1 p-3 items-center justify-center gap-2 min-h-[104px]`}
+      containerStyle={[tw`grow border-dashed border-border`]}
+      style={tw`grow p-3 items-center justify-center gap-2 min-h-[104px]`}
       variant="outline"
     >
       <Icon name="plus" size={24} color={tw.color("primary")} />
