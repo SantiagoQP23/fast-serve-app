@@ -23,6 +23,7 @@ import InviteStaffBottomSheet from "@/presentation/users/components/invite-staff
 import ChangeUserRoleBottomSheet from "@/presentation/users/components/change-user-role-bottom-sheet";
 import { useRemoveUser } from "@/presentation/users/hooks/useRemoveUser";
 import { User } from "@/core/auth/models/user.model";
+import Button from "@/presentation/theme/components/button";
 
 export default function StaffScreen() {
   const { t } = useTranslation("auth");
@@ -93,12 +94,13 @@ export default function StaffScreen() {
         <ThemedText type="h3" style={tw`flex-1`}>
           {t("staff.title")}
         </ThemedText>
-        <IconButton
-          icon="user-plus"
-          size={20}
+        <Button
+          leftIcon="user-plus"
+          label={t("staff.addUser")}
           onPress={handlePresentInvite}
           accessibilityLabel={t("staff.addUser")}
-          variant="surface"
+          variant="outline"
+          size="extra-small"
         />
       </ThemedView>
 
@@ -128,7 +130,7 @@ export default function StaffScreen() {
               <Avatar
                 name={staffMember.person?.firstName}
                 size={40}
-                variant="outlined"
+                variant="surface"
               />
               <ThemedView style={tw`flex-1 gap-1`}>
                 <ThemedText type="body1" style={tw``}>

@@ -14,7 +14,6 @@ import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
-import Fab from "@/presentation/theme/components/fab";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import Label from "@/presentation/theme/components/label";
@@ -31,6 +30,15 @@ import BottomSheetPicker, {
 } from "@/presentation/theme/components/bottom-sheet-picker";
 
 const NO_AREA = "no-area";
+const COLUMNS = 3;
+
+// `null` marks the "add table" card that closes each zone's grid.
+type GridItem = Table | null;
+
+const chunk = <T,>(items: T[], size: number) =>
+  Array.from({ length: Math.ceil(items.length / size) }, (_, i) =>
+    items.slice(i * size, i * size + size),
+  );
 
 export default function TablesSettingsScreen() {
   const { t } = useTranslation("tables");
@@ -45,6 +53,7 @@ export default function TablesSettingsScreen() {
   const actionsSheetRef = useRef<BottomSheetMethods>(null);
   const { groups, hasAreas, areas } = useTableGroups(tables, {
     includeHidden: true,
+    includeEmpty: true,
   });
 
   // Selección múltiple para mover mesas a otra zona: mantener presionada una
@@ -127,7 +136,6 @@ export default function TablesSettingsScreen() {
         : canReorder
           ? () => (
               <Button
-                label={t("settings.reorderTables")}
                 leftIcon="arrow-up-down"
                 variant="surface"
                 size="extra-small"
@@ -138,8 +146,11 @@ export default function TablesSettingsScreen() {
     });
   }, [navigation, canReorder, isSelecting, t]);
 
-  const handleCreateTable = () => {
-    router.push("/(profile)/tables/form");
+  const handleCreateTable = (areaId?: string) => {
+    router.push({
+      pathname: "/(profile)/tables/form",
+      params: areaId ? { areaId } : {},
+    });
   };
 
   const handleEditTable = (table: Table) => {
@@ -181,11 +192,83 @@ export default function TablesSettingsScreen() {
     setTableToDelete(null);
   };
 
+  const canAdd = canManage && !isSelecting;
+  // Without the FAB the add card is the only way to create a table, so a
+  // restaurant with no tables and no zones still needs one group to hold it.
+  const visibleGroups =
+    groups.length === 0 && canAdd && !isLoading && !isError
+      ? [{ area: null, tables: [] as Table[] }]
+      : groups;
+
+  const renderTable = (table: Table) => {
+    const isSelected = selectedIds.has(table.id);
+    return (
+      <Card
+        onPress={
+          isSelecting
+            ? () => toggleSelected(table.id)
+            : canManage
+              ? () => handleOpenTableActions(table)
+              : undefined
+        }
+        onLongPress={canSelect ? () => toggleSelected(table.id) : undefined}
+        containerStyle={[tw`flex-1`, isSelected && tw`border-2 border-primary`]}
+        style={[tw`flex-1 p-3`, table.isActive === false && tw`opacity-50`]}
+        variant="outline"
+      >
+        <ThemedView style={tw`gap-3`}>
+          <Icon
+            name={isSelected ? "circle-check" : "layout-grid"}
+            size={24}
+            color={tw.color(isSelected ? "primary" : "text-on-surface-variant")}
+          />
+          <ThemedView style={tw`gap-1`}>
+            <ThemedText
+              type="body1"
+              numberOfLines={2}
+              style={{ fontFamily: typography.medium }}
+            >
+              {t("settings.tableName", { name: table.name })}
+            </ThemedText>
+            {table.chairs != null && (
+              <ThemedText type="small" style={tw`text-primary`}>
+                {t("settings.chairsCount", { count: table.chairs })}
+              </ThemedText>
+            )}
+          </ThemedView>
+        </ThemedView>
+      </Card>
+    );
+  };
+
+  const renderAddCard = (areaId?: string) => (
+    <Card
+      onPress={() => handleCreateTable(areaId)}
+      accessibilityRole="button"
+      accessibilityLabel={t("settings.newTable")}
+      containerStyle={[tw`flex-1 border-dashed border-border`]}
+      style={tw`flex-1 p-3 items-center justify-center gap-2 min-h-[104px]`}
+      variant="outline"
+    >
+      <Icon name="plus" size={24} color={tw.color("primary")} />
+      <ThemedText
+        type="small"
+        numberOfLines={2}
+        style={[
+          tw`text-primary text-center`,
+          { fontFamily: typography.medium },
+        ]}
+      >
+        {t("settings.newTable")}
+      </ThemedText>
+    </Card>
+  );
+
   return (
     <ScreenLayout style={tw`flex-1 px-4 pt-2`}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`gap-4 pb-8`}
+        contentContainerStyle={tw`gap-8 pb-8`}
         refreshControl={
           <RefreshControl
             refreshing={isRefetching}
@@ -197,11 +280,7 @@ export default function TablesSettingsScreen() {
       >
         {isLoading && tables.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Icon
-              name="layout-grid"
-              size={48}
-              color={tw.color("gray-400")}
-            />
+            <Icon name="layout-grid" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`text-gray-500`}>
               {t("settings.loading")}
             </ThemedText>
@@ -210,11 +289,7 @@ export default function TablesSettingsScreen() {
 
         {isError && tables.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Icon
-              name="circle-alert"
-              size={48}
-              color={tw.color("red-500")}
-            />
+            <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
             <ThemedText type="body1" style={tw`text-red-500`}>
               {t("settings.loadError")}
             </ThemedText>
@@ -228,11 +303,7 @@ export default function TablesSettingsScreen() {
 
         {!isLoading && !isError && tables.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
-            <Icon
-              name="layout-grid"
-              size={48}
-              color={tw.color("gray-400")}
-            />
+            <Icon name="layout-grid" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`font-semibold`}>
               {t("settings.noTables")}
             </ThemedText>
@@ -242,23 +313,13 @@ export default function TablesSettingsScreen() {
           </ThemedView>
         )}
 
-        {canManage && (
-          <Button
-            label={t("areas.manage")}
-            leftIcon="gallery-vertical-end"
-            variant="outline"
-            size="small"
-            onPress={() => router.push("/(profile)/tables/areas")}
-          />
-        )}
-
         {/* {canSelect && !isSelecting && tables.length > 1 && ( */}
         {/*   <ThemedText type="small" style={tw`text-gray-500`}> */}
         {/*     {t("areas.selectHint")} */}
         {/*   </ThemedText> */}
         {/* )} */}
 
-        {groups.map((group) => (
+        {visibleGroups.map((group) => (
           <ThemedView key={group.area?.id ?? "no-area"} style={tw`gap-3`}>
             {hasAreas && (
               <ThemedView style={tw`flex-row items-center gap-2`}>
@@ -284,67 +345,55 @@ export default function TablesSettingsScreen() {
                 )}
               </ThemedView>
             )}
-            <ThemedView style={tw`flex-row flex-wrap justify-between gap-y-4`}>
-              {group.tables.map((table) => (
-                <ThemedView key={table.id} style={tw`w-[48%]`}>
-                  <Card
-                    onPress={
-                      isSelecting
-                        ? () => toggleSelected(table.id)
-                        : canManage
-                          ? () => handleOpenTableActions(table)
-                          : undefined
-                    }
-                    onLongPress={
-                      canSelect ? () => toggleSelected(table.id) : undefined
-                    }
-                    containerStyle={
-                      selectedIds.has(table.id) && tw`border-2 border-primary`
-                    }
-                    style={table.isActive === false && tw`opacity-50`}
-                  >
-                    <ThemedView style={tw`gap-4`}>
-                      <Icon
-                        name={
-                          selectedIds.has(table.id)
-                            ? "circle-check"
-                            : "layout-grid"
-                        }
-                        size={28}
-                        color={tw.color(
-                          selectedIds.has(table.id)
-                            ? "primary"
-                            : "text-on-surface-variant",
-                        )}
-                      />
-                      <ThemedView style={tw`gap-2`}>
-                        <ThemedText type="h4">
-                          {t("settings.tableName", { name: table.name })}
-                        </ThemedText>
-                        <ThemedView
-                          style={tw`flex-row items-center gap-2 flex-wrap`}
-                        >
-                          {table.chairs != null && (
-                            <ThemedText type="small" style={tw`text-gray-500`}>
-                              {t("settings.chairsCount", {
-                                count: table.chairs,
-                              })}
-                            </ThemedText>
-                          )}
-                        </ThemedView>
+            <ThemedView style={tw`gap-3`}>
+              {chunk<GridItem>(
+                canAdd ? [...group.tables, null] : group.tables,
+                COLUMNS,
+              ).map((row, rowIndex) => (
+                <ThemedView key={rowIndex} style={tw`flex-row gap-3`}>
+                  {Array.from({ length: COLUMNS }, (_, col) => {
+                    const item = row[col];
+                    return (
+                      <ThemedView
+                        key={item?.id ?? `slot-${col}`}
+                        style={tw`flex-1`}
+                      >
+                        {item === undefined
+                          ? null
+                          : item === null
+                            ? renderAddCard(group.area?.id)
+                            : renderTable(item)}
                       </ThemedView>
-                    </ThemedView>
-                  </Card>
+                    );
+                  })}
                 </ThemedView>
               ))}
             </ThemedView>
           </ThemedView>
         ))}
+        {canManage && (
+          <ThemedView style={tw`gap-8`}>
+            {canAdd && (
+              <ThemedView style={tw`items-center flex-row`}>
+                <Button
+                  label={t("areas.newArea")}
+                  leftIcon="plus"
+                  variant="outline"
+                  size="small"
+                  onPress={() => router.push("/(profile)/tables/areas/form")}
+                />
+              </ThemedView>
+            )}
+            <Button
+              label={t("areas.manage")}
+              leftIcon="gallery-vertical-end"
+              variant="text"
+              size="small"
+              onPress={() => router.push("/(profile)/tables/areas")}
+            />
+          </ThemedView>
+        )}
       </ScrollView>
-
-      {canManage && !isSelecting && (
-        <Fab icon="plus" onPress={handleCreateTable} />
-      )}
 
       {isSelecting && (
         <ThemedView
@@ -406,11 +455,7 @@ export default function TablesSettingsScreen() {
                 )}
               </ThemedView>
               <IconButton
-                icon={
-                  selectedTable.isActive !== false
-                    ? "eye"
-                    : "eye-off"
-                }
+                icon={selectedTable.isActive !== false ? "eye" : "eye-off"}
                 variant="surface"
                 onPress={handleToggleActive}
               />

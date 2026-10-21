@@ -6,13 +6,15 @@ import { ThemedView } from "./themed-view";
 import { ThemedText } from "./themed-text";
 import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
-type AvatarVariant = "dynamic" | "primary" | "outlined";
+type AvatarVariant = "dynamic" | "primary" | "outlined" | "surface";
 
 export interface AvatarProps {
   name?: string;
   /**
    * `dynamic` colors by initial; `primary` fills with the theme's primary
-   * color; `outlined` draws a primary border on a transparent background.
+   * color; `outlined` draws a primary border on a transparent background;
+   * `surface` is a quiet surface-tinted fill with primary initials, like the
+   * Button's surface variant.
    */
   variant?: AvatarVariant;
   size?: number;
@@ -48,18 +50,23 @@ export default function Avatar({
   const palette = usePalette();
   const initial = name?.trim()?.charAt(0)?.toUpperCase() || "?";
   const isOutlined = variant === "outlined";
-  const isPrimary = variant === "primary" || (!isOutlined && initial === "?");
+  const isSurface = variant === "surface";
+  const isPrimary =
+    variant === "primary" || (variant === "dynamic" && initial === "?");
   const backgroundColor = isOutlined
     ? "transparent"
-    : isPrimary
-      ? palette.primary
-      : getAvatarColor(initial);
+    : isSurface
+      ? palette.surface
+      : isPrimary
+        ? palette.primary
+        : getAvatarColor(initial);
   // Primary flips to ivory in dark themes, so pair it with its own on-color.
-  const textColor = isOutlined
-    ? palette.primary
-    : isPrimary
-      ? palette.onPrimary
-      : "#FFFFFF";
+  const textColor =
+    isOutlined || isSurface
+      ? palette.primary
+      : isPrimary
+        ? palette.onPrimary
+        : "#FFFFFF";
 
   const content = (
     <ThemedView

@@ -48,7 +48,7 @@ export default function TableCard({
         accessibilityLabel={`${t("tables:details.table", { name: table.name })}, ${statusText}`}
         style={tw`p-2 rounded-lg`}
         containerStyle={[
-          tw`rounded-lg`,
+          tw`rounded-none`,
           isOccupied && tw` bg-surface-container-low`,
         ]}
         variant="outline"

@@ -156,6 +156,7 @@ export default function ManageScreen() {
         <ThemedView style={tw`items-center gap-3 flex-row`}>
           <Avatar
             name={user?.person?.firstName}
+            variant="surface"
             size={36}
             onPress={() => userInfoSheetRef.current?.present()}
           />
@@ -212,7 +213,7 @@ export default function ManageScreen() {
         <ThemedView style={tw`my-6 gap-6`}>
           {/* Menu */}
           <ThemedView style={tw`gap-2`}>
-            <ThemedText type="small" style={tw`text-gray-500`}>
+            <ThemedText type="body2" style={tw`text-primary`}>
               {t("manage.menu.title")}
             </ThemedText>
             <GroupedList
@@ -225,7 +226,7 @@ export default function ManageScreen() {
 
           {/* Restaurant */}
           <ThemedView style={tw`gap-2`}>
-            <ThemedText type="small" style={tw`text-gray-500`}>
+            <ThemedText type="body2" style={tw`text-primary`}>
               {t("manage.restaurant")}
             </ThemedText>
             <GroupedList

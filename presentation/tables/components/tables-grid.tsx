@@ -12,7 +12,7 @@ import { useTableGroups } from "@/presentation/tables/hooks/useTableGroups";
 const PHONE_NUM_COLUMNS = 4;
 const TABLET_MIN_ITEM_WIDTH = 120;
 const HORIZONTAL_PADDING = 16;
-const COLUMN_GAP = 8;
+const COLUMN_GAP = 12;
 
 type GridItem =
   | { type: "header"; key: string; title: string; count: number }
@@ -97,7 +97,7 @@ export default function TablesGrid({
               paddingBottom: COLUMN_GAP,
             }}
           >
-            <ThemedText type="h4">{item.title} </ThemedText>
+            <ThemedText type="body1">{item.title} </ThemedText>
           </ThemedView>
         ) : (
           <View
