@@ -8,7 +8,6 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useUsers } from "@/presentation/users/hooks/useUsers";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { translateRole } from "@/core/i18n/utils";
 
 import Avatar from "@/presentation/theme/components/avatar";
 import IconButton from "@/presentation/theme/components/icon-button";
@@ -16,14 +15,23 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Card from "@/presentation/theme/components/card";
-import { typography } from "@/constants/theme";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import InviteStaffBottomSheet from "@/presentation/users/components/invite-staff-bottom-sheet";
 import ChangeUserRoleBottomSheet from "@/presentation/users/components/change-user-role-bottom-sheet";
 import { useRemoveUser } from "@/presentation/users/hooks/useRemoveUser";
-import { User } from "@/core/auth/models/user.model";
+import { Roles, User } from "@/core/auth/models/user.model";
 import Button from "@/presentation/theme/components/button";
+import InventorySectionHeader from "@/presentation/inventory/components/inventory-section-header";
+
+/** Order the role groups appear in, from most to least privileged. */
+const ROLE_ORDER = [
+  Roles.OWNER,
+  Roles.ADMIN,
+  Roles.CASHIER,
+  Roles.WAITER,
+  Roles.COOK,
+];
 
 export default function StaffScreen() {
   const { t } = useTranslation("auth");
@@ -77,13 +85,26 @@ export default function StaffScreen() {
     });
   };
 
-  const getRoleName = (staffMember: (typeof staffMembers)[number]) => {
-    const role = staffMember.restaurantRoles.find(
+  const getRole = (staffMember: User) =>
+    staffMember.restaurantRoles.find(
       (resRole) => resRole.restaurant.id === currentRestaurant?.id,
-    )?.role;
+    )?.role?.name;
 
-    return role ? translateRole(role.name) : "";
-  };
+  const staffGroups = [
+    ...ROLE_ORDER.map((role) => ({
+      key: role,
+      title: t(`staff.groups.${role}`),
+      members: staffMembers.filter((member) => getRole(member) === role),
+    })),
+    {
+      key: "none",
+      title: t("staff.groups.none"),
+      members: staffMembers.filter((member) => {
+        const role = getRole(member);
+        return !role || !ROLE_ORDER.includes(role);
+      }),
+    },
+  ].filter((group) => group.members.length > 0);
 
   return (
     <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
@@ -111,7 +132,7 @@ export default function StaffScreen() {
         }
         contentContainerStyle={tw`pb-8`}
       >
-        <ThemedView style={tw`rounded-lg  gap-6 px-2`}>
+        <ThemedView style={tw`gap-8 px-2`}>
           {staffMembers.length === 0 && !isLoading && (
             <ThemedView style={tw`items-center py-12 gap-3`}>
               <Icon name="users" size={48} color={tw.color("gray-400")} />
@@ -121,32 +142,32 @@ export default function StaffScreen() {
             </ThemedView>
           )}
 
-          {staffMembers.map((staffMember) => (
-            <Pressable
-              key={staffMember.id}
-              style={tw`gap-4 flex-row items-center`}
-              onPress={() => handlePresentChangeRole(staffMember)}
-            >
-              <Avatar
-                name={staffMember.person?.firstName}
-                size={40}
-                variant="surface"
+          {staffGroups.map((group) => (
+            <ThemedView key={group.key} style={tw`gap-4`}>
+              <InventorySectionHeader
+                title={group.title}
+                count={group.members.length}
               />
-              <ThemedView style={tw`flex-1 gap-1`}>
-                <ThemedText type="body1" style={tw``}>
-                  {staffMember.person?.firstName} {staffMember.person?.lastName}
-                </ThemedText>
-                <ThemedText
-                  type="body2"
-                  style={[tw`text-gray-600`, { fontFamily: typography.medium }]}
-                >
-                  {getRoleName(staffMember) || ""}
-                </ThemedText>
-                {/* <ThemedText type="small" style={tw`text-gray-500`}> */}
-                {/*   {staffMember.email} */}
-                {/* </ThemedText> */}
+              <ThemedView style={tw`gap-5`}>
+                {group.members.map((staffMember) => (
+                  <Pressable
+                    key={staffMember.id}
+                    style={tw`gap-4 flex-row items-center`}
+                    onPress={() => handlePresentChangeRole(staffMember)}
+                  >
+                    <Avatar
+                      name={staffMember.person?.firstName}
+                      size={40}
+                      variant="surface"
+                    />
+                    <ThemedText type="body1" style={tw`flex-1`}>
+                      {staffMember.person?.firstName}{" "}
+                      {staffMember.person?.lastName}
+                    </ThemedText>
+                  </Pressable>
+                ))}
               </ThemedView>
-            </Pressable>
+            </ThemedView>
           ))}
         </ThemedView>
       </ScrollView>
