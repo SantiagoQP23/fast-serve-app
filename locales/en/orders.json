@@ -346,5 +346,20 @@
     "title": "Which items also change to {{type}}?",
     "subtitle": "Checked items change type along with the order.",
     "all": "All ({{count}})"
+  },
+  "draft": {
+    "options": "Cart options",
+    "convertToSale": "Turn into a sale",
+    "convertToOrder": "Turn into an order",
+    "clear": "Clear cart",
+    "clearSaleMessage": "Clear the cart? All products of the sale will be removed.",
+    "existingOrderTitle": "You already have an order in progress",
+    "existingSaleTitle": "You already have a sale in progress",
+    "existingMessage_one": "It has {{count}} product. You can combine it with these products or replace it.",
+    "existingMessage_other": "It has {{count}} products. You can combine them with these products or replace them.",
+    "combine": "Combine",
+    "replace": "Replace",
+    "convert": "Convert",
+    "saleDropsOrderData": "A sale doesn't keep the table, notes or delivery time."
   }
 }

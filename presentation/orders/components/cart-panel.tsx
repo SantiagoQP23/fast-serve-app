@@ -177,7 +177,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
       const data = mapStoreToCreateSaleDto(newOrder);
       createSale(data, {
         onSuccess: (resp) => {
-          resetNewOrder();
+          resetNewOrder("sale");
           if (resp.data) router.replace(`/(bills)/${resp.data.id}`);
         },
       });
@@ -187,7 +187,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
       createOrder(data, {
         print,
         onSuccess: async (resp) => {
-          resetNewOrder();
+          resetNewOrder("order");
           if (!resp.data) return;
           setActiveOrder(resp.data);
 

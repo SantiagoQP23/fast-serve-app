@@ -1,19 +1,18 @@
 import CartOptionsBottomSheet, {
   type CartOptionsBottomSheetRef,
 } from "@/presentation/orders/components/cart-options-bottom-sheet";
-import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
+import CartActionsSheets, {
+  type CartActionsSheetsRef,
+} from "@/presentation/orders/components/cart-actions-sheets";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { useEditSaleStore } from "@/presentation/orders/store/editSaleStore";
 import IconButton from "@/presentation/theme/components/icon-button";
-import Button from "@/presentation/theme/components/button";
-import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { ROUTES } from "@/constants/routes";
 
-import { router, Stack } from "expo-router";
-import { useCallback, useRef, useState } from "react";
+import { Stack } from "expo-router";
+import { useCallback, useRef } from "react";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { typography } from "@/constants/theme";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
@@ -21,24 +20,13 @@ import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
 export default function NewOrderLayout() {
   const palette = usePalette();
-  const { t } = useTranslation(["common", "menu"]);
+  const { t } = useTranslation(["common", "menu", "orders"]);
   const cartOptionsSheetRef = useRef<CartOptionsBottomSheetRef>(null);
-  const cartType = useNewOrderStore((state) => state.cartType);
   const order = useOrdersStore((state) => state.activeOrder);
-  const { details } = useNewOrderStore();
-  const resetNewOrder = useNewOrderStore((state) => state.reset);
   const editOrderId = useEditOrderCartStore((state) => state.orderId);
   const isEditMode = !!editOrderId && editOrderId === order?.id;
   const isSaleEditMode = useEditSaleStore((state) => state.billId !== null);
-
-  const [resetCartDialogVisible, setResetCartDialogVisible] = useState(false);
-  const openResetCartDialog = () => setResetCartDialogVisible(true);
-  const closeResetCartDialog = () => setResetCartDialogVisible(false);
-  const handleResetCart = () => {
-    resetNewOrder();
-    closeResetCartDialog();
-    router.replace(ROUTES.APP.MY_ORDERS);
-  };
+  const cartActionsRef = useRef<CartActionsSheetsRef>(null);
 
   const handlePresentModalPress = useCallback(() => {
     cartOptionsSheetRef.current?.present();
@@ -46,17 +34,16 @@ export default function NewOrderLayout() {
 
   const { isExpanded } = useResponsiveLayout();
 
+  // Options for the draft being built: turn it into a sale or an order, or
+  // clear it. Not while adding to an existing order.
   const renderCartActions = () =>
-    cartType === "order" &&
-    !isEditMode && (
+    !isEditMode &&
+    !isSaleEditMode && (
       <ThemedView style={tw`flex-row items-center gap-2`}>
-        <Button
-          variant="text"
-          leftIcon="trash"
-          size="extra-small"
-          // label={t("orders:newOrder.resetCart")}
-          onPress={openResetCartDialog}
-          disabled={details.length === 0}
+        <IconButton
+          icon="ellipsis-vertical"
+          accessibilityLabel={t("orders:draft.options")}
+          onPress={() => cartActionsRef.current?.present()}
         />
         {/* <IconButton */}
         {/*   icon="square-pen" */}
@@ -114,16 +101,7 @@ export default function NewOrderLayout() {
         />
       </Stack>
 
-      <DialogModal
-        visible={resetCartDialogVisible}
-        title={t("orders:dialogs.resetCartTitle")}
-        message={t("orders:dialogs.resetCartMessage")}
-        onConfirm={handleResetCart}
-        onCancel={closeResetCartDialog}
-        confirmLabel={t("common:actions.clear")}
-        confirmVariant="destructive"
-      />
-
+      <CartActionsSheets ref={cartActionsRef} />
       <CartOptionsBottomSheet ref={cartOptionsSheetRef} />
     </>
   );
