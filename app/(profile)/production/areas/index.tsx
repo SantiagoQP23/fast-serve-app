@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { ScrollView, RefreshControl } from "react-native";
+import { useMemo, useRef, useState } from "react";
+import { ScrollView, RefreshControl, Pressable } from "react-native";
 import { router } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
@@ -27,6 +27,7 @@ import PrinterActionsBottomSheet, {
   type PrinterActionsBottomSheetRef,
 } from "@/presentation/printers/components/printer-actions-bottom-sheet";
 import type { Printer } from "@/core/common/models/printer.model";
+import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
 
 export default function ProductionAreasScreen() {
   const { t } = useTranslation("productionAreas");
@@ -39,6 +40,16 @@ export default function ProductionAreasScreen() {
   const { isLoading, isError, refetch, isRefetching } = getAllQuery;
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
+  const { products } = useMenu();
+
+  const productCountByArea = useMemo(() => {
+    const counts = new Map<number, number>();
+    for (const product of products) {
+      const id = product.productionArea?.id;
+      if (id != null) counts.set(id, (counts.get(id) ?? 0) + 1);
+    }
+    return counts;
+  }, [products]);
 
   const [areaToDelete, setAreaToDelete] = useState<ProductionArea | null>(null);
   const [selectedArea, setSelectedArea] = useState<ProductionArea | null>(null);
@@ -59,6 +70,13 @@ export default function ProductionAreasScreen() {
         description: area.description || "",
         printerIds: area.printers?.map((p) => p.id).join(",") || "",
       },
+    });
+  };
+
+  const handleOpenAreaProducts = (area: ProductionArea) => {
+    router.push({
+      pathname: "/(profile)/production/areas/detail",
+      params: { areaId: String(area.id) },
     });
   };
 
@@ -176,8 +194,10 @@ export default function ProductionAreasScreen() {
             {productionAreas.map((area) => (
               <Card
                 key={area.id}
-                onPress={
-                  canManage ? () => handleOpenAreaActions(area) : undefined
+                onPress={() =>
+                  canManage
+                    ? handleOpenAreaActions(area)
+                    : handleOpenAreaProducts(area)
                 }
                 style={!area.isActive && tw`opacity-50`}
                 variant="outline"
@@ -192,9 +212,16 @@ export default function ProductionAreasScreen() {
                         color={tw.color("text-primary")}
                       />
                       <ThemedView style={tw`flex-1 gap-2`}>
-                        <ThemedText type="h4" style={tw`text-primary`}>
-                          {area.name}
-                        </ThemedText>
+                        <ThemedView style={tw`gap-0.5`}>
+                          <ThemedText type="h4" style={tw`text-primary`}>
+                            {area.name}
+                          </ThemedText>
+                          <ThemedText type="small" style={tw`text-gray-500`}>
+                            {t("productCount", {
+                              count: productCountByArea.get(area.id) ?? 0,
+                            })}
+                          </ThemedText>
+                        </ThemedView>
                         {area.printers?.length ? (
                           <ThemedView style={tw`flex-row flex-wrap gap-2`}>
                             {area.printers.map((printer) => (
@@ -278,6 +305,37 @@ export default function ProductionAreasScreen() {
                 onPress={handleToggleActive}
               />
             </ThemedView>
+
+            {/* Products */}
+            <Pressable
+              onPress={() => {
+                handleCloseAreaActions();
+                handleOpenAreaProducts(selectedArea);
+              }}
+              style={({ pressed }) =>
+                tw.style(
+                  "flex-row items-center gap-3 p-4 rounded-md bg-surface-container-low",
+                  pressed && "opacity-80",
+                )
+              }
+            >
+              <Icon name="hamburger" size={22} />
+              <ThemedView style={tw`flex-1 gap-0.5 bg-transparent`}>
+                <ThemedText type="body1" style={tw`font-semibold`}>
+                  {t("products.title")}
+                </ThemedText>
+                <ThemedText type="small" style={tw`text-gray-500`}>
+                  {t("productCount", {
+                    count: productCountByArea.get(selectedArea.id) ?? 0,
+                  })}
+                </ThemedText>
+              </ThemedView>
+              <Icon
+                name="chevron-right"
+                size={20}
+                color={tw.color("gray-400")}
+              />
+            </Pressable>
 
             {/* Printers */}
             <ThemedView style={tw`gap-3`}>

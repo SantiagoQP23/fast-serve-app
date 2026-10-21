@@ -201,7 +201,9 @@
       }
     },
     "saveAndAddAnother": "Guardar y crear otro",
-    "createdList": "Creados: {{names}}"
+    "createdList": "Creados: {{names}}",
+    "moveAreaPartialError_one": "No se pudo mover {{count}} producto",
+    "moveAreaPartialError_other": "No se pudieron mover {{count}} productos"
   },
   "loading": "Cargando...",
   "loadError": "Error al cargar el menú",

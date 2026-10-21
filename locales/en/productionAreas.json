@@ -55,5 +55,21 @@
     "title": "Set up printers",
     "subtitle": "Choose where {{area}} orders are printed.",
     "addPrinter": "Add printer"
+  },
+  "productCount_one": "{{count}} product",
+  "productCount_other": "{{count}} products",
+  "products": {
+    "title": "Products",
+    "viewProducts": "View products",
+    "empty": "This area has no products",
+    "emptyDescription": "Assign an area to each product from its page in the menu.",
+    "noCategory": "No category",
+    "selectAll": "Select all",
+    "clearSelection": "Clear selection",
+    "selectedCount_one": "{{count}} selected",
+    "selectedCount_other": "{{count}} selected",
+    "moveToArea": "Move to another area",
+    "moveSheetTitle": "Move to",
+    "notFound": "Area not found"
   }
 }

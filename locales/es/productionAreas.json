@@ -55,5 +55,21 @@
     "title": "Configurar impresoras",
     "subtitle": "Elige dónde se imprimen los pedidos de {{area}}.",
     "addPrinter": "Agregar impresora"
+  },
+  "productCount_one": "{{count}} producto",
+  "productCount_other": "{{count}} productos",
+  "products": {
+    "title": "Productos",
+    "viewProducts": "Ver productos",
+    "empty": "Esta área no tiene productos",
+    "emptyDescription": "Asigna un área a cada producto desde su ficha en el menú.",
+    "noCategory": "Sin categoría",
+    "selectAll": "Seleccionar todo",
+    "clearSelection": "Quitar selección",
+    "selectedCount_one": "{{count}} seleccionado",
+    "selectedCount_other": "{{count}} seleccionados",
+    "moveToArea": "Mover a otra área",
+    "moveSheetTitle": "Mover a",
+    "notFound": "No se encontró el área"
   }
 }
