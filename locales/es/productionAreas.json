@@ -65,7 +65,7 @@
     "emptyDescription": "Asigna un área a cada producto desde su ficha en el menú.",
     "noCategory": "Sin categoría",
     "selectAll": "Seleccionar todo",
-    "clearSelection": "Quitar selección",
+    "cancelSelection": "Cancelar",
     "selectedCount_one": "{{count}} seleccionado",
     "selectedCount_other": "{{count}} seleccionados",
     "moveToArea": "Mover a otra área",

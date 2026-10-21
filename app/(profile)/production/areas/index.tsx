@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { ScrollView, RefreshControl, Pressable } from "react-native";
+import { ScrollView, RefreshControl } from "react-native";
 import { router } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
@@ -17,7 +17,6 @@ import Chip from "@/presentation/theme/components/chip";
 import Fab from "@/presentation/theme/components/fab";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
-import IconButton from "@/presentation/theme/components/icon-button";
 import type { ProductionArea } from "@/core/menu/models/producion-area.model";
 import { typography } from "@/constants/theme";
 import AreaPrintersBottomSheet, {
@@ -118,18 +117,6 @@ export default function ProductionAreasScreen() {
     );
   };
 
-  const handleToggleActive = () => {
-    if (!selectedArea) return;
-    updateProductionArea.mutate({
-      id: selectedArea.id,
-      name: selectedArea.name,
-      description: selectedArea.description,
-      printerIds: selectedArea.printers?.map((p) => p.id) || [],
-      isActive: !selectedArea.isActive,
-    });
-    handleCloseAreaActions();
-  };
-
   const handleConfirmDelete = async () => {
     if (!areaToDelete) return;
     await deleteProductionArea.mutateAsync(areaToDelete.id);
@@ -211,7 +198,7 @@ export default function ProductionAreasScreen() {
                         size={30}
                         color={tw.color("text-primary")}
                       />
-                      <ThemedView style={tw`flex-1 gap-2`}>
+                      <ThemedView style={tw`flex-1 gap-4`}>
                         <ThemedView style={tw`gap-0.5`}>
                           <ThemedText type="h4" style={tw`text-primary`}>
                             {area.name}
@@ -288,8 +275,8 @@ export default function ProductionAreasScreen() {
       <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
         {selectedArea && (
           <ThemedView style={tw`px-4 py-4 gap-6`}>
-            <ThemedView style={tw`flex-row justify-between items-start gap-3`}>
-              <ThemedView style={tw`flex-1 gap-2`}>
+            <ThemedView style={tw`gap-3`}>
+              <ThemedView style={tw`gap-2`}>
                 <ThemedText type="h2" style={{ fontFamily: typography.medium }}>
                   {selectedArea.name}
                 </ThemedText>
@@ -299,43 +286,20 @@ export default function ProductionAreasScreen() {
                   </ThemedText>
                 )}
               </ThemedView>
-              <IconButton
-                icon={selectedArea.isActive ? "eye" : "eye-off"}
-                variant="surface"
-                onPress={handleToggleActive}
-              />
-            </ThemedView>
-
-            {/* Products */}
-            <Pressable
-              onPress={() => {
-                handleCloseAreaActions();
-                handleOpenAreaProducts(selectedArea);
-              }}
-              style={({ pressed }) =>
-                tw.style(
-                  "flex-row items-center gap-3 p-4 rounded-md bg-surface-container-low",
-                  pressed && "opacity-80",
-                )
-              }
-            >
-              <Icon name="hamburger" size={22} />
-              <ThemedView style={tw`flex-1 gap-0.5 bg-transparent`}>
-                <ThemedText type="body1" style={tw`font-semibold`}>
-                  {t("products.title")}
-                </ThemedText>
-                <ThemedText type="small" style={tw`text-gray-500`}>
-                  {t("productCount", {
+              <ThemedView style={tw`flex-row`}>
+                <Chip
+                  variant="assist"
+                  icon="hamburger"
+                  label={t("productCount", {
                     count: productCountByArea.get(selectedArea.id) ?? 0,
                   })}
-                </ThemedText>
+                  onPress={() => {
+                    handleCloseAreaActions();
+                    handleOpenAreaProducts(selectedArea);
+                  }}
+                />
               </ThemedView>
-              <Icon
-                name="chevron-right"
-                size={20}
-                color={tw.color("gray-400")}
-              />
-            </Pressable>
+            </ThemedView>
 
             {/* Printers */}
             <ThemedView style={tw`gap-3`}>

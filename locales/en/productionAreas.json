@@ -65,7 +65,7 @@
     "emptyDescription": "Assign an area to each product from its page in the menu.",
     "noCategory": "No category",
     "selectAll": "Select all",
-    "clearSelection": "Clear selection",
+    "cancelSelection": "Cancel",
     "selectedCount_one": "{{count}} selected",
     "selectedCount_other": "{{count}} selected",
     "moveToArea": "Move to another area",

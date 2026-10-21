@@ -81,7 +81,8 @@ export default function ProductionAreaDetailScreen() {
     [products, selectedIds],
   );
   const isSelecting = selected.length > 0;
-  const allSelected = products.length > 0 && selected.length === products.length;
+  const allSelected =
+    products.length > 0 && selected.length === products.length;
 
   const toggleProduct = (id: string, value: boolean) => {
     setSelectedIds((current) => {
@@ -130,6 +131,26 @@ export default function ProductionAreaDetailScreen() {
       >
         <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
       </Pressable>
+      {isSelecting && (
+        <ThemedView
+          style={tw`flex-row items-center gap-2 ml-auto bg-transparent`}
+        >
+          {!allSelected && (
+            <Button
+              label={t("products.selectAll")}
+              variant="text"
+              size="extra-small"
+              onPress={toggleAll}
+            />
+          )}
+          <Button
+            label={t("products.cancelSelection")}
+            variant="surface"
+            size="extra-small"
+            onPress={() => setSelectedIds(new Set())}
+          />
+        </ThemedView>
+      )}
     </ThemedView>
   );
 
@@ -161,27 +182,30 @@ export default function ProductionAreaDetailScreen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw.style("gap-4", isSelecting ? "pb-32" : "pb-8")}
+        contentContainerStyle={tw.style(
+          "gap-8",
+          isSelecting ? "pb-32" : "pb-8",
+        )}
       >
         <ThemedView style={tw`gap-1`}>
           <ThemedText type="h1">{area.name}</ThemedText>
-          <ThemedText type="body2" style={tw`text-gray-500`}>
-            {t("productCount", { count: products.length })}
-          </ThemedText>
         </ThemedView>
+        <ThemedText type="h4" style={tw`text-primary`}>
+          {t("productCount", { count: products.length })}
+        </ThemedText>
 
-        {!!area.printers?.length && (
-          <ThemedView style={tw`flex-row flex-wrap gap-2`}>
-            {area.printers.map((printer) => (
-              <Chip
-                key={printer.id}
-                variant="assist"
-                icon="printer"
-                label={printer.name}
-              />
-            ))}
-          </ThemedView>
-        )}
+        {/* {!!area.printers?.length && ( */}
+        {/*   <ThemedView style={tw`flex-row flex-wrap gap-2`}> */}
+        {/*     {area.printers.map((printer) => ( */}
+        {/*       <Chip */}
+        {/*         key={printer.id} */}
+        {/*         variant="assist" */}
+        {/*         icon="printer" */}
+        {/*         label={printer.name} */}
+        {/*       /> */}
+        {/*     ))} */}
+        {/*   </ThemedView> */}
+        {/* )} */}
 
         {products.length === 0 ? (
           <ThemedView
@@ -197,20 +221,6 @@ export default function ProductionAreaDetailScreen() {
           </ThemedView>
         ) : (
           <>
-            {canManage && (
-              <Button
-                label={
-                  allSelected
-                    ? t("products.clearSelection")
-                    : t("products.selectAll")
-                }
-                variant="text"
-                size="extra-small"
-                style={tw`self-end -mr-3`}
-                onPress={toggleAll}
-              />
-            )}
-
             {groups.map((group) => {
               const groupSelected = group.products.every((p) =>
                 selectedIds.has(p.id),
@@ -223,7 +233,7 @@ export default function ProductionAreaDetailScreen() {
                     <ThemedText type="caption" style={tw`flex-1`}>
                       {group.name}
                     </ThemedText>
-                    {canManage && (
+                    {isSelecting && (
                       <Checkbox
                         size="small"
                         value={groupSelected}
@@ -238,7 +248,12 @@ export default function ProductionAreaDetailScreen() {
                       <Pressable
                         key={product.id}
                         disabled={!canManage}
-                        onPress={() => toggleProduct(product.id, !checked)}
+                        onPress={
+                          isSelecting
+                            ? () => toggleProduct(product.id, !checked)
+                            : undefined
+                        }
+                        onLongPress={() => toggleProduct(product.id, !checked)}
                         style={({ pressed }) =>
                           tw.style(
                             "flex-row items-center gap-3 py-3",
@@ -249,12 +264,15 @@ export default function ProductionAreaDetailScreen() {
                       >
                         <ThemedText
                           type="body1"
-                          style={[tw`flex-1`, { fontFamily: typography.medium }]}
+                          style={[
+                            tw`flex-1`,
+                            { fontFamily: typography.medium },
+                          ]}
                           numberOfLines={1}
                         >
                           {product.name}
                         </ThemedText>
-                        {canManage && (
+                        {isSelecting && (
                           <Checkbox
                             value={checked}
                             onValueChange={(value) =>
@@ -296,9 +314,7 @@ export default function ProductionAreaDetailScreen() {
         ref={areaPickerRef}
         title={t("products.moveSheetTitle")}
         options={targetOptions}
-        onChange={(value) =>
-          void handleMove(value).catch(() => {})
-        }
+        onChange={(value) => void handleMove(value).catch(() => {})}
       />
     </ScreenLayout>
   );
