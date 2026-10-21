@@ -36,11 +36,11 @@ function InCartCount({ count }: { count: number }) {
   return (
     <Animated.View
       style={[
-        tw`min-w-9 h-9 px-2 rounded-full bg-primary items-center justify-center`,
+        tw`min-w-9 h-9 px-2 rounded-full bg-secondary items-center justify-center`,
         popStyle,
       ]}
     >
-      <ThemedText type="body2" style={tw`text-on-primary font-bold`}>
+      <ThemedText type="body2" style={tw`text-on-secondary font-bold`}>
         ×{count}
       </ThemedText>
     </Animated.View>
@@ -126,6 +126,7 @@ export default function ProductCard({
       accessibilityHint={
         tapAction === "add" ? t("menu:quickAddHint") : undefined
       }
+      variant="outline"
     >
       <ThemedView style={tw`bg-transparent gap-2`}>
         <ThemedView style={tw`bg-transparent flex-row items-start gap-2`}>

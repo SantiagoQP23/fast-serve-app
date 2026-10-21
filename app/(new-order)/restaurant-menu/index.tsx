@@ -1,18 +1,24 @@
-import { Keyboard, RefreshControl, ScrollView } from "react-native";
+import {
+  Keyboard,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  View,
+} from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import ProductCard from "@/presentation/restaurant-menu/product-card";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import Chip from "@/presentation/theme/components/chip";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import TabBar from "@/presentation/theme/components/tab-bar";
 import { useRouter } from "expo-router";
 import FloatingSearchBar from "@/presentation/theme/components/floating-search-bar";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
 import { useProductSearch } from "@/presentation/restaurant-menu/hooks/useProductSearch";
 import { useSyncRefresh } from "@/presentation/sync/hooks/useSyncRefresh";
-import { Category } from "@/core/menu/models/category.model";
 import { Product } from "@/core/menu/models/product.model";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import Button from "@/presentation/theme/components/button";
@@ -27,19 +33,23 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 import CartPanel from "@/presentation/orders/components/cart-panel";
+import { typography } from "@/constants/theme";
 
 const PRODUCT_MIN_WIDTH = 200;
 const PRODUCT_GAP = 12;
 const CART_PANEL_WIDTH = 400;
 const CATEGORY_COLUMN_WIDTH = 200;
-const CATEGORY_COLUMN_WIDTH_COMPACT = 120;
+const CATEGORY_COLUMN_WIDTH_COMPACT = 136;
+// A group becomes "current" once its header passes this share of the list.
+const CATEGORY_SPY_RATIO = 0.3;
+// Ignore scroll-spy while a tap-triggered scroll animates to its group.
+const CATEGORY_SCROLL_LOCK_MS = 600;
 
 export default function RestaurantMenuScreen() {
   const { t } = useTranslation(["menu", "orders", "bills"]);
   const primaryColor = useThemeColor({}, "primary");
-  const [section, setSection] = useState("");
-  const [category, setCategory] = useState("");
-  const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
+  const [selectedSection, setSection] = useState("");
+  const [selectedCategory, setCategory] = useState("");
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -62,14 +72,29 @@ export default function RestaurantMenuScreen() {
     () => allProducts.filter((p) => p.isActive),
     [allProducts],
   );
+  const isSearching = search.trim() !== "";
   const searchResults = useProductSearch(products, search);
-  const filteredProducts = useMemo(
+  const productsByCategory = useMemo(() => {
+    const byCategory = new Map<string, Product[]>();
+    for (const product of products) {
+      const list = byCategory.get(product.category.id);
+      if (list) list.push(product);
+      else byCategory.set(product.category.id, [product]);
+    }
+    return byCategory;
+  }, [products]);
+  const section = selectedSection || sections[0]?.id || "";
+  // Categories of the current section that have something to show.
+  const sectionCategories = useMemo(
     () =>
-      search.trim()
-        ? searchResults
-        : products.filter((p) => p.category.id === category),
-    [search, searchResults, products, category],
+      categories.filter(
+        (c) => c.sectionId === section && productsByCategory.has(c.id),
+      ),
+    [categories, section, productsByCategory],
   );
+  const category = sectionCategories.some((c) => c.id === selectedCategory)
+    ? selectedCategory
+    : (sectionCategories[0]?.id ?? "");
   const { setActiveProduct } = useMenuStore();
   // Where picked products go (cart, order being edited, sale being edited…)
   const cart = useMenuCart();
@@ -141,39 +166,51 @@ export default function RestaurantMenuScreen() {
     if (!cart.quickAdd(product)) openProduct(product);
   };
 
-  const onChangeCategory = useCallback((value: string) => {
-    setCategory(value);
+  const productsScrollRef = useRef<ScrollView>(null);
+  // Top of each category group inside the product list.
+  const categoryGroupY = useRef(new Map<string, number>());
+  const productsHeight = useRef(0);
+  const isAutoScrolling = useRef(false);
+  const autoScrollTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(autoScrollTimer.current), []);
+
+  const onChangeSection = useCallback((value: string) => {
+    setSection(value);
+    setCategory("");
+    productsScrollRef.current?.scrollTo({ y: 0, animated: false });
   }, []);
 
-  const onChangeSection = useCallback(
-    (value: string) => {
-      setSection(value);
-      setFilteredCategories(() => {
-        const newCategories = categories.filter((c) => c.sectionId === value);
-        if (newCategories.length > 0) onChangeCategory(newCategories[0].id);
-        else onChangeCategory("");
-        return newCategories;
-      });
-    },
-    [categories, onChangeCategory],
-  );
+  const onSelectCategory = (id: string) => {
+    setCategory(id);
+    const y = categoryGroupY.current.get(id);
+    if (y === undefined) return;
+    isAutoScrolling.current = true;
+    clearTimeout(autoScrollTimer.current);
+    autoScrollTimer.current = setTimeout(() => {
+      isAutoScrolling.current = false;
+    }, CATEGORY_SCROLL_LOCK_MS);
+    productsScrollRef.current?.scrollTo({ y, animated: true });
+  };
 
-  useEffect(() => {
-    if (sections.length > 0 && !section) {
-      onChangeSection(sections[0].id);
+  // Highlight the category whose group is at the top of the list.
+  const onProductsScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (isSearching || isAutoScrolling.current) return;
+    const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
+    // At the very bottom the last group may never reach the line; pick it.
+    const atEnd =
+      contentOffset.y + layoutMeasurement.height >= contentSize.height - 1;
+    if (atEnd && sectionCategories.length > 0) {
+      setCategory(sectionCategories[sectionCategories.length - 1].id);
+      return;
     }
-  }, [sections, section, onChangeSection]);
-
-  useEffect(() => {
-    if (!section) return;
-    setFilteredCategories(categories.filter((c) => c.sectionId === section));
-  }, [categories, section]);
-
-  useEffect(() => {
-    if (filteredCategories.length > 0 && !category) {
-      onChangeCategory(filteredCategories[0].id);
+    const y = contentOffset.y + productsHeight.current * CATEGORY_SPY_RATIO;
+    let current = sectionCategories[0]?.id;
+    for (const c of sectionCategories) {
+      const top = categoryGroupY.current.get(c.id);
+      if (top !== undefined && top <= y) current = c.id;
     }
-  }, [filteredCategories, category, onChangeCategory]);
+    if (current) setCategory(current);
+  };
 
   // Check if menu is loaded
   const hasMenu =
@@ -214,6 +251,25 @@ export default function RestaurantMenuScreen() {
     );
   }
 
+  const renderProductGrid = (items: Product[]) => (
+    <View style={[tw`flex-row flex-wrap`, { gap: PRODUCT_GAP }]}>
+      {items.map((product) => (
+        <View
+          key={product.id}
+          style={productWidth ? { width: productWidth } : tw`w-full`}
+        >
+          <ProductCard
+            product={product}
+            onPress={() => onPressProduct(product)}
+            onLongPress={() => openProduct(product)}
+            inCartCount={cart.countByProduct.get(product.id) ?? 0}
+            tapAction={cart.canQuickAdd(product) ? "add" : "open"}
+          />
+        </View>
+      ))}
+    </View>
+  );
+
   const menu = (
     <ScreenLayout fullWidth style={tw`px-4 pt-2 flex-1 gap-4`}>
       {isSaleEditMode && (
@@ -251,8 +307,8 @@ export default function RestaurantMenuScreen() {
           onChange={onChangeSection}
         />
       )}
-      <ThemedView style={tw`flex-row gap-2 flex-1`}>
-        {!search && (
+      <ThemedView style={tw`flex-row gap-3 flex-1`}>
+        {!isSearching && (
           <ScrollView
             style={{
               width: isExpanded
@@ -262,28 +318,48 @@ export default function RestaurantMenuScreen() {
               flexShrink: 0,
             }}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={tw`gap-2`}
+            contentContainerStyle={tw`gap-1 pb-40`}
           >
-            {filteredCategories.map((f) => (
-              <Chip
-                key={f.id}
-                label={f.name}
-                selected={category === f.id}
-                onPress={() => onChangeCategory(f.id)}
-              />
-            ))}
+            {sectionCategories.map((c) => {
+              const isSelected = category === c.id;
+              return (
+                <Pressable
+                  key={c.id}
+                  onPress={() => onSelectCategory(c.id)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: isSelected }}
+                  style={tw.style(
+                    "px-3 py-2.5 rounded-md",
+                    isSelected && "bg-surface",
+                  )}
+                >
+                  <ThemedText
+                    type="body2"
+                    style={[
+                      tw.style(isSelected ? "text-primary" : "text-primary"),
+                      isSelected && { fontFamily: typography.medium },
+                    ]}
+                  >
+                    {c.name}
+                  </ThemedText>
+                </Pressable>
+              );
+            })}
           </ScrollView>
         )}
         <ScrollView
+          ref={productsScrollRef}
           style={tw`flex-1`}
-          onLayout={(e) => setProductsWidth(e.nativeEvent.layout.width)}
+          onLayout={(e) => {
+            setProductsWidth(e.nativeEvent.layout.width);
+            productsHeight.current = e.nativeEvent.layout.height;
+          }}
+          onScroll={onProductsScroll}
+          scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
-          contentContainerStyle={[
-            tw`flex-row flex-wrap pb-40`,
-            { gap: PRODUCT_GAP },
-          ]}
+          contentContainerStyle={tw`gap-6 pb-40`}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -293,27 +369,30 @@ export default function RestaurantMenuScreen() {
             />
           }
         >
-          {filteredProducts.map((product) => (
-            <ThemedView
-              key={product.id}
-              style={productWidth ? { width: productWidth } : tw`w-full`}
-            >
-              <ProductCard
-                product={product}
-                onPress={() => onPressProduct(product)}
-                onLongPress={() => openProduct(product)}
-                inCartCount={cart.countByProduct.get(product.id) ?? 0}
-                tapAction={cart.canQuickAdd(product) ? "add" : "open"}
-              />
-            </ThemedView>
-          ))}
-          {search.trim() !== "" && filteredProducts.length === 0 && (
-            <ThemedView style={tw`w-full items-center gap-2 pt-12 px-6`}>
-              <Icon name="search-x" size={32} color={tw.color("gray-400")} />
-              <ThemedText type="body2" style={tw`text-center text-gray-500`}>
-                {t("menu:noResults", { search: search.trim() })}
-              </ThemedText>
-            </ThemedView>
+          {isSearching ? (
+            searchResults.length > 0 ? (
+              renderProductGrid(searchResults)
+            ) : (
+              <ThemedView style={tw`w-full items-center gap-2 pt-12 px-6`}>
+                <Icon name="search-x" size={32} color={tw.color("gray-400")} />
+                <ThemedText type="body2" style={tw`text-center text-gray-500`}>
+                  {t("menu:noResults", { search: search.trim() })}
+                </ThemedText>
+              </ThemedView>
+            )
+          ) : (
+            sectionCategories.map((c) => (
+              <View
+                key={c.id}
+                style={tw`gap-3`}
+                onLayout={(e) =>
+                  categoryGroupY.current.set(c.id, e.nativeEvent.layout.y)
+                }
+              >
+                <ThemedText type="body1">{c.name}</ThemedText>
+                {renderProductGrid(productsByCategory.get(c.id) ?? [])}
+              </View>
+            ))
           )}
         </ScrollView>
       </ThemedView>
