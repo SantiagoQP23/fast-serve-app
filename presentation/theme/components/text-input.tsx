@@ -103,7 +103,7 @@ function TextInput(
     : isFocused
       ? tw.color("primary")
       : variant === "outlined"
-        ? tw.color("border")
+        ? tw.color("primary")
         : "transparent";
 
   const handleFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {

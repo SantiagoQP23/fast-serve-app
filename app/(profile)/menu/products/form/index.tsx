@@ -24,10 +24,10 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
-import Card from "@/presentation/theme/components/card";
 import ButtonGroup from "@/presentation/theme/components/button-group";
 import TextInput from "@/presentation/theme/components/text-input";
 import Checkbox from "@/presentation/theme/components/checkbox";
+import Separator from "@/presentation/theme/components/separator";
 import SwipeableRow from "@/presentation/theme/components/swipeable-row";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
@@ -492,8 +492,8 @@ export default function MenuProductFormScreen() {
             </ThemedView>
           )}
 
-          <ThemedView style={tw`gap-4`}>
-            <Card style={tw`gap-4`}>
+          <ThemedView style={tw`gap-6`}>
+            <ThemedView style={tw`gap-4`}>
               <Controller
                 control={control}
                 name="name"
@@ -529,10 +529,12 @@ export default function MenuProductFormScreen() {
                   />
                 )}
               />
-            </Card>
+            </ThemedView>
+
+            {!isEditing && <Separator />}
 
             {!isEditing && (
-              <Card style={tw`gap-4`}>
+              <ThemedView style={tw`gap-4`}>
                 {!hasPresetCategory &&
                   (categories.length === 0 ? (
                     <ThemedView
@@ -594,11 +596,13 @@ export default function MenuProductFormScreen() {
                     {errors.productionAreaId.message}
                   </ThemedText>
                 )}
-              </Card>
+              </ThemedView>
             )}
 
+            {!isEditing && <Separator />}
+
             {!isEditing && (
-              <Card style={tw`gap-4`}>
+              <ThemedView style={tw`gap-4`}>
                 <ThemedView style={tw`gap-2`}>
                   <ThemedText type="small" style={tw`ml-2`}>
                     {t("products.fields.pricingMode")}
@@ -662,7 +666,7 @@ export default function MenuProductFormScreen() {
                             onDelete={() => handleRemoveVariant(index)}
                           >
                             <ThemedView
-                              style={tw`flex-row items-center gap-1 bg-surface-container-low`}
+                              style={tw`flex-row items-center gap-1 bg-background`}
                             >
                               <Pressable
                                 onPress={() => handleMakeDefault(index)}
@@ -752,7 +756,7 @@ export default function MenuProductFormScreen() {
                     </Pressable>
                   </ThemedView>
                 )}
-              </Card>
+              </ThemedView>
             )}
           </ThemedView>
         </ScrollView>
