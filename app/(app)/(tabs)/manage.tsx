@@ -145,7 +145,7 @@ export default function ManageScreen() {
       <ThemedText style={[tw`flex-1`, { fontFamily: typography.medium }]}>
         {option.label}
       </ThemedText>
-      <Icon name="chevron-right" size={20} color={tw.color("gray-400")} />
+      <Icon name="chevron-right" size={20} color={tw.color("primary")} />
     </ThemedView>
   );
 
