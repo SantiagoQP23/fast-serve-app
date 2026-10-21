@@ -395,7 +395,7 @@ export default function MenuProductFormScreen() {
   // After "Save and add another", go back to the top, ready for the next name.
   useEffect(() => {
     if (createdNames.length === 0) return;
-    scrollRef.current?.scrollTo({ y: 0, animated: true });
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
     nameInputRef.current?.focus();
   }, [createdNames]);
 

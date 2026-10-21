@@ -37,11 +37,14 @@ export const getVariantSets = (products: Product[]): VariantSet[] => {
   const sets = new Map<string, VariantSet>();
   products.forEach((product) => {
     if (!product.options || product.options.length < 2) return;
-    const options = product.options.map((option) => ({
-      name: option.name.trim(),
-      price: Number(option.price) || 0,
-      isDefault: !!option.isDefault,
-    }));
+    // Default variant first, as it is the one added to orders.
+    const options = product.options
+      .map((option) => ({
+        name: option.name.trim(),
+        price: Number(option.price) || 0,
+        isDefault: !!option.isDefault,
+      }))
+      .sort((a, b) => Number(b.isDefault) - Number(a.isDefault));
     const key = options
       .map((option) => `${option.name.toLowerCase()}:${option.price}`)
       .join("|");
