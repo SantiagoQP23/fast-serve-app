@@ -12,6 +12,8 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 const MIN_NAME_LENGTH = 2;
 const MAX_NAME_LENGTH = 60;
+// Room for a few names, one per line.
+const NAMES_INPUT_MIN_HEIGHT = 120;
 
 /** One name per non-empty line, trimmed, without repeats (case-insensitive). */
 export const parseNameLines = (text: string): string[] => {
@@ -31,7 +33,6 @@ interface MenuNamesSheetProps<T> {
   sheetRef: RefObject<BottomSheetMethods | null>;
   title: string;
   subtitle?: string;
-  label: string;
   placeholder: string;
   /** Names already used; the server rejects repeats, so they are caught here. */
   existingNames: string[];
@@ -50,7 +51,6 @@ export default function MenuNamesSheet<T>({
   sheetRef,
   title,
   subtitle,
-  label,
   placeholder,
   existingNames,
   createOne,
@@ -119,7 +119,6 @@ export default function MenuNamesSheet<T>({
         <TextInput
           bottomSheet
           variant="outlined"
-          label={label}
           placeholder={placeholder}
           value={text}
           onChangeText={(value) => {
@@ -127,9 +126,10 @@ export default function MenuNamesSheet<T>({
             if (error) setError("");
           }}
           multiline
-          numberOfLines={4}
           textAlignVertical="top"
           autoFocus
+          containerStyle={tw`py-3`}
+          style={{ marginTop: 0, minHeight: NAMES_INPUT_MIN_HEIGHT }}
         />
         {error ? (
           <ThemedText type="small" style={tw`text-red-500`}>

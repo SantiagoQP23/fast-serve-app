@@ -1,8 +1,7 @@
 {
   "overview": {
     "title": "Menu",
-    "addSection": "New section",
-    "addCategory": "New category",
+    "add": "Add",
     "noMenu": {
       "title": "No Menu Loaded",
       "description": "The menu hasn't been loaded yet. Tap the button below to load it.",
@@ -22,6 +21,8 @@
       "createFirstSection": "Create first section"
     },
     "namesSheet": {
+      "sectionsTitle": "New sections",
+      "categoriesTitle": "New categories",
       "hint": "Write one name per line to create several at once.",
       "createCount": "Create {{count}}",
       "inSection": "In {{section}}",

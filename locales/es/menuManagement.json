@@ -1,8 +1,7 @@
 {
   "overview": {
     "title": "Menú",
-    "addSection": "Nueva sección",
-    "addCategory": "Nueva categoría",
+    "add": "Agregar",
     "noMenu": {
       "title": "Menú no cargado",
       "description": "El menú aún no se ha cargado. Toca el botón de abajo para cargarlo.",
@@ -22,6 +21,8 @@
       "createFirstSection": "Crear primera sección"
     },
     "namesSheet": {
+      "sectionsTitle": "Nuevas secciones",
+      "categoriesTitle": "Nuevas categorías",
       "hint": "Escribe un nombre por línea para crear varias a la vez.",
       "createCount": "Crear {{count}}",
       "inSection": "En {{section}}",

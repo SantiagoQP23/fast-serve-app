@@ -265,8 +265,7 @@ export default function MenuOverviewScreen() {
     <>
       <MenuNamesSheet
         sheetRef={sectionSheetRef}
-        title={t("overview.addSection")}
-        label={t("sections.fields.name")}
+        title={t("overview.namesSheet.sectionsTitle")}
         placeholder={t("overview.namesSheet.sectionPlaceholder")}
         existingNames={sections.map((section) => section.name)}
         createOne={(name) => createSection.mutateAsync({ name })}
@@ -277,11 +276,10 @@ export default function MenuOverviewScreen() {
       />
       <MenuNamesSheet
         sheetRef={categorySheetRef}
-        title={t("overview.addCategory")}
+        title={t("overview.namesSheet.categoriesTitle")}
         subtitle={t("overview.namesSheet.inSection", {
           section: getSectionName(sectionId),
         })}
-        label={t("categories.fields.name")}
         placeholder={t("overview.namesSheet.categoryPlaceholder")}
         existingNames={categories.map((category) => category.name)}
         createOne={(name) => createCategory.mutateAsync({ name, sectionId })}
@@ -394,7 +392,8 @@ export default function MenuOverviewScreen() {
       />
 
       {!search && (
-        <ThemedView>
+        <ThemedView style={tw`gap-2`}>
+          <ColumnLabel>{t("sections.title")}</ColumnLabel>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -414,7 +413,7 @@ export default function MenuOverviewScreen() {
             ))}
             {canManage && (
               <Chip
-                label={t("overview.addSection")}
+                label={t("overview.add")}
                 icon="plus"
                 onPress={handleAddSection}
               />
@@ -425,97 +424,103 @@ export default function MenuOverviewScreen() {
 
       <ThemedView style={tw`flex-row gap-2 flex-1`}>
         {!search && (
-          <ScrollView
-            style={tw`w-30 flex-shrink-0`}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={tw`gap-2`}
-          >
-            {sectionCategories.map((category) => (
-              <ThemedView
-                key={category.id}
-                style={!category.isActive && tw`opacity-50`}
-              >
+          <ThemedView style={tw`w-30 flex-shrink-0 gap-2`}>
+            <ColumnLabel>{t("categories.title")}</ColumnLabel>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={tw`gap-2`}
+            >
+              {sectionCategories.map((category) => (
+                <ThemedView
+                  key={category.id}
+                  style={!category.isActive && tw`opacity-50`}
+                >
+                  <Chip
+                    label={category.name}
+                    selected={categoryId === category.id}
+                    onPress={() => handleSelectCategory(category)}
+                  />
+                </ThemedView>
+              ))}
+              {canManage && (
                 <Chip
-                  label={category.name}
-                  selected={categoryId === category.id}
-                  onPress={() => handleSelectCategory(category)}
+                  label={t("overview.add")}
+                  icon="plus"
+                  onPress={handleAddCategory}
                 />
-              </ThemedView>
-            ))}
+              )}
+            </ScrollView>
+          </ThemedView>
+        )}
+        <ThemedView
+          style={tw`gap-2 ${search ? "flex-1" : "w-[70%] flex-shrink-0"}`}
+        >
+          <ColumnLabel>{t("products.title")}</ColumnLabel>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={tw`gap-3 pb-8`}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing || isRefetching}
+                onRefresh={onRefresh}
+                tintColor={primaryColor}
+                colors={[primaryColor]}
+              />
+            }
+          >
             {canManage && (
-              <Chip
-                label={t("overview.addCategory")}
-                icon="plus"
-                onPress={handleAddCategory}
+              <Button
+                label={t("products.newProduct")}
+                leftIcon="plus"
+                variant="outline"
+                onPress={handleAddProduct}
               />
             )}
-          </ScrollView>
-        )}
-        <ScrollView
-          style={tw`${search ? "flex-1" : "w-[70%] flex-shrink-0"}`}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={tw`gap-3 pb-8`}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing || isRefetching}
-              onRefresh={onRefresh}
-              tintColor={primaryColor}
-              colors={[primaryColor]}
-            />
-          }
-        >
-          {canManage && (
-            <Button
-              label={t("products.newProduct")}
-              leftIcon="plus"
-              variant="outline"
-              onPress={handleAddProduct}
-            />
-          )}
-          {filteredProducts.length === 0 && (
-            <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Icon name="hamburger" size={40} color={tw.color("gray-400")} />
-              <ThemedText
-                type="body2"
-                style={tw`text-center text-gray-500 px-4`}
+            {filteredProducts.length === 0 && (
+              <ThemedView style={tw`items-center py-8 gap-3`}>
+                <Icon name="hamburger" size={40} color={tw.color("gray-400")} />
+                <ThemedText
+                  type="body2"
+                  style={tw`text-center text-gray-500 px-4`}
+                >
+                  {t("products.noProducts")}
+                </ThemedText>
+              </ThemedView>
+            )}
+            {filteredProducts.map((product) => (
+              <Card
+                key={product.id}
+                onPress={() => openProduct(product)}
+                style={tw.style(
+                  !product.isActive && "opacity-50",
+                  isExpanded &&
+                    selectedProductId === product.id &&
+                    "bg-secondary",
+                )}
               >
-                {t("products.noProducts")}
-              </ThemedText>
-            </ThemedView>
-          )}
-          {filteredProducts.map((product) => (
-            <Card
-              key={product.id}
-              onPress={() => openProduct(product)}
-              style={tw.style(
-                !product.isActive && "opacity-50",
-                isExpanded &&
-                  selectedProductId === product.id &&
-                  "bg-secondary",
-              )}
-            >
-              <ThemedView style={tw`flex-row items-center justify-between`}>
-                <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
-                  {/* <Icon */}
-                  {/*   name="fast-food-outline" */}
-                  {/*   size={28} */}
-                  {/*   color={tw.color("text-on-surface-variant")} */}
-                  {/* /> */}
-                  <ThemedView style={tw`flex-1 gap-2`}>
-                    <ThemedText type="body1">{product.name}</ThemedText>
-                    <ThemedText type="body2" style={tw`text-gray-500`}>
-                      {product.options.length > 1
-                        ? product.options
-                            .map((option) => option.name)
-                            .join(" - ")
-                        : `$${(getProductDefaultOption(product)?.price ?? 0).toFixed(2)}`}
-                    </ThemedText>
+                <ThemedView style={tw`flex-row items-center justify-between`}>
+                  <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
+                    {/* <Icon */}
+                    {/*   name="fast-food-outline" */}
+                    {/*   size={28} */}
+                    {/*   color={tw.color("text-on-surface-variant")} */}
+                    {/* /> */}
+                    <ThemedView style={tw`flex-1 gap-2`}>
+                      <ThemedText type="body1">{product.name}</ThemedText>
+                      <ThemedText type="body2" style={tw`text-gray-500`}>
+                        {product.options.length > 1
+                          ? product.options
+                              .map((option) => option.name)
+                              .join(" - ")
+                          : `$${(getProductDefaultOption(product)?.price ?? 0).toFixed(2)}`}
+                      </ThemedText>
+                    </ThemedView>
                   </ThemedView>
                 </ThemedView>
-              </ThemedView>
-            </Card>
-          ))}
-        </ScrollView>
+              </Card>
+            ))}
+          </ScrollView>
+        </ThemedView>
       </ThemedView>
 
       <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
@@ -651,5 +656,13 @@ export default function MenuOverviewScreen() {
         )}
       </ThemedView>
     </ThemedView>
+  );
+}
+
+function ColumnLabel({ children }: { children: string }) {
+  return (
+    <ThemedText type="small" style={tw`text-gray-500 ml-1`}>
+      {children}
+    </ThemedText>
   );
 }
