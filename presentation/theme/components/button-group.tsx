@@ -37,10 +37,11 @@ export default function ButtonGroup({
 
   return (
     <View
-      style={tw`${isHorizontal ? "flex-row" : "flex-wrap"} bg-surface-high  rounded-3xl p-1`}
+      style={tw`${isHorizontal ? "flex-row" : "flex-wrap"}    border border-primary`}
     >
-      {options.map((option) => {
+      {options.map((option, index) => {
         const isActive = selected === option.value;
+        const hasSeparator = index > 0;
         const showIcon = !!option.icon;
         const showLabel = !(iconOnly && showIcon);
 
@@ -54,9 +55,12 @@ export default function ButtonGroup({
             style={({ pressed }) =>
               tw.style(
                 isSmall ? "px-3 py-[8px]" : "flex-1 py-2",
-                "rounded-3xl",
+                hasSeparator &&
+                  (isHorizontal
+                    ? "border-l border-primary"
+                    : "border-t border-primary"),
                 showIcon && "flex-row items-center justify-center gap-2",
-                isActive ? "bg-surface-bright" : "bg-transparent",
+                isActive ? "bg-surface-high" : "bg-transparent",
                 pressed && "opacity-80",
               )
             }
@@ -65,9 +69,7 @@ export default function ButtonGroup({
               <Icon
                 name={option.icon!}
                 size={isSmall ? 15 : 20}
-                color={
-                  isActive ? palette.onSurface : palette.onSurfaceVariant
-                }
+                color={isActive ? palette.onSurface : palette.onSurfaceVariant}
               />
             )}
             {showLabel && (
@@ -75,7 +77,11 @@ export default function ButtonGroup({
                 type="body2"
                 style={[
                   tw.style("text-center"),
-                  { fontFamily: typography.medium },
+                  {
+                    fontFamily: isActive
+                      ? typography.semibold
+                      : typography.medium,
+                  },
                 ]}
               >
                 {option.label}
