@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,9 +11,11 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTableAreasManagement } from "@/presentation/tables/hooks/useTableAreasManagement";
+import { useTablesStore } from "@/presentation/tables/hooks/useTablesStore";
 
 const buildSchema = (t: (key: string) => string) =>
   z.object({
@@ -29,8 +32,13 @@ export default function TableAreaFormScreen() {
   const { t } = useTranslation("tables");
   const params = useLocalSearchParams<{ areaId?: string; name?: string }>();
   const isEditing = !!params.areaId;
-  const { createArea, updateArea } = useTableAreasManagement();
+  const { createArea, updateArea, deleteArea } = useTableAreasManagement();
   const isPending = createArea.isPending || updateArea.isPending;
+  const tableCount = useTablesStore(
+    (state) =>
+      state.tables.filter((table) => table.areaId === params.areaId).length,
+  );
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const {
     control,
@@ -48,6 +56,13 @@ export default function TableAreaFormScreen() {
     } else {
       await createArea.mutateAsync(name);
     }
+    router.back();
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!params.areaId) return;
+    await deleteArea.mutateAsync(params.areaId);
+    setShowDeleteConfirm(false);
     router.back();
   };
 
@@ -94,7 +109,35 @@ export default function TableAreaFormScreen() {
             />
           )}
         />
+
+        {isEditing && (
+          <ThemedView style={tw`items-center mt-12`}>
+            <Button
+              label={t("areas.delete")}
+              leftIcon="trash"
+              variant="text"
+              size="small"
+              onPress={() => setShowDeleteConfirm(true)}
+            />
+          </ThemedView>
+        )}
       </ScreenLayout>
+
+      <DialogModal
+        visible={showDeleteConfirm}
+        title={t("areas.deleteTitle")}
+        message={
+          tableCount > 0
+            ? t("areas.deleteMessage", { count: tableCount, name: params.name })
+            : t("areas.deleteMessageEmpty", { name: params.name })
+        }
+        confirmLabel={t("areas.confirm")}
+        cancelLabel={t("areas.cancel")}
+        confirmVariant="destructive"
+        loading={deleteArea.isPending}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </KeyboardAvoidingView>
   );
 }

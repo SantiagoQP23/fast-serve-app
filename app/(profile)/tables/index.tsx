@@ -2,31 +2,17 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import { router, useNavigation } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
-import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useTables } from "@/presentation/tables/hooks/useTables";
-import { useTablesManagement } from "@/presentation/tables/hooks/useTablesManagement";
-import { useTableStatus } from "@/presentation/tables/hooks/useTableStatus";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
-import DialogModal from "@/presentation/theme/components/dialog-modal";
-import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import type { Table } from "@/core/tables/models/table.model";
-import type { UpdateTableDto } from "@/presentation/tables/interfaces/dto/update-table.dto";
-import InfoRow from "@/presentation/theme/components/info-row";
-import Switch from "@/presentation/theme/components/switch";
-import NumberWheelBottomSheet, {
-  type NumberWheelBottomSheetRef,
-} from "@/presentation/theme/components/number-wheel-bottom-sheet";
-import TextFieldBottomSheet, {
-  type TextFieldBottomSheetRef,
-} from "@/presentation/theme/components/text-field-bottom-sheet";
 import { typography } from "@/constants/theme";
 import {
   sortAreas,
@@ -39,7 +25,6 @@ import BottomSheetPicker, {
 
 const NO_AREA = "no-area";
 const COLUMNS = 3;
-const MAX_CHAIRS = 30;
 
 // `null` marks the "add table" card that closes each zone's grid.
 type GridItem = Table | null;
@@ -54,22 +39,8 @@ export default function TablesSettingsScreen() {
   const navigation = useNavigation();
   const { tables, tablesQuery } = useTables();
   const { isLoading, isError, refetch, isRefetching } = tablesQuery;
-  const { updateTable, deleteTable } = useTablesManagement();
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
-  const [tableToDelete, setTableToDelete] = useState<Table | null>(null);
-  const [selectedTable, setSelectedTable] = useState<Table | null>(null);
-  const { hasOpenOrders } = useTableStatus(selectedTable?.id ?? "");
-  // A table with open orders (from any waiter) can't be deactivated or
-  // deleted; those controls are disabled and the reason shows under each.
-  const isDeactivateBlocked =
-    selectedTable?.isActive !== false && hasOpenOrders;
-  const actionsSheetRef = useRef<BottomSheetMethods>(null);
-  // Each info row opens its own sheet on top of the actions sheet.
-  const nameSheetRef = useRef<TextFieldBottomSheetRef>(null);
-  const tableAreaPickerRef = useRef<BottomSheetPickerRef>(null);
-  const chairsSheetRef = useRef<NumberWheelBottomSheetRef>(null);
-  const descriptionSheetRef = useRef<TextFieldBottomSheetRef>(null);
   const { groups, hasAreas, areas } = useTableGroups(tables, {
     includeHidden: true,
     includeEmpty: true,
@@ -172,42 +143,18 @@ export default function TablesSettingsScreen() {
     });
   };
 
-  const handleOpenTableActions = (table: Table) => {
-    setSelectedTable(table);
-    actionsSheetRef.current?.present();
-  };
-
-  const handleCloseTableActions = () => {
-    actionsSheetRef.current?.dismiss();
-  };
-
-  // The actions sheet stays open, so an edit shows there right away and rolls
-  // back if the update fails (unless another table was opened meanwhile).
-  const saveSelectedTable = async (patch: Omit<UpdateTableDto, "id">) => {
-    if (!selectedTable) return;
-    const previous = selectedTable;
-    const keys = Object.keys(patch) as (keyof typeof patch)[];
-    if (keys.every((key) => (previous[key] ?? null) === (patch[key] ?? null)))
-      return;
-    setSelectedTable({ ...previous, ...patch });
-    try {
-      await updateTable.mutateAsync({ id: previous.id, ...patch });
-    } catch (error) {
-      setSelectedTable((current) =>
-        current?.id === previous.id ? previous : current,
-      );
-      throw error;
-    }
-  };
-
-  // Wheel, picker and switch edits close at once; the mutation shows errors.
-  const saveSelectedTableInBackground = (patch: Omit<UpdateTableDto, "id">) =>
-    void saveSelectedTable(patch).catch(() => {});
-
-  const handleConfirmDelete = async () => {
-    if (!tableToDelete) return;
-    await deleteTable.mutateAsync(tableToDelete.id);
-    setTableToDelete(null);
+  const handleOpenTable = (table: Table) => {
+    router.push({
+      pathname: "/(profile)/tables/form",
+      params: {
+        tableId: table.id,
+        name: table.name,
+        description: table.description ?? "",
+        chairs: table.chairs != null ? String(table.chairs) : "",
+        areaId: table.areaId ?? "",
+        isActive: String(table.isActive !== false),
+      },
+    });
   };
 
   const canAdd = canManage && !isSelecting;
@@ -226,7 +173,7 @@ export default function TablesSettingsScreen() {
           isSelecting
             ? () => toggleSelected(table.id)
             : canManage
-              ? () => handleOpenTableActions(table)
+              ? () => handleOpenTable(table)
               : undefined
         }
         onLongPress={canSelect ? () => toggleSelected(table.id) : undefined}
@@ -438,143 +385,6 @@ export default function TablesSettingsScreen() {
         title={t("areas.moveToArea")}
         options={areaOptions}
         onChange={(value) => void handleMoveToArea(value).catch(() => {})}
-      />
-
-      <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
-        {selectedTable && (
-          <ThemedView style={tw`px-6 py-4 gap-6`}>
-            <ThemedText type="h2" style={{ fontFamily: typography.medium }}>
-              {t("settings.tableName", { name: selectedTable.name })}
-            </ThemedText>
-            <ThemedView style={tw`gap-4`}>
-              <InfoRow
-                label={t("settings.fields.name")}
-                value={selectedTable.name}
-                onPress={() => nameSheetRef.current?.present()}
-              />
-              {hasAreas && (
-                <InfoRow
-                  label={t("areas.field")}
-                  value={
-                    areas.find((area) => area.id === selectedTable.areaId)
-                      ?.name ?? t("areas.noArea")
-                  }
-                  onPress={() => tableAreaPickerRef.current?.present()}
-                />
-              )}
-              <InfoRow
-                label={t("settings.fields.chairs")}
-                value={selectedTable.chairs}
-                placeholder="—"
-                onPress={() => chairsSheetRef.current?.present()}
-              />
-              <InfoRow
-                label={t("settings.fields.description")}
-                value={selectedTable.description}
-                placeholder={t("settings.addDescription")}
-                onPress={() => descriptionSheetRef.current?.present()}
-              />
-              <ThemedView style={tw`gap-2`}>
-                <InfoRow
-                  label={t("settings.fields.status")}
-                  value={
-                    selectedTable.isActive !== false
-                      ? t("settings.active")
-                      : t("settings.inactive")
-                  }
-                  trailing={
-                    <Switch
-                      value={selectedTable.isActive !== false}
-                      onValueChange={(isActive) =>
-                        saveSelectedTableInBackground({ isActive })
-                      }
-                      disabled={isDeactivateBlocked}
-                      accessibilityLabel={t("settings.fields.status")}
-                    />
-                  }
-                />
-                {isDeactivateBlocked && (
-                  <ThemedText type="body2" style={tw`text-gray-500`}>
-                    {t("settings.deactivateBlocked")}
-                  </ThemedText>
-                )}
-              </ThemedView>
-            </ThemedView>
-            <ThemedView style={tw`gap-2`}>
-              <Button
-                label={t("settings.delete")}
-                leftIcon="trash"
-                variant="text"
-                size="small"
-                disabled={hasOpenOrders}
-                onPress={() => {
-                  handleCloseTableActions();
-                  setTableToDelete(selectedTable);
-                }}
-              />
-              {hasOpenOrders && (
-                <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
-                  {t("settings.deleteBlocked")}
-                </ThemedText>
-              )}
-            </ThemedView>
-          </ThemedView>
-        )}
-      </ThemedBottomSheetModal>
-
-      <TextFieldBottomSheet
-        ref={nameSheetRef}
-        title={t("settings.fields.name")}
-        value={selectedTable?.name ?? ""}
-        placeholder={t("settings.placeholders.name")}
-        maxLength={60}
-        requiredMessage={t("settings.validations.nameRequired")}
-        submitLabel={t("settings.save")}
-        loading={updateTable.isPending}
-        onSubmit={(name) => saveSelectedTable({ name })}
-      />
-
-      <BottomSheetPicker
-        ref={tableAreaPickerRef}
-        title={t("areas.field")}
-        options={areaOptions}
-        value={selectedTable?.areaId ?? NO_AREA}
-        onChange={(value) =>
-          saveSelectedTableInBackground({
-            areaId: value === NO_AREA ? null : String(value),
-          })
-        }
-      />
-
-      <NumberWheelBottomSheet
-        ref={chairsSheetRef}
-        title={t("settings.fields.chairs")}
-        value={selectedTable?.chairs ?? 0}
-        max={MAX_CHAIRS}
-        onDone={(chairs) => saveSelectedTableInBackground({ chairs })}
-      />
-
-      <TextFieldBottomSheet
-        ref={descriptionSheetRef}
-        title={t("settings.fields.description")}
-        value={selectedTable?.description ?? ""}
-        placeholder={t("settings.placeholders.description")}
-        multiline
-        submitLabel={t("settings.save")}
-        loading={updateTable.isPending}
-        onSubmit={(description) => saveSelectedTable({ description })}
-      />
-
-      <DialogModal
-        visible={!!tableToDelete}
-        title={t("settings.deleteTitle")}
-        message={t("settings.deleteMessage")}
-        confirmLabel={t("settings.confirm")}
-        cancelLabel={t("settings.cancel")}
-        confirmVariant="destructive"
-        loading={deleteTable.isPending}
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setTableToDelete(null)}
       />
     </ScreenLayout>
   );
