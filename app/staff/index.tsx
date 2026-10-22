@@ -10,15 +10,15 @@ import { useUsers } from "@/presentation/users/hooks/useUsers";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 import Avatar from "@/presentation/theme/components/avatar";
-import IconButton from "@/presentation/theme/components/icon-button";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
-import Card from "@/presentation/theme/components/card";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import InviteStaffBottomSheet from "@/presentation/users/components/invite-staff-bottom-sheet";
-import ChangeUserRoleBottomSheet from "@/presentation/users/components/change-user-role-bottom-sheet";
+import StaffMemberBottomSheet, {
+  type StaffMemberBottomSheetRef,
+} from "@/presentation/users/components/staff-member-bottom-sheet";
 import { useRemoveUser } from "@/presentation/users/hooks/useRemoveUser";
 import { Roles, User } from "@/core/auth/models/user.model";
 import Button from "@/presentation/theme/components/button";
@@ -40,7 +40,7 @@ export default function StaffScreen() {
   const { removeUser } = useRemoveUser();
 
   const inviteBottomSheetRef = useRef<BottomSheetMethods>(null);
-  const changeRoleBottomSheetRef = useRef<BottomSheetMethods>(null);
+  const staffMemberSheetRef = useRef<StaffMemberBottomSheetRef>(null);
   const [selectedStaffMember, setSelectedStaffMember] = useState<User | null>(
     null,
   );
@@ -56,17 +56,12 @@ export default function StaffScreen() {
     inviteBottomSheetRef.current?.close();
   };
 
-  const handlePresentChangeRole = (staffMember: User) => {
+  const handlePresentStaffMember = (staffMember: User) => {
     setSelectedStaffMember(staffMember);
-    changeRoleBottomSheetRef.current?.present();
-  };
-
-  const closeChangeRoleBottomSheet = () => {
-    changeRoleBottomSheetRef.current?.close();
+    staffMemberSheetRef.current?.present();
   };
 
   const handleRequestRemove = (staffMember: User) => {
-    closeChangeRoleBottomSheet();
     setUserToRemove(staffMember);
   };
 
@@ -153,7 +148,7 @@ export default function StaffScreen() {
                   <Pressable
                     key={staffMember.id}
                     style={tw`gap-4 flex-row items-center`}
-                    onPress={() => handlePresentChangeRole(staffMember)}
+                    onPress={() => handlePresentStaffMember(staffMember)}
                   >
                     <Avatar
                       name={staffMember.person?.firstName}
@@ -180,17 +175,12 @@ export default function StaffScreen() {
         />
       </ThemedBottomSheetModal>
 
-      <ThemedBottomSheetModal
-        ref={changeRoleBottomSheetRef}
-        enablePanDownToClose
-      >
-        <ChangeUserRoleBottomSheet
-          user={selectedStaffMember}
-          onClose={closeChangeRoleBottomSheet}
-          onRoleChanged={refetch}
-          onRequestRemove={handleRequestRemove}
-        />
-      </ThemedBottomSheetModal>
+      <StaffMemberBottomSheet
+        ref={staffMemberSheetRef}
+        user={selectedStaffMember}
+        onRoleChanged={refetch}
+        onRequestRemove={handleRequestRemove}
+      />
 
       <DialogModal
         visible={!!userToRemove}
