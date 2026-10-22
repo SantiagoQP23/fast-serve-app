@@ -69,6 +69,8 @@
     "delete": "Eliminar",
     "activate": "Activar",
     "deactivate": "Desactivar",
+    "deactivateBlocked": "No se puede desactivar con pedidos abiertos",
+    "deleteBlocked": "No se puede eliminar con pedidos abiertos",
     "addDescription": "Agregar descripción",
     "fields": {
       "name": "Nombre",

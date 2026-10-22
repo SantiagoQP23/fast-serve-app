@@ -9,6 +9,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useTables } from "@/presentation/tables/hooks/useTables";
 import { useTablesManagement } from "@/presentation/tables/hooks/useTablesManagement";
+import { useTableStatus } from "@/presentation/tables/hooks/useTableStatus";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
@@ -58,6 +59,11 @@ export default function TablesSettingsScreen() {
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
   const [tableToDelete, setTableToDelete] = useState<Table | null>(null);
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
+  const { hasOpenOrders } = useTableStatus(selectedTable?.id ?? "");
+  // A table with open orders (from any waiter) can't be deactivated or
+  // deleted; those controls are disabled and the reason shows under each.
+  const isDeactivateBlocked =
+    selectedTable?.isActive !== false && hasOpenOrders;
   const actionsSheetRef = useRef<BottomSheetMethods>(null);
   // Each info row opens its own sheet on top of the actions sheet.
   const nameSheetRef = useRef<TextFieldBottomSheetRef>(null);
@@ -468,34 +474,50 @@ export default function TablesSettingsScreen() {
                 placeholder={t("settings.addDescription")}
                 onPress={() => descriptionSheetRef.current?.present()}
               />
-              <InfoRow
-                label={t("settings.fields.status")}
-                value={
-                  selectedTable.isActive !== false
-                    ? t("settings.active")
-                    : t("settings.inactive")
-                }
-                trailing={
-                  <Switch
-                    value={selectedTable.isActive !== false}
-                    onValueChange={(isActive) =>
-                      saveSelectedTableInBackground({ isActive })
-                    }
-                    accessibilityLabel={t("settings.fields.status")}
-                  />
-                }
-              />
+              <ThemedView style={tw`gap-2`}>
+                <InfoRow
+                  label={t("settings.fields.status")}
+                  value={
+                    selectedTable.isActive !== false
+                      ? t("settings.active")
+                      : t("settings.inactive")
+                  }
+                  trailing={
+                    <Switch
+                      value={selectedTable.isActive !== false}
+                      onValueChange={(isActive) =>
+                        saveSelectedTableInBackground({ isActive })
+                      }
+                      disabled={isDeactivateBlocked}
+                      accessibilityLabel={t("settings.fields.status")}
+                    />
+                  }
+                />
+                {isDeactivateBlocked && (
+                  <ThemedText type="body2" style={tw`text-gray-500`}>
+                    {t("settings.deactivateBlocked")}
+                  </ThemedText>
+                )}
+              </ThemedView>
             </ThemedView>
-            <Button
-              label={t("settings.delete")}
-              leftIcon="trash"
-              variant="text"
-              size="small"
-              onPress={() => {
-                handleCloseTableActions();
-                setTableToDelete(selectedTable);
-              }}
-            />
+            <ThemedView style={tw`gap-2`}>
+              <Button
+                label={t("settings.delete")}
+                leftIcon="trash"
+                variant="text"
+                size="small"
+                disabled={hasOpenOrders}
+                onPress={() => {
+                  handleCloseTableActions();
+                  setTableToDelete(selectedTable);
+                }}
+              />
+              {hasOpenOrders && (
+                <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
+                  {t("settings.deleteBlocked")}
+                </ThemedText>
+              )}
+            </ThemedView>
           </ThemedView>
         )}
       </ThemedBottomSheetModal>
