@@ -20,6 +20,7 @@ import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Select from "@/presentation/theme/components/select";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
+import Switch from "@/presentation/theme/components/switch";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 
@@ -33,6 +34,7 @@ const buildCategorySchema = (t: (key: string) => string, isEditing: boolean) =>
       message: t("categories.validations.sectionRequired"),
     }),
     isPublic: z.boolean(),
+    isActive: z.boolean(),
   });
 
 type CategoryFormData = z.infer<ReturnType<typeof buildCategorySchema>>;
@@ -44,6 +46,7 @@ export default function MenuCategoryFormScreen() {
     name?: string;
     sectionId?: string;
     isPublic?: string;
+    isActive?: string;
   }>();
 
   const isEditing = !!params.categoryId;
@@ -66,6 +69,7 @@ export default function MenuCategoryFormScreen() {
       name: params.name || "",
       sectionId: params.sectionId || "",
       isPublic: params.isPublic !== "false",
+      isActive: params.isActive !== "false",
     },
   });
 
@@ -76,6 +80,7 @@ export default function MenuCategoryFormScreen() {
         name: data.name.trim(),
         sectionId: data.sectionId,
         isPublic: data.isPublic,
+        isActive: data.isActive,
       });
     } else {
       await createCategory.mutateAsync({
@@ -200,7 +205,32 @@ export default function MenuCategoryFormScreen() {
                 {errors.sectionId.message}
               </ThemedText>
             )}
+
+            {isEditing && (
+              <Controller
+                control={control}
+                name="isActive"
+                render={({ field: { value, onChange } }) => (
+                  <Switch
+                    label={t("categories.fields.isActive")}
+                    value={value}
+                    onValueChange={onChange}
+                  />
+                )}
+              />
+            )}
           </ThemedView>
+          {isEditing && (
+            <ThemedView style={tw`items-center mt-20`}>
+              <Button
+                label={t("delete")}
+                leftIcon="trash"
+                variant="text"
+                size="small"
+                onPress={() => setShowDeleteConfirm(true)}
+              />
+            </ThemedView>
+          )}
         </ScrollView>
       </ScreenLayout>
 
