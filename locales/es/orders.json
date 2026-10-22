@@ -363,5 +363,16 @@
     "replace": "Reemplazar",
     "convert": "Convertir",
     "saleDropsOrderData": "La venta no guarda mesa, notas ni hora de entrega."
+  },
+  "closePaid": {
+    "button_one": "Cerrar {{count}} pedido pagado",
+    "button_other": "Cerrar {{count}} pedidos pagados",
+    "title": "Cerrar pedidos pagados",
+    "message_one": "{{count}} pedido está pagado y entregado. Una vez cerrado, no se puede modificar.",
+    "message_other": "{{count}} pedidos están pagados y entregados. Una vez cerrados, no se pueden modificar.",
+    "onlyMine": "Solo mis pedidos ({{count}})",
+    "all": "Todos los pedidos ({{count}})",
+    "success_one": "{{count}} pedido cerrado",
+    "success_other": "{{count}} pedidos cerrados"
   }
 }

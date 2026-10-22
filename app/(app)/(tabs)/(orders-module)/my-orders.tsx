@@ -49,6 +49,7 @@ import {
 import { OrderPaneContext } from "@/presentation/orders/context/order-pane.context";
 import OrderDetailView from "@/presentation/orders/components/order-detail-view";
 import BillDetailView from "@/presentation/orders/components/bill-detail-view";
+import ClosePaidOrdersButton from "@/presentation/orders/components/close-paid-orders-button";
 
 const ORDERS_LIST_PANE_WIDTH = 440;
 
@@ -323,7 +324,7 @@ export default function MyOrdersScreen() {
           <ThemedView style={tw`flex-1`}>
             {activeView !== "tables" && (
               <ScrollView
-                contentContainerStyle={tw`pb-20 gap-4 pt-4`}
+                contentContainerStyle={tw`grow pb-20 gap-4 pt-4`}
                 showsVerticalScrollIndicator={false}
                 onScroll={handleScroll}
                 scrollEventThrottle={16}
@@ -368,11 +369,21 @@ export default function MyOrdersScreen() {
                     />
                   </ThemedView>
                 )}
+                {/* Pushed to the bottom on short lists, clear of the FAB */}
+                {!isLoadingOrders && (
+                  <ThemedView style={tw`mt-auto`}>
+                    <ClosePaidOrdersButton />
+                  </ThemedView>
+                )}
               </ScrollView>
             )}
 
             {activeView === "tables" && (
-              <TablesView onTablePress={handleTablePress} style={tw`flex-1`} />
+              <TablesView
+                onTablePress={handleTablePress}
+                style={tw`flex-1`}
+                footer={<ClosePaidOrdersButton />}
+              />
             )}
           </ThemedView>
 

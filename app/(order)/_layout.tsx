@@ -75,6 +75,14 @@ export default function OrdersLayout() {
         }}
       />
       <Stack.Screen
+        name="close-paid-orders/index"
+        options={{
+          headerShown: true,
+          title: "",
+          headerShadowVisible: false,
+        }}
+      />
+      <Stack.Screen
         name="pending-changes/index"
         options={{
           headerShown: true,

@@ -12,6 +12,7 @@ export enum OrderSocketEvent {
   deleteOrderDetail = "delete-order-detail",
   replaceOrderDetail = "replace-order-detail",
   mergeOrder = "merge-order",
+  closeOrders = "close-orders",
   updateqtyDeliveredDetail = "update-qty-delivered-detail",
   deleteOrder = "delete-order",
   payOrder = "pay-order",

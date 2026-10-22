@@ -3,7 +3,13 @@ import { RefreshControl } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  type ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTables } from "@/presentation/tables/hooks/useTables";
 import Chip from "@/presentation/theme/components/chip";
@@ -23,9 +29,15 @@ import TablesGrid from "@/presentation/tables/components/tables-grid";
 interface TablesViewProps {
   onTablePress: (table: Table) => void;
   style?: ViewStyle;
+  /** Rendered after the last table. */
+  footer?: ReactElement;
 }
 
-export default function TablesView({ onTablePress, style }: TablesViewProps) {
+export default function TablesView({
+  onTablePress,
+  style,
+  footer,
+}: TablesViewProps) {
   const { t } = useTranslation(["tables", "errors"]);
   const [selectedStatus, setSelectedStatus] = useState<boolean | "all">("all");
   const { tables: allTables, isLoading, tablesQuery } = useTables();
@@ -198,7 +210,10 @@ export default function TablesView({ onTablePress, style }: TablesViewProps) {
         tables={filteredTables}
         areaId={selectedAreaId}
         onTablePress={onTablePress}
-        contentContainerStyle={tw`pb-20 pt-4`}
+        // Short grids push the footer down to the bottom, clear of the FAB
+        contentContainerStyle={tw.style(`pb-20 pt-4`, footer && `grow`)}
+        ListFooterComponent={footer}
+        ListFooterComponentStyle={tw`mt-auto`}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

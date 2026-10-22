@@ -363,5 +363,16 @@
     "replace": "Replace",
     "convert": "Convert",
     "saleDropsOrderData": "A sale doesn't keep the table, notes or delivery time."
+  },
+  "closePaid": {
+    "button_one": "Close {{count}} paid order",
+    "button_other": "Close {{count}} paid orders",
+    "title": "Close paid orders",
+    "message_one": "{{count}} order is paid and delivered. Once closed, it can't be modified.",
+    "message_other": "{{count}} orders are paid and delivered. Once closed, they can't be modified.",
+    "onlyMine": "Only my orders ({{count}})",
+    "all": "All orders ({{count}})",
+    "success_one": "{{count}} order closed",
+    "success_other": "{{count}} orders closed"
   }
 }

@@ -65,6 +65,16 @@ export interface MergeOrderResp {
   mergedOrder: Order;
 }
 
+export interface CloseOrdersDto {
+  /** `mine`: the user's paid and delivered orders. `all`: everyone's (admins). */
+  scope: "mine" | "all";
+}
+
+export interface CloseOrdersResp {
+  closedOrderIds: string[];
+  tableIds: string[];
+}
+
 export interface UpdateOrderResp {
   order?: Order;
   ticket?: Ticket;

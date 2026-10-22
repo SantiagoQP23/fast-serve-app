@@ -7,6 +7,8 @@ import { useOrdersStore } from "../store/useOrdersStore";
 import {
   AddOrderDetailToOrderDto,
   AddOrderDetailsDto,
+  CloseOrdersDto,
+  CloseOrdersResp,
   DeleteOrderDetailDto,
   MergeOrderDto,
   MergeOrderResp,
@@ -228,6 +230,24 @@ export const useOrders = () => {
     },
   });
 
+  // Sync events remove the closed orders too; this just doesn't wait for them.
+  const closeOrdersEmitter = useWebsocketEventEmitter<
+    CloseOrdersResp,
+    CloseOrdersDto
+  >(OrderSocketEvent.closeOrders, {
+    onSuccess: (resp) => {
+      const closedOrderIds = resp.data?.closedOrderIds ?? [];
+      closedOrderIds.forEach((id) => deleteOrderFromStore(id));
+      const activeOrderId = useOrdersStore.getState().activeOrder?.id;
+      if (activeOrderId && closedOrderIds.includes(activeOrderId)) {
+        setActiveOrder(null);
+      }
+    },
+    onError: (resp) => {
+      Alert.alert("Error", resp.msg);
+    },
+  });
+
   return {
     createOrder: withOutbox(
       createOrderEmitter,
@@ -269,6 +289,7 @@ export const useOrders = () => {
     replaceOrderDetail: replaceOrderDetailEmitter,
     deleteOrder: deleteOrderEmitter,
     mergeOrder: mergeOrderEmitter,
+    closeOrders: closeOrdersEmitter,
   };
 };
 

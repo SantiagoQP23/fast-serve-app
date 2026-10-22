@@ -29,6 +29,8 @@ interface TablesGridProps {
   ListComponent?: typeof FlatList;
   contentContainerStyle?: FlatListProps<GridItem>["contentContainerStyle"];
   refreshControl?: FlatListProps<GridItem>["refreshControl"];
+  ListFooterComponent?: FlatListProps<GridItem>["ListFooterComponent"];
+  ListFooterComponentStyle?: FlatListProps<GridItem>["ListFooterComponentStyle"];
 }
 
 /**
@@ -43,6 +45,8 @@ export default function TablesGrid({
   ListComponent = FlatList,
   contentContainerStyle,
   refreshControl,
+  ListFooterComponent,
+  ListFooterComponentStyle,
 }: TablesGridProps) {
   const { t } = useTranslation(["tables"]);
   // Measured, since the grid may sit in a side pane or sheet narrower than the window
@@ -123,6 +127,8 @@ export default function TablesGrid({
       contentContainerStyle={contentContainerStyle}
       showsVerticalScrollIndicator={false}
       refreshControl={refreshControl}
+      ListFooterComponent={ListFooterComponent}
+      ListFooterComponentStyle={ListFooterComponentStyle}
     />
   );
 }
