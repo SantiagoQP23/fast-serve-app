@@ -414,12 +414,14 @@
   "tabs": {
     "inventory": "Items",
     "counts": "Counts",
-    "purchases": "Purchases"
+    "purchases": "Purchases",
+    "recipes": "Recipes"
   },
   "pane": {
     "selectItem": "Select an item to see its stock and movements.",
     "selectCount": "Select a count to see its items.",
-    "selectPurchase": "Select a purchase to see its items."
+    "selectPurchase": "Select a purchase to see its items.",
+    "selectRecipe": "Open a recipe to see or change its ingredients."
   },
   "cards": {
     "moreItems": "+{{count}} more"
@@ -431,5 +433,22 @@
     "finishedBy": "Finished by {{name}}",
     "registered": "Registered",
     "updated": "Updated"
+  },
+  "recipes": {
+    "title": "Recipes",
+    "searchPlaceholder": "Search product or ingredient",
+    "filters": {
+      "all": "All · {{count}}",
+      "out": "Out of stock · {{count}}",
+      "low": "Low stock · {{count}}"
+    },
+    "canMake": "Enough for {{count}}",
+    "noCategory": "No category",
+    "empty": "No recipes yet",
+    "emptyDescription": "A recipe says which inventory ingredients each product uses, so they're deducted when it sells.",
+    "noResults": "No recipe matches",
+    "create": "Create recipe",
+    "new": "New recipe",
+    "pickVariant": "Search product"
   }
 }

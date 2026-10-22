@@ -31,6 +31,7 @@ import InventoryItemsView from "@/presentation/inventory/components/inventory-it
 import InventoryStockSummary from "@/presentation/inventory/components/inventory-stock-summary";
 import InventoryCountsTab from "@/presentation/inventory/components/inventory-counts-tab";
 import InventoryPurchasesTab from "@/presentation/inventory/components/inventory-purchases-tab";
+import InventoryRecipesTab from "@/presentation/inventory/components/inventory-recipes-tab";
 import {
   getInventoryStockStatus,
   type InventoryItem,
@@ -41,7 +42,7 @@ import InventoryCountDetailView from "@/presentation/inventory/components/invent
 import InventoryPurchaseDetailView from "@/presentation/inventory/components/inventory-purchase-detail-view";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 
-type InventoryTab = "inventory" | "counts" | "purchases";
+type InventoryTab = "inventory" | "counts" | "purchases" | "recipes";
 
 /** What the detail pane next to the list shows (tablet). */
 type PaneSelection = { kind: "item" | "count" | "purchase"; id: string };
@@ -74,6 +75,8 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   const { categories, categoriesQuery } = useInventoryItemCategories();
   const addSheetRef = useRef<BottomSheetMethods>(null);
   const [activeTab, setActiveTab] = useState<InventoryTab>("inventory");
+  // Bumped by "+" on the Recetas tab, which owns the new recipe picker.
+  const [newRecipeRequest, setNewRecipeRequest] = useState(0);
 
   // Tablet landscape: details open in a pane next to the list instead of
   // pushing a screen, and folders open in place of the folder grid.
@@ -156,6 +159,10 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
       handleRegisterPurchase();
       return;
     }
+    if (activeTab === "recipes") {
+      setNewRecipeRequest((n) => n + 1);
+      return;
+    }
     addSheetRef.current?.present();
   };
 
@@ -236,6 +243,13 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
           },
         ]
       : []),
+    {
+      icon: "chef-hat",
+      label: t("tabs.recipes"),
+      onPress: () => changeTab("recipes"),
+      active: activeTab === "recipes",
+      accessibilityLabel: t("recipes.title"),
+    },
   ];
 
   const screenTitle =
@@ -243,7 +257,9 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
       ? t("counts.title")
       : activeTab === "purchases"
         ? t("purchases.title")
-        : t("title");
+        : activeTab === "recipes"
+          ? t("recipes.title")
+          : t("title");
 
   const content = (
     <>
@@ -451,6 +467,10 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
         />
       )}
 
+      {activeTab === "recipes" && (
+        <InventoryRecipesTab newRecipeRequest={newRecipeRequest} />
+      )}
+
       <View style={tw`absolute bottom-6 left-0 right-0 items-center`}>
         <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
           <FloatingToolbar items={toolbarItems} />
@@ -465,7 +485,9 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                   ? t("counts.new")
                   : activeTab === "purchases"
                     ? t("purchases.register")
-                    : t("createItem")
+                    : activeTab === "recipes"
+                      ? t("recipes.new")
+                      : t("createItem")
               }
             />
           )}
@@ -506,6 +528,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     inventory: { icon: "package", text: t("pane.selectItem") },
     counts: { icon: "clipboard", text: t("pane.selectCount") },
     purchases: { icon: "receipt-text", text: t("pane.selectPurchase") },
+    recipes: { icon: "chef-hat", text: t("pane.selectRecipe") },
   } as const;
 
   return (

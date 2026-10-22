@@ -22,6 +22,7 @@ import {
 } from "@/presentation/inventory/hooks/useInventoryItems";
 import { InventoryUnit } from "@/core/inventory/models/inventory-item.model";
 import { InventoryRecipeService } from "@/presentation/inventory/services/inventory-recipe.service";
+import { refreshOptionRecipeInMenu } from "@/presentation/inventory/services/refresh-option-recipe-in-menu";
 import { getErrorMessage } from "@/core/api/get-error-message";
 
 interface WholeProductInventoryModalProps {
@@ -201,6 +202,7 @@ async function linkExistingItem({
     });
     queryClient.invalidateQueries({ queryKey: inventoryItemsQueryKey });
     queryClient.invalidateQueries({ queryKey: ["menu"] });
+    refreshOptionRecipeInMenu(productOptionId);
   }
 }
 
@@ -276,6 +278,7 @@ function WholeProductInventoryForm({
     }
 
     queryClient.invalidateQueries({ queryKey: ["menu"] });
+    refreshOptionRecipeInMenu(productOptionId);
     onClose();
   };
 

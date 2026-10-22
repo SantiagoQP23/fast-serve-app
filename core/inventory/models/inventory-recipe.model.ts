@@ -28,3 +28,13 @@ export function getWholeProductLine(
     ? line
     : null;
 }
+
+/**
+ * Whether a variant's lines are an ingredient recipe: it has linked items
+ * and isn't tracked as a whole product (a lone 1-unit line).
+ */
+export function isIngredientRecipe(
+  lines: ProductOptionInventoryItem[] | undefined,
+): boolean {
+  return !!lines?.length && !getWholeProductLine(lines);
+}

@@ -414,12 +414,14 @@
   "tabs": {
     "inventory": "Artículos",
     "counts": "Conteos",
-    "purchases": "Compras"
+    "purchases": "Compras",
+    "recipes": "Recetas"
   },
   "pane": {
     "selectItem": "Selecciona un artículo para ver su stock y movimientos.",
     "selectCount": "Selecciona un conteo para ver sus artículos.",
-    "selectPurchase": "Selecciona una compra para ver sus artículos."
+    "selectPurchase": "Selecciona una compra para ver sus artículos.",
+    "selectRecipe": "Abre una receta para ver o cambiar sus ingredientes."
   },
   "cards": {
     "moreItems": "+{{count}} más"
@@ -431,5 +433,22 @@
     "finishedBy": "Finalizado por {{name}}",
     "registered": "Registrada",
     "updated": "Actualizada"
+  },
+  "recipes": {
+    "title": "Recetas",
+    "searchPlaceholder": "Buscar producto o ingrediente",
+    "filters": {
+      "all": "Todas · {{count}}",
+      "out": "Sin stock · {{count}}",
+      "low": "Stock bajo · {{count}}"
+    },
+    "canMake": "Alcanza para {{count}}",
+    "noCategory": "Sin categoría",
+    "empty": "Aún no hay recetas",
+    "emptyDescription": "Una receta dice qué ingredientes del inventario usa cada producto, para descontarlos al vender.",
+    "noResults": "Ninguna receta coincide",
+    "create": "Crear receta",
+    "new": "Nueva receta",
+    "pickVariant": "Buscar producto"
   }
 }
