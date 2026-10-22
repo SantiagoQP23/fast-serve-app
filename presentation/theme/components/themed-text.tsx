@@ -1,21 +1,6 @@
 import { StyleSheet, Text, type TextProps } from "react-native";
 import { useThemeColor } from "../hooks/use-theme-color";
 
-import {
-  useFonts,
-  Sen_400Regular,
-  Sen_500Medium,
-  Sen_600SemiBold,
-  Sen_700Bold,
-} from "@expo-google-fonts/sen";
-
-import {
-  PlusJakartaSans_400Regular,
-  PlusJakartaSans_600SemiBold,
-  PlusJakartaSans_700Bold,
-  PlusJakartaSans_500Medium,
-} from "@expo-google-fonts/plus-jakarta-sans";
-
 import { typography } from "@/constants/theme";
 import tw from "../lib/tailwind";
 
@@ -34,21 +19,6 @@ export function ThemedText({
   ...rest
 }: ThemedTextProps) {
   const color = useThemeColor({ light: lightColor, dark: darkColor }, "text");
-  let [fontsLoaded] = useFonts({
-    Sen_400Regular,
-    Sen_500Medium,
-    Sen_600SemiBold,
-    Sen_700Bold,
-    PlusJakartaSans_400Regular,
-    PlusJakartaSans_500Medium,
-    PlusJakartaSans_600SemiBold,
-    PlusJakartaSans_700Bold,
-  });
-
-  if (!fontsLoaded) {
-    return null;
-  }
-
   return (
     <Text
       style={[
@@ -63,6 +33,12 @@ export function ThemedText({
         type === "body2" ? styles.body2 : undefined,
         type === "small" ? styles.small : undefined,
         type === "caption" ? styles.caption : undefined,
+        // Font resolved per render so it follows the font setting. Digits are
+        // fixed-width so prices and totals line up (Nunito's already are).
+        {
+          fontFamily: typography[fontWeights[type]],
+          fontVariant: ["tabular-nums"],
+        },
         // Muted color resolved per render so it follows the theme
         type === "small" || type === "caption"
           ? { color: tw.color("gray-500") }
@@ -74,48 +50,54 @@ export function ThemedText({
   );
 }
 
+const fontWeights: Record<
+  NonNullable<ThemedTextProps["type"]>,
+  keyof typeof typography
+> = {
+  h1: "semibold",
+  h2: "semibold",
+  h3: "semibold",
+  h4: "semibold",
+  body1: "medium",
+  body2: "regular",
+  small: "medium",
+  caption: "medium",
+};
+
 const styles = StyleSheet.create({
   h1: {
     fontSize: 32,
     lineHeight: 40,
     height: 40,
-    fontFamily: typography.semibold,
   },
   h2: {
     fontSize: 28,
     lineHeight: 36,
-    fontFamily: typography.semibold,
   },
   h3: {
     fontSize: 22,
     lineHeight: 28,
-    fontFamily: typography.semibold,
   },
   h4: {
     fontSize: 18,
     lineHeight: 24,
-    fontFamily: typography.semibold,
   },
   body1: {
     fontSize: 16,
     lineHeight: 24,
-    fontFamily: typography.medium,
   },
   body2: {
     fontSize: 14,
     lineHeight: 20,
-    fontFamily: typography.regular,
   },
   small: {
     fontSize: 12,
     lineHeight: 16,
-    fontFamily: typography.medium,
   },
   caption: {
     fontSize: 14,
     lineHeight: 16,
     textTransform: "uppercase",
-    fontFamily: typography.medium,
     letterSpacing: 0.5,
   },
 });

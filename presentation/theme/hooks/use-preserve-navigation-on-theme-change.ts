@@ -6,10 +6,14 @@ import { useThemeStore } from "@/presentation/theme/store/useThemeStore";
 type NavigationContainerRef = ReturnType<typeof useNavigationContainerRef>;
 type RootState = ReturnType<NavigationContainerRef["getRootState"]>;
 
+/** Matches the root layout's remount key. */
+const appearanceKey = (state: { theme: string; font: string }) =>
+  `${state.theme}-${state.font}`;
+
 /**
- * The root layout remounts the navigator when the theme changes, and a
+ * The root layout remounts the navigator when the theme or font changes, and a
  * navigator that unmounts drops its state, so the app would restart from its
- * initial screen. This snapshots the navigation state as the theme changes and
+ * initial screen. This snapshots the navigation state as they change and
  * restores it once the new navigator has mounted.
  *
  * Returns true until the restore is done, so the layout can hide the initial
@@ -17,16 +21,19 @@ type RootState = ReturnType<NavigationContainerRef["getRootState"]>;
  */
 export function usePreserveNavigationOnThemeChange() {
   const navigationRef = useNavigationContainerRef();
-  const theme = useThemeStore((state) => state.theme);
+  const theme = useThemeStore(appearanceKey);
   const snapshotRef = useRef<RootState>(undefined);
   const [restoredTheme, setRestoredTheme] = useState(theme);
 
-  // Runs inside setTheme, before React renders the remount, so the state of
-  // the old navigator is still readable.
+  // Runs inside setTheme / setFont, before React renders the remount, so the
+  // state of the old navigator is still readable.
   useEffect(
     () =>
       useThemeStore.subscribe((state, previous) => {
-        if (state.theme !== previous.theme && navigationRef.isReady()) {
+        if (
+          appearanceKey(state) !== appearanceKey(previous) &&
+          navigationRef.isReady()
+        ) {
           snapshotRef.current = navigationRef.getRootState();
         }
       }),
