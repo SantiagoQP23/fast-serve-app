@@ -18,6 +18,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
+import Switch from "@/presentation/theme/components/switch";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 
@@ -28,6 +29,7 @@ const buildSectionSchema = (t: (key: string) => string) =>
       .min(2, t("sections.validations.nameMinLength"))
       .max(60, t("sections.validations.nameMaxLength")),
     isPublic: z.boolean(),
+    isActive: z.boolean(),
   });
 
 type SectionFormData = z.infer<ReturnType<typeof buildSectionSchema>>;
@@ -38,6 +40,7 @@ export default function MenuSectionFormScreen() {
     sectionId?: string;
     name?: string;
     isPublic?: string;
+    isActive?: string;
   }>();
 
   const isEditing = !!params.sectionId;
@@ -57,6 +60,7 @@ export default function MenuSectionFormScreen() {
     defaultValues: {
       name: params.name || "",
       isPublic: params.isPublic !== "false",
+      isActive: params.isActive !== "false",
     },
   });
 
@@ -66,6 +70,7 @@ export default function MenuSectionFormScreen() {
         id: params.sectionId!,
         name: data.name.trim(),
         isPublic: data.isPublic,
+        isActive: data.isActive,
       });
     } else {
       await createSection.mutateAsync({
@@ -142,7 +147,32 @@ export default function MenuSectionFormScreen() {
                 />
               )}
             />
+
+            {isEditing && (
+              <Controller
+                control={control}
+                name="isActive"
+                render={({ field: { value, onChange } }) => (
+                  <Switch
+                    label={t("sections.fields.isActive")}
+                    value={value}
+                    onValueChange={onChange}
+                  />
+                )}
+              />
+            )}
           </ThemedView>
+          {isEditing && (
+            <ThemedView style={tw`items-center mt-20`}>
+              <Button
+                label={t("delete")}
+                leftIcon="trash"
+                variant="text"
+                size="small"
+                onPress={() => setShowDeleteConfirm(true)}
+              />
+            </ThemedView>
+          )}
         </ScrollView>
       </ScreenLayout>
 

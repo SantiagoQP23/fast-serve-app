@@ -12,8 +12,6 @@ import TextInput from "@/presentation/theme/components/text-input";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Card from "@/presentation/theme/components/card";
 import Button from "@/presentation/theme/components/button";
-import DialogModal from "@/presentation/theme/components/dialog-modal";
-import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
 import { useProductSearch } from "@/presentation/restaurant-menu/hooks/useProductSearch";
 import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuManagement";
@@ -28,7 +26,6 @@ import {
   getProductDefaultOption,
   type Product,
 } from "@/core/menu/models/product.model";
-import { typography } from "@/constants/theme";
 import MenuProductDetailView from "@/presentation/menu-management/components/menu-product-detail-view";
 import MenuNamesSheet from "@/presentation/menu-management/components/menu-names-sheet";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
@@ -36,23 +33,12 @@ import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLa
 
 const PRODUCT_PANE_WIDTH = 600;
 
-type SelectedEntity =
-  | { type: "section"; item: Section }
-  | { type: "category"; item: Category };
-
 export default function MenuOverviewScreen() {
   const { t } = useTranslation("menuManagement");
   const primaryColor = useThemeColor({}, "primary");
   const { sections, categories, products, menuQuery } = useMenu();
   const { isLoading, isError, refetch, isRefetching } = menuQuery;
-  const {
-    createSection,
-    updateSection,
-    deleteSection,
-    createCategory,
-    updateCategory,
-    deleteCategory,
-  } = useMenuManagement();
+  const { createSection, createCategory } = useMenuManagement();
   const { user, currentRestaurant } = useAuthStore();
   const menuRestaurantId = useMenuStore((state) => state.restaurantId);
   const canManage = isAdminLevelRole(user?.role?.name);
@@ -63,12 +49,6 @@ export default function MenuOverviewScreen() {
   const [isLoadingMenu, setIsLoadingMenu] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const [selected, setSelected] = useState<SelectedEntity | null>(null);
-  const [sectionToDelete, setSectionToDelete] = useState<Section | null>(null);
-  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
-    null,
-  );
-  const actionsSheetRef = useRef<BottomSheetMethods>(null);
   const sectionSheetRef = useRef<BottomSheetMethods>(null);
   const categorySheetRef = useRef<BottomSheetMethods>(null);
 
@@ -88,17 +68,13 @@ export default function MenuOverviewScreen() {
     [categories, sectionId],
   );
 
-  const getCategoryCount = (id: string) =>
-    categories.filter((category) => category.sectionId === id).length;
-
-  const getProductCount = (id: string) =>
-    products.filter((product) => product.category.id === id).length;
-
   const getSectionName = (id: string) =>
     sections.find((section) => section.id === id)?.name ?? "";
 
+  // Also recovers when the selected section is deleted from its form
   useEffect(() => {
-    if (!sectionId && sortedSections.length > 0) {
+    if (sortedSections.length === 0) return;
+    if (!sortedSections.some((section) => section.id === sectionId)) {
       setSectionId(sortedSections[0].id);
     }
   }, [sortedSections, sectionId]);
@@ -138,13 +114,18 @@ export default function MenuOverviewScreen() {
     }
   }, [menuQuery]);
 
-  const closeActions = () => actionsSheetRef.current?.dismiss();
-
   const handleSelectSection = (section: Section) => {
     if (sectionId === section.id) {
       if (!canManage) return;
-      setSelected({ type: "section", item: section });
-      actionsSheetRef.current?.present();
+      router.push({
+        pathname: "/(profile)/menu/sections/form",
+        params: {
+          sectionId: section.id,
+          name: section.name,
+          isPublic: String(section.isPublic),
+          isActive: String(section.isActive),
+        },
+      });
       return;
     }
     setSectionId(section.id);
@@ -153,8 +134,16 @@ export default function MenuOverviewScreen() {
   const handleSelectCategory = (category: Category) => {
     if (categoryId === category.id) {
       if (!canManage) return;
-      setSelected({ type: "category", item: category });
-      actionsSheetRef.current?.present();
+      router.push({
+        pathname: "/(profile)/menu/categories/form",
+        params: {
+          categoryId: category.id,
+          name: category.name,
+          sectionId: category.sectionId,
+          isPublic: String(category.isPublic),
+          isActive: String(category.isActive),
+        },
+      });
       return;
     }
     setCategoryId(category.id);
@@ -177,69 +166,6 @@ export default function MenuOverviewScreen() {
       pathname: "/(profile)/menu/products/form",
       params: categoryId ? { categoryId } : undefined,
     });
-  };
-
-  const handleEditSelected = () => {
-    if (!selected) return;
-    closeActions();
-    if (selected.type === "section") {
-      router.push({
-        pathname: "/(profile)/menu/sections/form",
-        params: {
-          sectionId: selected.item.id,
-          name: selected.item.name,
-          isPublic: String(selected.item.isPublic),
-        },
-      });
-    } else {
-      router.push({
-        pathname: "/(profile)/menu/categories/form",
-        params: {
-          categoryId: selected.item.id,
-          name: selected.item.name,
-          sectionId: selected.item.sectionId,
-          isPublic: String(selected.item.isPublic),
-        },
-      });
-    }
-  };
-
-  const handleToggleSelectedActive = () => {
-    if (!selected) return;
-    if (selected.type === "section") {
-      updateSection.mutate({
-        id: selected.item.id,
-        isActive: !selected.item.isActive,
-      });
-    } else {
-      updateCategory.mutate({
-        id: selected.item.id,
-        isActive: !selected.item.isActive,
-      });
-    }
-    closeActions();
-  };
-
-  const handleDeleteSelected = () => {
-    if (!selected) return;
-    closeActions();
-    if (selected.type === "section") {
-      setSectionToDelete(selected.item);
-    } else {
-      setCategoryToDelete(selected.item);
-    }
-  };
-
-  const handleConfirmDeleteSection = async () => {
-    if (!sectionToDelete) return;
-    await deleteSection.mutateAsync(sectionToDelete.id);
-    setSectionToDelete(null);
-  };
-
-  const handleConfirmDeleteCategory = async () => {
-    if (!categoryToDelete) return;
-    await deleteCategory.mutateAsync(categoryToDelete.id);
-    setCategoryToDelete(null);
   };
 
   const openProduct = (product: Product) => {
@@ -523,106 +449,7 @@ export default function MenuOverviewScreen() {
         </ThemedView>
       </ThemedView>
 
-      <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
-        {selected && (
-          <ThemedView style={tw`px-4 py-4 gap-6`}>
-            <ThemedView style={tw`flex-row justify-between items-start gap-3`}>
-              <ThemedView style={tw`flex-1 gap-2`}>
-                <ThemedText type="h2" style={{ fontFamily: typography.medium }}>
-                  {selected.item.name}
-                </ThemedText>
-                <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
-                  {selected.type === "section" ? (
-                    <ThemedView style={tw`flex-row items-center gap-1`}>
-                      <Icon
-                        name="list"
-                        size={16}
-                        color={tw.color("text-gray-500")}
-                      />
-                      <ThemedText type="small" style={tw`text-gray-500`}>
-                        {t("sections.categoryCount", {
-                          count: getCategoryCount(selected.item.id),
-                        })}
-                      </ThemedText>
-                    </ThemedView>
-                  ) : (
-                    <>
-                      <ThemedView style={tw`flex-row items-center gap-1`}>
-                        <Icon
-                          name="list"
-                          size={16}
-                          color={tw.color("text-gray-500")}
-                        />
-                        <ThemedText type="small" style={tw`text-gray-500`}>
-                          {getSectionName(selected.item.sectionId)}
-                        </ThemedText>
-                      </ThemedView>
-                      <ThemedView style={tw`flex-row items-center gap-1`}>
-                        <Icon
-                          name="tag"
-                          size={16}
-                          color={tw.color("text-gray-500")}
-                        />
-                        <ThemedText type="small" style={tw`text-gray-500`}>
-                          {t("categories.productCount", {
-                            count: getProductCount(selected.item.id),
-                          })}
-                        </ThemedText>
-                      </ThemedView>
-                    </>
-                  )}
-                </ThemedView>
-              </ThemedView>
-              <IconButton
-                icon={selected.item.isActive ? "eye" : "eye-off"}
-                variant="surface"
-                onPress={handleToggleSelectedActive}
-              />
-            </ThemedView>
-            <ThemedView style={tw`flex-row gap-4 items-center`}>
-              <Button
-                label={t("delete")}
-                leftIcon="trash"
-                variant="destructive"
-                onPress={handleDeleteSelected}
-              />
-              <Button
-                label={t("edit")}
-                leftIcon="square-pen"
-                variant="surface"
-                style={tw`flex-1`}
-                onPress={handleEditSelected}
-              />
-            </ThemedView>
-          </ThemedView>
-        )}
-      </ThemedBottomSheetModal>
-
       {nameSheets}
-
-      <DialogModal
-        visible={!!sectionToDelete}
-        title={t("sections.deleteTitle")}
-        message={t("sections.deleteMessage")}
-        confirmLabel={t("confirm")}
-        cancelLabel={t("cancel")}
-        confirmVariant="destructive"
-        loading={deleteSection.isPending}
-        onConfirm={handleConfirmDeleteSection}
-        onCancel={() => setSectionToDelete(null)}
-      />
-
-      <DialogModal
-        visible={!!categoryToDelete}
-        title={t("categories.deleteTitle")}
-        message={t("categories.deleteMessage")}
-        confirmLabel={t("confirm")}
-        cancelLabel={t("cancel")}
-        confirmVariant="destructive"
-        loading={deleteCategory.isPending}
-        onConfirm={handleConfirmDeleteCategory}
-        onCancel={() => setCategoryToDelete(null)}
-      />
     </ScreenLayout>
   );
 
