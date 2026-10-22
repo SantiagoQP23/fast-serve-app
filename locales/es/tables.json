@@ -69,8 +69,10 @@
     "delete": "Eliminar",
     "activate": "Activar",
     "deactivate": "Desactivar",
+    "addDescription": "Agregar descripción",
     "fields": {
       "name": "Nombre",
+      "status": "Estado",
       "description": "Descripción",
       "chairs": "Sillas",
       "isActive": "Activa",

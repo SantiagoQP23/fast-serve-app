@@ -16,9 +16,16 @@ import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
-import Label from "@/presentation/theme/components/label";
 import type { Table } from "@/core/tables/models/table.model";
-import IconButton from "@/presentation/theme/components/icon-button";
+import type { UpdateTableDto } from "@/presentation/tables/interfaces/dto/update-table.dto";
+import InfoRow from "@/presentation/theme/components/info-row";
+import Switch from "@/presentation/theme/components/switch";
+import NumberWheelBottomSheet, {
+  type NumberWheelBottomSheetRef,
+} from "@/presentation/theme/components/number-wheel-bottom-sheet";
+import TextFieldBottomSheet, {
+  type TextFieldBottomSheetRef,
+} from "@/presentation/theme/components/text-field-bottom-sheet";
 import { typography } from "@/constants/theme";
 import {
   sortAreas,
@@ -31,6 +38,7 @@ import BottomSheetPicker, {
 
 const NO_AREA = "no-area";
 const COLUMNS = 3;
+const MAX_CHAIRS = 30;
 
 // `null` marks the "add table" card that closes each zone's grid.
 type GridItem = Table | null;
@@ -51,6 +59,11 @@ export default function TablesSettingsScreen() {
   const [tableToDelete, setTableToDelete] = useState<Table | null>(null);
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
   const actionsSheetRef = useRef<BottomSheetMethods>(null);
+  // Each info row opens its own sheet on top of the actions sheet.
+  const nameSheetRef = useRef<TextFieldBottomSheetRef>(null);
+  const tableAreaPickerRef = useRef<BottomSheetPickerRef>(null);
+  const chairsSheetRef = useRef<NumberWheelBottomSheetRef>(null);
+  const descriptionSheetRef = useRef<TextFieldBottomSheetRef>(null);
   const { groups, hasAreas, areas } = useTableGroups(tables, {
     includeHidden: true,
     includeEmpty: true,
@@ -153,21 +166,6 @@ export default function TablesSettingsScreen() {
     });
   };
 
-  const handleEditTable = (table: Table) => {
-    router.push({
-      pathname: "/(profile)/tables/form",
-      params: {
-        tableId: table.id,
-        name: table.name,
-        description: table.description || "",
-        chairs: table.chairs != null ? String(table.chairs) : "",
-        isActive: String(table.isActive !== false),
-        isAvailable: String(table.isAvailable !== false),
-        areaId: table.areaId ?? "",
-      },
-    });
-  };
-
   const handleOpenTableActions = (table: Table) => {
     setSelectedTable(table);
     actionsSheetRef.current?.present();
@@ -177,14 +175,28 @@ export default function TablesSettingsScreen() {
     actionsSheetRef.current?.dismiss();
   };
 
-  const handleToggleActive = () => {
+  // The actions sheet stays open, so an edit shows there right away and rolls
+  // back if the update fails (unless another table was opened meanwhile).
+  const saveSelectedTable = async (patch: Omit<UpdateTableDto, "id">) => {
     if (!selectedTable) return;
-    updateTable.mutate({
-      id: selectedTable.id,
-      isActive: !(selectedTable.isActive !== false),
-    });
-    handleCloseTableActions();
+    const previous = selectedTable;
+    const keys = Object.keys(patch) as (keyof typeof patch)[];
+    if (keys.every((key) => (previous[key] ?? null) === (patch[key] ?? null)))
+      return;
+    setSelectedTable({ ...previous, ...patch });
+    try {
+      await updateTable.mutateAsync({ id: previous.id, ...patch });
+    } catch (error) {
+      setSelectedTable((current) =>
+        current?.id === previous.id ? previous : current,
+      );
+      throw error;
+    }
   };
+
+  // Wheel, picker and switch edits close at once; the mutation shows errors.
+  const saveSelectedTableInBackground = (patch: Omit<UpdateTableDto, "id">) =>
+    void saveSelectedTable(patch).catch(() => {});
 
   const handleConfirmDelete = async () => {
     if (!tableToDelete) return;
@@ -425,68 +437,111 @@ export default function TablesSettingsScreen() {
       <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
         {selectedTable && (
           <ThemedView style={tw`px-4 py-4 gap-6`}>
-            <ThemedView style={tw`flex-row justify-between items-start gap-3`}>
-              <ThemedView style={tw`flex-1 gap-2`}>
-                <ThemedText type="h2" style={{ fontFamily: typography.medium }}>
-                  {t("settings.tableName", { name: selectedTable.name })}
-                </ThemedText>
-                <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
-                  <ThemedView style={tw`flex-row items-center gap-1`}>
-                    <ThemedText type="small" style={tw`text-gray-500`}>
-                      {t("settings.chairsCount", {
-                        count: selectedTable.chairs ?? 0,
-                      })}
-                    </ThemedText>
-                  </ThemedView>
-                  {/* <Label */}
-                  {/*   text={ */}
-                  {/*     selectedTable.isActive !== false */}
-                  {/*       ? t("settings.active") */}
-                  {/*       : t("settings.inactive") */}
-                  {/*   } */}
-                  {/*   color={ */}
-                  {/*     selectedTable.isActive !== false ? "success" : "default" */}
-                  {/*   } */}
-                  {/*   size="small" */}
-                  {/* /> */}
-                </ThemedView>
-                {!!selectedTable.description && (
-                  <ThemedText type="body2" style={tw`text-gray-500`}>
-                    {selectedTable.description}
-                  </ThemedText>
-                )}
-              </ThemedView>
-              <IconButton
-                icon={selectedTable.isActive !== false ? "eye" : "eye-off"}
-                variant="surface"
-                onPress={handleToggleActive}
+            <ThemedText type="h2" style={{ fontFamily: typography.medium }}>
+              {t("settings.tableName", { name: selectedTable.name })}
+            </ThemedText>
+            <ThemedView style={tw`gap-4`}>
+              <InfoRow
+                label={t("settings.fields.name")}
+                value={selectedTable.name}
+                onPress={() => nameSheetRef.current?.present()}
+              />
+              {hasAreas && (
+                <InfoRow
+                  label={t("areas.field")}
+                  value={
+                    areas.find((area) => area.id === selectedTable.areaId)
+                      ?.name ?? t("areas.noArea")
+                  }
+                  onPress={() => tableAreaPickerRef.current?.present()}
+                />
+              )}
+              <InfoRow
+                label={t("settings.fields.chairs")}
+                value={selectedTable.chairs}
+                placeholder="—"
+                onPress={() => chairsSheetRef.current?.present()}
+              />
+              <InfoRow
+                label={t("settings.fields.description")}
+                value={selectedTable.description}
+                placeholder={t("settings.addDescription")}
+                onPress={() => descriptionSheetRef.current?.present()}
+              />
+              <InfoRow
+                label={t("settings.fields.status")}
+                value={
+                  selectedTable.isActive !== false
+                    ? t("settings.active")
+                    : t("settings.inactive")
+                }
+                trailing={
+                  <Switch
+                    value={selectedTable.isActive !== false}
+                    onValueChange={(isActive) =>
+                      saveSelectedTableInBackground({ isActive })
+                    }
+                    accessibilityLabel={t("settings.fields.status")}
+                  />
+                }
               />
             </ThemedView>
-            <ThemedView style={tw`gap-4 `}>
-              <Button
-                label={t("settings.edit")}
-                leftIcon="square-pen"
-                variant="text"
-                style={tw`flex-1`}
-                onPress={() => {
-                  handleCloseTableActions();
-                  handleEditTable(selectedTable);
-                }}
-              />
-              <Button
-                label={t("settings.delete")}
-                leftIcon="trash"
-                variant="text"
-                size="small"
-                onPress={() => {
-                  handleCloseTableActions();
-                  setTableToDelete(selectedTable);
-                }}
-              />
-            </ThemedView>
+            <Button
+              label={t("settings.delete")}
+              leftIcon="trash"
+              variant="text"
+              size="small"
+              onPress={() => {
+                handleCloseTableActions();
+                setTableToDelete(selectedTable);
+              }}
+            />
           </ThemedView>
         )}
       </ThemedBottomSheetModal>
+
+      <TextFieldBottomSheet
+        ref={nameSheetRef}
+        title={t("settings.fields.name")}
+        value={selectedTable?.name ?? ""}
+        placeholder={t("settings.placeholders.name")}
+        maxLength={60}
+        requiredMessage={t("settings.validations.nameRequired")}
+        submitLabel={t("settings.save")}
+        loading={updateTable.isPending}
+        onSubmit={(name) => saveSelectedTable({ name })}
+      />
+
+      <BottomSheetPicker
+        ref={tableAreaPickerRef}
+        title={t("areas.field")}
+        options={areaOptions}
+        value={selectedTable?.areaId ?? NO_AREA}
+        onChange={(value) =>
+          saveSelectedTableInBackground({
+            areaId: value === NO_AREA ? null : String(value),
+          })
+        }
+      />
+
+      <NumberWheelBottomSheet
+        ref={chairsSheetRef}
+        title={t("settings.fields.chairs")}
+        value={selectedTable?.chairs ?? 0}
+        max={MAX_CHAIRS}
+        onDone={(chairs) => saveSelectedTableInBackground({ chairs })}
+      />
+
+      <TextFieldBottomSheet
+        ref={descriptionSheetRef}
+        title={t("settings.fields.description")}
+        value={selectedTable?.description ?? ""}
+        placeholder={t("settings.placeholders.description")}
+        multiline
+        submitLabel={t("settings.save")}
+        loading={updateTable.isPending}
+        onSubmit={(description) => saveSelectedTable({ description })}
+      />
 
       <DialogModal
         visible={!!tableToDelete}

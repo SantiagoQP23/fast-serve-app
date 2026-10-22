@@ -12,6 +12,8 @@ type SwitchProps = {
   onValueChange: (value: boolean) => void;
   label?: string;
   disabled?: boolean;
+  /** Names the switch for screen readers when there's no visible `label`. */
+  accessibilityLabel?: string;
 };
 
 export default function Switch({
@@ -19,10 +21,17 @@ export default function Switch({
   onValueChange,
   label,
   disabled = false,
+  accessibilityLabel,
 }: SwitchProps) {
   const palette = usePalette();
   return (
-    <ThemedView style={tw`flex-row items-center justify-between w-full `}>
+    <ThemedView
+      style={[
+        tw`flex-row items-center`,
+        // Unlabeled switches sit inline, e.g. at the end of an InfoRow.
+        !!label && tw`justify-between w-full`,
+      ]}
+    >
       {label && (
         <ThemedText style={{ fontFamily: typography.medium }} type="body1">
           {label}
@@ -35,6 +44,7 @@ export default function Switch({
         onValueChange={onValueChange}
         value={value}
         disabled={disabled}
+        accessibilityLabel={accessibilityLabel ?? label}
       />
     </ThemedView>
   );

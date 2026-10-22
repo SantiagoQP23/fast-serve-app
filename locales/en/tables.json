@@ -69,8 +69,10 @@
     "delete": "Delete",
     "activate": "Activate",
     "deactivate": "Deactivate",
+    "addDescription": "Add description",
     "fields": {
       "name": "Name",
+      "status": "Status",
       "description": "Description",
       "chairs": "Chairs",
       "isActive": "Active",
