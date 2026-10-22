@@ -22,6 +22,19 @@ import { SocketLoaderBottomSheet } from "@/presentation/shared/components/socket
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import * as Device from "expo-device";
 import * as ScreenOrientation from "expo-screen-orientation";
+import { useFonts } from "expo-font";
+import {
+  PlusJakartaSans_400Regular,
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+} from "@expo-google-fonts/plus-jakarta-sans";
+import {
+  Nunito_400Regular,
+  Nunito_500Medium,
+  Nunito_600SemiBold,
+  Nunito_700Bold,
+} from "@expo-google-fonts/nunito";
 
 // Initialize i18n
 import "@/core/i18n/i18n.config";
@@ -44,9 +57,22 @@ export default function RootLayout() {
   const language = useGlobalStore((state) => state.language);
   const setLanguage = useGlobalStore((state) => state.setLanguage);
   const theme = useThemeStore((state) => state.theme);
+  const font = useThemeStore((state) => state.font);
   const themeHydrated = useThemeHydrated();
   const isRestoringNavigation = usePreserveNavigationOnThemeChange();
   usePushNotifications();
+
+  // Both fonts load up front so switching in Settings is instant and works offline
+  const [fontsLoaded] = useFonts({
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+    Nunito_400Regular,
+    Nunito_500Medium,
+    Nunito_600SemiBold,
+    Nunito_700Bold,
+  });
 
   // Detect if user is on auth pages
   const segments = useSegments();
@@ -80,18 +106,19 @@ export default function RootLayout() {
     });
   }, []);
 
-  // Wait for the saved theme so the app doesn't flash the light theme first
-  if (!themeHydrated) return null;
+  // Wait for the saved theme and font so the app doesn't flash the defaults first
+  if (!themeHydrated || !fontsLoaded) return null;
 
   // Conditionally wrap content with SocketProvider
   const renderContent = () => {
     const content = (
       <BottomSheetModalProvider>
-        {/* Remount screens on theme change so every tw style is recomputed.
+        {/* Remount screens on theme or font change so every tw style and
+            font name is recomputed.
             The navigator restarts on its initial screen, so keep it hidden
             until the previous navigation state is restored. */}
         <ThemedView
-          key={theme}
+          key={`${theme}-${font}`}
           style={tw.style("flex-1", isRestoringNavigation && "opacity-0")}
         >
           <Stack

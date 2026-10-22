@@ -24,7 +24,13 @@ import Card from "@/presentation/theme/components/card";
 import Switch from "@/presentation/theme/components/switch";
 import { useNotificationsStore } from "@/presentation/shared/store/useNotificationsStore";
 import { useThemeStore } from "@/presentation/theme/store/useThemeStore";
-import { palettes, themeSwatches, type ThemeName } from "@/constants/theme";
+import {
+  fontFamilies,
+  palettes,
+  themeSwatches,
+  type FontName,
+  type ThemeName,
+} from "@/constants/theme";
 import BottomSheetPicker, {
   type BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
@@ -39,6 +45,9 @@ export default function SettingsScreen() {
   const theme = useThemeStore((state) => state.theme);
   const setTheme = useThemeStore((state) => state.setTheme);
   const themePickerRef = useRef<BottomSheetPickerRef>(null);
+  const font = useThemeStore((state) => state.font);
+  const setFont = useThemeStore((state) => state.setFont);
+  const fontPickerRef = useRef<BottomSheetPickerRef>(null);
   const notificationsEnabled = useNotificationsStore((state) => state.enabled);
   const setNotificationsEnabled = useNotificationsStore(
     (state) => state.setEnabled,
@@ -82,6 +91,18 @@ export default function SettingsScreen() {
       setTheme(pendingThemeRef.current);
     }
     pendingThemeRef.current = null;
+  };
+
+  // Same as the theme: the font remounts the screens.
+  const pendingFontRef = useRef<FontName | null>(null);
+  const handleFontChange = (value: string | number) => {
+    pendingFontRef.current = value as FontName;
+  };
+  const handleFontPickerDismiss = () => {
+    if (pendingFontRef.current && pendingFontRef.current !== font) {
+      setFont(pendingFontRef.current);
+    }
+    pendingFontRef.current = null;
   };
 
   const handleNotificationsChange = async (value: boolean) => {
@@ -205,6 +226,38 @@ export default function SettingsScreen() {
             value={theme}
             onChange={handleThemeChange}
             onDismiss={handleThemePickerDismiss}
+          />
+
+          <Card
+            style={tw`gap-2 p-4 rounded-3xl`}
+            onPress={() => fontPickerRef.current?.present()}
+          >
+            <ThemedView style={tw`flex-row items-center justify-between`}>
+              <ThemedText type="body1">{t("settings.fontTitle")}</ThemedText>
+              <Icon
+                name="chevron-right"
+                size={20}
+                color={tw.color("gray-400")}
+              />
+            </ThemedView>
+            <ThemedText type="small">{t("settings.fontDescription")}</ThemedText>
+            <ThemedView style={tw`flex-row items-center gap-2`}>
+              <Label text={t(`settings.fonts.${font}.name`)} color="info" />
+            </ThemedView>
+          </Card>
+
+          <BottomSheetPicker
+            ref={fontPickerRef}
+            title={t("settings.fontTitle")}
+            options={(Object.keys(fontFamilies) as FontName[]).map((name) => ({
+              value: name,
+              label: t(`settings.fonts.${name}.name`),
+              description: t(`settings.fonts.${name}.description`),
+              fontFamily: fontFamilies[name].medium,
+            }))}
+            value={font}
+            onChange={handleFontChange}
+            onDismiss={handleFontPickerDismiss}
           />
 
           <Card style={tw`gap-2 p-4 rounded-3xl`}>

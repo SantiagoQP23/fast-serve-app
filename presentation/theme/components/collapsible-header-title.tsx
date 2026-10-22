@@ -93,12 +93,18 @@ export function CollapsibleHeaderTitle({
 
   return (
     <Animated.View style={[tw`items-center`, animatedStyle]}>
-      <ThemedText style={styles.title} numberOfLines={1}>
+      <ThemedText
+        style={[styles.title, { fontFamily: typography.semibold }]}
+        numberOfLines={1}
+      >
         {title}
       </ThemedText>
       {subtitle && (
         <ThemedText
-          style={[styles.subtitle, { color: tw.color("gray-500") }]}
+          style={[
+            styles.subtitle,
+            { color: tw.color("gray-500"), fontFamily: typography.regular },
+          ]}
           numberOfLines={1}
         >
           {subtitle}
@@ -112,11 +118,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     lineHeight: 19,
-    fontFamily: typography.semibold,
   },
   subtitle: {
     fontSize: 11,
     lineHeight: 13,
-    fontFamily: typography.regular,
   },
 });

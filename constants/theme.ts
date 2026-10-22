@@ -367,30 +367,43 @@ export const Fonts = Platform.select({
   },
 });
 
-// export const typography = {
-//   regular: "RobotoMono_400Regular",
-//   medium: "RobotoMono_500Medium",
-//   semibold: "RobotoMono_600SemiBold",
-//   bold: "RobotoMono_700Bold",
-// };
+export type FontName = "jakarta" | "nunito";
 
-// export const typography = {
-//   regular: "Roboto_400Regular",
-//   medium: "Roboto_500Medium",
-//   semibold: "Roboto_600SemiBold",
-//   bold: "Roboto_700Bold",
-// };
+export const DEFAULT_FONT: FontName = "jakarta";
 
-// export const typography = {
-//   regular: "Sen_400Regular",
-//   medium: "Sen_500Medium",
-//   semibold: "Sen_600SemiBold",
-//   bold: "Sen_700Bold",
-// };
+type Typography = {
+  regular: string;
+  medium: string;
+  semibold: string;
+  bold: string;
+};
 
-export const typography = {
-  regular: "PlusJakartaSans_400Regular",
-  medium: "PlusJakartaSans_500Medium",
-  semibold: "PlusJakartaSans_600SemiBold",
-  bold: "PlusJakartaSans_700Bold",
+/** Font family names per weight, as registered in the root layout's useFonts. */
+export const fontFamilies: Record<FontName, Typography> = {
+  jakarta: {
+    regular: "PlusJakartaSans_400Regular",
+    medium: "PlusJakartaSans_500Medium",
+    semibold: "PlusJakartaSans_600SemiBold",
+    bold: "PlusJakartaSans_700Bold",
+  },
+  nunito: {
+    regular: "Nunito_400Regular",
+    medium: "Nunito_500Medium",
+    semibold: "Nunito_600SemiBold",
+    bold: "Nunito_700Bold",
+  },
+};
+
+export const isFontName = (value: unknown): value is FontName =>
+  typeof value === "string" && value in fontFamilies;
+
+/**
+ * The active font's family names. The values are swapped in place by
+ * `setTypographyFont` and the root remounts the screens, so read them while
+ * rendering, never in a module-level `StyleSheet.create`.
+ */
+export const typography: Typography = { ...fontFamilies[DEFAULT_FONT] };
+
+export const setTypographyFont = (font: FontName) => {
+  Object.assign(typography, fontFamilies[font]);
 };

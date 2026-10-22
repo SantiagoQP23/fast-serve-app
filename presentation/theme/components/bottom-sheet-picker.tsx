@@ -25,6 +25,10 @@ export type Option = {
   value: string | number;
   /** Encabezado de grupo; se muestra cuando cambia respecto a la opción anterior. */
   group?: string;
+  /** Línea secundaria bajo la etiqueta. */
+  description?: string;
+  /** Familia de la etiqueta y la descripción, para mostrar una fuente en sí misma. */
+  fontFamily?: string;
 };
 
 export type BottomSheetPickerAction = {
@@ -210,18 +214,34 @@ const BottomSheetPicker = forwardRef<
                         )
                       }
                     >
-                      <ThemedText
-                        type="body1"
-                        style={{
-                          fontFamily: typography.medium,
-                          color:
-                            value === item.value
-                              ? tw.color("on-secondary")
-                              : tw.color("on-surface"),
-                        }}
-                      >
-                        {item.label}
-                      </ThemedText>
+                      <View style={tw`flex-1`}>
+                        <ThemedText
+                          type="body1"
+                          style={{
+                            fontFamily: item.fontFamily ?? typography.medium,
+                            color:
+                              value === item.value
+                                ? tw.color("on-secondary")
+                                : tw.color("on-surface"),
+                          }}
+                        >
+                          {item.label}
+                        </ThemedText>
+                        {item.description && (
+                          <ThemedText
+                            type="body2"
+                            style={{
+                              fontFamily: item.fontFamily ?? typography.regular,
+                              color:
+                                value === item.value
+                                  ? tw.color("on-secondary")
+                                  : tw.color("gray-500"),
+                            }}
+                          >
+                            {item.description}
+                          </ThemedText>
+                        )}
+                      </View>
                       {value === item.value && (
                         <Icon
                           name="check"

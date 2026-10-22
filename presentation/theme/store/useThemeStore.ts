@@ -6,9 +6,13 @@ import { Appearance, Platform } from "react-native";
 import * as SystemUI from "expo-system-ui";
 
 import {
+  DEFAULT_FONT,
   DEFAULT_THEME,
   isDarkTheme,
+  isFontName,
   palettes,
+  setTypographyFont,
+  type FontName,
   type Palette,
   type ThemeName,
 } from "@/constants/theme";
@@ -30,6 +34,9 @@ interface ThemeStoreState {
   /** Saved per device, not per account. */
   theme: ThemeName;
   setTheme: (theme: ThemeName) => void;
+  /** Saved per device, like the theme. */
+  font: FontName;
+  setFont: (font: FontName) => void;
 }
 
 const isThemeName = (value: unknown): value is ThemeName =>
@@ -43,21 +50,27 @@ export const useThemeStore = create<ThemeStoreState>()(
         applyTheme(theme);
         set({ theme });
       },
+      font: DEFAULT_FONT,
+      setFont: (font) => {
+        setTypographyFont(font);
+        set({ font });
+      },
     }),
     {
       name: "theme-storage",
       storage: createJSONStorage(() => AsyncStorage),
-      partialize: (state) => ({ theme: state.theme }),
+      partialize: (state) => ({ theme: state.theme, font: state.font }),
       merge: (persisted, current) => {
-        const theme = (persisted as Partial<ThemeStoreState> | undefined)
-          ?.theme;
+        const saved = persisted as Partial<ThemeStoreState> | undefined;
         return {
           ...current,
-          theme: isThemeName(theme) ? theme : current.theme,
+          theme: isThemeName(saved?.theme) ? saved.theme : current.theme,
+          font: isFontName(saved?.font) ? saved.font : current.font,
         };
       },
       onRehydrateStorage: () => (state) => {
         applyTheme(state?.theme ?? DEFAULT_THEME);
+        setTypographyFont(state?.font ?? DEFAULT_FONT);
       },
     },
   ),
