@@ -7,7 +7,6 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { getPaymentMethodTranslationKey } from "@/core/i18n/utils";
 import { usePaymentMethods } from "@/presentation/restaurant/hooks/usePaymentMethods";
 import { usePaymentMethodsManagement } from "@/presentation/restaurant/hooks/usePaymentMethodsManagement";
 import { useAccountsManagement } from "@/presentation/restaurant/hooks/useAccountsManagement";
@@ -237,26 +236,9 @@ export default function PaymentMethodsSettingsScreen() {
                           size={26}
                           color={tw.color("text-on-surface-variant")}
                         />
-                        <ThemedView style={tw`flex-1 gap-2`}>
-                          <ThemedText type="h4" style={tw``}>
-                            {method.name}
-                          </ThemedText>
-                          <ThemedView
-                            style={tw`flex-row items-center gap-2 flex-wrap`}
-                          >
-                            <ThemedText type="small" style={tw``}>
-                              {t(getPaymentMethodTranslationKey(method.type))}
-                            </ThemedText>
-                            {method.type === PaymentMethodCategory.CARD && (
-                              <ThemedText
-                                type="small"
-                                style={tw`text-gray-500`}
-                              >
-                                • {method.commissionPercentage}%
-                              </ThemedText>
-                            )}
-                          </ThemedView>
-                        </ThemedView>
+                        <ThemedText type="h4" style={tw`flex-1`}>
+                          {method.name}
+                        </ThemedText>
                       </ThemedView>
                       <Icon
                         name="chevron-right"

@@ -336,24 +336,25 @@ export default function ProductionAreasScreen() {
                 </ThemedText>
               )}
             </ThemedView>
-            <ThemedView style={tw`flex-row gap-4 items-center`}>
-              <Button
-                label={t("delete")}
-                leftIcon="trash"
-                variant="destructive"
-                onPress={() => {
-                  handleCloseAreaActions();
-                  setAreaToDelete(selectedArea);
-                }}
-              />
+            <ThemedView style={tw`gap-4 mt-8`}>
               <Button
                 label={t("edit")}
                 leftIcon="square-pen"
-                variant="surface"
-                style={tw`flex-1`}
+                variant="outline"
+                size="small"
                 onPress={() => {
                   handleCloseAreaActions();
                   handleEditArea(selectedArea);
+                }}
+              />
+              <Button
+                label={t("delete")}
+                leftIcon="trash"
+                variant="text"
+                size="small"
+                onPress={() => {
+                  handleCloseAreaActions();
+                  setAreaToDelete(selectedArea);
                 }}
               />
             </ThemedView>
