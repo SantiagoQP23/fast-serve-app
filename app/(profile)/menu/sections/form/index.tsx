@@ -104,7 +104,11 @@ export default function MenuSectionFormScreen() {
                 onPress={() => router.back()}
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
-                <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
+                <Icon
+                  name="arrow-left"
+                  color={tw.color("on-surface")}
+                  size={24}
+                />
               </Pressable>
               <ThemedText type="h3" style={{ fontFamily: typography.regular }}>
                 {isEditing
@@ -138,7 +142,6 @@ export default function MenuSectionFormScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
                   label={t("sections.fields.name")}
-                  icon="list"
                   placeholder={t("sections.placeholders.name")}
                   onBlur={onBlur}
                   value={value}
