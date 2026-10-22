@@ -9,7 +9,6 @@ import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-b
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
-import IconButton from "@/presentation/theme/components/icon-button";
 import Icon from "@/presentation/theme/components/icon";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { typography } from "@/constants/theme";
@@ -20,13 +19,13 @@ export type PrinterActionsBottomSheetRef = {
 };
 
 /**
- * Printer options (show/hide, edit, delete). Shared by the printers screen
+ * Printer options (edit, delete). Shared by the printers screen
  * and the production areas screen's printer chips.
  */
 const PrinterActionsBottomSheet = forwardRef<PrinterActionsBottomSheetRef>(
   (_, ref) => {
     const { t } = useTranslation("printers");
-    const { getAll, updatePrinter, deletePrinter } = usePrinters();
+    const { getAll, deletePrinter } = usePrinters();
 
     const sheetRef = useRef<BottomSheetMethods>(null);
     const [presented, setPresented] = useState<Printer | null>(null);
@@ -64,18 +63,6 @@ const PrinterActionsBottomSheet = forwardRef<PrinterActionsBottomSheetRef>(
       });
     };
 
-    const handleToggleActive = (target: Printer) => {
-      updatePrinter.mutate({
-        id: target.id,
-        name: target.name,
-        connectionType: target.connectionType,
-        ipAddress: target.ipAddress,
-        port: target.port,
-        isActive: !target.isActive,
-      });
-      handleDismiss();
-    };
-
     const handleConfirmDelete = async () => {
       if (!printerToDelete) return;
       await deletePrinter.mutateAsync(printerToDelete.id);
@@ -87,53 +74,42 @@ const PrinterActionsBottomSheet = forwardRef<PrinterActionsBottomSheetRef>(
         <ThemedBottomSheetModal ref={sheetRef} enablePanDownToClose>
           {printer && (
             <ThemedView style={tw`px-4 py-4 gap-6`}>
-              <ThemedView
-                style={tw`flex-row justify-between items-start gap-3`}
-              >
-                <ThemedView style={tw`flex-1 gap-2`}>
-                  <ThemedText
-                    type="h2"
-                    style={{ fontFamily: typography.medium }}
-                  >
-                    {printer.name}
-                  </ThemedText>
-                  <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
-                    <ThemedView style={tw`flex-row items-center gap-1`}>
-                      <Icon
-                        name="cpu"
-                        size={16}
-                        color={tw.color("text-gray-500")}
-                      />
-                      <ThemedText type="small" style={tw`text-gray-500`}>
-                        {printer.connectionType === "TCP" && printer.ipAddress
-                          ? `${printer.ipAddress}:${printer.port}`
-                          : t(`connectionTypes.${printer.connectionType}`)}
-                      </ThemedText>
-                    </ThemedView>
+              <ThemedView style={tw`gap-2`}>
+                <ThemedText type="h2" style={{ fontFamily: typography.medium }}>
+                  {printer.name}
+                </ThemedText>
+                <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
+                  <ThemedView style={tw`flex-row items-center gap-1`}>
+                    <Icon
+                      name="cpu"
+                      size={16}
+                      color={tw.color("text-gray-500")}
+                    />
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {printer.connectionType === "TCP" && printer.ipAddress
+                        ? `${printer.ipAddress}:${printer.port}`
+                        : t(`connectionTypes.${printer.connectionType}`)}
+                    </ThemedText>
                   </ThemedView>
                 </ThemedView>
-                <IconButton
-                  icon={printer.isActive ? "eye" : "eye-off"}
-                  variant="surface"
-                  onPress={() => handleToggleActive(printer)}
-                />
               </ThemedView>
-              <ThemedView
-                style={tw`flex-row gap-4 items-center justify-between`}
-              >
+              <ThemedView style={tw` gap-4 mt-8 `}>
+                <Button
+                  label={t("edit")}
+                  leftIcon="square-pen"
+                  variant="outline"
+                  size="small"
+                  onPress={() => handleEdit(printer)}
+                />
                 <Button
                   leftIcon="trash"
-                  variant="destructive"
+                  label={t("delete")}
+                  variant="text"
+                  size="small"
                   onPress={() => {
                     handleDismiss();
                     setPrinterToDelete(printer);
                   }}
-                />
-                <Button
-                  label={t("edit")}
-                  leftIcon="square-pen"
-                  variant="surface"
-                  onPress={() => handleEdit(printer)}
                 />
               </ThemedView>
             </ThemedView>

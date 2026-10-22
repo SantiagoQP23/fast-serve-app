@@ -22,6 +22,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import Select from "@/presentation/theme/components/select";
+import Switch from "@/presentation/theme/components/switch";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 
@@ -36,6 +37,7 @@ const buildPrinterSchema = (t: (key: string) => string) =>
       connectionType: z.enum(["TCP"]),
       ipAddress: z.string().optional(),
       port: z.string().optional(),
+      isActive: z.boolean(),
     })
     .refine(
       (data) => {
@@ -80,6 +82,7 @@ export default function PrinterFormScreen() {
     connectionType?: PrinterConnectionType;
     ipAddress?: string;
     port?: string;
+    isActive?: string;
   }>();
 
   const printerId = params.printerId;
@@ -104,6 +107,7 @@ export default function PrinterFormScreen() {
       connectionType: (params.connectionType as "TCP") || "TCP",
       ipAddress: params.ipAddress || "",
       port: params.port || "9100",
+      isActive: params.isActive !== "false",
     },
   });
 
@@ -150,6 +154,7 @@ export default function PrinterFormScreen() {
       ipAddress:
         data.connectionType === "TCP" ? data.ipAddress?.trim() : undefined,
       port: data.port ? Number(data.port) : 9100,
+      ...(isEditing && { isActive: data.isActive }),
     };
 
     if (isEditing) {
@@ -266,6 +271,20 @@ export default function PrinterFormScreen() {
                 />
               )}
             />
+
+            {isEditing && (
+              <Controller
+                control={control}
+                name="isActive"
+                render={({ field: { value, onChange } }) => (
+                  <Switch
+                    label={t("fields.isActive")}
+                    value={value}
+                    onValueChange={onChange}
+                  />
+                )}
+              />
+            )}
 
             <Button
               label={t(isTestingPrinter ? "testing" : "test")}

@@ -47,7 +47,7 @@ export default function InventoryItemDetailView({
 
   const { item, itemQuery, movements, movementsQuery } =
     useInventoryItemDetail(itemId);
-  const { deleteItem, updateItem } = useInventoryItems();
+  const { deleteItem } = useInventoryItems();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [adjustMode, setAdjustMode] = useState<"restock" | "decrease" | null>(
@@ -97,12 +97,6 @@ export default function InventoryItemDetailView({
         unit: item.unit,
       },
     });
-  };
-
-  const handleToggleActive = async () => {
-    if (!item) return;
-    optionsSheetRef.current?.dismiss();
-    await updateItem.mutateAsync({ id: item.id, isActive: !item.isActive });
   };
 
   const handleConfirmDelete = async () => {
@@ -241,11 +235,6 @@ export default function InventoryItemDetailView({
                 icon: "link",
                 label: t("detail.linkToProduct"),
                 onPress: handleLinkToProduct,
-              },
-              {
-                icon: "power",
-                label: item.isActive ? t("deactivateItem") : t("activateItem"),
-                onPress: handleToggleActive,
               },
               {
                 icon: "trash",
