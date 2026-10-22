@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { ScrollView, Linking } from "react-native";
+import { ScrollView } from "react-native";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -14,7 +14,6 @@ import Button from "@/presentation/theme/components/button";
 import { typography } from "@/constants/theme";
 import SubscriptionStatusLabel from "@/presentation/subscriptions/components/subscription-status-label";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
-import { toast } from "sonner-native";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { GroupedList } from "@/presentation/theme/components/grouped-list";
 import Avatar from "@/presentation/theme/components/avatar";
@@ -31,26 +30,6 @@ export default function ManageScreen() {
   const { t } = useTranslation("auth");
   const { user, currentRestaurant } = useAuthStore();
   const userInfoSheetRef = useRef<BottomSheetMethods>(null);
-
-  const handleOpenWeb = async () => {
-    const appUrl = process.env.EXPO_PUBLIC_APP_URL;
-
-    if (!appUrl) {
-      toast.error("Web URL is not configured");
-      return;
-    }
-
-    try {
-      const canOpen = await Linking.canOpenURL(appUrl);
-      if (canOpen) {
-        await Linking.openURL(appUrl);
-      } else {
-        toast.error("Cannot open web version");
-      }
-    } catch (error) {
-      toast.error("Failed to open web version");
-    }
-  };
 
   const isAdmin = isAdminLevelRole(user?.role?.name);
   const subscription = currentRestaurant?.subscription;
@@ -231,18 +210,6 @@ export default function ManageScreen() {
             />
           </ThemedView>
         </ThemedView>
-
-        {/* Web management button (admin only) */}
-        {isAdmin && (
-          <Button
-            label={t("manage.userInfo.openWebVersion")}
-            onPress={handleOpenWeb}
-            variant="text"
-            leftIcon="globe"
-            size="small"
-            style={tw`mb-8`}
-          />
-        )}
       </ScrollView>
 
       <UserInfoBottomSheet ref={userInfoSheetRef} user={user} />

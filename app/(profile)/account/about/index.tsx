@@ -1,7 +1,8 @@
-import { ScrollView } from "react-native";
+import { ScrollView, Linking } from "react-native";
 import { Image } from "expo-image";
 import Constants from "expo-constants";
 import { openBrowserAsync } from "expo-web-browser";
+import { toast } from "sonner-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -20,6 +21,26 @@ const DEVELOPER = {
 export default function AboutScreen() {
   const { t } = useTranslation("auth");
   const version = Constants.expoConfig?.version;
+
+  const handleOpenWeb = async () => {
+    const appUrl = process.env.EXPO_PUBLIC_APP_URL;
+
+    if (!appUrl) {
+      toast.error("Web URL is not configured");
+      return;
+    }
+
+    try {
+      const canOpen = await Linking.canOpenURL(appUrl);
+      if (canOpen) {
+        await Linking.openURL(appUrl);
+      } else {
+        toast.error("Cannot open web version");
+      }
+    } catch (error) {
+      toast.error("Failed to open web version");
+    }
+  };
 
   return (
     <ScreenLayout style={tw`px-4 pt-4 flex-1`}>
@@ -43,6 +64,14 @@ export default function AboutScreen() {
         <Card style={tw`gap-2 p-4 rounded-3xl`}>
           <ThemedText type="body1">{t("about.appTitle")}</ThemedText>
           <ThemedText type="small">{t("about.appDescription")}</ThemedText>
+          <Button
+            variant="surface"
+            size="small"
+            leftIcon="globe"
+            label={t("about.openWebVersion")}
+            onPress={handleOpenWeb}
+            style={tw`mt-2`}
+          />
         </Card>
 
         <Card style={tw`gap-4 p-4 rounded-3xl`}>
