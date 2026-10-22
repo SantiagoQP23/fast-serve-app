@@ -436,7 +436,7 @@ export default function TablesSettingsScreen() {
 
       <ThemedBottomSheetModal ref={actionsSheetRef} enablePanDownToClose>
         {selectedTable && (
-          <ThemedView style={tw`px-4 py-4 gap-6`}>
+          <ThemedView style={tw`px-6 py-4 gap-6`}>
             <ThemedText type="h2" style={{ fontFamily: typography.medium }}>
               {t("settings.tableName", { name: selectedTable.name })}
             </ThemedText>
