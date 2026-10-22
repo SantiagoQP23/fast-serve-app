@@ -1,7 +1,13 @@
-import { StyleSheet, Text, type TextProps } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  type StyleProp,
+  type TextProps,
+  type TextStyle,
+} from "react-native";
 import { useThemeColor } from "../hooks/use-theme-color";
 
-import { typography } from "@/constants/theme";
+import { fontScale, typography } from "@/constants/theme";
 import tw from "../lib/tailwind";
 
 export type ThemedTextProps = TextProps & {
@@ -19,36 +25,51 @@ export function ThemedText({
   ...rest
 }: ThemedTextProps) {
   const color = useThemeColor({ light: lightColor, dark: darkColor }, "text");
-  return (
-    <Text
-      style={[
-        {
-          color,
-        },
-        type === "h1" ? styles.h1 : undefined,
-        type === "h2" ? styles.h2 : undefined,
-        type === "h3" ? styles.h3 : undefined,
-        type === "h4" ? styles.h4 : undefined,
-        type === "body1" ? styles.body1 : undefined,
-        type === "body2" ? styles.body2 : undefined,
-        type === "small" ? styles.small : undefined,
-        type === "caption" ? styles.caption : undefined,
-        // Font resolved per render so it follows the font setting. Digits are
-        // fixed-width so prices and totals line up (Nunito's already are).
-        {
-          fontFamily: typography[fontWeights[type]],
-          fontVariant: ["tabular-nums"],
-        },
-        // Muted color resolved per render so it follows the theme
-        type === "small" || type === "caption"
-          ? { color: tw.color("gray-500") }
-          : undefined,
-        style,
-      ]}
-      {...rest}
-    />
-  );
+  const textStyle: StyleProp<TextStyle> = [
+    {
+      color,
+    },
+    type === "h1" ? styles.h1 : undefined,
+    type === "h2" ? styles.h2 : undefined,
+    type === "h3" ? styles.h3 : undefined,
+    type === "h4" ? styles.h4 : undefined,
+    type === "body1" ? styles.body1 : undefined,
+    type === "body2" ? styles.body2 : undefined,
+    type === "small" ? styles.small : undefined,
+    type === "caption" ? styles.caption : undefined,
+    // Font resolved per render so it follows the font setting. Digits are
+    // fixed-width so prices and totals line up (Nunito's already are).
+    {
+      fontFamily: typography[fontWeights[type]],
+      fontVariant: ["tabular-nums"],
+    },
+    // Muted color resolved per render so it follows the theme
+    type === "small" || type === "caption"
+      ? { color: tw.color("gray-500") }
+      : undefined,
+    style,
+  ];
+  return <Text style={scaleText(textStyle)} {...rest} />;
 }
+
+/**
+ * Applies the active font's size multiplier to the final style, so sizes from
+ * `type`, tw classes and inline styles all follow it. A fixed height (h1)
+ * grows with the line height so descenders aren't clipped.
+ */
+const scaleText = (style: StyleProp<TextStyle>): StyleProp<TextStyle> => {
+  if (fontScale === 1) return style;
+  const { fontSize = 14, lineHeight, height } = StyleSheet.flatten(style);
+  return [
+    style,
+    {
+      fontSize: fontSize * fontScale,
+      ...(lineHeight != null && { lineHeight: lineHeight * fontScale }),
+      ...(typeof height === "number" &&
+        height === lineHeight && { height: height * fontScale }),
+    },
+  ];
+};
 
 const fontWeights: Record<
   NonNullable<ThemedTextProps["type"]>,

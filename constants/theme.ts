@@ -394,6 +394,18 @@ export const fontFamilies: Record<FontName, Typography> = {
   },
 };
 
+/**
+ * Text size multiplier per font. Nunito's lowercase is shorter than Plus
+ * Jakarta Sans', so it renders bigger to read at the same size.
+ */
+export const fontScales: Record<FontName, number> = {
+  jakarta: 1,
+  nunito: 1.1,
+};
+
+/** The active font's size multiplier, set with `setTypographyFont`. */
+export let fontScale = fontScales[DEFAULT_FONT];
+
 export const isFontName = (value: unknown): value is FontName =>
   typeof value === "string" && value in fontFamilies;
 
@@ -406,4 +418,5 @@ export const typography: Typography = { ...fontFamilies[DEFAULT_FONT] };
 
 export const setTypographyFont = (font: FontName) => {
   Object.assign(typography, fontFamilies[font]);
+  fontScale = fontScales[font];
 };
