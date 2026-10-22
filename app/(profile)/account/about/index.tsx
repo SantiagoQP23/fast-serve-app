@@ -12,8 +12,6 @@ import Card from "@/presentation/theme/components/card";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { isAdminLevelRole } from "@/core/auth/models/user.model";
 
 const DEVELOPER = {
   name: "Santiago Quirumbay",
@@ -23,8 +21,6 @@ const DEVELOPER = {
 export default function AboutScreen() {
   const { t } = useTranslation("auth");
   const version = Constants.expoConfig?.version;
-  const { user } = useAuthStore();
-  const isAdmin = isAdminLevelRole(user?.role?.name);
 
   const handleOpenWeb = async () => {
     const appUrl = process.env.EXPO_PUBLIC_APP_URL;
@@ -68,16 +64,14 @@ export default function AboutScreen() {
         <Card style={tw`gap-2 p-4 rounded-3xl`}>
           <ThemedText type="body1">{t("about.appTitle")}</ThemedText>
           <ThemedText type="small">{t("about.appDescription")}</ThemedText>
-          {isAdmin && (
-            <Button
-              variant="surface"
-              size="small"
-              leftIcon="globe"
-              label={t("about.openWebVersion")}
-              onPress={handleOpenWeb}
-              style={tw`mt-2`}
-            />
-          )}
+          <Button
+            variant="surface"
+            size="small"
+            leftIcon="globe"
+            label={t("about.openWebVersion")}
+            onPress={handleOpenWeb}
+            style={tw`mt-2`}
+          />
         </Card>
 
         <Card style={tw`gap-4 p-4 rounded-3xl`}>
