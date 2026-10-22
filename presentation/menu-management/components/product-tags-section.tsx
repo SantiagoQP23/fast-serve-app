@@ -110,9 +110,10 @@ export default function ProductTagsSection({
           )}
         </ThemedView>
         {canManage && (
-          <IconButton
-            icon="plus"
-            variant="outlined"
+          <Button
+            leftIcon="plus"
+            variant="outline"
+            size="small"
             onPress={openSheet}
             accessibilityLabel={t("tags.addToProduct")}
           />
@@ -142,14 +143,6 @@ export default function ProductTagsSection({
                 {product.name}
               </ThemedText>
             </ThemedView>
-            <Button
-              label={t("tags.manage")}
-              leftIcon="tag"
-              variant="text"
-              size="extra-small"
-              style={tw`-mr-3`}
-              onPress={handleManageTags}
-            />
           </ThemedView>
 
           {allTags.length > 0 ? (
@@ -168,6 +161,17 @@ export default function ProductTagsSection({
               {tagsQuery.isLoading ? t("loading") : t("tags.emptyInSheet")}
             </ThemedText>
           )}
+
+          <ThemedView style={tw`flex-row justify-end`}>
+            <Button
+              label={t("tags.manage")}
+              leftIcon="tag"
+              variant="text"
+              size="extra-small"
+              style={tw`-mr-3`}
+              onPress={handleManageTags}
+            />
+          </ThemedView>
 
           <TextInput
             bottomSheet

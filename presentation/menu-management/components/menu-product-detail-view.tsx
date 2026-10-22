@@ -521,6 +521,7 @@ export default function MenuProductDetailView({
                           ? () => handleOpenOptionActions(option)
                           : undefined
                       }
+                      variant="outline"
                     >
                       <ThemedView
                         style={tw`flex-row items-center gap-3 bg-transparent`}
@@ -585,6 +586,18 @@ export default function MenuProductDetailView({
           )}
 
           <ProductTagsSection product={product} canManage={canManage} />
+
+          {canManage && (
+            <ThemedView style={tw`items-center mt-20`}>
+              <Button
+                label={t("delete")}
+                leftIcon="trash"
+                variant="text"
+                size="small"
+                onPress={() => setProductDeleteVisible(true)}
+              />
+            </ThemedView>
+          )}
         </ScrollView>
       </Container>
 
@@ -607,10 +620,6 @@ export default function MenuProductDetailView({
                 icon: "copy",
                 onPress: handleDuplicateProduct,
                 disabled: duplicateProduct.isPending,
-              },
-              {
-                icon: "trash",
-                onPress: () => setProductDeleteVisible(true),
               },
             ]}
           />

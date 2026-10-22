@@ -121,12 +121,6 @@ export default function ManageScreen() {
       label: t("manage.paymentMethods"),
       onPress: () => router.push("/(profile)/payment-methods"),
     },
-    {
-      key: "restaurantSettings",
-      icon: "sliders-horizontal",
-      label: t("manage.restaurantSettings"),
-      onPress: () => router.push("/(profile)/restaurant/settings"),
-    },
     ...(isAdmin
       ? [
           {
@@ -137,6 +131,12 @@ export default function ManageScreen() {
           },
         ]
       : []),
+    {
+      key: "restaurantSettings",
+      icon: "sliders-horizontal",
+      label: t("manage.restaurantSettings"),
+      onPress: () => router.push("/(profile)/restaurant/settings"),
+    },
   ];
 
   const renderManageOption = (option: ManageOption) => (

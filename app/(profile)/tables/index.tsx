@@ -462,24 +462,25 @@ export default function TablesSettingsScreen() {
                 onPress={handleToggleActive}
               />
             </ThemedView>
-            <ThemedView style={tw`flex-row gap-4 items-center`}>
-              <Button
-                label={t("settings.delete")}
-                leftIcon="trash"
-                variant="destructive"
-                onPress={() => {
-                  handleCloseTableActions();
-                  setTableToDelete(selectedTable);
-                }}
-              />
+            <ThemedView style={tw`gap-4 `}>
               <Button
                 label={t("settings.edit")}
                 leftIcon="square-pen"
-                variant="surface"
+                variant="text"
                 style={tw`flex-1`}
                 onPress={() => {
                   handleCloseTableActions();
                   handleEditTable(selectedTable);
+                }}
+              />
+              <Button
+                label={t("settings.delete")}
+                leftIcon="trash"
+                variant="text"
+                size="small"
+                onPress={() => {
+                  handleCloseTableActions();
+                  setTableToDelete(selectedTable);
                 }}
               />
             </ThemedView>
