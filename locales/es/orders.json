@@ -88,7 +88,8 @@
     "close": "Cerrar",
     "updateOrder": "Actualizar Pedido",
     "newOrder": "Nuevo Pedido",
-    "resumeOrder": "Continuar Pedido"
+    "resumeOrder": "Continuar Pedido",
+    "createOrder": "Crear Pedido"
   },
   "form": {
     "people": "Personas",
