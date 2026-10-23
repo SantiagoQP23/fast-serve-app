@@ -15,6 +15,7 @@ import {
 } from "@/core/orders/models/order-detail.model";
 import { EditBillDto } from "@/core/orders/dto/edit-bill.dto";
 import { useBills } from "@/presentation/orders/hooks/useBills";
+import BillLoadState from "@/presentation/orders/components/bill-load-state";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency, i18nAlert } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
@@ -37,6 +38,7 @@ export default function EditBillScreen() {
   const {
     data: bill,
     isLoading,
+    error: billError,
     refetch: refetchBill,
   } = useBills().billByIdQuery(billId);
   const { mutate: editBill, isLoading: isSaving } = useBills().editBill;
@@ -183,21 +185,13 @@ export default function EditBillScreen() {
   const selectedTotal = getTotalSelectedDetails();
   const selectedCount = getSelectedItemsCount();
 
-  if (isLoading || isLoadingOrder) {
-    return (
-      <ThemedView style={tw`flex-1 justify-center items-center`}>
-        <ThemedText type="body2" style={tw`text-gray-400`}>
-          {t("common:status.loading")}
-        </ThemedText>
-      </ThemedView>
-    );
-  }
-
   if (!bill || !order) {
     return (
-      <ThemedView style={tw`flex-1 justify-center items-center`}>
-        <ThemedText>{t("bills:list.noBills")}</ThemedText>
-      </ThemedView>
+      <BillLoadState
+        isLoading={isLoading || isLoadingOrder}
+        error={billError}
+        onRetry={() => (bill ? refetchOrder() : refetchBill())}
+      />
     );
   }
 

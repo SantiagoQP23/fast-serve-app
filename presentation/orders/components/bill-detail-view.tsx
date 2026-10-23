@@ -3,9 +3,9 @@ import {
   ScrollView,
   View,
   RefreshControl,
-  Alert,
   Platform,
 } from "react-native";
+import { toast } from "sonner-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -18,7 +18,7 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useBills } from "@/presentation/orders/hooks/useBills";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatCurrency, i18nAlert } from "@/core/i18n/utils";
+import { formatCurrency } from "@/core/i18n/utils";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import Label from "@/presentation/theme/components/label";
@@ -51,6 +51,12 @@ import ActionsBottomSheet, {
   type ActionsBottomSheetItem,
 } from "@/presentation/theme/components/actions-bottom-sheet";
 import { typography } from "@/constants/theme";
+import { roundTo } from "@/core/common/utils/format.util";
+import {
+  isSameAmount,
+  parseAmount,
+} from "@/core/orders/utils/bill-payment.util";
+import BillLoadState from "@/presentation/orders/components/bill-load-state";
 
 dayjs.extend(relativeTime);
 
@@ -74,7 +80,12 @@ export default function BillDetailView({
   const router = useRouter();
   const Container = embedded ? ThemedView : ScreenLayout;
 
-  const { data: bill, isLoading, refetch } = useBills().billByIdQuery(billId);
+  const {
+    data: bill,
+    isLoading,
+    error: billError,
+    refetch,
+  } = useBills().billByIdQuery(billId);
 
   // Another phone edited a direct sale: refresh it if it's the one shown.
   useWebsocketEventListener<Bill>(
@@ -86,7 +97,6 @@ export default function BillDetailView({
 
   const { status } = useBillStatus(bill?.status || BillStatus.OPEN);
 
-  const setBillDiscount = useOrdersStore((state) => state.setBillDiscount);
   const setBillAmount = useOrdersStore((state) => state.setBillAmount);
 
   // Reset bill amount on mount so the payment flow starts fresh
@@ -94,9 +104,6 @@ export default function BillDetailView({
     setBillAmount("");
   }, [setBillAmount]);
 
-  const [discount, setDiscount] = useState(
-    bill?.discount ? String(bill.discount) : "",
-  );
   const [discountInput, setDiscountInput] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -106,7 +113,8 @@ export default function BillDetailView({
   const primaryColor = useThemeColor({}, "primary");
   const { mutate: removeBill, isLoading: isRemovingBill } =
     useBills().removeBill;
-  const { mutate: updateBill } = useBills().updateBill;
+  const { mutate: updateBill, isLoading: isSavingDiscount } =
+    useBills().updateBill;
 
   const { user } = useAuthStore();
   const isAdmin = isAdminLevelRole(user?.role?.name);
@@ -117,43 +125,28 @@ export default function BillDetailView({
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const initEditCart = useEditOrderCartStore((state) => state.init);
 
-  // Keep store in sync so the payment screen can read the current discount
-  useEffect(() => {
-    setBillDiscount(discount);
-  }, [discount, setBillDiscount]);
-
   const { handleShareBill } = useBillPrint(bill);
 
   const onRefresh = useCallback(async () => {
     try {
       setRefreshing(true);
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      await refetch();
-    } catch {
-      Alert.alert(
-        t("errors:order.fetchError"),
-        t("errors:order.ordersFetchFailed"),
-      );
+      // refetch() resolves even when the request fails; the bill already on
+      // screen stays, so a toast is enough to say it may be out of date.
+      const result = await refetch();
+      if (result.isError) toast.error(t("bills:loadState.errorTitle"));
     } finally {
       setRefreshing(false);
     }
   }, [refetch, t]);
 
-  if (isLoading && !refreshing) {
-    return (
-      <ThemedView style={tw`flex-1 justify-center items-center`}>
-        <ThemedText type="body2" style={tw`text-gray-400`}>
-          {t("common:status.loading")}
-        </ThemedText>
-      </ThemedView>
-    );
-  }
-
   if (!bill) {
     return (
-      <ThemedView style={tw`flex-1 justify-center items-center`}>
-        <ThemedText>{t("bills:list.noBills")}</ThemedText>
-      </ThemedView>
+      <BillLoadState
+        isLoading={isLoading}
+        error={billError}
+        onRetry={refetch}
+      />
     );
   }
 
@@ -166,21 +159,6 @@ export default function BillDetailView({
   const updatedAtLabel = `${updatedAt.fromNow()} · ${updatedAt.format(
     "MMM D, HH:mm",
   )}`;
-
-  const validateDiscount = () => {
-    const maxDiscount = bill.subtotal * 0.1;
-    if (+discount > maxDiscount) {
-      i18nAlert(
-        t("bills:alerts.discountExceeded"),
-        t("bills:alerts.maxDiscountAllowed", {
-          amount: formatCurrency(maxDiscount),
-        }),
-      );
-      setDiscount("");
-      return false;
-    }
-    return true;
-  };
 
   const onRemoveBill = () => {
     removeBill(
@@ -196,7 +174,6 @@ export default function BillDetailView({
   };
 
   const handlePayBillPress = () => {
-    if (!validateDiscount()) return;
     router.push(`/(bills)/${bill.id}/payment-method`);
   };
 
@@ -209,11 +186,26 @@ export default function BillDetailView({
     router.push(`/(bills)/${bill.id}/edit`);
   };
 
-  const discount5 = bill ? Math.round(bill.subtotal * 0.05 * 100) / 100 : 0;
-  const discount10 = bill ? Math.round(bill.subtotal * 0.1 * 100) / 100 : 0;
+  const currentDiscount = Number(bill.discount) || 0;
+  const discount5 = roundTo(bill.subtotal * 0.05, 2);
+  const discount10 = roundTo(bill.subtotal * 0.1, 2);
+  const maxDiscount = discount10;
+
+  // An empty field removes the discount.
+  const discountValue =
+    discountInput.trim() === "" ? 0 : parseAmount(discountInput);
+  const discountError = Number.isNaN(discountValue)
+    ? t("bills:alerts.invalidDiscount")
+    : discountValue > maxDiscount && !isSameAmount(discountValue, maxDiscount)
+      ? t("bills:alerts.maxDiscountAllowed", {
+          amount: formatCurrency(maxDiscount),
+        })
+      : undefined;
+  const isDiscountUnchanged =
+    !discountError && isSameAmount(discountValue, currentDiscount);
 
   const handleOpenDiscountSheet = () => {
-    setDiscountInput(discount || "");
+    setDiscountInput(currentDiscount > 0 ? currentDiscount.toFixed(2) : "");
     bottomSheetRef.current?.present();
   };
 
@@ -232,25 +224,16 @@ export default function BillDetailView({
   };
 
   const handleSaveDiscount = () => {
-    const maxDiscount = bill.subtotal * 0.1;
-    if (+discountInput > maxDiscount) {
-      i18nAlert(
-        t("bills:alerts.discountExceeded"),
-        t("bills:alerts.maxDiscountAllowed", {
-          amount: formatCurrency(maxDiscount),
-        }),
-      );
-      return;
-    }
-    const updateBillDto = { id: bill.id, discount: +discountInput };
-    console.log("Updating bill with discount:", updateBillDto);
-    updateBill(updateBillDto, {
-      onSuccess: () => {
-        setDiscount(discountInput);
-        bottomSheetRef.current?.dismiss();
-        refetch();
+    if (discountError || isDiscountUnchanged) return;
+    updateBill(
+      { id: bill.id, discount: roundTo(discountValue, 2) },
+      {
+        onSuccess: () => {
+          bottomSheetRef.current?.dismiss();
+          refetch();
+        },
       },
-    });
+    );
   };
 
   const openTransactionDetail = (transactionId: number) => {
@@ -442,7 +425,7 @@ export default function BillDetailView({
                 </ThemedView>
               </ThemedView>
 
-              {bill.discount === 0 && bill.status !== BillStatus.PAID ? (
+              {currentDiscount === 0 && bill.status !== BillStatus.PAID ? (
                 <ThemedView style={tw`mb-6 items-center`}>
                   {/* <Button */}
                   {/*   label={t("bills:details.addDiscount")} */}
@@ -451,7 +434,7 @@ export default function BillDetailView({
                   {/* /> */}
                 </ThemedView>
               ) : (
-                bill.discount > 0 && (
+                currentDiscount > 0 && (
                   <ThemedView style={tw` overflow-hidden mb-4`}>
                     {/* Subtotal */}
                     <ThemedView
@@ -466,8 +449,7 @@ export default function BillDetailView({
                     </ThemedView>
 
                     {/* Discount row */}
-                    {(bill.discount > 0 ||
-                      discount ||
+                    {(currentDiscount > 0 ||
                       bill.status !== BillStatus.PAID) && (
                       <>
                         <ThemedView
@@ -490,11 +472,9 @@ export default function BillDetailView({
                             type="body1"
                             style={tw`font-semibold text-green-600`}
                           >
-                            {discount
-                              ? `-${formatCurrency(+discount)}`
-                              : bill.discount > 0
-                                ? `-${formatCurrency(bill.discount)}`
-                                : "-"}
+                            {currentDiscount > 0
+                              ? `-${formatCurrency(currentDiscount)}`
+                              : "-"}
                           </ThemedText>
                         </ThemedView>
                       </>
@@ -651,37 +631,37 @@ export default function BillDetailView({
           </ThemedView>
 
           <TextInput
-            inputMode="numeric"
+            inputMode="decimal"
             bottomSheet
             value={discountInput}
             onChangeText={setDiscountInput}
             placeholder="0.00"
             icon="tag"
+            error={discountError}
           />
 
           <ThemedView style={tw`flex-row gap-2`}>
             <Button
               label={`5%`}
               variant={
-                discountInput === String(discount5) ? "primary" : "outline"
+                isSameAmount(discountValue, discount5) ? "primary" : "outline"
               }
-              onPress={() => setDiscountInput(String(discount5))}
+              onPress={() => setDiscountInput(discount5.toFixed(2))}
             />
             <Button
               label={`10%`}
               variant={
-                discountInput === String(discount10) ? "primary" : "outline"
+                isSameAmount(discountValue, discount10) ? "primary" : "outline"
               }
-              onPress={() => setDiscountInput(String(discount10))}
+              onPress={() => setDiscountInput(discount10.toFixed(2))}
             />
           </ThemedView>
 
           <Button
             label={t("common:actions.save")}
             onPress={handleSaveDiscount}
-            disabled={
-              discountInput === "" && discountInput === String(discount)
-            }
+            disabled={!!discountError || isDiscountUnchanged}
+            loading={isSavingDiscount}
           />
         </BottomSheetView>
       </ThemedBottomSheetModal>

@@ -1,11 +1,11 @@
-import { ScrollView, Alert, ActivityIndicator } from "react-native";
+import { ScrollView, ActivityIndicator } from "react-native";
 import { toast } from "sonner-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useState, useEffect } from "react";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useState, useEffect, useCallback } from "react";
+import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import Button from "@/presentation/theme/components/button";
 import Label from "@/presentation/theme/components/label";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
@@ -26,6 +26,13 @@ import { getErrorMessage } from "@/core/api/get-error-message";
 import Card from "@/presentation/theme/components/card";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
+import {
+  applyCommission,
+  getBillAmountDue,
+  isSameAmount,
+  parseAmount,
+} from "@/core/orders/utils/bill-payment.util";
+import BillLoadState from "@/presentation/orders/components/bill-load-state";
 
 export default function AccountScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
@@ -34,9 +41,21 @@ export default function AccountScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const billId = Number(id);
 
-  const { data: bill } = useBills().billByIdQuery(billId);
+  const {
+    data: bill,
+    isLoading: isLoadingBill,
+    error: billError,
+    refetch: refetchBill,
+  } = useBills().billByIdQuery(billId);
 
-  const discount = useOrdersStore((state) => state.billDiscount);
+  // Re-check what's left right before charging: another device may have
+  // charged this bill while the cashier was picking a method.
+  useFocusEffect(
+    useCallback(() => {
+      refetchBill();
+    }, [refetchBill]),
+  );
+
   const billAmount = useOrdersStore((state) => state.billAmount);
   const selectedPaymentMethod = useOrdersStore(
     (state) => state.selectedPaymentMethod,
@@ -64,6 +83,9 @@ export default function AccountScreen() {
   const { payBillTransaction } = useBills();
   const { mutate, isLoading } = payBillTransaction;
   const [isUploadingProof, setIsUploadingProof] = useState(false);
+  // Once charged, the refetched bill has less left to pay than this payment;
+  // that's expected and shouldn't read as a stale amount while leaving.
+  const [hasPaid, setHasPaid] = useState(false);
   const billPaymentIdempotencyKey = usePaymentStore(
     (state) => state.billPaymentIdempotencyKey,
   );
@@ -72,15 +94,23 @@ export default function AccountScreen() {
   const isTransfer =
     selectedPaymentMethod?.type === PaymentMethodCategory.TRANSFER;
 
-  const baseAmount = bill ? bill.total - +discount : 0;
-  const totalAfterDiscount = billAmount ? +billAmount : baseAmount;
-  const commissionRate = selectedPaymentMethod
-    ? selectedPaymentMethod.commissionPercentage / 100
-    : 0;
+  // The amount applied to the bill, as validated on the previous screen.
+  // `bill.total` already has the discount in it, so nothing is subtracted here.
+  const amountDue = bill ? getBillAmountDue(bill) : 0;
+  const enteredAmount = parseAmount(billAmount);
+  const amount = enteredAmount > 0 ? enteredAmount : amountDue;
+  const exceedsAmountDue =
+    !!bill &&
+    !hasPaid &&
+    amount > amountDue &&
+    !isSameAmount(amount, amountDue);
+
   const isCard = selectedPaymentMethod?.type === PaymentMethodCategory.CARD;
-  const totalToPay = isCard
-    ? totalAfterDiscount * (1 + commissionRate)
-    : totalAfterDiscount;
+  const commissionPercentage = isCard
+    ? (selectedPaymentMethod?.commissionPercentage ?? 0)
+    : 0;
+  // What the customer is charged; the commission isn't applied to the bill.
+  const totalToPay = applyCommission(amount, commissionPercentage);
 
   const accounts: Account[] =
     selectedPaymentMethod?.allowedDestinationAccounts ?? [];
@@ -100,13 +130,24 @@ export default function AccountScreen() {
 
   if (!bill || !selectedPaymentMethod) {
     return (
-      <ThemedView style={tw`flex-1 justify-center items-center`}>
-        <ThemedText>{t("bills:list.noBills")}</ThemedText>
-      </ThemedView>
+      <BillLoadState
+        isLoading={isLoadingBill}
+        error={billError}
+        onRetry={refetchBill}
+      />
     );
   }
 
+  // Back to whatever opened the payment flow (the bill screen, or the sales
+  // list when the bill is a tablet pane): pops this screen and the method
+  // screen under it.
+  const leavePaymentFlow = () => {
+    router.back();
+    router.back();
+  };
+
   const handlePay = () => {
+    if (exceedsAmountDue) return;
     if (!selectedAccountId) {
       toast.error(t("bills:account.selectAccountMessage"));
       return;
@@ -120,7 +161,7 @@ export default function AccountScreen() {
       {
         idempotencyKey: billPaymentIdempotencyKey || generateIdempotencyKey(),
         name: `Ingreso por Venta #${String(bill.num)}`,
-        amount: totalAfterDiscount,
+        amount,
         paymentMethodId: selectedPaymentMethod.id,
         accountId: selectedAccountId,
         billId: bill.id,
@@ -133,6 +174,7 @@ export default function AccountScreen() {
       },
       {
         onSuccess: async (resp) => {
+          setHasPaid(true);
           resetPaymentStore();
           const transaction = resp.data?.transaction;
 
@@ -162,16 +204,14 @@ export default function AccountScreen() {
 
             await uploadPendingProof(transaction.id);
 
-            // Navigate back to bill (whether upload succeeded or not)
+            // Leave the flow whether the upload succeeded or not
             if (bill.source === "direct") {
               router.replace({
                 pathname: "/(app)/(tabs)/(orders-module)/my-orders",
                 params: { module: "sales" },
               });
             } else {
-              router.back();
-              router.back();
-              router.back();
+              leavePaymentFlow();
             }
             return;
           }
@@ -186,13 +226,7 @@ export default function AccountScreen() {
             await uploadPendingProof(transaction.id);
           }
 
-          // router.replace(`/(bills)/${bill.id}`);
-          // if (bill.source === "direct") {
-          // } else {
-          router.back();
-          router.back();
-          //   router.back();
-          // }
+          leavePaymentFlow();
         },
         onError: (resp) => {
           toast.error(resp.msg || t("errors:general.error"));
@@ -212,11 +246,10 @@ export default function AccountScreen() {
           <ThemedText style={tw`text-5xl `}>
             {formatCurrency(totalToPay)}
           </ThemedText>
-          {isCard && commissionRate > 0 && (
+          {commissionPercentage > 0 && (
             <ThemedText type="body2" style={tw`text-gray-500 mt-1`}>
-              {t("bills:details.totalAmount")}:{" "}
-              {formatCurrency(totalAfterDiscount)} +{" "}
-              {selectedPaymentMethod.commissionPercentage}%{" "}
+              {t("bills:details.totalAmount")}: {formatCurrency(amount)} +{" "}
+              {commissionPercentage}%{" "}
               {t("bills:details.commission").toLowerCase()}
             </ThemedText>
           )}
@@ -317,17 +350,25 @@ export default function AccountScreen() {
       </ScrollView>
 
       {/* Pay button */}
-      <ThemedView style={tw`px-4 pb-6 pt-4 `}>
+      <ThemedView style={tw`px-4 pb-6 pt-4 gap-3`}>
+        {exceedsAmountDue && (
+          <ThemedText type="body2" style={tw`text-red-700 text-center`}>
+            {t("bills:payment.amountChanged", {
+              amount: formatCurrency(amountDue),
+            })}
+          </ThemedText>
+        )}
         <Button
           label={
             isTransfer
               ? t("bills:account.confirmTransfer")
               : t("bills:account.payButton", {
-                  amount: formatCurrency(totalAfterDiscount),
+                  amount: formatCurrency(totalToPay),
                 })
           }
           onPress={handlePay}
           disabled={
+            exceedsAmountDue ||
             !selectedAccountId ||
             isLoading ||
             isUploadingProof ||

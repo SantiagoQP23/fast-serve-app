@@ -33,10 +33,15 @@ export const i18nAlert = (
 
 /**
  * Format currency with locale
- * Always uses $ symbol as per requirements
+ * Always uses $ symbol as per requirements, with thousands grouped ("$1,234.50")
  */
 export const formatCurrency = (amount: number): string => {
-  return `$${amount.toFixed(2)}`;
+  const value = Number.isFinite(amount) ? amount : 0;
+  const fixed = Math.abs(value).toFixed(2);
+  const [integer, decimals] = fixed.split(".");
+  const grouped = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const sign = value < 0 && fixed !== "0.00" ? "-" : "";
+  return `${sign}$${grouped}.${decimals}`;
 };
 
 /**

@@ -90,7 +90,8 @@
     "noItemsSelectedMessage": "Please select at least one item.",
     "insufficientAmount": "Received amount is less than the total bill amount.",
     "discountExceeded": "Discount Exceeded",
-    "maxDiscountAllowed": "Maximum discount allowed is {{amount}}"
+    "maxDiscountAllowed": "Maximum discount allowed is {{amount}}",
+    "invalidDiscount": "Enter a valid amount"
   },
   "filters": {
     "title": "Filter Bills",
@@ -167,5 +168,20 @@
     "addToSale": "Add to sale",
     "menuBanner": "Adding products to sale #{{number}}",
     "backToSale": "Back to sale ({{count}})"
+  },
+  "loadState": {
+    "notFoundTitle": "Bill not found",
+    "notFoundDescription": "It may have been deleted from another device.",
+    "errorTitle": "Couldn't load this bill",
+    "errorDescription": "Check your connection and try again.",
+    "retry": "Try again"
+  },
+  "payment": {
+    "noMethodsTitle": "No payment methods available",
+    "noMethodsDescription": "Load payment methods from the Restaurant settings before charging a bill.",
+    "goToSettings": "Go to Restaurant settings",
+    "alreadyPaidTitle": "This bill is already paid",
+    "alreadyPaidDescription": "There's nothing left to charge. Pending transfers count until they're approved or rejected.",
+    "amountChanged": "This bill now has {{amount}} left to pay. Go back and enter the amount again."
   }
 }

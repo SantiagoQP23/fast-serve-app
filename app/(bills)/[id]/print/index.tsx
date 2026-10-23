@@ -7,6 +7,7 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useBills } from "@/presentation/orders/hooks/useBills";
+import BillLoadState from "@/presentation/orders/components/bill-load-state";
 import { usePrinters } from "@/core/printers/hooks/usePrinters";
 import { usePrintBillReceipt } from "@/presentation/orders/hooks/usePrintBillReceipt";
 import { formatCurrency } from "@/core/i18n/utils";
@@ -20,7 +21,12 @@ export default function BillPrintScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const billId = Number(id);
 
-  const { data: bill } = useBills().billByIdQuery(billId);
+  const {
+    data: bill,
+    isLoading: isLoadingBill,
+    error: billError,
+    refetch: refetchBill,
+  } = useBills().billByIdQuery(billId);
 
   const { getAll } = usePrinters();
   const { data: printers } = getAll;
@@ -44,8 +50,12 @@ export default function BillPrintScreen() {
 
   if (!bill) {
     return (
-      <ScreenLayout style={tw`flex-1 justify-center items-center`}>
-        <ThemedText>{t("bills:list.noBills")}</ThemedText>
+      <ScreenLayout style={tw`flex-1`}>
+        <BillLoadState
+          isLoading={isLoadingBill}
+          error={billError}
+          onRetry={refetchBill}
+        />
       </ScreenLayout>
     );
   }

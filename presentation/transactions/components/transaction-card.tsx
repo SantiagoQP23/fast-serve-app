@@ -149,8 +149,8 @@ export default function TransactionCard({
         visible={showDeleteModal}
         title={t("common:transactions.deleteConfirmTitle")}
         message={t("common:transactions.deleteConfirmMessage")}
-        confirmText={t("common:actions.delete")}
-        cancelText={t("common:actions.cancel")}
+        confirmLabel={t("common:actions.delete")}
+        confirmVariant="destructive"
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
       />

@@ -90,7 +90,8 @@
     "noItemsSelectedMessage": "Por favor seleccione al menos un producto.",
     "insufficientAmount": "El monto recibido es menor que el total de la cuenta.",
     "discountExceeded": "Descuento Excedido",
-    "maxDiscountAllowed": "El descuento máximo permitido es {{amount}}"
+    "maxDiscountAllowed": "El descuento máximo permitido es {{amount}}",
+    "invalidDiscount": "Ingresa un monto válido"
   },
   "filters": {
     "title": "Filtrar Cuentas",
@@ -167,5 +168,20 @@
     "addToSale": "Agregar a la venta",
     "menuBanner": "Agregando productos a la venta #{{number}}",
     "backToSale": "Volver a la venta ({{count}})"
+  },
+  "loadState": {
+    "notFoundTitle": "Cuenta no encontrada",
+    "notFoundDescription": "Puede que se haya eliminado desde otro dispositivo.",
+    "errorTitle": "No se pudo cargar la cuenta",
+    "errorDescription": "Revisa tu conexión e inténtalo de nuevo.",
+    "retry": "Reintentar"
+  },
+  "payment": {
+    "noMethodsTitle": "No hay métodos de pago disponibles",
+    "noMethodsDescription": "Carga los métodos de pago desde la configuración del restaurante antes de cobrar una cuenta.",
+    "goToSettings": "Ir a configuración del restaurante",
+    "alreadyPaidTitle": "Esta cuenta ya está pagada",
+    "alreadyPaidDescription": "No queda nada por cobrar. Las transferencias pendientes cuentan hasta que se aprueben o rechacen.",
+    "amountChanged": "A esta cuenta le quedan {{amount}} por pagar. Vuelve e ingresa el monto otra vez."
   }
 }

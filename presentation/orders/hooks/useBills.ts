@@ -142,9 +142,8 @@ export const useBills = () => {
         queryKey: ["billsList"],
       });
     },
-    onError: (resp) => {
-      Alert.alert("Error", resp.msg);
-    },
+    // The paying screen reports the failure itself (a toast that keeps the
+    // cashier on the screen to retry); an Alert here would show it twice.
   });
 
   const billsByOrderQuery = (orderId: string) =>
@@ -159,6 +158,10 @@ export const useBills = () => {
       queryKey: ["bill", billId],
       queryFn: () => BillsService.getBillById(billId),
       enabled: !!billId,
+      // A deleted bill won't come back; say so right away instead of retrying.
+      retry: (failureCount, error) =>
+        (error as { response?: { status?: number } })?.response?.status !==
+          404 && failureCount < 3,
     });
 
   return {
