@@ -45,7 +45,9 @@
     "upload": "Subir",
     "done": "Listo",
     "tapToPreview": "Toca para previsualizar",
-    "undo": "Deshacer"
+    "undo": "Deshacer",
+    "increase": "Aumentar",
+    "decrease": "Disminuir"
   },
   "status": {
     "pending": "Pendiente",

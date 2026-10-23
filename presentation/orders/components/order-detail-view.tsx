@@ -1,12 +1,6 @@
-import {
-  Modal,
-  ScrollView,
-  View,
-  Pressable,
-  RefreshControl,
-  Alert,
-  Platform,
-} from "react-native";
+import { ScrollView, Pressable, RefreshControl, Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { toast } from "sonner-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -29,7 +23,7 @@ import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import Label from "@/presentation/theme/components/label";
 import { useModal } from "@/presentation/shared/hooks/useModal";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatCurrency, i18nAlert } from "@/core/i18n/utils";
+import { formatCurrency } from "@/core/i18n/utils";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import * as Haptics from "expo-haptics";
@@ -41,7 +35,7 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPaymentStatus";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 import { useOrderPrint } from "@/presentation/orders/hooks/useOrderPrint";
-import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
+import TabBar from "@/presentation/theme/components/tab-bar";
 import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bottom-sheet";
 import ChangeItemsTypeBottomSheet, {
   itemsToChangeType,
@@ -56,7 +50,13 @@ import TableSelectorBottomSheet, {
   type TableSelectorBottomSheetRef,
 } from "@/presentation/orders/components/table-selector-bottom-sheet";
 import EditNoteBottomSheet from "@/presentation/orders/components/edit-note-bottom-sheet";
-import { Order } from "@/core/orders/models/order.model";
+import {
+  Order,
+  getOrderDeleteBlockReason,
+} from "@/core/orders/models/order.model";
+import { BillStatus } from "@/core/orders/models/bill.model";
+import { getBillAmountDue } from "@/core/orders/utils/bill-payment.util";
+import { useTickets } from "@/presentation/orders/hooks/useTickets";
 import MergeOrderBottomSheet, {
   type MergeOrderBottomSheetRef,
 } from "@/presentation/orders/components/merge-order-bottom-sheet";
@@ -83,9 +83,12 @@ dayjs.extend(relativeTime);
 interface MoreOptionItem {
   icon: IconName;
   label: string;
+  hint?: string;
   onPress: () => void;
   disabled?: boolean;
 }
+
+type OrderTab = "products" | "bills" | "tickets";
 
 interface OrderDetailViewProps {
   /**
@@ -108,7 +111,7 @@ export default function OrderDetailView({
   );
 
   const init = useEditOrderCartStore((state) => state.init);
-  const { mutate: updateOrder, isOnline, isLoading } = useOrders().updateOrder;
+  const { mutate: updateOrder } = useOrders().updateOrder;
   const { mutate: deleteOrder } = useOrders().deleteOrder;
   const { mutate: updateOrderDetails } = useOrders().updateOrderDetails;
   const updateOrderInStore = useOrdersStore((state) => state.updateOrder);
@@ -125,15 +128,13 @@ export default function OrderDetailView({
   const isAdmin = isAdminLevelRole(user?.role?.name);
 
   // Fetch and sync the order data (this enables the query for refetch)
-  const {
-    isLoading: isLoadingOrder,
-    isError: isOrderError,
-    isRefetching,
-  } = useOrder(order?.id || null);
+  const { isLoading: isLoadingOrder } = useOrder(order?.id || null);
   const { paymentStatus } = useOrderPaymentStatus(
     order?.paymentStatus || OrderPaymentStatus.UNPAID,
   );
   const { data: orderBills } = useBills().billsByOrderQuery(order?.id || "");
+  const { tickets } = useTickets(order?.id ?? null);
+  const insets = useSafeAreaInsets();
 
   const {
     isOpen: closeModalIsOpen,
@@ -141,13 +142,11 @@ export default function OrderDetailView({
     handleClose: closeCloseModal,
   } = useModal();
 
-  const [visible, setVisible] = useState(false);
+  const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const [isCancelledExpanded, setIsCancelledExpanded] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [pickerValue, setPickerValue] = useState<Date | null>(null);
-  const [activeTab, setActiveTab] = useState<"products" | "bills" | "tickets">(
-    "products",
-  );
+  const [activeTab, setActiveTab] = useState<OrderTab>("products");
   const [mergeTarget, setMergeTarget] = useState<Order | null>(null);
   const [mergeDialogVisible, setMergeDialogVisible] = useState(false);
   const [selectionRequested, setSelectionRequested] = useState(false);
@@ -155,14 +154,9 @@ export default function OrderDetailView({
     new Set(),
   );
   // Call all hooks before any conditional returns
-  const {
-    statusText,
-    labelColor,
-    statusTextColor,
-    statusIcon,
-    statusIconColor,
-    bgColor,
-  } = useOrderStatus(order?.status || OrderStatus.PENDING);
+  const { statusText, labelColor, statusIcon } = useOrderStatus(
+    order?.status || OrderStatus.PENDING,
+  );
   const { handleShareOrder } = useOrderPrint(order);
 
   const editBottomSheetRef = useRef<BottomSheetMethods>(null);
@@ -241,30 +235,24 @@ export default function OrderDetailView({
 
   const Container = embedded ? ThemedView : ScreenLayout;
 
+  const orderId = order?.id;
+  const handlePrint = useCallback(() => {
+    if (orderId) router.push(`/(order)/${orderId}/print`);
+  }, [orderId, router]);
+
   const renderHeaderActions = () => (
-    <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}>
-      {canMarkDelivered && !isSelectionMode && (
-        <Button
-          leftIcon="check-check"
-          label={t("orders:options.markDelivered")}
-          onPress={() => order && markDelivered(order)}
-          variant="outline"
-          size="extra-small"
-        />
-      )}
-      {canCloseOrder && (
-        <Button
-          leftIcon="lock"
-          label={t("orders:options.closeOrder")}
-          onPress={openCloseModal}
-          variant="outline"
-          size="extra-small"
-        />
-      )}
+    <ThemedView style={tw`flex-row items-center gap-1 bg-transparent`}>
+      <IconButton
+        icon="printer"
+        onPress={handlePrint}
+        size={24}
+        accessibilityLabel={t("orders:details.printOrder")}
+      />
       <IconButton
         icon="ellipsis-vertical"
         onPress={handleOpenMoreOptions}
         size={24}
+        accessibilityLabel={t("orders:details.moreOptions")}
       />
     </ThemedView>
   );
@@ -279,18 +267,7 @@ export default function OrderDetailView({
     // renderHeaderActions is rebuilt every render; the values it reads are
     // listed below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    embedded,
-    navigation,
-    canMarkDelivered,
-    isSelectionMode,
-    canCloseOrder,
-    order,
-    markDelivered,
-    openCloseModal,
-    handleOpenMoreOptions,
-    t,
-  ]);
+  }, [embedded, navigation, handlePrint, handleOpenMoreOptions, t]);
 
   const onRefresh = useCallback(async () => {
     if (!order?.id) return;
@@ -305,10 +282,8 @@ export default function OrderDetailView({
         queryKey: ["order", order.id],
       });
     } catch {
-      Alert.alert(
-        t("errors:order.fetchError"),
-        t("errors:order.ordersFetchFailed"),
-      );
+      // Non-blocking: the order on screen stays usable.
+      toast.error(t("errors:order.ordersFetchFailed"));
     } finally {
       setRefreshing(false);
     }
@@ -335,9 +310,7 @@ export default function OrderDetailView({
   // Check if this is a closed order
   const isClosed = order.isClosed === true;
 
-  const orderCantBeDeleted =
-    order.status !== OrderStatus.PENDING ||
-    (order.details ?? []).some((detail) => detail.qtyDelivered !== 0);
+  const deleteBlockReason = getOrderDeleteBlockReason(order);
 
   const canForceCloseOrder =
     isAdmin &&
@@ -350,7 +323,16 @@ export default function OrderDetailView({
         .map((bill) => bill.total + bill.discount)
         .reduce((acc, curr) => acc + (curr ?? 0), 0)
     : 0;
+  // Not on any bill yet: charging it means creating a bill first.
   const remainingAmount = Math.max(order.total - orderAmountInBills, 0);
+  const unpaidBills = (orderBills ?? []).filter(
+    (bill) => bill.status !== BillStatus.PAID && getBillAmountDue(bill) > 0,
+  );
+  // Already on a bill but not collected yet.
+  const billsAmountDue = unpaidBills.reduce(
+    (acc, bill) => acc + getBillAmountDue(bill),
+    0,
+  );
 
   // Non-hook functions and computed values can be after the early return
   const openProduct = (detail: OrderDetail) => {
@@ -364,38 +346,15 @@ export default function OrderDetailView({
   const createdAt = dayjs(order.createdAt);
   const updatedAt = dayjs(order.updatedAt);
   const deliveryTime = order.deliveryTime ? dayjs(order.deliveryTime) : null;
-  const date = createdAt.isSame(dayjs(), "day")
-    ? `${t("common:time.today")}, ${createdAt.format("HH:mm")}`
-    : createdAt.format("dddd, HH:mm");
-  const createdAtLabel = `${createdAt.fromNow()} · ${createdAt.format(
-    "MMM D, HH:mm",
-  )}`;
-  const updatedAtLabel = `${updatedAt.fromNow()} · ${updatedAt.format(
-    "MMM D, HH:mm",
-  )}`;
-
-  const updateStatus = (status: OrderStatus) => {
-    updateOrder(
-      {
-        id: order.id,
-        status,
-      },
-      {
-        onSuccess: (resp) => {
-          // Handle success if needed
-        },
-      },
-    );
-  };
-
-  const closeModal = () => {
-    setVisible(false);
-  };
+  const activityLine = t("orders:details.activityLine", {
+    created: createdAt.format("MMM D, HH:mm"),
+    updated: updatedAt.fromNow(),
+  });
 
   const onRemoveOrder = () => {
     deleteOrder(order.id, {
       onSuccess: () => {
-        closeModal();
+        setDeleteDialogVisible(false);
         setActiveOrder(null);
         // Embedded: clearing the active order already empties the pane
         if (!embedded) {
@@ -467,8 +426,13 @@ export default function OrderDetailView({
       )
     : [];
 
+  // A cancelled item lives in its own section even if it was handed out.
   const deliveredDetails = hasDetails
-    ? order.details.filter((detail) => detail.qtyDelivered === detail.quantity)
+    ? order.details.filter(
+        (detail) =>
+          detail.status !== OrderDetailStatus.CANCELLED &&
+          detail.qtyDelivered === detail.quantity,
+      )
     : [];
 
   const cancelledDetails = hasDetails
@@ -537,8 +501,21 @@ export default function OrderDetailView({
     router.push("/(new-order)/restaurant-menu");
   };
 
-  const handleAddBill = () => {
-    router.push(`/(order)/${order.id}/bills/new`);
+  // Charging the unbilled part starts a bill with every item selected.
+  const handleChargeNewBill = () => {
+    router.push({
+      pathname: "/(order)/[id]/bills/new",
+      params: { id: order.id, all: "1" },
+    });
+  };
+
+  // Everything is on a bill already: go straight to the one left to charge.
+  const handleChargeBills = () => {
+    if (unpaidBills.length === 1) {
+      router.push(`/(bills)/${unpaidBills[0].id}`);
+      return;
+    }
+    setActiveTab("bills");
   };
 
   const handleEditFromMenu = () => {
@@ -564,9 +541,7 @@ export default function OrderDetailView({
             onSuccess: (resp) => {
               // Online the server answers { order }; the outbox answers the order.
               const data = resp.data as unknown as
-                | Order
-                | { order?: Order }
-                | undefined;
+                Order | { order?: Order } | undefined;
               const updated: Order | undefined =
                 data && "order" in data ? data.order : (data as Order);
               if (!updated?.id) return;
@@ -576,7 +551,7 @@ export default function OrderDetailView({
               }
             },
             onError: (resp) => {
-              Alert.alert("Error", resp.msg);
+              toast.error(resp.msg);
             },
           },
         );
@@ -665,19 +640,9 @@ export default function OrderDetailView({
     handlePresentEditNoteModal();
   };
 
-  const handlePrintFromMenu = () => {
-    moreOptionsSheetRef.current?.dismiss();
-    router.push(`/(order)/${order.id}/print`);
-  };
-
   const handleShareFromMenu = () => {
     moreOptionsSheetRef.current?.dismiss();
     handleShareOrder();
-  };
-
-  const handleCloseFromMenu = () => {
-    moreOptionsSheetRef.current?.dismiss();
-    handleCloseOrder();
   };
 
   const handleForceCloseFromMenu = () => {
@@ -685,18 +650,11 @@ export default function OrderDetailView({
     handleCloseOrder();
   };
 
+  // Blocked: the reason already shows under the row, so the tap does nothing.
   const handleDeleteFromMenu = () => {
+    if (deleteBlockReason) return;
     moreOptionsSheetRef.current?.dismiss();
-
-    if (orderCantBeDeleted) {
-      i18nAlert(
-        t("orders:deleteAlerts.cannotDelete"),
-        t("orders:deleteAlerts.cannotDeleteMessage"),
-      );
-      return;
-    }
-
-    setVisible(true);
+    setDeleteDialogVisible(true);
   };
 
   const otherOrderType =
@@ -755,27 +713,11 @@ export default function OrderDetailView({
 
   const generalOptions: MoreOptionItem[] = [
     {
-      icon: "printer",
-      label: t("common:actions.print"),
-      onPress: handlePrintFromMenu,
-    },
-    {
       icon: "share",
       label: t("common:actions.share"),
       onPress: handleShareFromMenu,
     },
-    ...(order.status === OrderStatus.DELIVERED &&
-    order.isClosed === false &&
-    order.isPaid === true
-      ? [
-          {
-            icon: "lock" as const,
-            label: t("common:actions.close"),
-            onPress: handleCloseFromMenu,
-          },
-        ]
-      : []),
-    ...(isAdmin && canForceCloseOrder
+    ...(canForceCloseOrder
       ? [
           {
             icon: "lock" as const,
@@ -791,55 +733,82 @@ export default function OrderDetailView({
         {
           icon: "trash",
           label: t("orders:options.deleteOrder"),
+          hint: deleteBlockReason
+            ? t(`orders:deleteReasons.${deleteBlockReason}`)
+            : undefined,
           onPress: handleDeleteFromMenu,
-          disabled: orderCantBeDeleted,
         },
       ]
     : [];
 
+  const unpaidAmount = remainingAmount + billsAmountDue;
+
+  // The bar's primary action follows the order's next step: charge what's
+  // left, then deliver what's pending, then close.
+  const chargeAction =
+    remainingAmount > 0
+      ? { amount: remainingAmount, onPress: handleChargeNewBill }
+      : billsAmountDue > 0
+        ? { amount: billsAmountDue, onPress: handleChargeBills }
+        : null;
+  const deliverInBar = !chargeAction && canMarkDelivered;
+  const closeInBar = !chargeAction && !deliverInBar && canCloseOrder;
+
+  const productsCount = allDetails.filter(
+    (detail) => detail.status !== OrderDetailStatus.CANCELLED,
+  ).length;
+  const tabs = [
+    {
+      value: "products" as const,
+      label: t("orders:details.tabs.products"),
+      count: productsCount || undefined,
+    },
+    {
+      value: "bills" as const,
+      label: t("orders:details.tabs.bills"),
+      count: orderBills?.length || undefined,
+    },
+    {
+      value: "tickets" as const,
+      label: t("orders:details.tabs.tickets"),
+      count: tickets.length || undefined,
+    },
+  ];
+
+  const renderSectionHeader = (title: string, count: number) => (
+    <ThemedView style={tw`flex-row items-center gap-2`}>
+      <ThemedText
+        type="body2"
+        style={[tw`text-gray-500`, { fontFamily: typography.semibold }]}
+      >
+        {title}
+      </ThemedText>
+      <ThemedText type="body2" style={tw`text-gray-500`}>
+        {count}
+      </ThemedText>
+    </ThemedView>
+  );
+
   return (
     <>
-      <Modal
-        transparent
-        visible={visible}
-        animationType="fade"
-        onRequestClose={() => setVisible(false)}
-      >
-        {/* Backdrop */}
-        <View style={tw`flex-1 bg-black/50 items-center justify-center`}>
-          {/* Modal card */}
-          <View
-            style={tw`bg-surface-bright rounded-2xl w-4/5 max-w-md p-5 shadow-lg`}
-          >
-            <ThemedText type="h4">{t("orders:dialogs.removeTitle")}</ThemedText>
-            <ThemedText type="body1" style={tw`mt-2 mb-4`}>
-              {t("orders:dialogs.removeMessage")}
-            </ThemedText>
-
-            <ThemedView style={tw`flex-row justify-end gap-2`}>
-              <Button
-                label={t("common:actions.cancel")}
-                onPress={closeModal}
-                variant="outline"
-                size="small"
-              />
-              <Button
-                label={t("common:actions.remove")}
-                onPress={onRemoveOrder}
-                size="small"
-              />
-            </ThemedView>
-          </View>
-        </View>
-      </Modal>
+      <DialogModal
+        visible={deleteDialogVisible}
+        title={t("orders:dialogs.removeTitle")}
+        message={t("orders:dialogs.removeMessage")}
+        confirmLabel={t("orders:dialogs.deleteConfirm")}
+        confirmVariant="destructive"
+        onConfirm={onRemoveOrder}
+        onCancel={() => setDeleteDialogVisible(false)}
+      />
       <CloseOrderModal
         order={order}
         visible={closeModalIsOpen}
         onClose={closeCloseModal}
+        unpaidAmount={order.isPaid ? 0 : unpaidAmount}
       />
-      <View style={tw`flex-1 relative`}>
+      <ThemedView style={tw`flex-1`}>
         <Container
-          style={tw`px-4 ${embedded ? "pt-2" : "pt-6"} flex-1 bg-background`}
+          style={tw`px-4 ${embedded ? "pt-2" : "pt-4"} flex-1 bg-background`}
         >
           {/* Pane header: stands in for the stack header when embedded */}
           {embedded && (
@@ -853,13 +822,13 @@ export default function OrderDetailView({
               {renderHeaderActions()}
             </ThemedView>
           )}
-          {/* Header Section */}
-          <ThemedView style={tw`mb-4 gap-4`}>
+          {/* Header: where, how much, and the tabs */}
+          <ThemedView style={tw`gap-4`}>
             {showTimePicker && (
-              <ThemedView style={tw`mt-3`}>
+              <ThemedView>
                 {Platform.OS === "ios" && (
                   <ThemedView
-                    style={tw`border border-gray-300 rounded-2xl overflow-hidden`}
+                    style={tw`border border-border rounded-md overflow-hidden`}
                   >
                     <DateTimePicker
                       value={
@@ -889,15 +858,8 @@ export default function OrderDetailView({
               </ThemedView>
             )}
 
-            {/* Table/Location & People */}
-            <ThemedView style={tw`flex-row items-center justify-between`}>
-              <ThemedView style={tw`gap-2`}>
-                <ThemedView style={tw`flex-row items-center gap-2`}>
-                  <ThemedText type="caption" style={tw`text-gray-500 text-sm`}>
-                    {orderNumberText(order, t)}
-                  </ThemedText>
-                  <OrderSyncLabel orderId={order.id} />
-                </ThemedView>
+            <ThemedView style={tw`flex-row items-start justify-between gap-4`}>
+              <ThemedView style={tw`flex-1 gap-1`}>
                 <ThemedView style={tw`flex-row items-center gap-2`}>
                   <Icon
                     name={
@@ -908,19 +870,26 @@ export default function OrderDetailView({
                     size={24}
                     color={tw.color("text")}
                   />
-                  <ThemedText type="h2">
+                  <ThemedText type="h2" numberOfLines={1} style={tw`flex-1`}>
                     {order.type === OrderType.IN_PLACE
                       ? `${t("common:labels.table")} ${order.table?.name}`
                       : t("common:labels.takeAway")}
                   </ThemedText>
                 </ThemedView>
+                <ThemedView style={tw`flex-row items-center gap-2`}>
+                  <ThemedText type="small">
+                    {orderNumberText(order, t)}
+                  </ThemedText>
+                  <OrderSyncLabel orderId={order.id} />
+                </ThemedView>
               </ThemedView>
-
-              {order.status !== OrderStatus.DELIVERED &&
-                order.status !== OrderStatus.CANCELLED && (
-                  <OrderElapsedTimeLabel deliveryTime={order.deliveryTime} />
-                )}
+              <ThemedView style={tw`items-end`}>
+                <ThemedText type="small">{t("common:labels.total")}</ThemedText>
+                <ThemedText type="h3">{formatCurrency(order.total)}</ThemedText>
+              </ThemedView>
             </ThemedView>
+
+            <TabBar tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
           </ThemedView>
 
           {/* Tab Content */}
@@ -929,7 +898,7 @@ export default function OrderDetailView({
               <ScrollView
                 style={tw`flex-1`}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={tw`pb-10`}
+                contentContainerStyle={tw`pt-4 pb-6`}
                 refreshControl={
                   <RefreshControl
                     refreshing={refreshing}
@@ -939,10 +908,9 @@ export default function OrderDetailView({
                   />
                 }
               >
-                {/* Status & Payment Labels */}
-
+                {/* Status, payment and time left */}
                 <ThemedView
-                  style={tw`flex-row items-center gap-2 flex-wrap mb-4 rounded-xl`}
+                  style={tw`flex-row items-center gap-2 flex-wrap mb-4`}
                 >
                   <Label
                     text={statusText}
@@ -950,7 +918,6 @@ export default function OrderDetailView({
                     leftIcon={statusIcon}
                     size="small"
                   />
-
                   {order.paymentStatus !== OrderPaymentStatus.UNPAID && (
                     <Label
                       text={paymentStatus.text}
@@ -960,16 +927,22 @@ export default function OrderDetailView({
                   )}
                   {isClosed && (
                     <Label
-                      text={
-                        isClosed
-                          ? t("orders:details.closedOrder")
-                          : t("orders:details.open")
-                      }
-                      color={isClosed ? "default" : "success"}
+                      text={t("orders:details.closedOrder")}
+                      color="default"
                       size="small"
                     />
                   )}
+                  {!isClosed &&
+                    order.status !== OrderStatus.DELIVERED &&
+                    order.status !== OrderStatus.CANCELLED && (
+                      <OrderElapsedTimeLabel
+                        deliveryTime={order.deliveryTime}
+                        size="small"
+                      />
+                    )}
                 </ThemedView>
+
+                {/* Closed orders can't change, so their chips are read-only. */}
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -978,7 +951,8 @@ export default function OrderDetailView({
                   <Chip
                     icon="hourglass"
                     label={(deliveryTime ?? createdAt).format("HH:mm")}
-                    onPress={openTimePicker}
+                    onPress={!isClosed ? openTimePicker : undefined}
+                    disabled={isClosed}
                   />
                   <Chip
                     label={String(order.people)}
@@ -986,18 +960,19 @@ export default function OrderDetailView({
                     onPress={
                       !isClosed ? handlePresentEditPeopleModal : undefined
                     }
+                    disabled={isClosed}
                   />
-
                   <Chip
                     icon="user"
                     label={`${order.user?.person.firstName} ${order.user?.person.lastName}`}
                     onPress={!isClosed ? handlePresentReassignModal : undefined}
+                    disabled={isClosed}
                   />
                 </ScrollView>
 
                 {/* Notes Section */}
                 {order.notes && (
-                  <ThemedView style={tw`mb-6   rounded-xl`}>
+                  <ThemedView style={tw`mb-6`}>
                     <ThemedView style={tw`flex-row items-center gap-2 mb-2`}>
                       <Icon
                         name="file-text"
@@ -1005,15 +980,16 @@ export default function OrderDetailView({
                         color={tw.color("gray-500")}
                       />
                       <ThemedText
-                        type="caption"
-                        style={tw`text-gray-500 font-semibold`}
+                        type="body2"
+                        style={[
+                          tw`text-gray-500`,
+                          { fontFamily: typography.semibold },
+                        ]}
                       >
                         {t("common:labels.notes")}
                       </ThemedText>
                     </ThemedView>
-                    <ThemedText type="body1" style={tw`text-gray-700`}>
-                      {order.notes}
-                    </ThemedText>
+                    <ThemedText type="body1">{order.notes}</ThemedText>
                   </ThemedView>
                 )}
 
@@ -1021,29 +997,23 @@ export default function OrderDetailView({
                 {!isClosed && pendingDetails.length > 0 && (
                   <ThemedView style={tw`mb-6`}>
                     <ThemedView
-                      style={tw`flex-row justify-between items-center mb-4`}
+                      style={tw`flex-row justify-between items-center mb-4 min-h-10`}
                     >
-                      <ThemedView style={tw`flex-row items-center gap-2`}>
-                        <ThemedText
-                          type="body2"
-                          style={[
-                            tw`text-gray-500`,
-                            { fontFamily: typography.semibold },
-                          ]}
-                        >
-                          {t("orders:details.pendingItems")}
-                        </ThemedText>
-                        <ThemedView
-                          style={tw`bg-primary-50 px-2.5 py-1 rounded-full`}
-                        >
-                          <ThemedText
-                            type="small"
-                            style={tw`text-primary-700 font-semibold`}
-                          >
-                            {pendingDetails.length}
-                          </ThemedText>
-                        </ThemedView>
-                      </ThemedView>
+                      {renderSectionHeader(
+                        t("orders:details.pendingItems"),
+                        pendingDetails.length,
+                      )}
+                      {canMarkDelivered &&
+                        !deliverInBar &&
+                        !isSelectionMode && (
+                          <Button
+                            variant="text"
+                            size="small"
+                            leftIcon="check-check"
+                            label={t("orders:details.deliverAll")}
+                            onPress={() => markDelivered(order)}
+                          />
+                        )}
                     </ThemedView>
                     <ThemedView style={tw`gap-6`}>
                       {pendingDetails.map((detail) => (
@@ -1067,27 +1037,11 @@ export default function OrderDetailView({
                 {/* Delivered Items Section (for active orders) */}
                 {!isClosed && deliveredDetails.length > 0 && (
                   <ThemedView style={tw`mb-6`}>
-                    <ThemedView
-                      style={tw`flex-row justify-between items-center mb-4`}
-                    >
-                      <ThemedView style={tw`flex-row items-center gap-2`}>
-                        <ThemedText
-                          type="body2"
-                          style={[
-                            tw`text-gray-500`,
-                            { fontFamily: typography.semibold },
-                          ]}
-                        >
-                          {t("orders:details.deliveredItems")}
-                        </ThemedText>
-                        <ThemedView
-                          style={tw`bg-gray-100 px-2 py-0.5 rounded-full`}
-                        >
-                          <ThemedText type="caption" style={tw`text-gray-600`}>
-                            {deliveredDetails.length}
-                          </ThemedText>
-                        </ThemedView>
-                      </ThemedView>
+                    <ThemedView style={tw`mb-4`}>
+                      {renderSectionHeader(
+                        t("orders:details.deliveredItems"),
+                        deliveredDetails.length,
+                      )}
                     </ThemedView>
                     <ThemedView style={tw`gap-6`}>
                       {deliveredDetails.map((detail) => (
@@ -1107,33 +1061,23 @@ export default function OrderDetailView({
                 {/* Cancelled Items Section */}
                 {cancelledDetails.length > 0 && (
                   <ThemedView style={tw`mb-6`}>
-                    <Pressable onPress={toggleCancelledSection}>
-                      <ThemedView
-                        style={tw`flex-row justify-between items-center py-3`}
-                      >
-                        <ThemedView style={tw`flex-row items-center gap-2`}>
-                          <ThemedText type="body2" style={tw`text-gray-500`}>
-                            {t("orders:details.cancelledItems")}
-                          </ThemedText>
-                          <ThemedView
-                            style={tw`bg-gray-100 px-2 py-0.5 rounded-full`}
-                          >
-                            <ThemedText
-                              type="caption"
-                              style={tw`text-gray-600`}
-                            >
-                              {cancelledDetails.length}
-                            </ThemedText>
-                          </ThemedView>
-                        </ThemedView>
-                        <Icon
-                          name={
-                            isCancelledExpanded ? "chevron-up" : "chevron-down"
-                          }
-                          size={20}
-                          color={tw.color("gray-400")}
-                        />
-                      </ThemedView>
+                    <Pressable
+                      onPress={toggleCancelledSection}
+                      accessibilityRole="button"
+                      accessibilityState={{ expanded: isCancelledExpanded }}
+                      style={tw`flex-row justify-between items-center min-h-12`}
+                    >
+                      {renderSectionHeader(
+                        t("orders:details.cancelledItems"),
+                        cancelledDetails.length,
+                      )}
+                      <Icon
+                        name={
+                          isCancelledExpanded ? "chevron-up" : "chevron-down"
+                        }
+                        size={20}
+                        color={tw.color("gray-500")}
+                      />
                     </Pressable>
 
                     {isCancelledExpanded && (
@@ -1155,22 +1099,11 @@ export default function OrderDetailView({
                 {/* All Items Section - For closed orders */}
                 {isClosed && hasItems && (
                   <ThemedView style={tw`mb-6`}>
-                    <ThemedView
-                      style={tw`flex-row justify-between items-center mb-4`}
-                    >
-                      <ThemedText type="h4">
-                        {t("orders:details.allItems")}
-                      </ThemedText>
-                      <ThemedView
-                        style={tw`bg-gray-100 px-2.5 py-1 rounded-full`}
-                      >
-                        <ThemedText
-                          type="small"
-                          style={tw`text-gray-700 font-semibold`}
-                        >
-                          {allDetails.length}
-                        </ThemedText>
-                      </ThemedView>
+                    <ThemedView style={tw`mb-4`}>
+                      {renderSectionHeader(
+                        t("orders:details.allItems"),
+                        allDetails.length,
+                      )}
                     </ThemedView>
                     <ThemedView style={tw`gap-6`}>
                       {allDetails.map((detail) => (
@@ -1180,6 +1113,7 @@ export default function OrderDetailView({
                           onPress={() => {}} // No action for closed orders
                           orderUserId={order.user?.id || ""}
                           orderType={order.type}
+                          readOnly
                         />
                       ))}
                     </ThemedView>
@@ -1189,7 +1123,7 @@ export default function OrderDetailView({
                 {/* Empty state for closed orders with no items */}
                 {isClosed && !hasItems && (
                   <ThemedView style={tw`mb-6 p-8 items-center justify-center`}>
-                    <Icon name="file" size={48} color={tw.color("gray-300")} />
+                    <Icon name="file" size={48} color={tw.color("gray-400")} />
                     <ThemedText
                       type="body1"
                       style={tw`text-gray-500 mt-4 text-center`}
@@ -1199,93 +1133,9 @@ export default function OrderDetailView({
                   </ThemedView>
                 )}
 
-                {/* Add Product Button - Only for active orders */}
-                {/* {!isClosed && ( */}
-                {/*   <Button */}
-                {/*     leftIcon="add-outline" */}
-                {/*     label={t("orders:details.addProduct")} */}
-                {/*     variant="outline" */}
-                {/*     onPress={() => { */}
-                {/*       init(order); // Initialize the edit order cart store with the current order */}
-                {/**/}
-                {/*       router.push("/(new-order)/restaurant-menu"); */}
-                {/*     }} */}
-                {/*   /> */}
-                {/* )} */}
-
-                {/* <ThemedView style={tw`flex-row gap-4`}> */}
-                {/*   <ThemedView style={tw`flex-1`}> */}
-                {/*     <Card */}
-                {/*       style={tw`gap-2 flex-1 pt-10`} */}
-                {/*       onPress={() => setActiveTab("bills")} */}
-                {/*     > */}
-                {/*       <Icon name="cash-outline" size={22} /> */}
-                {/*       <ThemedView style={tw``}> */}
-                {/*         <ThemedText */}
-                {/*           type="body2" */}
-                {/*           style={[tw``, { fontFamily: typography.medium }]} */}
-                {/*         > */}
-                {/*           {t("orders:details.payments")} */}
-                {/*         </ThemedText> */}
-                {/*       </ThemedView> */}
-                {/*     </Card> */}
-                {/*   </ThemedView> */}
-                {/**/}
-                {/*   <ThemedView style={tw`flex-1`}> */}
-                {/*     <Card */}
-                {/*       style={tw`gap-2 flex-1 pt-10`} */}
-                {/*       onPress={() => setActiveTab("tickets")} */}
-                {/*     > */}
-                {/*       <Icon name="receipt-outline" size={22} /> */}
-                {/*       <ThemedView style={tw` gap-1`}> */}
-                {/*         <ThemedText */}
-                {/*           type="body2" */}
-                {/*           style={[tw``, { fontFamily: typography.medium }]} */}
-                {/*         > */}
-                {/*           {t("orders:details.orderTickets")} */}
-                {/*         </ThemedText> */}
-                {/*       </ThemedView> */}
-                {/*     </Card> */}
-                {/*   </ThemedView> */}
-                {/* </ThemedView> */}
-
-                <ThemedView style={tw`mt-4 mb-20`}>
-                  <ThemedText type="caption" style={tw`text-gray-500`}>
-                    {t("orders:details.activity")}
-                  </ThemedText>
-                  <ThemedView style={tw`mt-3 gap-2`}>
-                    <ThemedView>
-                      <ThemedView style={tw`flex-row items-center gap-2`}>
-                        <Icon
-                          name="circle"
-                          size={12}
-                          color={tw.color("gray-500")}
-                        />
-                        <ThemedText type="body2" style={tw`text-gray-600`}>
-                          {t("orders:details.createdAt")}
-                        </ThemedText>
-                      </ThemedView>
-                      <ThemedText type="small" style={tw`text-gray-500 ml-5`}>
-                        {createdAtLabel}
-                      </ThemedText>
-                    </ThemedView>
-                    <ThemedView>
-                      <ThemedView style={tw`flex-row items-center gap-2`}>
-                        <Icon
-                          name="circle"
-                          size={12}
-                          color={tw.color("gray-500")}
-                        />
-                        <ThemedText type="body2" style={tw`text-gray-600`}>
-                          {t("orders:details.updatedAt")}
-                        </ThemedText>
-                      </ThemedView>
-                      <ThemedText type="small" style={tw`text-gray-500 ml-5`}>
-                        {updatedAtLabel}
-                      </ThemedText>
-                    </ThemedView>
-                  </ThemedView>
-                </ThemedView>
+                <ThemedText type="small" style={tw`mt-2`}>
+                  {activityLine}
+                </ThemedText>
               </ScrollView>
             )}
 
@@ -1294,105 +1144,95 @@ export default function OrderDetailView({
           </ThemedView>
         </Container>
 
-        {/* Footer - Total */}
-        <ThemedView style={tw`px-4 py-4 border-t border-border bg-background`}>
-          <ThemedView style={tw`flex-row justify-between items-center`}>
-            <ThemedText type="h4" style={tw`text-gray-600`}>
-              {t("common:labels.total")}
-            </ThemedText>
-            <ThemedText type="h2" style={tw``}>
-              {formatCurrency(order.total)}
-            </ThemedText>
-          </ThemedView>
-        </ThemedView>
-
-        {/* Selection Bar */}
-        {isSelectionMode && (
-          <View style={tw`absolute bottom-20 left-4 right-4 items-center`}>
-            <ThemedView
-              style={tw`w-full flex-row items-center gap-1 bg-surface rounded-full shadow-sm px-2 py-2`}
-            >
-              <IconButton
-                icon="x"
-                variant="text"
-                onPress={cancelSelectionMode}
-                accessibilityLabel={t(
-                  "orders:details.selection.cancelSelection",
-                )}
-              />
-              <ThemedText
-                type="body1"
-                numberOfLines={1}
-                style={[tw`flex-1`, { fontFamily: typography.medium }]}
-              >
-                {t("orders:details.selection.selectedCount", {
-                  count: selectedDetails.length,
-                })}
-              </ThemedText>
-              <Button
-                variant="text"
-                size="small"
-                label={
-                  allDetailsSelected
-                    ? t("orders:details.selection.unselectAll")
-                    : t("orders:details.selection.selectAll")
-                }
-                onPress={toggleSelectAllDetails}
-              />
-              <Button
-                variant="surface"
-                size="small"
-                leftIcon="check-check"
-                label={t("orders:details.selection.deliver")}
-                disabled={selectedDetails.length === 0}
-                onPress={deliverSelected}
-              />
-            </ThemedView>
-          </View>
-        )}
-
-        {/* Floating Toolbar */}
-        {!isSelectionMode && (
-          <View style={tw`absolute bottom-20 left-0 right-0 items-center`}>
-            <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
-              <FloatingToolbar
-                items={[
-                  {
-                    icon: "hamburger",
-                    label: t("orders:details.tabs.products"),
-                    onPress: () => setActiveTab("products"),
-                    active: activeTab === "products",
-                  },
-                  {
-                    icon: "banknote",
-                    label: t("orders:details.tabs.bills"),
-                    onPress: () => setActiveTab("bills"),
-                    active: activeTab === "bills",
-                  },
-                  {
-                    icon: "receipt-text",
-                    label: t("orders:details.tabs.tickets"),
-                    onPress: () => setActiveTab("tickets"),
-                    active: activeTab === "tickets",
-                  },
-                ]}
-              />
-
-              {(activeTab === "products" ||
-                (activeTab === "bills" && remainingAmount > 0)) && (
+        {/* Bottom bar: thumb-reach actions, or the bulk-deliver bar while
+            selecting */}
+        {(isSelectionMode || !isClosed) && (
+          <ThemedView
+            style={[
+              tw`px-4 pt-3 border-t border-divider bg-background`,
+              { paddingBottom: embedded ? 16 : Math.max(insets.bottom, 16) },
+            ]}
+          >
+            {isSelectionMode ? (
+              <ThemedView style={tw`flex-row items-center gap-1`}>
                 <IconButton
-                  onPress={
-                    activeTab === "products" ? handleAddProduct : handleAddBill
+                  icon="x"
+                  variant="text"
+                  onPress={cancelSelectionMode}
+                  accessibilityLabel={t(
+                    "orders:details.selection.cancelSelection",
+                  )}
+                />
+                <ThemedText
+                  type="body1"
+                  numberOfLines={1}
+                  style={[tw`flex-1`, { fontFamily: typography.medium }]}
+                >
+                  {t("orders:details.selection.selectedCount", {
+                    count: selectedDetails.length,
+                  })}
+                </ThemedText>
+                <Button
+                  variant="text"
+                  size="small"
+                  label={
+                    allDetailsSelected
+                      ? t("orders:details.selection.unselectAll")
+                      : t("orders:details.selection.selectAll")
                   }
-                  icon={activeTab === "products" ? "plus" : "credit-card"}
-                  size={40}
-                  variant="surface"
-                ></IconButton>
-              )}
-            </ThemedView>
-          </View>
+                  onPress={toggleSelectAllDetails}
+                />
+                <Button
+                  size="small"
+                  leftIcon="check-check"
+                  label={t("orders:details.selection.deliver")}
+                  disabled={selectedDetails.length === 0}
+                  onPress={deliverSelected}
+                />
+              </ThemedView>
+            ) : (
+              <ThemedView style={tw`flex-row gap-3`}>
+                <Button
+                  variant="outline"
+                  leftIcon="plus"
+                  label={t("common:actions.add")}
+                  onPress={handleAddProduct}
+                  style={
+                    chargeAction || deliverInBar || closeInBar
+                      ? undefined
+                      : tw`flex-1`
+                  }
+                />
+                {chargeAction && (
+                  <Button
+                    label={t("orders:details.chargeAmount", {
+                      amount: formatCurrency(chargeAction.amount),
+                    })}
+                    onPress={chargeAction.onPress}
+                    style={tw`flex-1`}
+                  />
+                )}
+                {deliverInBar && (
+                  <Button
+                    leftIcon="check-check"
+                    label={t("orders:options.markDelivered")}
+                    onPress={() => markDelivered(order)}
+                    style={tw`flex-1`}
+                  />
+                )}
+                {closeInBar && (
+                  <Button
+                    leftIcon="lock"
+                    label={t("orders:options.closeOrder")}
+                    onPress={openCloseModal}
+                    style={tw`flex-1`}
+                  />
+                )}
+              </ThemedView>
+            )}
+          </ThemedView>
         )}
-      </View>
+      </ThemedView>
 
       <ThemedBottomSheetModal ref={editBottomSheetRef} enablePanDownToClose>
         {order && (
@@ -1487,7 +1327,7 @@ export default function OrderDetailView({
             {
               items: dangerOptions.map((option) => ({
                 ...option,
-                color: "text-red-500",
+                color: "text-red-600",
               })),
             },
           ]}

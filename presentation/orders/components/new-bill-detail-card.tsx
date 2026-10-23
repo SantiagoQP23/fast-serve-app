@@ -7,7 +7,6 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import { OrderDetail } from "@/core/orders/models/order-detail.model";
 import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { formatCurrency } from "@/core/i18n/utils";
-import Slider from "@/presentation/theme/components/slider";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import Card from "@/presentation/theme/components/card";
@@ -26,7 +25,7 @@ export default function NewBillDetailCard({
   maxQuantity,
   detail,
 }: NewBillDetailCardProps) {
-  const { t } = useTranslation(["bills"]);
+  const { t } = useTranslation(["bills", "common"]);
   const availableQty = maxQuantity ?? detail.quantity - detail.qtyPaid;
 
   const { counter, increment, decrement, setCounter } = useCounter(
@@ -49,6 +48,9 @@ export default function NewBillDetailCard({
     onChange && onChange(value);
   };
 
+  // Tapping the card is the fast path: all of it, or none of it.
+  const toggleAll = () => handleQuantityChange(isSelected ? 0 : availableQty);
+
   const showProductOptionName =
     detail.product.options.length > 1 && detail.productOption;
 
@@ -59,7 +61,9 @@ export default function NewBillDetailCard({
         isSelected && tw`bg-secondary`,
         pressed && tw`opacity-80`,
       ]}
-      onPress={onPress}
+      onPress={onPress ?? toggleAll}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: isSelected }}
       variant="outline"
     >
       {/* Product Info */}
@@ -68,12 +72,14 @@ export default function NewBillDetailCard({
       >
         <ThemedView style={tw`bg-transparent flex-1`}>
           <ThemedText type="body1" style={tw`font-semibold mb-1`}>
-            {detail.product.name}{" "}
-            {showProductOptionName && `${detail.productOption?.name}`} ×{" "}
-            {availableQty}
+            {detail.product.name}
+            {showProductOptionName ? ` ${detail.productOption?.name}` : ""}
+            <ThemedText type="body1" style={tw`text-gray-500`}>
+              {` ×${availableQty}`}
+            </ThemedText>
           </ThemedText>
           <ThemedText type="body2" style={tw`text-gray-500`}>
-            {formatCurrency(detail.price)}{" "}
+            {formatCurrency(detail.price)}
           </ThemedText>
         </ThemedView>
 
@@ -83,6 +89,7 @@ export default function NewBillDetailCard({
             <Checkbox
               value={isSelected}
               onValueChange={(checked) => handleQuantityChange(checked ? 1 : 0)}
+              accessibilityLabel={detail.product.name}
             />
           ) : (
             <>
@@ -90,48 +97,35 @@ export default function NewBillDetailCard({
                 icon="minus"
                 variant="outlined"
                 onPress={decrement}
-                style={tw`p-2`}
+                disabled={counter === 0}
+                accessibilityLabel={t("common:actions.decrease")}
               />
-              <ThemedText type="h4" style={tw` min-w-8 text-center`}>
+              <ThemedText
+                type="h4"
+                style={tw`min-w-8 text-center`}
+                accessibilityLiveRegion="polite"
+              >
                 {counter}
               </ThemedText>
               <IconButton
                 icon="plus"
                 onPress={increment}
                 variant="outlined"
-                color={
-                  counter === availableQty
-                    ? tw.color("gray-300")
-                    : tw.color("border-primary")
-                }
-                style={tw`p-2`}
+                disabled={counter === availableQty}
+                accessibilityLabel={t("common:actions.increase")}
               />
             </>
           )}
         </ThemedView>
       </ThemedView>
-      {availableQty > 1 && (
-        <Slider
-          value={counter}
-          minimumValue={0}
-          maximumValue={availableQty}
-          step={1}
-          height={12}
-          onValueChange={handleQuantityChange}
-          onSlidingComplete={handleQuantityChange}
-        />
-      )}
-
       {/* Subtotal - only show when selected */}
       {isSelected && (
         <ThemedView style={tw`bg-transparent `}>
           <ThemedView
             style={tw`flex-row justify-between items-center bg-transparent`}
           >
-            <ThemedText type="caption" style={tw`text-gray-500`}>
-              {t("bills:newBill.subtotal")}
-            </ThemedText>
-            <ThemedText type="body1" style={tw``}>
+            <ThemedText type="small">{t("bills:newBill.subtotal")}</ThemedText>
+            <ThemedText type="body1">
               {formatCurrency(detail.price * counter)}
             </ThemedText>
           </ThemedView>

@@ -38,8 +38,8 @@
     "history": "Historial"
   },
   "details": {
-    "title": "Pedido N° {{num}}",
-    "orderNumber": "Pedido N° {{num}}",
+    "title": "Pedido #{{num}}",
+    "orderNumber": "Pedido #{{num}}",
     "table": "Mesa",
     "takeAway": "Para Llevar",
     "waiter": "Mesero",
@@ -50,12 +50,12 @@
     "addProduct": "Agregar producto",
     "noActiveOrder": "No hay pedido activo seleccionado",
     "paid": "Pagado",
-    "unpaid": "Sin Pagar",
-    "pendingItems": "Pendiente",
-    "deliveredItems": "Entregado",
+    "unpaid": "Sin pagar",
+    "pendingItems": "Pendientes",
+    "deliveredItems": "Entregados",
     "cancelledItems": "Cancelados",
     "closedOrder": "Cerrado",
-    "allItems": "Todos los Productos",
+    "allItems": "Todos los productos",
     "orderClosed": "Este pedido ha sido cerrado",
     "noItemsInOrder": "No hay productos en este pedido",
     "actions": "Acciones",
@@ -78,7 +78,11 @@
       "selectedCount_other": "{{count}} seleccionados",
       "deliver": "Entregar"
     },
-    "orderNumberPending": "Pedido (sin número)"
+    "orderNumberPending": "Pedido (sin número)",
+    "chargeAmount": "Cobrar {{amount}}",
+    "deliverAll": "Entregar todo",
+    "activityLine": "Creado {{created}} · Actualizado {{updated}}",
+    "printOrder": "Imprimir pedido"
   },
   "actions": {
     "start": "Iniciar",
@@ -111,16 +115,19 @@
     "resetCart": "Limpiar"
   },
   "dialogs": {
-    "removeTitle": "Eliminar Pedido",
+    "removeTitle": "Eliminar pedido",
     "removeMessage": "¿Está seguro que desea eliminar este pedido? Esta acción no se puede deshacer.",
-    "resetCartTitle": "Limpiar Carrito",
+    "resetCartTitle": "Limpiar carrito",
     "resetCartMessage": "¿Está seguro que desea limpiar el carrito? Se eliminarán todos los productos y datos del pedido. Esta acción no se puede deshacer.",
-    "closeTitle": "Cerrar Pedido",
+    "closeTitle": "Cerrar pedido",
     "closeMessage": "¿Está seguro que desea cerrar este pedido? Los pedidos cerrados no se pueden modificar.",
-    "removeItemTitle": "Eliminar Producto",
+    "removeItemTitle": "Eliminar producto",
     "removeItemMessage": "¿Está seguro que desea eliminar {{product}} del pedido?",
-    "cannotDeleteItemTitle": "No se Puede Eliminar",
-    "cannotDeleteItemMessage": "Este producto no se puede eliminar porque ya ha sido entregado. Solo se pueden eliminar productos con 0 cantidad entregada."
+    "cannotDeleteItemTitle": "No se puede eliminar",
+    "cannotDeleteItemMessage": "Este producto no se puede eliminar porque ya ha sido entregado. Solo se pueden eliminar productos con 0 cantidad entregada.",
+    "deleteConfirm": "Eliminar",
+    "forceCloseTitle": "Cerrar sin cobrar",
+    "forceCloseMessage": "Quedan {{amount}} por cobrar. El pedido se cerrará sin ese pago y ya no se podrá modificar."
   },
   "alerts": {
     "selectTable": "Por favor seleccione una mesa",
@@ -151,45 +158,46 @@
     "printButton": "Imprimir"
   },
   "options": {
-    "title": "Opciones de Pedido",
+    "title": "Opciones del pedido",
     "printOrder": "Imprimir",
     "printingOrder": "Imprimiendo pedido...",
     "printOrderSuccess": "Pedido impreso correctamente",
     "shareOrder": "Compartir",
-    "selectPrinter": "Seleccionar Impresora",
-    "noPrinters": "Sin Impresoras",
-    "noPrintersMessage": "No hay impresoras configuradas. Por favor agregue una impresora en la configuración.",
+    "selectPrinter": "Seleccionar impresora",
+    "noPrinters": "Sin impresoras",
+    "noPrintersMessage": "No hay impresoras activas.",
     "printError": "No se pudo imprimir el pedido. Por favor verifique la conexión de la impresora.",
-    "printComanda": "Imprimir Comanda",
+    "printComanda": "Imprimir comanda",
     "printingComanda": "Imprimiendo comanda...",
     "printComandaSuccess": "Comanda impresa correctamente",
-    "noProductionAreas": "Sin Áreas de Producción",
+    "noProductionAreas": "Sin áreas de producción",
     "noProductionAreasMessage": "Este pedido no tiene productos asignados a áreas de producción.",
     "printComandaError": "No se pudo imprimir la comanda. Por favor verifique las conexiones de las impresoras.",
-    "addProduct": "Agregar Producto",
-    "reassignOrder": "Reasignar Pedido",
-    "editPeople": "Editar Personas",
+    "addProduct": "Agregar producto",
+    "reassignOrder": "Reasignar pedido",
+    "editPeople": "Editar personas",
     "changeType": "Cambiar a {{type}}",
-    "changeTable": "Cambiar Mesa",
-    "mergeOrder": "Unir a Otro Pedido",
-    "goToPayments": "Ir a Pagos",
-    "startOrder": "Iniciar Pedido",
-    "pauseOrder": "Pausar Pedido",
+    "changeTable": "Cambiar mesa",
+    "mergeOrder": "Unir a otro pedido",
+    "goToPayments": "Ir a pagos",
+    "startOrder": "Iniciar pedido",
+    "pauseOrder": "Pausar pedido",
     "markDelivered": "Marcar entregado",
     "itemMarkedDelivered": "{{count}} producto marcado como entregado",
     "itemsMarkedDelivered": "{{count}} productos marcados como entregados",
     "markDeliveredError": "No se pudo marcar los productos como entregados",
     "undoDeliveredError": "No se pudo deshacer el estado de entregado",
-    "deleteOrder": "Eliminar Pedido",
-    "closeOrder": "Cerrar Pedido",
-    "forceCloseOrder": "Cerrar Pedido (Sin Pagar)"
+    "deleteOrder": "Eliminar pedido",
+    "closeOrder": "Cerrar pedido",
+    "forceCloseOrder": "Cerrar sin cobrar",
+    "setUpPrinters": "Configurar impresoras"
   },
   "deleteAlerts": {
-    "cannotDelete": "No se Puede Eliminar",
+    "cannotDelete": "No se puede eliminar",
     "cannotDeleteMessage": "Este pedido no se puede eliminar. Solo se pueden eliminar pedidos pendientes sin productos entregados.",
-    "cannotDeleteDetailTitle": "No se Puede Eliminar el Producto",
+    "cannotDeleteDetailTitle": "No se puede eliminar el producto",
     "cannotDeleteDetailMessage": "Este producto no se puede eliminar porque tiene productos entregados.",
-    "confirmDelete": "Eliminar Pedido",
+    "confirmDelete": "Eliminar pedido",
     "confirmDeleteMessage": "¿Está seguro que desea eliminar este pedido? Esta acción no se puede deshacer."
   },
   "molecule": {
@@ -209,12 +217,19 @@
     "blocked": "Este producto ya ha sido entregado y su variante no se puede cambiar."
   },
   "detailActions": {
-    "title": "Acciones del Producto",
-    "editQuantity": "Editar Cantidad",
-    "replaceItem": "Reemplazar Producto",
-    "addAgain": "Volver a Agregar",
-    "deleteItem": "Eliminar Producto",
-    "statusTitle": "Estado"
+    "title": "Acciones del producto",
+    "editQuantity": "Editar cantidad",
+    "replaceItem": "Reemplazar producto",
+    "addAgain": "Volver a agregar",
+    "deleteItem": "Eliminar producto",
+    "statusTitle": "Estado",
+    "deleteBlocked": "Ya se entregaron unidades de este producto",
+    "deleteBlockedShort": "Ya entregado",
+    "statusSetByKitchen": "Lo marca cocina",
+    "readyCount_one": "{{count}} listo",
+    "readyCount_other": "{{count}} listos",
+    "change": "Cambiar",
+    "customPrice": "Precio personalizado"
   },
   "waiterSummary": {
     "title": "Resumen de Meseros",
@@ -243,7 +258,9 @@
     "ticketPlural": "tickets",
     "noTickets": "Aún no hay tickets",
     "skip": "Omitir",
-    "skipped": "Omitido"
+    "skipped": "Omitido",
+    "loadError": "No se pudieron cargar los tickets",
+    "notPrinted": "Sin imprimir"
   },
   "unprintedTickets": {
     "title": "Tickets por imprimir",
@@ -374,5 +391,18 @@
     "all": "Todos los pedidos ({{count}})",
     "success_one": "{{count}} pedido cerrado",
     "success_other": "{{count}} pedidos cerrados"
+  },
+  "deleteReasons": {
+    "DELIVERED": "Ya hay productos entregados",
+    "NOT_PENDING": "El pedido ya no está pendiente"
+  },
+  "elapsed": {
+    "minutes_one": "{{count}} min",
+    "minutes_other": "{{count}} min",
+    "hours_one": "{{count}} h",
+    "hours_other": "{{count}} h",
+    "hoursMinutes": "{{hours}} h {{minutes}} min",
+    "days_one": "{{count}} día",
+    "days_other": "{{count}} días"
   }
 }

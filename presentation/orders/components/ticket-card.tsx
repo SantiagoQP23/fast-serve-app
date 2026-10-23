@@ -94,7 +94,7 @@ export default function TicketCard({
       disabled={!selectionMode && !onLongPress}
       onPress={() => selectionMode && onToggleSelect?.(ticket)}
       onLongPress={() => !selectionMode && onLongPress?.(ticket)}
-      style={tw.style("p-4", selected && "border-2 border-primary")}
+      style={tw.style("p-4", selected && "bg-secondary")}
       variant="outline"
     >
       {order && (
@@ -139,7 +139,7 @@ export default function TicketCard({
         </ThemedView>
 
         <ThemedView style={tw`flex-row items-center gap-2`}>
-          <ThemedText type="caption" style={tw`text-gray-500`}>
+          <ThemedText type="small">
             {dayjs(ticket.createdAt).format("HH:mm")}
           </ThemedText>
           {ticket.printed && (
@@ -157,6 +157,14 @@ export default function TicketCard({
               size="small"
             />
           )}
+          {!ticket.printed && !ticket.skipped && (
+            <Label
+              text={t("orders:tickets.notPrinted")}
+              leftIcon="printer"
+              color="warning"
+              size="small"
+            />
+          )}
         </ThemedView>
       </ThemedView>
 
@@ -165,7 +173,7 @@ export default function TicketCard({
         {areaGroups.map((group) => (
           <ThemedView
             key={group.areaName}
-            style={tw`gap-2 bg-surface-bright p-3 rounded-3xl`}
+            style={tw`gap-2 bg-surface-bright p-3 rounded-md`}
           >
             <ThemedText
               type="body2"

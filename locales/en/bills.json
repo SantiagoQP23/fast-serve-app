@@ -6,7 +6,7 @@
     "order": "Bill #{{number}}",
     "direct": "Sale #{{number}}",
     "noBills": "No bills yet",
-    "noBillsDescription": "There are no bills for this order yet. Tap the button below to add a new bill.",
+    "noBillsDescription": "Bills you create for this order will show up here.",
     "addBill": "Add bill",
     "todaysBills": "Today's Bills",
     "allBills": "All Bills",
@@ -18,7 +18,8 @@
     "remaining": "Amount to pay",
     "remainingDescription": "Still pending from the order",
     "salesCount": "{{count}} sales",
-    "newSale": "New Sale"
+    "newSale": "New Sale",
+    "loadError": "Couldn't load the bills"
   },
   "print": {
     "title": "Print bill",
@@ -76,13 +77,15 @@
     "total": "Total",
     "orderTotal": "Order Total",
     "remaining": "Remaining",
-    "allItemsBilled": "All items have been billed",
+    "allItemsBilled": "Every item already has a bill",
     "available": "to pay",
     "subtotal": "Subtotal",
     "selectAllItems": "Select all items",
     "billedItems": "Billed items",
     "noBilledItems": "No billed items yet.",
-    "createBill": "Create bill - ${{amount}}"
+    "createBill": "Create bill · {{amount}}",
+    "itemsCount_one": "{{count}} item",
+    "itemsCount_other": "{{count}} items"
   },
   "editBill": {
     "title": "Edit Bill",

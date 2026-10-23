@@ -1,15 +1,14 @@
-import { Alert, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useState } from "react";
-import { useRouter } from "expo-router";
-import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
-import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
-import BillCard from "@/presentation/orders/components/bill-card";
 import NewBillDetailCard from "@/presentation/orders/components/new-bill-detail-card";
 import Switch from "@/presentation/theme/components/switch";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
@@ -23,10 +22,10 @@ import {
 } from "@/core/orders/dto/create-bill.dto";
 import { useBills } from "@/presentation/orders/hooks/useBills";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatCurrency, i18nAlert } from "@/core/i18n/utils";
-import Label from "@/presentation/theme/components/label";
+import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { generateIdempotencyKey } from "@/helpers/idempotency";
+import { BillsService } from "@/core/orders/services/bills.service";
 
 interface SelectedDetails {
   [id: string]: {
@@ -35,14 +34,36 @@ interface SelectedDetails {
   };
 }
 
+const getDetailsToPay = (details: OrderDetail[]) =>
+  details.filter(
+    (detail) =>
+      detail.quantity !== detail.qtyPaid &&
+      detail.status !== OrderDetailStatus.CANCELLED,
+  );
+
+const selectAllDetails = (details: OrderDetail[]): SelectedDetails =>
+  Object.fromEntries(
+    details.map((detail) => [
+      detail.id,
+      { detail, quantity: detail.quantity - detail.qtyPaid },
+    ]),
+  );
+
 export default function NewBillScreen() {
   const { t } = useTranslation(["common", "bills", "orders"]);
   const router = useRouter();
   const order = useOrdersStore((state) => state.activeOrder);
-  const [selectAll, setSelectAll] = useState(false);
-  const [selectedDetails, setSelectedDetails] = useState<SelectedDetails>({});
+  const insets = useSafeAreaInsets();
+  const queryClient = useQueryClient();
+  // "Cobrar" on the order opens this with every unbilled item selected.
+  const { all } = useLocalSearchParams<{ all?: string }>();
+  const [selectedDetails, setSelectedDetails] = useState<SelectedDetails>(() =>
+    all === "1" && order
+      ? selectAllDetails(getDetailsToPay(order.details))
+      : {},
+  );
   const [idempotencyKey] = useState(() => generateIdempotencyKey());
-  const { mutate: createBill } = useBills().createBill;
+  const { mutate: createBill, isLoading: isCreating } = useBills().createBill;
 
   const getTotalSelectedDetails = () => {
     let total = 0;
@@ -69,11 +90,7 @@ export default function NewBillScreen() {
     );
   }
 
-  const detailsToPay = order.details.filter(
-    (detail) =>
-      detail.quantity !== detail.qtyPaid &&
-      detail.status !== OrderDetailStatus.CANCELLED,
-  );
+  const detailsToPay = getDetailsToPay(order.details);
 
   const totalToPay = detailsToPay.reduce((acc, detail) => {
     return acc + (detail.quantity - detail.qtyPaid) * detail.price;
@@ -94,19 +111,30 @@ export default function NewBillScreen() {
   };
 
   const handleSelectAll = (value: boolean) => {
-    const newSelectedDetails: SelectedDetails = {};
+    setSelectedDetails(value ? selectAllDetails(detailsToPay) : {});
+  };
 
-    if (value) {
-      detailsToPay.forEach((detail) => {
-        newSelectedDetails[detail.id] = {
-          detail,
-          quantity: detail.quantity - detail.qtyPaid,
-        };
+  // The socket answers with the order, not the bill: find the newest bill
+  // and open it so charging is the next tap.
+  const openCreatedBill = async () => {
+    try {
+      const bills = await queryClient.fetchQuery({
+        queryKey: ["bills", order.id],
+        queryFn: () => BillsService.getBillByOrders(order.id),
+        staleTime: 0,
       });
+      const newest = bills.reduce<(typeof bills)[number] | null>(
+        (latest, bill) => (!latest || bill.id > latest.id ? bill : latest),
+        null,
+      );
+      if (newest) {
+        router.replace(`/(bills)/${newest.id}`);
+        return;
+      }
+    } catch {
+      // Fall through: the bill exists, the order's Bills tab lists it.
     }
-
-    setSelectAll(value);
-    setSelectedDetails(newSelectedDetails);
+    router.back();
   };
 
   const onCreateBill = () => {
@@ -122,13 +150,8 @@ export default function NewBillScreen() {
       }
     });
 
-    if (details.length === 0) {
-      i18nAlert(
-        t("bills:alerts.noItemsSelected"),
-        t("bills:alerts.noItemsSelectedMessage"),
-      );
-      return;
-    }
+    // The button is disabled with nothing selected; this only guards it.
+    if (details.length === 0) return;
 
     const createBillDto: CreateBillDto = {
       idempotencyKey,
@@ -138,7 +161,7 @@ export default function NewBillScreen() {
 
     createBill(createBillDto, {
       onSuccess: () => {
-        router.back();
+        openCreatedBill();
       },
     });
   };
@@ -166,10 +189,10 @@ export default function NewBillScreen() {
         {/* Order Summary */}
         {totalToPay !== order.total && (
           <ThemedView
-            style={tw`flex-row justify-between items-center mb-4 pb-4 border-b border-gray-200`}
+            style={tw`flex-row justify-between items-center mb-4 pb-4 border-b border-divider`}
           >
             <ThemedView>
-              <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
+              <ThemedText type="small" style={tw`mb-1`}>
                 {t("bills:newBill.orderTotal")}
               </ThemedText>
               <ThemedText type="body1" style={tw`font-semibold`}>
@@ -177,10 +200,10 @@ export default function NewBillScreen() {
               </ThemedText>
             </ThemedView>
             <ThemedView style={tw`items-end`}>
-              <ThemedText type="caption" style={tw`text-gray-500 mb-1`}>
+              <ThemedText type="small" style={tw`mb-1`}>
                 {t("bills:newBill.remaining")}
               </ThemedText>
-              <ThemedText type="body1" style={tw`font-semibold text-blue-600`}>
+              <ThemedText type="body1" style={tw`font-semibold`}>
                 {formatCurrency(totalToPay)}
               </ThemedText>
             </ThemedView>
@@ -206,7 +229,7 @@ export default function NewBillScreen() {
             <Icon
               name="circle-check"
               size={48}
-              color={tw.color("green-500")}
+              color={tw.color("emerald-600")}
             />
             <ThemedText type="body1" style={tw`text-gray-600 text-center`}>
               {t("bills:newBill.allItemsBilled")}
@@ -225,13 +248,6 @@ export default function NewBillScreen() {
           </ThemedView>
         )}
 
-        {/* <Button */}
-        {/*   leftIcon="add-outline" */}
-        {/*   label={t("orders:details.addProduct")} */}
-        {/*   variant="outline" */}
-        {/*   onPress={() => router.push("/(new-order)/restaurant-menu")} */}
-        {/* /> */}
-
         {/* Already Billed Items Section */}
         {paidDetails.length > 0 && (
           <ThemedView style={tw`mb-6 mt-6`}>
@@ -239,13 +255,13 @@ export default function NewBillScreen() {
               {t("bills:newBill.billedItems")}
             </ThemedText>
             <ThemedView
-              style={tw`border border-gray-200 rounded-xl overflow-hidden`}
+              style={tw`border border-border rounded-md overflow-hidden`}
             >
               {paidDetails.map((detail, index) => (
                 <ThemedView key={detail.id} style={tw`bg-transparent`}>
                   <ThemedView
                     key={detail.id}
-                    style={tw`flex-row items-center justify-between px-4 py-3 bg-gray-50 bg-transparent`}
+                    style={tw`flex-row items-center justify-between px-4 py-3 bg-transparent`}
                   >
                     <ThemedView
                       style={tw`flex-row items-center gap-2 flex-1 bg-transparent`}
@@ -264,7 +280,7 @@ export default function NewBillScreen() {
                     </ThemedText>
                   </ThemedView>
                   {index < paidDetails.length - 1 && (
-                    <ThemedView style={tw`h-px bg-gray-200`} />
+                    <ThemedView style={tw`h-px bg-divider`} />
                   )}
                 </ThemedView>
               ))}
@@ -275,28 +291,26 @@ export default function NewBillScreen() {
 
       {/* Fixed Bottom Bar */}
       <ThemedView
-        style={tw`absolute bottom-0 left-0 right-0 bg-background border-t border-gray-200 px-4 py-4`}
+        style={[
+          tw`absolute bottom-0 left-0 right-0 bg-background border-t border-divider px-4 pt-3`,
+          { paddingBottom: Math.max(insets.bottom, 16) },
+        ]}
       >
         {selectedTotal > 0 && (
           <ThemedView style={tw`flex-row justify-between items-center mb-3`}>
-            <ThemedText type="caption" style={tw`text-gray-600`}>
-              {selectedCount} item{selectedCount !== 1 ? "s" : ""}
+            <ThemedText type="body2" style={tw`text-gray-600`}>
+              {t("bills:newBill.itemsCount", { count: selectedCount })}
             </ThemedText>
-            <ThemedText type="h3" style={tw``}>
-              {formatCurrency(selectedTotal)}
-            </ThemedText>
+            <ThemedText type="h3">{formatCurrency(selectedTotal)}</ThemedText>
           </ThemedView>
         )}
         <Button
-          label={
-            selectedTotal > 0
-              ? t("bills:newBill.createBill", {
-                  amount: selectedTotal.toFixed(2),
-                })
-              : t("bills:newBill.createBill", { amount: "0.00" })
-          }
+          label={t("bills:newBill.createBill", {
+            amount: formatCurrency(selectedTotal),
+          })}
           onPress={onCreateBill}
-          disabled={selectedTotal === 0}
+          loading={isCreating}
+          disabled={selectedTotal === 0 || isCreating}
         />
       </ThemedView>
     </ScreenLayout>

@@ -3,12 +3,14 @@ import { useOrderElapsedTime } from "@/presentation/orders/hooks/useOrderElapsed
 
 interface OrderElapsedTimeLabelProps {
   deliveryTime: Date | string;
+  size?: "medium" | "small";
 }
 
 export default function OrderElapsedTimeLabel({
   deliveryTime,
+  size = "medium",
 }: OrderElapsedTimeLabelProps) {
-  const { elapsedLabel, elapsedColor, shouldShow } =
+  const { elapsedLabel, elapsedColor, isStale, shouldShow } =
     useOrderElapsedTime(deliveryTime);
 
   if (!shouldShow) return null;
@@ -17,7 +19,8 @@ export default function OrderElapsedTimeLabel({
     <Label
       leftIcon="timer"
       text={elapsedLabel}
-      color={elapsedColor}
+      color={isStale ? "default" : elapsedColor}
+      size={size}
     />
   );
 }

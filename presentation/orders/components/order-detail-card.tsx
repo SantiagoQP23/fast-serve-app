@@ -1,8 +1,8 @@
-import React, { useState, useRef, useCallback } from "react";
+import { useState, useRef } from "react";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { View, Pressable, PressableProps, Modal, Alert } from "react-native";
+import { Pressable, PressableProps } from "react-native";
 import {
   AddAgainBlockReason,
   OrderDetail,
@@ -15,16 +15,13 @@ import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore"
 import { useRestaurantSettings } from "@/presentation/restaurant/hooks/useRestaurantSettings";
 import { DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK } from "@/core/restaurant/models/restaurant-settings.model";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { useOrders } from "../hooks/useOrders";
 import { useOrdersStore } from "../store/useOrdersStore";
 import { useReplaceOrderDetailStore } from "../store/replaceOrderDetailStore";
 import { router } from "expo-router";
-import Button from "@/presentation/theme/components/button";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import {
-  BottomSheetView,
-  type BottomSheetMethods,
-} from "@expo/ui/community/bottom-sheet";
+import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import BottomSheetPicker, {
   BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
@@ -36,6 +33,7 @@ import Label from "@/presentation/theme/components/label";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useOrderDetailStatus } from "../hooks/useOrderDetailStatus";
+import { useMarkOrderDelivered } from "../hooks/useMarkOrderDelivered";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 
 interface OrderDetailCardProps extends PressableProps {
@@ -49,6 +47,8 @@ interface OrderDetailCardProps extends PressableProps {
   // When set, long-press starts selection mode instead of opening the actions sheet.
   onStartSelection?: (detail: OrderDetail) => void;
   showAmount?: boolean;
+  /** A closed order's item: shown, but nothing on it can change. */
+  readOnly?: boolean;
 }
 
 export default function OrderDetailCard({
@@ -62,14 +62,14 @@ export default function OrderDetailCard({
   onToggleSelect,
   onStartSelection,
   showAmount = true,
+  readOnly = false,
 }: OrderDetailCardProps) {
   const { t } = useTranslation(["common", "orders", "errors"]);
   const order = useOrdersStore((state) => state.activeOrder);
-  const [visible, setVisible] = useState(false);
+  const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
-  const deliveredSheetRef = useRef<BottomSheetMethods>(null);
   const typePickerRef = useRef<BottomSheetPickerRef>(null);
-  const [deliveredDraft, setDeliveredDraft] = useState(detail.qtyDelivered);
+  const { markDelivered } = useMarkOrderDelivered();
 
   const createdBy = detail.createdBy;
   const updatedBy = detail.updatedBy;
@@ -85,11 +85,10 @@ export default function OrderDetailCard({
     state.products.find((product) => product.id === detail.product.id),
   );
   const { settings } = useRestaurantSettings();
-  const { statusText, labelColor, statusIconColor } = useOrderDetailStatus(
-    detail.status,
-  );
+  const { statusText, statusIconColor } = useOrderDetailStatus(detail.status);
   const isCancelled = detail.status === OrderDetailStatus.CANCELLED;
   const isDelivered = detail.status === OrderDetailStatus.DELIVERED;
+  const hasDeliveredUnits = detail.qtyDelivered > 0;
   // Delivered is gray, matching the "default" label color used for delivered orders.
   const checkboxColor = isDelivered ? "gray-500" : statusIconColor;
 
@@ -134,8 +133,13 @@ export default function OrderDetailCard({
     });
   };
 
+  // Only rows without long-press selection get the actions sheet, so most
+  // pending rows don't mount one.
+  const canOpenActions =
+    !readOnly && !onStartSelection && (!isCancelled || canAddAgain);
+
   const handleOpenBottomSheet = () => {
-    if (isCancelled && !canAddAgain) return;
+    if (!canOpenActions) return;
     bottomSheetModalRef.current?.present();
   };
 
@@ -143,26 +147,11 @@ export default function OrderDetailCard({
     bottomSheetModalRef.current?.dismiss();
   };
 
-  const handleOpenDeliveredSheet = () => {
-    if (isCancelled) return;
-    setDeliveredDraft(detail.qtyDelivered);
-    deliveredSheetRef.current?.present();
-  };
-
-  const handleCloseDeliveredSheet = () => {
-    deliveredSheetRef.current?.dismiss();
-  };
-
+  // Blocked once units went out; the reason shows where the action is.
   const onRemoveDetail = () => {
-    if (detail.qtyDelivered > 0) {
-      Alert.alert(
-        t("orders:deleteAlerts.cannotDeleteDetailTitle"),
-        t("orders:deleteAlerts.cannotDeleteDetailMessage"),
-      );
-      return;
-    }
+    if (hasDeliveredUnits) return;
     handleCloseBottomSheet();
-    setVisible(true);
+    setDeleteDialogVisible(true);
   };
 
   const handleConfirmDelete = () => {
@@ -199,149 +188,92 @@ export default function OrderDetailCard({
   };
 
   const onCheckedChange = (checked: boolean) => {
+    // Delivering goes through the shared flow so it gets the undo snackbar.
+    if (checked && order) {
+      markDelivered(order, [detail]);
+      return;
+    }
+
     const currentOrderId = orderId || order?.id;
     if (!currentOrderId) return;
 
     updateOrderDetail({
       id: detail.id,
       orderId: currentOrderId,
-      status: checked ? OrderDetailStatus.DELIVERED : OrderDetailStatus.PENDING,
-      qtyDelivered: checked ? detail.quantity : 0,
+      status: OrderDetailStatus.PENDING,
+      qtyDelivered: 0,
     });
   };
 
   const closeModal = () => {
-    setVisible(false);
+    setDeleteDialogVisible(false);
   };
 
-  const handleSaveDelivered = () => {
-    const currentOrderId = orderId || order?.id;
-    if (!currentOrderId) return;
-
-    updateOrderDetail(
-      {
-        id: detail.id,
-        quantity: detail.quantity,
-        orderId: currentOrderId,
-        qtyDelivered: deliveredDraft,
-      },
-      {
-        onSuccess: () => {
-          handleCloseDeliveredSheet();
-        },
-      },
-    );
-  };
+  const showTypeLabel = detail.typeOrderDetail !== (orderType ?? order?.type);
 
   const showProductOptionName =
     detail.product.options.length > 1 && detail.productOption;
 
   return (
     <>
-      <Modal
-        transparent
-        visible={visible}
-        animationType="fade"
-        onRequestClose={() => setVisible(false)}
-      >
-        {/* Backdrop */}
-        <View style={tw`flex-1 bg-black/50 items-center justify-center`}>
-          {/* Modal card */}
-          <View style={tw`bg-surface-bright rounded-2xl w-4/5 max-w-md p-5 shadow-lg`}>
-            <ThemedText type="h4">
-              {t("orders:dialogs.removeItemTitle")}
-            </ThemedText>
-            <ThemedText type="body1" style={tw`mt-2 mb-4`}>
-              {t("orders:dialogs.removeItemMessage", {
-                product: detail.product.name,
-              })}
-            </ThemedText>
-
-            <ThemedView style={tw`flex-row justify-end gap-2`}>
-              <Button
-                label={t("common:actions.cancel")}
-                onPress={() => setVisible(false)}
-                variant="outline"
-                size="small"
-              />
-              <Button
-                label={t("common:actions.remove")}
-                onPress={handleConfirmDelete}
-                size="small"
-              />
-            </ThemedView>
-          </View>
-        </View>
-      </Modal>
-
-      <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
-        <OrderDetailActionsBottomSheet
-          detail={detail}
-          onEditQuantity={handleEditQuantity}
-          onReplace={handleReplace}
-          onDelete={onRemoveDetail}
-          onAddAgain={canAddAgain ? handleAddAgain : undefined}
-          addAgainBlockedHint={getAddAgainBlockedHint()}
-          onClose={handleCloseBottomSheet}
+      {deleteDialogVisible && (
+        <DialogModal
+          visible
+          title={t("orders:dialogs.removeItemTitle")}
+          message={t("orders:dialogs.removeItemMessage", {
+            product: detail.product.name,
+          })}
+          confirmLabel={t("orders:dialogs.deleteConfirm")}
+          confirmVariant="destructive"
+          onConfirm={handleConfirmDelete}
+          onCancel={closeModal}
         />
-      </ThemedBottomSheetModal>
+      )}
 
-      <ThemedBottomSheetModal ref={deliveredSheetRef} enablePanDownToClose>
-        <BottomSheetView style={tw`px-4 pb-6`}>
-          <ThemedView style={tw`mb-4`}>
-            <ThemedText type="h3">{t("common:status.delivered")}</ThemedText>
-            <ThemedText type="body2" style={tw`text-gray-500 mt-1`}>
-              {detail.product.name}
-            </ThemedText>
-          </ThemedView>
-          <ThemedView style={tw`flex-row items-center justify-between mb-4`}>
-            <IconButton
-              icon="minus"
-              onPress={() =>
-                setDeliveredDraft((current) => Math.max(0, current - 1))
-              }
-              variant="outlined"
-              disabled={deliveredDraft <= 0}
-            />
-            <ThemedText type="h3">
-              {deliveredDraft} / {detail.quantity}
-            </ThemedText>
-            <IconButton
-              icon="plus"
-              onPress={() =>
-                setDeliveredDraft((current) =>
-                  Math.min(detail.quantity, current + 1),
-                )
-              }
-              variant="outlined"
-              disabled={deliveredDraft >= detail.quantity}
-            />
-          </ThemedView>
-          <Button
-            label={t("common:actions.save")}
-            onPress={handleSaveDelivered}
+      {canOpenActions && (
+        <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
+          <OrderDetailActionsBottomSheet
+            detail={detail}
+            onEditQuantity={handleEditQuantity}
+            onReplace={handleReplace}
+            onDelete={onRemoveDetail}
+            onAddAgain={canAddAgain ? handleAddAgain : undefined}
+            addAgainBlockedHint={getAddAgainBlockedHint()}
+            onClose={handleCloseBottomSheet}
           />
-        </BottomSheetView>
-      </ThemedBottomSheetModal>
+        </ThemedBottomSheetModal>
+      )}
 
       <ThemedView style={tw``}>
         <Swipeable
-          enabled={!selectionMode}
+          enabled={!selectionMode && !readOnly && !isCancelled}
           renderRightActions={
-            isCancelled || selectionMode
+            isCancelled || selectionMode || readOnly
               ? undefined
-              : () => (
-                  <ThemedView style={tw`justify-center  pl-2 `}>
-                    <IconButton
-                      icon="trash"
-                      variant="destructive"
-                      onPress={onRemoveDetail}
-                    />
-                  </ThemedView>
-                )
+              : () =>
+                  hasDeliveredUnits ? (
+                    // Swiping still answers: say why it can't be deleted.
+                    <ThemedView style={tw`justify-center pl-3 max-w-36`}>
+                      <ThemedText type="small" style={tw`text-gray-500`}>
+                        {t("orders:detailActions.deleteBlockedShort")}
+                      </ThemedText>
+                    </ThemedView>
+                  ) : (
+                    <ThemedView style={tw`justify-center pl-2`}>
+                      <IconButton
+                        icon="trash"
+                        variant="destructive"
+                        onPress={onRemoveDetail}
+                        accessibilityLabel={t(
+                          "orders:detailActions.deleteItem",
+                        )}
+                      />
+                    </ThemedView>
+                  )
           }
         >
           <Pressable
+            disabled={readOnly}
             onPress={
               isCancelled
                 ? canAddAgain
@@ -357,6 +289,10 @@ export default function OrderDetailCard({
                 : onStartSelection
                   ? () => onStartSelection(detail)
                   : handleOpenBottomSheet
+            }
+            accessibilityRole={selectionMode ? "checkbox" : "button"}
+            accessibilityState={
+              selectionMode ? { checked: selected } : undefined
             }
           >
             <ThemedView style={tw`flex-row  gap-4`}>
@@ -374,7 +310,9 @@ export default function OrderDetailCard({
                     value={isDelivered}
                     onValueChange={onCheckedChange}
                     color={checkboxColor}
-                    size="small"
+                    size="medium"
+                    disabled={readOnly}
+                    accessibilityLabel={`${detail.product.name}: ${statusText}`}
                   />
                 </ThemedView>
               )}
@@ -385,16 +323,19 @@ export default function OrderDetailCard({
                   <ThemedView style={tw`flex-1 bg-transparent gap-2`}>
                     <ThemedView style={tw` bg-transparent  gap-2`}>
                       <ThemedView
-                        style={tw`flex-row justify-between bg-transparent gap-2 items-center`}
+                        style={tw`flex-row justify-between bg-transparent gap-2 items-start`}
                       >
                         <ThemedView
-                          style={tw`flex-row justify-between bg-transparent gap-2 items-center whitespace-normal`}
+                          style={tw`flex-1 flex-row flex-wrap bg-transparent gap-2 items-center`}
                         >
-                          <ThemedText type="body1" style={tw`whitespace-wrap`}>
-                            {detail.product.name}{" "}
-                            {showProductOptionName &&
-                              detail.productOption?.name}{" "}
-                            x{detail.quantity}
+                          <ThemedText type="body1" style={tw`shrink`}>
+                            {detail.product.name}
+                            {showProductOptionName
+                              ? ` ${detail.productOption?.name}`
+                              : ""}
+                            <ThemedText type="body1" style={tw`text-gray-500`}>
+                              {` ×${detail.quantity}`}
+                            </ThemedText>
                           </ThemedText>
 
                           {detail.productOption &&
@@ -445,14 +386,7 @@ export default function OrderDetailCard({
                   </ThemedView>
                 </ThemedView>
                 <ThemedView style={tw`flex-row gap-2 flex-wrap gap-y-2`}>
-                  {/* <Label */}
-                  {/*   text={statusText} */}
-                  {/*   color={labelColor} */}
-                  {/*   leftIcon={statusIcon} */}
-                  {/*   size="small" */}
-                  {/*   onPress={isCancelled ? undefined : handleOpenDeliveredSheet} */}
-                  {/* /> */}
-                  {detail.typeOrderDetail !== (orderType ?? order?.type) && (
+                  {showTypeLabel && (
                     <Label
                       text={
                         detail.typeOrderDetail === OrderType.IN_PLACE
@@ -466,16 +400,13 @@ export default function OrderDetailCard({
                       }
                       color="default"
                       size="small"
-                      onPress={() => typePickerRef.current?.present()}
+                      onPress={
+                        readOnly
+                          ? undefined
+                          : () => typePickerRef.current?.present()
+                      }
                     />
                   )}
-
-                  {/* <Label */}
-                  {/*   leftIcon="notifications-outline" */}
-                  {/*   text={String(detail.readyQuantity)} */}
-                  {/*   color="default" */}
-                  {/*   size="small" */}
-                  {/* /> */}
 
                   {showCreatedBy && (
                     <Label
@@ -500,29 +431,34 @@ export default function OrderDetailCard({
         </Swipeable>
       </ThemedView>
 
-      <BottomSheetPicker
-        ref={typePickerRef}
-        title={t("orders:newOrder.orderType")}
-        options={[
-          { label: t("common:orderType.inPlace"), value: OrderType.IN_PLACE },
-          { label: t("common:orderType.takeAway"), value: OrderType.TAKE_AWAY },
-        ]}
-        value={detail.typeOrderDetail}
-        onChange={(value) => {
-          const currentOrderId = orderId || order?.id;
-          if (!currentOrderId) return;
-          updateOrderDetail(
+      {showTypeLabel && !readOnly && (
+        <BottomSheetPicker
+          ref={typePickerRef}
+          title={t("orders:newOrder.orderType")}
+          options={[
+            { label: t("common:orderType.inPlace"), value: OrderType.IN_PLACE },
             {
-              id: detail.id,
-              orderId: currentOrderId,
-              typeOrderDetail: value as OrderType,
+              label: t("common:orderType.takeAway"),
+              value: OrderType.TAKE_AWAY,
             },
-            {
-              onSuccess: () => {},
-            },
-          );
-        }}
-      />
+          ]}
+          value={detail.typeOrderDetail}
+          onChange={(value) => {
+            const currentOrderId = orderId || order?.id;
+            if (!currentOrderId) return;
+            updateOrderDetail(
+              {
+                id: detail.id,
+                orderId: currentOrderId,
+                typeOrderDetail: value as OrderType,
+              },
+              {
+                onSuccess: () => {},
+              },
+            );
+          }}
+        />
+      )}
     </>
   );
 }

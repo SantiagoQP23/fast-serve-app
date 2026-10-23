@@ -9,6 +9,8 @@ export interface ActionsBottomSheetItem {
   icon: IconName;
   label: string;
   color?: string;
+  /** Short reason under the label, e.g. why the action can't run right now. */
+  hint?: string;
   onPress: () => void;
   disabled?: boolean;
 }
@@ -69,6 +71,9 @@ export default function ActionsBottomSheet({
                 key={`${item.label}-${index}`}
                 disabled={item.disabled}
                 onPress={item.onPress}
+                accessibilityRole="button"
+                accessibilityState={{ disabled: !!item.disabled }}
+                accessibilityHint={item.hint}
                 style={(state) =>
                   tw.style(
                     "flex-row items-center gap-4 py-3",
@@ -86,12 +91,19 @@ export default function ActionsBottomSheet({
                       : tw.color("gray-700")
                   }
                 />
-                <ThemedText
-                  type="body1"
-                  style={tw.style("flex-1", item.color && item.color)}
-                >
-                  {item.label}
-                </ThemedText>
+                <ThemedView style={tw`flex-1 bg-transparent`}>
+                  <ThemedText
+                    type="body1"
+                    style={tw.style(item.color && item.color)}
+                  >
+                    {item.label}
+                  </ThemedText>
+                  {item.hint && (
+                    <ThemedText type="small" style={tw`text-gray-500 mt-0.5`}>
+                      {item.hint}
+                    </ThemedText>
+                  )}
+                </ThemedView>
               </Pressable>
             ))}
           </ThemedView>

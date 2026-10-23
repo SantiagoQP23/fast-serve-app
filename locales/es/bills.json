@@ -6,7 +6,7 @@
     "order": "Cuenta #{{number}}",
     "direct": "Venta #{{number}}",
     "noBills": "No hay cuentas aún",
-    "noBillsDescription": "No hay cuentas para este pedido aún. Presione el botón de abajo para agregar una nueva cuenta.",
+    "noBillsDescription": "Las cuentas que crees para este pedido aparecerán aquí.",
     "addBill": "Agregar cuenta",
     "todaysBills": "Cuentas de Hoy",
     "allBills": "Todas las Cuentas",
@@ -18,7 +18,8 @@
     "remaining": "Monto por pagar",
     "remainingDescription": "Pendiente del pedido",
     "salesCount": "{{count}} ventas",
-    "newSale": "Nueva Venta"
+    "newSale": "Nueva Venta",
+    "loadError": "No se pudieron cargar las cuentas"
   },
   "print": {
     "title": "Imprimir cuenta",
@@ -71,18 +72,20 @@
     "other": "Otro"
   },
   "newBill": {
-    "title": "Nueva Cuenta",
+    "title": "Nueva cuenta",
     "orderNumber": "Pedido #{{number}}",
     "total": "Total",
     "orderTotal": "Total del Pedido",
     "remaining": "Restante",
-    "allItemsBilled": "Todos los artículos han sido facturados",
+    "allItemsBilled": "Todos los productos ya tienen cuenta",
     "available": "por pagar",
     "subtotal": "Subtotal",
     "selectAllItems": "Seleccionar todos los productos",
     "billedItems": "Productos facturados",
     "noBilledItems": "No hay productos facturados aún.",
-    "createBill": "Crear cuenta - ${{amount}}"
+    "createBill": "Crear cuenta · {{amount}}",
+    "itemsCount_one": "{{count}} producto",
+    "itemsCount_other": "{{count}} productos"
   },
   "editBill": {
     "title": "Editar Cuenta",

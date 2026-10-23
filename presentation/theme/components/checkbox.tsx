@@ -1,5 +1,4 @@
 import Icon from "@/presentation/theme/components/icon";
-import React from "react";
 import { Pressable, View } from "react-native";
 import tw from "../lib/tailwind";
 import { ThemedText } from "./themed-text";
@@ -14,7 +13,12 @@ type CheckboxProps = {
   size?: "small" | "medium" | "large";
   // Tailwind color token (e.g. "green-500") overriding the primary border/fill.
   color?: string;
+  /** Spoken name when there's no visible `label`. */
+  accessibilityLabel?: string;
 };
+
+// Grow the touch area (not the look) to Android's 48dp minimum.
+const MIN_TOUCH = 48;
 
 export default function Checkbox({
   value,
@@ -24,6 +28,7 @@ export default function Checkbox({
   error,
   size = "medium",
   color,
+  accessibilityLabel,
 }: CheckboxProps) {
   const sizeStyles = {
     small: { box: 18, icon: 14 },
@@ -37,6 +42,13 @@ export default function Checkbox({
     <Pressable
       disabled={disabled}
       onPress={() => onValueChange(!value)}
+      hitSlop={
+        label ? undefined : Math.max(0, (MIN_TOUCH - checkboxSize.box) / 2)
+      }
+      accessible={!label}
+      accessibilityRole="checkbox"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ checked: value, disabled }}
       style={({ pressed }) => [
         tw.style(
           "justify-center items-center border rounded-3xl",
@@ -83,9 +95,11 @@ export default function Checkbox({
       <Pressable
         disabled={disabled}
         onPress={() => onValueChange(!value)}
+        accessibilityRole="checkbox"
+        accessibilityState={{ checked: value, disabled }}
         style={({ pressed }) => [
           tw.style(
-            "flex-row items-center gap-3",
+            "flex-row items-center gap-3 min-h-12",
             pressed && !disabled && "opacity-80",
           ),
         ]}

@@ -64,6 +64,8 @@ export default function Chip({
   return (
     <Pressable
       onPress={() => !disabled && onPress && onPress()}
+      // ~32dp tall; extend the touch area to 48dp without changing the look.
+      hitSlop={{ top: 8, bottom: 8 }}
       accessibilityRole="button"
       accessibilityState={{
         disabled: !!disabled,

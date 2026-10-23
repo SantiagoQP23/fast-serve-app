@@ -1,4 +1,4 @@
-import { ScrollView, RefreshControl, Alert } from "react-native";
+import { ScrollView, RefreshControl, ActivityIndicator } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -6,16 +6,15 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useState, useCallback } from "react";
 import { useRouter } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
-import Button from "@/presentation/theme/components/button";
 import BillCard from "@/presentation/orders/components/bill-card";
+import BillLoadState from "@/presentation/orders/components/bill-load-state";
 import { useBills } from "@/presentation/orders/hooks/useBills";
 import { Bill } from "@/core/orders/models/bill.model";
 import { Order } from "@/core/orders/models/order.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatCurrency } from "@/core/i18n/utils";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
-import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner-native";
 
 interface OrderBillsTabProps {
   order: Order;
@@ -24,107 +23,79 @@ interface OrderBillsTabProps {
 export default function OrderBillsTab({ order }: OrderBillsTabProps) {
   const { t } = useTranslation(["common", "orders", "bills", "errors"]);
   const router = useRouter();
-  const billsByOrderQuery = useBills().billsByOrderQuery;
-  const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
   const primaryColor = useThemeColor({}, "primary");
+
+  const {
+    data: bills,
+    isLoading,
+    error,
+    refetch,
+  } = useBills().billsByOrderQuery(order.id);
 
   const onRefresh = useCallback(async () => {
     try {
       setRefreshing(true);
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-      await queryClient.refetchQueries({
-        queryKey: ["bills", order.id],
-      });
-    } catch {
-      Alert.alert(
-        t("errors:order.fetchError"),
-        t("errors:order.ordersFetchFailed"),
-      );
+      const result = await refetch();
+      if (result.isError) toast.error(t("bills:list.loadError"));
     } finally {
       setRefreshing(false);
     }
-  }, [order.id, queryClient, t]);
-
-  const { data: bills } = billsByOrderQuery(order.id);
+  }, [refetch, t]);
 
   const openBill = (bill: Bill) => {
     router.push(`/(bills)/${bill.id}`);
   };
 
-  const orderAmountInBills: number = bills
-    ? bills
-        .map((bill) => bill.total + bill.discount)
-        .reduce((acc, curr) => acc + (curr ?? 0), 0)
-    : 0;
-  const remainingAmount = Math.max(order.total - orderAmountInBills, 0);
+  if (isLoading) {
+    return (
+      <ThemedView style={tw`flex-1 items-center pt-12`}>
+        <ActivityIndicator color={primaryColor} />
+      </ThemedView>
+    );
+  }
+
+  if (error && !bills) {
+    return (
+      <BillLoadState
+        error={error}
+        onRetry={refetch}
+        title={t("bills:list.loadError")}
+        description={t("bills:loadState.errorDescription")}
+      />
+    );
+  }
 
   return (
-    <ThemedView style={tw`flex-1 gap-8`}>
-      <ThemedView style={tw` gap-2`}>
-        <ThemedView>
-          {/* <ThemedText style={tw`text-5xl`}> */}
-          {/*   {formatCurrency(order.total)} */}
-          {/* </ThemedText> */}
-
-          {remainingAmount > 0 && (
-            <ThemedView style={tw`flex-row  gap-2 items-center `}>
-              <ThemedView>
-                <ThemedText type="small" style={tw`text-primary-700`}>
-                  {t("bills:list.remaining")}
-                </ThemedText>
-              </ThemedView>
-              <ThemedText type="body2" style={tw`text-primary-900`}>
-                {formatCurrency(remainingAmount)}
-              </ThemedText>
-            </ThemedView>
-          )}
-        </ThemedView>
-      </ThemedView>
-
+    <ScrollView
+      style={tw`flex-1`}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={tw`gap-4 pt-4 pb-6 grow`}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor={primaryColor}
+          colors={[primaryColor]}
+        />
+      }
+    >
       {bills?.length === 0 ? (
-        <ThemedView style={tw`items-center flex-1 gap-4 mt-8`}>
-          <Icon
-            name="file-text"
-            size={80}
-            color={tw.color("gray-500")}
-          />
-          <ThemedText type="h3">{t("bills:list.noBills")}</ThemedText>
-          <ThemedText type="body2" style={tw`text-center max-w-xs`}>
+        <ThemedView style={tw`items-center gap-3 pt-12 px-8`}>
+          <Icon name="receipt-text" size={40} color={tw.color("gray-500")} />
+          <ThemedText type="h4" style={tw`text-center`}>
+            {t("bills:list.noBills")}
+          </ThemedText>
+          <ThemedText type="body2" style={tw`text-center text-gray-500`}>
             {t("bills:list.noBillsDescription")}
           </ThemedText>
         </ThemedView>
       ) : (
-        <ScrollView
-          style={tw`flex-1 gap-2 flex-column `}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={tw`gap-4 flex-column`}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={primaryColor}
-              colors={[primaryColor]}
-            />
-          }
-        >
-          {bills?.map((bill) => (
-            <BillCard
-              key={bill.id}
-              bill={bill}
-              onPress={() => openBill(bill)}
-            />
-          ))}
-          <ThemedView style={tw`h-20`} />
-        </ScrollView>
+        bills?.map((bill) => (
+          <BillCard key={bill.id} bill={bill} onPress={() => openBill(bill)} />
+        ))
       )}
-      {/* {remainingAmount > 0 && ( */}
-      {/*   <Button */}
-      {/*     label={t("bills:list.addBill")} */}
-      {/*     onPress={() => router.push(`/(order)/${order.id}/bills/new`)} */}
-      {/*   /> */}
-      {/* )} */}
-    </ThemedView>
+    </ScrollView>
   );
 }

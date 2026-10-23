@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ScrollView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -19,6 +20,7 @@ import Card from "@/presentation/theme/components/card";
 export default function OrderPrintScreen() {
   const { t } = useTranslation(["common", "orders"]);
   const order = useOrdersStore((state) => state.activeOrder);
+  const insets = useSafeAreaInsets();
 
   const { getAll } = usePrinters();
   const { data: printers } = getAll;
@@ -68,8 +70,6 @@ export default function OrderPrintScreen() {
   return (
     <ScreenLayout style={tw`flex-1`}>
       <ThemedView style={tw`flex-1 px-4 pt-6 gap-4`}>
-        {/* <ThemedText type="h2">{t("orders:print.title")}</ThemedText> */}
-
         <ScrollView
           style={tw`flex-1`}
           showsVerticalScrollIndicator={false}
@@ -142,11 +142,22 @@ export default function OrderPrintScreen() {
           </Card>
         </ScrollView>
 
-        <ThemedView style={tw`gap-3 pb-4`}>
+        <ThemedView
+          style={[tw`gap-3`, { paddingBottom: Math.max(insets.bottom, 16) }]}
+        >
           {activePrinters.length === 0 ? (
-            <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
-              {t("orders:options.noPrintersMessage")}
-            </ThemedText>
+            <ThemedView style={tw`items-center gap-2`}>
+              <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
+                {t("orders:options.noPrintersMessage")}
+              </ThemedText>
+              <Button
+                label={t("orders:options.setUpPrinters")}
+                leftIcon="settings"
+                variant="outline"
+                size="small"
+                onPress={() => router.push("/(profile)/production/printers")}
+              />
+            </ThemedView>
           ) : (
             <Select
               label={t("orders:options.selectPrinter")}
@@ -159,15 +170,13 @@ export default function OrderPrintScreen() {
             />
           )}
 
-          <ThemedView style={tw`flex-row justify-center`}>
-            <Button
-              size="large"
-              leftIcon="printer"
-              onPress={handlePrint}
-              loading={isPrinting}
-              disabled={isPrinting || !selectedPrinterId}
-            />
-          </ThemedView>
+          <Button
+            leftIcon="printer"
+            label={t("common:actions.print")}
+            onPress={handlePrint}
+            loading={isPrinting}
+            disabled={isPrinting || !selectedPrinterId}
+          />
         </ThemedView>
       </ThemedView>
     </ScreenLayout>

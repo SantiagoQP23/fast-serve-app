@@ -82,6 +82,7 @@ function NoteBottomSheet(
             leftIcon="check"
             onPress={() => onSave(draft)}
             variant="outline"
+            accessibilityLabel={t("common:actions.save")}
           />
         </ThemedView>
       </BottomSheetView>

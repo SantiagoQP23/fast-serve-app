@@ -60,6 +60,7 @@ const EditNoteBottomSheet = ({ order, onClose }: EditNoteBottomSheetProps) => {
             leftIcon="check"
             onPress={handleConfirm}
             variant="surface"
+            accessibilityLabel={t("common:actions.save")}
           />
         </ThemedView>
       </ThemedView>

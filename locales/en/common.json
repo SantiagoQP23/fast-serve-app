@@ -45,7 +45,9 @@
     "upload": "Upload",
     "done": "Done",
     "tapToPreview": "Tap to preview",
-    "undo": "Undo"
+    "undo": "Undo",
+    "increase": "Increase",
+    "decrease": "Decrease"
   },
   "status": {
     "pending": "Pending",

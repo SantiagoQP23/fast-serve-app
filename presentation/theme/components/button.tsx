@@ -40,6 +40,8 @@ export default function Button({
   layout = "horizontal",
   icon: verticalIcon,
   style,
+  accessibilityLabel,
+  hitSlop,
 }: ButtonProps) {
   const palette = usePalette();
   const isVertical = layout === "vertical";
@@ -124,6 +126,10 @@ export default function Button({
       <Pressable
         disabled={disabled || loading}
         onPress={onPress}
+        hitSlop={hitSlop}
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel ?? label}
+        accessibilityState={{ disabled: disabled || loading, busy: loading }}
         style={({ pressed }) => [
           tw.style(
             "items-center gap-1.5",
@@ -165,6 +171,10 @@ export default function Button({
     <Pressable
       disabled={disabled || loading}
       onPress={onPress}
+      hitSlop={hitSlop}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityState={{ disabled: disabled || loading, busy: loading }}
       style={({ pressed }) => [
         tw.style(
           `rounded-md flex-row justify-center items-center ${background} ${sizeStyles[size]} `,
