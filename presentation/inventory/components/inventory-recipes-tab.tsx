@@ -41,8 +41,8 @@ interface RecipeRow extends MenuVariant {
 }
 
 interface InventoryRecipesTabProps {
-  /** Bumped by the parent's "+" button to open the new recipe picker. */
-  newRecipeRequest?: number;
+  /** Shows a full-width "new recipe" button at the top of the list. */
+  canCreate?: boolean;
 }
 
 const normalize = (text: string) =>
@@ -54,7 +54,7 @@ const normalize = (text: string) =>
  * offline; tapping one opens its recipe.
  */
 export default function InventoryRecipesTab({
-  newRecipeRequest,
+  canCreate,
 }: InventoryRecipesTabProps) {
   const { t } = useTranslation("inventory");
   const { products, categories, sections, menuQuery } = useMenu();
@@ -68,10 +68,6 @@ export default function InventoryRecipesTab({
     menuQuery.refetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (newRecipeRequest) pickerRef.current?.present();
-  }, [newRecipeRequest]);
 
   // Active variants in menu order: sections, then categories, then products.
   const variants = useMemo<MenuVariant[]>(() => {
@@ -206,6 +202,15 @@ export default function InventoryRecipesTab({
           />
         }
       >
+        {canCreate && (
+          <Button
+            label={t("recipes.new")}
+            leftIcon="plus"
+            variant="outline"
+            onPress={() => pickerRef.current?.present()}
+          />
+        )}
+
         {isEmpty ? (
           <ThemedView style={tw`items-center py-8 gap-3`}>
             <Icon name="chef-hat" size={48} color={tw.color("gray-400")} />
@@ -215,13 +220,6 @@ export default function InventoryRecipesTab({
             <ThemedText type="body2" style={tw`text-center text-gray-500 px-4`}>
               {t("recipes.emptyDescription")}
             </ThemedText>
-            <Button
-              label={t("recipes.create")}
-              leftIcon="plus"
-              variant="outline"
-              size="small"
-              onPress={() => pickerRef.current?.present()}
-            />
           </ThemedView>
         ) : (
           <>

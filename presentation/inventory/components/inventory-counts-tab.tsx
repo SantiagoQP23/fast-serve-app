@@ -18,6 +18,8 @@ import {
 } from "@/core/inventory/models/inventory-count.model";
 
 interface InventoryCountsTabProps {
+  /** Shows a full-width "new count" button at the top of the list. */
+  onAdd?: () => void;
   /** Overrides navigating to the count screen, e.g. to open a side pane. */
   onOpenCount?: (count: InventoryCount) => void;
   /** Count currently shown in the side pane. */
@@ -25,6 +27,7 @@ interface InventoryCountsTabProps {
 }
 
 export default function InventoryCountsTab({
+  onAdd,
   onOpenCount,
   activeId,
 }: InventoryCountsTabProps) {
@@ -68,6 +71,15 @@ export default function InventoryCountsTab({
         />
       }
     >
+      {onAdd && (
+        <Button
+          label={t("counts.new")}
+          leftIcon="plus"
+          variant="outline"
+          onPress={onAdd}
+        />
+      )}
+
       <ThemedView style={tw`flex-row flex-wrap gap-2 bg-transparent`}>
         {statusFilters.map((filter) => (
           <Chip

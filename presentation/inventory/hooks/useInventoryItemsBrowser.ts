@@ -11,18 +11,20 @@ interface InventoryItemsBrowserFilters {
   categoryId?: string | null;
   uncategorized?: boolean;
   status?: InventoryItemStockStatusFilter | null;
+  /** Name search, already trimmed and debounced by the caller. */
+  search?: string;
 }
 
 /**
  * Paginated inventory list for the main browse screen, filtered server-side
- * by category/status. Mirrors useOrderHistory's load-more accumulation —
+ * by category/status/name search. Mirrors useOrderHistory's load-more accumulation —
  * items pile up across pages until the filters change, which resets back
  * to page 0.
  */
 export const useInventoryItemsBrowser = (
   filters: InventoryItemsBrowserFilters = {},
 ) => {
-  const { categoryId, uncategorized, status } = filters;
+  const { categoryId, uncategorized, status, search } = filters;
   const [page, setPage] = useState(0);
   const [allItems, setAllItems] = useState<InventoryItem[]>([]);
 
@@ -33,13 +35,15 @@ export const useInventoryItemsBrowser = (
     categoryId,
     uncategorized,
     status,
+    search,
   });
   if (
     prevFilters.categoryId !== categoryId ||
     prevFilters.uncategorized !== uncategorized ||
-    prevFilters.status !== status
+    prevFilters.status !== status ||
+    prevFilters.search !== search
   ) {
-    setPrevFilters({ categoryId, uncategorized, status });
+    setPrevFilters({ categoryId, uncategorized, status, search });
     setPage(0);
     setAllItems([]);
   }
@@ -51,6 +55,7 @@ export const useInventoryItemsBrowser = (
       categoryId ?? null,
       uncategorized ?? false,
       status ?? null,
+      search || null,
       page,
     ],
     queryFn: () =>
@@ -58,6 +63,7 @@ export const useInventoryItemsBrowser = (
         categoryId: categoryId ?? undefined,
         uncategorized: uncategorized ?? undefined,
         status: status ?? undefined,
+        search: search || undefined,
         limit: PAGE_SIZE,
         offset: page * PAGE_SIZE,
       }),

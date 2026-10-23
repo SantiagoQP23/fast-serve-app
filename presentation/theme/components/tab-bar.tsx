@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Pressable, ScrollView, View } from "react-native";
+import { typography } from "@/constants/theme";
 import tw from "../lib/tailwind";
 import { ThemedText, type ThemedTextProps } from "./themed-text";
 export interface TabItem<T extends string> {
@@ -67,9 +68,10 @@ export default function TabBar<T extends string>({
         <ThemedText
           type={textType}
           numberOfLines={1}
-          style={tw.style(
-            isActive ? "font-semibold text-primary " : "text-primary ",
-          )}
+          style={[
+            tw`text-primary`,
+            { fontFamily: isActive ? typography.semibold : typography.medium },
+          ]}
         >
           {tab.label}
         </ThemedText>
@@ -100,7 +102,10 @@ export default function TabBar<T extends string>({
   return (
     <View
       accessibilityRole="tablist"
-      style={tw.style("flex-row rounded-3xl ", !fullWidth && "self-start gap-4")}
+      style={tw.style(
+        "flex-row rounded-3xl ",
+        !fullWidth && "self-start gap-4",
+      )}
     >
       {items}
     </View>

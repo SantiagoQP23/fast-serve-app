@@ -9,7 +9,6 @@ import {
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { canManageInventory } from "@/core/auth/models/user.model";
@@ -73,8 +72,6 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   const { categories, categoriesQuery } = useInventoryItemCategories();
   const addSheetRef = useRef<BottomSheetMethods>(null);
   const [activeTab, setActiveTab] = useState<InventoryTab>("inventory");
-  // Bumped by "+" on the Recetas tab, which owns the new recipe picker.
-  const [newRecipeRequest, setNewRecipeRequest] = useState(0);
 
   // Tablet landscape: details open in a pane next to the list instead of
   // pushing a screen, and folders open in place of the folder grid.
@@ -148,22 +145,6 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     router.push({ pathname: "/(profile)/inventory/search" });
   };
 
-  const handleOpenAddSelector = () => {
-    if (activeTab === "counts") {
-      handleNewCount();
-      return;
-    }
-    if (activeTab === "purchases") {
-      handleRegisterPurchase();
-      return;
-    }
-    if (activeTab === "recipes") {
-      setNewRecipeRequest((n) => n + 1);
-      return;
-    }
-    addSheetRef.current?.present();
-  };
-
   const handleCreateItem = () => {
     addSheetRef.current?.dismiss();
     router.push({ pathname: "/(profile)/inventory/items/form" });
@@ -224,15 +205,6 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     { label: t("tabs.recipes"), value: "recipes" },
   ];
 
-  const addLabel =
-    activeTab === "counts"
-      ? t("counts.new")
-      : activeTab === "purchases"
-        ? t("purchases.register")
-        : activeTab === "recipes"
-          ? t("recipes.new")
-          : t("createItem");
-
   const content = (
     <>
       <ThemedView style={tw`px-4 pt-8 gap-4 bg-transparent`}>
@@ -266,17 +238,6 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
               <Icon name="search" color={tw.color("on-surface")} size={22} />
             </Pressable>
           )}
-          {canManage && (
-            <Pressable
-              onPress={handleOpenAddSelector}
-              hitSlop={13}
-              style={({ pressed }) => tw.style(pressed && "opacity-70")}
-              accessibilityLabel={addLabel}
-              accessibilityRole="button"
-            >
-              <Icon name="plus" color={tw.color("on-surface")} size={22} />
-            </Pressable>
-          )}
         </ThemedView>
         <TabBar tabs={tabs} activeTab={activeTab} onChange={changeTab} />
       </ThemedView>
@@ -294,6 +255,15 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
             />
           }
         >
+          {canManage && (
+            <Button
+              label={t("createItem")}
+              leftIcon="plus"
+              variant="outline"
+              onPress={() => addSheetRef.current?.present()}
+            />
+          )}
+
           {catalogQuery.isLoading && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
               <ThemedText type="body1" style={tw`text-gray-500`}>
@@ -426,6 +396,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
 
       {activeTab === "counts" && (
         <InventoryCountsTab
+          onAdd={canManage ? handleNewCount : undefined}
           activeId={activeId}
           onOpenCount={
             isExpanded
@@ -437,6 +408,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
 
       {activeTab === "purchases" && canManage && (
         <InventoryPurchasesTab
+          onAdd={handleRegisterPurchase}
           activeId={activeId}
           onOpenPurchase={
             isExpanded
@@ -448,7 +420,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
       )}
 
       {activeTab === "recipes" && (
-        <InventoryRecipesTab newRecipeRequest={newRecipeRequest} />
+        <InventoryRecipesTab canCreate={canManage} />
       )}
 
       <ThemedBottomSheetModal ref={addSheetRef} enablePanDownToClose>

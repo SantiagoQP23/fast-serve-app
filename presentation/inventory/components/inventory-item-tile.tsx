@@ -48,7 +48,7 @@ export default function InventoryItemTile({
 
   return (
     <Card
-      variant={highlighted ? "outline" : "default"}
+      variant="outline"
       onPress={() => onPress(item)}
       onLongPress={onLongPress ? () => onLongPress(item) : undefined}
       containerStyle={tw.style(

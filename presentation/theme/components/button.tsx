@@ -177,7 +177,7 @@ export default function Button({
       accessibilityState={{ disabled: disabled || loading, busy: loading }}
       style={({ pressed }) => [
         tw.style(
-          `rounded-md flex-row justify-center items-center ${background} ${sizeStyles[size]} `,
+          ` flex-row justify-center items-center ${background} ${sizeStyles[size]} `,
           pressed && "opacity-80",
           disabled && "opacity-50",
         ),
