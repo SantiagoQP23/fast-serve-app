@@ -4,6 +4,7 @@ import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
+import IconButton from "@/presentation/theme/components/icon-button";
 
 export interface ActionsBottomSheetItem {
   icon: IconName;
@@ -11,6 +12,8 @@ export interface ActionsBottomSheetItem {
   color?: string;
   /** Short reason under the label, e.g. why the action can't run right now. */
   hint?: string;
+  /** Trailing info button, e.g. to explain why the action is blocked. */
+  info?: { accessibilityLabel: string; onPress: () => void };
   onPress: () => void;
   disabled?: boolean;
 }
@@ -78,32 +81,48 @@ export default function ActionsBottomSheet({
                   tw.style(
                     "flex-row items-center gap-4 py-3",
                     state.pressed && "opacity-60",
-                    item.disabled && "opacity-40",
                   )
                 }
               >
-                <Icon
-                  name={item.icon}
-                  size={22}
-                  color={
-                    item.color
-                      ? tw.color(item.color.replace("text-", ""))
-                      : tw.color("gray-700")
-                  }
-                />
-                <ThemedView style={tw`flex-1 bg-transparent`}>
-                  <ThemedText
-                    type="body1"
-                    style={tw.style(item.color && item.color)}
-                  >
-                    {item.label}
-                  </ThemedText>
-                  {item.hint && (
-                    <ThemedText type="small" style={tw`text-gray-500 mt-0.5`}>
-                      {item.hint}
-                    </ThemedText>
+                {/* Dim the action, not the info button, which stays usable. */}
+                <ThemedView
+                  style={tw.style(
+                    "flex-1 flex-row items-center gap-4 bg-transparent",
+                    item.disabled && "opacity-40",
                   )}
+                >
+                  <Icon
+                    name={item.icon}
+                    size={22}
+                    color={
+                      item.color
+                        ? tw.color(item.color.replace("text-", ""))
+                        : tw.color("gray-700")
+                    }
+                  />
+                  <ThemedView style={tw`flex-1 bg-transparent`}>
+                    <ThemedText
+                      type="body1"
+                      style={tw.style(item.color && item.color)}
+                    >
+                      {item.label}
+                    </ThemedText>
+                    {item.hint && (
+                      <ThemedText type="small" style={tw`text-gray-500 mt-0.5`}>
+                        {item.hint}
+                      </ThemedText>
+                    )}
+                  </ThemedView>
                 </ThemedView>
+                {item.info && (
+                  <IconButton
+                    icon="info"
+                    size={22}
+                    onPress={item.info.onPress}
+                    accessibilityLabel={item.info.accessibilityLabel}
+                    style={tw`-my-3 -mr-3`}
+                  />
+                )}
               </Pressable>
             ))}
           </ThemedView>

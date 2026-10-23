@@ -16,6 +16,7 @@ import { useRestaurantSettings } from "@/presentation/restaurant/hooks/useRestau
 import { DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK } from "@/core/restaurant/models/restaurant-settings.model";
 import ProgressBar from "@/presentation/theme/components/progress-bar";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
+import InfoBottomSheet from "@/presentation/theme/components/info-bottom-sheet";
 import { useOrders } from "../hooks/useOrders";
 import { useOrdersStore } from "../store/useOrdersStore";
 import { useReplaceOrderDetailStore } from "../store/replaceOrderDetailStore";
@@ -31,7 +32,6 @@ import Icon from "@/presentation/theme/components/icon";
 import { formatCurrency } from "@/core/i18n/utils";
 import Label from "@/presentation/theme/components/label";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
-import IconButton from "@/presentation/theme/components/icon-button";
 import { useOrderDetailStatus } from "../hooks/useOrderDetailStatus";
 import { useMarkOrderDelivered } from "../hooks/useMarkOrderDelivered";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
@@ -68,6 +68,7 @@ export default function OrderDetailCard({
   const order = useOrdersStore((state) => state.activeOrder);
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
+  const deleteBlockedSheetRef = useRef<BottomSheetMethods>(null);
   const typePickerRef = useRef<BottomSheetPickerRef>(null);
   const { markDelivered } = useMarkOrderDelivered();
 
@@ -147,9 +148,13 @@ export default function OrderDetailCard({
     bottomSheetModalRef.current?.dismiss();
   };
 
-  // Blocked once units went out; the reason shows where the action is.
+  // Delete looks the same either way; once units went out, it explains why
+  // it can't instead of asking to confirm.
   const onRemoveDetail = () => {
-    if (hasDeliveredUnits) return;
+    if (hasDeliveredUnits) {
+      deleteBlockedSheetRef.current?.present();
+      return;
+    }
     handleCloseBottomSheet();
     setDeleteDialogVisible(true);
   };
@@ -244,32 +249,41 @@ export default function OrderDetailCard({
         </ThemedBottomSheetModal>
       )}
 
+      {hasDeliveredUnits && !readOnly && !isCancelled && (
+        <InfoBottomSheet
+          ref={deleteBlockedSheetRef}
+          title={t("orders:deleteItemBlocked.title")}
+          message={t("orders:deleteItemBlocked.message", {
+            delivered: detail.qtyDelivered,
+            quantity: detail.quantity,
+            product: detail.product.name,
+          })}
+          note={t("orders:deleteItemBlocked.rule")}
+        />
+      )}
+
       <ThemedView style={tw``}>
         <Swipeable
           enabled={!selectionMode && !readOnly && !isCancelled}
           renderRightActions={
             isCancelled || selectionMode || readOnly
               ? undefined
-              : () =>
-                  hasDeliveredUnits ? (
-                    // Swiping still answers: say why it can't be deleted.
-                    <ThemedView style={tw`justify-center pl-3 max-w-36`}>
-                      <ThemedText type="small" style={tw`text-gray-500`}>
-                        {t("orders:detailActions.deleteBlockedShort")}
-                      </ThemedText>
-                    </ThemedView>
-                  ) : (
-                    <ThemedView style={tw`justify-center pl-2`}>
-                      <IconButton
-                        icon="trash"
-                        variant="destructive"
-                        onPress={onRemoveDetail}
-                        accessibilityLabel={t(
-                          "orders:detailActions.deleteItem",
-                        )}
-                      />
-                    </ThemedView>
-                  )
+              : () => (
+                  // Full row height, so it isn't clipped on one-line rows.
+                  <Pressable
+                    onPress={onRemoveDetail}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("orders:detailActions.deleteItem")}
+                    style={({ pressed }) =>
+                      tw.style(
+                        "ml-2 px-5 justify-center items-center rounded-md bg-red-100",
+                        pressed && "opacity-80",
+                      )
+                    }
+                  >
+                    <Icon name="trash" size={20} color={tw.color("red-700")} />
+                  </Pressable>
+                )
           }
         >
           <Pressable

@@ -47,7 +47,8 @@
     "tapToPreview": "Tap to preview",
     "undo": "Undo",
     "increase": "Increase",
-    "decrease": "Decrease"
+    "decrease": "Decrease",
+    "gotIt": "Got it"
   },
   "status": {
     "pending": "Pending",

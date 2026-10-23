@@ -6,7 +6,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useNavigation } from "expo-router";
-import Icon, { type IconName } from "@/presentation/theme/components/icon";
+import Icon from "@/presentation/theme/components/icon";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import Button from "@/presentation/theme/components/button";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
@@ -61,6 +61,7 @@ import MergeOrderBottomSheet, {
   type MergeOrderBottomSheetRef,
 } from "@/presentation/orders/components/merge-order-bottom-sheet";
 import CloseOrderModal from "@/presentation/orders/components/close-order-modal";
+import InfoBottomSheet from "@/presentation/theme/components/info-bottom-sheet";
 
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
@@ -69,7 +70,9 @@ import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { useMarkOrderDelivered } from "@/presentation/orders/hooks/useMarkOrderDelivered";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { useBills } from "@/presentation/orders/hooks/useBills";
-import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
+import ActionsBottomSheet, {
+  type ActionsBottomSheetItem,
+} from "@/presentation/theme/components/actions-bottom-sheet";
 import OrderBillsTab from "@/presentation/orders/components/order-bills-tab";
 import OrderTicketsTab from "@/presentation/orders/components/order-tickets-tab";
 import { typography } from "@/constants/theme";
@@ -80,13 +83,7 @@ import { orderNumberText } from "@/presentation/offline/local-order";
 
 dayjs.extend(relativeTime);
 
-interface MoreOptionItem {
-  icon: IconName;
-  label: string;
-  hint?: string;
-  onPress: () => void;
-  disabled?: boolean;
-}
+type MoreOptionItem = ActionsBottomSheetItem;
 
 type OrderTab = "products" | "bills" | "tickets";
 
@@ -166,6 +163,7 @@ export default function OrderDetailView({
   const mergeOrderBottomSheetRef = useRef<MergeOrderBottomSheetRef>(null);
   const editNoteBottomSheetRef = useRef<BottomSheetMethods>(null);
   const moreOptionsSheetRef = useRef<BottomSheetMethods>(null);
+  const deleteBlockedSheetRef = useRef<BottomSheetMethods>(null);
   const typeTableSelectorRef = useRef<TableSelectorBottomSheetRef>(null);
   const changeItemsTypeSheetRef = useRef<ChangeItemsTypeBottomSheetRef>(null);
   // The order change waiting for the "which items also change" answer.
@@ -541,7 +539,9 @@ export default function OrderDetailView({
             onSuccess: (resp) => {
               // Online the server answers { order }; the outbox answers the order.
               const data = resp.data as unknown as
-                Order | { order?: Order } | undefined;
+                | Order
+                | { order?: Order }
+                | undefined;
               const updated: Order | undefined =
                 data && "order" in data ? data.order : (data as Order);
               if (!updated?.id) return;
@@ -650,7 +650,11 @@ export default function OrderDetailView({
     handleCloseOrder();
   };
 
-  // Blocked: the reason already shows under the row, so the tap does nothing.
+  // Opens over the options sheet, so closing it lands back on the options.
+  const showDeleteBlockedReason = () => {
+    deleteBlockedSheetRef.current?.present();
+  };
+
   const handleDeleteFromMenu = () => {
     if (deleteBlockReason) return;
     moreOptionsSheetRef.current?.dismiss();
@@ -733,8 +737,13 @@ export default function OrderDetailView({
         {
           icon: "trash",
           label: t("orders:options.deleteOrder"),
-          hint: deleteBlockReason
-            ? t(`orders:deleteReasons.${deleteBlockReason}`)
+          // Blocked: dimmed, with the info button explaining why.
+          disabled: !!deleteBlockReason,
+          info: deleteBlockReason
+            ? {
+                accessibilityLabel: t("orders:deleteBlocked.infoLabel"),
+                onPress: showDeleteBlockedReason,
+              }
             : undefined,
           onPress: handleDeleteFromMenu,
         },
@@ -861,15 +870,15 @@ export default function OrderDetailView({
             <ThemedView style={tw`flex-row items-start justify-between gap-4`}>
               <ThemedView style={tw`flex-1 gap-1`}>
                 <ThemedView style={tw`flex-row items-center gap-2`}>
-                  <Icon
-                    name={
-                      order.type === OrderType.IN_PLACE
-                        ? "utensils"
-                        : "shopping-bag"
-                    }
-                    size={24}
-                    color={tw.color("text")}
-                  />
+                  {/* <Icon */}
+                  {/*   name={ */}
+                  {/*     order.type === OrderType.IN_PLACE */}
+                  {/*       ? "utensils" */}
+                  {/*       : "shopping-bag" */}
+                  {/*   } */}
+                  {/*   size={24} */}
+                  {/*   color={tw.color("text")} */}
+                  {/* /> */}
                   <ThemedText type="h2" numberOfLines={1} style={tw`flex-1`}>
                     {order.type === OrderType.IN_PLACE
                       ? `${t("common:labels.table")} ${order.table?.name}`
@@ -1333,6 +1342,15 @@ export default function OrderDetailView({
           ]}
         />
       </ThemedBottomSheetModal>
+
+      {deleteBlockReason && (
+        <InfoBottomSheet
+          ref={deleteBlockedSheetRef}
+          title={t("orders:deleteBlocked.title")}
+          message={t(`orders:deleteBlocked.reasons.${deleteBlockReason}`)}
+          note={t("orders:deleteBlocked.rule")}
+        />
+      )}
     </>
   );
 }

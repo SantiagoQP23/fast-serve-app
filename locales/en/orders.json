@@ -223,8 +223,6 @@
     "addAgain": "Add Again",
     "deleteItem": "Delete Item",
     "statusTitle": "Status",
-    "deleteBlocked": "Some units were already delivered",
-    "deleteBlockedShort": "Already delivered",
     "statusSetByKitchen": "Set by the kitchen",
     "readyCount_one": "{{count}} ready",
     "readyCount_other": "{{count}} ready",
@@ -392,10 +390,6 @@
     "success_one": "{{count}} order closed",
     "success_other": "{{count}} orders closed"
   },
-  "deleteReasons": {
-    "DELIVERED": "Some items were already delivered",
-    "NOT_PENDING": "The order is no longer pending"
-  },
   "elapsed": {
     "minutes_one": "{{count}} min",
     "minutes_other": "{{count}} min",
@@ -404,5 +398,28 @@
     "hoursMinutes": "{{hours}} h {{minutes}} min",
     "days_one": "{{count}} day",
     "days_other": "{{count}} days"
+  },
+  "deleteBlocked": {
+    "title": "This order can't be deleted",
+    "infoLabel": "Why it can't be deleted",
+    "reasons": {
+      "DELIVERED": "Items from this order were already handed to the customer. Deleting it would lose the record of what was delivered.",
+      "NOT_PENDING": "This order is no longer pending: the kitchen already started it or it was delivered."
+    },
+    "rule": "Only pending orders with no delivered items can be deleted."
+  },
+  "deleteItemBlocked": {
+    "title": "This item can't be deleted",
+    "message": "{{delivered}} of {{quantity}} {{product}} were already delivered. Deleting it would lose the record of what was delivered.",
+    "rule": "Only items with no delivered units can be deleted."
+  },
+  "statusBlocked": {
+    "title": "You can't pick this status",
+    "reasons": {
+      "IN_PROGRESS": "The kitchen sets “In progress” when it starts preparing the item.",
+      "READY": "The kitchen sets “Ready” when the item is ready to hand out."
+    },
+    "note": "From here you can only mark it as pending or delivered.",
+    "infoLabel": "Why you can't pick this status"
   }
 }

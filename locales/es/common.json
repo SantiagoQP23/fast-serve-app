@@ -47,7 +47,8 @@
     "tapToPreview": "Toca para previsualizar",
     "undo": "Deshacer",
     "increase": "Aumentar",
-    "decrease": "Disminuir"
+    "decrease": "Disminuir",
+    "gotIt": "Entendido"
   },
   "status": {
     "pending": "Pendiente",

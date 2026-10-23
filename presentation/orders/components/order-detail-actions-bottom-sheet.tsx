@@ -34,7 +34,6 @@ const OrderDetailActionsBottomSheet = ({
 }: OrderDetailActionsBottomSheetProps) => {
   const { t } = useTranslation(["common", "orders"]);
 
-  const deleteBlocked = detail.qtyDelivered > 0;
   const replaceBlockReason = getReplaceBlockReason(detail);
 
   const productLabel = `${detail.quantity} × ${detail.product.name}${
@@ -91,11 +90,8 @@ const OrderDetailActionsBottomSheet = ({
       icon: "trash",
       label: t("orders:detailActions.deleteItem"),
       color: "text-red-600",
-      hint: deleteBlocked ? t("orders:detailActions.deleteBlocked") : undefined,
-      onPress: () => {
-        if (deleteBlocked) return;
-        onDelete?.();
-      },
+      // When it's blocked, the card explains why instead of confirming.
+      onPress: () => onDelete?.(),
     },
   ];
 

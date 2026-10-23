@@ -223,8 +223,6 @@
     "addAgain": "Volver a agregar",
     "deleteItem": "Eliminar producto",
     "statusTitle": "Estado",
-    "deleteBlocked": "Ya se entregaron unidades de este producto",
-    "deleteBlockedShort": "Ya entregado",
     "statusSetByKitchen": "Lo marca cocina",
     "readyCount_one": "{{count}} listo",
     "readyCount_other": "{{count}} listos",
@@ -392,10 +390,6 @@
     "success_one": "{{count}} pedido cerrado",
     "success_other": "{{count}} pedidos cerrados"
   },
-  "deleteReasons": {
-    "DELIVERED": "Ya hay productos entregados",
-    "NOT_PENDING": "El pedido ya no está pendiente"
-  },
   "elapsed": {
     "minutes_one": "{{count}} min",
     "minutes_other": "{{count}} min",
@@ -404,5 +398,28 @@
     "hoursMinutes": "{{hours}} h {{minutes}} min",
     "days_one": "{{count}} día",
     "days_other": "{{count}} días"
+  },
+  "deleteBlocked": {
+    "title": "No se puede eliminar este pedido",
+    "infoLabel": "Por qué no se puede eliminar",
+    "reasons": {
+      "DELIVERED": "Ya se entregaron productos de este pedido al cliente. Si lo eliminas, se perdería el registro de lo que se entregó.",
+      "NOT_PENDING": "Este pedido ya no está pendiente: cocina ya empezó a prepararlo o ya fue entregado."
+    },
+    "rule": "Solo se pueden eliminar pedidos pendientes que aún no tienen productos entregados."
+  },
+  "deleteItemBlocked": {
+    "title": "No se puede eliminar este producto",
+    "message": "Ya se entregaron {{delivered}} de {{quantity}} unidades de {{product}}. Si lo eliminas, se perdería el registro de lo que se entregó.",
+    "rule": "Solo se pueden eliminar productos sin unidades entregadas."
+  },
+  "statusBlocked": {
+    "title": "No puedes elegir este estado",
+    "reasons": {
+      "IN_PROGRESS": "«En progreso» lo marca cocina cuando empieza a preparar el producto.",
+      "READY": "«Listo» lo marca cocina cuando el producto está listo para entregar."
+    },
+    "note": "Desde aquí solo puedes marcarlo como pendiente o entregado.",
+    "infoLabel": "Por qué no puedes elegir este estado"
   }
 }
