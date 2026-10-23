@@ -15,9 +15,7 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { canManageInventory } from "@/core/auth/models/user.model";
 import Button from "@/presentation/theme/components/button";
 import IconButton from "@/presentation/theme/components/icon-button";
-import FloatingToolbar, {
-  ToolbarItem,
-} from "@/presentation/theme/components/floating-toolbar";
+import TabBar, { type TabItem } from "@/presentation/theme/components/tab-bar";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 import { useInventoryItemsSummary } from "@/presentation/inventory/hooks/useInventoryItemsSummary";
@@ -217,49 +215,23 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   const uncategorizedStats = folderStats.get(UNCATEGORIZED_KEY);
   const hasContent = catalogItems.length > 0 || categories.length > 0;
 
-  const toolbarItems: ToolbarItem[] = [
-    {
-      icon: "book-open-text",
-      label: t("tabs.inventory"),
-      onPress: () => changeTab("inventory"),
-      active: activeTab === "inventory",
-      accessibilityLabel: t("title"),
-    },
-    {
-      icon: "clipboard",
-      label: t("tabs.counts"),
-      onPress: () => changeTab("counts"),
-      active: activeTab === "counts",
-      accessibilityLabel: t("counts.history"),
-    },
+  const tabs: TabItem<InventoryTab>[] = [
+    { label: t("tabs.inventory"), value: "inventory" },
+    { label: t("tabs.counts"), value: "counts" },
     ...(canManage
-      ? [
-          {
-            icon: "receipt-text" as const,
-            label: t("tabs.purchases"),
-            onPress: () => changeTab("purchases"),
-            active: activeTab === "purchases",
-            accessibilityLabel: t("purchases.history"),
-          },
-        ]
+      ? [{ label: t("tabs.purchases"), value: "purchases" as const }]
       : []),
-    {
-      icon: "chef-hat",
-      label: t("tabs.recipes"),
-      onPress: () => changeTab("recipes"),
-      active: activeTab === "recipes",
-      accessibilityLabel: t("recipes.title"),
-    },
+    { label: t("tabs.recipes"), value: "recipes" },
   ];
 
-  const screenTitle =
+  const addLabel =
     activeTab === "counts"
-      ? t("counts.title")
+      ? t("counts.new")
       : activeTab === "purchases"
-        ? t("purchases.title")
+        ? t("purchases.register")
         : activeTab === "recipes"
-          ? t("recipes.title")
-          : t("title");
+          ? t("recipes.new")
+          : t("createItem");
 
   const content = (
     <>
@@ -285,7 +257,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
             style={{ fontFamily: typography.medium, flex: 1 }}
             numberOfLines={1}
           >
-            {screenTitle}
+            {t("title")}
           </ThemedText>
           {activeTab === "inventory" && (
             <Pressable
@@ -298,13 +270,25 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
               <Icon name="search" color={tw.color("on-surface")} size={22} />
             </Pressable>
           )}
+          {canManage && (
+            <Pressable
+              onPress={handleOpenAddSelector}
+              hitSlop={13}
+              style={({ pressed }) => tw.style(pressed && "opacity-70")}
+              accessibilityLabel={addLabel}
+              accessibilityRole="button"
+            >
+              <Icon name="plus" color={tw.color("on-surface")} size={22} />
+            </Pressable>
+          )}
         </ThemedView>
+        <TabBar tabs={tabs} activeTab={activeTab} onChange={changeTab} />
       </ThemedView>
 
       {activeTab === "inventory" && (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={tw`px-4 gap-6 pb-28 pt-6`}
+          contentContainerStyle={tw`px-4 gap-6 pb-8 pt-6`}
           refreshControl={
             <RefreshControl
               refreshing={catalogQuery.isFetching}
@@ -470,29 +454,6 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
       {activeTab === "recipes" && (
         <InventoryRecipesTab newRecipeRequest={newRecipeRequest} />
       )}
-
-      <View style={tw`absolute bottom-6 left-0 right-0 items-center`}>
-        <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
-          <FloatingToolbar items={toolbarItems} />
-          {canManage && (
-            <IconButton
-              icon="plus"
-              size={40}
-              variant="filled"
-              onPress={handleOpenAddSelector}
-              accessibilityLabel={
-                activeTab === "counts"
-                  ? t("counts.new")
-                  : activeTab === "purchases"
-                    ? t("purchases.register")
-                    : activeTab === "recipes"
-                      ? t("recipes.new")
-                      : t("createItem")
-              }
-            />
-          )}
-        </ThemedView>
-      </View>
 
       <ThemedBottomSheetModal ref={addSheetRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6`}>

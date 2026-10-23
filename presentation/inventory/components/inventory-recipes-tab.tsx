@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { RefreshControl, ScrollView, Text } from "react-native";
+import { RefreshControl, ScrollView } from "react-native";
 import { router } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -189,12 +189,6 @@ export default function InventoryRecipesTab({
     if (variant) openRecipe(variant);
   };
 
-  const formatLine = (name: string, quantity: number, unit: string) =>
-    `${name} ${t("quantityWithUnit", {
-      quantity,
-      unit: t(`units.${unit}`, { count: quantity }),
-    })}`;
-
   const isEmpty = recipes.length === 0;
 
   return (
@@ -202,7 +196,7 @@ export default function InventoryRecipesTab({
       <ScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={tw`px-4 gap-6 pb-28 pt-6`}
+        contentContainerStyle={tw`px-4 gap-6 pb-8 pt-6`}
         refreshControl={
           <RefreshControl
             refreshing={menuQuery.isFetching}
@@ -275,9 +269,7 @@ export default function InventoryRecipesTab({
                   data={rows}
                   keyExtractor={(row) => String(row.option.id)}
                   onItemPress={openRecipe}
-                  renderItem={(row) => {
-                    const hasVariantName = row.label !== row.product.name;
-                    return (
+                  renderItem={(row) => (
                       <ThemedView
                         style={tw`flex-row items-center gap-3 bg-transparent`}
                       >
@@ -287,60 +279,7 @@ export default function InventoryRecipesTab({
                             numberOfLines={2}
                             style={{ fontFamily: typography.semibold }}
                           >
-                            {row.product.name}
-                            {hasVariantName && (
-                              <Text
-                                style={[
-                                  tw`text-gray-500`,
-                                  { fontFamily: typography.medium },
-                                ]}
-                              >
-                                {"  "}
-                                {row.option.name}
-                              </Text>
-                            )}
-                          </ThemedText>
-                          <ThemedText
-                            type="small"
-                            numberOfLines={2}
-                            style={tw`text-gray-500`}
-                          >
-                            {(row.option.inventoryItems ?? []).map(
-                              (line, index) => {
-                                const item = line.inventoryItem;
-                                const text = formatLine(
-                                  item?.name ?? "",
-                                  line.quantity,
-                                  item?.unit ?? "UNIT",
-                                );
-                                // The ingredient that ran out is the reason
-                                // the recipe can't be made.
-                                const isOut =
-                                  row.stockLevel === "out" &&
-                                  (!item ||
-                                    line.quantity <= 0 ||
-                                    item.quantity < line.quantity);
-                                return (
-                                  <Text key={line.id}>
-                                    {index > 0 ? " · " : ""}
-                                    <Text
-                                      style={
-                                        isOut
-                                          ? [
-                                              tw`text-red-700`,
-                                              {
-                                                fontFamily: typography.semibold,
-                                              },
-                                            ]
-                                          : undefined
-                                      }
-                                    >
-                                      {text}
-                                    </Text>
-                                  </Text>
-                                );
-                              },
-                            )}
+                            {row.label}
                           </ThemedText>
                           <ThemedView
                             style={tw`flex-row items-center gap-2 bg-transparent`}
@@ -355,10 +294,7 @@ export default function InventoryRecipesTab({
                               <>
                                 <ThemedText
                                   type="small"
-                                  style={[
-                                    tw`text-on-surface`,
-                                    { fontFamily: typography.semibold },
-                                  ]}
+                                  style={tw`text-gray-500`}
                                 >
                                   {t("recipes.canMake", {
                                     count: row.available,
@@ -381,8 +317,7 @@ export default function InventoryRecipesTab({
                           color={tw.color("gray-400")}
                         />
                       </ThemedView>
-                    );
-                  }}
+                  )}
                 />
               </ThemedView>
             ))}

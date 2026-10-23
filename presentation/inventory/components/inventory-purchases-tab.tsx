@@ -51,7 +51,7 @@ export default function InventoryPurchasesTab({
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={tw`px-4 gap-6 pb-28 pt-6`}
+      contentContainerStyle={tw`px-4 gap-6 pb-8 pt-6`}
       refreshControl={
         <RefreshControl
           refreshing={purchasesQuery.isFetching && !isLoadingMore}
