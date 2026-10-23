@@ -1,17 +1,12 @@
-import {
-  KeyboardAvoidingView,
-  ScrollView,
-  View,
-  RefreshControl,
-  Platform,
-} from "react-native";
+import { ScrollView, View, RefreshControl } from "react-native";
 import { toast } from "sonner-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useState, useCallback, useEffect, useRef, useMemo } from "react";
-import { useRouter } from "expo-router";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { useRouter, useNavigation } from "expo-router";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
@@ -39,13 +34,8 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Icon from "@/presentation/theme/components/icon";
 import { useBillPrint } from "@/presentation/orders/hooks/useBillPrint";
-import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
-import { Transaction } from "@/core/transactions/models/transaction.model";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
-import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
-import Fab from "@/presentation/theme/components/fab";
-import Card from "@/presentation/theme/components/card";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import ActionsBottomSheet, {
   type ActionsBottomSheetItem,
@@ -53,6 +43,8 @@ import ActionsBottomSheet, {
 import { typography } from "@/constants/theme";
 import { roundTo } from "@/core/common/utils/format.util";
 import {
+  getBillAmountDue,
+  getBillCommittedAmount,
   isSameAmount,
   parseAmount,
 } from "@/core/orders/utils/bill-payment.util";
@@ -78,6 +70,8 @@ export default function BillDetailView({
 }: BillDetailViewProps) {
   const { t } = useTranslation(["common", "bills", "errors"]);
   const router = useRouter();
+  const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const Container = embedded ? ThemedView : ScreenLayout;
 
   const {
@@ -122,10 +116,77 @@ export default function BillDetailView({
   const canChargeBill = isAdmin || isCashier;
   const canManage = isAdmin || isCashier;
 
-  const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
-  const initEditCart = useEditOrderCartStore((state) => state.init);
-
   const { handleShareBill } = useBillPrint(bill);
+
+  const isPaid = bill?.status === BillStatus.PAID;
+
+  const handleEditBillPress = () => {
+    if (!bill) return;
+    if (bill.source === BillSource.DIRECT) {
+      router.push(`/(bills)/${bill.id}/edit-sale`);
+      return;
+    }
+    if (!bill.order) return;
+    router.push(`/(bills)/${bill.id}/edit`);
+  };
+
+  const handlePrintPress = () => {
+    if (bill) router.push(`/(bills)/${bill.id}/print`);
+  };
+
+  const handleOpenMoreOptions = () => {
+    moreOptionsSheetRef.current?.present();
+  };
+
+  // Edit, Print and More sit in the header so the bottom of the screen is
+  // free for the one action that matters here: charging the bill. A paid bill
+  // can only be printed or shared, so Share is shown directly.
+  const renderHeaderActions = () =>
+    bill ? (
+      <ThemedView style={tw`flex-row items-center bg-transparent`}>
+        {!isPaid && (
+          <IconButton
+            icon="pencil"
+            size={22}
+            onPress={handleEditBillPress}
+            accessibilityLabel={t("common:actions.edit")}
+          />
+        )}
+        <IconButton
+          icon="printer"
+          size={22}
+          onPress={handlePrintPress}
+          accessibilityLabel={t("common:actions.print")}
+        />
+        {isPaid ? (
+          <IconButton
+            icon="share"
+            size={22}
+            onPress={handleShareBill}
+            accessibilityLabel={t("common:actions.share")}
+          />
+        ) : (
+          <IconButton
+            icon="ellipsis-vertical"
+            size={22}
+            onPress={handleOpenMoreOptions}
+            accessibilityLabel={t("bills:details.moreOptions")}
+          />
+        )}
+      </ThemedView>
+    ) : null;
+
+  useEffect(() => {
+    // Embedded in another screen: actions render inline in the pane header
+    if (embedded) return;
+
+    navigation.setOptions({
+      headerRight: renderHeaderActions,
+    });
+    // renderHeaderActions is rebuilt every render; the values it reads are
+    // listed below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [embedded, navigation, bill, isPaid, handleShareBill, t]);
 
   const onRefresh = useCallback(async () => {
     try {
@@ -160,6 +221,14 @@ export default function BillDetailView({
     "MMM D, HH:mm",
   )}`;
 
+  const amountDue = getBillAmountDue(bill);
+  const committedAmount = getBillCommittedAmount(bill);
+  const isPartiallyPaid = !isPaid && committedAmount > 0;
+  // A transfer waiting for approval can cover what's left: nothing to charge,
+  // but the bill isn't paid yet either.
+  const isAwaitingTransfer = !isPaid && amountDue <= 0;
+  const showChargeBar = !isPaid && canChargeBill;
+
   const onRemoveBill = () => {
     removeBill(
       { id: bill.id },
@@ -175,15 +244,6 @@ export default function BillDetailView({
 
   const handlePayBillPress = () => {
     router.push(`/(bills)/${bill.id}/payment-method`);
-  };
-
-  const handleEditBillPress = () => {
-    if (bill.source === BillSource.DIRECT) {
-      router.push(`/(bills)/${bill.id}/edit-sale`);
-      return;
-    }
-    if (!bill.order) return;
-    router.push(`/(bills)/${bill.id}/edit`);
   };
 
   const currentDiscount = Number(bill.discount) || 0;
@@ -209,10 +269,6 @@ export default function BillDetailView({
     bottomSheetRef.current?.present();
   };
 
-  const handleOpenMoreOptions = () => {
-    moreOptionsSheetRef.current?.present();
-  };
-
   const handleAddDiscountFromMenu = () => {
     moreOptionsSheetRef.current?.dismiss();
     handleOpenDiscountSheet();
@@ -221,6 +277,11 @@ export default function BillDetailView({
   const handleShareFromMenu = () => {
     moreOptionsSheetRef.current?.dismiss();
     handleShareBill();
+  };
+
+  const handleDeleteFromMenu = () => {
+    moreOptionsSheetRef.current?.dismiss();
+    setVisible(true);
   };
 
   const handleSaveDiscount = () => {
@@ -244,7 +305,7 @@ export default function BillDetailView({
   };
 
   const moreOptionsItems: ActionsBottomSheetItem[] = [
-    ...(bill.status !== BillStatus.PAID
+    ...(!isPaid
       ? [
           {
             icon: "tag" as const,
@@ -258,10 +319,27 @@ export default function BillDetailView({
       label: t("common:actions.share"),
       onPress: handleShareFromMenu,
     },
+    ...(!isPaid
+      ? [
+          {
+            icon: "trash" as const,
+            label: t("bills:details.deleteBill"),
+            color: "text-red-600",
+            onPress: handleDeleteFromMenu,
+          },
+        ]
+      : []),
   ];
 
+  const sourceLabel = [
+    t(`bills:list.${bill.source}`, { number: bill.num }),
+    bill.order && t("orders:details.orderNumber", { num: bill.order.num }),
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
-    // Anchors the absolutely positioned toolbar to this view, which matters
+    // Anchors the absolutely positioned charge bar to this view, which matters
     // when it's a pane rather than the whole screen.
     <View style={tw`flex-1`}>
       <DialogModal
@@ -276,356 +354,290 @@ export default function BillDetailView({
       />
 
       <Container style={tw`flex-1 bg-background`}>
-        <KeyboardAvoidingView
-          style={tw`flex-1`}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-          <ThemedView
-            style={tw`px-4 ${embedded ? "pt-2" : "pt-6"} flex-1 gap-4`}
+        <ThemedView style={tw`px-4 ${embedded ? "pt-2" : "pt-6"} flex-1 gap-4`}>
+          {/* Pane header: stands in for the stack header when embedded */}
+          {embedded && (
+            <ThemedView style={tw`flex-row items-center justify-between`}>
+              <IconButton
+                icon="x"
+                accessibilityLabel={t("common:actions.close")}
+                onPress={onClose}
+                size={24}
+              />
+              {renderHeaderActions()}
+            </ThemedView>
+          )}
+          <ScrollView
+            style={tw`flex-1`}
+            contentContainerStyle={tw`${showChargeBar ? "pb-32" : "pb-10"}`}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={primaryColor}
+                colors={[primaryColor]}
+              />
+            }
           >
-            {/* Pane header: stands in for the stack header when embedded */}
-            {embedded && (
-              <ThemedView style={tw`flex-row items-center`}>
-                <IconButton
-                  icon="x"
-                  accessibilityLabel={t("common:actions.close")}
-                  onPress={onClose}
-                  size={24}
+            {/* Header Section */}
+            <ThemedView style={tw`mb-4`}>
+              <ThemedText type="caption" style={tw`text-gray-500 mb-2`}>
+                {sourceLabel}
+              </ThemedText>
+
+              <ThemedText
+                type="h1"
+                // h1 fixes its height for 32px text; size the box for the 48px
+                // total. Height equal to line height keeps it scaling with the
+                // font size setting.
+                style={[
+                  tw`text-5xl`,
+                  {
+                    fontFamily: typography.regular,
+                    lineHeight: 58,
+                    height: 58,
+                  },
+                ]}
+              >
+                {formatCurrency(bill.total)}
+              </ThemedText>
+
+              {isPartiallyPaid && (
+                <ThemedText type="body2" style={tw`text-gray-500 mt-1`}>
+                  {t("bills:details.paidAndRemaining", {
+                    paid: formatCurrency(committedAmount),
+                    remaining: formatCurrency(amountDue),
+                  })}
+                </ThemedText>
+              )}
+            </ThemedView>
+
+            <ThemedView
+              style={tw`mb-6 flex-row gap-2 items-center flex-wrap gap-y-2`}
+            >
+              <Label
+                color={status.color}
+                size="small"
+                text={status.text}
+                leftIcon={status.icon}
+              />
+              <Label
+                text={getUserDisplayName(
+                  bill.owner,
+                  t("common:labels.deletedUser"),
+                )}
+                color="default"
+                leftIcon="user"
+                size="small"
+              />
+
+              {bill.order && (
+                <Label
+                  text={
+                    bill.order.type === OrderType.IN_PLACE
+                      ? `${t("common:labels.table")} ${bill.order.table?.name}`
+                      : t("common:labels.takeAway")
+                  }
+                  color="default"
+                  leftIcon={
+                    bill.order.type === OrderType.IN_PLACE ? "utensils" : "bike"
+                  }
+                  size="small"
                 />
+              )}
+            </ThemedView>
+
+            {/* Items List */}
+            <ThemedView style={tw`mb-6`}>
+              {bill.details.map((detail) => {
+                const showProductOptionName =
+                  detail.product &&
+                  detail.product.options.length > 1 &&
+                  detail.productOption;
+
+                return (
+                  <ThemedView
+                    key={detail.id}
+                    style={tw`flex-row justify-between items-center px-4 py-1`}
+                  >
+                    <ThemedView style={tw`flex-1 flex-row items-center gap-3`}>
+                      <ThemedText
+                        type="body1"
+                        style={tw`min-w-8 text-gray-600`}
+                      >
+                        {detail.quantity}
+                      </ThemedText>
+                      <ThemedText type="body1" style={tw`flex-1 text-gray-600`}>
+                        {bill.source === BillSource.ORDER
+                          ? detail.orderDetail?.product.name
+                          : detail.product?.name}{" "}
+                        {showProductOptionName && detail.productOption?.name}
+                      </ThemedText>
+                    </ThemedView>
+                    <ThemedText
+                      type="body1"
+                      style={tw`font-semibold text-gray-600`}
+                    >
+                      {formatCurrency(detail.total)}
+                    </ThemedText>
+                  </ThemedView>
+                );
+              })}
+            </ThemedView>
+
+            {currentDiscount > 0 && (
+              <ThemedView style={tw`mb-4`}>
+                {/* Subtotal */}
+                <ThemedView
+                  style={tw`flex-row justify-between items-center px-4`}
+                >
+                  <ThemedText type="body2" style={tw`text-gray-500`}>
+                    {t("bills:details.subtotal")}
+                  </ThemedText>
+                  <ThemedText type="body1" style={tw`font-semibold`}>
+                    {formatCurrency(bill.subtotal)}
+                  </ThemedText>
+                </ThemedView>
+
+                {/* Discount row */}
+                <ThemedView
+                  style={tw`flex-row justify-between items-center px-4 py-3`}
+                >
+                  <ThemedView style={tw`flex-row items-center gap-2`}>
+                    <ThemedText type="body2" style={tw`text-gray-500`}>
+                      {t("bills:details.discount")}
+                    </ThemedText>
+                    {!isPaid && (
+                      <IconButton
+                        icon="pencil"
+                        size={16}
+                        onPress={handleOpenDiscountSheet}
+                        variant="text"
+                        accessibilityLabel={t("bills:details.editDiscount")}
+                      />
+                    )}
+                  </ThemedView>
+                  <ThemedText
+                    type="body1"
+                    style={tw`font-semibold text-emerald-700`}
+                  >
+                    -{formatCurrency(currentDiscount)}
+                  </ThemedText>
+                </ThemedView>
+
+                <ThemedView
+                  style={tw`flex-row justify-between items-center px-4`}
+                >
+                  <ThemedText type="body1" style={tw`font-semibold`}>
+                    {t("bills:details.total")}
+                  </ThemedText>
+                  <ThemedText type="h3" style={tw`font-bold`}>
+                    {formatCurrency(bill.total)}
+                  </ThemedText>
+                </ThemedView>
               </ThemedView>
             )}
-            <ScrollView
-              style={tw`flex-1`}
-              showsVerticalScrollIndicator={false}
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={onRefresh}
-                  tintColor={primaryColor}
-                  colors={[primaryColor]}
-                />
-              }
-            >
-              {/* Header Section */}
-              <ThemedView style={tw`mb-4`}>
-                <ThemedView style={tw`flex-row gap-2 items-center mb-2`}>
-                  <ThemedText type="caption" style={tw`text-gray-500 `}>
-                    {t(`bills:list.${bill.source}`, { number: bill.num })}
-                  </ThemedText>
-                  {bill.order && (
-                    <>
-                      <ThemedText> </ThemedText>
-                      <ThemedText type="caption" style={tw`text-gray-500`}>
-                        {t("orders:details.orderNumber", {
-                          num: bill.order.num,
-                        })}
-                      </ThemedText>
-                    </>
-                  )}
-                </ThemedView>
 
-                <ThemedText
-                  type="h1"
-                  style={[
-                    tw`text-5xl h-12 `,
-                    { fontFamily: typography.regular },
-                  ]}
-                >
-                  {formatCurrency(bill.total)}
+            {bill.transactions.length > 0 && (
+              <>
+                <ThemedText type="caption" style={tw`mb-3 mt-4`}>
+                  {t("bills:details.payments")}
                 </ThemedText>
-              </ThemedView>
-
-              <ThemedView
-                style={tw`mb-6 flex-row gap-2 items-center flex-wrap gap-y-2`}
-              >
-                <Label
-                  color={status.color}
-                  size="small"
-                  text={status.text}
-                  leftIcon={status.icon}
-                />
-                <Label
-                  text={getUserDisplayName(
-                    bill.owner,
-                    t("common:labels.deletedUser"),
-                  )}
-                  color="default"
-                  leftIcon="user"
-                  size="small"
-                />
-
-                {bill.order && (
-                  <Label
-                    text={
-                      bill.order.type === OrderType.IN_PLACE
-                        ? `${t("common:labels.table")} ${bill.order.table?.name}`
-                        : t("common:labels.takeAway")
-                    }
-                    color="default"
-                    leftIcon={
-                      bill.order.type === OrderType.IN_PLACE
-                        ? "utensils"
-                        : "bike"
-                    }
-                    size="small"
-                  />
-                )}
-              </ThemedView>
-
-              {/* Items List */}
-              <ThemedView style={tw`mb-6`}>
-                {/* <ThemedText type="body2" style={tw`text-gray-500 mb-3`}> */}
-                {/*   {t("bills:details.items")} ({bill.details.length}) */}
-                {/* </ThemedText> */}
-                <ThemedView style={tw` overflow-hidden`}>
-                  {bill.details.map((detail, index) => {
-                    const showProductOptionName =
-                      detail.product &&
-                      detail.product.options.length > 1 &&
-                      detail.productOption;
-
-                    return (
-                      <ThemedView key={detail.id}>
-                        <ThemedView
-                          style={tw`flex-row justify-between items-center px-4 py-1 `}
-                        >
-                          <ThemedView
-                            style={tw`flex-1 flex-row items-center gap-3 text-gray-500`}
-                          >
-                            <ThemedText
-                              type="body1"
-                              style={tw` min-w-8 text-gray-600`}
-                            >
-                              {detail.quantity}
-                            </ThemedText>
-                            <ThemedText
-                              type="body1"
-                              style={tw`flex-1 text-gray-600 `}
-                            >
-                              {bill.source === BillSource.ORDER
-                                ? detail.orderDetail?.product.name
-                                : detail.product?.name}{" "}
-                              {showProductOptionName &&
-                                detail.productOption?.name}
-                            </ThemedText>
-                          </ThemedView>
-                          <ThemedText
-                            type="body1"
-                            style={tw`font-semibold text-gray-600`}
-                          >
-                            {formatCurrency(detail.total)}
-                          </ThemedText>
-                        </ThemedView>
-                        {/* {index < bill.details.length - 1 && ( */}
-                        {/*   <ThemedView style={tw`h-px bg-gray-200`} /> */}
-                        {/* )} */}
-                      </ThemedView>
-                    );
-                  })}
+                <ThemedView style={tw`gap-4`}>
+                  {bill.transactions.map((transaction) => (
+                    <TransactionCard
+                      key={transaction.id}
+                      transaction={transaction}
+                      onPress={() => openTransactionDetail(transaction.id)}
+                    />
+                  ))}
                 </ThemedView>
-              </ThemedView>
+              </>
+            )}
 
-              {currentDiscount === 0 && bill.status !== BillStatus.PAID ? (
-                <ThemedView style={tw`mb-6 items-center`}>
-                  {/* <Button */}
-                  {/*   label={t("bills:details.addDiscount")} */}
-                  {/*   variant="surface" */}
-                  {/*   onPress={handleOpenDiscountSheet} */}
-                  {/* /> */}
-                </ThemedView>
-              ) : (
-                currentDiscount > 0 && (
-                  <ThemedView style={tw` overflow-hidden mb-4`}>
-                    {/* Subtotal */}
-                    <ThemedView
-                      style={tw`flex-row justify-between items-center px-4 `}
-                    >
-                      <ThemedText type="body2" style={tw`text-gray-500`}>
-                        {t("bills:details.subtotal")}
-                      </ThemedText>
-                      <ThemedText type="body1" style={tw`font-semibold`}>
-                        {formatCurrency(bill.subtotal)}
-                      </ThemedText>
-                    </ThemedView>
-
-                    {/* Discount row */}
-                    {(currentDiscount > 0 ||
-                      bill.status !== BillStatus.PAID) && (
-                      <>
-                        <ThemedView
-                          style={tw`flex-row justify-between items-center px-4 py-3`}
-                        >
-                          <ThemedView style={tw`flex-row items-center gap-2`}>
-                            <ThemedText type="body2" style={tw`text-gray-500`}>
-                              {t("bills:details.discount")}
-                            </ThemedText>
-                            {bill.status !== BillStatus.PAID && (
-                              <IconButton
-                                icon="pencil"
-                                size={16}
-                                onPress={handleOpenDiscountSheet}
-                                variant="text"
-                              />
-                            )}
-                          </ThemedView>
-                          <ThemedText
-                            type="body1"
-                            style={tw`font-semibold text-green-600`}
-                          >
-                            {currentDiscount > 0
-                              ? `-${formatCurrency(currentDiscount)}`
-                              : "-"}
-                          </ThemedText>
-                        </ThemedView>
-                      </>
-                    )}
-
-                    <ThemedView
-                      style={tw`flex-row justify-between items-center px-4 `}
-                    >
-                      <ThemedText type="body1" style={tw`font-semibold`}>
-                        {t("bills:details.total")}
-                      </ThemedText>
-                      <ThemedText type="h3" style={tw`font-bold`}>
-                        {formatCurrency(bill.total)}
-                      </ThemedText>
-                    </ThemedView>
-                  </ThemedView>
-                )
-              )}
-
-              {/* {bill.order && ( */}
-              {/*   <ThemedView> */}
-              {/*     <ThemedText type="caption" style={tw`text-gray-500`}> */}
-              {/*       Order information */}
-              {/*     </ThemedText> */}
-              {/**/}
-              {/*     <ThemedView style={tw`mb-6 mt-2`}></ThemedView> */}
-              {/*   </ThemedView> */}
-              {/* )} */}
-
-              {bill.transactions.length > 0 && (
-                <>
-                  <ThemedText type="caption" style={tw`mb-2 mt-4`}>
-                    {t("bills:details.payments")}
-                  </ThemedText>
-                  <Card style={tw`px-2`}>
-                    <ThemedView>
-                      {bill.transactions.map((transaction) => (
-                        <TransactionCard
-                          key={transaction.id}
-                          transaction={transaction}
-                          onPress={() => openTransactionDetail(transaction.id)}
-                        />
-                      ))}
-                    </ThemedView>
-                  </Card>
-                </>
-              )}
-
-              <ThemedView style={tw`mt-10 mb-30`}>
-                <ThemedText type="caption" style={tw``}>
-                  {t("orders:details.activity")}
-                </ThemedText>
-                <ThemedView style={tw`mt-3 gap-2`}>
-                  <ThemedView>
-                    <ThemedView style={tw`flex-row items-center gap-2`}>
-                      <Icon
-                        name="circle"
-                        size={12}
-                        color={tw.color("gray-500")}
-                      />
-                      <ThemedText type="body2" style={tw`text-gray-600`}>
-                        {bill.createdBy
-                          ? t("orders:detailInfo.createdBy", {
-                              name: getUserDisplayName(
-                                bill.createdBy,
-                                t("common:labels.deletedUser"),
-                              ),
-                            })
-                          : t("orders:detailInfo.createdBy", {
-                              name: t("common:labels.deletedUser"),
-                            })}
-                      </ThemedText>
-                    </ThemedView>
-                    <ThemedText type="small" style={tw`text-gray-500 ml-5`}>
-                      {createdAtLabel}
+            <ThemedView style={tw`mt-10`}>
+              <ThemedText type="caption">
+                {t("orders:details.activity")}
+              </ThemedText>
+              <ThemedView style={tw`mt-3 gap-2`}>
+                <ThemedView>
+                  <ThemedView style={tw`flex-row items-center gap-2`}>
+                    <Icon
+                      name="circle"
+                      size={12}
+                      color={tw.color("gray-500")}
+                    />
+                    <ThemedText type="body2" style={tw`text-gray-600`}>
+                      {t("orders:detailInfo.createdBy", {
+                        name: getUserDisplayName(
+                          bill.createdBy,
+                          t("common:labels.deletedUser"),
+                        ),
+                      })}
                     </ThemedText>
                   </ThemedView>
-                  <ThemedView>
-                    <ThemedView style={tw`flex-row items-center gap-2`}>
-                      <Icon
-                        name="circle"
-                        size={12}
-                        color={tw.color("gray-500")}
-                      />
-                      <ThemedText type="body2" style={tw`text-gray-600`}>
-                        {t("orders:details.updatedAt")}
-                      </ThemedText>
-                    </ThemedView>
-                    <ThemedText type="small" style={tw`text-gray-500 ml-5`}>
-                      {updatedAtLabel}
+                  <ThemedText type="small" style={tw`text-gray-500 ml-5`}>
+                    {createdAtLabel}
+                  </ThemedText>
+                </ThemedView>
+                <ThemedView>
+                  <ThemedView style={tw`flex-row items-center gap-2`}>
+                    <Icon
+                      name="circle"
+                      size={12}
+                      color={tw.color("gray-500")}
+                    />
+                    <ThemedText type="body2" style={tw`text-gray-600`}>
+                      {t("orders:details.updatedAt")}
                     </ThemedText>
                   </ThemedView>
+                  <ThemedText type="small" style={tw`text-gray-500 ml-5`}>
+                    {updatedAtLabel}
+                  </ThemedText>
                 </ThemedView>
               </ThemedView>
-            </ScrollView>
-          </ThemedView>
-        </KeyboardAvoidingView>
+            </ThemedView>
+          </ScrollView>
+        </ThemedView>
       </Container>
 
-      {/* Floating Toolbar + FAB */}
-      <View style={tw`absolute bottom-6 left-0 right-0 items-center`}>
-        <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
-          <FloatingToolbar
-            items={[
-              ...(bill.status !== BillStatus.PAID
-                ? [
-                    {
-                      icon: "trash" as const,
-                      onPress: () => setVisible(true),
-                    },
-                  ]
-                : []),
-              ...(bill.status !== BillStatus.PAID
-                ? [
-                    {
-                      icon: "pencil" as const,
-                      onPress: handleEditBillPress,
-                    },
-                  ]
-                : []),
-              {
-                icon: "printer",
-                onPress: () => router.push(`/(bills)/${bill.id}/print`),
-              },
-              {
-                icon: "ellipsis",
-                onPress: handleOpenMoreOptions,
-              },
-            ]}
-          />
-          {bill.status !== BillStatus.PAID && canChargeBill && (
-            <IconButton
+      {/* Charge bar: the bill screen's one primary action, in thumb reach */}
+      {showChargeBar && (
+        <ThemedView
+          style={[
+            tw`absolute bottom-0 left-0 right-0 bg-background border-t border-divider px-4 pt-3`,
+            { paddingBottom: embedded ? 16 : Math.max(insets.bottom, 16) },
+          ]}
+        >
+          {isAwaitingTransfer ? (
+            <ThemedView style={tw`flex-row items-center gap-3 py-3`}>
+              <Icon name="hourglass" size={20} />
+              <ThemedText type="body2" style={tw`flex-1 text-gray-600`}>
+                {t("bills:details.awaitingTransfer")}
+              </ThemedText>
+            </ThemedView>
+          ) : (
+            <Button
+              label={t("bills:details.chargeAmount", {
+                amount: formatCurrency(amountDue),
+              })}
               onPress={handlePayBillPress}
-              icon="credit-card"
-              size={40}
-              variant="filled"
-            ></IconButton>
+            />
           )}
         </ThemedView>
-      </View>
+      )}
 
       {/* Discount Bottom Sheet */}
       <ThemedBottomSheetModal ref={bottomSheetRef} enablePanDownToClose>
-        <BottomSheetView style={tw`p-4 gap-4 `}>
-          <ThemedView style={tw` gap-1`}>
+        <BottomSheetView style={tw`p-4 gap-4`}>
+          <ThemedView style={tw`gap-1`}>
             <ThemedText type="h3" style={tw`text-center`}>
               {t("bills:details.discount")}
             </ThemedText>
-            <ThemedText type="small" style={tw`text-gray-400 text-center `}>
+            <ThemedText type="small" style={tw`text-gray-500 text-center`}>
               {t("bills:alerts.maxDiscountAllowed", {
-                amount: formatCurrency(discount10),
+                amount: formatCurrency(maxDiscount),
               })}
             </ThemedText>
           </ThemedView>
@@ -644,14 +656,16 @@ export default function BillDetailView({
             <Button
               label={`5%`}
               variant={
-                isSameAmount(discountValue, discount5) ? "primary" : "outline"
+                isSameAmount(discountValue, discount5) ? "secondary" : "outline"
               }
               onPress={() => setDiscountInput(discount5.toFixed(2))}
             />
             <Button
               label={`10%`}
               variant={
-                isSameAmount(discountValue, discount10) ? "primary" : "outline"
+                isSameAmount(discountValue, discount10)
+                  ? "secondary"
+                  : "outline"
               }
               onPress={() => setDiscountInput(discount10.toFixed(2))}
             />

@@ -214,7 +214,7 @@ export default function EditSaleScreen() {
           </ThemedText>
         )}
         {blockReason && (
-          <ThemedText type="caption" style={tw`text-red-600 mb-1`}>
+          <ThemedText type="caption" style={tw`text-red-700 mb-1`}>
             {blockReason}
           </ThemedText>
         )}
@@ -243,7 +243,7 @@ function EditSaleLineCard({
     !!line.productOption && (line.product?.options?.length ?? 0) > 1;
 
   return (
-    <Card style={tw`p-5 rounded-3xl gap-3`} variant="outline">
+    <Card style={tw`p-5 gap-3`} variant="outline">
       <ThemedView
         style={tw`flex-row justify-between items-center bg-transparent gap-2`}
       >

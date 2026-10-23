@@ -10,7 +10,7 @@ import { useBills } from "@/presentation/orders/hooks/useBills";
 import BillLoadState from "@/presentation/orders/components/bill-load-state";
 import { usePrinters } from "@/core/printers/hooks/usePrinters";
 import { usePrintBillReceipt } from "@/presentation/orders/hooks/usePrintBillReceipt";
-import { formatCurrency } from "@/core/i18n/utils";
+import { formatCurrency, formatDateTime } from "@/core/i18n/utils";
 import { BillSource } from "@/core/orders/models/bill.model";
 import Button from "@/presentation/theme/components/button";
 import Select from "@/presentation/theme/components/select";
@@ -88,10 +88,10 @@ export default function BillPrintScreen() {
               style={tw`items-center gap-1 pb-3 border-b border-dashed border-border`}
             >
               <ThemedText type="h4" style={{ fontFamily: "monospace" }}>
-                {t("bills:list.title")} #{bill.num}
+                {t(`bills:list.${bill.source}`, { number: bill.num })}
               </ThemedText>
               <ThemedText style={{ fontFamily: "monospace" }}>
-                {new Date(bill.createdAt).toLocaleString()}
+                {formatDateTime(bill.createdAt)}
               </ThemedText>
             </ThemedView>
 

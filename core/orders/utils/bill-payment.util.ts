@@ -56,3 +56,21 @@ export const parseAmount = (text: string | null | undefined): number => {
 /** Two amounts are the same to the cent. */
 export const isSameAmount = (a: number, b: number): boolean =>
   Math.abs(a - b) < 0.005;
+
+// Note and coin multiples a customer is likely to hand over.
+const CASH_TENDER_STEPS = [5, 10, 20, 50, 100];
+
+/**
+ * Round amounts a customer is likely to pay with for `amount`, smallest
+ * first, never the exact amount itself (that's its own option). $23.40 →
+ * $25, $30, $40.
+ */
+export const getCashTenderSuggestions = (amount: number, max = 3): number[] => {
+  if (!(amount > 0)) return [];
+  const suggestions = new Set<number>();
+  for (const step of CASH_TENDER_STEPS) {
+    const rounded = Math.ceil(amount / step) * step;
+    if (!isSameAmount(rounded, amount)) suggestions.add(rounded);
+  }
+  return [...suggestions].sort((a, b) => a - b).slice(0, max);
+};

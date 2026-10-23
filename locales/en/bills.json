@@ -21,7 +21,7 @@
     "newSale": "New Sale"
   },
   "print": {
-    "title": "Print Bill",
+    "title": "Print bill",
     "printing": "Printing bill...",
     "printSuccess": "Bill printed successfully",
     "printError": "Could not print the bill. Please check the printer connection.",
@@ -40,12 +40,12 @@
     "subtotal": "Subtotal",
     "change": "Change",
     "total": "Total",
-    "totalAmount": "Total Amount",
+    "totalAmount": "Total amount",
     "items": "Items",
-    "billPaid": "Bill Paid",
+    "billPaid": "Bill paid",
     "paid": "Paid",
     "unpaid": "Unpaid",
-    "partiallyPaid": "Partially Paid",
+    "partiallyPaid": "Partially paid",
     "exactAmount": "Exact amount",
     "payBill": "Charge bill",
     "commission": "Commission",
@@ -53,7 +53,14 @@
     "transferNote": "Transfer note",
     "transferNotePlaceholder": "Add reference or confirmation info",
     "transferProofNote": "You will need to upload a payment proof after confirming.",
-    "payments": "Payments"
+    "payments": "Payments",
+    "chargeAmount": "Charge {{amount}}",
+    "paidAndRemaining": "{{paid}} paid · {{remaining}} left to charge",
+    "awaitingTransfer": "The rest is covered by a transfer waiting for approval.",
+    "deleteBill": "Delete bill",
+    "editDiscount": "Edit discount",
+    "amountToCharge": "Amount to charge",
+    "plusCommission": "+ {{percentage}}% commission"
   },
   "paymentMethods": {
     "cash": "Cash",
@@ -79,11 +86,11 @@
   },
   "editBill": {
     "title": "Edit Bill",
-    "saveBill": "Save changes - ${{amount}}"
+    "saveBill": "Save changes · {{amount}}"
   },
   "dialogs": {
-    "removeTitle": "Remove Bill",
-    "removeMessage": "Are you sure you want to remove this bill? This action cannot be undone."
+    "removeTitle": "Delete bill?",
+    "removeMessage": "The bill and its items will be removed. This can't be undone."
   },
   "alerts": {
     "noItemsSelected": "No items selected",
@@ -122,7 +129,7 @@
     "accountTypeBank": "Bank",
     "accountTypeCash": "Cash",
     "payButton": "Pay {{amount}}",
-    "confirmTransfer": "Confirm Transfer"
+    "confirmTransfer": "Confirm transfer"
   },
   "proofUpload": {
     "uploadSuccess": "Proof uploaded successfully",
@@ -155,7 +162,6 @@
     "title": "Edit sale",
     "addProducts": "Add products",
     "save": "Save changes",
-    "items": "{{count}} items",
     "discount": "Discount: {{amount}}",
     "paid": "Paid: {{amount}}",
     "totalBelowPaid": "The total can't be lower than what was already paid ({{amount}})",
@@ -167,7 +173,9 @@
     "reprint": "Reprint",
     "addToSale": "Add to sale",
     "menuBanner": "Adding products to sale #{{number}}",
-    "backToSale": "Back to sale ({{count}})"
+    "backToSale": "Back to sale ({{count}})",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items"
   },
   "loadState": {
     "notFoundTitle": "Bill not found",
@@ -182,6 +190,10 @@
     "goToSettings": "Go to Restaurant settings",
     "alreadyPaidTitle": "This bill is already paid",
     "alreadyPaidDescription": "There's nothing left to charge. Pending transfers count until they're approved or rejected.",
-    "amountChanged": "This bill now has {{amount}} left to pay. Go back and enter the amount again."
+    "amountChanged": "This bill now has {{amount}} left to pay. Go back and enter the amount again.",
+    "paid": "Charged {{amount}}",
+    "paidWithChange": "Charged {{amount}} · Change {{change}}",
+    "printReceipt": "Print receipt",
+    "transferRegistered": "Transfer of {{amount}} registered · waiting for approval"
   }
 }

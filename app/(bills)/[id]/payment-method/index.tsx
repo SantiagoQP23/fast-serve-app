@@ -10,7 +10,7 @@ import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { usePaymentMethods } from "@/presentation/restaurant/hooks/usePaymentMethods";
 import Button from "@/presentation/theme/components/button";
 import PaymentMethodCard, {
-  PaymentMethod as PaymentMethodCardProps,
+  getPaymentMethodIcon,
 } from "@/presentation/orders/components/payment-method-card";
 import TextInput from "@/presentation/theme/components/text-input";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
@@ -34,6 +34,7 @@ import { roundTo } from "@/core/common/utils/format.util";
 import {
   applyCommission,
   getBillAmountDue,
+  getCashTenderSuggestions,
   isSameAmount,
   parseAmount,
 } from "@/core/orders/utils/bill-payment.util";
@@ -43,23 +44,6 @@ import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-b
 import Switch from "@/presentation/theme/components/switch";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
-
-const iconForType = (
-  type: PaymentMethodCategory,
-): PaymentMethodCardProps["icon"] => {
-  switch (type) {
-    case PaymentMethodCategory.CASH:
-      return "banknote";
-    case PaymentMethodCategory.CARD:
-      return "credit-card";
-    case PaymentMethodCategory.TRANSFER:
-      return "wallet";
-    case PaymentMethodCategory.DIGITAL_WALLET:
-      return "smartphone";
-    default:
-      return "circle-ellipsis";
-  }
-};
 
 export default function PaymentMethodScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
@@ -162,11 +146,10 @@ export default function PaymentMethodScreen() {
   const isReceivedEnough =
     received >= payAmount || isSameAmount(received, payAmount);
 
-  const moneyReceivedOptions = [
-    5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95,
-    100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170,
-    175, 180, 185, 190, 195, 200,
-  ];
+  const tenderSuggestions = getCashTenderSuggestions(payAmount);
+  // "$25", not "$25.00": these read as notes, not prices.
+  const formatTender = (value: number) =>
+    formatCurrency(value).replace(/\.00$/, "");
 
   if (!bill) {
     return (
@@ -226,15 +209,19 @@ export default function PaymentMethodScreen() {
     navigateToAccount(method);
   };
 
-  const handleContinueCash = () => {
+  const continueCashWith = (receivedValue: number) => {
     if (!selectedMethod) return;
+    setBillReceivedAmount(receivedValue.toFixed(2));
+    setPendingNavigationMethod(selectedMethod);
+    cashBottomSheetRef.current?.dismiss();
+  };
+
+  const handleContinueCash = () => {
     if (!isReceivedEnough) {
       toast.error(t("bills:alerts.insufficientAmount"));
       return;
     }
-    setBillReceivedAmount(received.toFixed(2));
-    setPendingNavigationMethod(selectedMethod);
-    cashBottomSheetRef.current?.dismiss();
+    continueCashWith(received);
   };
 
   const handleContinueCard = () => {
@@ -340,7 +327,7 @@ export default function PaymentMethodScreen() {
       >
         <BottomSheetView style={tw`p-6 gap-4 bg-background`}>
           <ThemedView style={tw`gap-1`}>
-            <ThemedText type="h3">{t("bills:details.transferNote")}</ThemedText>
+            <ThemedText type="h3">{selectedMethod?.name}</ThemedText>
             <ThemedText type="body1" style={tw`text-gray-500`}>
               {formatCurrency(payAmount)}
             </ThemedText>
@@ -377,7 +364,7 @@ export default function PaymentMethodScreen() {
               {selectedProofImage ? (
                 <ThemedView style={tw`gap-3`}>
                   <ThemedView
-                    style={tw`rounded-xl border border-gray-200 overflow-hidden`}
+                    style={tw`rounded-md border border-gray-200 overflow-hidden`}
                   >
                     <Image
                       source={{ uri: selectedProofImage.uri }}
@@ -397,7 +384,7 @@ export default function PaymentMethodScreen() {
                   <Pressable
                     onPress={() => pickProofImage("gallery")}
                     style={({ pressed }) => [
-                      tw`flex-1 items-center justify-center p-4 rounded-xl border-2 border-dashed border-border  bg-surface gap-2`,
+                      tw`flex-1 items-center justify-center p-4 rounded-md border-2 border-dashed border-border  bg-surface gap-2`,
                       pressed && tw`opacity-70 bg-gray-100`,
                     ]}
                   >
@@ -416,7 +403,7 @@ export default function PaymentMethodScreen() {
                   <Pressable
                     onPress={() => pickProofImage("camera")}
                     style={({ pressed }) => [
-                      tw`flex-1 items-center justify-center p-4 rounded-xl border-2 border-dashed border-border  bg-surface gap-2`,
+                      tw`flex-1 items-center justify-center p-4 rounded-md border-2 border-dashed border-border  bg-surface gap-2`,
                       pressed && tw`opacity-70 bg-gray-100`,
                     ]}
                   >
@@ -438,7 +425,7 @@ export default function PaymentMethodScreen() {
           )}
 
           {/* <ThemedView */}
-          {/*   style={tw`flex-row items-center gap-2 p-3 rounded-xl bg-blue-50`} */}
+          {/*   style={tw`flex-row items-center gap-2 p-3 rounded-md bg-blue-50`} */}
           {/* > */}
           {/*   <Icon */}
           {/*     name="information-circle-outline" */}
@@ -465,17 +452,20 @@ export default function PaymentMethodScreen() {
       >
         <BottomSheetView style={tw`p-6 gap-4 bg-background`}>
           <ThemedView style={tw`gap-1 items-center`}>
-            <ThemedText type="h3">{t("bills:details.commission")}</ThemedText>
+            <ThemedText type="h3">{selectedMethod?.name}</ThemedText>
             <ThemedText type="body2" style={tw`text-gray-500`}>
-              {t("bills:details.totalAmount")}: {formatCurrency(payAmount)}
+              {t("bills:details.amountToCharge")}: {formatCurrency(payAmount)}
             </ThemedText>
           </ThemedView>
 
-          <ThemedView style={tw` rounded-xl  gap-1 items-center mb-4`}>
-            <ThemedText type="body1" style={tw``}>
-              {selectedMethod?.commissionPercentage ?? 0}%{" "}
-              {t("bills:details.commission").toLowerCase()}
-            </ThemedText>
+          <ThemedView style={tw` rounded-md  gap-1 items-center mb-4`}>
+            {(selectedMethod?.commissionPercentage ?? 0) > 0 && (
+              <ThemedText type="body1">
+                {t("bills:details.plusCommission", {
+                  percentage: selectedMethod?.commissionPercentage,
+                })}
+              </ThemedText>
+            )}
             <ThemedText type="body2" style={tw`text-gray-500 mt-2`}>
               {t("bills:details.totalToPay")}
             </ThemedText>
@@ -504,7 +494,7 @@ export default function PaymentMethodScreen() {
               {t("bills:details.receivedAmount")}
             </ThemedText>
             <ThemedText type="body2" style={tw`text-gray-500`}>
-              {t("bills:details.totalAmount")}: {formatCurrency(payAmount)}
+              {t("bills:details.amountToCharge")}: {formatCurrency(payAmount)}
             </ThemedText>
           </ThemedView>
 
@@ -517,30 +507,24 @@ export default function PaymentMethodScreen() {
             icon="banknote"
           />
 
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={tw`gap-2 mt-1`}
-            nestedScrollEnabled
-          >
-            {moneyReceivedOptions
-              .filter((value) => value >= payAmount)
-              .map((amount) => (
-                <Button
-                  key={amount}
-                  label={`$${amount}`}
-                  variant={amount === received ? "primary" : "outline"}
-                  size="small"
-                  onPress={() => setReceivedAmount(amount.toString())}
-                />
-              ))}
-          </ScrollView>
-
-          <Button
-            label={t("bills:details.exactAmount")}
-            variant="outline"
-            onPress={() => setReceivedAmount(payAmount.toFixed(2))}
-          />
+          {/* Exact pays without change, so it goes straight on. The others
+              fill in what the customer handed over and show the change. */}
+          <ThemedView style={tw`flex-row flex-wrap gap-2`}>
+            <Chip
+              variant="assist"
+              icon="banknote"
+              label={t("bills:details.exactAmount")}
+              onPress={() => continueCashWith(payAmount)}
+            />
+            {tenderSuggestions.map((tender) => (
+              <Chip
+                key={tender}
+                label={formatTender(tender)}
+                selected={isSameAmount(received, tender)}
+                onPress={() => setReceivedAmount(tender.toFixed(2))}
+              />
+            ))}
+          </ThemedView>
 
           {received > payAmount && !isSameAmount(received, payAmount) && (
             <ThemedView style={tw`mt-2 p-4  items-center`}>
@@ -565,7 +549,7 @@ export default function PaymentMethodScreen() {
         {/* Amount to Pay */}
         <ThemedView style={tw`items-center mb-4`}>
           <ThemedText type="caption" style={tw`text-text mb-2`}>
-            {t("bills:details.totalAmount")}
+            {t("bills:details.amountToCharge")}
           </ThemedText>
           <TextInput
             inputMode="decimal"
@@ -611,7 +595,7 @@ export default function PaymentMethodScreen() {
               paymentMethod={{
                 name: method.name,
                 value: String(method.id),
-                icon: iconForType(method.type),
+                icon: getPaymentMethodIcon(method.type),
               }}
               variant="vertical"
               active={selectedMethod?.id === method.id}

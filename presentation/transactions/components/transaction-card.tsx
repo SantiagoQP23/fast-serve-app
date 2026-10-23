@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Pressable, PressableProps } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import Icon from "@/presentation/theme/components/icon";
 import { Transaction } from "@/core/transactions/models/transaction.model";
-import { TransactionType } from "@/core/transactions/models/transaction-category.model";
 import { formatCurrency, getRelativeTime } from "@/core/i18n/utils";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import IconButton from "@/presentation/theme/components/icon-button";
@@ -16,9 +15,8 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
-import { typography } from "@/constants/theme";
-import { router } from "expo-router";
 import Label, { LabelProps } from "@/presentation/theme/components/label";
+import { getPaymentMethodIcon } from "@/presentation/orders/components/payment-method-card";
 
 interface TransactionCardProps extends PressableProps {
   transaction: Transaction;
@@ -38,11 +36,7 @@ export default function TransactionCard({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const isAdmin = isAdminLevelRole(user?.role?.name);
-  const isIncome =
-    transaction.category.transactionType === TransactionType.INCOME;
   const relativeTime = getRelativeTime(transaction.createdAt);
-
-  const categoryColor = transaction.category.color ?? "#6b7280";
 
   const onRemoveTransaction = () => {
     setShowDeleteModal(true);
@@ -74,12 +68,28 @@ export default function TransactionCard({
           ? "error"
           : "default";
 
-  const hasProofs = transaction.proofs && transaction.proofs.length > 0;
+  // The amount pill's color isn't enough on its own: say it in words too.
+  const statusText =
+    transaction.status === TransactionStatus.PENDING_PROOF ||
+    transaction.status === TransactionStatus.PENDING_APPROVAL
+      ? t("common:status.pending")
+      : transaction.status === TransactionStatus.REJECTED
+        ? t("common:status.rejected")
+        : transaction.status === TransactionStatus.CANCELLED
+          ? t("common:status.cancelled")
+          : null;
+
+  const methodAndAccount = [
+    transaction.paymentMethod?.name,
+    transaction.account?.name,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <>
       <Swipeable
-        containerStyle={tw` rounded-3xl`}
+        containerStyle={tw`rounded-md`}
         renderRightActions={
           canRemoveTransaction
             ? () => (
@@ -98,33 +108,28 @@ export default function TransactionCard({
         <Pressable
           onPress={onPress}
           {...rest}
-          style={tw.style(active && "bg-secondary rounded-2xl")}
+          style={tw.style(active && "bg-secondary rounded-md")}
+          accessibilityRole="button"
         >
-          <ThemedView style={tw`flex-row justify-between   rounded-3xl`}>
-            {/* Left: Colored icon circle + transaction info */}
-            <ThemedView style={tw`flex-row  gap-3 flex-1 items-center`}>
-              {/* Category color circle */}
-              <ThemedView style={[tw`w-10 h-10 rounded-full  items-center`, ,]}>
+          <ThemedView style={tw`flex-row justify-between`}>
+            <ThemedView style={tw`flex-row gap-3 flex-1 items-center`}>
+              <ThemedView style={tw`w-10 h-10 items-center justify-center`}>
                 <Icon
-                  name="banknote"
-                  size={26}
-                  color={tw.color(`gray-600`)}
+                  name={
+                    transaction.paymentMethod
+                      ? getPaymentMethodIcon(transaction.paymentMethod.type)
+                      : "circle-dollar-sign"
+                  }
+                  size={24}
+                  color={tw.color("gray-600")}
                 />
               </ThemedView>
 
-              {/* Transaction details */}
               <ThemedView style={tw`flex-1 gap-1`}>
-                {/* <ThemedText */}
-                {/*   type="body1" */}
-                {/*   style={[tw``, { fontFamily: typography.medium }]} */}
-                {/*   numberOfLines={1} */}
-                {/* > */}
-                {/*   {transaction.name} {""} */}
-                {/* </ThemedText> */}
-                <ThemedText type="body1" style={tw``}>
-                  {transaction.account.name}
+                <ThemedText type="body1" numberOfLines={1}>
+                  {methodAndAccount}
                 </ThemedText>
-                <ThemedText type="small" style={tw``}>
+                <ThemedText type="small">
                   {getUserDisplayName(
                     transaction.createdBy,
                     t("common:labels.deletedUser"),
@@ -132,7 +137,7 @@ export default function TransactionCard({
                 </ThemedText>
                 <ThemedView style={tw`flex-row items-center gap-2 mt-0.5`}>
                   <ThemedText type="small" style={tw`text-gray-500`}>
-                    {relativeTime}
+                    {statusText ? `${relativeTime} · ${statusText}` : relativeTime}
                   </ThemedText>
                 </ThemedView>
               </ThemedView>

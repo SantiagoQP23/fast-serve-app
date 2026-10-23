@@ -13,8 +13,7 @@ import { Bill } from "@/core/orders/models/bill.model";
 import { Order } from "@/core/orders/models/order.model";
 import { BillsService } from "@/core/orders/services/bills.service";
 import { useWebsocketEventEmitter } from "@/presentation/shared/hooks/useWebsocketEventEmitter";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Alert } from "react-native";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner-native";
 
 // Get QueryClient from the context
@@ -38,7 +37,7 @@ export const useBills = () => {
   const createSaleEmitter = useWebsocketEventEmitter<Bill, CreateSaleDto>(
     OrderSocketEvent.createSale,
     {
-      onSuccess: (resp) => {
+      onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: ["billsList"],
         });
@@ -48,7 +47,7 @@ export const useBills = () => {
         //   });
       },
       onError: (resp) => {
-        Alert.alert("Error", resp.msg);
+        toast.error(resp.msg);
       },
     },
   );
@@ -63,7 +62,7 @@ export const useBills = () => {
           });
       },
       onError: (resp) => {
-        Alert.alert("Error", resp.msg);
+        toast.error(resp.msg);
       },
     },
   );
@@ -85,7 +84,7 @@ export const useBills = () => {
       }
     },
     onError: (resp) => {
-      Alert.alert("Error", resp.msg);
+      toast.error(resp.msg);
     },
   });
 
@@ -99,7 +98,7 @@ export const useBills = () => {
         queryClient.invalidateQueries({ queryKey: ["bill", resp.data.id] });
     },
     onError: (resp) => {
-      Alert.alert("Error", translateErrorCode(resp.code, resp.msg));
+      toast.error(translateErrorCode(resp.code, resp.msg));
     },
   });
 
@@ -118,7 +117,7 @@ export const useBills = () => {
         });
     },
     onError: (resp) => {
-      Alert.alert("Error", resp.msg);
+      toast.error(resp.msg);
     },
   });
 
@@ -143,7 +142,7 @@ export const useBills = () => {
       });
     },
     // The paying screen reports the failure itself (a toast that keeps the
-    // cashier on the screen to retry); an Alert here would show it twice.
+    // cashier on the screen to retry); a toast here would show it twice.
   });
 
   const billsByOrderQuery = (orderId: string) =>

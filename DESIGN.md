@@ -215,7 +215,7 @@ The One Accent Rule holds in every theme. Printed receipts and QR codes stay bla
 
 ## Typography
 
-**Body & Display Font:** Plus Jakarta Sans (regular / medium / semibold / bold) by default, with a system-ui/sans-serif fallback. The user can switch to **Nunito** per device in Settings → Font (`useThemeStore().font`), with the same weights, sizes and line heights. One family at a time for everything: no serif, no monospace, no separate display face.
+**Body & Display Font:** Plus Jakarta Sans (regular / medium / semibold / bold) by default, with a system-ui/sans-serif fallback. The user can switch to **Nunito** per device in Settings → Font (`useThemeStore().font`), with the same weights, sizes and line heights. One family at a time for everything: no serif, no monospace, no separate display face. The one exception is the bill print preview, which uses monospace because it shows what the thermal ticket will print.
 
 **Font names come from `typography`** (`constants/theme.ts`), whose values follow the setting. Read them while rendering, never in a module-level `StyleSheet.create`, and never hard-code a family name. Both families load once in the root layout. `ThemedText` sets tabular (fixed-width) digits so prices and totals line up in either font.
 
@@ -246,6 +246,8 @@ List and detail screens take one of three shapes:
 - **A detail screen with a `FloatingToolbar`** pinned at the bottom for its handful of direct actions (e.g. duplicate, edit, more). Its scroll content reserves bottom padding so the toolbar never hides the last row.
 
 Each screen has one primary-action surface. A list screen gets a single bottom-right `Fab`. A form screen gets a header-trailing `Button`. A detail screen gets the `FloatingToolbar`. Never combine them on one screen.
+
+**Exception: a detail screen whose job is one action.** The bill detail screen is for charging the bill, so it docks a full-width primary `Button` ("Cobrar $X") to the bottom edge instead of a `FloatingToolbar`. The bar has a top hairline (`divider`) and respects the bottom inset. Edit, Print and More move to header `IconButton`s, each with an accessible name. A paid bill drops the bar. When nothing is left to charge but the bill isn't paid (a transfer awaiting approval), the bar shows that reason instead of the button.
 
 **Large screens:** `ScreenLayout` caps forms and detail screens at 720dp (`CONTENT_MAX_WIDTH`) on tablets and centers them, and `fullWidth` opts out. Bottom sheets cap at 640dp. Two-pane layouts take over at an 840dp window width (`BREAKPOINTS.EXPANDED`, a Material window-size class), and panes reuse screens through an `embedded` prop. Landscape POS is the tablet target.
 

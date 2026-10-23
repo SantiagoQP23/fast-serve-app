@@ -1,5 +1,6 @@
 import { ScrollView, ActivityIndicator } from "react-native";
 import { toast } from "sonner-native";
+import * as Haptics from "expo-haptics";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -7,7 +8,6 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useState, useEffect, useCallback } from "react";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import Button from "@/presentation/theme/components/button";
-import Label from "@/presentation/theme/components/label";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.model";
 import { Account, AccountType } from "@/core/restaurant/models/account.model";
@@ -15,7 +15,6 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import Icon from "@/presentation/theme/components/icon";
 import { useBills } from "@/presentation/orders/hooks/useBills";
-import { Pressable } from "react-native";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
 import { Transaction } from "@/core/transactions/models/transaction.model";
@@ -23,6 +22,7 @@ import { PaymentProofsService } from "@/core/transactions/services/payment-proof
 import { usePaymentStore } from "@/presentation/payment/store/usePaymentStore";
 import { generateIdempotencyKey } from "@/helpers/idempotency";
 import { getErrorMessage } from "@/core/api/get-error-message";
+import { roundTo } from "@/core/common/utils/format.util";
 import Card from "@/presentation/theme/components/card";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
@@ -33,6 +33,7 @@ import {
   parseAmount,
 } from "@/core/orders/utils/bill-payment.util";
 import BillLoadState from "@/presentation/orders/components/bill-load-state";
+import { getPaymentMethodIcon } from "@/presentation/orders/components/payment-method-card";
 
 export default function AccountScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
@@ -146,6 +147,33 @@ export default function AccountScreen() {
     router.back();
   };
 
+  const isCash = selectedPaymentMethod.type === PaymentMethodCategory.CASH;
+  const receivedAmount = parseAmount(billReceivedAmount);
+  const change =
+    isCash && receivedAmount > amount ? roundTo(receivedAmount - amount, 2) : 0;
+
+  // The moment money changes hands: confirm what was charged and, for cash,
+  // the change to hand back (kept on screen long enough to count it out),
+  // with the receipt one tap away.
+  const confirmPayment = () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    toast.success(
+      change > 0
+        ? t("bills:payment.paidWithChange", {
+            amount: formatCurrency(amount),
+            change: formatCurrency(change),
+          })
+        : t("bills:payment.paid", { amount: formatCurrency(amount) }),
+      {
+        duration: change > 0 ? 10000 : 5000,
+        action: {
+          label: t("bills:payment.printReceipt"),
+          onClick: () => router.push(`/(bills)/${bill.id}/print`),
+        },
+      },
+    );
+  };
+
   const handlePay = () => {
     if (exceedsAmountDue) return;
     if (!selectedAccountId) {
@@ -203,6 +231,11 @@ export default function AccountScreen() {
             setActivePendingTransaction(transaction as Transaction);
 
             await uploadPendingProof(transaction.id);
+            toast.success(
+              t("bills:payment.transferRegistered", {
+                amount: formatCurrency(amount),
+              }),
+            );
 
             // Leave the flow whether the upload succeeded or not
             if (bill.source === "direct") {
@@ -222,11 +255,11 @@ export default function AccountScreen() {
             isTransfer &&
             transaction?.status === TransactionStatus.COMPLETED
           ) {
-            toast.success(t("bills:proofUpload.autoApproved"));
             await uploadPendingProof(transaction.id);
           }
 
           leavePaymentFlow();
+          confirmPayment();
         },
         onError: (resp) => {
           toast.error(resp.msg || t("errors:general.error"));
@@ -248,19 +281,20 @@ export default function AccountScreen() {
           </ThemedText>
           {commissionPercentage > 0 && (
             <ThemedText type="body2" style={tw`text-gray-500 mt-1`}>
-              {t("bills:details.totalAmount")}: {formatCurrency(amount)} +{" "}
-              {commissionPercentage}%{" "}
-              {t("bills:details.commission").toLowerCase()}
+              {formatCurrency(amount)}{" "}
+              {t("bills:details.plusCommission", {
+                percentage: commissionPercentage,
+              })}
             </ThemedText>
           )}
         </ThemedView>
 
         {/* Payment method info */}
         <ThemedView
-          style={tw`flex-row items-center justify-center gap-3 py-4 rounded-2xl  mb-6`}
+          style={tw`flex-row items-center justify-center gap-3 py-4 mb-6`}
         >
           <Icon
-            name="credit-card"
+            name={getPaymentMethodIcon(selectedPaymentMethod.type)}
             size={26}
             color={tw.color("gray-500")}
           />
@@ -309,9 +343,11 @@ export default function AccountScreen() {
                   style={({ pressed }) => [
                     tw`flex-row items-center `,
                     pressed && tw`opacity-80`,
-                    isSelected && tw`border-primary border-2`,
+                    isSelected && tw`bg-secondary`,
                   ]}
-                  variant={isSelected ? "default" : "outline"}
+                  variant="outline"
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: isSelected }}
                 >
                   <ThemedView
                     style={tw`w-10 h-10 rounded-full bg-gray-100 items-center justify-center`}

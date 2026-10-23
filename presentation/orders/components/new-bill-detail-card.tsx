@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { View, Pressable, PressableProps } from "react-native";
+import { PressableProps } from "react-native";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { OrderDetail } from "@/core/orders/models/order-detail.model";
 import { useCounter } from "@/presentation/shared/hooks/useCounter";
@@ -55,12 +55,12 @@ export default function NewBillDetailCard({
   return (
     <Card
       style={({ pressed }) => [
-        tw`p-6 rounded-3xl gap-4`,
-        isSelected ? tw`border-2 border-primary` : tw``,
-        pressed && tw`opacity-60`,
+        tw`p-6 gap-4`,
+        isSelected && tw`bg-secondary`,
+        pressed && tw`opacity-80`,
       ]}
       onPress={onPress}
-      variant={isSelected ? "default" : "outline"}
+      variant="outline"
     >
       {/* Product Info */}
       <ThemedView

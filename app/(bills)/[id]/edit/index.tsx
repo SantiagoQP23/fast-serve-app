@@ -17,7 +17,8 @@ import { EditBillDto } from "@/core/orders/dto/edit-bill.dto";
 import { useBills } from "@/presentation/orders/hooks/useBills";
 import BillLoadState from "@/presentation/orders/components/bill-load-state";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatCurrency, i18nAlert } from "@/core/i18n/utils";
+import { formatCurrency } from "@/core/i18n/utils";
+import { toast } from "sonner-native";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { useOrder } from "@/presentation/orders/hooks/useOrder";
@@ -162,10 +163,7 @@ export default function EditBillScreen() {
       }));
 
     if (details.length === 0) {
-      i18nAlert(
-        t("bills:alerts.noItemsSelected"),
-        t("bills:alerts.noItemsSelectedMessage"),
-      );
+      toast.error(t("bills:alerts.noItemsSelectedMessage"));
       return;
     }
 
@@ -248,14 +246,14 @@ export default function EditBillScreen() {
         {selectedTotal > 0 && (
           <ThemedView style={tw`flex-row justify-between items-center mb-3`}>
             <ThemedText type="caption" style={tw`text-gray-600`}>
-              {selectedCount} item{selectedCount !== 1 ? "s" : ""}
+              {t("bills:editSale.items", { count: selectedCount })}
             </ThemedText>
             <ThemedText type="h3">{formatCurrency(selectedTotal)}</ThemedText>
           </ThemedView>
         )}
         <Button
           label={t("bills:editBill.saveBill", {
-            amount: selectedTotal.toFixed(2),
+            amount: formatCurrency(selectedTotal),
           })}
           onPress={onSaveBill}
           disabled={isSaving || selectedTotal === 0}

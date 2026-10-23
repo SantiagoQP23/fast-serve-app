@@ -21,7 +21,7 @@
     "newSale": "Nueva Venta"
   },
   "print": {
-    "title": "Imprimir Cuenta",
+    "title": "Imprimir cuenta",
     "printing": "Imprimiendo cuenta...",
     "printSuccess": "Cuenta impresa correctamente",
     "printError": "No se pudo imprimir la cuenta. Por favor verifique la conexión de la impresora.",
@@ -40,11 +40,11 @@
     "subtotal": "Subtotal",
     "change": "Cambio",
     "total": "Total",
-    "totalAmount": "Monto Total",
+    "totalAmount": "Monto total",
     "items": "Artículos",
-    "billPaid": "Cuenta Pagada",
+    "billPaid": "Cuenta pagada",
     "paid": "Pagado",
-    "unpaid": "Sin Pagar",
+    "unpaid": "Sin pagar",
     "partiallyPaid": "Pago parcial",
     "exactAmount": "Monto exacto",
     "payBill": "Cobrar cuenta",
@@ -53,7 +53,14 @@
     "transferNote": "Nota de transferencia",
     "transferNotePlaceholder": "Agrega referencia o información de confirmación",
     "transferProofNote": "Deberás subir un comprobante de pago después de confirmar.",
-    "payments": "Pagos"
+    "payments": "Pagos",
+    "chargeAmount": "Cobrar {{amount}}",
+    "paidAndRemaining": "{{paid}} pagado · {{remaining}} por cobrar",
+    "awaitingTransfer": "El resto está cubierto por una transferencia pendiente de aprobación.",
+    "deleteBill": "Eliminar cuenta",
+    "editDiscount": "Editar descuento",
+    "amountToCharge": "Monto a cobrar",
+    "plusCommission": "+ {{percentage}}% de comisión"
   },
   "paymentMethods": {
     "cash": "Efectivo",
@@ -79,11 +86,11 @@
   },
   "editBill": {
     "title": "Editar Cuenta",
-    "saveBill": "Guardar cambios - ${{amount}}"
+    "saveBill": "Guardar cambios · {{amount}}"
   },
   "dialogs": {
-    "removeTitle": "Eliminar Cuenta",
-    "removeMessage": "¿Está seguro que desea eliminar esta cuenta? Esta acción no se puede deshacer."
+    "removeTitle": "¿Eliminar cuenta?",
+    "removeMessage": "Se eliminarán la cuenta y sus productos. Esta acción no se puede deshacer."
   },
   "alerts": {
     "noItemsSelected": "No hay productos seleccionados",
@@ -122,7 +129,7 @@
     "accountTypeBank": "Banco",
     "accountTypeCash": "Efectivo",
     "payButton": "Pagar {{amount}}",
-    "confirmTransfer": "Confirmar Transferencia"
+    "confirmTransfer": "Confirmar transferencia"
   },
   "proofUpload": {
     "uploadSuccess": "Comprobante subido exitosamente",
@@ -155,7 +162,6 @@
     "title": "Editar venta",
     "addProducts": "Agregar productos",
     "save": "Guardar cambios",
-    "items": "{{count}} productos",
     "discount": "Descuento: {{amount}}",
     "paid": "Pagado: {{amount}}",
     "totalBelowPaid": "El total no puede ser menor a lo ya pagado ({{amount}})",
@@ -167,7 +173,9 @@
     "reprint": "Reimprimir",
     "addToSale": "Agregar a la venta",
     "menuBanner": "Agregando productos a la venta #{{number}}",
-    "backToSale": "Volver a la venta ({{count}})"
+    "backToSale": "Volver a la venta ({{count}})",
+    "items_one": "{{count}} producto",
+    "items_other": "{{count}} productos"
   },
   "loadState": {
     "notFoundTitle": "Cuenta no encontrada",
@@ -182,6 +190,10 @@
     "goToSettings": "Ir a configuración del restaurante",
     "alreadyPaidTitle": "Esta cuenta ya está pagada",
     "alreadyPaidDescription": "No queda nada por cobrar. Las transferencias pendientes cuentan hasta que se aprueben o rechacen.",
-    "amountChanged": "A esta cuenta le quedan {{amount}} por pagar. Vuelve e ingresa el monto otra vez."
+    "amountChanged": "A esta cuenta le quedan {{amount}} por pagar. Vuelve e ingresa el monto otra vez.",
+    "paid": "Cobrado {{amount}}",
+    "paidWithChange": "Cobrado {{amount}} · Cambio {{change}}",
+    "printReceipt": "Imprimir recibo",
+    "transferRegistered": "Transferencia de {{amount}} registrada · pendiente de aprobación"
   }
 }

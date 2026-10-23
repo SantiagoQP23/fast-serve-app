@@ -1,4 +1,5 @@
-import { ScrollView, Alert, Image, Pressable } from "react-native";
+import { ScrollView, Image, Pressable } from "react-native";
+import { toast } from "sonner-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -6,7 +7,8 @@ import { useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Button from "@/presentation/theme/components/button";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatCurrency } from "@/core/i18n/utils";
+import { formatCurrency, formatDate } from "@/core/i18n/utils";
+import Label, { type LabelProps } from "@/presentation/theme/components/label";
 import Icon from "@/presentation/theme/components/icon";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { usePaymentProofs } from "@/presentation/transactions/hooks/usePaymentProofs";
@@ -19,6 +21,27 @@ import { getErrorMessage } from "@/core/api/get-error-message";
 export default function ProofUploadScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
   const router = useRouter();
+
+  const proofStatusLabel = (
+    status: PaymentProofStatus,
+  ): Pick<LabelProps, "color" | "text" | "leftIcon"> =>
+    status === PaymentProofStatus.APPROVED
+      ? {
+          color: "success",
+          text: t("bills:proofUpload.approved"),
+          leftIcon: "circle-check",
+        }
+      : status === PaymentProofStatus.PENDING
+        ? {
+            color: "warning",
+            text: t("bills:proofUpload.awaitingValidation"),
+            leftIcon: "clock",
+          }
+        : {
+            color: "error",
+            text: t("bills:proofUpload.rejected"),
+            leftIcon: "circle-x",
+          };
   const { id } = useLocalSearchParams<{ id: string }>();
   const transactionId = Number(id);
 
@@ -59,10 +82,7 @@ export default function ProofUploadScreen() {
         : await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permissionResult.granted) {
-      Alert.alert(
-        t("errors:general.permissionDenied"),
-        t("errors:general.cameraPermissionRequired"),
-      );
+      toast.error(t("errors:general.cameraPermissionRequired"));
       return;
     }
 
@@ -99,14 +119,10 @@ export default function ProofUploadScreen() {
       {
         onSuccess: () => {
           setSelectedImage(null);
-          Alert.alert(
-            t("common:status.success"),
-            t("bills:proofUpload.uploadSuccess"),
-          );
+          toast.success(t("bills:proofUpload.uploadSuccess"));
         },
         onError: (error: any) => {
-          Alert.alert(
-            t("errors:general.error"),
+          toast.error(
             getErrorMessage(error, { fallbackToServerMessage: true }),
           );
         },
@@ -148,60 +164,29 @@ export default function ProofUploadScreen() {
             <ThemedText type="body2" style={tw`text-gray-500`}>
               {t("bills:details.totalAmount")}:{" "}
               {formatCurrency(transaction.amount)} +{" "}
-              {transaction.paymentMethod?.commissionPercentage}%
+              {transaction.paymentMethod?.commissionPercentage}%{" "}
               {t("bills:details.commission").toLowerCase()}
             </ThemedText>
           )}
         </ThemedView>
 
-        {/* Status badge */}
-        {hasPendingProof && (
-          <ThemedView
-            style={tw`flex-row items-center gap-2 p-3 rounded-xl bg-yellow-50 border border-yellow-200`}
-          >
-            <Icon
-              name="clock"
-              size={20}
-              color={tw.color("yellow-600")}
-            />
-            <ThemedText type="body2" style={tw`text-yellow-700 font-medium`}>
-              {t("bills:proofUpload.awaitingValidation")}
-            </ThemedText>
-          </ThemedView>
-        )}
-        {hasApprovedProof && (
-          <ThemedView
-            style={tw`flex-row items-center gap-2 p-3 rounded-xl bg-green-50 border border-green-200`}
-          >
-            <Icon
-              name="circle-check"
-              size={20}
-              color={tw.color("green-600")}
-            />
-            <ThemedText type="body2" style={tw`text-green-700 font-medium`}>
-              {t("bills:proofUpload.approved")}
-            </ThemedText>
-          </ThemedView>
-        )}
-        {hasRejectedProof && (
-          <ThemedView
-            style={tw`flex-row items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200`}
-          >
-            <Icon
-              name="circle-x"
-              size={20}
-              color={tw.color("red-600")}
-            />
-            <ThemedView style={tw`flex-1`}>
-              <ThemedText type="body2" style={tw`text-red-700 font-medium`}>
-                {t("bills:proofUpload.rejected")}
-              </ThemedText>
-              {latestProof.rejectionReason && (
-                <ThemedText type="small" style={tw`text-red-500 mt-1`}>
-                  {latestProof.rejectionReason}
-                </ThemedText>
+        {/* Status */}
+        {(hasPendingProof || hasApprovedProof || hasRejectedProof) && (
+          <ThemedView style={tw`items-center gap-2`}>
+            <Label
+              {...proofStatusLabel(
+                hasApprovedProof
+                  ? PaymentProofStatus.APPROVED
+                  : hasPendingProof
+                    ? PaymentProofStatus.PENDING
+                    : PaymentProofStatus.REJECTED,
               )}
-            </ThemedView>
+            />
+            {hasRejectedProof && latestProof.rejectionReason && (
+              <ThemedText type="body2" style={tw`text-red-700 text-center`}>
+                {latestProof.rejectionReason}
+              </ThemedText>
+            )}
           </ThemedView>
         )}
 
@@ -214,7 +199,7 @@ export default function ProofUploadScreen() {
             {proofs.map((proof) => (
               <ThemedView
                 key={proof.id}
-                style={tw`rounded-xl border border-gray-200 overflow-hidden`}
+                style={tw`rounded-md border border-border overflow-hidden`}
               >
                 <Image
                   source={{ uri: proof.fileUrl }}
@@ -223,30 +208,9 @@ export default function ProofUploadScreen() {
                 />
                 <ThemedView style={tw`p-3 flex-row items-center justify-between`}>
                   <ThemedText type="small" style={tw`text-gray-500`}>
-                    {new Date(proof.createdAt).toLocaleDateString()}
+                    {formatDate(proof.createdAt)}
                   </ThemedText>
-                  <ThemedView
-                    style={tw`px-2 py-1 rounded-full ${
-                      proof.status === PaymentProofStatus.PENDING
-                        ? "bg-yellow-100"
-                        : proof.status === PaymentProofStatus.APPROVED
-                          ? "bg-green-100"
-                          : "bg-red-100"
-                    }`}
-                  >
-                    <ThemedText
-                      type="small"
-                      style={tw`${
-                        proof.status === PaymentProofStatus.PENDING
-                          ? "text-yellow-700"
-                          : proof.status === PaymentProofStatus.APPROVED
-                            ? "text-green-700"
-                            : "text-red-700"
-                      } font-medium`}
-                    >
-                      {proof.status}
-                    </ThemedText>
-                  </ThemedView>
+                  <Label size="small" {...proofStatusLabel(proof.status)} />
                 </ThemedView>
               </ThemedView>
             ))}
@@ -263,7 +227,7 @@ export default function ProofUploadScreen() {
             {selectedImage ? (
               <ThemedView style={tw`gap-4`}>
                 <ThemedView
-                  style={tw`rounded-xl border border-gray-200 overflow-hidden`}
+                  style={tw`rounded-md border border-border overflow-hidden`}
                 >
                   <Image
                     source={{ uri: selectedImage.uri }}
@@ -292,8 +256,8 @@ export default function ProofUploadScreen() {
                 <Pressable
                   onPress={() => pickImage("gallery")}
                   style={({ pressed }) => [
-                    tw`flex-1 items-center justify-center p-6 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 gap-2`,
-                    pressed && tw`opacity-70 bg-gray-100`,
+                    tw`flex-1 items-center justify-center p-6 rounded-md border-2 border-dashed border-border bg-surface gap-2`,
+                    pressed && tw`opacity-70`,
                   ]}
                 >
                   <Icon
@@ -308,8 +272,8 @@ export default function ProofUploadScreen() {
                 <Pressable
                   onPress={() => pickImage("camera")}
                   style={({ pressed }) => [
-                    tw`flex-1 items-center justify-center p-6 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 gap-2`,
-                    pressed && tw`opacity-70 bg-gray-100`,
+                    tw`flex-1 items-center justify-center p-6 rounded-md border-2 border-dashed border-border bg-surface gap-2`,
+                    pressed && tw`opacity-70`,
                   ]}
                 >
                   <Icon
@@ -328,7 +292,7 @@ export default function ProofUploadScreen() {
       </ScrollView>
 
       {/* Bottom actions */}
-      <ThemedView style={tw`px-4 pb-6 pt-4 border-t border-gray-200 gap-3`}>
+      <ThemedView style={tw`px-4 pb-6 pt-4 border-t border-divider gap-3`}>
         {!hasPendingProof && !hasApprovedProof && (
           <Button
             label={t("bills:proofUpload.skipForNow")}
