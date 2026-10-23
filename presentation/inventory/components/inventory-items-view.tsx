@@ -10,18 +10,23 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import Button from "@/presentation/theme/components/button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import IconButton from "@/presentation/theme/components/icon-button";
-import { GroupedList } from "@/presentation/theme/components/grouped-list";
 import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 import { useInventoryItemsBrowser } from "@/presentation/inventory/hooks/useInventoryItemsBrowser";
 import { useInventoryItemsSummary } from "@/presentation/inventory/hooks/useInventoryItemsSummary";
 import { useInventoryItemCategories } from "@/presentation/inventory/hooks/useInventoryItemCategories";
-import InventoryItemRow from "@/presentation/inventory/components/inventory-item-row";
+import InventoryItemTile from "@/presentation/inventory/components/inventory-item-tile";
 import InventoryScreenHeader from "@/presentation/inventory/components/screen-header";
 import InventoryStockSummary from "@/presentation/inventory/components/inventory-stock-summary";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
 import { InventoryItemStockStatusFilter } from "@/presentation/inventory/interfaces/dto/find-all-inventory-items.dto";
+
+/** Splits items into rows of two for the grid. */
+const chunkPairs = <T,>(items: T[]): T[][] =>
+  Array.from({ length: Math.ceil(items.length / 2) }, (_, index) =>
+    items.slice(index * 2, index * 2 + 2),
+  );
 
 interface InventoryItemsViewProps {
   /** Scope to one category. Leave both scope props unset to list every item. */
@@ -235,32 +240,28 @@ export default function InventoryItemsView({
                 >
                   {group.letter}
                 </ThemedText>
-                <GroupedList
-                  data={group.items}
-                  keyExtractor={(item) => item.id}
-                  onItemPress={(item) =>
-                    isSelectionMode
-                      ? handleToggleSelectItem(item)
-                      : onOpenItem(item)
-                  }
-                  onItemLongPress={handleEnterSelectionMode}
-                  getItemClassName={(item) =>
-                    isSelectionMode
-                      ? selectedItemIds.has(item.id)
-                        ? "bg-secondary"
-                        : undefined
-                      : activeId === item.id
-                        ? "bg-secondary"
-                        : undefined
-                  }
-                  renderItem={(item) => (
-                    <InventoryItemRow
-                      item={item}
-                      selectionMode={isSelectionMode}
-                      selected={selectedItemIds.has(item.id)}
-                    />
-                  )}
-                />
+                {chunkPairs(group.items).map((pair) => (
+                  <ThemedView
+                    key={pair[0].id}
+                    style={tw`flex-row gap-3 bg-transparent`}
+                  >
+                    {pair.map((item) => (
+                      <InventoryItemTile
+                        key={item.id}
+                        item={item}
+                        onPress={
+                          isSelectionMode ? handleToggleSelectItem : onOpenItem
+                        }
+                        onLongPress={handleEnterSelectionMode}
+                        selectionMode={isSelectionMode}
+                        selected={selectedItemIds.has(item.id)}
+                        active={activeId === item.id}
+                      />
+                    ))}
+                    {/* Keeps a lone last card at half width */}
+                    {pair.length === 1 && <ThemedView style={tw`flex-1`} />}
+                  </ThemedView>
+                ))}
               </ThemedView>
             ))}
             {hasMore && (
