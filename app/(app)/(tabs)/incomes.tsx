@@ -417,7 +417,7 @@ export default function IncomesScreen() {
                     return (
                       <Card
                         key={account.accountId}
-                        variant={isSelected ? "outline" : "default"}
+                        variant="outline"
                         style={[
                           tw`w-36`,
                           isSelected && {
@@ -536,15 +536,8 @@ export default function IncomesScreen() {
         {/* Empty state: no incomes for the selected date / filters */}
         {!transactionsLoading && count === 0 && (
           <ThemedView style={tw`py-20 items-center px-4`}>
-            <Icon
-              name="receipt-text"
-              size={64}
-              color={tw.color("gray-300")}
-            />
-            <ThemedText
-              type="h4"
-              style={tw`text-gray-500 mt-4 text-center`}
-            >
+            <Icon name="receipt-text" size={64} color={tw.color("gray-300")} />
+            <ThemedText type="h4" style={tw`text-gray-500 mt-4 text-center`}>
               {t("common:empty.noIncomes")}
             </ThemedText>
             <ThemedText
@@ -594,11 +587,7 @@ export default function IncomesScreen() {
           />
         ) : (
           <ThemedView style={tw`flex-1 items-center justify-center gap-4 px-8`}>
-            <Icon
-              name="arrow-up-down"
-              size={64}
-              color={tw.color("gray-400")}
-            />
+            <Icon name="arrow-up-down" size={64} color={tw.color("gray-400")} />
             <ThemedText type="h3">
               {t("common:transactions.pane.emptyTitle")}
             </ThemedText>

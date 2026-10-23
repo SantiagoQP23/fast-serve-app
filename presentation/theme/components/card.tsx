@@ -28,7 +28,7 @@ export default function Card({
   onPress,
   children,
   style,
-  variant = "default",
+  variant = "outline",
   containerStyle,
   ...rest
 }: CardProps) {
