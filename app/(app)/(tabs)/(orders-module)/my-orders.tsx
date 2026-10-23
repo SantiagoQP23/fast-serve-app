@@ -37,6 +37,7 @@ import SalesContent from "@/presentation/orders/components/sales-content";
 // import IconButton from "@/presentation/theme/components/icon-button";
 import Button from "@/presentation/theme/components/button";
 import ButtonGroup from "@/presentation/theme/components/button-group";
+import TabBar from "@/presentation/theme/components/tab-bar";
 import HomeViewOptionsBottomSheet from "@/presentation/orders/components/home-view-options-bottom-sheet";
 import { useScopedOrders } from "@/presentation/orders/hooks/useScopedOrders";
 import { useOrdersViewStore } from "@/presentation/orders/store/useOrdersViewStore";
@@ -266,10 +267,12 @@ export default function MyOrdersScreen() {
       <ThemedView style={tw`px-4  `}>
         <ThemedView style={tw`flex-row items-center justify-between pt-8 mb-2`}>
           <ThemedView style={tw`flex-1 mr-3`}>
-            <ButtonGroup
-              options={moduleTabs}
-              selected={activeModule}
+            <TabBar
+              tabs={moduleTabs}
+              activeTab={activeModule}
               onChange={setActiveModule}
+              fullWidth={false}
+              textType="h3"
             />
           </ThemedView>
           <MyOrdersHeaderRight

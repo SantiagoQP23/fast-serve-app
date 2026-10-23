@@ -1,8 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import tw from "../lib/tailwind";
-import { ThemedText } from "./themed-text";
-import { typography } from "@/constants/theme";
+import { ThemedText, type ThemedTextProps } from "./themed-text";
 export interface TabItem<T extends string> {
   label: string;
   value: T;
@@ -17,6 +16,8 @@ interface TabBarProps<T extends string> {
   fullWidth?: boolean;
   /** Scrolls horizontally when the tabs overflow; implies `fullWidth={false}`. */
   scrollable?: boolean;
+  /** Label text size, e.g. `h3` for a screen-level tab bar. */
+  textType?: ThemedTextProps["type"];
 }
 
 const SCROLL_EDGE_PADDING = 16;
@@ -27,6 +28,7 @@ export default function TabBar<T extends string>({
   onChange,
   fullWidth = true,
   scrollable = false,
+  textType = "body1",
 }: TabBarProps<T>) {
   const stretch = fullWidth && !scrollable;
   const scrollRef = useRef<ScrollView>(null);
@@ -63,14 +65,11 @@ export default function TabBar<T extends string>({
         )}
       >
         <ThemedText
-          type="body1"
+          type={textType}
           numberOfLines={1}
-          style={[
-            tw.style(
-              isActive ? "font-semibold text-primary " : "text-primary ",
-            ),
-            { fontFamily: typography.medium },
-          ]}
+          style={tw.style(
+            isActive ? "font-semibold text-primary " : "text-primary ",
+          )}
         >
           {tab.label}
         </ThemedText>
