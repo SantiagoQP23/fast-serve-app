@@ -34,7 +34,7 @@ export default function ClosePaidOrdersButton() {
   return (
     <ThemedView style={tw`items-center px-4 pt-2 pb-4`}>
       <Button
-        variant="outline"
+        variant="text"
         size="small"
         leftIcon="lock"
         label={t("orders:closePaid.button", { count })}

@@ -252,11 +252,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
               />
             </Pressable>
           )}
-          <ThemedText
-            type="h3"
-            style={{ fontFamily: typography.medium, flex: 1 }}
-            numberOfLines={1}
-          >
+          <ThemedText type="h2" style={{ flex: 1 }} numberOfLines={1}>
             {t("title")}
           </ThemedText>
           {activeTab === "inventory" && (
