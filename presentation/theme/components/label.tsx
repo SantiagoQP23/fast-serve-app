@@ -94,7 +94,7 @@ export default function Label({
       accessibilityLabel={accessibilityLabel}
       style={({ pressed }) => [
         tw.style(
-          `gap-1.5 flex-row items-center ${containerBg} ${isSmall ? "px-3 py-1" : "px-4 py-1"} rounded-full`,
+          `gap-1.5 flex-row items-center ${containerBg} ${isSmall ? "px-3 py-1" : "px-4 py-1"} rounded-sm`,
           pressed && onPress && "opacity-80",
         ),
       ]}
