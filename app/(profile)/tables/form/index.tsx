@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,6 +9,7 @@ import {
   Platform,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
+import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import Icon from "@/presentation/theme/components/icon";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useTablesManagement } from "@/presentation/tables/hooks/useTablesManagement";
@@ -23,6 +24,8 @@ import { useTablesStore } from "@/presentation/tables/hooks/useTablesStore";
 import { sortAreas } from "@/presentation/tables/hooks/useTableGroups";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import Switch from "@/presentation/theme/components/switch";
+import IconButton from "@/presentation/theme/components/icon-button";
+import InfoBottomSheet from "@/presentation/theme/components/info-bottom-sheet";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 
@@ -64,11 +67,20 @@ export default function TableSettingsFormScreen() {
   const { createTable, updateTable, deleteTable } = useTablesManagement();
   const isSavedActive = params.isActive !== "false";
   // A table with open orders (from any waiter) can't be deactivated or
-  // deleted; those controls are disabled and the reason shows under each.
+  // deleted; those controls are disabled and an info button explains why.
   const { hasOpenOrders } = useTableStatus(params.tableId ?? "");
   const isDeactivateBlocked = isSavedActive && hasOpenOrders;
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const blockedSheetRef = useRef<BottomSheetMethods>(null);
+  const [blockedAction, setBlockedAction] = useState<"deactivate" | "delete">(
+    "delete",
+  );
+
+  const explainBlocked = (action: "deactivate" | "delete") => {
+    setBlockedAction(action);
+    blockedSheetRef.current?.present();
+  };
   const areas = useTablesStore((state) => state.areas);
   const areaOptions = [
     { label: t("areas.noArea"), value: "" },
@@ -227,30 +239,49 @@ export default function TableSettingsFormScreen() {
             )}
 
             {isEditing && (
-              <ThemedView style={tw`gap-2`}>
-                <Controller
-                  control={control}
-                  name="isActive"
-                  render={({ field: { value, onChange } }) => (
+              <Controller
+                control={control}
+                name="isActive"
+                render={({ field: { value, onChange } }) =>
+                  isDeactivateBlocked ? (
+                    <ThemedView style={tw`flex-row items-center`}>
+                      <ThemedText
+                        type="body1"
+                        style={{ fontFamily: typography.medium }}
+                      >
+                        {t("settings.fields.isActive")}
+                      </ThemedText>
+                      <IconButton
+                        icon="info"
+                        size={20}
+                        onPress={() => explainBlocked("deactivate")}
+                        accessibilityLabel={t(
+                          "settings.blocked.infoLabel.deactivate",
+                        )}
+                        style={tw`-my-3`}
+                      />
+                      <ThemedView style={tw`flex-1`} />
+                      <Switch
+                        value={value}
+                        onValueChange={onChange}
+                        disabled
+                        accessibilityLabel={t("settings.fields.isActive")}
+                      />
+                    </ThemedView>
+                  ) : (
                     <Switch
                       label={t("settings.fields.isActive")}
                       value={value}
                       onValueChange={onChange}
-                      disabled={isDeactivateBlocked}
                     />
-                  )}
-                />
-                {isDeactivateBlocked && (
-                  <ThemedText type="body2" style={tw`text-gray-500`}>
-                    {t("settings.deactivateBlocked")}
-                  </ThemedText>
-                )}
-              </ThemedView>
+                  )
+                }
+              />
             )}
           </ThemedView>
 
           {isEditing && (
-            <ThemedView style={tw`items-center mt-20 gap-2`}>
+            <ThemedView style={tw`flex-row items-center justify-center mt-20`}>
               <Button
                 label={t("settings.delete")}
                 leftIcon="trash"
@@ -260,9 +291,12 @@ export default function TableSettingsFormScreen() {
                 onPress={() => setShowDeleteConfirm(true)}
               />
               {hasOpenOrders && (
-                <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
-                  {t("settings.deleteBlocked")}
-                </ThemedText>
+                <IconButton
+                  icon="info"
+                  size={20}
+                  onPress={() => explainBlocked("delete")}
+                  accessibilityLabel={t("settings.blocked.infoLabel.delete")}
+                />
               )}
             </ThemedView>
           )}
@@ -279,6 +313,13 @@ export default function TableSettingsFormScreen() {
         loading={deleteTable.isPending}
         onConfirm={handleConfirmDelete}
         onCancel={() => setShowDeleteConfirm(false)}
+      />
+
+      <InfoBottomSheet
+        ref={blockedSheetRef}
+        title={t(`settings.blocked.title.${blockedAction}`)}
+        message={t(`settings.blocked.message.${blockedAction}`)}
+        note={t("settings.blocked.rule")}
       />
     </KeyboardAvoidingView>
   );

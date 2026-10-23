@@ -69,8 +69,21 @@
     "delete": "Delete",
     "activate": "Activate",
     "deactivate": "Deactivate",
-    "deactivateBlocked": "Can't deactivate with open orders",
-    "deleteBlocked": "Can't delete with open orders",
+    "blocked": {
+      "title": {
+        "deactivate": "This table can't be deactivated",
+        "delete": "This table can't be deleted"
+      },
+      "message": {
+        "deactivate": "This table has open orders. Deactivating it would hide it while customers are still being served.",
+        "delete": "This table has open orders. Deleting it would lose the table those orders belong to."
+      },
+      "rule": "Once every order on this table is paid or closed, you can deactivate or delete it.",
+      "infoLabel": {
+        "deactivate": "Why it can't be deactivated",
+        "delete": "Why it can't be deleted"
+      }
+    },
     "addDescription": "Add description",
     "fields": {
       "name": "Name",

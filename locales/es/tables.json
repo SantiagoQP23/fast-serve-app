@@ -69,8 +69,21 @@
     "delete": "Eliminar",
     "activate": "Activar",
     "deactivate": "Desactivar",
-    "deactivateBlocked": "No se puede desactivar con pedidos abiertos",
-    "deleteBlocked": "No se puede eliminar con pedidos abiertos",
+    "blocked": {
+      "title": {
+        "deactivate": "No se puede desactivar esta mesa",
+        "delete": "No se puede eliminar esta mesa"
+      },
+      "message": {
+        "deactivate": "Esta mesa tiene pedidos abiertos. Desactivarla la ocultaría mientras todavía se atiende a los clientes.",
+        "delete": "Esta mesa tiene pedidos abiertos. Eliminarla dejaría esos pedidos sin su mesa."
+      },
+      "rule": "Cuando todos los pedidos de esta mesa estén cobrados o cerrados, podrás desactivarla o eliminarla.",
+      "infoLabel": {
+        "deactivate": "Por qué no se puede desactivar",
+        "delete": "Por qué no se puede eliminar"
+      }
+    },
     "addDescription": "Agregar descripción",
     "fields": {
       "name": "Nombre",
