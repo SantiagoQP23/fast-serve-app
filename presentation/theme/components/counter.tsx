@@ -14,6 +14,7 @@ import BottomSheetPicker, {
   type BottomSheetPickerRef,
 } from "./bottom-sheet-picker";
 import IconButton from "./icon-button";
+import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 type CounterSize = "small" | "medium" | "large";
 
@@ -65,6 +66,7 @@ export default function Counter({
   size = "large",
   style,
 }: CounterProps) {
+  const { t } = useTranslation("common");
   const { button, icon: iconSize, fontSize } = SIZES[size];
   const decimals = getDecimals(step);
   const isFocused = useRef(false);
@@ -118,6 +120,7 @@ export default function Counter({
         icon="minus"
         variant="outlined"
         size={iconSize}
+        accessibilityLabel={t("actions.decrease")}
         disabled={!canDecrement}
         onPress={handleDecrement}
         style={tw.style(
@@ -187,6 +190,7 @@ export default function Counter({
         icon="plus"
         variant="surface"
         size={iconSize}
+        accessibilityLabel={t("actions.increase")}
         disabled={!canIncrement}
         onPress={handleIncrement}
         style={tw.style(` items-center justify-center`)}

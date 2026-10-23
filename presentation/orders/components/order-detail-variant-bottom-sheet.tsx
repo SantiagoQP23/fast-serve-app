@@ -4,6 +4,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import Card from "@/presentation/theme/components/card";
 import Button from "@/presentation/theme/components/button";
+import IconButton from "@/presentation/theme/components/icon-button";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
@@ -23,6 +24,8 @@ interface OrderDetailVariantBottomSheetProps {
   selectedOptionId?: number;
   onSelectOption: (option: ProductOption) => void;
   onReplace?: () => void;
+  /** Explains why Replace is disabled, e.g. by opening an InfoBottomSheet. */
+  onReplaceBlockedInfo?: () => void;
   onClose?: () => void;
 }
 
@@ -32,6 +35,7 @@ const OrderDetailVariantBottomSheet = ({
   selectedOptionId,
   onSelectOption,
   onReplace,
+  onReplaceBlockedInfo,
   onClose,
 }: OrderDetailVariantBottomSheetProps) => {
   const { t } = useTranslation(["common", "orders", "menu", "inventory"]);
@@ -124,24 +128,22 @@ const OrderDetailVariantBottomSheet = ({
       )}
 
       {showReplace && (
-        <ThemedView style={tw`gap-2`}>
-          {replaceBlockReason ? (
-            <ThemedView style={tw`flex-row items-center gap-4 px-1`}>
-              <Icon
-                name="info"
-                size={16}
-                color={tw.color("gray-500")}
-              />
-              <ThemedText type="body1" style={tw`flex-1 text-gray-500`}>
-                {t(`orders:replaceItem.reasons.${replaceBlockReason}`)}
-              </ThemedText>
-            </ThemedView>
-          ) : (
+        <ThemedView style={tw`flex-row items-center gap-2`}>
+          <ThemedView style={tw`flex-1`}>
             <Button
               label={t("orders:detailActions.replaceItem")}
               onPress={handleReplace}
               variant="outline"
               leftIcon="arrow-left-right"
+              disabled={!!replaceBlockReason}
+            />
+          </ThemedView>
+          {replaceBlockReason && onReplaceBlockedInfo && (
+            <IconButton
+              icon="info"
+              size={20}
+              onPress={onReplaceBlockedInfo}
+              accessibilityLabel={t("orders:replaceItem.blocked.infoLabel")}
             />
           )}
         </ThemedView>

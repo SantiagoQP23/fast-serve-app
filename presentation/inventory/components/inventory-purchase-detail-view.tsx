@@ -126,7 +126,7 @@ export default function InventoryPurchaseDetailView({
 
   return (
     <Container style={tw`flex-1 bg-background`}>
-      <ThemedView style={tw`px-4 pt-8 bg-transparent`}>
+      <ThemedView style={tw`px-4 ${embedded ? "pt-2" : "pt-6"} bg-transparent`}>
         <InventoryScreenHeader
           onBack={onClose}
           backIcon={embedded ? "x" : "arrow-left"}

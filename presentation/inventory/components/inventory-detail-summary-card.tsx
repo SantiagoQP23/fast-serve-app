@@ -1,5 +1,4 @@
-import { type StyleProp, type ViewStyle } from "react-native";
-import dayjs from "dayjs";
+import { Pressable, type StyleProp, type ViewStyle } from "react-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Label, { type LabelProps } from "@/presentation/theme/components/label";
@@ -11,10 +10,14 @@ import {
   type InventoryItem,
   type InventoryStockStatus,
 } from "@/core/inventory/models/inventory-item.model";
-import InventoryDetailTitle from "./inventory-detail-title";
+import InventoryDetailTitle, {
+  formatDetailMoment,
+} from "./inventory-detail-title";
 
 interface InventoryDetailSummaryCardProps {
   item: InventoryItem;
+  /** Shown as a "Set" action while the item has no minimum. */
+  onSetMinimum?: () => void;
 }
 
 const STATUS_LABEL_COLOR: Record<InventoryStockStatus, LabelProps["color"]> = {
@@ -32,9 +35,13 @@ const STATUS_LABEL_COLOR: Record<InventoryStockStatus, LabelProps["color"]> = {
  */
 export default function InventoryDetailSummaryCard({
   item,
+  onSetMinimum,
 }: InventoryDetailSummaryCardProps) {
   const { t } = useTranslation("inventory");
-  const status = getInventoryStockStatus(item);
+  // An inactive item still has stock worth reading, so show its level
+  // next to the Inactive label instead of hiding it.
+  const stockStatus = getInventoryStockStatus({ ...item, isActive: true });
+  const unitLabel = t(`units.${item.unit}`, { count: item.quantity });
 
   return (
     <InventoryDetailTitle
@@ -42,14 +49,27 @@ export default function InventoryDetailSummaryCard({
       title={item.name}
       subtitle={item.category?.name ?? t("categories.uncategorized")}
       labels={
-        <Label
-          text={t(`status.${status}`)}
-          color={STATUS_LABEL_COLOR[status]}
-          size="small"
-        />
+        <>
+          {!item.isActive && (
+            <Label
+              text={t("status.inactive")}
+              color={STATUS_LABEL_COLOR.inactive}
+              size="small"
+            />
+          )}
+          <Label
+            text={t(`status.${stockStatus}`)}
+            color={STATUS_LABEL_COLOR[stockStatus]}
+            size="small"
+          />
+        </>
       }
     >
-      <ThemedView style={tw`gap-1 bg-transparent`}>
+      <ThemedView
+        style={tw`gap-1 bg-transparent`}
+        accessible
+        accessibilityLabel={`${t("detail.currentStock")}: ${item.quantity} ${unitLabel}`}
+      >
         <ThemedText type="small" style={tw`text-gray-500`}>
           {t("detail.currentStock")}
         </ThemedText>
@@ -64,9 +84,14 @@ export default function InventoryDetailSummaryCard({
             {item.quantity}
           </ThemedText>
           <ThemedText type="body1" style={tw`text-on-surface-variant`}>
-            {t(`units.${item.unit}`, { count: item.quantity })}
+            {unitLabel}
           </ThemedText>
         </ThemedView>
+        {item.quantity < 0 && (
+          <ThemedText type="small" style={tw`text-gray-500`}>
+            {t("detail.negativeStockHint")}
+          </ThemedText>
+        )}
       </ThemedView>
 
       <ThemedView
@@ -85,17 +110,17 @@ export default function InventoryDetailSummaryCard({
                 })
               : t("detail.minimumNotSet")
           }
-        />
-        <DetailField
-          style={tw`w-1/2`}
-          label={t("detail.unit")}
-          value={t(`units.${item.unit}`)}
+          action={
+            !item.minimumQuantity && onSetMinimum
+              ? { label: t("detail.setMinimum"), onPress: onSetMinimum }
+              : undefined
+          }
         />
         {item.updatedAt && (
           <DetailField
             style={tw`w-1/2`}
             label={t("detail.lastUpdated")}
-            value={dayjs(item.updatedAt).format("MMM D, HH:mm")}
+            value={formatDetailMoment(item.updatedAt)}
           />
         )}
       </ThemedView>
@@ -106,18 +131,40 @@ export default function InventoryDetailSummaryCard({
 interface DetailFieldProps {
   label: string;
   value: string;
+  /** An inline fix for a missing value, e.g. "Set" next to "Not set". */
+  action?: { label: string; onPress: () => void };
   style?: StyleProp<ViewStyle>;
 }
 
-function DetailField({ label, value, style }: DetailFieldProps) {
+function DetailField({ label, value, action, style }: DetailFieldProps) {
   return (
     <ThemedView style={[tw`bg-transparent gap-0.5`, style]}>
       <ThemedText type="small" style={tw`text-gray-500`}>
         {label}
       </ThemedText>
-      <ThemedText type="body2" style={{ fontFamily: typography.medium }}>
-        {value}
-      </ThemedText>
+      <ThemedView style={tw`flex-row items-baseline gap-2 bg-transparent`}>
+        <ThemedText type="body2" style={{ fontFamily: typography.medium }}>
+          {value}
+        </ThemedText>
+        {action && (
+          <Pressable
+            onPress={action.onPress}
+            accessibilityRole="button"
+            hitSlop={12}
+            style={({ pressed }) => tw.style(pressed && "opacity-70")}
+          >
+            <ThemedText
+              type="body2"
+              style={[
+                tw`text-primary underline`,
+                { fontFamily: typography.semibold },
+              ]}
+            >
+              {action.label}
+            </ThemedText>
+          </Pressable>
+        )}
+      </ThemedView>
     </ThemedView>
   );
 }

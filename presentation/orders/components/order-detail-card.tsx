@@ -8,6 +8,8 @@ import {
   OrderDetail,
   OrderDetailStatus,
   getAddAgainBlockReason,
+  getOrderDetailDeleteBlockReason,
+  getReplaceBlockReason,
 } from "@/core/orders/models/order-detail.model";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";
@@ -69,6 +71,7 @@ export default function OrderDetailCard({
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
   const deleteBlockedSheetRef = useRef<BottomSheetMethods>(null);
+  const replaceBlockedSheetRef = useRef<BottomSheetMethods>(null);
   const typePickerRef = useRef<BottomSheetPickerRef>(null);
   const { markDelivered } = useMarkOrderDelivered();
 
@@ -89,7 +92,8 @@ export default function OrderDetailCard({
   const { statusText, statusIconColor } = useOrderDetailStatus(detail.status);
   const isCancelled = detail.status === OrderDetailStatus.CANCELLED;
   const isDelivered = detail.status === OrderDetailStatus.DELIVERED;
-  const hasDeliveredUnits = detail.qtyDelivered > 0;
+  const deleteBlockReason = getOrderDetailDeleteBlockReason(detail);
+  const replaceBlockReason = getReplaceBlockReason(detail);
   // Delivered is gray, matching the "default" label color used for delivered orders.
   const checkboxColor = isDelivered ? "gray-500" : statusIconColor;
 
@@ -148,10 +152,10 @@ export default function OrderDetailCard({
     bottomSheetModalRef.current?.dismiss();
   };
 
-  // Delete looks the same either way; once units went out, it explains why
-  // it can't instead of asking to confirm.
+  // Delete looks the same either way; once units are billed or delivered, it
+  // explains why it can't instead of asking to confirm.
   const onRemoveDetail = () => {
-    if (hasDeliveredUnits) {
+    if (deleteBlockReason) {
       deleteBlockedSheetRef.current?.present();
       return;
     }
@@ -241,6 +245,9 @@ export default function OrderDetailCard({
             detail={detail}
             onEditQuantity={handleEditQuantity}
             onReplace={handleReplace}
+            onReplaceBlockedInfo={() =>
+              replaceBlockedSheetRef.current?.present()
+            }
             onDelete={onRemoveDetail}
             onAddAgain={canAddAgain ? handleAddAgain : undefined}
             addAgainBlockedHint={getAddAgainBlockedHint()}
@@ -249,11 +256,21 @@ export default function OrderDetailCard({
         </ThemedBottomSheetModal>
       )}
 
-      {hasDeliveredUnits && !readOnly && !isCancelled && (
+      {canOpenActions && !isCancelled && replaceBlockReason && (
+        <InfoBottomSheet
+          ref={replaceBlockedSheetRef}
+          title={t("orders:replaceItem.blocked.title")}
+          message={t(`orders:replaceItem.reasons.${replaceBlockReason}`)}
+          note={t("orders:replaceItem.blocked.rule")}
+        />
+      )}
+
+      {deleteBlockReason && !readOnly && !isCancelled && (
         <InfoBottomSheet
           ref={deleteBlockedSheetRef}
           title={t("orders:deleteItemBlocked.title")}
-          message={t("orders:deleteItemBlocked.message", {
+          message={t(`orders:deleteItemBlocked.reasons.${deleteBlockReason}`, {
+            billed: detail.qtyPaid,
             delivered: detail.qtyDelivered,
             quantity: detail.quantity,
             product: detail.product.name,

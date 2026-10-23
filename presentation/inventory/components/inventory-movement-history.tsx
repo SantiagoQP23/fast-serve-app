@@ -1,4 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { Pressable } from "react-native";
+import { router } from "expo-router";
 import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import dayjs from "dayjs";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -11,8 +13,10 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import type { InventoryUnit } from "@/core/inventory/models/inventory-item.model";
 import { groupByDay } from "@/core/i18n/utils";
 import DaySectionHeader from "@/presentation/inventory/components/day-section-header";
+import Skeleton from "@/presentation/theme/components/skeleton";
 import {
   getMovementCreatorName,
+  InventoryMovementSourceType,
   InventoryMovementType,
   type InventoryMovement,
 } from "@/core/inventory/models/inventory-movement.model";
@@ -20,7 +24,39 @@ import {
 interface InventoryMovementHistoryProps {
   movements: InventoryMovement[];
   unit: InventoryUnit;
+  loading?: boolean;
+  /** Shown instead of the empty state when the history failed to load. */
+  error?: string;
 }
+
+/** Recent movements shown before "See all", so the screen stays short. */
+const INITIAL_VISIBLE = 10;
+
+/**
+ * Where a movement came from, when the app has a screen for it. Order and
+ * bill movements reference a line, not the order, so they don't open.
+ */
+function openMovementSource(movement: InventoryMovement) {
+  if (!movement.sourceId) return;
+  if (movement.sourceType === InventoryMovementSourceType.PURCHASE) {
+    router.push({
+      pathname: "/(profile)/inventory/purchases/detail",
+      params: { purchaseId: movement.sourceId },
+    });
+  } else if (
+    movement.sourceType === InventoryMovementSourceType.INVENTORY_COUNT
+  ) {
+    router.push({
+      pathname: "/(profile)/inventory/counts/detail",
+      params: { countId: movement.sourceId },
+    });
+  }
+}
+
+const hasSourceScreen = (movement: InventoryMovement) =>
+  !!movement.sourceId &&
+  (movement.sourceType === InventoryMovementSourceType.PURCHASE ||
+    movement.sourceType === InventoryMovementSourceType.INVENTORY_COUNT);
 
 const MOVEMENT_VISUALS: Record<
   InventoryMovementType,
@@ -120,12 +156,19 @@ const DEFAULT_VISUAL: {
 export default function InventoryMovementHistory({
   movements,
   unit,
+  loading,
+  error,
 }: InventoryMovementHistoryProps) {
   const { t } = useTranslation("inventory");
+  const [showAll, setShowAll] = useState(false);
+  const visible = useMemo(
+    () => (showAll ? movements : movements.slice(0, INITIAL_VISIBLE)),
+    [movements, showAll],
+  );
   // Movements arrive newest first, so each day's group keeps that order.
   const days = useMemo(
-    () => groupByDay(movements, (movement) => movement.createdAt),
-    [movements],
+    () => groupByDay(visible, (movement) => movement.createdAt),
+    [visible],
   );
 
   return (
@@ -135,7 +178,16 @@ export default function InventoryMovementHistory({
         count={movements.length}
       />
 
-      {movements.length === 0 ? (
+      {loading ? (
+        <ThemedView style={tw`gap-1 bg-transparent`}>
+          <Skeleton style={tw`h-16`} />
+          <Skeleton style={tw`h-16`} />
+        </ThemedView>
+      ) : error && movements.length === 0 ? (
+        <ThemedText type="body2" style={tw`text-red-600`}>
+          {error}
+        </ThemedText>
+      ) : movements.length === 0 ? (
         <ThemedText type="body2" style={tw`text-gray-500`}>
           {t("detail.noMovements")}
         </ThemedText>
@@ -146,6 +198,8 @@ export default function InventoryMovementHistory({
             <GroupedList
               data={items}
               keyExtractor={(movement) => movement.id}
+              onItemPress={openMovementSource}
+              isItemPressable={hasSourceScreen}
               renderItem={(movement) => {
                 const visual =
                   MOVEMENT_VISUALS[movement.type] ?? DEFAULT_VISUAL;
@@ -156,6 +210,17 @@ export default function InventoryMovementHistory({
                     : movement.quantity >= 0;
 
                 const creator = getMovementCreatorName(movement);
+                const detail = [
+                  dayjs(movement.createdAt).format("HH:mm"),
+                  movement.reason
+                    ? t(`adjust.reasons.${movement.reason}`, {
+                        defaultValue: movement.reason,
+                      })
+                    : null,
+                  movement.note,
+                ]
+                  .filter(Boolean)
+                  .join(" · ");
 
                 return (
                   <ThemedView
@@ -187,8 +252,7 @@ export default function InventoryMovementHistory({
                           style={tw`text-gray-500`}
                           numberOfLines={1}
                         >
-                          {dayjs(movement.createdAt).format("HH:mm")}
-                          {movement.note ? ` · ${movement.note}` : ""}
+                          {detail}
                         </ThemedText>
                         {creator && (
                           <ThemedText
@@ -219,7 +283,7 @@ export default function InventoryMovementHistory({
                       </ThemedText>
                       {movement.quantityAfter != null && (
                         <ThemedText type="small" style={tw`text-gray-500`}>
-                          {t("quantityWithUnit", {
+                          {t("detail.quantityLeft", {
                             quantity: movement.quantityAfter,
                             unit: t(`units.${unit}`, {
                               count: movement.quantityAfter,
@@ -228,12 +292,39 @@ export default function InventoryMovementHistory({
                         </ThemedText>
                       )}
                     </ThemedView>
+                    {hasSourceScreen(movement) && (
+                      <Icon
+                        name="chevron-right"
+                        size={18}
+                        color={tw.color("gray-400")}
+                        style={tw`ml-2`}
+                      />
+                    )}
                   </ThemedView>
                 );
               }}
             />
           </ThemedView>
         ))
+      )}
+
+      {movements.length > INITIAL_VISIBLE && (
+        <Pressable
+          onPress={() => setShowAll((value) => !value)}
+          accessibilityRole="button"
+          style={({ pressed }) =>
+            tw.style("self-center py-2 px-4", pressed && "opacity-70")
+          }
+        >
+          <ThemedText
+            type="body2"
+            style={[tw`text-primary`, { fontFamily: typography.semibold }]}
+          >
+            {showAll
+              ? t("detail.showLess")
+              : t("detail.showAll", { count: movements.length })}
+          </ThemedText>
+        </Pressable>
       )}
     </ThemedView>
   );

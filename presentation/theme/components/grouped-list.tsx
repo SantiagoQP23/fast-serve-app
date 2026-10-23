@@ -9,6 +9,8 @@ interface GroupedListProps<T> {
   keyExtractor: (item: T, index: number) => string;
   renderItem: (item: T, index: number) => ReactNode;
   onItemPress?: (item: T, index: number) => void;
+  /** Rows that should ignore `onItemPress`, e.g. ones with nothing to open. */
+  isItemPressable?: (item: T, index: number) => boolean;
   onItemLongPress?: (item: T, index: number) => void;
   /** Extra Tailwind classes for a row's container, e.g. a highlight background. */
   getItemClassName?: (item: T, index: number) => string | undefined;
@@ -20,6 +22,7 @@ export function GroupedList<T>({
   keyExtractor,
   renderItem,
   onItemPress,
+  isItemPressable,
   onItemLongPress,
   getItemClassName,
   style,
@@ -29,6 +32,8 @@ export function GroupedList<T>({
       {data.map((item, index) => {
         const isFirst = index === 0;
         const isLast = index === data.length - 1;
+        const pressable =
+          !!onItemPress && (isItemPressable?.(item, index) ?? true);
 
         return (
           <ThemedView
@@ -41,8 +46,8 @@ export function GroupedList<T>({
             )}
           >
             <Pressable
-              disabled={!onItemPress && !onItemLongPress}
-              onPress={onItemPress ? () => onItemPress(item, index) : undefined}
+              disabled={!pressable && !onItemLongPress}
+              onPress={pressable ? () => onItemPress!(item, index) : undefined}
               onLongPress={
                 onItemLongPress ? () => onItemLongPress(item, index) : undefined
               }

@@ -31,10 +31,11 @@ export default function LinkedProductsList({
         count={lines.length}
         right={
           onAddPress ? (
+            // Bare, so it doesn't outweigh the section title it belongs to
             <IconButton
               icon="plus"
-              variant="surface"
               size={20}
+              style={tw`-mr-3`}
               onPress={onAddPress}
               accessibilityLabel={t("detail.linkToProduct")}
             />
@@ -66,7 +67,8 @@ export default function LinkedProductsList({
               line.productOption?.name,
             ]
               .filter(Boolean)
-              .join(" ");
+              // "Gaseosa 3L · Normal": product and variant stay distinct
+              .join(" · ");
 
             return (
               <ThemedView

@@ -1,5 +1,6 @@
 import { RefreshControl, ScrollView } from "react-native";
 import { router } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -45,6 +46,7 @@ export default function InventoryCountDetailView({
   const { t } = useTranslation("inventory");
   const { count, countQuery } = useInventoryCount(countId);
   const Container = embedded ? ThemedView : ScreenLayout;
+  const insets = useSafeAreaInsets();
 
   const lines = count?.items ?? [];
   const inProgress = count?.status === InventoryCountStatus.IN_PROGRESS;
@@ -119,7 +121,7 @@ export default function InventoryCountDetailView({
 
   return (
     <Container style={tw`flex-1 bg-background`}>
-      <ThemedView style={tw`px-4 pt-8 bg-transparent`}>
+      <ThemedView style={tw`px-4 ${embedded ? "pt-2" : "pt-6"} bg-transparent`}>
         <InventoryScreenHeader
           onBack={onClose}
           backIcon={embedded ? "x" : "arrow-left"}
@@ -243,7 +245,10 @@ export default function InventoryCountDetailView({
 
       {inProgress && (
         <ThemedView
-          style={tw`flex-row items-center gap-3 px-4 py-4 border-t border-border bg-background`}
+          style={[
+            tw`flex-row items-center gap-3 px-4 pt-3 border-t border-divider bg-background`,
+            { paddingBottom: embedded ? 16 : Math.max(insets.bottom, 16) },
+          ]}
         >
           <CountFinishButton
             countId={countId}

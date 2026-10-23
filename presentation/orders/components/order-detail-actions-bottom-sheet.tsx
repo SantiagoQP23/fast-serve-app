@@ -12,6 +12,8 @@ interface OrderDetailActionsBottomSheetProps {
   detail: OrderDetail;
   onEditQuantity?: () => void;
   onReplace?: () => void;
+  // Explains why Replace is disabled, e.g. by opening an InfoBottomSheet.
+  onReplaceBlockedInfo?: () => void;
   onDelete?: () => void;
   onAddAgain?: () => void;
   // Why a cancelled item can't be added again; shown under the option.
@@ -20,13 +22,14 @@ interface OrderDetailActionsBottomSheetProps {
 }
 
 /**
- * An item's options. Blocked actions stay listed and tappable-looking, with
- * the reason under them; tapping one does nothing.
+ * An item's options. Blocked actions stay listed: Add again keeps its reason
+ * under it, Replace is dimmed with an info button that explains why.
  */
 const OrderDetailActionsBottomSheet = ({
   detail,
   onEditQuantity,
   onReplace,
+  onReplaceBlockedInfo,
   onDelete,
   onAddAgain,
   addAgainBlockedHint,
@@ -72,9 +75,16 @@ const OrderDetailActionsBottomSheet = ({
           {
             icon: "arrow-left-right" as const,
             label: t("orders:detailActions.replaceItem"),
-            hint: replaceBlockReason
-              ? t(`orders:replaceItem.reasons.${replaceBlockReason}`)
-              : undefined,
+            disabled: !!replaceBlockReason,
+            info:
+              replaceBlockReason && onReplaceBlockedInfo
+                ? {
+                    accessibilityLabel: t(
+                      "orders:replaceItem.blocked.infoLabel",
+                    ),
+                    onPress: onReplaceBlockedInfo,
+                  }
+                : undefined,
             onPress: () => {
               if (replaceBlockReason) return;
               onClose?.();

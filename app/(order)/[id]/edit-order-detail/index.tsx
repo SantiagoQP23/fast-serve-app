@@ -27,7 +27,10 @@ import BottomSheetPicker, {
   BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
 import { useOrderDetailStatus } from "@/presentation/orders/hooks/useOrderDetailStatus";
-import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
+import {
+  OrderDetailStatus,
+  getReplaceBlockReason,
+} from "@/core/orders/models/order-detail.model";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { KeyboardAvoidingView } from "react-native";
 import OrderDetailActivityBottomSheet from "@/presentation/orders/components/order-detail-activity-bottom-sheet";
@@ -38,6 +41,7 @@ import Slider from "@/presentation/theme/components/slider";
 import OrderDetailStatusBottomSheet from "@/presentation/orders/components/order-detail-status-bottom-sheet";
 import OrderDetailVariantBottomSheet from "@/presentation/orders/components/order-detail-variant-bottom-sheet";
 import Card from "@/presentation/theme/components/card";
+import InfoBottomSheet from "@/presentation/theme/components/info-bottom-sheet";
 
 export default function EditOrderDetailScreen() {
   const { t } = useTranslation(["common", "orders", "menu", "inventory"]);
@@ -46,6 +50,7 @@ export default function EditOrderDetailScreen() {
   const activitySheetRef = useRef<BottomSheetMethods>(null);
   const variantSheetRef = useRef<BottomSheetMethods>(null);
   const statusSheetRef = useRef<BottomSheetMethods>(null);
+  const replaceBlockedSheetRef = useRef<BottomSheetMethods>(null);
   const typePickerRef = useRef<BottomSheetPickerRef>(null);
   const orderDetail = useOrdersStore((state) => state.activeOrderDetail);
   const order = useOrdersStore((state) => state.activeOrder);
@@ -195,6 +200,8 @@ export default function EditOrderDetailScreen() {
     setSelectedOption(option);
     setPrice(String(option.price));
   };
+
+  const replaceBlockReason = getReplaceBlockReason(orderDetail);
 
   const handleReplaceProduct = () => {
     startReplace(order!.id, orderDetail);
@@ -444,9 +451,21 @@ export default function EditOrderDetailScreen() {
             selectedOptionId={selectedOption?.id}
             onSelectOption={onChangeSelectedOption}
             onReplace={handleReplaceProduct}
+            onReplaceBlockedInfo={() =>
+              replaceBlockedSheetRef.current?.present()
+            }
             onClose={closeVariantBottomSheet}
           />
         </ThemedBottomSheetModal>
+
+        {replaceBlockReason && (
+          <InfoBottomSheet
+            ref={replaceBlockedSheetRef}
+            title={t("orders:replaceItem.blocked.title")}
+            message={t(`orders:replaceItem.reasons.${replaceBlockReason}`)}
+            note={t("orders:replaceItem.blocked.rule")}
+          />
+        )}
 
         <BottomSheetPicker
           ref={typePickerRef}

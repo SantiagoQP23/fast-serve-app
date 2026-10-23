@@ -211,6 +211,11 @@
       "DELIVERED": "Este producto ya ha sido entregado y no se puede reemplazar.",
       "READY": "Este producto ya está marcado como listo y no se puede reemplazar.",
       "NOT_PENDING": "Solo los productos pendientes se pueden reemplazar."
+    },
+    "blocked": {
+      "title": "No se puede reemplazar este producto",
+      "rule": "Solo se pueden reemplazar productos pendientes que aún no se hayan preparado, entregado ni pagado.",
+      "infoLabel": "Por qué no se puede reemplazar este producto"
     }
   },
   "variantChange": {
@@ -410,8 +415,11 @@
   },
   "deleteItemBlocked": {
     "title": "No se puede eliminar este producto",
-    "message": "Ya se entregaron {{delivered}} de {{quantity}} unidades de {{product}}. Si lo eliminas, se perdería el registro de lo que se entregó.",
-    "rule": "Solo se pueden eliminar productos sin unidades entregadas."
+    "reasons": {
+      "BILLED": "Ya hay {{billed}} de {{quantity}} unidades de {{product}} en una cuenta. Si lo eliminas, la cuenta cobraría un producto que ya no está en el pedido.",
+      "DELIVERED": "Ya se entregaron {{delivered}} de {{quantity}} unidades de {{product}}. Si lo eliminas, se perdería el registro de lo que se entregó."
+    },
+    "rule": "Solo se pueden eliminar productos que aún no se hayan entregado ni agregado a una cuenta."
   },
   "statusBlocked": {
     "title": "No puedes elegir este estado",

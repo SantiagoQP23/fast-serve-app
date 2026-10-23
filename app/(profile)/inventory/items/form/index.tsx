@@ -45,7 +45,6 @@ export default function MenuInventoryItemFormScreen() {
     itemId?: string;
     name?: string;
     unit?: string;
-    quantity?: string;
     minimumQuantity?: string;
     isActive?: string;
     categoryId?: string;
@@ -72,7 +71,7 @@ export default function MenuInventoryItemFormScreen() {
     defaultValues: {
       name: params.name || "",
       unit: (params.unit as InventoryUnit) || InventoryUnit.UNIT,
-      quantity: params.quantity || "",
+      quantity: "",
       minimumQuantity: params.minimumQuantity || "",
       isActive: params.isActive !== "false",
       categoryId: params.categoryId || "",
@@ -93,7 +92,6 @@ export default function MenuInventoryItemFormScreen() {
     const payload = {
       name: data.name.trim(),
       unit: data.unit,
-      quantity: data.quantity ? Number(data.quantity) : undefined,
       minimumQuantity: data.minimumQuantity
         ? Number(data.minimumQuantity)
         : undefined,
@@ -101,15 +99,28 @@ export default function MenuInventoryItemFormScreen() {
       categoryId: data.categoryId ? data.categoryId : null,
     };
 
-    if (isEditing) {
-      await updateItem.mutateAsync({ ...payload, id: params.itemId! });
-      router.back();
-      return;
-    }
+    try {
+      if (isEditing) {
+        // No quantity here: stock only changes through Restock/Decrease or
+        // a count, so saving can't revert sales made while this was open.
+        await updateItem.mutateAsync({ ...payload, id: params.itemId! });
+        router.back();
+        return;
+      }
 
-    const created = await createItem.mutateAsync(payload);
-    setCreatedItem({ id: created.id, name: created.name, unit: created.unit });
-    linkProductSheetRef.current?.present();
+      const created = await createItem.mutateAsync({
+        ...payload,
+        quantity: data.quantity ? Number(data.quantity) : undefined,
+      });
+      setCreatedItem({
+        id: created.id,
+        name: created.name,
+        unit: created.unit,
+      });
+      linkProductSheetRef.current?.present();
+    } catch {
+      // The mutation already shows the error; the form stays open to retry.
+    }
   };
 
   const handleLinkCreatedItem = () => {
@@ -239,22 +250,26 @@ export default function MenuInventoryItemFormScreen() {
             </ThemedView>
 
             <ThemedView style={tw`flex-row gap-3`}>
-              <ThemedView style={tw`flex-1`}>
-                <Controller
-                  control={control}
-                  name="quantity"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      label={t("wholeProduct.fields.currentQuantity")}
-                      placeholder={t("placeholders.quantity")}
-                      onBlur={onBlur}
-                      value={value}
-                      onChangeText={onChange}
-                      keyboardType="decimal-pad"
-                    />
-                  )}
-                />
-              </ThemedView>
+              {/* Starting stock is set once, on create. After that it only
+                  changes through Restock/Decrease or a count. */}
+              {!isEditing && (
+                <ThemedView style={tw`flex-1`}>
+                  <Controller
+                    control={control}
+                    name="quantity"
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <TextInput
+                        label={t("wholeProduct.fields.currentQuantity")}
+                        placeholder={t("placeholders.quantity")}
+                        onBlur={onBlur}
+                        value={value}
+                        onChangeText={onChange}
+                        keyboardType="decimal-pad"
+                      />
+                    )}
+                  />
+                </ThemedView>
+              )}
               <ThemedView style={tw`flex-1`}>
                 <Controller
                   control={control}

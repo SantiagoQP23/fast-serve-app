@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import { router } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Icon from "@/presentation/theme/components/icon";
 import { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -23,6 +24,7 @@ import InventoryMovementHistory from "@/presentation/inventory/components/invent
 import LinkedProductsList from "@/presentation/inventory/components/linked-products-list";
 import InventoryScreenHeader from "@/presentation/inventory/components/screen-header";
 import IconButton from "@/presentation/theme/components/icon-button";
+import Skeleton from "@/presentation/theme/components/skeleton";
 
 interface InventoryItemDetailViewProps {
   itemId: string;
@@ -44,6 +46,7 @@ export default function InventoryItemDetailView({
   const { user } = useAuthStore();
   const canManage = canManageInventory(user?.role?.name);
   const primaryColor = useThemeColor({}, "primary");
+  const insets = useSafeAreaInsets();
 
   const { item, itemQuery, movements, movementsQuery } =
     useInventoryItemDetail(itemId);
@@ -77,7 +80,6 @@ export default function InventoryItemDetailView({
         itemId: item.id,
         name: item.name,
         unit: item.unit,
-        quantity: String(item.quantity),
         minimumQuantity:
           item.minimumQuantity != null ? String(item.minimumQuantity) : "",
         isActive: String(item.isActive),
@@ -101,14 +103,21 @@ export default function InventoryItemDetailView({
 
   const handleConfirmDelete = async () => {
     if (!item) return;
-    await deleteItem.mutateAsync(item.id);
+    try {
+      await deleteItem.mutateAsync(item.id);
+    } catch {
+      // The mutation already shows the error; the dialog stays to retry.
+      return;
+    }
     setShowDeleteConfirm(false);
     close();
   };
 
+  const linkedCount = item?.productOptions?.length ?? 0;
+
   return (
     <Container style={tw`flex-1 bg-background`}>
-      <ThemedView style={tw`px-4 pt-8 bg-transparent`}>
+      <ThemedView style={tw`px-4 ${embedded ? "pt-2" : "pt-6"} bg-transparent`}>
         {/* The item's name leads the content, so the header stays bare */}
         <InventoryScreenHeader
           onBack={close}
@@ -139,10 +148,15 @@ export default function InventoryItemDetailView({
         }
       >
         {itemQuery.isLoading && (
-          <ThemedView style={tw`items-center py-8 gap-3`}>
-            <ThemedText type="body1" style={tw`text-gray-500`}>
-              {t("loading")}
-            </ThemedText>
+          // Same shape as the summary below, so nothing jumps when it loads
+          <ThemedView
+            style={tw`gap-4 bg-transparent`}
+            accessibilityLabel={t("loading")}
+          >
+            <Skeleton style={tw`h-9 w-3/4`} />
+            <Skeleton style={tw`h-5 w-1/3`} />
+            <Skeleton style={tw`h-6 w-24 rounded-full`} />
+            <Skeleton style={tw`h-12 w-1/2`} />
           </ThemedView>
         )}
 
@@ -162,7 +176,10 @@ export default function InventoryItemDetailView({
 
         {item && (
           <>
-            <InventoryDetailSummaryCard item={item} />
+            <InventoryDetailSummaryCard
+              item={item}
+              onSetMinimum={canManage ? handleEditItem : undefined}
+            />
 
             <LinkedProductsList
               lines={item.productOptions ?? []}
@@ -170,21 +187,28 @@ export default function InventoryItemDetailView({
               onAddPress={canManage ? handleLinkToProduct : undefined}
             />
 
-            <InventoryMovementHistory movements={movements} unit={item.unit} />
-            {movementsQuery.isError && (
-              <ThemedText type="small" style={tw`text-red-500 text-center`}>
-                {t("detail.movementsLoadError")}
-              </ThemedText>
-            )}
+            <InventoryMovementHistory
+              movements={movements}
+              unit={item.unit}
+              loading={movementsQuery.isLoading}
+              error={
+                movementsQuery.isError
+                  ? t("detail.movementsLoadError")
+                  : undefined
+              }
+            />
           </>
         )}
       </ScrollView>
 
-      {/* Pinned like the count detail's footer — stock movements are open
-          to every role */}
+      {/* Docked like the order and bill bars; stock movements are open to
+          every role */}
       {item && (
         <ThemedView
-          style={tw`flex-row items-center gap-3 px-4 py-4 border-t border-border bg-background`}
+          style={[
+            tw`flex-row items-center gap-3 px-4 pt-3 border-t border-divider bg-background`,
+            { paddingBottom: embedded ? 16 : Math.max(insets.bottom, 16) },
+          ]}
         >
           <Button
             label={t("decrease")}
@@ -211,8 +235,15 @@ export default function InventoryItemDetailView({
       <DialogModal
         visible={showDeleteConfirm}
         title={t("deleteTitle")}
-        message={t("deleteMessage")}
-        confirmLabel={t("confirm")}
+        message={
+          linkedCount > 0
+            ? t("deleteMessageLinked", {
+                name: item?.name ?? "",
+                count: linkedCount,
+              })
+            : t("deleteMessage", { name: item?.name ?? "" })
+        }
+        confirmLabel={t("delete")}
         cancelLabel={t("cancel")}
         confirmVariant="destructive"
         loading={deleteItem.isPending}

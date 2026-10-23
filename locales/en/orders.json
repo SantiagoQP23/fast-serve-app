@@ -211,6 +211,11 @@
       "DELIVERED": "This item has already been delivered and cannot be replaced.",
       "READY": "This item is already marked as ready and cannot be replaced.",
       "NOT_PENDING": "Only pending items can be replaced."
+    },
+    "blocked": {
+      "title": "This item can't be replaced",
+      "rule": "Only pending items that haven't been prepared, delivered or paid can be replaced.",
+      "infoLabel": "Why this item can't be replaced"
     }
   },
   "variantChange": {
@@ -410,8 +415,11 @@
   },
   "deleteItemBlocked": {
     "title": "This item can't be deleted",
-    "message": "{{delivered}} of {{quantity}} {{product}} were already delivered. Deleting it would lose the record of what was delivered.",
-    "rule": "Only items with no delivered units can be deleted."
+    "reasons": {
+      "BILLED": "{{billed}} of {{quantity}} {{product}} are already on a bill. Deleting it would leave the bill charging for an item that's no longer in the order.",
+      "DELIVERED": "{{delivered}} of {{quantity}} {{product}} were already delivered. Deleting it would lose the record of what was delivered."
+    },
+    "rule": "Only items that haven't been delivered or added to a bill can be deleted."
   },
   "statusBlocked": {
     "title": "You can't pick this status",

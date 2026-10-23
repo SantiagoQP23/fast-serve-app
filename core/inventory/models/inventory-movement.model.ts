@@ -23,6 +23,22 @@ export enum InventoryMovementSourceType {
   INVENTORY_COUNT = "INVENTORY_COUNT",
 }
 
+/** Why stock was taken out by hand (mirrors the backend enum). */
+export enum InventoryAdjustmentReason {
+  WASTE = "WASTE",
+  EXPIRED = "EXPIRED",
+  STAFF_MEAL = "STAFF_MEAL",
+  /** Undoing a manual adjustment that was made by mistake. */
+  CORRECTION = "CORRECTION",
+}
+
+/** Reasons offered when decreasing stock; CORRECTION is set only by undo. */
+export const DECREASE_REASONS = [
+  InventoryAdjustmentReason.WASTE,
+  InventoryAdjustmentReason.EXPIRED,
+  InventoryAdjustmentReason.STAFF_MEAL,
+] as const;
+
 export interface InventoryMovement {
   id: string;
   type: InventoryMovementType;
@@ -33,6 +49,8 @@ export interface InventoryMovement {
   sourceType: InventoryMovementSourceType;
   sourceId: string | null;
   note: string | null;
+  /** Older movements and non-manual ones have none. */
+  reason?: InventoryAdjustmentReason | null;
   createdAt: string;
   inventoryItem?: { id: string; name: string; unit: string };
   /** Null for movements the system recorded (e.g. order-driven ones). */
