@@ -14,6 +14,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import ProductCard from "@/presentation/restaurant-menu/product-card";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import TabBar from "@/presentation/theme/components/tab-bar";
+import TabSwipeView from "@/presentation/theme/components/tab-swipe-view";
 import { useRouter } from "expo-router";
 import FloatingSearchBar from "@/presentation/theme/components/floating-search-bar";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
@@ -69,6 +70,10 @@ export default function RestaurantMenuScreen() {
   const sections = useMemo(
     () => allSections.filter((s) => s.isActive),
     [allSections],
+  );
+  const sectionTabs = useMemo(
+    () => sections.map((s) => ({ label: s.name, value: s.id })),
+    [sections],
   );
   const categories = useMemo(
     () => allCategories.filter((c) => c.isActive),
@@ -365,100 +370,115 @@ export default function RestaurantMenuScreen() {
       {!search && (
         <TabBar
           scrollable
-          tabs={sections.map((s) => ({ label: s.name, value: s.id }))}
+          tabs={sectionTabs}
           activeTab={section}
           onChange={onChangeSection}
         />
       )}
-      <ThemedView style={tw`flex-row gap-3 flex-1`}>
-        {!isSearching && (
+      {/* Swipe left/right to go to the next or previous section */}
+      <TabSwipeView
+        tabs={sectionTabs}
+        activeTab={section}
+        onChange={onChangeSection}
+        enabled={!search}
+      >
+        <ThemedView style={tw`flex-row gap-3 flex-1`}>
+          {!isSearching && (
+            <ScrollView
+              style={{
+                width: isExpanded
+                  ? CATEGORY_COLUMN_WIDTH
+                  : CATEGORY_COLUMN_WIDTH_COMPACT,
+                flexGrow: 0,
+                flexShrink: 0,
+              }}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={tw`gap-1 pb-40`}
+            >
+              {sectionCategories.map((c) => {
+                const isSelected = category === c.id;
+                return (
+                  <Pressable
+                    key={c.id}
+                    onPress={() => onSelectCategory(c.id)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: isSelected }}
+                    style={tw.style(
+                      "px-3 py-2.5 rounded-md",
+                      isSelected && "bg-surface",
+                    )}
+                  >
+                    <ThemedText
+                      type="body2"
+                      style={[
+                        tw.style(isSelected ? "text-primary" : "text-primary"),
+                        isSelected && { fontFamily: typography.medium },
+                      ]}
+                    >
+                      {c.name}
+                    </ThemedText>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          )}
           <ScrollView
-            style={{
-              width: isExpanded
-                ? CATEGORY_COLUMN_WIDTH
-                : CATEGORY_COLUMN_WIDTH_COMPACT,
-              flexGrow: 0,
-              flexShrink: 0,
+            ref={productsScrollRef}
+            style={tw`flex-1`}
+            onLayout={(e) => {
+              setProductsWidth(e.nativeEvent.layout.width);
+              productsHeight.current = e.nativeEvent.layout.height;
             }}
+            onScroll={onProductsScroll}
+            scrollEventThrottle={16}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={tw`gap-1 pb-40`}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+            contentContainerStyle={tw`gap-6 pb-40`}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={primaryColor}
+                colors={[primaryColor]}
+              />
+            }
           >
-            {sectionCategories.map((c) => {
-              const isSelected = category === c.id;
-              return (
-                <Pressable
-                  key={c.id}
-                  onPress={() => onSelectCategory(c.id)}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: isSelected }}
-                  style={tw.style(
-                    "px-3 py-2.5 rounded-md",
-                    isSelected && "bg-surface",
-                  )}
-                >
+            {isSearching ? (
+              searchResults.length > 0 ? (
+                renderProductGrid(searchResults)
+              ) : (
+                <ThemedView style={tw`w-full items-center gap-2 pt-12 px-6`}>
+                  <Icon
+                    name="search-x"
+                    size={32}
+                    color={tw.color("gray-400")}
+                  />
                   <ThemedText
                     type="body2"
-                    style={[
-                      tw.style(isSelected ? "text-primary" : "text-primary"),
-                      isSelected && { fontFamily: typography.medium },
-                    ]}
+                    style={tw`text-center text-gray-500`}
                   >
-                    {c.name}
+                    {t("menu:noResults", { search: search.trim() })}
                   </ThemedText>
-                </Pressable>
-              );
-            })}
-          </ScrollView>
-        )}
-        <ScrollView
-          ref={productsScrollRef}
-          style={tw`flex-1`}
-          onLayout={(e) => {
-            setProductsWidth(e.nativeEvent.layout.width);
-            productsHeight.current = e.nativeEvent.layout.height;
-          }}
-          onScroll={onProductsScroll}
-          scrollEventThrottle={16}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-          contentContainerStyle={tw`gap-6 pb-40`}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={primaryColor}
-              colors={[primaryColor]}
-            />
-          }
-        >
-          {isSearching ? (
-            searchResults.length > 0 ? (
-              renderProductGrid(searchResults)
+                </ThemedView>
+              )
             ) : (
-              <ThemedView style={tw`w-full items-center gap-2 pt-12 px-6`}>
-                <Icon name="search-x" size={32} color={tw.color("gray-400")} />
-                <ThemedText type="body2" style={tw`text-center text-gray-500`}>
-                  {t("menu:noResults", { search: search.trim() })}
-                </ThemedText>
-              </ThemedView>
-            )
-          ) : (
-            sectionCategories.map((c) => (
-              <View
-                key={c.id}
-                style={tw`gap-3`}
-                onLayout={(e) =>
-                  categoryGroupY.current.set(c.id, e.nativeEvent.layout.y)
-                }
-              >
-                <ThemedText type="body1">{c.name}</ThemedText>
-                {renderProductGrid(productsByCategory.get(c.id) ?? [])}
-              </View>
-            ))
-          )}
-        </ScrollView>
-      </ThemedView>
+              sectionCategories.map((c) => (
+                <View
+                  key={c.id}
+                  style={tw`gap-3`}
+                  onLayout={(e) =>
+                    categoryGroupY.current.set(c.id, e.nativeEvent.layout.y)
+                  }
+                >
+                  <ThemedText type="body1">{c.name}</ThemedText>
+                  {renderProductGrid(productsByCategory.get(c.id) ?? [])}
+                </View>
+              ))
+            )}
+          </ScrollView>
+        </ThemedView>
+      </TabSwipeView>
 
       <FloatingSearchBar
         value={search}
