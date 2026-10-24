@@ -10,6 +10,11 @@ export default {
     newArchEnabled: true,
 
     ios: {
+      icon: {
+        light: "./assets/images/icon.png",
+        dark: "./assets/images/icon-dark.png",
+        tinted: "./assets/images/icon-tinted.png",
+      },
       supportsTablet: true,
       bundleIdentifier: "com.teikio.app",
     },
@@ -50,13 +55,19 @@ export default {
           resizeMode: "contain",
           backgroundColor: "#ffffff",
           dark: {
-            backgroundColor: "#000000",
+            backgroundColor: "#141311",
           },
         },
       ],
       "expo-secure-store",
       "expo-font",
-      "expo-notifications",
+      [
+        "expo-notifications",
+        {
+          icon: "./assets/images/notification-icon.png",
+          color: "#1C1B19",
+        },
+      ],
       "@react-native-community/datetimepicker",
       "expo-localization",
       "expo-web-browser",
