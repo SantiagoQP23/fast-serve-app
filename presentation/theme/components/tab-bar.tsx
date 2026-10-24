@@ -8,7 +8,6 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import * as Haptics from "expo-haptics";
 import tw from "../lib/tailwind";
 import { ThemedText, type ThemedTextProps } from "./themed-text";
 export interface TabItem<T extends string> {
@@ -140,7 +139,6 @@ export default function TabBar<T extends string>({
   const swipeTo = (direction: 1 | -1) => {
     const next = tabs[activeIndex + direction];
     if (!next) return;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     onChange(next.value);
   };
 

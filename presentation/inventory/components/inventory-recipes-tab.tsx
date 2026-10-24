@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { RefreshControl, ScrollView } from "react-native";
 // Horizontal rows use gesture-handler's ScrollView, so a swipe on them scrolls
-// the row instead of switching the screen's tab (TabSwipeView)
+// the row instead of switching the screen's tab (TabPager)
 import { ScrollView as GestureScrollView } from "react-native-gesture-handler";
 import { router } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
