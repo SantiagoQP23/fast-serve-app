@@ -1,5 +1,10 @@
 import { useEffect, type ReactNode } from "react";
-import { ActivityIndicator, Linking, Pressable, ScrollView } from "react-native";
+import {
+  ActivityIndicator,
+  Linking,
+  Pressable,
+  ScrollView,
+} from "react-native";
 import { router, useNavigation } from "expo-router";
 import { toast } from "sonner-native";
 
@@ -39,11 +44,17 @@ const editField = (field: EditableField) =>
   });
 
 /** Titled group of rows. */
-function InfoSection({ title, children }: { title: string; children: ReactNode }) {
+function InfoSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
   return (
     <ThemedView>
       <ThemedText
-        type="body2"
+        type="body1"
         accessibilityRole="header"
         style={[tw`text-primary`, { fontFamily: typography.semibold }]}
       >

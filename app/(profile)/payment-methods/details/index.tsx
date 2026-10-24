@@ -216,8 +216,13 @@ export default function PaymentMethodDetailsScreen() {
             <Label
               text={t(getPaymentMethodTranslationKey(method.type))}
               leftIcon={categoryIcons[method.type]}
+              variant="outline"
             />
-            <Label text={`${method.commissionPercentage}%`} leftIcon="tag" />
+            <Label
+              text={`${method.commissionPercentage}%`}
+              leftIcon="tag"
+              variant="outline"
+            />
           </ThemedView>
 
           <ThemedView style={tw`gap-3 mt-4`}>
