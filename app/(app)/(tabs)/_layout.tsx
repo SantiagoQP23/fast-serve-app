@@ -59,13 +59,15 @@ export function MyOrdersHeaderRight({ cart = "order" }: { cart?: CartType }) {
 
   return (
     <View style={tw`flex-row items-center gap-4 mr-2`}>
-      <ThemedView style={tw``}>
-        <IconButton
-          icon="printer"
-          onPress={() => router.push("/(order)/unprinted-tickets")}
-        />
-        <NotificationBadge value={unprintedTicketsCount} />
-      </ThemedView>
+      {unprintedTicketsCount > 0 && (
+        <ThemedView style={tw``}>
+          <IconButton
+            icon="printer"
+            onPress={() => router.push("/(order)/unprinted-tickets")}
+          />
+          <NotificationBadge value={unprintedTicketsCount} />
+        </ThemedView>
+      )}
       {unsynced.total > 0 && (
         <ThemedView style={tw``}>
           <IconButton
