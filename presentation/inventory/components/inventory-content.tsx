@@ -16,6 +16,7 @@ import { canManageInventory } from "@/core/auth/models/user.model";
 import Button from "@/presentation/theme/components/button";
 import IconButton from "@/presentation/theme/components/icon-button";
 import TabBar, { type TabItem } from "@/presentation/theme/components/tab-bar";
+import TabSwipeView from "@/presentation/theme/components/tab-swipe-view";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 import { useInventoryItemsSummary } from "@/presentation/inventory/hooks/useInventoryItemsSummary";
@@ -281,175 +282,183 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
         <TabBar tabs={tabs} activeTab={activeTab} onChange={changeTab} />
       </ThemedView>
 
-      {activeTab === "inventory" && (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={tw`px-4 gap-6 pb-8 pt-6`}
-          refreshControl={
-            <RefreshControl
-              refreshing={catalogQuery.isFetching}
-              onRefresh={handleRefresh}
-              tintColor={tw.color("primary")}
-              colors={[tw.color("primary") as string]}
-            />
-          }
-        >
-          {catalogQuery.isLoading && (
-            <ThemedView style={tw`items-center py-8 gap-3`}>
-              <ThemedText type="body1" style={tw`text-gray-500`}>
-                {t("loading")}
-              </ThemedText>
-            </ThemedView>
-          )}
-
-          {catalogQuery.isError && (
-            <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
-              <ThemedText type="body1" style={tw`text-red-500`}>
-                {t("loadError")}
-              </ThemedText>
-              <Button
-                label={t("retry")}
-                onPress={() => catalogQuery.refetch()}
-                variant="outline"
+      <TabSwipeView tabs={tabs} activeTab={activeTab} onChange={changeTab}>
+        {activeTab === "inventory" && (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={tw`px-4 gap-6 pb-8 pt-6`}
+            refreshControl={
+              <RefreshControl
+                refreshing={catalogQuery.isFetching}
+                onRefresh={handleRefresh}
+                tintColor={tw.color("primary")}
+                colors={[tw.color("primary") as string]}
               />
-            </ThemedView>
-          )}
-
-          {!catalogQuery.isLoading && !catalogQuery.isError && !hasContent && (
-            <ThemedView style={tw`items-center py-8 gap-3`}>
-              <Icon name="package" size={48} color={tw.color("gray-400")} />
-              <ThemedText type="body1" style={tw`font-semibold`}>
-                {t("empty")}
-              </ThemedText>
-              <ThemedText
-                type="body2"
-                style={tw`text-center text-gray-500 px-4`}
-              >
-                {t("emptyDescription")}
-              </ThemedText>
-            </ThemedView>
-          )}
-
-          {!catalogQuery.isLoading &&
-            !catalogQuery.isError &&
-            catalogItems.length > 0 && (
-              <InventoryStockSummary
-                counts={summaryCounts}
-                selectedStatus={null}
-                onSelectStatus={(status) =>
-                  status &&
-                  openItems({
-                    categoryId: null,
-                    uncategorized: false,
-                    title: t("allItems"),
-                    status,
-                  })
-                }
-              />
+            }
+          >
+            {catalogQuery.isLoading && (
+              <ThemedView style={tw`items-center py-8 gap-3`}>
+                <ThemedText type="body1" style={tw`text-gray-500`}>
+                  {t("loading")}
+                </ThemedText>
+              </ThemedView>
             )}
 
-          {!catalogQuery.isLoading && !catalogQuery.isError && hasContent && (
-            <ThemedView style={tw`gap-3 bg-transparent`}>
-              <ThemedView
-                style={tw`flex-row items-center justify-between bg-transparent`}
-              >
-                <ThemedText
-                  type="caption"
-                  style={tw`text-gray-500 font-semibold`}
-                >
-                  {t("categories.title")}
+            {catalogQuery.isError && (
+              <ThemedView style={tw`items-center py-8 gap-3`}>
+                <Icon
+                  name="circle-alert"
+                  size={48}
+                  color={tw.color("red-500")}
+                />
+                <ThemedText type="body1" style={tw`text-red-500`}>
+                  {t("loadError")}
                 </ThemedText>
-                {canManage && (
-                  <IconButton
-                    icon="folder-cog"
-                    size={18}
-                    variant="surface"
-                    onPress={handleManageCategories}
-                    accessibilityLabel={t("categories.manageCategories")}
-                  />
-                )}
+                <Button
+                  label={t("retry")}
+                  onPress={() => catalogQuery.refetch()}
+                  variant="outline"
+                />
               </ThemedView>
-              <View
-                style={[tw`flex-row flex-wrap`, { gap: FOLDER_GAP }]}
-                onLayout={(e) => setGridWidth(e.nativeEvent.layout.width)}
-              >
-                {folderWidth !== undefined && (
-                  <>
-                    {categories.map((category) => (
-                      <View key={category.id} style={{ width: folderWidth }}>
-                        <InventoryCategoryFolder
-                          name={category.name}
-                          itemCount={folderStats.get(category.id)?.count ?? 0}
-                          health={folderStats.get(category.id)?.health}
-                          onPress={() =>
-                            openItems({
-                              categoryId: category.id,
-                              uncategorized: false,
-                              title: category.name,
-                              status: null,
-                            })
-                          }
-                        />
-                      </View>
-                    ))}
-                    {uncategorizedStats && (
-                      <View style={{ width: folderWidth }}>
-                        <InventoryCategoryFolder
-                          name={t("categories.none")}
-                          itemCount={uncategorizedStats.count}
-                          health={uncategorizedStats.health}
-                          isUncategorized
-                          onPress={() =>
-                            openItems({
-                              categoryId: null,
-                              uncategorized: true,
-                              title: t("categories.none"),
-                              status: null,
-                            })
-                          }
-                        />
-                      </View>
-                    )}
-                    {canManage && (
-                      <View style={{ width: folderWidth }}>
-                        <NewCategoryFolder onPress={handleCreateCategory} />
-                      </View>
-                    )}
-                  </>
-                )}
-              </View>
-            </ThemedView>
-          )}
-        </ScrollView>
-      )}
+            )}
 
-      {activeTab === "counts" && (
-        <InventoryCountsTab
-          activeId={activeId}
-          onOpenCount={
-            isExpanded
-              ? (count) => setSelection({ kind: "count", id: count.id })
-              : undefined
-          }
-        />
-      )}
+            {!catalogQuery.isLoading &&
+              !catalogQuery.isError &&
+              !hasContent && (
+                <ThemedView style={tw`items-center py-8 gap-3`}>
+                  <Icon name="package" size={48} color={tw.color("gray-400")} />
+                  <ThemedText type="body1" style={tw`font-semibold`}>
+                    {t("empty")}
+                  </ThemedText>
+                  <ThemedText
+                    type="body2"
+                    style={tw`text-center text-gray-500 px-4`}
+                  >
+                    {t("emptyDescription")}
+                  </ThemedText>
+                </ThemedView>
+              )}
 
-      {activeTab === "purchases" && canManage && (
-        <InventoryPurchasesTab
-          activeId={activeId}
-          onOpenPurchase={
-            isExpanded
-              ? (purchase) =>
-                  setSelection({ kind: "purchase", id: purchase.id })
-              : undefined
-          }
-        />
-      )}
+            {!catalogQuery.isLoading &&
+              !catalogQuery.isError &&
+              catalogItems.length > 0 && (
+                <InventoryStockSummary
+                  counts={summaryCounts}
+                  selectedStatus={null}
+                  onSelectStatus={(status) =>
+                    status &&
+                    openItems({
+                      categoryId: null,
+                      uncategorized: false,
+                      title: t("allItems"),
+                      status,
+                    })
+                  }
+                />
+              )}
 
-      {activeTab === "recipes" && (
-        <InventoryRecipesTab newRecipeRequest={newRecipeRequest} />
-      )}
+            {!catalogQuery.isLoading && !catalogQuery.isError && hasContent && (
+              <ThemedView style={tw`gap-3 bg-transparent`}>
+                <ThemedView
+                  style={tw`flex-row items-center justify-between bg-transparent`}
+                >
+                  <ThemedText
+                    type="caption"
+                    style={tw`text-gray-500 font-semibold`}
+                  >
+                    {t("categories.title")}
+                  </ThemedText>
+                  {canManage && (
+                    <IconButton
+                      icon="folder-cog"
+                      size={18}
+                      variant="surface"
+                      onPress={handleManageCategories}
+                      accessibilityLabel={t("categories.manageCategories")}
+                    />
+                  )}
+                </ThemedView>
+                <View
+                  style={[tw`flex-row flex-wrap`, { gap: FOLDER_GAP }]}
+                  onLayout={(e) => setGridWidth(e.nativeEvent.layout.width)}
+                >
+                  {folderWidth !== undefined && (
+                    <>
+                      {categories.map((category) => (
+                        <View key={category.id} style={{ width: folderWidth }}>
+                          <InventoryCategoryFolder
+                            name={category.name}
+                            itemCount={folderStats.get(category.id)?.count ?? 0}
+                            health={folderStats.get(category.id)?.health}
+                            onPress={() =>
+                              openItems({
+                                categoryId: category.id,
+                                uncategorized: false,
+                                title: category.name,
+                                status: null,
+                              })
+                            }
+                          />
+                        </View>
+                      ))}
+                      {uncategorizedStats && (
+                        <View style={{ width: folderWidth }}>
+                          <InventoryCategoryFolder
+                            name={t("categories.none")}
+                            itemCount={uncategorizedStats.count}
+                            health={uncategorizedStats.health}
+                            isUncategorized
+                            onPress={() =>
+                              openItems({
+                                categoryId: null,
+                                uncategorized: true,
+                                title: t("categories.none"),
+                                status: null,
+                              })
+                            }
+                          />
+                        </View>
+                      )}
+                      {canManage && (
+                        <View style={{ width: folderWidth }}>
+                          <NewCategoryFolder onPress={handleCreateCategory} />
+                        </View>
+                      )}
+                    </>
+                  )}
+                </View>
+              </ThemedView>
+            )}
+          </ScrollView>
+        )}
+
+        {activeTab === "counts" && (
+          <InventoryCountsTab
+            activeId={activeId}
+            onOpenCount={
+              isExpanded
+                ? (count) => setSelection({ kind: "count", id: count.id })
+                : undefined
+            }
+          />
+        )}
+
+        {activeTab === "purchases" && canManage && (
+          <InventoryPurchasesTab
+            activeId={activeId}
+            onOpenPurchase={
+              isExpanded
+                ? (purchase) =>
+                    setSelection({ kind: "purchase", id: purchase.id })
+                : undefined
+            }
+          />
+        )}
+
+        {activeTab === "recipes" && (
+          <InventoryRecipesTab newRecipeRequest={newRecipeRequest} />
+        )}
+      </TabSwipeView>
 
       <ThemedBottomSheetModal ref={addSheetRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6`}>

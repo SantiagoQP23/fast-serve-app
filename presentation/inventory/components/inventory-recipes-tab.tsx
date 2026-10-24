@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { RefreshControl, ScrollView } from "react-native";
+// Horizontal rows use gesture-handler's ScrollView, so a swipe on them scrolls
+// the row instead of switching the screen's tab (TabSwipeView)
+import { ScrollView as GestureScrollView } from "react-native-gesture-handler";
 import { router } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -233,7 +236,7 @@ export default function InventoryRecipesTab({
               onChangeText={setSearch}
               autoCorrect={false}
             />
-            <ScrollView
+            <GestureScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={tw`gap-2`}
@@ -246,7 +249,7 @@ export default function InventoryRecipesTab({
                   onPress={() => setFilter(key)}
                 />
               ))}
-            </ScrollView>
+            </GestureScrollView>
 
             {groups.length === 0 && (
               <ThemedText
@@ -270,53 +273,53 @@ export default function InventoryRecipesTab({
                   keyExtractor={(row) => String(row.option.id)}
                   onItemPress={openRecipe}
                   renderItem={(row) => (
-                      <ThemedView
-                        style={tw`flex-row items-center gap-3 bg-transparent`}
-                      >
-                        <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-                          <ThemedText
-                            type="body1"
-                            numberOfLines={2}
-                            style={{ fontFamily: typography.semibold }}
-                          >
-                            {row.label}
-                          </ThemedText>
-                          <ThemedView
-                            style={tw`flex-row items-center gap-2 bg-transparent`}
-                          >
-                            {row.stockLevel === "out" ? (
-                              <Label
-                                text={t("optionInventory.outOfStock")}
-                                color="error"
-                                size="small"
-                              />
-                            ) : (
-                              <>
-                                <ThemedText
-                                  type="small"
-                                  style={tw`text-gray-500`}
-                                >
-                                  {t("recipes.canMake", {
-                                    count: row.available,
-                                  })}
-                                </ThemedText>
-                                {row.stockLevel === "low" && (
-                                  <Label
-                                    text={t("status.low")}
-                                    color="warning"
-                                    size="small"
-                                  />
-                                )}
-                              </>
-                            )}
-                          </ThemedView>
+                    <ThemedView
+                      style={tw`flex-row items-center gap-3 bg-transparent`}
+                    >
+                      <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+                        <ThemedText
+                          type="body1"
+                          numberOfLines={2}
+                          style={{ fontFamily: typography.semibold }}
+                        >
+                          {row.label}
+                        </ThemedText>
+                        <ThemedView
+                          style={tw`flex-row items-center gap-2 bg-transparent`}
+                        >
+                          {row.stockLevel === "out" ? (
+                            <Label
+                              text={t("optionInventory.outOfStock")}
+                              color="error"
+                              size="small"
+                            />
+                          ) : (
+                            <>
+                              <ThemedText
+                                type="small"
+                                style={tw`text-gray-500`}
+                              >
+                                {t("recipes.canMake", {
+                                  count: row.available,
+                                })}
+                              </ThemedText>
+                              {row.stockLevel === "low" && (
+                                <Label
+                                  text={t("status.low")}
+                                  color="warning"
+                                  size="small"
+                                />
+                              )}
+                            </>
+                          )}
                         </ThemedView>
-                        <Icon
-                          name="chevron-right"
-                          size={18}
-                          color={tw.color("gray-400")}
-                        />
                       </ThemedView>
+                      <Icon
+                        name="chevron-right"
+                        size={18}
+                        color={tw.color("gray-400")}
+                      />
+                    </ThemedView>
                   )}
                 />
               </ThemedView>

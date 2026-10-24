@@ -38,6 +38,7 @@ import SalesContent from "@/presentation/orders/components/sales-content";
 import Button from "@/presentation/theme/components/button";
 import ButtonGroup from "@/presentation/theme/components/button-group";
 import TabBar from "@/presentation/theme/components/tab-bar";
+import TabSwipeView from "@/presentation/theme/components/tab-swipe-view";
 import HomeViewOptionsBottomSheet from "@/presentation/orders/components/home-view-options-bottom-sheet";
 import { useScopedOrders } from "@/presentation/orders/hooks/useScopedOrders";
 import { useOrdersViewStore } from "@/presentation/orders/store/useOrdersViewStore";
@@ -308,8 +309,13 @@ export default function MyOrdersScreen() {
         )}
       </ThemedView>
 
-      {activeModule === "sales" && (
-        <ThemedView style={tw`flex-1`}>
+      {/* Tab content; swipe left/right to switch Pedidos / Ventas */}
+      <TabSwipeView
+        tabs={moduleTabs}
+        activeTab={activeModule}
+        onChange={setActiveModule}
+      >
+        {activeModule === "sales" && (
           <SalesContent
             activeBillId={
               isExpanded ? (selectedBillId ?? undefined) : undefined
@@ -318,12 +324,9 @@ export default function MyOrdersScreen() {
               isExpanded ? (bill) => setSelectedBillId(bill.id) : undefined
             }
           />
-        </ThemedView>
-      )}
+        )}
 
-      {/* Tab content */}
-      {activeModule === "orders" && (
-        <>
+        {activeModule === "orders" && (
           <ThemedView style={tw`flex-1`}>
             {activeView !== "tables" && (
               <ScrollView
@@ -389,7 +392,11 @@ export default function MyOrdersScreen() {
               />
             )}
           </ThemedView>
+        )}
+      </TabSwipeView>
 
+      {activeModule === "orders" && (
+        <>
           <ThemedBottomSheetModal
             ref={bottomSheetModalRef}
             onChange={handleSheetChanges}

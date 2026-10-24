@@ -1,4 +1,7 @@
 import { ScrollView, Pressable, RefreshControl, Platform } from "react-native";
+// Horizontal rows use gesture-handler's ScrollView, so a swipe on them scrolls
+// the row instead of switching the screen's tab (TabSwipeView)
+import { ScrollView as GestureScrollView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -36,6 +39,7 @@ import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPayme
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 import { useOrderPrint } from "@/presentation/orders/hooks/useOrderPrint";
 import TabBar from "@/presentation/theme/components/tab-bar";
+import TabSwipeView from "@/presentation/theme/components/tab-swipe-view";
 import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bottom-sheet";
 import ChangeItemsTypeBottomSheet, {
   itemsToChangeType,
@@ -901,8 +905,14 @@ export default function OrderDetailView({
             <TabBar tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
           </ThemedView>
 
-          {/* Tab Content */}
-          <ThemedView style={tw`flex-1`}>
+          {/* Tab Content; swipe left/right to switch tabs (off while
+              selecting products) */}
+          <TabSwipeView
+            tabs={tabs}
+            activeTab={activeTab}
+            onChange={setActiveTab}
+            enabled={!isSelectionMode}
+          >
             {activeTab === "products" && (
               <ScrollView
                 style={tw`flex-1`}
@@ -952,7 +962,7 @@ export default function OrderDetailView({
                 </ThemedView>
 
                 {/* Closed orders can't change, so their chips are read-only. */}
-                <ScrollView
+                <GestureScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={tw`gap-2 mb-6`}
@@ -977,7 +987,7 @@ export default function OrderDetailView({
                     onPress={!isClosed ? handlePresentReassignModal : undefined}
                     disabled={isClosed}
                   />
-                </ScrollView>
+                </GestureScrollView>
 
                 {/* Notes Section */}
                 {order.notes && (
@@ -1150,7 +1160,7 @@ export default function OrderDetailView({
 
             {activeTab === "bills" && <OrderBillsTab order={order} />}
             {activeTab === "tickets" && <OrderTicketsTab order={order} />}
-          </ThemedView>
+          </TabSwipeView>
         </Container>
 
         {/* Bottom bar: thumb-reach actions, or the bulk-deliver bar while
