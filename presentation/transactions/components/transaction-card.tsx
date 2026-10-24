@@ -79,10 +79,7 @@ export default function TransactionCard({
           ? t("common:status.cancelled")
           : null;
 
-  const methodAndAccount = [
-    transaction.paymentMethod?.name,
-    transaction.account?.name,
-  ]
+  const methodAndAccount = [transaction.account?.name]
     .filter(Boolean)
     .join(" · ");
 
@@ -137,7 +134,9 @@ export default function TransactionCard({
                 </ThemedText>
                 <ThemedView style={tw`flex-row items-center gap-2 mt-0.5`}>
                   <ThemedText type="small" style={tw`text-gray-500`}>
-                    {statusText ? `${relativeTime} · ${statusText}` : relativeTime}
+                    {statusText
+                      ? `${relativeTime} · ${statusText}`
+                      : relativeTime}
                   </ThemedText>
                 </ThemedView>
               </ThemedView>
