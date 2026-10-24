@@ -319,7 +319,6 @@ export default function TableSettingsFormScreen() {
         ref={blockedSheetRef}
         title={t(`settings.blocked.title.${blockedAction}`)}
         message={t(`settings.blocked.message.${blockedAction}`)}
-        note={t("settings.blocked.rule")}
       />
     </KeyboardAvoidingView>
   );

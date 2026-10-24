@@ -14,6 +14,7 @@ export const useTransaction = (id: number | null) => {
     transaction: query.data ?? null,
     isLoading: query.isLoading,
     isError: query.isError,
+    error: query.error,
     refetch: query.refetch,
   };
 };
@@ -50,6 +51,9 @@ export const useApproveTransaction = () => {
       queryClient.invalidateQueries({ queryKey: ["transaction", id] });
       queryClient.invalidateQueries({ queryKey: ["transactionsList"] });
       queryClient.invalidateQueries({ queryKey: ["billsList"] });
+      // Approving also settles the proof under review.
+      queryClient.invalidateQueries({ queryKey: ["paymentProofs", id] });
+      queryClient.invalidateQueries({ queryKey: ["pendingProofs"] });
     },
   });
 
@@ -69,6 +73,10 @@ export const useRejectTransaction = () => {
       queryClient.invalidateQueries({ queryKey: ["transaction", variables.id] });
       queryClient.invalidateQueries({ queryKey: ["transactionsList"] });
       queryClient.invalidateQueries({ queryKey: ["billsList"] });
+      queryClient.invalidateQueries({
+        queryKey: ["paymentProofs", variables.id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["pendingProofs"] });
     },
   });
 

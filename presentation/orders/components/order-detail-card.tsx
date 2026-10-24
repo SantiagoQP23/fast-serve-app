@@ -261,7 +261,6 @@ export default function OrderDetailCard({
           ref={replaceBlockedSheetRef}
           title={t("orders:replaceItem.blocked.title")}
           message={t(`orders:replaceItem.reasons.${replaceBlockReason}`)}
-          note={t("orders:replaceItem.blocked.rule")}
         />
       )}
 
@@ -275,7 +274,6 @@ export default function OrderDetailCard({
             quantity: detail.quantity,
             product: detail.product.name,
           })}
-          note={t("orders:deleteItemBlocked.rule")}
         />
       )}
 

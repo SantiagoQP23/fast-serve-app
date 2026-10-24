@@ -18,6 +18,7 @@ import { useInventoryRecipes } from "@/presentation/inventory/hooks/useInventory
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 import InventoryLineRow from "@/presentation/inventory/components/inventory-line-row";
 import RecipeDraftLineModal from "@/presentation/inventory/components/recipe-draft-line-modal";
+import InventoryScreenHeader from "@/presentation/inventory/components/screen-header";
 import BottomSheetPicker, {
   type BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
@@ -213,36 +214,11 @@ export default function MenuProductOptionRecipeScreen() {
 
   return (
     <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
-      <ThemedView style={tw`items-center gap-4 flex-row mb-6`}>
-        <Pressable
-          onPress={() => router.back()}
-          style={({ pressed }) => tw.style(pressed && "opacity-70")}
-        >
-          <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
-        </Pressable>
-        {(params.productName || params.productOptionName) && (
-          <ThemedView style={tw`gap-0.5`}>
-            {params.productName && (
-              <ThemedText type="h3" numberOfLines={1}>
-                {params.productName}
-              </ThemedText>
-            )}
-            {params.productOptionName && (
-              <ThemedText
-                type="small"
-                style={tw`text-gray-500`}
-                numberOfLines={1}
-              >
-                {params.productOptionName}
-              </ThemedText>
-            )}
-          </ThemedView>
-        )}
-      </ThemedView>
+      <InventoryScreenHeader />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`gap-4 pb-8`}
+        contentContainerStyle={tw`gap-4 pt-6 pb-8`}
         refreshControl={
           <RefreshControl
             refreshing={recipesQuery.isFetching}
@@ -252,7 +228,16 @@ export default function MenuProductOptionRecipeScreen() {
           />
         }
       >
-        {/* <ThemedText type="h2">{t("trackMode.ingredients.label")}</ThemedText> */}
+        <ThemedView style={tw`gap-1`}>
+          <ThemedText type="h2" numberOfLines={2}>
+            {params.productName || t("recipe.title")}
+          </ThemedText>
+          {params.productOptionName && (
+            <ThemedText type="body1" style={tw`text-gray-500`}>
+              {params.productOptionName}
+            </ThemedText>
+          )}
+        </ThemedView>
 
         {recipesQuery.isLoading && (
           <ThemedView style={tw`items-center py-8 gap-3`}>

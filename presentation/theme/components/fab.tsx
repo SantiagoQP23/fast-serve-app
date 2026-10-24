@@ -50,7 +50,7 @@ export default function Fab({
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
-        tw`absolute rounded-2xl items-center justify-center shadow-lg flex-row`,
+        tw`absolute rounded-md items-center justify-center shadow-lg flex-row`,
         hasLabel ? tw`h-16 px-5` : tw`w-16 h-16`,
         tw`${bgColor}`,
         {

@@ -463,7 +463,6 @@ export default function EditOrderDetailScreen() {
             ref={replaceBlockedSheetRef}
             title={t("orders:replaceItem.blocked.title")}
             message={t(`orders:replaceItem.reasons.${replaceBlockReason}`)}
-            note={t("orders:replaceItem.blocked.rule")}
           />
         )}
 

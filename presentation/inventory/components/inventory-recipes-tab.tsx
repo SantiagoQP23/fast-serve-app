@@ -172,20 +172,29 @@ export default function InventoryRecipesTab({
     [variants],
   );
 
-  const openRecipe = ({ product, option }: MenuVariant) =>
+  const getRecipeParams = ({ product, option }: MenuVariant) => ({
+    productOptionId: String(option.id),
+    productOptionName: option.name,
+    productName: product.name,
+  });
+
+  const openRecipe = (variant: MenuVariant) =>
+    router.push({
+      pathname: "/(profile)/inventory/recipes/detail",
+      params: getRecipeParams(variant),
+    });
+
+  // A new recipe has nothing to show yet, so it starts in the editor.
+  const editRecipe = (variant: MenuVariant) =>
     router.push({
       pathname: "/(profile)/menu/products/option-recipe",
-      params: {
-        productOptionId: String(option.id),
-        productOptionName: option.name,
-        productName: product.name,
-      },
+      params: getRecipeParams(variant),
     });
 
   const handlePickVariant = (value: string | number) => {
     const variant = variants.find(({ option }) => option.id === value);
     pickerRef.current?.dismiss();
-    if (variant) openRecipe(variant);
+    if (variant) editRecipe(variant);
   };
 
   const isEmpty = recipes.length === 0;

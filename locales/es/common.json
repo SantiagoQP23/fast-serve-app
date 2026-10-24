@@ -194,6 +194,26 @@
     "pane": {
       "emptyTitle": "Selecciona una transacción",
       "emptyDescription": "Toca una transacción para ver sus detalles y comprobantes aquí."
+    },
+    "destinationAccount": "Cuenta de destino",
+    "accountUpdated": "Cuenta de destino actualizada",
+    "bill": "Cuenta",
+    "billNumber": "Cuenta #{{num}}",
+    "totalWithCommission": "Total con comisión",
+    "cashReceived": "Efectivo recibido",
+    "changeGiven": "Cambio",
+    "details": "Detalles",
+    "loadState": {
+      "notFoundTitle": "Transacción no encontrada",
+      "notFoundDescription": "Puede que se haya eliminado desde otro dispositivo.",
+      "errorTitle": "No se pudo cargar la transacción",
+      "errorDescription": "Revisa tu conexión e inténtalo de nuevo."
+    },
+    "accountLocked": {
+      "infoLabel": "Por qué no se puede cambiar la cuenta de destino",
+      "title": "La cuenta de destino ya no se puede cambiar",
+      "approved": "Esta transferencia ya fue aprobada, así que el dinero quedó registrado en {{account}}. Solo un administrador o el dueño puede cambiarla.",
+      "cancelled": "Esta transacción fue cancelada."
     }
   }
 }

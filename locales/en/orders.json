@@ -214,7 +214,6 @@
     },
     "blocked": {
       "title": "This item can't be replaced",
-      "rule": "Only pending items that haven't been prepared, delivered or paid can be replaced.",
       "infoLabel": "Why this item can't be replaced"
     }
   },
@@ -410,16 +409,14 @@
     "reasons": {
       "DELIVERED": "Items from this order were already handed to the customer. Deleting it would lose the record of what was delivered.",
       "NOT_PENDING": "This order is no longer pending: the kitchen already started it or it was delivered."
-    },
-    "rule": "Only pending orders with no delivered items can be deleted."
+    }
   },
   "deleteItemBlocked": {
     "title": "This item can't be deleted",
     "reasons": {
       "BILLED": "{{billed}} of {{quantity}} {{product}} are already on a bill. Deleting it would leave the bill charging for an item that's no longer in the order.",
       "DELIVERED": "{{delivered}} of {{quantity}} {{product}} were already delivered. Deleting it would lose the record of what was delivered."
-    },
-    "rule": "Only items that haven't been delivered or added to a bill can be deleted."
+    }
   },
   "statusBlocked": {
     "title": "You can't pick this status",
@@ -427,7 +424,6 @@
       "IN_PROGRESS": "The kitchen sets “In progress” when it starts preparing the item.",
       "READY": "The kitchen sets “Ready” when the item is ready to hand out."
     },
-    "note": "From here you can only mark it as pending or delivered.",
     "infoLabel": "Why you can't pick this status"
   }
 }

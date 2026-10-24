@@ -14,8 +14,6 @@ import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-b
 interface InfoBottomSheetProps {
   title: string;
   message: string;
-  /** Secondary line in gray, e.g. the general rule behind the message. */
-  note?: string;
 }
 
 /**
@@ -23,7 +21,7 @@ interface InfoBottomSheetProps {
  * blocked. Opens over whatever sheet triggered it.
  */
 const InfoBottomSheet = forwardRef<BottomSheetMethods, InfoBottomSheetProps>(
-  ({ title, message, note }, ref) => {
+  ({ title, message }, ref) => {
     const { t } = useTranslation(["common"]);
 
     const close = () => {
@@ -42,11 +40,6 @@ const InfoBottomSheet = forwardRef<BottomSheetMethods, InfoBottomSheetProps>(
               </ThemedText>
             </ThemedView>
             <ThemedText type="body1">{message}</ThemedText>
-            {note && (
-              <ThemedText type="body2" style={tw`text-gray-500`}>
-                {note}
-              </ThemedText>
-            )}
           </ThemedView>
           <Button label={t("common:actions.gotIt")} onPress={close} />
         </BottomSheetView>

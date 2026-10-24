@@ -344,6 +344,13 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="inventory/recipes/detail/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
           name="tables/index"
           options={{
             headerShown: true,

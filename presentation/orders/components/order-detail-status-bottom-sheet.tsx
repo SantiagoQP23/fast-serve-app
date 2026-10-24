@@ -148,7 +148,6 @@ const OrderDetailStatusBottomSheet = forwardRef<
             ? t(`orders:statusBlocked.reasons.${blockedStatus}`)
             : ""
         }
-        note={t("orders:statusBlocked.note")}
       />
     </>
   );

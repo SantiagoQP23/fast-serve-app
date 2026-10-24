@@ -78,7 +78,6 @@
         "deactivate": "This table has open orders. Deactivating it would hide it while customers are still being served.",
         "delete": "This table has open orders. Deleting it would lose the table those orders belong to."
       },
-      "rule": "Once every order on this table is paid or closed, you can deactivate or delete it.",
       "infoLabel": {
         "deactivate": "Why it can't be deactivated",
         "delete": "Why it can't be deleted"

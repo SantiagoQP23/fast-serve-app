@@ -1,19 +1,26 @@
-import React, { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import {
   ScrollView,
   Image,
   Alert,
+  Linking,
   Pressable,
   View,
   RefreshControl,
   Modal,
 } from "react-native";
+import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { toast } from "sonner-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
+import { typography } from "@/constants/theme";
 import { formatCurrency } from "@/core/i18n/utils";
 import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import Button from "@/presentation/theme/components/button";
+import Label, { type LabelProps } from "@/presentation/theme/components/label";
+import InfoRow from "@/presentation/theme/components/info-row";
 import { usePaymentProofs } from "@/presentation/transactions/hooks/usePaymentProofs";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useTranslation } from "react-i18next";
@@ -21,9 +28,11 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import {
   useTransaction,
   useUpdateTransaction,
-  useRejectTransaction,
 } from "@/presentation/transactions/hooks/useTransaction";
-import { PaymentProofStatus } from "@/core/transactions/models/payment-proof.model";
+import {
+  PaymentProofStatus,
+  type PaymentProof,
+} from "@/core/transactions/models/payment-proof.model";
 import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
 import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.model";
 import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
@@ -36,6 +45,12 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import dayjs from "dayjs";
 import { useModal } from "@/presentation/shared/hooks/useModal";
 import ApproveTransactionModal from "@/presentation/transactions/components/approve-transaction-modal";
+import RejectTransactionSheet, {
+  type RejectTransactionSheetRef,
+} from "@/presentation/transactions/components/reject-transaction-sheet";
+import InfoBottomSheet from "@/presentation/theme/components/info-bottom-sheet";
+import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
+import BillLoadState from "@/presentation/orders/components/bill-load-state";
 import { getErrorMessage } from "@/core/api/get-error-message";
 import BottomSheetPicker, {
   type BottomSheetPickerRef,
@@ -51,22 +66,76 @@ interface TransactionDetailViewProps {
   onClose?: () => void;
 }
 
+const DATE_FORMAT = "DD MMM YYYY, HH:mm";
+
+const transactionStatusLabel: Record<
+  TransactionStatus,
+  { color: LabelProps["color"]; icon: IconName; key: string }
+> = {
+  [TransactionStatus.COMPLETED]: {
+    color: "success",
+    icon: "circle-check",
+    key: "completed",
+  },
+  [TransactionStatus.PENDING_PROOF]: {
+    color: "warning",
+    icon: "file-up",
+    key: "pendingProof",
+  },
+  [TransactionStatus.PENDING_APPROVAL]: {
+    color: "warning",
+    icon: "clock",
+    key: "pendingApproval",
+  },
+  [TransactionStatus.REJECTED]: {
+    color: "error",
+    icon: "circle-x",
+    key: "rejected",
+  },
+  [TransactionStatus.CANCELLED]: {
+    color: "default",
+    icon: "ban",
+    key: "cancelled",
+  },
+};
+
+const proofStatusLabel: Record<
+  PaymentProofStatus,
+  { color: LabelProps["color"]; key: string }
+> = {
+  [PaymentProofStatus.PENDING]: { color: "warning", key: "pending" },
+  [PaymentProofStatus.APPROVED]: { color: "success", key: "approved" },
+  [PaymentProofStatus.REJECTED]: { color: "error", key: "rejected" },
+};
+
+const paymentMethodIcon: Partial<Record<PaymentMethodCategory, IconName>> = {
+  [PaymentMethodCategory.CASH]: "banknote",
+  [PaymentMethodCategory.CARD]: "credit-card",
+  [PaymentMethodCategory.TRANSFER]: "landmark",
+  [PaymentMethodCategory.DIGITAL_WALLET]: "smartphone",
+};
+
+const personName = (person?: { firstName: string; lastName: string }) =>
+  person ? `${person.firstName} ${person.lastName}`.trim() : "";
+
 export default function TransactionDetailView({
   transactionId,
   embedded = false,
   onClose,
 }: TransactionDetailViewProps) {
-  const { t } = useTranslation(["common", "bills"]);
+  const { t } = useTranslation(["common", "bills", "errors"]);
   const Container = embedded ? ThemedView : ScreenLayout;
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   const { user } = useAuthStore();
   const isAdmin = isAdminLevelRole(user?.role?.name);
   const isCashier = user?.role?.name === Roles.CASHIER;
   const canManage = isAdmin || isCashier;
 
-  const { transaction, isLoading, refetch } = useTransaction(transactionId);
+  const { transaction, isLoading, error, refetch } =
+    useTransaction(transactionId);
   const { updateTransaction } = useUpdateTransaction();
-  const { rejectTransaction, isLoading: isRejecting } = useRejectTransaction();
 
   const { paymentMethods } = usePaymentMethodsStore();
   const paymentMethod = transaction
@@ -79,14 +148,14 @@ export default function TransactionDetailView({
   const [selectedImage, setSelectedImage] =
     useState<ImagePicker.ImagePickerAsset | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [rejectReason, setRejectReason] = useState("");
-  const [showRejectInput, setShowRejectInput] = useState(false);
 
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewIndex, setPreviewIndex] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
 
   const accountBottomSheetRef = useRef<BottomSheetPickerRef>(null);
+  const rejectSheetRef = useRef<RejectTransactionSheetRef>(null);
+  const accountLockedSheetRef = useRef<BottomSheetMethods>(null);
 
   const {
     isOpen: approveModalIsOpen,
@@ -115,6 +184,22 @@ export default function TransactionDetailView({
     (transaction?.status === TransactionStatus.PENDING_PROOF ||
       transaction?.status === TransactionStatus.PENDING_APPROVAL);
 
+  const hasActionBar = canApproveTransaction || canRejectTransaction;
+
+  // Approving a transfer records the money in its account, so from then on
+  // only admins and owners can move it; a cancelled payment can't change.
+  const accountLockReason: "approved" | "cancelled" | null =
+    transaction?.status === TransactionStatus.CANCELLED
+      ? "cancelled"
+      : isTransfer &&
+          transaction?.status === TransactionStatus.COMPLETED &&
+          !isAdmin
+        ? "approved"
+        : null;
+
+  const canChangeAccount =
+    canManage && allowedAccounts.length > 0 && !accountLockReason;
+
   const pickImage = async (source: "camera" | "gallery") => {
     const permissionResult =
       source === "camera"
@@ -124,25 +209,30 @@ export default function TransactionDetailView({
     if (!permissionResult.granted) {
       Alert.alert(
         t("errors:general.permissionDenied"),
-        t("errors:general.cameraPermissionRequired"),
+        source === "camera"
+          ? t("bills:proofUpload.cameraPermissionRequired")
+          : t("bills:proofUpload.galleryPermissionRequired"),
+        [
+          { text: t("common:actions.cancel"), style: "cancel" },
+          {
+            text: t("bills:proofUpload.openSettings"),
+            onPress: () => Linking.openSettings(),
+          },
+        ],
       );
       return;
     }
 
+    const options: ImagePicker.ImagePickerOptions = {
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [9, 16],
+      quality: 0.8,
+    };
     const result =
       source === "camera"
-        ? await ImagePicker.launchCameraAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [9, 16],
-            quality: 0.8,
-          })
-        : await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [9, 16],
-            quality: 0.8,
-          });
+        ? await ImagePicker.launchCameraAsync(options)
+        : await ImagePicker.launchImageLibraryAsync(options);
 
     if (!result.canceled && result.assets.length > 0) {
       setSelectedImage(result.assets[0]);
@@ -154,7 +244,6 @@ export default function TransactionDetailView({
 
     setIsUploading(true);
     try {
-      console.log("Uploading proof for transaction:", transaction.id);
       await PaymentProofsService.uploadProof(
         transaction.id,
         selectedImage.uri,
@@ -162,73 +251,52 @@ export default function TransactionDetailView({
         selectedImage.mimeType || "image/jpeg",
       );
       setSelectedImage(null);
+      toast.success(t("bills:proofUpload.uploadSuccess"));
       refetch();
       refetchProofs();
-    } catch (error: any) {
-      Alert.alert(
-        t("errors:general.error"),
-        getErrorMessage(error, { fallbackToServerMessage: true }),
-      );
+    } catch (err) {
+      toast.error(getErrorMessage(err, { fallbackToServerMessage: true }));
     } finally {
       setIsUploading(false);
     }
   };
 
-  const handleTransactionApproved = useCallback(() => {
+  const handleReviewed = useCallback(() => {
     refetch();
-  }, [refetch]);
-
-  const handleRejectTransaction = useCallback(() => {
-    if (!rejectReason.trim()) {
-      setShowRejectInput(true);
-      return;
-    }
-    Alert.alert(
-      t("bills:proofUpload.rejectTitle"),
-      t("bills:proofUpload.rejectMessage"),
-      [
-        { text: t("common:actions.cancel"), style: "cancel" },
-        {
-          text: t("common:actions.reject"),
-          style: "destructive",
-          onPress: () => {
-            rejectTransaction(
-              { id: transactionId, reason: rejectReason.trim() },
-              {
-                onSuccess: () => {
-                  setRejectReason("");
-                  setShowRejectInput(false);
-                  refetch();
-                },
-              },
-            );
-          },
-        },
-      ],
-    );
-  }, [rejectTransaction, transactionId, rejectReason, refetch, t]);
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await refetch();
-    await refetchProofs();
-    setRefreshing(false);
+    refetchProofs();
   }, [refetch, refetchProofs]);
 
+  const onRefresh = useCallback(async () => {
+    try {
+      setRefreshing(true);
+      // refetch() resolves even when the request fails; the transaction
+      // already on screen stays, so a toast says it may be out of date.
+      const [result] = await Promise.all([refetch(), refetchProofs()]);
+      if (result.isError)
+        toast.error(t("common:transactions.loadState.errorTitle"));
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch, refetchProofs, t]);
+
   const handleChangeAccount = (accountId: string | number) => {
+    if (Number(accountId) === transaction?.account?.id) {
+      accountBottomSheetRef.current?.dismiss();
+      return;
+    }
     updateTransaction(
       { id: transactionId, data: { accountId: Number(accountId) } },
       {
         onSuccess: () => {
           accountBottomSheetRef.current?.dismiss();
+          toast.success(t("common:transactions.accountUpdated"));
           refetch();
+        },
+        onError: (err) => {
+          toast.error(getErrorMessage(err, { fallbackToServerMessage: true }));
         },
       },
     );
-  };
-
-  const openAccountPicker = () => {
-    accountBottomSheetRef.current?.present();
   };
 
   const allPreviewImages = [
@@ -242,17 +310,120 @@ export default function TransactionDetailView({
     setPreviewVisible(true);
   };
 
-  if (isLoading || !transaction) {
+  // Close the viewer before opening the next layer: stacked native modals
+  // don't present reliably on Android.
+  const approveFromPreview = () => {
+    setPreviewVisible(false);
+    openApproveModal();
+  };
+  const rejectFromPreview = () => {
+    setPreviewVisible(false);
+    rejectSheetRef.current?.present();
+  };
+
+  if (!transaction) {
     return (
-      <Container
-        style={tw`flex-1 justify-center items-center bg-background`}
-      >
-        <ThemedText type="body2" style={tw`text-gray-400`}>
-          {t("common:status.loading")}
-        </ThemedText>
+      <Container style={tw`flex-1 bg-background`}>
+        {embedded && (
+          <ThemedView style={tw`flex-row items-center px-4 pt-2`}>
+            <IconButton
+              icon="x"
+              accessibilityLabel={t("common:actions.close")}
+              onPress={onClose}
+              size={24}
+            />
+          </ThemedView>
+        )}
+        <BillLoadState
+          isLoading={isLoading}
+          error={error}
+          onRetry={refetch}
+          icon={error ? undefined : "receipt-text"}
+          title={
+            isLoading
+              ? undefined
+              : error && (error as any)?.response?.status !== 404
+                ? t("common:transactions.loadState.errorTitle")
+                : t("common:transactions.loadState.notFoundTitle")
+          }
+          description={
+            isLoading
+              ? undefined
+              : error && (error as any)?.response?.status !== 404
+                ? t("common:transactions.loadState.errorDescription")
+                : t("common:transactions.loadState.notFoundDescription")
+          }
+        />
       </Container>
     );
   }
+
+  const status =
+    transactionStatusLabel[transaction.status] ??
+    transactionStatusLabel[TransactionStatus.COMPLETED];
+  const accountLabel = transaction.account
+    ? transaction.account.num
+      ? `${transaction.account.name} #${transaction.account.num}`
+      : transaction.account.name
+    : undefined;
+  const metadata = transaction.metadata;
+  const latestProof = proofs[0];
+  const previousProofs = proofs.slice(1);
+
+  // Settled (approved or cancelled) with no proof: nothing is missing anymore.
+  const isSettled =
+    transaction.status === TransactionStatus.COMPLETED ||
+    transaction.status === TransactionStatus.CANCELLED;
+
+  const proofHint = !latestProof
+    ? isSettled
+      ? null
+      : canUploadProof
+        ? t("bills:proofUpload.noProofHint")
+        : t("bills:proofUpload.noProofHintManager")
+    : latestProof.status === PaymentProofStatus.REJECTED && canUploadProof
+      ? t("bills:proofUpload.rejectedHint")
+      : latestProof.status === PaymentProofStatus.PENDING && !canManage
+        ? t("bills:proofUpload.awaitingReviewHint")
+        : null;
+
+  const proofMeta = (proof: PaymentProof) =>
+    t("bills:proofUpload.uploadedByOn", {
+      name:
+        personName(proof.uploadedBy?.person) ||
+        t("common:labels.deletedUser"),
+      date: dayjs(proof.createdAt).format(DATE_FORMAT),
+    });
+
+  const accountRow = (
+    <InfoRow
+      label={t("common:transactions.destinationAccount")}
+      value={accountLabel}
+      onPress={
+        canChangeAccount
+          ? () => accountBottomSheetRef.current?.present()
+          : undefined
+      }
+      trailing={
+        canManage && accountLockReason ? (
+          <IconButton
+            icon="info"
+            size={20}
+            onPress={() => accountLockedSheetRef.current?.present()}
+            accessibilityLabel={t(
+              "common:transactions.accountLocked.infoLabel",
+            )}
+            style={tw`-my-3`}
+          />
+        ) : undefined
+      }
+    />
+  );
+
+  const viewedProof = proofs[previewIndex];
+  const viewedProofStatus = viewedProof
+    ? proofStatusLabel[viewedProof.status]
+    : null;
 
   return (
     <Container style={tw`flex-1 bg-background`}>
@@ -269,309 +440,345 @@ export default function TransactionDetailView({
       )}
       <ScrollView
         style={tw`flex-1`}
-        contentContainerStyle={tw`px-4 pt-4 pb-24 gap-6`}
+        contentContainerStyle={[
+          tw`px-4 pt-2 gap-8`,
+          // Keep the last row clear of the docked action bar.
+          { paddingBottom: hasActionBar ? 128 : 32 },
+        ]}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[tw.color("primary") ?? ""]}
+            tintColor={tw.color("primary")}
+          />
         }
       >
-        {/* Amount Card */}
-        <ThemedView style={tw` gap-3 items-center`}>
-          <ThemedText
-            type="body1"
-            style={tw`font-semibold text-gray-500 text-center`}
-          >
-            {transaction.name}
-          </ThemedText>
-          <ThemedText style={tw`text-4xl `}>
-            {formatCurrency(transaction.amount)}
-          </ThemedText>
-          <StatusBadge status={transaction.status} />
+        {/* Amount: what the cashier checks the proof against */}
+        <ThemedView style={tw`gap-3`}>
+          <ThemedView style={tw`gap-1`}>
+            <ThemedText type="caption" style={tw`text-gray-500`}>
+              {transaction.name}
+            </ThemedText>
+            <ThemedText
+              type="h1"
+              // h1 fixes its height for 32px text; size the box for 48px.
+              style={[
+                tw`text-5xl`,
+                { fontFamily: typography.regular, lineHeight: 58, height: 58 },
+              ]}
+            >
+              {formatCurrency(transaction.amount)}
+            </ThemedText>
+          </ThemedView>
+          <ThemedView style={tw`flex-row flex-wrap items-center gap-2`}>
+            <Label
+              size="small"
+              color={status.color}
+              leftIcon={status.icon}
+              text={t(`common:transactions.status.${status.key}`)}
+            />
+            <Label
+              size="small"
+              color="default"
+              leftIcon={
+                paymentMethodIcon[transaction.paymentMethod.type] ?? "wallet"
+              }
+              text={transaction.paymentMethod.name}
+            />
+          </ThemedView>
         </ThemedView>
 
-        {/* Details Card */}
-        <ThemedView
-          style={tw`bg-surface rounded-2xl overflow-hidden p-6 gap-4`}
-        >
-          <DetailRow
-            icon="wallet"
-            label={t("common:transactions.paymentMethod")}
-            value={transaction.paymentMethod.name}
-          />
+        {/* Proof: the thing being verified, shown big enough to read */}
+        {isTransfer && (
+          <ThemedView style={tw`gap-4`}>
+            <SectionTitle title={t("bills:proofUpload.proof")} />
 
-          {/* Account - editable for admin/cashier */}
-          <ThemedView style={tw`flex-row items-center gap-4  py-3`}>
-            <Icon
-              name="building"
-              size={18}
-              color={tw.color("on-surface")}
-            />
-            <ThemedView style={tw`flex-1`}>
-              <ThemedText type="body1" style={tw`text-on-surface`}>
-                {t("common:transactions.account")}
+            {latestProof ? (
+              <ThemedView style={tw`gap-2`}>
+                <Pressable
+                  onPress={() => openPreview(0)}
+                  accessibilityRole="imagebutton"
+                  accessibilityLabel={`${t("bills:proofUpload.viewProof")}, ${t(
+                    `common:status.${proofStatusLabel[latestProof.status].key}`,
+                  )}`}
+                  style={({ pressed }) => [
+                    tw`rounded-md overflow-hidden bg-surface`,
+                    pressed && tw`opacity-80`,
+                  ]}
+                >
+                  <Image
+                    source={{ uri: latestProof.fileUrl }}
+                    style={tw`w-full h-96`}
+                    resizeMode="contain"
+                  />
+                  <View style={tw`absolute top-3 left-3`}>
+                    <Label
+                      size="small"
+                      color={proofStatusLabel[latestProof.status].color}
+                      text={t(
+                        `common:status.${proofStatusLabel[latestProof.status].key}`,
+                      )}
+                    />
+                  </View>
+                  <View
+                    style={tw`absolute bottom-3 right-3 p-2 rounded-md bg-background`}
+                  >
+                    <Icon
+                      name="maximize-2"
+                      size={18}
+                      color={tw.color("text")}
+                    />
+                  </View>
+                </Pressable>
+                <ProofNotes proof={latestProof} meta={proofMeta(latestProof)} />
+              </ThemedView>
+            ) : (
+              <ThemedView
+                style={tw`items-center gap-2 px-6 py-8 rounded-md bg-surface`}
+              >
+                <Icon name="image" size={32} color={tw.color("gray-500")} />
+                <ThemedText type="h4" style={tw`text-center`}>
+                  {isSettled
+                    ? t("bills:proofUpload.noProofSettled")
+                    : t("bills:proofUpload.noProofTitle")}
+                </ThemedText>
+              </ThemedView>
+            )}
+
+            {proofHint && (
+              <ThemedText type="body2" style={tw`text-gray-500`}>
+                {proofHint}
               </ThemedText>
-              <ThemedText type="body2" style={tw`font-medium text-gray-800`}>
-                {transaction.account.name}
-                {transaction.account.num ? ` #${transaction.account.num}` : ""}
-              </ThemedText>
+            )}
+
+            {/* Upload: a picked image waits here until it's sent */}
+            {canUploadProof &&
+              (selectedImage ? (
+                <ThemedView style={tw`gap-3`}>
+                  <Pressable
+                    onPress={() => openPreview(proofs.length)}
+                    accessibilityRole="imagebutton"
+                    accessibilityLabel={t("bills:proofUpload.viewProof")}
+                    style={tw`rounded-md overflow-hidden bg-surface`}
+                  >
+                    <Image
+                      source={{ uri: selectedImage.uri }}
+                      style={tw`w-full h-64`}
+                      resizeMode="contain"
+                    />
+                  </Pressable>
+                  <ThemedView style={tw`flex-row gap-3`}>
+                    <Button
+                      label={t("bills:proofUpload.removeSelected")}
+                      variant="outline"
+                      onPress={() => setSelectedImage(null)}
+                      disabled={isUploading}
+                      style={tw`flex-1`}
+                    />
+                    <Button
+                      label={t("bills:proofUpload.uploadProof")}
+                      leftIcon="upload"
+                      onPress={handleUploadProof}
+                      loading={isUploading}
+                      disabled={isUploading}
+                      style={{ flexGrow: 2, flexShrink: 1, flexBasis: 0 }}
+                    />
+                  </ThemedView>
+                </ThemedView>
+              ) : (
+                <ThemedView style={tw`gap-2`}>
+                  {latestProof && (
+                    <ThemedText type="small">
+                      {t("bills:proofUpload.uploadAnother")}
+                    </ThemedText>
+                  )}
+                  <ThemedView style={tw`flex-row gap-3`}>
+                    <Button
+                      label={t("bills:proofUpload.fromGallery")}
+                      leftIcon="images"
+                      variant="outline"
+                      onPress={() => pickImage("gallery")}
+                      style={tw`flex-1`}
+                    />
+                    <Button
+                      label={t("bills:proofUpload.fromCamera")}
+                      leftIcon="camera"
+                      variant="outline"
+                      onPress={() => pickImage("camera")}
+                      style={tw`flex-1`}
+                    />
+                  </ThemedView>
+                </ThemedView>
+              ))}
+
+            {/* What to match the proof against */}
+            <ThemedView>
+              {metadata?.type === "TRANSFER" && metadata.bankReference ? (
+                <DetailRow
+                  label={t("bills:proofUpload.bankReference")}
+                  value={metadata.bankReference}
+                />
+              ) : null}
+              {metadata?.type === "TRANSFER" && metadata.senderName ? (
+                <DetailRow
+                  label={t("bills:proofUpload.senderName")}
+                  value={metadata.senderName}
+                />
+              ) : null}
+              {accountRow}
             </ThemedView>
-            {canManage && (
-              <IconButton
-                icon="square-pen"
-                onPress={openAccountPicker}
-                variant="surface"
-              />
+
+            {previousProofs.length > 0 && (
+              <ThemedView style={tw`gap-1`}>
+                <ThemedText type="small">
+                  {t("bills:proofUpload.previousProofs")}
+                </ThemedText>
+                {previousProofs.map((proof, i) => {
+                  const proofStatus = proofStatusLabel[proof.status];
+                  return (
+                    <Pressable
+                      key={proof.id}
+                      onPress={() => openPreview(i + 1)}
+                      accessibilityRole="imagebutton"
+                      accessibilityLabel={`${t("bills:proofUpload.viewProof")}, ${t(
+                        `common:status.${proofStatus.key}`,
+                      )}, ${proofMeta(proof)}`}
+                      style={({ pressed }) => [
+                        tw`flex-row gap-3 py-3 border-b border-divider`,
+                        pressed && tw`opacity-60`,
+                      ]}
+                    >
+                      <Image
+                        source={{ uri: proof.fileUrl }}
+                        style={tw`w-14 h-14 rounded-md bg-surface`}
+                        resizeMode="cover"
+                      />
+                      <ThemedView style={tw`flex-1 gap-1 items-start`}>
+                        <Label
+                          size="small"
+                          color={proofStatus.color}
+                          text={t(`common:status.${proofStatus.key}`)}
+                        />
+                        <ProofNotes proof={proof} meta={proofMeta(proof)} />
+                      </ThemedView>
+                    </Pressable>
+                  );
+                })}
+              </ThemedView>
             )}
           </ThemedView>
+        )}
 
+        {/* Details */}
+        <ThemedView>
+          <SectionTitle title={t("common:transactions.details")} />
+          {transaction.bill && (
+            <DetailRow
+              label={t("common:transactions.bill")}
+              value={t("common:transactions.billNumber", {
+                num: transaction.bill.num,
+              })}
+              onPress={() => router.push(`/(bills)/${transaction.bill!.id}`)}
+            />
+          )}
+          {!isTransfer && accountRow}
+          {metadata?.type === "CARD" && (
+            <DetailRow
+              label={t("common:transactions.totalWithCommission")}
+              value={formatCurrency(metadata.totalWithCommission)}
+            />
+          )}
+          {metadata?.type === "CASH" && metadata.cashReceived != null && (
+            <DetailRow
+              label={t("common:transactions.cashReceived")}
+              value={formatCurrency(metadata.cashReceived)}
+            />
+          )}
+          {metadata?.type === "CASH" && metadata.changeGiven != null && (
+            <DetailRow
+              label={t("common:transactions.changeGiven")}
+              value={formatCurrency(metadata.changeGiven)}
+            />
+          )}
           <DetailRow
-            icon="tag"
             label={t("common:transactions.category")}
             value={transaction.category.name}
           />
           <DetailRow
-            icon="user"
             label={t("common:transactions.createdBy")}
             value={getUserDisplayName(
               transaction.createdBy,
               t("common:labels.deletedUser"),
             )}
           />
-          {transaction.description && (
-            <>
-              <DetailRow
-                icon="file-text"
-                label={t("common:transactions.description")}
-                value={transaction.description}
-              />
-            </>
-          )}
           <DetailRow
-            icon="calendar"
             label={t("common:labels.date")}
-            value={dayjs(new Date(transaction.createdAt)).format(
-              "DD MMM YYYY, HH:mm",
-            )}
+            value={dayjs(transaction.createdAt).format(DATE_FORMAT)}
           />
+          {!!transaction.description && (
+            <DetailRow
+              label={t("common:transactions.description")}
+              value={transaction.description}
+            />
+          )}
         </ThemedView>
-
-        {/* Upload Proof Section */}
-        {isTransfer && (
-          <ThemedView style={tw`gap-4`}>
-            <ThemedView style={tw`flex-row items-center justify-between`}>
-              <ThemedText type="h4" style={tw`font-bold`}>
-                {t("bills:proofUpload.proofHistory")}
-              </ThemedText>
-              {proofs.some((p) => p.status === PaymentProofStatus.PENDING) && (
-                <ThemedView style={tw`px-2 py-1 rounded-full bg-yellow-100`}>
-                  <ThemedText
-                    type="small"
-                    style={tw`text-yellow-700 font-medium`}
-                  >
-                    {
-                      proofs.filter(
-                        (p) => p.status === PaymentProofStatus.PENDING,
-                      ).length
-                    }{" "}
-                    {t("common:status.pending")}
-                  </ThemedText>
-                </ThemedView>
-              )}
-            </ThemedView>
-
-            {/* Existing proofs */}
-            {proofs.map((proof, index) => (
-              <ThemedView
-                key={proof.id}
-                style={tw`rounded-xl border border-gray-200 overflow-hidden bg-surface-bright`}
-              >
-                <Pressable
-                  onPress={() => openPreview(index)}
-                  style={tw`relative`}
-                >
-                  <Image
-                    source={{ uri: proof.fileUrl }}
-                    style={tw`w-full h-40`}
-                    resizeMode="cover"
-                  />
-                  <ThemedView style={tw`absolute top-3 right-3`}>
-                    <ProofStatusBadge status={proof.status} />
-                  </ThemedView>
-                </Pressable>
-                <ThemedView style={tw`p-4 gap-2`}>
-                  <ThemedView style={tw`flex-row items-center justify-between`}>
-                    <ThemedText type="small" style={tw`text-gray-400`}>
-                      {new Date(proof.createdAt).toLocaleDateString()}
-                    </ThemedText>
-                    {proof.uploadedBy && (
-                      <ThemedText type="small" style={tw`text-gray-500`}>
-                        {proof.uploadedBy.person.firstName}{" "}
-                        {proof.uploadedBy.person.lastName}
-                      </ThemedText>
-                    )}
-                  </ThemedView>
-
-                  {proof.rejectionReason && (
-                    <ThemedView
-                      style={tw`p-2 rounded-lg bg-red-50 border border-red-100`}
-                    >
-                      <ThemedText type="small" style={tw`text-red-600`}>
-                        {t("bills:proofUpload.rejectionReason")}:{" "}
-                        {proof.rejectionReason}
-                      </ThemedText>
-                    </ThemedView>
-                  )}
-
-                  {proof.notes && (
-                    <ThemedView
-                      style={tw`p-2 rounded-lg bg-green-50 border border-green-100`}
-                    >
-                      <ThemedText type="small" style={tw`text-green-600`}>
-                        {t("bills:proofUpload.approvalNotes")}: {proof.notes}
-                      </ThemedText>
-                    </ThemedView>
-                  )}
-                </ThemedView>
-              </ThemedView>
-            ))}
-
-            {/* Upload new proof */}
-            {canUploadProof && (
-              <ThemedView style={tw`gap-3`}>
-                {selectedImage ? (
-                  <ThemedView style={tw`gap-3`}>
-                    <Pressable onPress={() => openPreview(proofs.length)}>
-                      <ThemedView
-                        style={tw`rounded-xl border border-gray-200 overflow-hidden relative`}
-                      >
-                        <Image
-                          source={{ uri: selectedImage.uri }}
-                          style={tw`w-full h-32`}
-                          resizeMode="cover"
-                        />
-                        <Pressable
-                          onPress={() => setSelectedImage(null)}
-                          style={tw`absolute top-2 right-2 w-8 h-8 rounded-full bg-black/50 items-center justify-center`}
-                        >
-                          <Icon name="x" size={18} color="white" />
-                        </Pressable>
-                      </ThemedView>
-                    </Pressable>
-                    <Button
-                      label={t("common:actions.upload")}
-                      onPress={handleUploadProof}
-                      loading={isUploading}
-                      disabled={isUploading}
-                    />
-                  </ThemedView>
-                ) : (
-                  <ThemedView style={tw`flex-row gap-3`}>
-                    <Pressable
-                      onPress={() => pickImage("gallery")}
-                      style={({ pressed }) => [
-                        tw`flex-1 items-center justify-center p-3 rounded-xl border border-gray-200 bg-surface-bright gap-2`,
-                        pressed && tw`opacity-70 bg-gray-50`,
-                      ]}
-                    >
-                      <Icon
-                        name="images"
-                        size={20}
-                        color={tw.color("gray-500")}
-                      />
-                      <ThemedText
-                        type="small"
-                        style={tw`text-gray-500 text-center`}
-                      >
-                        {t("bills:proofUpload.fromGallery")}
-                      </ThemedText>
-                    </Pressable>
-                    <Pressable
-                      onPress={() => pickImage("camera")}
-                      style={({ pressed }) => [
-                        tw`flex-1 items-center justify-center p-3 rounded-xl border border-gray-200 bg-surface-bright gap-2`,
-                        pressed && tw`opacity-70 bg-gray-50`,
-                      ]}
-                    >
-                      <Icon
-                        name="camera"
-                        size={20}
-                        color={tw.color("gray-500")}
-                      />
-                      <ThemedText
-                        type="small"
-                        style={tw`text-gray-500 text-center`}
-                      >
-                        {t("bills:proofUpload.fromCamera")}
-                      </ThemedText>
-                    </Pressable>
-                  </ThemedView>
-                )}
-              </ThemedView>
-            )}
-          </ThemedView>
-        )}
       </ScrollView>
 
-      {/* Floating Actions */}
-      {isTransfer &&
-        canManage &&
-        (canApproveTransaction || canRejectTransaction) && (
-          <View style={tw`absolute bottom-6 left-4 right-4`}>
-            <ThemedView
-              style={tw`flex-row gap-3 bg-surface rounded-3xl p-2 shadow-sm`}
-            >
-              {canRejectTransaction && (
-                <Button
-                  label={t("common:actions.reject")}
-                  leftIcon="x"
-                  variant="destructive"
-                  onPress={handleRejectTransaction}
-                  loading={isRejecting}
-                  disabled={isRejecting}
-                  style={tw`flex-1`}
-                />
-              )}
-              {canApproveTransaction && (
-                <Button
-                  label={t("common:actions.approve")}
-                  leftIcon="check"
-                  variant="primary"
-                  onPress={openApproveModal}
-                  style={tw`flex-1`}
-                />
-              )}
-            </ThemedView>
-          </View>
-        )}
+      {/* Review bar: the screen's one decision, in thumb reach */}
+      {hasActionBar && (
+        <ThemedView
+          style={[
+            tw`absolute bottom-0 left-0 right-0 flex-row gap-3 bg-background border-t border-divider px-4 pt-3`,
+            { paddingBottom: embedded ? 16 : Math.max(insets.bottom, 16) },
+          ]}
+        >
+          {canRejectTransaction && (
+            <Button
+              label={t("common:actions.reject")}
+              variant="outline"
+              onPress={() => rejectSheetRef.current?.present()}
+              style={tw`flex-1`}
+            />
+          )}
+          {canApproveTransaction && (
+            <Button
+              label={t("common:actions.approve")}
+              leftIcon="check"
+              onPress={openApproveModal}
+              style={{ flexGrow: 2, flexShrink: 1, flexBasis: 0 }}
+            />
+          )}
+        </ThemedView>
+      )}
 
       <ApproveTransactionModal
         transaction={transaction}
         visible={approveModalIsOpen}
         onClose={closeApproveModal}
-        onApproved={handleTransactionApproved}
+        onApproved={handleReviewed}
       />
 
-      {/* Image Preview Modal */}
+      <RejectTransactionSheet
+        ref={rejectSheetRef}
+        transactionId={transactionId}
+        onRejected={handleReviewed}
+      />
+
+      {/* Proof viewer. Photos sit on black in every theme, like the system
+          gallery, so the colors here are fixed rather than themed. */}
       <Modal
         visible={previewVisible}
         transparent={true}
         animationType="fade"
         onRequestClose={() => setPreviewVisible(false)}
       >
-        <ThemedView style={tw`flex-1 bg-black`}>
-          <ThemedView
-            style={tw`absolute top-0 left-0 right-0 z-10 px-4 pt-12 pb-4 flex-row justify-between items-center`}
-          >
-            <ThemedText type="body1" style={tw`text-white font-semibold`}>
-              {previewIndex + 1} / {allPreviewImages.length}
-            </ThemedText>
-            <Pressable onPress={() => setPreviewVisible(false)} hitSlop={8}>
-              <Icon name="x" size={28} color="white" />
-            </Pressable>
-          </ThemedView>
+        <View style={tw`flex-1 bg-black`}>
           <ImageViewer
             imageUrls={allPreviewImages}
             index={previewIndex}
+            onChange={(index) => setPreviewIndex(index ?? 0)}
             onSwipeDown={() => setPreviewVisible(false)}
             enableSwipeDown={true}
             enableImageZoom={true}
@@ -579,10 +786,100 @@ export default function TransactionDetailView({
             backgroundColor="black"
             renderIndicator={() => <></>}
           />
-        </ThemedView>
+
+          <View
+            style={[
+              tw`absolute top-0 left-0 right-0 px-2 flex-row justify-between items-center`,
+              { paddingTop: insets.top + 8, backgroundColor: "rgba(0,0,0,0.6)" },
+            ]}
+          >
+            <ThemedText
+              type="body1"
+              style={[tw`px-2 text-white`, { fontFamily: typography.semibold }]}
+            >
+              {previewIndex + 1} / {allPreviewImages.length}
+            </ThemedText>
+            <Pressable
+              onPress={() => setPreviewVisible(false)}
+              accessibilityRole="button"
+              accessibilityLabel={t("common:actions.close")}
+              style={tw`w-12 h-12 items-center justify-center`}
+            >
+              <Icon name="x" size={26} color="white" />
+            </Pressable>
+          </View>
+
+          {/* Expected amount next to the proof, so nothing is held in memory */}
+          <View
+            style={[
+              tw`absolute bottom-0 left-0 right-0 px-4 pt-4 gap-3`,
+              {
+                paddingBottom: Math.max(insets.bottom, 16),
+                backgroundColor: "rgba(0,0,0,0.6)",
+              },
+            ]}
+          >
+            <View style={tw`flex-row items-end justify-between gap-3`}>
+              <View style={tw`flex-1 gap-1`}>
+                <ThemedText type="small" style={tw`text-white opacity-70`}>
+                  {t("bills:proofUpload.expectedAmount")}
+                </ThemedText>
+                <ThemedText
+                  type="h3"
+                  style={[tw`text-white`, { fontFamily: typography.semibold }]}
+                >
+                  {formatCurrency(transaction.amount)}
+                </ThemedText>
+                {accountLabel && (
+                  <ThemedText type="small" style={tw`text-white opacity-70`}>
+                    {accountLabel}
+                  </ThemedText>
+                )}
+              </View>
+              {viewedProofStatus && (
+                <Label
+                  size="small"
+                  color={viewedProofStatus.color}
+                  text={t(`common:status.${viewedProofStatus.key}`)}
+                />
+              )}
+            </View>
+            {hasActionBar && viewedProof && (
+              <View style={tw`flex-row gap-3`}>
+                {canRejectTransaction && (
+                  <Button
+                    label={t("common:actions.reject")}
+                    variant="surface"
+                    onPress={rejectFromPreview}
+                    style={tw`flex-1`}
+                  />
+                )}
+                {canApproveTransaction && (
+                  <Button
+                    label={t("common:actions.approve")}
+                    leftIcon="check"
+                    onPress={approveFromPreview}
+                    style={{ flexGrow: 2, flexShrink: 1, flexBasis: 0 }}
+                  />
+                )}
+              </View>
+            )}
+          </View>
+        </View>
       </Modal>
 
-      {/* Account Picker Bottom Sheet */}
+      <InfoBottomSheet
+        ref={accountLockedSheetRef}
+        title={t("common:transactions.accountLocked.title")}
+        message={
+          accountLockReason
+            ? t(`common:transactions.accountLocked.${accountLockReason}`, {
+                account: accountLabel,
+              })
+            : ""
+        }
+      />
+
       <BottomSheetPicker
         ref={accountBottomSheetRef}
         title={t("bills:account.destinationAccount")}
@@ -590,129 +887,94 @@ export default function TransactionDetailView({
           label: account.num ? `${account.name} #${account.num}` : account.name,
           value: account.id,
         }))}
-        value={transaction?.account?.id}
+        value={transaction.account?.id}
         onChange={handleChangeAccount}
       />
     </Container>
   );
 }
 
+/** Who sent a proof and when, plus the reviewer's verdict if there is one. */
+function ProofNotes({ proof, meta }: { proof: PaymentProof; meta: string }) {
+  const { t } = useTranslation(["bills"]);
+  const reviewer = personName(proof.reviewedBy?.person);
+
+  return (
+    <ThemedView style={tw`gap-1`}>
+      <ThemedText type="small" style={tw`text-gray-500`}>
+        {meta}
+      </ThemedText>
+      {!!proof.rejectionReason && (
+        <ThemedText type="body2" style={tw`text-red-700`}>
+          {t("bills:proofUpload.rejectionReason")}: {proof.rejectionReason}
+        </ThemedText>
+      )}
+      {!!proof.notes && (
+        <ThemedText type="body2">
+          {t("bills:proofUpload.approvalNotes")}: {proof.notes}
+        </ThemedText>
+      )}
+      {!!reviewer && proof.status !== PaymentProofStatus.PENDING && (
+        <ThemedText type="small" style={tw`text-gray-500`}>
+          {t("bills:proofUpload.reviewedBy", { name: reviewer })}
+        </ThemedText>
+      )}
+    </ThemedView>
+  );
+}
+
+/** Section heading, matching the restaurant info screen. */
+function SectionTitle({ title }: { title: string }) {
+  return (
+    <ThemedText
+      type="body1"
+      accessibilityRole="header"
+      style={[tw`text-primary`, { fontFamily: typography.semibold }]}
+    >
+      {title}
+    </ThemedText>
+  );
+}
+
+/**
+ * Label stacked over its value, as on the restaurant info screen. Values are
+ * selectable so a reference can be copied; `onPress` adds a chevron.
+ */
 function DetailRow({
-  icon,
   label,
   value,
+  onPress,
 }: {
-  icon: IconName;
   label: string;
   value: string;
+  onPress?: () => void;
 }) {
-  return (
-    <ThemedView style={tw`flex-row items-center gap-4`}>
-      <Icon
-        name={icon}
-        size={18}
-        color={tw.color("text-on-surface")}
-      />
-      <ThemedView style={tw`flex-1 gap-1`}>
-        <ThemedText type="body1" style={tw`text-on-surface`}>
-          {label}
-        </ThemedText>
-        <ThemedText type="body2" style={tw` text-gray-800`}>
-          {value}
-        </ThemedText>
+  const content = (
+    <ThemedView style={tw`flex-row items-center gap-3 min-h-16`}>
+      <ThemedView style={tw`flex-1 gap-0.5`}>
+        <ThemedText type="small">{label}</ThemedText>
+        <ThemedText selectable={!onPress}>{value}</ThemedText>
       </ThemedView>
+      {onPress && <Icon name="chevron-right" size={18} />}
     </ThemedView>
   );
-}
 
-function StatusBadge({ status }: { status: TransactionStatus }) {
-  const { t } = useTranslation();
-
-  const config: Record<
-    TransactionStatus,
-    { bg: string; text: string; label: string; icon: IconName }
-  > = {
-    [TransactionStatus.COMPLETED]: {
-      bg: "bg-green-100",
-      text: "text-green-700",
-      label: t("common:transactions.status.completed"),
-      icon: "circle-check",
-    },
-    [TransactionStatus.PENDING_PROOF]: {
-      bg: "bg-orange-100",
-      text: "text-orange-700",
-      label: t("common:transactions.status.pendingProof"),
-      icon: "file-up",
-    },
-    [TransactionStatus.PENDING_APPROVAL]: {
-      bg: "bg-yellow-100",
-      text: "text-yellow-700",
-      label: t("common:transactions.status.pendingApproval"),
-      icon: "clock",
-    },
-    [TransactionStatus.REJECTED]: {
-      bg: "bg-red-100",
-      text: "text-red-700",
-      label: t("common:transactions.status.rejected"),
-      icon: "circle-x",
-    },
-    [TransactionStatus.CANCELLED]: {
-      bg: "bg-gray-100",
-      text: "text-gray-700",
-      label: t("common:transactions.status.cancelled"),
-      icon: "ban",
-    },
-  };
-
-  const c = config[status] || config[TransactionStatus.COMPLETED];
+  if (onPress) {
+    return (
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={`${label}, ${value}`}
+        style={({ pressed }) => [pressed && tw`opacity-60`]}
+      >
+        {content}
+      </Pressable>
+    );
+  }
 
   return (
-    <ThemedView
-      style={tw`flex-row items-center gap-1 px-3 py-1 rounded-full ${c.bg}`}
-    >
-      <Icon
-        name={c.icon}
-        size={14}
-        color={tw.color(c.text.replace("text-", "").replace("-700", "-600"))}
-      />
-      <ThemedText type="small" style={tw`${c.text} font-medium`}>
-        {c.label}
-      </ThemedText>
-    </ThemedView>
-  );
-}
-
-function ProofStatusBadge({ status }: { status: PaymentProofStatus }) {
-  const { t } = useTranslation();
-
-  const config: Record<
-    PaymentProofStatus,
-    { bg: string; text: string; label: string }
-  > = {
-    [PaymentProofStatus.PENDING]: {
-      bg: "bg-yellow-100",
-      text: "text-yellow-700",
-      label: t("common:status.pending"),
-    },
-    [PaymentProofStatus.APPROVED]: {
-      bg: "bg-green-100",
-      text: "text-green-700",
-      label: t("common:status.approved"),
-    },
-    [PaymentProofStatus.REJECTED]: {
-      bg: "bg-red-100",
-      text: "text-red-700",
-      label: t("common:status.rejected"),
-    },
-  };
-
-  const c = config[status];
-
-  return (
-    <ThemedView style={tw`px-2 py-0.5 rounded-full ${c.bg}`}>
-      <ThemedText type="small" style={tw`${c.text} font-medium`}>
-        {c.label}
-      </ThemedText>
+    <ThemedView accessible accessibilityLabel={`${label}, ${value}`}>
+      {content}
     </ThemedView>
   );
 }

@@ -194,6 +194,26 @@
     "pane": {
       "emptyTitle": "Select a transaction",
       "emptyDescription": "Tap a transaction to see its details and payment proofs here."
+    },
+    "destinationAccount": "Destination account",
+    "accountUpdated": "Destination account updated",
+    "bill": "Bill",
+    "billNumber": "Bill #{{num}}",
+    "totalWithCommission": "Total with commission",
+    "cashReceived": "Cash received",
+    "changeGiven": "Change",
+    "details": "Details",
+    "loadState": {
+      "notFoundTitle": "Transaction not found",
+      "notFoundDescription": "It may have been deleted from another device.",
+      "errorTitle": "Couldn't load this transaction",
+      "errorDescription": "Check your connection and try again."
+    },
+    "accountLocked": {
+      "infoLabel": "Why the destination account can't be changed",
+      "title": "The destination account can't be changed",
+      "approved": "This transfer was already approved, so the money is recorded in {{account}}. Only an admin or the owner can change it.",
+      "cancelled": "This transaction was cancelled."
     }
   }
 }

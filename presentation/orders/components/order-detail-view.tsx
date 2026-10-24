@@ -1373,7 +1373,6 @@ export default function OrderDetailView({
           ref={deleteBlockedSheetRef}
           title={t("orders:deleteBlocked.title")}
           message={t(`orders:deleteBlocked.reasons.${deleteBlockReason}`)}
-          note={t("orders:deleteBlocked.rule")}
         />
       )}
     </>
