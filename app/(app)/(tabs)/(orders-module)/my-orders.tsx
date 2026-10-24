@@ -38,7 +38,7 @@ import SalesContent from "@/presentation/orders/components/sales-content";
 import Button from "@/presentation/theme/components/button";
 import ButtonGroup from "@/presentation/theme/components/button-group";
 import TabBar from "@/presentation/theme/components/tab-bar";
-import TabSwipeView from "@/presentation/theme/components/tab-swipe-view";
+import TabPager from "@/presentation/theme/components/tab-pager";
 import HomeViewOptionsBottomSheet from "@/presentation/orders/components/home-view-options-bottom-sheet";
 import { useScopedOrders } from "@/presentation/orders/hooks/useScopedOrders";
 import { useOrdersViewStore } from "@/presentation/orders/store/useOrdersViewStore";
@@ -309,91 +309,90 @@ export default function MyOrdersScreen() {
         )}
       </ThemedView>
 
-      {/* Tab content; swipe left/right to switch Pedidos / Ventas */}
-      <TabSwipeView
+      {/* Tab content; drag left/right to switch Pedidos / Ventas */}
+      <TabPager
         tabs={moduleTabs}
         activeTab={activeModule}
         onChange={setActiveModule}
-      >
-        {activeModule === "sales" && (
-          <SalesContent
-            activeBillId={
-              isExpanded ? (selectedBillId ?? undefined) : undefined
-            }
-            onOpenBill={
-              isExpanded ? (bill) => setSelectedBillId(bill.id) : undefined
-            }
-          />
-        )}
-
-        {activeModule === "orders" && (
-          <ThemedView style={tw`flex-1`}>
-            {activeView !== "tables" && (
-              <ScrollView
-                contentContainerStyle={tw`grow pb-20 gap-4 pt-4`}
-                showsVerticalScrollIndicator={false}
-                onScroll={handleScroll}
-                scrollEventThrottle={16}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={onRefresh}
-                    tintColor={primaryColor}
-                    colors={[primaryColor]}
-                  />
-                }
-              >
-                {isLoadingOrders ? (
-                  <ThemedView style={tw`px-4 gap-3`}>
-                    <OrderCardSkeleton />
-                    <OrderCardSkeleton />
-                    <OrderCardSkeleton />
-                  </ThemedView>
-                ) : listOrders.length === 0 ? (
-                  <ThemedView
-                    style={tw` items-center justify-center flex-1 gap-4 mt-20`}
-                  >
-                    <Icon
-                      name="file-text"
-                      size={80}
-                      color={tw.color("gray-500")}
+        renderScene={(module) =>
+          module === "sales" ? (
+            <SalesContent
+              activeBillId={
+                isExpanded ? (selectedBillId ?? undefined) : undefined
+              }
+              onOpenBill={
+                isExpanded ? (bill) => setSelectedBillId(bill.id) : undefined
+              }
+            />
+          ) : (
+            <ThemedView style={tw`flex-1`}>
+              {activeView !== "tables" && (
+                <ScrollView
+                  contentContainerStyle={tw`grow pb-20 gap-4 pt-4`}
+                  showsVerticalScrollIndicator={false}
+                  onScroll={handleScroll}
+                  scrollEventThrottle={16}
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={onRefresh}
+                      tintColor={primaryColor}
+                      colors={[primaryColor]}
                     />
-                    <ThemedText type="h3">
-                      {t("orders:list.noOrders")}
-                    </ThemedText>
-                    <ThemedText type="body2" style={tw`text-center max-w-xs`}>
-                      {t("orders:list.noOrdersDescription")}
-                    </ThemedText>
-                  </ThemedView>
-                ) : (
-                  <ThemedView style={tw`gap-6`}>
-                    <OrderListByStatus
-                      key={activeView}
-                      orders={listOrders}
-                      showProducts
-                      variant={activeView === "cards" ? "grid" : "list"}
-                    />
-                  </ThemedView>
-                )}
-                {/* Pushed to the bottom on short lists, clear of the FAB */}
-                {!isLoadingOrders && (
-                  <ThemedView style={tw`mt-auto`}>
-                    <ClosePaidOrdersButton />
-                  </ThemedView>
-                )}
-              </ScrollView>
-            )}
+                  }
+                >
+                  {isLoadingOrders ? (
+                    <ThemedView style={tw`px-4 gap-3`}>
+                      <OrderCardSkeleton />
+                      <OrderCardSkeleton />
+                      <OrderCardSkeleton />
+                    </ThemedView>
+                  ) : listOrders.length === 0 ? (
+                    <ThemedView
+                      style={tw` items-center justify-center flex-1 gap-4 mt-20`}
+                    >
+                      <Icon
+                        name="file-text"
+                        size={80}
+                        color={tw.color("gray-500")}
+                      />
+                      <ThemedText type="h3">
+                        {t("orders:list.noOrders")}
+                      </ThemedText>
+                      <ThemedText type="body2" style={tw`text-center max-w-xs`}>
+                        {t("orders:list.noOrdersDescription")}
+                      </ThemedText>
+                    </ThemedView>
+                  ) : (
+                    <ThemedView style={tw`gap-6`}>
+                      <OrderListByStatus
+                        key={activeView}
+                        orders={listOrders}
+                        showProducts
+                        variant={activeView === "cards" ? "grid" : "list"}
+                      />
+                    </ThemedView>
+                  )}
+                  {/* Pushed to the bottom on short lists, clear of the FAB */}
+                  {!isLoadingOrders && (
+                    <ThemedView style={tw`mt-auto`}>
+                      <ClosePaidOrdersButton />
+                    </ThemedView>
+                  )}
+                </ScrollView>
+              )}
 
-            {activeView === "tables" && (
-              <TablesView
-                onTablePress={handleTablePress}
-                style={tw`flex-1`}
-                footer={<ClosePaidOrdersButton />}
-              />
-            )}
-          </ThemedView>
-        )}
-      </TabSwipeView>
+              {activeView === "tables" && (
+                <TablesView
+                  onTablePress={handleTablePress}
+                  style={tw`flex-1`}
+                  footer={<ClosePaidOrdersButton />}
+                />
+              )}
+            </ThemedView>
+          )
+        }
+      />
 
       {activeModule === "orders" && (
         <>

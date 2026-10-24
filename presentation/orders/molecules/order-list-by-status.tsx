@@ -4,7 +4,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 // Gesture-handler's ScrollView, so a swipe on the chips scrolls them instead
-// of switching the screen's tab (TabSwipeView)
+// of switching the screen's tab (TabPager)
 import { ScrollView } from "react-native-gesture-handler";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { OrderStatus } from "@/core/orders/enums/order-status.enum";

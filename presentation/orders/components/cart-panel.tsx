@@ -1,4 +1,5 @@
 import Animated from "react-native-reanimated";
+import { ScrollView } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -35,15 +36,13 @@ import { hasActiveSubscription } from "@/core/common/models/restaurant.model";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import SubscriptionPaywallBottomSheet from "@/presentation/subscriptions/components/subscription-paywall-bottom-sheet";
 import TabBar from "@/presentation/theme/components/tab-bar";
-import TabSwipeView from "@/presentation/theme/components/tab-swipe-view";
+import TabPager from "@/presentation/theme/components/tab-pager";
 import CartInformation from "@/presentation/orders/components/cart-information";
 
 type CartTab = "products" | "information";
 
 type CartRow =
   | { kind: "title" }
-  | { kind: "tabs" }
-  | { kind: "information" }
   | { kind: "item"; detail: NewOrderDetail; key: string };
 
 interface CartPanelProps {
@@ -368,101 +367,93 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
     detail,
     key: `${index}`,
   }));
-  // Embedded: the title stays fixed above the list instead of scrolling away
-  const titleRows: CartRow[] = embedded ? [] : [{ kind: "title" }];
-  const showProducts = cartType !== "order" || activeTab === "products";
-  const cartListData: CartRow[] =
-    cartType === "order"
-      ? [
-          ...titleRows,
-          { kind: "tabs" },
-          ...(showProducts ? detailRows : [{ kind: "information" } as const]),
-        ]
-      : [...titleRows, ...detailRows];
+  const isOrderCart = cartType === "order";
+  // The title scrolls away with the list, except when embedded or in an
+  // order cart, where it stays fixed above the tabs.
+  const titleInList = !embedded && !isOrderCart;
+  const cartListData: CartRow[] = [
+    ...(titleInList ? [{ kind: "title" } as const] : []),
+    ...detailRows,
+  ];
+
+  const productsList = (
+    <Animated.FlatList
+      style={tw`flex-1`}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={tw`gap-4 pb-4`}
+      onScroll={titleInList ? scrollHandler : undefined}
+      scrollEventThrottle={16}
+      data={cartListData}
+      keyExtractor={(row) => (row.kind === "item" ? row.key : row.kind)}
+      renderItem={({ item: row }) => {
+        if (row.kind === "title") {
+          return renderTitle(cartSubtitle);
+        }
+
+        return (
+          <NewOrderDetailCard
+            orderType={orderType}
+            detail={row.detail}
+            onPress={() => openProduct(row.detail)}
+          />
+        );
+      }}
+      ListFooterComponent={
+        !embedded ? (
+          <Button
+            leftIcon="plus"
+            label={t("menu:cart.addProduct")}
+            variant="text"
+            onPress={() => router.push("/(new-order)/restaurant-menu")}
+          />
+        ) : details.length === 0 ? (
+          <ThemedView style={tw`items-center py-12`}>
+            <Icon name="shopping-cart" size={48} color={tw.color("gray-400")} />
+            <ThemedText type="body1" style={tw`text-gray-500 mt-4 text-center`}>
+              {t("menu:cart.empty")}
+            </ThemedText>
+          </ThemedView>
+        ) : null
+      }
+    />
+  );
 
   return (
     <>
       <Container style={tw`px-4 ${embedded ? "pt-4" : "pt-8"} flex-1 gap-4`}>
-        {embedded && renderTitle(cartSubtitle)}
-        {/* The tab row lives inside the list, so the list only switches tab
-            on a swipe instead of sliding with it */}
-        <TabSwipeView
-          tabs={cartTabs}
-          activeTab={activeTab}
-          onChange={setActiveTab}
-          enabled={cartType === "order"}
-          animated={false}
-        >
-          <Animated.FlatList
-            style={tw`flex-1`}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={tw`gap-4 pb-4`}
-            onScroll={scrollHandler}
-            scrollEventThrottle={16}
-            stickyHeaderIndices={cartType === "order" ? [titleRows.length] : []}
-            data={cartListData}
-            keyExtractor={(row) => (row.kind === "item" ? row.key : row.kind)}
-            renderItem={({ item: row, index }) => {
-              if (row.kind === "title") {
-                return renderTitle(cartSubtitle);
-              }
-
-              if (row.kind === "tabs") {
-                return (
-                  <ThemedView style={tw`bg-background pb-2`}>
-                    <TabBar
-                      tabs={cartTabs}
-                      activeTab={activeTab}
-                      onChange={setActiveTab}
-                      fullWidth={false}
-                    />
-                  </ThemedView>
-                );
-              }
-
-              if (row.kind === "information") {
-                return <CartInformation />;
-              }
-
-              // Extra spacing between consecutive products on top of the list gap
-              const followsItem = cartListData[index - 1]?.kind === "item";
-
-              return (
-                <ThemedView style={tw.style(followsItem && "")}>
-                  <NewOrderDetailCard
-                    orderType={orderType}
-                    detail={row.detail}
-                    onPress={() => openProduct(row.detail)}
-                  />
-                </ThemedView>
-              );
-            }}
-            ListFooterComponent={
-              !showProducts ? null : !embedded ? (
-                <Button
-                  leftIcon="plus"
-                  label={t("menu:cart.addProduct")}
-                  variant="text"
-                  onPress={() => router.push("/(new-order)/restaurant-menu")}
-                />
-              ) : details.length === 0 ? (
-                <ThemedView style={tw`items-center py-12`}>
-                  <Icon
-                    name="shopping-cart"
-                    size={48}
-                    color={tw.color("gray-400")}
-                  />
-                  <ThemedText
-                    type="body1"
-                    style={tw`text-gray-500 mt-4 text-center`}
+        {!titleInList && renderTitle(cartSubtitle)}
+        {isOrderCart ? (
+          <>
+            <TabBar
+              tabs={cartTabs}
+              activeTab={activeTab}
+              onChange={setActiveTab}
+              fullWidth={false}
+            />
+            {/* Drag left/right to switch between products and information */}
+            <TabPager
+              tabs={cartTabs}
+              activeTab={activeTab}
+              onChange={setActiveTab}
+              renderScene={(tab) =>
+                tab === "products" ? (
+                  productsList
+                ) : (
+                  <ScrollView
+                    style={tw`flex-1`}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                    contentContainerStyle={tw`pb-4`}
                   >
-                    {t("menu:cart.empty")}
-                  </ThemedText>
-                </ThemedView>
-              ) : null
-            }
-          />
-        </TabSwipeView>
+                    <CartInformation />
+                  </ScrollView>
+                )
+              }
+            />
+          </>
+        ) : (
+          productsList
+        )}
         <ThemedView style={tw`gap-4 pb-2 `}>
           <ThemedView style={tw`flex-row justify-between items-center`}>
             <ThemedText type="h4">{t("common:labels.total")}</ThemedText>

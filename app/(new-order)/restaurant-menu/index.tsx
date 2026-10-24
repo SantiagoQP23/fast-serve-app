@@ -14,7 +14,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import ProductCard from "@/presentation/restaurant-menu/product-card";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import TabBar from "@/presentation/theme/components/tab-bar";
-import TabSwipeView from "@/presentation/theme/components/tab-swipe-view";
+import TabPager from "@/presentation/theme/components/tab-pager";
 import { useRouter } from "expo-router";
 import FloatingSearchBar from "@/presentation/theme/components/floating-search-bar";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
@@ -51,6 +51,8 @@ const CATEGORY_COLUMN_WIDTH_COMPACT = 136;
 const CATEGORY_SPY_RATIO = 0.3;
 // Ignore scroll-spy while a tap-triggered scroll animates to its group.
 const CATEGORY_SCROLL_LOCK_MS = 600;
+// After a section change, once the old section has slid off screen
+const SECTION_RESET_DELAY_MS = 300;
 
 export default function RestaurantMenuScreen() {
   const { t } = useTranslation(["menu", "orders", "bills", "common"]);
@@ -96,6 +98,10 @@ export default function RestaurantMenuScreen() {
   }, [products]);
   const section = selectedSection || sections[0]?.id || "";
   // Categories of the current section that have something to show.
+  const categoriesOfSection = (sectionId: string) =>
+    categories.filter(
+      (c) => c.sectionId === sectionId && productsByCategory.has(c.id),
+    );
   const sectionCategories = useMemo(
     () =>
       categories.filter(
@@ -236,7 +242,13 @@ export default function RestaurantMenuScreen() {
   const onChangeSection = useCallback((value: string) => {
     setSection(value);
     setCategory("");
-    productsScrollRef.current?.scrollTo({ y: 0, animated: false });
+    // The section left behind starts from the top next time; reset it once
+    // it has slid off screen.
+    const leaving = productsScrollRef.current;
+    setTimeout(
+      () => leaving?.scrollTo({ y: 0, animated: false }),
+      SECTION_RESET_DELAY_MS,
+    );
   }, []);
 
   const onSelectCategory = (id: string) => {
@@ -338,6 +350,92 @@ export default function RestaurantMenuScreen() {
     </View>
   );
 
+  // A section's categories column and products. Only the page on screen
+  // tracks the selected category and scroll; neighbours show their top.
+  const renderSectionPage = (sectionId: string, isActive: boolean) => {
+    const pageCategories = isActive
+      ? sectionCategories
+      : categoriesOfSection(sectionId);
+    const selected = isActive ? category : pageCategories[0]?.id;
+    return (
+      <ThemedView style={tw`flex-row gap-3 flex-1`}>
+        <ScrollView
+          style={{
+            width: isExpanded
+              ? CATEGORY_COLUMN_WIDTH
+              : CATEGORY_COLUMN_WIDTH_COMPACT,
+            flexGrow: 0,
+            flexShrink: 0,
+          }}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={tw`gap-1 pb-40`}
+        >
+          {pageCategories.map((c) => {
+            const isSelected = selected === c.id;
+            return (
+              <Pressable
+                key={c.id}
+                onPress={() => onSelectCategory(c.id)}
+                disabled={!isActive}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isSelected }}
+                style={tw.style(
+                  "px-3 py-2.5 rounded-md",
+                  isSelected && "bg-surface",
+                )}
+              >
+                <ThemedText
+                  type="body2"
+                  style={[
+                    tw`text-primary`,
+                    isSelected && { fontFamily: typography.medium },
+                  ]}
+                >
+                  {c.name}
+                </ThemedText>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+        <ScrollView
+          ref={isActive ? productsScrollRef : undefined}
+          style={tw`flex-1`}
+          onLayout={(e) => {
+            setProductsWidth(e.nativeEvent.layout.width);
+            if (isActive) productsHeight.current = e.nativeEvent.layout.height;
+          }}
+          onScroll={isActive ? onProductsScroll : undefined}
+          scrollEventThrottle={16}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          contentContainerStyle={tw`gap-6 pb-40`}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={primaryColor}
+              colors={[primaryColor]}
+            />
+          }
+        >
+          {pageCategories.map((c) => (
+            <View
+              key={c.id}
+              style={tw`gap-3`}
+              onLayout={(e) =>
+                categoryGroupY.current.set(c.id, e.nativeEvent.layout.y)
+              }
+            >
+              <ThemedText type="body1">{c.name}</ThemedText>
+              {renderProductGrid(productsByCategory.get(c.id) ?? [])}
+            </View>
+          ))}
+        </ScrollView>
+      </ThemedView>
+    );
+  };
+
   const menu = (
     <ScreenLayout fullWidth style={tw`px-4 pt-2 flex-1 gap-4`}>
       {isSaleEditMode && (
@@ -375,110 +473,39 @@ export default function RestaurantMenuScreen() {
           onChange={onChangeSection}
         />
       )}
-      {/* Swipe left/right to go to the next or previous section */}
-      <TabSwipeView
-        tabs={sectionTabs}
-        activeTab={section}
-        onChange={onChangeSection}
-        enabled={!search}
-      >
-        <ThemedView style={tw`flex-row gap-3 flex-1`}>
-          {!isSearching && (
-            <ScrollView
-              style={{
-                width: isExpanded
-                  ? CATEGORY_COLUMN_WIDTH
-                  : CATEGORY_COLUMN_WIDTH_COMPACT,
-                flexGrow: 0,
-                flexShrink: 0,
-              }}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={tw`gap-1 pb-40`}
-            >
-              {sectionCategories.map((c) => {
-                const isSelected = category === c.id;
-                return (
-                  <Pressable
-                    key={c.id}
-                    onPress={() => onSelectCategory(c.id)}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: isSelected }}
-                    style={tw.style(
-                      "px-3 py-2.5 rounded-md",
-                      isSelected && "bg-surface",
-                    )}
-                  >
-                    <ThemedText
-                      type="body2"
-                      style={[
-                        tw.style(isSelected ? "text-primary" : "text-primary"),
-                        isSelected && { fontFamily: typography.medium },
-                      ]}
-                    >
-                      {c.name}
-                    </ThemedText>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
+      {isSearching ? (
+        <ScrollView
+          style={tw`flex-1`}
+          onLayout={(e) => setProductsWidth(e.nativeEvent.layout.width)}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          contentContainerStyle={tw`gap-6 pb-40`}
+        >
+          {searchResults.length > 0 ? (
+            renderProductGrid(searchResults)
+          ) : (
+            <ThemedView style={tw`w-full items-center gap-2 pt-12 px-6`}>
+              <Icon name="search-x" size={32} color={tw.color("gray-400")} />
+              <ThemedText type="body2" style={tw`text-center text-gray-500`}>
+                {t("menu:noResults", { search: search.trim() })}
+              </ThemedText>
+            </ThemedView>
           )}
-          <ScrollView
-            ref={productsScrollRef}
-            style={tw`flex-1`}
-            onLayout={(e) => {
-              setProductsWidth(e.nativeEvent.layout.width);
-              productsHeight.current = e.nativeEvent.layout.height;
-            }}
-            onScroll={onProductsScroll}
-            scrollEventThrottle={16}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            keyboardDismissMode="on-drag"
-            contentContainerStyle={tw`gap-6 pb-40`}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                tintColor={primaryColor}
-                colors={[primaryColor]}
-              />
-            }
-          >
-            {isSearching ? (
-              searchResults.length > 0 ? (
-                renderProductGrid(searchResults)
-              ) : (
-                <ThemedView style={tw`w-full items-center gap-2 pt-12 px-6`}>
-                  <Icon
-                    name="search-x"
-                    size={32}
-                    color={tw.color("gray-400")}
-                  />
-                  <ThemedText
-                    type="body2"
-                    style={tw`text-center text-gray-500`}
-                  >
-                    {t("menu:noResults", { search: search.trim() })}
-                  </ThemedText>
-                </ThemedView>
-              )
-            ) : (
-              sectionCategories.map((c) => (
-                <View
-                  key={c.id}
-                  style={tw`gap-3`}
-                  onLayout={(e) =>
-                    categoryGroupY.current.set(c.id, e.nativeEvent.layout.y)
-                  }
-                >
-                  <ThemedText type="body1">{c.name}</ThemedText>
-                  {renderProductGrid(productsByCategory.get(c.id) ?? [])}
-                </View>
-              ))
-            )}
-          </ScrollView>
-        </ThemedView>
-      </TabSwipeView>
+        </ScrollView>
+      ) : (
+        // One page per section: drag left/right and the next section comes
+        // in under the finger. Only the section on screen and its
+        // neighbours are rendered.
+        <TabPager
+          tabs={sectionTabs}
+          activeTab={section}
+          onChange={onChangeSection}
+          enabled={!search}
+          keepVisited={false}
+          renderScene={renderSectionPage}
+        />
+      )}
 
       <FloatingSearchBar
         value={search}

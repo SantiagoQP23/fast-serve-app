@@ -1,6 +1,6 @@
 import { ScrollView, Pressable, RefreshControl, Platform } from "react-native";
 // Horizontal rows use gesture-handler's ScrollView, so a swipe on them scrolls
-// the row instead of switching the screen's tab (TabSwipeView)
+// the row instead of switching the screen's tab (TabPager)
 import { ScrollView as GestureScrollView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
@@ -39,7 +39,7 @@ import { useOrderPaymentStatus } from "@/presentation/orders/hooks/useOrderPayme
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 import { useOrderPrint } from "@/presentation/orders/hooks/useOrderPrint";
 import TabBar from "@/presentation/theme/components/tab-bar";
-import TabSwipeView from "@/presentation/theme/components/tab-swipe-view";
+import TabPager from "@/presentation/theme/components/tab-pager";
 import EditOrderBottomSheet from "@/presentation/orders/components/edit-order-bottom-sheet";
 import ChangeItemsTypeBottomSheet, {
   itemsToChangeType,
@@ -905,262 +905,277 @@ export default function OrderDetailView({
             <TabBar tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
           </ThemedView>
 
-          {/* Tab Content; swipe left/right to switch tabs (off while
+          {/* Tab Content; drag left/right to switch tabs (off while
               selecting products) */}
-          <TabSwipeView
+          <TabPager
             tabs={tabs}
             activeTab={activeTab}
             onChange={setActiveTab}
             enabled={!isSelectionMode}
-          >
-            {activeTab === "products" && (
-              <ScrollView
-                style={tw`flex-1`}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={tw`pt-4 pb-6`}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={onRefresh}
-                    tintColor={primaryColor}
-                    colors={[primaryColor]}
-                  />
-                }
-              >
-                {/* Status, payment and time left */}
-                <ThemedView
-                  style={tw`flex-row items-center gap-2 flex-wrap mb-4`}
-                >
-                  <Label
-                    text={statusText}
-                    color={labelColor}
-                    leftIcon={statusIcon}
-                    size="small"
-                  />
-                  {order.paymentStatus !== OrderPaymentStatus.UNPAID && (
-                    <Label
-                      text={paymentStatus.text}
-                      color={paymentStatus.color}
-                      size="small"
-                    />
-                  )}
-                  {isClosed && (
-                    <Label
-                      text={t("orders:details.closedOrder")}
-                      color="default"
-                      size="small"
-                    />
-                  )}
-                  {!isClosed &&
-                    order.status !== OrderStatus.DELIVERED &&
-                    order.status !== OrderStatus.CANCELLED && (
-                      <OrderElapsedTimeLabel
-                        deliveryTime={order.deliveryTime}
+            renderScene={(tab) => (
+              <>
+                {tab === "products" && (
+                  <ScrollView
+                    style={tw`flex-1`}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={tw`pt-4 pb-6`}
+                    refreshControl={
+                      <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={primaryColor}
+                        colors={[primaryColor]}
+                      />
+                    }
+                  >
+                    {/* Status, payment and time left */}
+                    <ThemedView
+                      style={tw`flex-row items-center gap-2 flex-wrap mb-4`}
+                    >
+                      <Label
+                        text={statusText}
+                        color={labelColor}
+                        leftIcon={statusIcon}
                         size="small"
                       />
-                    )}
-                </ThemedView>
-
-                {/* Closed orders can't change, so their chips are read-only. */}
-                <GestureScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={tw`gap-2 mb-6`}
-                >
-                  <Chip
-                    icon="hourglass"
-                    label={(deliveryTime ?? createdAt).format("HH:mm")}
-                    onPress={!isClosed ? openTimePicker : undefined}
-                    disabled={isClosed}
-                  />
-                  <Chip
-                    label={String(order.people)}
-                    icon="users"
-                    onPress={
-                      !isClosed ? handlePresentEditPeopleModal : undefined
-                    }
-                    disabled={isClosed}
-                  />
-                  <Chip
-                    icon="user"
-                    label={`${order.user?.person.firstName} ${order.user?.person.lastName}`}
-                    onPress={!isClosed ? handlePresentReassignModal : undefined}
-                    disabled={isClosed}
-                  />
-                </GestureScrollView>
-
-                {/* Notes Section */}
-                {order.notes && (
-                  <ThemedView style={tw`mb-6`}>
-                    <ThemedView style={tw`flex-row items-center gap-2 mb-2`}>
-                      <Icon
-                        name="file-text"
-                        size={16}
-                        color={tw.color("gray-500")}
-                      />
-                      <ThemedText
-                        type="body2"
-                        style={[
-                          tw`text-gray-500`,
-                          { fontFamily: typography.semibold },
-                        ]}
-                      >
-                        {t("common:labels.notes")}
-                      </ThemedText>
-                    </ThemedView>
-                    <ThemedText type="body1">{order.notes}</ThemedText>
-                  </ThemedView>
-                )}
-
-                {/* Pending Items Section */}
-                {!isClosed && pendingDetails.length > 0 && (
-                  <ThemedView style={tw`mb-6`}>
-                    <ThemedView
-                      style={tw`flex-row justify-between items-center mb-4 min-h-10`}
-                    >
-                      {renderSectionHeader(
-                        t("orders:details.pendingItems"),
-                        pendingDetails.length,
+                      {order.paymentStatus !== OrderPaymentStatus.UNPAID && (
+                        <Label
+                          text={paymentStatus.text}
+                          color={paymentStatus.color}
+                          size="small"
+                        />
                       )}
-                      {canMarkDelivered &&
-                        !deliverInBar &&
-                        !isSelectionMode && (
-                          <Button
-                            variant="text"
+                      {isClosed && (
+                        <Label
+                          text={t("orders:details.closedOrder")}
+                          color="default"
+                          size="small"
+                        />
+                      )}
+                      {!isClosed &&
+                        order.status !== OrderStatus.DELIVERED &&
+                        order.status !== OrderStatus.CANCELLED && (
+                          <OrderElapsedTimeLabel
+                            deliveryTime={order.deliveryTime}
                             size="small"
-                            leftIcon="check-check"
-                            label={t("orders:details.deliverAll")}
-                            onPress={() => markDelivered(order)}
                           />
                         )}
                     </ThemedView>
-                    <ThemedView style={tw`gap-6`}>
-                      {pendingDetails.map((detail) => (
-                        <OrderDetailCard
-                          key={detail.id}
-                          detail={detail}
-                          onPress={() => openProduct(detail)}
-                          orderUserId={order.user?.id || ""}
-                          orderType={order.type}
-                          selectionMode={isSelectionMode}
-                          selected={selectedDetailIds.has(detail.id)}
-                          onToggleSelect={toggleSelectDetail}
-                          onStartSelection={enterSelectionMode}
-                          showAmount={false}
-                        />
-                      ))}
-                    </ThemedView>
-                  </ThemedView>
-                )}
 
-                {/* Delivered Items Section (for active orders) */}
-                {!isClosed && deliveredDetails.length > 0 && (
-                  <ThemedView style={tw`mb-6`}>
-                    <ThemedView style={tw`mb-4`}>
-                      {renderSectionHeader(
-                        t("orders:details.deliveredItems"),
-                        deliveredDetails.length,
-                      )}
-                    </ThemedView>
-                    <ThemedView style={tw`gap-6`}>
-                      {deliveredDetails.map((detail) => (
-                        <OrderDetailCard
-                          key={detail.id}
-                          detail={detail}
-                          onPress={() => openProduct(detail)}
-                          orderUserId={order.user?.id || ""}
-                          orderType={order.type}
-                          showAmount={false}
-                        />
-                      ))}
-                    </ThemedView>
-                  </ThemedView>
-                )}
-
-                {/* Cancelled Items Section */}
-                {cancelledDetails.length > 0 && (
-                  <ThemedView style={tw`mb-6`}>
-                    <Pressable
-                      onPress={toggleCancelledSection}
-                      accessibilityRole="button"
-                      accessibilityState={{ expanded: isCancelledExpanded }}
-                      style={tw`flex-row justify-between items-center min-h-12`}
+                    {/* Closed orders can't change, so their chips are read-only. */}
+                    <GestureScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={tw`gap-2 mb-6`}
                     >
-                      {renderSectionHeader(
-                        t("orders:details.cancelledItems"),
-                        cancelledDetails.length,
-                      )}
-                      <Icon
-                        name={
-                          isCancelledExpanded ? "chevron-up" : "chevron-down"
-                        }
-                        size={20}
-                        color={tw.color("gray-500")}
+                      <Chip
+                        icon="hourglass"
+                        label={(deliveryTime ?? createdAt).format("HH:mm")}
+                        onPress={!isClosed ? openTimePicker : undefined}
+                        disabled={isClosed}
                       />
-                    </Pressable>
+                      <Chip
+                        label={String(order.people)}
+                        icon="users"
+                        onPress={
+                          !isClosed ? handlePresentEditPeopleModal : undefined
+                        }
+                        disabled={isClosed}
+                      />
+                      <Chip
+                        icon="user"
+                        label={`${order.user?.person.firstName} ${order.user?.person.lastName}`}
+                        onPress={
+                          !isClosed ? handlePresentReassignModal : undefined
+                        }
+                        disabled={isClosed}
+                      />
+                    </GestureScrollView>
 
-                    {isCancelledExpanded && (
-                      <ThemedView style={tw`gap-6 mt-2 opacity-70`}>
-                        {cancelledDetails.map((detail) => (
-                          <OrderDetailCard
-                            key={detail.id}
-                            detail={detail}
-                            onPress={() => {}}
-                            orderUserId={order.user?.id || ""}
-                            orderType={order.type}
+                    {/* Notes Section */}
+                    {order.notes && (
+                      <ThemedView style={tw`mb-6`}>
+                        <ThemedView
+                          style={tw`flex-row items-center gap-2 mb-2`}
+                        >
+                          <Icon
+                            name="file-text"
+                            size={16}
+                            color={tw.color("gray-500")}
                           />
-                        ))}
+                          <ThemedText
+                            type="body2"
+                            style={[
+                              tw`text-gray-500`,
+                              { fontFamily: typography.semibold },
+                            ]}
+                          >
+                            {t("common:labels.notes")}
+                          </ThemedText>
+                        </ThemedView>
+                        <ThemedText type="body1">{order.notes}</ThemedText>
                       </ThemedView>
                     )}
-                  </ThemedView>
-                )}
 
-                {/* All Items Section - For closed orders */}
-                {isClosed && hasItems && (
-                  <ThemedView style={tw`mb-6`}>
-                    <ThemedView style={tw`mb-4`}>
-                      {renderSectionHeader(
-                        t("orders:details.allItems"),
-                        allDetails.length,
-                      )}
-                    </ThemedView>
-                    <ThemedView style={tw`gap-6`}>
-                      {allDetails.map((detail) => (
-                        <OrderDetailCard
-                          key={detail.id}
-                          detail={detail}
-                          onPress={() => {}} // No action for closed orders
-                          orderUserId={order.user?.id || ""}
-                          orderType={order.type}
-                          readOnly
+                    {/* Pending Items Section */}
+                    {!isClosed && pendingDetails.length > 0 && (
+                      <ThemedView style={tw`mb-6`}>
+                        <ThemedView
+                          style={tw`flex-row justify-between items-center mb-4 min-h-10`}
+                        >
+                          {renderSectionHeader(
+                            t("orders:details.pendingItems"),
+                            pendingDetails.length,
+                          )}
+                          {canMarkDelivered &&
+                            !deliverInBar &&
+                            !isSelectionMode && (
+                              <Button
+                                variant="text"
+                                size="small"
+                                leftIcon="check-check"
+                                label={t("orders:details.deliverAll")}
+                                onPress={() => markDelivered(order)}
+                              />
+                            )}
+                        </ThemedView>
+                        <ThemedView style={tw`gap-6`}>
+                          {pendingDetails.map((detail) => (
+                            <OrderDetailCard
+                              key={detail.id}
+                              detail={detail}
+                              onPress={() => openProduct(detail)}
+                              orderUserId={order.user?.id || ""}
+                              orderType={order.type}
+                              selectionMode={isSelectionMode}
+                              selected={selectedDetailIds.has(detail.id)}
+                              onToggleSelect={toggleSelectDetail}
+                              onStartSelection={enterSelectionMode}
+                              showAmount={false}
+                            />
+                          ))}
+                        </ThemedView>
+                      </ThemedView>
+                    )}
+
+                    {/* Delivered Items Section (for active orders) */}
+                    {!isClosed && deliveredDetails.length > 0 && (
+                      <ThemedView style={tw`mb-6`}>
+                        <ThemedView style={tw`mb-4`}>
+                          {renderSectionHeader(
+                            t("orders:details.deliveredItems"),
+                            deliveredDetails.length,
+                          )}
+                        </ThemedView>
+                        <ThemedView style={tw`gap-6`}>
+                          {deliveredDetails.map((detail) => (
+                            <OrderDetailCard
+                              key={detail.id}
+                              detail={detail}
+                              onPress={() => openProduct(detail)}
+                              orderUserId={order.user?.id || ""}
+                              orderType={order.type}
+                              showAmount={false}
+                            />
+                          ))}
+                        </ThemedView>
+                      </ThemedView>
+                    )}
+
+                    {/* Cancelled Items Section */}
+                    {cancelledDetails.length > 0 && (
+                      <ThemedView style={tw`mb-6`}>
+                        <Pressable
+                          onPress={toggleCancelledSection}
+                          accessibilityRole="button"
+                          accessibilityState={{ expanded: isCancelledExpanded }}
+                          style={tw`flex-row justify-between items-center min-h-12`}
+                        >
+                          {renderSectionHeader(
+                            t("orders:details.cancelledItems"),
+                            cancelledDetails.length,
+                          )}
+                          <Icon
+                            name={
+                              isCancelledExpanded
+                                ? "chevron-up"
+                                : "chevron-down"
+                            }
+                            size={20}
+                            color={tw.color("gray-500")}
+                          />
+                        </Pressable>
+
+                        {isCancelledExpanded && (
+                          <ThemedView style={tw`gap-6 mt-2 opacity-70`}>
+                            {cancelledDetails.map((detail) => (
+                              <OrderDetailCard
+                                key={detail.id}
+                                detail={detail}
+                                onPress={() => {}}
+                                orderUserId={order.user?.id || ""}
+                                orderType={order.type}
+                              />
+                            ))}
+                          </ThemedView>
+                        )}
+                      </ThemedView>
+                    )}
+
+                    {/* All Items Section - For closed orders */}
+                    {isClosed && hasItems && (
+                      <ThemedView style={tw`mb-6`}>
+                        <ThemedView style={tw`mb-4`}>
+                          {renderSectionHeader(
+                            t("orders:details.allItems"),
+                            allDetails.length,
+                          )}
+                        </ThemedView>
+                        <ThemedView style={tw`gap-6`}>
+                          {allDetails.map((detail) => (
+                            <OrderDetailCard
+                              key={detail.id}
+                              detail={detail}
+                              onPress={() => {}} // No action for closed orders
+                              orderUserId={order.user?.id || ""}
+                              orderType={order.type}
+                              readOnly
+                            />
+                          ))}
+                        </ThemedView>
+                      </ThemedView>
+                    )}
+
+                    {/* Empty state for closed orders with no items */}
+                    {isClosed && !hasItems && (
+                      <ThemedView
+                        style={tw`mb-6 p-8 items-center justify-center`}
+                      >
+                        <Icon
+                          name="file"
+                          size={48}
+                          color={tw.color("gray-400")}
                         />
-                      ))}
-                    </ThemedView>
-                  </ThemedView>
-                )}
+                        <ThemedText
+                          type="body1"
+                          style={tw`text-gray-500 mt-4 text-center`}
+                        >
+                          {t("orders:details.noItemsInOrder")}
+                        </ThemedText>
+                      </ThemedView>
+                    )}
 
-                {/* Empty state for closed orders with no items */}
-                {isClosed && !hasItems && (
-                  <ThemedView style={tw`mb-6 p-8 items-center justify-center`}>
-                    <Icon name="file" size={48} color={tw.color("gray-400")} />
-                    <ThemedText
-                      type="body1"
-                      style={tw`text-gray-500 mt-4 text-center`}
-                    >
-                      {t("orders:details.noItemsInOrder")}
+                    <ThemedText type="small" style={tw`mt-2`}>
+                      {activityLine}
                     </ThemedText>
-                  </ThemedView>
+                  </ScrollView>
                 )}
 
-                <ThemedText type="small" style={tw`mt-2`}>
-                  {activityLine}
-                </ThemedText>
-              </ScrollView>
+                {tab === "bills" && <OrderBillsTab order={order} />}
+                {tab === "tickets" && <OrderTicketsTab order={order} />}
+              </>
             )}
-
-            {activeTab === "bills" && <OrderBillsTab order={order} />}
-            {activeTab === "tickets" && <OrderTicketsTab order={order} />}
-          </TabSwipeView>
+          />
         </Container>
 
         {/* Bottom bar: thumb-reach actions, or the bulk-deliver bar while
