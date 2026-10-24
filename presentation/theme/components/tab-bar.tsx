@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Pressable, ScrollView, View } from "react-native";
+import { typography } from "@/constants/theme";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   runOnJS,
@@ -108,9 +109,10 @@ export default function TabBar<T extends string>({
         <ThemedText
           type={textType}
           numberOfLines={1}
-          style={tw.style(
-            isActive ? "font-semibold text-primary " : "text-primary ",
-          )}
+          style={[
+            tw`text-primary`,
+            { fontFamily: isActive ? typography.semibold : typography.medium },
+          ]}
         >
           {tab.label}
         </ThemedText>

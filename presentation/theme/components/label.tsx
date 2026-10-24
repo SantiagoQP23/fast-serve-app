@@ -26,35 +26,55 @@ export interface LabelProps extends PressableProps {
     | "outline"
     | "primary";
   size?: "medium" | "small";
+  variant?: "solid" | "outline";
   text: string;
 }
 
 export const labelSolidStyles: Record<
   NonNullable<LabelProps["color"]>,
-  { bg: string; text: string; dot: string }
+  { bg: string; text: string; dot: string; border: string }
 > = {
   success: {
     bg: "bg-emerald-100",
     text: "text-emerald-800",
     dot: "bg-emerald-500",
+    border: "border-emerald-800",
   },
   warning: {
     bg: "bg-orange-100",
     text: "text-orange-800",
     dot: "bg-orange-500",
+    border: "border-orange-800",
   },
-  error: { bg: "bg-red-100", text: "text-red-700", dot: "bg-red-500" },
-  info: { bg: "bg-blue-100", text: "text-blue-700", dot: "bg-blue-500" },
-  default: { bg: "bg-gray-100", text: "text-gray-600", dot: "bg-gray-400" },
+  error: {
+    bg: "bg-red-100",
+    text: "text-red-700",
+    dot: "bg-red-500",
+    border: "border-red-700",
+  },
+  info: {
+    bg: "bg-blue-100",
+    text: "text-blue-700",
+    dot: "bg-blue-500",
+    border: "border-blue-700",
+  },
+  default: {
+    bg: "bg-gray-100",
+    text: "text-gray-600",
+    dot: "bg-gray-400",
+    border: "border-gray-600",
+  },
   outline: {
     bg: "bg-transparent",
     text: "text-on-surface-variant",
     dot: "bg-gray-400",
+    border: "border-on-surface-variant",
   },
   primary: {
     bg: "bg-primary-container",
     text: "text-on-primary-container",
     dot: "bg-primary",
+    border: "border-on-primary-container",
   },
 };
 
@@ -65,6 +85,7 @@ export default function Label({
   rightIcon,
   color = "default",
   size = "medium",
+  variant = "solid",
   text,
   style,
   hitSlop,
@@ -80,11 +101,11 @@ export default function Label({
     primary: "primary",
   };
 
-  const isOutline = color === "outline";
+  const isOutline = variant === "outline" || color === "outline";
   const isSmall = size === "small";
   const solid = labelSolidStyles[color];
 
-  const containerBg = isOutline ? "border border-border" : solid.bg;
+  const containerBg = isOutline ? `border-2 ${solid.border}` : solid.bg;
 
   return (
     <Pressable
@@ -94,7 +115,7 @@ export default function Label({
       accessibilityLabel={accessibilityLabel}
       style={({ pressed }) => [
         tw.style(
-          `gap-1.5 flex-row items-center ${containerBg} ${isSmall ? "px-3 py-1" : "px-4 py-1"} rounded-full`,
+          `gap-1.5 flex-row items-center ${containerBg} ${isSmall ? "px-3 py-1" : "px-4 py-1"} rounded-3xl`,
           pressed && onPress && "opacity-80",
         ),
       ]}

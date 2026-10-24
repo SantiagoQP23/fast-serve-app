@@ -49,7 +49,7 @@ interface InventoryCountCardProps {
   active?: boolean;
 }
 
-/** One count in the counts history: size, status, who started it, how far along it is and its first items. */
+/** One count in the counts history: who started it, size, status, how far along it is and its first items. */
 export default function InventoryCountCard({
   count,
   onPress,
@@ -60,6 +60,7 @@ export default function InventoryCountCard({
   const inProgress = count.status === InventoryCountStatus.IN_PROGRESS;
   const total = count.itemsCount ?? 0;
   const answered = Math.max(total - (count.pendingCount ?? 0), 0);
+  const itemsCount = t("counts.productsCount", { count: total });
 
   return (
     <Card
@@ -73,18 +74,19 @@ export default function InventoryCountCard({
         <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
           <ThemedText
             type="body1"
+            numberOfLines={1}
             style={[
               { fontFamily: typography.semibold },
               tw`text-on-surface`,
             ]}
           >
-            {t("counts.productsCount", { count: total })}
+            {creator ?? itemsCount}
           </ThemedText>
           <ThemedText type="small" style={tw`text-gray-500`} numberOfLines={1}>
             <ThemedText type="small" style={{ fontVariant: ["tabular-nums"] }}>
               {formatTime(count.createdAt)}
             </ThemedText>
-            {creator ? ` · ${t("counts.startedBy", { name: creator })}` : ""}
+            {creator ? ` · ${itemsCount}` : ""}
           </ThemedText>
         </ThemedView>
         <Label

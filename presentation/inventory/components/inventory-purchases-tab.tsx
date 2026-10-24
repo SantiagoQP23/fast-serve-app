@@ -16,6 +16,8 @@ import { useInventoryPurchases } from "@/presentation/inventory/hooks/useInvento
 import { type InventoryPurchase } from "@/core/inventory/models/inventory-purchase.model";
 
 interface InventoryPurchasesTabProps {
+  /** Shows a full-width "register purchase" button at the top of the list. */
+  onAdd?: () => void;
   /** Overrides navigating to the purchase screen, e.g. to open a side pane. */
   onOpenPurchase?: (purchase: InventoryPurchase) => void;
   /** Purchase currently shown in the side pane. */
@@ -23,6 +25,7 @@ interface InventoryPurchasesTabProps {
 }
 
 export default function InventoryPurchasesTab({
+  onAdd,
   onOpenPurchase,
   activeId,
 }: InventoryPurchasesTabProps) {
@@ -59,6 +62,15 @@ export default function InventoryPurchasesTab({
         />
       }
     >
+      {onAdd && (
+        <Button
+          label={t("purchases.register")}
+          leftIcon="plus"
+          variant="outline"
+          onPress={onAdd}
+        />
+      )}
+
       <DraftPurchaseCard />
       <ShoppingListCard />
 

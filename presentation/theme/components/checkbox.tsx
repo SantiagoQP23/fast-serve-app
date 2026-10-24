@@ -51,7 +51,7 @@ export default function Checkbox({
       accessibilityState={{ checked: value, disabled }}
       style={({ pressed }) => [
         tw.style(
-          "justify-center items-center border rounded-3xl",
+          "justify-center items-center border rounded-sm",
           value ? "bg-primary border-primary" : " border-primary border-2",
           pressed && !disabled && "opacity-80",
           disabled && "opacity-50",

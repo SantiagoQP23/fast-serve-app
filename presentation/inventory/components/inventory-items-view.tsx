@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import Icon from "@/presentation/theme/components/icon";
 import { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
@@ -8,6 +8,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import Button from "@/presentation/theme/components/button";
+import TextInput from "@/presentation/theme/components/text-input";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import IconButton from "@/presentation/theme/components/icon-button";
 import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
@@ -21,6 +22,8 @@ import InventoryScreenHeader from "@/presentation/inventory/components/screen-he
 import InventoryStockSummary from "@/presentation/inventory/components/inventory-stock-summary";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
 import { InventoryItemStockStatusFilter } from "@/presentation/inventory/interfaces/dto/find-all-inventory-items.dto";
+
+const SEARCH_DEBOUNCE_MS = 400;
 
 /** Splits items into rows of two for the grid. */
 const chunkPairs = <T,>(items: T[]): T[][] =>
@@ -71,6 +74,16 @@ export default function InventoryItemsView({
     new Set(),
   );
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timeout = setTimeout(
+      () => setDebouncedSearch(search.trim()),
+      SEARCH_DEBOUNCE_MS,
+    );
+    return () => clearTimeout(timeout);
+  }, [search]);
 
   const {
     items: browsedItems,
@@ -82,6 +95,7 @@ export default function InventoryItemsView({
     categoryId,
     uncategorized,
     status: selectedStatus,
+    search: debouncedSearch,
   });
 
   // The backend returns items ordered by name ASC, so consecutive items
@@ -111,8 +125,13 @@ export default function InventoryItemsView({
   });
 
   const isLoaded = !browserQuery.isLoading && !browserQuery.isError;
-  // Nothing in this scope at all (as opposed to nothing matching a status)
-  const isScopeEmpty = isLoaded && !selectedStatus && browsedItems.length === 0;
+  // Nothing in this scope at all (as opposed to nothing matching a status
+  // or the search)
+  const isScopeEmpty =
+    isLoaded &&
+    !selectedStatus &&
+    !debouncedSearch &&
+    browsedItems.length === 0;
 
   const handleEnterSelectionMode = (item: InventoryItem) => {
     if (isSelectionMode) return;
@@ -160,8 +179,15 @@ export default function InventoryItemsView({
 
   return (
     <ThemedView style={tw`flex-1 bg-transparent`}>
-      <ThemedView style={tw`px-4 pt-8 bg-transparent`}>
+      <ThemedView style={tw`px-4 pt-8 gap-6 bg-transparent`}>
         <InventoryScreenHeader title={title} onBack={onBack} />
+        <TextInput
+          placeholder={t("searchPlaceholder")}
+          icon="search"
+          value={search}
+          onChangeText={setSearch}
+          returnKeyType="search"
+        />
       </ThemedView>
 
       <ScrollView

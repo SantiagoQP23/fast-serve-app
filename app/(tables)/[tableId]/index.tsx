@@ -91,8 +91,10 @@ export default function TableOrdersScreen() {
               subtitle={
                 <ThemedView style={tw`flex-row`}>
                   <Label
+                    size="small"
+                    variant="outline"
                     text={statusText}
-                    color={isOccupied ? "error" : "success"}
+                    color={isOccupied ? "default" : "success"}
                   />
                 </ThemedView>
               }
@@ -113,11 +115,7 @@ export default function TableOrdersScreen() {
 
           {!hasOrders ? (
             <ThemedView style={tw`items-center justify-center flex-1 gap-4`}>
-              <Icon
-                name="utensils"
-                size={80}
-                color={tw.color("gray-500")}
-              />
+              <Icon name="utensils" size={80} color={tw.color("gray-500")} />
               <ThemedText type="h3">{t("tables:details.noOrders")}</ThemedText>
               <ThemedText type="body2" style={tw`text-center max-w-xs`}>
                 {t("tables:details.noOrdersDescription")}

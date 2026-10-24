@@ -2,7 +2,6 @@ import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatTime } from "@/core/i18n/utils";
 import Card from "@/presentation/theme/components/card";
@@ -19,7 +18,7 @@ interface InventoryPurchaseCardProps {
   active?: boolean;
 }
 
-/** One purchase in the purchases history: size, time, who registered it, its first items and its note. */
+/** One purchase in the purchases history: its first items, its note, then time, size and who registered it. */
 export default function InventoryPurchaseCard({
   purchase,
   onPress,
@@ -34,40 +33,6 @@ export default function InventoryPurchaseCard({
       onPress={() => onPress(purchase)}
       style={tw.style("gap-3 p-4", active && "bg-secondary")}
     >
-      <ThemedView
-        style={tw`flex-row items-start justify-between gap-3 bg-transparent`}
-      >
-        <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-          <ThemedText
-            type="body1"
-            style={[
-              { fontFamily: typography.semibold },
-              tw`text-on-surface`,
-            ]}
-          >
-            {t("purchases.productsCount", { count: purchase.itemsCount ?? 0 })}
-          </ThemedText>
-          {creator && (
-            <ThemedText
-              type="small"
-              style={tw`text-gray-500`}
-              numberOfLines={1}
-            >
-              {t("purchases.registeredBy", { name: creator })}
-            </ThemedText>
-          )}
-        </ThemedView>
-        <ThemedText
-          type="small"
-          style={[
-            tw`text-on-surface-variant pt-1`,
-            { fontVariant: ["tabular-nums"] },
-          ]}
-        >
-          {formatTime(purchase.createdAt)}
-        </ThemedText>
-      </ThemedView>
-
       <InventoryCardLines
         total={purchase.itemsCount ?? 0}
         lines={(purchase.previewItems ?? []).map((line) => ({
@@ -96,6 +61,14 @@ export default function InventoryPurchaseCard({
           </ThemedText>
         </ThemedView>
       )}
+
+      <ThemedText type="small" style={tw`text-gray-500`} numberOfLines={1}>
+        <ThemedText type="small" style={{ fontVariant: ["tabular-nums"] }}>
+          {formatTime(purchase.createdAt)}
+        </ThemedText>
+        {` · ${t("purchases.productsCount", { count: purchase.itemsCount ?? 0 })}`}
+        {creator ? ` · ${creator}` : ""}
+      </ThemedText>
     </Card>
   );
 }
