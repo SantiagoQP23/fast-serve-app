@@ -25,7 +25,7 @@ export default function LinkedProductsList({
   const { t } = useTranslation("inventory");
 
   return (
-    <ThemedView style={tw`gap-4 bg-transparent`}>
+    <ThemedView style={tw` bg-transparent`}>
       <InventorySectionHeader
         title={t("detail.linkedProducts")}
         count={lines.length}

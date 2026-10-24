@@ -31,7 +31,7 @@ export default function InventorySectionHeader({
           style={tw`flex-1 flex-row items-center gap-2 bg-transparent`}
         >
           <ThemedText
-            type="body2"
+            type="body1"
             style={[tw`text-primary`, { fontFamily: typography.semibold }]}
           >
             {title}

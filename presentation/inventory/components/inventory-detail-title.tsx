@@ -31,22 +31,18 @@ export default function InventoryDetailTitle({
   return (
     <ThemedView style={tw`gap-4 bg-transparent`}>
       <ThemedView style={tw`gap-1 bg-transparent`}>
-        <ThemedView style={tw`flex-row items-start gap-2 bg-transparent`}>
-          {/* mt-1.5 centers the icon on the first line of the title */}
-          <Icon
-            name={icon}
-            size={24}
-            color={tw.color("text")}
-            style={tw`mt-1.5`}
-          />
-          {/* Item names can be long; two lines before truncating */}
-          <ThemedText type="h2" style={tw`flex-1`} numberOfLines={2}>
-            {title}
-          </ThemedText>
-        </ThemedView>
+        <Icon
+          name={icon}
+          size={40}
+          color={tw.color("text")}
+          style={tw`mb-2`}
+        />
+        {/* Item names can be long; two lines before truncating */}
+        <ThemedText type="h2" numberOfLines={2}>
+          {title}
+        </ThemedText>
         {subtitle && (
-          // pl-8 lines the subtitle up with the title text, past the icon
-          <ThemedText type="body1" style={tw`text-gray-500 pl-8`}>
+          <ThemedText type="body1" style={tw`text-gray-500`}>
             {subtitle}
           </ThemedText>
         )}
