@@ -11,6 +11,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { useState } from "react";
 import Icon from "@/presentation/theme/components/icon";
+import IconButton from "@/presentation/theme/components/icon-button";
 import tw from "@/presentation/theme/lib/tailwind";
 import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
@@ -123,6 +124,14 @@ const SignupScreen = () => {
     }
   };
 
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/auth/login");
+    }
+  };
+
   const handleGoToLogin = () => {
     router.push("/auth/login");
   };
@@ -131,8 +140,16 @@ const SignupScreen = () => {
     <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
       <ScreenLayout style={tw`px-4 gap-4`}>
         <ScrollView showsVerticalScrollIndicator={false}>
+          <IconButton
+            icon="arrow-left"
+            onPress={handleBack}
+            accessibilityLabel={t("common:actions.goBack")}
+            style={tw`self-start -ml-3 mt-2`}
+            size={24}
+          />
+
           {/* Header */}
-          <ThemedView style={[{ paddingTop: height * 0.08, gap: 2 }]}>
+          <ThemedView style={[{ paddingTop: height * 0.03, gap: 2 }]}>
             <ThemedText type="h1">{t("auth:signup.title")}</ThemedText>
             <ThemedText style={tw`text-gray-600`} type="body2">
               {t("auth:signup.subtitle")}
@@ -243,9 +260,7 @@ const SignupScreen = () => {
                         onPress={() => setShowPassword((prev) => !prev)}
                       >
                         <Icon
-                          name={
-                            showPassword ? "eye-off" : "eye"
-                          }
+                          name={showPassword ? "eye-off" : "eye"}
                           size={20}
                           style={{ color: tw.color("gray-400") }}
                         />
@@ -279,11 +294,7 @@ const SignupScreen = () => {
                         onPress={() => setShowConfirmPassword((prev) => !prev)}
                       >
                         <Icon
-                          name={
-                            showConfirmPassword
-                              ? "eye-off"
-                              : "eye"
-                          }
+                          name={showConfirmPassword ? "eye-off" : "eye"}
                           size={20}
                           style={{ color: tw.color("gray-400") }}
                         />
@@ -323,10 +334,15 @@ const SignupScreen = () => {
           <ThemedView style={tw`my-4`} />
 
           <ThemedView style={tw`flex-row justify-center items-center`}>
-            <ThemedText>{t("auth:signup.alreadyHaveAccount")} </ThemedText>
-            <Pressable onPress={handleGoToLogin}>
-              <ThemedText type="body2">{t("auth:signup.login")}</ThemedText>
-            </Pressable>
+            <ThemedText type="body2">
+              {t("auth:signup.alreadyHaveAccount")}{" "}
+            </ThemedText>
+            <Button
+              variant="link"
+              size="small"
+              label={t("auth:signup.login")}
+              onPress={handleGoToLogin}
+            />
           </ThemedView>
 
           <ThemedView style={tw`mb-8`} />

@@ -140,8 +140,11 @@ const LoginScreen = () => {
 
   return (
     <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
-      <ScreenLayout style={tw` px-4 gap-8 md:px-40`}>
-        <ThemedView style={[{ paddingTop: height * 0.2, gap: 2 }]}>
+      <ScreenLayout style={tw` px-4 pt-8 gap-8 md:px-40`}>
+        <ThemedView style={tw`flex-row `}>
+          <ThemedText type="h3">Teikio</ThemedText>
+        </ThemedView>
+        <ThemedView style={[{ paddingTop: height * 0.1, gap: 2 }]}>
           <ThemedText type="h1" style={tw``}>
             {t("login.title")}
           </ThemedText>
@@ -197,11 +200,13 @@ const LoginScreen = () => {
               />
             )}
           />
-          <Pressable onPress={handleForgotPassword}>
-            <ThemedText type="body2" style={tw`text-gray-600`}>
-              {t("login.forgotPassword")}
-            </ThemedText>
-          </Pressable>
+          <Button
+            variant="link"
+            size="small"
+            label={t("login.forgotPassword")}
+            onPress={handleForgotPassword}
+            style={tw`self-start`}
+          />
         </ThemedView>
         <ThemedView style={tw`w-full `}>
           <Button
@@ -224,12 +229,13 @@ const LoginScreen = () => {
         </ThemedView>
         <ThemedView style={tw`flex-1`}></ThemedView>
         <ThemedView style={tw`mb-4 flex-row justify-center items-center`}>
-          <ThemedText>{t("login.noAccount")} </ThemedText>
-          <Pressable onPress={handleSignUp}>
-            <ThemedText type="body2" style={tw`text-primary`}>
-              {t("login.signUp")}
-            </ThemedText>
-          </Pressable>
+          <ThemedText type="body2">{t("login.noAccount")} </ThemedText>
+          <Button
+            variant="link"
+            size="small"
+            label={t("login.signUp")}
+            onPress={handleSignUp}
+          />
         </ThemedView>
       </ScreenLayout>
     </KeyboardAvoidingView>

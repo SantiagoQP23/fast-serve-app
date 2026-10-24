@@ -17,6 +17,7 @@ export interface ButtonProps extends PressableProps {
     | "secondary"
     | "outline"
     | "text"
+    | "link"
     | "surface"
     | "destructive";
   size?: "extra-small" | "small" | "medium" | "large" | "extra-large";
@@ -45,6 +46,7 @@ export default function Button({
 }: ButtonProps) {
   const palette = usePalette();
   const isVertical = layout === "vertical";
+  const isLink = variant === "link";
 
   const variants = {
     primary: "bg-primary",
@@ -52,6 +54,7 @@ export default function Button({
     surface: "bg-surface",
     outline: "border border-primary bg-transparent",
     text: "bg-transparent",
+    link: "bg-transparent",
     destructive: "bg-red-100",
   };
 
@@ -104,6 +107,7 @@ export default function Button({
     secondary: "text-on-secondary",
     outline: "text-primary",
     text: "text-primary",
+    link: "text-primary underline",
     surface: "text-primary",
     destructive: "text-red-800",
   };
@@ -113,6 +117,7 @@ export default function Button({
     secondary: palette.onSecondary,
     outline: palette.primary,
     text: palette.primary,
+    link: palette.primary,
     surface: palette.primary,
     destructive: tw.color("red-900"),
   };
@@ -171,13 +176,15 @@ export default function Button({
     <Pressable
       disabled={disabled || loading}
       onPress={onPress}
-      hitSlop={hitSlop}
+      // Links have no padding so they sit inline with text; hitSlop keeps
+      // the touch target usable.
+      hitSlop={hitSlop ?? (isLink ? 8 : undefined)}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ disabled: disabled || loading, busy: loading }}
       style={({ pressed }) => [
         tw.style(
-          ` flex-row justify-center items-center ${background} ${sizeStyles[size]} `,
+          ` flex-row justify-center items-center ${background} ${isLink ? "p-0" : sizeStyles[size]} `,
           pressed && "opacity-80",
           disabled && "opacity-50",
         ),
