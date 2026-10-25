@@ -63,11 +63,11 @@ export default function Button({
     disabled && variant === "primary" ? "bg-gray-400" : variants[variant];
 
   const sizeStyles = {
-    "extra-small": "px-3 py-[6px]",
-    small: "px-4 py-[10px]",
-    medium: "px-6 py-4",
-    large: "px-12 py-8",
-    "extra-large": "px-16 py-12",
+    "extra-small": "px-3 py-[6px] rounded-xl",
+    small: "px-4 py-[10px] rounded-xl",
+    medium: "px-6 py-4 rounded-2xl",
+    large: "px-12 py-8 rounded-[28px]",
+    "extra-large": "px-16 py-12 rounded-[28px]",
   };
 
   const verticalSizeStyles = {

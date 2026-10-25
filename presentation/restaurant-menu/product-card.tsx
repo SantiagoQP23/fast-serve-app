@@ -14,6 +14,7 @@ import { Pressable, PressableProps } from "react-native";
 import Animated from "react-native-reanimated";
 import { useCountPop } from "@/presentation/shared/hooks/useCountPop";
 import Card from "../theme/components/card";
+import { typography } from "@/constants/theme";
 
 interface ProductCardProps extends PressableProps {
   product: Product;
@@ -29,8 +30,8 @@ interface ProductCardProps extends PressableProps {
 
 const STOCK_TEXT_COLOR = {
   ok: "text-gray-500",
-  low: "text-orange-700",
-  out: "text-red-700",
+  low: "text-gray-700",
+  out: "text-gray-700",
 };
 
 /** Ink count of units already in the cart; pops when it goes up. */
@@ -191,7 +192,11 @@ export default function ProductCard({
           {stock && (
             <ThemedText
               type="small"
-              style={tw`${STOCK_TEXT_COLOR[stock.level]}`}
+              style={[
+                tw`${STOCK_TEXT_COLOR[stock.level]}`,
+                // Low and out of stock read by weight, not by color.
+                stock.level !== "ok" && { fontFamily: typography.bold },
+              ]}
             >
               {stock.text}
             </ThemedText>
@@ -203,7 +208,7 @@ export default function ProductCard({
               size="small"
               color={
                 product.status === ProductStatus.OUT_OF_STOCK
-                  ? "error"
+                  ? "default"
                   : "warning"
               }
               text={t(`menu:product.status.${product.status}`)}

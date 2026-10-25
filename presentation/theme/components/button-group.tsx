@@ -37,7 +37,7 @@ export default function ButtonGroup({
 
   return (
     <View
-      style={tw`${isHorizontal ? "flex-row" : "flex-wrap"}    border border-primary`}
+      style={tw`${isHorizontal ? "flex-row" : "flex-wrap"}    border border-primary rounded-full`}
     >
       {options.map((option, index) => {
         const isActive = selected === option.value;
@@ -54,11 +54,8 @@ export default function ButtonGroup({
             accessibilityState={{ selected: isActive }}
             style={({ pressed }) =>
               tw.style(
-                isSmall ? "px-3 py-[8px]" : "flex-1 py-2",
-                hasSeparator &&
-                  (isHorizontal
-                    ? "border-l border-primary"
-                    : "border-t border-primary"),
+                "rounded-full",
+                isSmall ? "px-3 py-[8px] " : "flex-1 py-2",
                 showIcon && "flex-row items-center justify-center gap-2",
                 isActive ? "bg-surface-high" : "bg-transparent",
                 pressed && "opacity-80",

@@ -8,7 +8,6 @@ import TextInput from "@/presentation/theme/components/text-input";
 import Button from "@/presentation/theme/components/button";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Label from "@/presentation/theme/components/label";
-import OptionRow from "@/presentation/theme/components/option-row";
 import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { useMenuCart } from "@/presentation/restaurant-menu/hooks/useMenuCart";
@@ -47,20 +46,16 @@ import { Pressable, useWindowDimensions, View } from "react-native";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
 import Chip from "@/presentation/theme/components/chip";
+import Card from "@/presentation/theme/components/card";
+import { typography } from "@/constants/theme";
 
-const STOCK_LABEL_COLOR: Record<
-  ProductOptionStockLevel,
-  "default" | "warning" | "error"
-> = {
-  ok: "default",
-  low: "warning",
-  out: "error",
-};
+const MIN_QUANTITY = 1;
+const MAX_QUANTITY = 20;
 
 const STOCK_TEXT_COLOR: Record<ProductOptionStockLevel, string> = {
   ok: "text-gray-500",
-  low: "text-orange-700",
-  out: "text-red-700",
+  low: "text-gray-700",
+  out: "text-gray-700",
 };
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -99,13 +94,29 @@ export default function ProductScreen() {
   const saleLines = useEditSaleStore((state) => state.lines);
   const replacingDetail = useReplaceOrderDetailStore((state) => state.detail);
   const resetReplace = useReplaceOrderDetailStore((state) => state.reset);
-  const { counter, increment, decrement } = useCounter(
+  const { counter, increment, decrement, setCounter } = useCounter(
     activeOrderDetail?.quantity ??
       (isReplaceMode ? replacingDetail?.quantity : undefined),
     1,
-    20,
-    1,
+    MAX_QUANTITY,
+    MIN_QUANTITY,
   );
+  // What's typed in the quantity field while editing it; null shows the
+  // quantity itself.
+  const [quantityDraft, setQuantityDraft] = useState<string | null>(null);
+
+  // Typed digits update the quantity right away, so adding while the
+  // keyboard is still open uses what's on screen.
+  const onChangeQuantityInput = (text: string) => {
+    const digits = text.replace(/\D/g, "");
+    setQuantityDraft(digits);
+    const parsed = parseInt(digits, 10);
+    if (Number.isNaN(parsed)) return;
+    setCounter(Math.min(MAX_QUANTITY, Math.max(MIN_QUANTITY, parsed)));
+  };
+
+  // Empty or out-of-range text snaps back to the quantity kept.
+  const clearQuantityDraft = () => setQuantityDraft(null);
   const { activeProduct } = useMenuStore();
   const [notes, setNotes] = useState(activeOrderDetail?.description || "");
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
@@ -264,7 +275,7 @@ export default function ProductScreen() {
   const isUnavailable = activeProduct.status !== ProductStatus.AVAILABLE;
 
   const statusLabelColor =
-    activeProduct.status === ProductStatus.OUT_OF_STOCK ? "error" : "warning";
+    activeProduct.status === ProductStatus.OUT_OF_STOCK ? "default" : "warning";
 
   const selectedStock = selectedOption ? getOptionStock(selectedOption) : null;
   const exceedsStock = !!selectedStock && counter > selectedStock.remaining;
@@ -378,10 +389,8 @@ export default function ProductScreen() {
         onDismiss={handleSheetDismissed}
       >
         <BottomSheetView style={tw`pb-6`}>
-          <ThemedView
-            style={tw`flex-row items-start gap-2 pl-4 pr-2 pt-2 pb-2 bg-transparent`}
-          >
-            <ThemedView style={tw`flex-1 gap-1 pt-1 bg-transparent`}>
+          <ThemedView style={tw`px-4 pt-2 pb-2 bg-transparent`}>
+            <ThemedView style={tw`gap-1 pt-1 bg-transparent`}>
               <ThemedText type="h3" accessibilityRole="header">
                 {activeProduct.name}
               </ThemedText>
@@ -394,11 +403,11 @@ export default function ProductScreen() {
                     {formatCurrency(selectedOption.price)}
                   </ThemedText>
                   {/* Products with variants show stock on each variant instead. */}
-                  {selectedStock && selectedStock.level !== "ok" && (
+                  {selectedStock && (
                     <Label
                       size="small"
                       leftIcon="package"
-                      color={STOCK_LABEL_COLOR[selectedStock.level]}
+                      color="default"
                       text={
                         selectedStock.level === "out"
                           ? t("menu:product.stock.out")
@@ -431,12 +440,6 @@ export default function ProductScreen() {
                 </Pressable>
               )}
             </ThemedView>
-            <IconButton
-              icon="x"
-              size={22}
-              onPress={goToMenu}
-              accessibilityLabel={t("common:actions.close")}
-            />
           </ThemedView>
 
           <BottomSheetScrollView
@@ -479,8 +482,9 @@ export default function ProductScreen() {
                           })
                       : null;
                     return (
-                      <Pressable
+                      <Card
                         key={option.id}
+                        variant="outline"
                         onPress={() => onChangeSelectedOption(option)}
                         accessibilityRole="radio"
                         accessibilityState={{ checked: isSelected }}
@@ -491,14 +495,11 @@ export default function ProductScreen() {
                         ]
                           .filter(Boolean)
                           .join(", ")}
-                        style={({ pressed }) => [
-                          tw`rounded-md px-4 py-3 gap-1 min-h-16 justify-center`,
+                        containerStyle={[
                           { width: "48.5%" },
-                          isSelected
-                            ? tw`bg-surface border border-primary`
-                            : tw`border border-primary`,
-                          pressed && tw`opacity-75`,
+                          isSelected && tw`bg-surface`,
                         ]}
+                        style={tw`px-4 py-3 gap-1 min-h-16 justify-center`}
                       >
                         <ThemedView
                           style={tw`flex-row items-center gap-2 bg-transparent`}
@@ -518,16 +519,22 @@ export default function ProductScreen() {
                           >
                             {formatCurrency(option.price)}
                           </ThemedText>
-                          {optionStock && optionStock.level !== "ok" && (
+                          {optionStock && (
                             <ThemedText
                               type="small"
-                              style={tw`${STOCK_TEXT_COLOR[optionStock.level]}`}
+                              style={[
+                                tw`${STOCK_TEXT_COLOR[optionStock.level]}`,
+                                // Low and out of stock read by weight, not by color.
+                                optionStock.level !== "ok" && {
+                                  fontFamily: typography.bold,
+                                },
+                              ]}
                             >
                               {stockText}
                             </ThemedText>
                           )}
                         </ThemedView>
-                      </Pressable>
+                      </Card>
                     );
                   })}
                 </ThemedView>
@@ -549,29 +556,26 @@ export default function ProductScreen() {
               </Section>
             )}
 
-            {/* Note chip and the line's settings read as one group. */}
-            <View style={tw`gap-2`}>
-              {!hasNote && (
-                <ThemedView style={tw`flex-row`}>
+            {/* The note and the line's settings read as one row of chips. */}
+            {(!hasNote || !isSaleEditMode || isAdmin) && (
+              <View style={tw`flex-row flex-wrap gap-2`}>
+                {!hasNote && (
                   <Chip
                     variant="assist"
                     label={t("menu:product.addNote")}
                     icon="file-text"
                     onPress={() => noteSheetRef.current?.present()}
                   />
-                </ThemedView>
-              )}
-
-              <View>
+                )}
                 {!isSaleEditMode && (
-                  <OptionRow
+                  <Chip
+                    variant="assist"
                     icon={
                       typeOrderDetail === OrderType.IN_PLACE
                         ? "utensils"
                         : "shopping-bag"
                     }
-                    label={t("menu:product.serve")}
-                    value={
+                    label={
                       typeOrderDetail === OrderType.IN_PLACE
                         ? t("common:orderType.inPlace")
                         : t("common:orderType.takeAway")
@@ -580,61 +584,78 @@ export default function ProductScreen() {
                   />
                 )}
                 {isAdmin && (
-                  <OptionRow
+                  <Chip
+                    variant="assist"
                     icon="circle-dollar-sign"
-                    label={t("menu:product.price")}
-                    value={formatCurrency(effectivePrice)}
+                    label={formatCurrency(effectivePrice)}
                     onPress={() => customPriceSheetRef.current?.present()}
                   />
                 )}
               </View>
-            </View>
+            )}
           </BottomSheetScrollView>
 
-          <ThemedView style={tw`px-4 pt-3 gap-2 `}>
-            <ThemedView style={tw`flex-row items-center gap-3`}>
-              <ThemedView style={tw`flex-row items-center gap-1`}>
-                <IconButton
-                  icon="minus"
-                  onPress={decrement}
-                  variant="surface"
-                  size={22}
-                  disabled={counter <= 1}
-                  accessibilityLabel={t("menu:product.decrease")}
-                />
-                <ThemedText
-                  type="h4"
-                  style={tw`min-w-8 text-center`}
-                  accessibilityLiveRegion="polite"
-                  accessibilityLabel={t("menu:product.quantityValue", {
-                    count: counter,
-                  })}
-                >
-                  {counter}
-                </ThemedText>
-                <IconButton
-                  icon="plus"
-                  onPress={increment}
-                  variant="surface"
-                  size={22}
-                  disabled={atStockLimit}
-                  accessibilityLabel={t("menu:product.increase")}
-                />
-              </ThemedView>
-              <Button
-                style={tw`flex-1`}
-                label={`${addLabel} · ${formatCurrency(counter * effectivePrice)}`}
-                onPress={onAddProduct}
-                loading={isReplacing}
-                disabled={
-                  isUnavailable ||
-                  blockedByStock ||
-                  isReplacing ||
-                  requiresOptionSelection ||
-                  (!selectedOption && !isReplaceMode)
-                }
+          <ThemedView style={tw`px-4 pt-3 gap-3`}>
+            <ThemedView style={tw`flex-row items-center justify-center gap-3`}>
+              <IconButton
+                icon="minus"
+                onPress={() => {
+                  clearQuantityDraft();
+                  decrement();
+                }}
+                variant="surface"
+                size={28}
+                style={tw`p-4`}
+                disabled={counter <= 1}
+                accessibilityLabel={t("menu:product.decrease")}
+              />
+              <TextInput
+                variant="filled"
+                inputMode="numeric"
+                keyboardType="number-pad"
+                returnKeyType="done"
+                maxLength={2}
+                selectTextOnFocus
+                bottomSheet
+                value={quantityDraft ?? String(counter)}
+                onChangeText={onChangeQuantityInput}
+                onBlur={clearQuantityDraft}
+                onSubmitEditing={clearQuantityDraft}
+                accessibilityLabel={t("menu:product.quantityValue", {
+                  count: counter,
+                })}
+                containerStyle={tw`w-20 px-1 min-h-15`}
+                style={[
+                  tw`h-15 mt-0 text-center`,
+                  { fontSize: 24, fontFamily: typography.bold },
+                ]}
+              />
+              <IconButton
+                icon="plus"
+                onPress={() => {
+                  clearQuantityDraft();
+                  increment();
+                }}
+                variant="surface"
+                size={28}
+                style={tw`p-4`}
+                disabled={atStockLimit}
+                accessibilityLabel={t("menu:product.increase")}
               />
             </ThemedView>
+
+            <Button
+              label={`${addLabel} · ${formatCurrency(counter * effectivePrice)}`}
+              onPress={onAddProduct}
+              loading={isReplacing}
+              disabled={
+                isUnavailable ||
+                blockedByStock ||
+                isReplacing ||
+                requiresOptionSelection ||
+                (!selectedOption && !isReplaceMode)
+              }
+            />
 
             {exceedsStock && (
               <ThemedView style={tw`flex-row items-center gap-1.5`}>
