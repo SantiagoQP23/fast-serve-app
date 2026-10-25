@@ -33,13 +33,11 @@ import { formatCurrency } from "@/core/i18n/utils";
 import {
   getProductOptionAvailableQuantity,
   getProductOptionStockLevel,
+  getVariantStockMode,
   type ProductOption,
 } from "@/core/menu/models/product-optionl.model";
 import { getProductDefaultOption } from "@/core/menu/models/product.model";
 import { typography } from "@/constants/theme";
-import { getWholeProductLine } from "@/core/inventory/models/inventory-recipe.model";
-import OptionInventorySection from "@/presentation/inventory/components/option-inventory-section";
-import WholeProductInventoryModal from "@/presentation/inventory/components/whole-product-inventory-modal";
 import ProductTagsSection from "@/presentation/menu-management/components/product-tags-section";
 
 const STOCK_TEXT_COLOR = {
@@ -48,22 +46,36 @@ const STOCK_TEXT_COLOR = {
   out: "text-red-700",
 };
 
-// Units still deliverable for a variant linked to inventory; renders nothing
-// for a variant that doesn't track stock.
+// The variant's stock: own units, what its recipe covers, or not tracked.
 function OptionStockLeft({ option }: { option: ProductOption }) {
-  const { t } = useTranslation("menu");
+  const { t } = useTranslation("inventory");
+  const mode = getVariantStockMode(option);
   const available = getProductOptionAvailableQuantity(option);
   const level = getProductOptionStockLevel(option, available);
-  if (!level) return null;
+
+  if (mode === "none")
+    return (
+      <ThemedText type="small" style={tw`text-gray-500`}>
+        {t("variant.notTracked")}
+      </ThemedText>
+    );
 
   return (
-    <ThemedText type="small" style={tw`${STOCK_TEXT_COLOR[level]}`}>
+    <ThemedText type="small" style={tw`${STOCK_TEXT_COLOR[level ?? "ok"]}`}>
       {level === "out"
-        ? t("product.stock.out")
-        : t("product.stock.left", { count: available ?? 0 })}
+        ? t("variant.outOfStock")
+        : mode === "own"
+          ? t("variant.inStock", { count: available ?? 0 })
+          : t("variant.coversShort", { count: available ?? 0 })}
     </ThemedText>
   );
 }
+
+const openVariant = (option: ProductOption) =>
+  router.push({
+    pathname: "/(profile)/menu/products/variant",
+    params: { productOptionId: String(option.id) },
+  });
 
 interface MenuProductDetailViewProps {
   productId: string;
@@ -115,8 +127,6 @@ export default function MenuProductDetailView({
     null,
   );
   const optionActionsSheetRef = useRef<BottomSheetMethods>(null);
-  const [optionToSwitchToWholeProduct, setOptionToSwitchToWholeProduct] =
-    useState<ProductOption | null>(null);
   const editOptionSheetRef = useRef<BottomSheetMethods>(null);
   const [editOptionName, setEditOptionName] = useState("");
   const [editOptionPrice, setEditOptionPrice] = useState("");
@@ -126,6 +136,12 @@ export default function MenuProductDetailView({
   );
 
   const product = products.find((p) => p.id === productId);
+  // A product without variants shows its stock right here.
+  const activeOptions = product?.options.filter((o) => o.isActive) ?? [];
+  const singleOption =
+    product && !product.hasVariants && activeOptions.length === 1
+      ? activeOptions[0]
+      : null;
 
   const categoryOptions = categories.map((category) => ({
     label: category.name,
@@ -298,58 +314,10 @@ export default function MenuProductDetailView({
     );
   };
 
-  const navigateToOptionInventory = (option: ProductOption) => {
-    if (!product) return;
-    router.push({
-      pathname: "/(profile)/menu/products/option-inventory",
-      params: {
-        productOptionId: String(option.id),
-        productOptionName: option.name,
-        productName: product.name,
-      },
-    });
-  };
-
-  const handleOpenInventoryConfig = () => {
+  const handleOpenVariantFromActions = () => {
     if (!selectedOption) return;
     closeOptionActions();
-    navigateToOptionInventory(selectedOption);
-  };
-
-  const handleOpenOptionInventoryItem = () => {
-    if (!selectedOption) return;
-    // Lines delivered by sync events carry only the nested item, not its id.
-    const wholeProductLine = getWholeProductLine(selectedOption.inventoryItems);
-    const itemId =
-      wholeProductLine?.inventoryItem?.id ?? wholeProductLine?.inventoryItemId;
-    closeOptionActions();
-    if (!itemId) {
-      navigateToOptionInventory(selectedOption);
-      return;
-    }
-    router.push({
-      pathname: "/(profile)/inventory/items/detail",
-      params: { itemId },
-    });
-  };
-
-  const handleSwitchInventoryMode = () => {
-    if (!product || !selectedOption) return;
-    closeOptionActions();
-
-    if (!getWholeProductLine(selectedOption.inventoryItems)) {
-      setOptionToSwitchToWholeProduct(selectedOption);
-      return;
-    }
-    // The recipe opens with the current inventory item as its first ingredient.
-    router.push({
-      pathname: "/(profile)/menu/products/option-recipe",
-      params: {
-        productOptionId: String(selectedOption.id),
-        productOptionName: selectedOption.name,
-        productName: product.name,
-      },
-    });
+    openVariant(selectedOption);
   };
 
   const handleRequestDeleteOption = () => {
@@ -488,6 +456,33 @@ export default function MenuProductDetailView({
             </Card>
           ) : null}
 
+          {singleOption && (
+            <ThemedView style={tw`gap-3 mt-4`}>
+              <ThemedText type="caption">
+                {t("products.stock.title")}
+              </ThemedText>
+              <Card onPress={() => openVariant(singleOption)} variant="outline">
+                <ThemedView
+                  style={tw`flex-row items-center gap-3 bg-transparent`}
+                >
+                  <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+                    <ThemedText type="body1" style={tw`font-semibold`}>
+                      {t(
+                        `inventory:variant.mode.${getVariantStockMode(singleOption)}.label`,
+                      )}
+                    </ThemedText>
+                    <OptionStockLeft option={singleOption} />
+                  </ThemedView>
+                  <Icon
+                    name="chevron-right"
+                    size={18}
+                    color={tw.color("gray-400")}
+                  />
+                </ThemedView>
+              </Card>
+            </ThemedView>
+          )}
+
           {(canManage || product.options.length > 0) && (
             <ThemedView style={tw`gap-3 mt-4`}>
               <ThemedText type="caption">
@@ -516,11 +511,7 @@ export default function MenuProductDetailView({
                     <Card
                       key={option.id ?? index}
                       containerStyle={!option.isActive && tw`opacity-50`}
-                      onPress={
-                        canManage
-                          ? () => handleOpenOptionActions(option)
-                          : undefined
-                      }
+                      onPress={() => openVariant(option)}
                       variant="outline"
                     >
                       <ThemedView
@@ -539,6 +530,14 @@ export default function MenuProductDetailView({
                           </ThemedText>
                           <OptionStockLeft option={option} />
                         </ThemedView>
+                        {canManage && (
+                          <IconButton
+                            icon="ellipsis-vertical"
+                            size={18}
+                            onPress={() => handleOpenOptionActions(option)}
+                            accessibilityLabel={t("products.variants.actions")}
+                          />
+                        )}
                         {option.isDefault ? (
                           <Icon
                             name="star"
@@ -728,20 +727,12 @@ export default function MenuProductDetailView({
                 variant="surface"
               />
             </ThemedView>
-            {(selectedOption.inventoryItems?.length ?? 0) > 0 ? (
-              <OptionInventorySection
-                option={selectedOption}
-                onOpen={handleOpenOptionInventoryItem}
-                onSwitchMode={handleSwitchInventoryMode}
-              />
-            ) : (
-              <Button
-                label={t("products.variants.configureInventory")}
-                leftIcon="package"
-                variant="outline"
-                onPress={handleOpenInventoryConfig}
-              />
-            )}
+            <Button
+              label={t("products.variants.openStock")}
+              leftIcon="package"
+              variant="outline"
+              onPress={handleOpenVariantFromActions}
+            />
             <ThemedView style={tw`flex-row gap-4 items-center justify-center`}>
               <Button
                 leftIcon="trash"
@@ -801,19 +792,6 @@ export default function MenuProductDetailView({
           </ThemedView>
         </BottomSheetView>
       </ThemedBottomSheetModal>
-
-      <WholeProductInventoryModal
-        visible={!!optionToSwitchToWholeProduct}
-        productOptionId={optionToSwitchToWholeProduct?.id ?? 0}
-        productName={product.name}
-        productOptionName={
-          product.options.length === 1
-            ? undefined
-            : optionToSwitchToWholeProduct?.name
-        }
-        replaceExisting
-        onClose={() => setOptionToSwitchToWholeProduct(null)}
-      />
 
       <DialogModal
         visible={!!optionToDelete}

@@ -53,12 +53,8 @@ export default function LinkedProductsList({
           keyExtractor={(line) => line.id}
           onItemPress={(line) =>
             router.push({
-              pathname: "/(profile)/inventory/recipes/detail",
-              params: {
-                productOptionId: String(line.productOptionId),
-                productOptionName: line.productOption?.name ?? "",
-                productName: line.productOption?.product?.name ?? "",
-              },
+              pathname: "/(profile)/menu/products/variant",
+              params: { productOptionId: String(line.productOptionId) },
             })
           }
           renderItem={(line) => {

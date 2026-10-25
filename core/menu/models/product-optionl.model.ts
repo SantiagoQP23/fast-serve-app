@@ -1,4 +1,7 @@
-import type { ProductOptionInventoryItem } from "@/core/inventory/models/inventory-recipe.model";
+import {
+  getOwnStockLine,
+  type ProductOptionInventoryItem,
+} from "@/core/inventory/models/inventory-recipe.model";
 
 export interface ProductOption {
   id: number;
@@ -56,4 +59,38 @@ export function getProductOptionStockLevel(
   );
 
   return isLow ? "low" : "ok";
+}
+
+export type VariantStockMode = "own" | "recipe" | "none";
+
+/**
+ * How a variant tracks stock: its own units (one 1-unit line to a PRODUCT
+ * item), a recipe of insumos, or not at all.
+ */
+export function getVariantStockMode(option: ProductOption): VariantStockMode {
+  const lines = option.inventoryItems ?? [];
+  if (!lines.length) return "none";
+  return getOwnStockLine(lines) ? "own" : "recipe";
+}
+
+/**
+ * The recipe line that runs out first (fewest units it can cover), for
+ * "Alcanza para N" explanations. Null without a recipe.
+ */
+export function getLimitingRecipeLine(
+  option: ProductOption,
+): ProductOptionInventoryItem | null {
+  let limiting: ProductOptionInventoryItem | null = null;
+  let fewest = Infinity;
+  for (const line of option.inventoryItems ?? []) {
+    const covers =
+      line.inventoryItem && line.quantity > 0
+        ? Math.floor(line.inventoryItem.quantity / line.quantity)
+        : 0;
+    if (covers < fewest) {
+      fewest = covers;
+      limiting = line;
+    }
+  }
+  return limiting;
 }

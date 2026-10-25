@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
+import {
+  InventoryItemKind,
+  type InventoryItem,
+} from "@/core/inventory/models/inventory-item.model";
 import { InventoryService } from "../services/inventory.service";
 import { inventoryItemsQueryKey } from "./useInventoryItems";
 import type { InventoryItemStockStatusFilter } from "../interfaces/dto/find-all-inventory-items.dto";
@@ -64,6 +67,8 @@ export const useInventoryItemsBrowser = (
         uncategorized: uncategorized ?? undefined,
         status: status ?? undefined,
         search: search || undefined,
+        // Insumos only; variant stock lives on the variant screen.
+        kind: InventoryItemKind.INGREDIENT,
         limit: PAGE_SIZE,
         offset: page * PAGE_SIZE,
       }),

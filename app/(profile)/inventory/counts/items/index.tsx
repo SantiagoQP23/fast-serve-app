@@ -14,6 +14,7 @@ import Chip from "@/presentation/theme/components/chip";
 import Label from "@/presentation/theme/components/label";
 import TextInput from "@/presentation/theme/components/text-input";
 import InventoryScreenHeader from "@/presentation/inventory/components/screen-header";
+import { isProductStockItem } from "@/core/inventory/models/inventory-item.model";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 import { useInventoryItemCategories } from "@/presentation/inventory/hooks/useInventoryItemCategories";
 import {
@@ -23,6 +24,8 @@ import {
 
 /** Chip id for the items that have no category. */
 const NO_CATEGORY = "__no_category__";
+/** Chip id for the menu variants' own stock (not insumos). */
+const MENU_PRODUCTS = "__menu_products__";
 
 /**
  * Picks the items to count. Without `countId` it starts a new count; with
@@ -42,9 +45,18 @@ export default function MenuInventoryCountItemsScreen() {
   // No "All" chip: until the user picks one, the first category is active.
   // Items without a category get their own chip (NO_CATEGORY) so browsing
   // reaches them too, not only search.
-  const categoryId = pickedCategoryId ?? categories[0]?.id ?? null;
+  const hasProductStock = useMemo(
+    () => items.some((item) => item.isActive && isProductStockItem(item)),
+    [items],
+  );
+  const categoryId =
+    pickedCategoryId ??
+    (hasProductStock ? MENU_PRODUCTS : (categories[0]?.id ?? null));
   const hasUncategorized = useMemo(
-    () => items.some((item) => item.isActive && !item.category),
+    () =>
+      items.some(
+        (item) => item.isActive && !isProductStockItem(item) && !item.category,
+      ),
     [items],
   );
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -64,9 +76,12 @@ export default function MenuInventoryCountItemsScreen() {
         item.isActive &&
         (!!term ||
           !categoryId ||
-          (categoryId === NO_CATEGORY
-            ? !item.category
-            : item.category?.id === categoryId)) &&
+          (categoryId === MENU_PRODUCTS
+            ? isProductStockItem(item)
+            : !isProductStockItem(item) &&
+              (categoryId === NO_CATEGORY
+                ? !item.category
+                : item.category?.id === categoryId))) &&
         (!term || item.name.toLowerCase().includes(term)),
     );
   }, [items, search, categoryId]);
@@ -128,12 +143,20 @@ export default function MenuInventoryCountItemsScreen() {
           returnKeyType="search"
         />
 
-        {categories.length > 0 && (
+        {(categories.length > 0 || hasProductStock) && (
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={tw`gap-2 items-center`}
           >
+            {hasProductStock && (
+              <Chip
+                label={t("variant.menuProducts")}
+                icon="hamburger"
+                selected={categoryId === MENU_PRODUCTS}
+                onPress={() => setCategoryId(MENU_PRODUCTS)}
+              />
+            )}
             {categories.map((category) => (
               <Chip
                 key={category.id}

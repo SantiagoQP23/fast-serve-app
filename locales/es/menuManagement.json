@@ -31,6 +31,11 @@
       "nameMinLength": "Cada nombre debe tener al menos 2 caracteres",
       "nameMaxLength": "Cada nombre debe tener máximo 60 caracteres",
       "alreadyExists": "Ya existe: {{names}}"
+    },
+    "stock": {
+      "out": "Agotados",
+      "low": "Stock bajo",
+      "products": "Productos"
     }
   },
   "sections": {
@@ -198,12 +203,17 @@
         "title": "Copiar variantes",
         "empty": "Aún no hay productos con dos o más variantes.",
         "andMore": "{{names}} y {{count}} más"
-      }
+      },
+      "actions": "Opciones de la variante",
+      "openStock": "Ver stock y receta"
     },
     "saveAndAddAnother": "Guardar y crear otro",
     "createdList": "Creados: {{names}}",
     "moveAreaPartialError_one": "No se pudo mover {{count}} producto",
-    "moveAreaPartialError_other": "No se pudieron mover {{count}} productos"
+    "moveAreaPartialError_other": "No se pudieron mover {{count}} productos",
+    "stock": {
+      "title": "Stock"
+    }
   },
   "loading": "Cargando...",
   "loadError": "Error al cargar el menú",

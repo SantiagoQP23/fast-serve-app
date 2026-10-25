@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { InventoryItemKind } from "@/core/inventory/models/inventory-item.model";
 import { InventoryService } from "../services/inventory.service";
 import { inventoryItemsQueryKey } from "./useInventoryItems";
 
@@ -19,7 +20,11 @@ export const useInventoryItemsSearch = (debounceMs = SEARCH_DEBOUNCE_MS) => {
 
   const itemsQuery = useQuery({
     queryKey: [...inventoryItemsQueryKey, "search", debouncedSearch],
-    queryFn: () => InventoryService.getAll({ search: debouncedSearch }),
+    queryFn: () =>
+      InventoryService.getAll({
+        search: debouncedSearch,
+        kind: InventoryItemKind.INGREDIENT,
+      }),
     enabled: !!debouncedSearch,
   });
 

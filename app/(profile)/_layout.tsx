@@ -211,14 +211,14 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
-          name="menu/products/option-inventory/index"
+          name="menu/products/option-recipe/index"
           options={{
             headerShown: false,
           }}
         />
 
         <Stack.Screen
-          name="menu/products/option-recipe/index"
+          name="menu/products/variant/index"
           options={{
             headerShown: false,
           }}
@@ -233,13 +233,6 @@ export default function OrdersLayout() {
 
         <Stack.Screen
           name="inventory/items/new-product/index"
-          options={{
-            headerShown: false,
-          }}
-        />
-
-        <Stack.Screen
-          name="inventory/items/new-option/index"
           options={{
             headerShown: false,
           }}
@@ -338,13 +331,6 @@ export default function OrdersLayout() {
 
         <Stack.Screen
           name="inventory/counts/detail/index"
-          options={{
-            headerShown: false,
-          }}
-        />
-
-        <Stack.Screen
-          name="inventory/recipes/detail/index"
           options={{
             headerShown: false,
           }}

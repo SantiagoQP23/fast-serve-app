@@ -11,39 +11,33 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import TextInput from "@/presentation/theme/components/text-input";
 import Chip from "@/presentation/theme/components/chip";
 import Button from "@/presentation/theme/components/button";
-import ProductCard from "@/presentation/restaurant-menu/product-card";
 import LinkProductRow from "@/presentation/inventory/components/link-product-row";
 import { useInventoryItemDetail } from "@/presentation/inventory/hooks/useInventoryItemDetail";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
 import { useProductSearch } from "@/presentation/restaurant-menu/hooks/useProductSearch";
-import type { Product } from "@/core/menu/models/product.model";
 
 export default function NewInventoryItemSelectProductScreen() {
   const { t } = useTranslation("inventory");
   const params = useLocalSearchParams<{
-    mode?: string;
     inventoryItemId?: string;
     itemName?: string;
     unit?: string;
   }>();
-  const { categories: allCategories, products: allProducts, menuQuery } =
-    useMenu();
+  const {
+    categories: allCategories,
+    products: allProducts,
+    menuQuery,
+  } = useMenu();
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [isLoadingMenu, setIsLoadingMenu] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Linking from an item picks several variants at once; "track" (from the
-  // menu side) still opens one variant per tap.
-  const isMultiSelect = params.mode !== "track" && !!params.inventoryItemId;
-  const { item } = useInventoryItemDetail(
-    isMultiSelect ? (params.inventoryItemId ?? "") : "",
-  );
+  // Picks the variants whose recipe will use this insumo.
+  const { item } = useInventoryItemDetail(params.inventoryItemId ?? "");
   const linkedIds = useMemo(
     () =>
-      new Set(
-        (item?.productOptions ?? []).map((line) => line.productOptionId),
-      ),
+      new Set((item?.productOptions ?? []).map((line) => line.productOptionId)),
     [item],
   );
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -117,32 +111,6 @@ export default function NewInventoryItemSelectProductScreen() {
     });
   };
 
-  const handleSelectProduct = (product: Product) => {
-    const activeOptions = product.options.filter((option) => option.isActive);
-
-    if (activeOptions.length === 1) {
-      const option = activeOptions[0];
-
-      router.push({
-        pathname: "/(profile)/menu/products/option-inventory",
-        params: {
-          productOptionId: String(option.id),
-          productOptionName: option.name,
-          productName: product.name,
-        },
-      });
-      return;
-    }
-
-    router.push({
-      pathname: "/(profile)/inventory/items/new-option",
-      params: {
-        productId: product.id,
-        productName: product.name,
-      },
-    });
-  };
-
   return (
     <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
       <ThemedView style={tw`items-center gap-4 flex-row mb-6`}>
@@ -159,9 +127,7 @@ export default function NewInventoryItemSelectProductScreen() {
           style={{ fontFamily: typography.regular }}
           numberOfLines={1}
         >
-          {isMultiSelect
-            ? t("linkedItem.selectProductsTitle")
-            : t("linkedItem.selectProductTitle")}
+          {t("linkedItem.selectProductsTitle")}
         </ThemedText>
       </ThemedView>
 
@@ -236,22 +202,20 @@ export default function NewInventoryItemSelectProductScreen() {
             </ThemedView>
           )}
 
-          {!isLoadingMenu &&
-            !menuQuery.isError &&
-            products.length === 0 && (
-              <ThemedView style={tw`items-center py-8 gap-3`}>
-                <Icon name="hamburger" size={48} color={tw.color("gray-400")} />
-                <ThemedText type="body1" style={tw`font-semibold`}>
-                  {t("linkedItem.noProducts")}
-                </ThemedText>
-                <ThemedText
-                  type="body2"
-                  style={tw`text-center text-gray-500 px-4`}
-                >
-                  {t("linkedItem.noProductsDescription")}
-                </ThemedText>
-              </ThemedView>
-            )}
+          {!isLoadingMenu && !menuQuery.isError && products.length === 0 && (
+            <ThemedView style={tw`items-center py-8 gap-3`}>
+              <Icon name="hamburger" size={48} color={tw.color("gray-400")} />
+              <ThemedText type="body1" style={tw`font-semibold`}>
+                {t("linkedItem.noProducts")}
+              </ThemedText>
+              <ThemedText
+                type="body2"
+                style={tw`text-center text-gray-500 px-4`}
+              >
+                {t("linkedItem.noProductsDescription")}
+              </ThemedText>
+            </ThemedView>
+          )}
 
           {products.length > 0 && filteredProducts.length === 0 && (
             <ThemedView style={tw`items-center py-8 gap-3`}>
@@ -262,29 +226,21 @@ export default function NewInventoryItemSelectProductScreen() {
             </ThemedView>
           )}
 
-          {filteredProducts.map((product) =>
-            isMultiSelect ? (
-              <LinkProductRow
-                key={product.id}
-                product={product}
-                options={product.options.filter((option) => option.isActive)}
-                selectedIds={selectedIds}
-                linkedIds={linkedIds}
-                expanded={expandedIds.has(product.id)}
-                onToggleExpanded={() => handleToggleExpanded(product.id)}
-                onToggleOptions={handleToggleOptions}
-              />
-            ) : (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onPress={() => handleSelectProduct(product)}
-              />
-            ),
-          )}
+          {filteredProducts.map((product) => (
+            <LinkProductRow
+              key={product.id}
+              product={product}
+              options={product.options.filter((option) => option.isActive)}
+              selectedIds={selectedIds}
+              linkedIds={linkedIds}
+              expanded={expandedIds.has(product.id)}
+              onToggleExpanded={() => handleToggleExpanded(product.id)}
+              onToggleOptions={handleToggleOptions}
+            />
+          ))}
         </ScrollView>
 
-        {isMultiSelect && selectedIds.size > 0 && (
+        {selectedIds.size > 0 && (
           <ThemedView style={tw`pt-2 pb-6`}>
             <Button
               label={t("linkedItem.continueCount", { count: selectedIds.size })}

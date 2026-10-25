@@ -1,11 +1,6 @@
-import { useRef } from "react";
 import { ScrollView, Pressable } from "react-native";
 import { router } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
-import {
-  BottomSheetMethods,
-  BottomSheetView,
-} from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -14,8 +9,6 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import TextInput from "@/presentation/theme/components/text-input";
 import Button from "@/presentation/theme/components/button";
-import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
-import AddToInventoryOptions from "@/presentation/inventory/components/add-to-inventory-options";
 import { useInventoryItemsSearch } from "@/presentation/inventory/hooks/useInventoryItemsSearch";
 import InventoryItemCard from "@/presentation/inventory/components/inventory-item-card";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
@@ -24,7 +17,6 @@ export default function MenuInventorySearchScreen() {
   const { t } = useTranslation("inventory");
   const { search, handleChangeSearch, hasSearchTerm, items, itemsQuery } =
     useInventoryItemsSearch();
-  const addSheetRef = useRef<BottomSheetMethods>(null);
 
   const handleSelectItem = (item: InventoryItem) => {
     router.push({
@@ -33,21 +25,8 @@ export default function MenuInventorySearchScreen() {
     });
   };
 
-  const handleOpenAddSheet = () => {
-    addSheetRef.current?.present();
-  };
-
-  const handleTrackMenuProduct = () => {
-    addSheetRef.current?.dismiss();
-    router.push({
-      pathname: "/(profile)/inventory/items/new-product",
-      params: { mode: "track" },
-    });
-  };
-
   // From a search with no match, the form starts with what was typed
   const handleCreateItem = () => {
-    addSheetRef.current?.dismiss();
     router.push({
       pathname: "/(profile)/inventory/items/form",
       params: search.trim() ? { name: search.trim() } : {},
@@ -133,7 +112,7 @@ export default function MenuInventorySearchScreen() {
                 label={t("createItem")}
                 leftIcon="plus"
                 size="small"
-                onPress={handleOpenAddSheet}
+                onPress={handleCreateItem}
                 style={tw`mt-2`}
               />
             </ThemedView>
@@ -151,15 +130,6 @@ export default function MenuInventorySearchScreen() {
           />
         ))}
       </ScrollView>
-
-      <ThemedBottomSheetModal ref={addSheetRef} enablePanDownToClose>
-        <BottomSheetView style={tw`px-4 pb-6`}>
-          <AddToInventoryOptions
-            onTrackMenuProduct={handleTrackMenuProduct}
-            onCreateItem={handleCreateItem}
-          />
-        </BottomSheetView>
-      </ThemedBottomSheetModal>
     </ScreenLayout>
   );
 }

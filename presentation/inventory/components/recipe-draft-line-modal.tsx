@@ -18,6 +18,7 @@ import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryIt
 import { useInventoryItemCategories } from "@/presentation/inventory/hooks/useInventoryItemCategories";
 import {
   InventoryUnit,
+  isProductStockItem,
   type InventoryItem,
 } from "@/core/inventory/models/inventory-item.model";
 import CreateCategoryModal from "@/presentation/inventory/components/create-category-modal";
@@ -197,9 +198,25 @@ function AddIngredientForm({
     useState(false);
 
   const excludedIds = new Set(excludeInventoryItemIds ?? []);
+  // Insumos by category, then the menu variants' own stock (a combo can use
+  // a Coca-Cola's stock).
   const itemOptions = items
     .filter((item) => item.isActive && !excludedIds.has(item.id))
-    .map((item) => ({ label: item.name, value: item.id }));
+    .map((item) => ({
+      label: item.name,
+      value: item.id,
+      isProduct: isProductStockItem(item),
+      group: isProductStockItem(item)
+        ? t("variant.menuProducts")
+        : (item.category?.name ?? t("categories.uncategorized")),
+    }))
+    .sort(
+      (a, b) =>
+        Number(a.isProduct) - Number(b.isProduct) ||
+        a.group.localeCompare(b.group) ||
+        a.label.localeCompare(b.label),
+    )
+    .map(({ isProduct: _isProduct, ...option }) => option);
 
   const categoryOptions = categories.map((category) => ({
     label: category.name,

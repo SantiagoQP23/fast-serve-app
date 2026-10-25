@@ -9,11 +9,23 @@ export enum InventoryUnit {
   ML = "ML",
 }
 
+/**
+ * INGREDIENT: an insumo (ingredient or supply not sold as is).
+ * PRODUCT: the own stock of a menu variant (a Coca-Cola); shown on the
+ * variant, not in the insumos list.
+ */
+export enum InventoryItemKind {
+  INGREDIENT = "INGREDIENT",
+  PRODUCT = "PRODUCT",
+}
+
 export interface InventoryItem {
   id: string;
   name: string;
   unit: InventoryUnit;
   quantity: number;
+  /** Missing on servers older than the Productos redesign: an insumo. */
+  kind?: InventoryItemKind;
   minimumQuantity?: number | null;
   isActive: boolean;
   category?: InventoryItemCategory | null;
@@ -95,4 +107,11 @@ export function getSuggestedPurchaseQuantity(item: InventoryItem): number {
  */
 export function isInventoryItemOutWithoutMinimum(item: InventoryItem): boolean {
   return item.isActive && item.quantity <= 0 && !hasMinimum(item);
+}
+
+/** Whether the item is a menu variant's own stock rather than an insumo. */
+export function isProductStockItem(
+  item: Pick<InventoryItem, "kind"> | null | undefined,
+): boolean {
+  return item?.kind === InventoryItemKind.PRODUCT;
 }
