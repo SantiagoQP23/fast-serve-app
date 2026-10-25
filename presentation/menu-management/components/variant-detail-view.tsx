@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RefreshControl, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -62,6 +62,8 @@ interface VariantDetailViewProps {
   /** Rendered as a pane (tablet): close button instead of back. */
   embedded?: boolean;
   onClose?: () => void;
+  /** Opens the stock mode sheet on arrival, e.g. from "Gestionar stock". */
+  openStockMode?: boolean;
 }
 
 /** Another variant that uses the same item, as "Producto · Variante". */
@@ -91,6 +93,7 @@ export default function VariantDetailView({
   productOptionId,
   embedded = false,
   onClose,
+  openStockMode = false,
 }: VariantDetailViewProps) {
   const { t } = useTranslation("inventory");
   const insets = useSafeAreaInsets();
@@ -120,6 +123,16 @@ export default function VariantDetailView({
     null,
   );
   const [confirmToIngredient, setConfirmToIngredient] = useState(false);
+
+  // Only once: closing the sheet shouldn't bring it back
+  const openedStockMode = useRef(false);
+  const hasOption = !!option;
+  useEffect(() => {
+    if (!openStockMode || !canManage || !hasOption || openedStockMode.current)
+      return;
+    openedStockMode.current = true;
+    modeSheetRef.current?.present();
+  }, [openStockMode, canManage, hasOption]);
   const [refreshing, setRefreshing] = useState(false);
 
   const Container = embedded ? ThemedView : ScreenLayout;
@@ -383,18 +396,36 @@ export default function VariantDetailView({
               </Card>
             )}
 
+            {/* Not tracked: one card that says so and leads to set it up */}
             {mode === "none" && (
               <Card>
-                <ThemedView style={tw`gap-1 bg-transparent`}>
-                  <ThemedText
-                    type="body1"
-                    style={{ fontFamily: typography.semibold }}
+                <ThemedView style={tw`gap-4 bg-transparent`}>
+                  <ThemedView
+                    style={tw`flex-row items-start gap-3 bg-transparent`}
                   >
-                    {t("variant.notTracked")}
-                  </ThemedText>
-                  <ThemedText type="small" style={tw`text-gray-500`}>
-                    {t("variant.notTrackedHint")}
-                  </ThemedText>
+                    <Icon
+                      name="package"
+                      size={22}
+                      color={tw.color("on-surface")}
+                    />
+                    <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+                      <ThemedText
+                        type="body1"
+                        style={{ fontFamily: typography.semibold }}
+                      >
+                        {t("variant.inventory.title")}
+                      </ThemedText>
+                      <ThemedText type="small" style={tw`text-gray-500`}>
+                        {t("variant.inventory.description")}
+                      </ThemedText>
+                    </ThemedView>
+                  </ThemedView>
+                  {canManage && (
+                    <Button
+                      label={t("variant.inventory.manage")}
+                      onPress={() => modeSheetRef.current?.present()}
+                    />
+                  )}
                 </ThemedView>
               </Card>
             )}
@@ -407,44 +438,47 @@ export default function VariantDetailView({
           </ThemedText>
         )}
 
-        {/* How the stock is tracked; changing it is the main setting here */}
-        <Card
-          onPress={
-            canManage ? () => modeSheetRef.current?.present() : undefined
-          }
-        >
-          <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
-            <Icon
-              name={
-                mode === "own"
-                  ? "hash"
-                  : mode === "recipe"
-                    ? "chef-hat"
-                    : "circle-off"
-              }
-              size={22}
-              color={tw.color("on-surface")}
-            />
-            <ThemedView style={tw`flex-1 gap-0.5 bg-transparent`}>
-              <ThemedText
-                type="body2"
-                style={{ fontFamily: typography.semibold }}
-              >
-                {t(`variant.mode.${mode}.label`)}
-              </ThemedText>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {t(`variant.mode.${mode}.short`)}
-              </ThemedText>
-            </ThemedView>
-            {canManage && (
+        {/* How the stock is tracked; changing it is the main setting here.
+            Not tracked, the inventory card above leads there instead. */}
+        {mode !== "none" && (
+          <Card
+            onPress={
+              canManage ? () => modeSheetRef.current?.present() : undefined
+            }
+          >
+            <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
               <Icon
-                name="chevron-right"
-                size={18}
-                color={tw.color("gray-400")}
+                name={
+                  mode === "own"
+                    ? "hash"
+                    : mode === "recipe"
+                      ? "chef-hat"
+                      : "circle-off"
+                }
+                size={22}
+                color={tw.color("on-surface")}
               />
-            )}
-          </ThemedView>
-        </Card>
+              <ThemedView style={tw`flex-1 gap-0.5 bg-transparent`}>
+                <ThemedText
+                  type="body2"
+                  style={{ fontFamily: typography.semibold }}
+                >
+                  {t(`variant.mode.${mode}.label`)}
+                </ThemedText>
+                <ThemedText type="small" style={tw`text-gray-500`}>
+                  {t(`variant.mode.${mode}.short`)}
+                </ThemedText>
+              </ThemedView>
+              {canManage && (
+                <Icon
+                  name="chevron-right"
+                  size={18}
+                  color={tw.color("gray-400")}
+                />
+              )}
+            </ThemedView>
+          </Card>
+        )}
 
         {sharedWith.length > 0 && (
           <ThemedText type="small" style={tw`text-gray-500 -mt-4`}>

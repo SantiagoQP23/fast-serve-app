@@ -65,15 +65,14 @@
     "INVENTORY_COUNT_INCREASE": "Count (surplus)",
     "INVENTORY_COUNT_DECREASE": "Count (shortage)"
   },
-  "summary": {
-    "critical": "Critical",
-    "criticalDescription": "Restock urgently",
-    "low": "Low",
-    "lowDescription": "Below minimum",
-    "optimal": "Optimal",
-    "optimalDescription": "No alerts",
-    "noMinimum_one": "{{count}} without a minimum",
-    "noMinimum_other": "{{count}} without a minimum"
+  "filter": {
+    "clear": "Clear filter",
+    "empty": {
+      "critical": "Nothing critical.",
+      "low": "Nothing low on stock.",
+      "optimal": "No supplies at their optimal level.",
+      "noMinimum": "Every supply has a minimum stock set."
+    }
   },
   "status": {
     "critical": "Critical",
@@ -487,13 +486,12 @@
     "coversShort_other": "Enough for {{count}}",
     "covers": "Enough for",
     "notTracked": "Stock not tracked",
-    "notTrackedHint": "Always available; sales don't deduct anything.",
-    "variantCount_one": "{{count}} variant",
-    "variantCount_other": "{{count}} variants",
-    "variantsOut_one": "{{count}} sold out",
-    "variantsOut_other": "{{count}} sold out",
-    "variantsLow_one": "{{count}} low",
-    "variantsLow_other": "{{count}} low",
+    "manageStock": "Manage stock",
+    "inventory": {
+      "title": "Inventory",
+      "description": "This variant doesn't track stock: it's always available and sales don't deduct anything.",
+      "manage": "Manage"
+    },
     "outOfStock": "Sold out",
     "missingIngredient": "Missing {{name}}: there is {{stock}}, each one uses {{used}}.",
     "limitingIngredient": "{{name}} runs out first: there is {{stock}}, each one uses {{used}}.",

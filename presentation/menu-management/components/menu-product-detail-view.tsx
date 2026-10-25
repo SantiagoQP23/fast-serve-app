@@ -15,7 +15,11 @@ import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuM
 import { openProductForm } from "@/presentation/menu-management/utils/open-product-form";
 import { useProductionAreas } from "@/presentation/production-areas/hooks/useProductionAreas";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { Roles, isValidRole } from "@/core/auth/models/user.model";
+import {
+  Roles,
+  canManageInventory,
+  isValidRole,
+} from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
@@ -40,41 +44,69 @@ import {
 import { typography } from "@/constants/theme";
 import ProductTagsSection from "@/presentation/menu-management/components/product-tags-section";
 
-const STOCK_TEXT_COLOR = {
-  ok: "text-gray-500",
-  low: "text-orange-700",
-  out: "text-red-700",
-};
-
-// The variant's stock: own units, what its recipe covers, or not tracked.
-function OptionStockLeft({ option }: { option: ProductOption }) {
+// The variant's stock as a label: own units or what its recipe covers. Not
+// tracked, it offers to set that up instead (for who can manage stock).
+function OptionStockLeft({
+  option,
+  canManageStock,
+}: {
+  option: ProductOption;
+  canManageStock: boolean;
+}) {
   const { t } = useTranslation("inventory");
   const mode = getVariantStockMode(option);
   const available = getProductOptionAvailableQuantity(option);
   const level = getProductOptionStockLevel(option, available);
 
   if (mode === "none")
-    return (
+    return canManageStock ? (
+      <ThemedView style={tw`flex-row bg-transparent`}>
+        <Button
+          label={t("variant.manageStock")}
+          leftIcon="package"
+          variant="outline"
+          size="extra-small"
+          onPress={() => openVariant(option, { openStockMode: true })}
+        />
+      </ThemedView>
+    ) : (
       <ThemedText type="small" style={tw`text-gray-500`}>
         {t("variant.notTracked")}
       </ThemedText>
     );
 
+  // Oversold (below zero) reads as none left
+  const quantity = Math.max(available ?? 0, 0);
   return (
-    <ThemedText type="small" style={tw`${STOCK_TEXT_COLOR[level ?? "ok"]}`}>
-      {level === "out"
-        ? t("variant.outOfStock")
-        : mode === "own"
-          ? t("variant.inStock", { count: available ?? 0 })
-          : t("variant.coversShort", { count: available ?? 0 })}
-    </ThemedText>
+    <ThemedView style={tw`flex-row bg-transparent`}>
+      {/* Just the number, like the menu list; spoken in full */}
+      <Label
+        text={String(quantity)}
+        leftIcon={mode === "own" ? "package" : "chef-hat"}
+        color={
+          level === "out" ? "error" : level === "low" ? "warning" : "default"
+        }
+        size="small"
+        accessibilityLabel={
+          mode === "own"
+            ? t("variant.inStock", { count: quantity })
+            : t("variant.coversShort", { count: quantity })
+        }
+      />
+    </ThemedView>
   );
 }
 
-const openVariant = (option: ProductOption) =>
+const openVariant = (
+  option: ProductOption,
+  { openStockMode = false }: { openStockMode?: boolean } = {},
+) =>
   router.push({
     pathname: "/(profile)/menu/products/variant",
-    params: { productOptionId: String(option.id) },
+    params: {
+      productOptionId: String(option.id),
+      ...(openStockMode ? { openStockMode: "true" } : {}),
+    },
   });
 
 interface MenuProductDetailViewProps {
@@ -114,6 +146,8 @@ export default function MenuProductDetailView({
   const productionAreas = productionAreasQuery.data ?? [];
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
+  // Same rule as the variant screen's stock mode setting
+  const canManageStock = canManageInventory(user?.role?.name);
   const [productDeleteVisible, setProductDeleteVisible] = useState(false);
   const categoryPickerRef = useRef<BottomSheetPickerRef>(null);
   const productionAreaPickerRef = useRef<BottomSheetPickerRef>(null);
@@ -455,7 +489,10 @@ export default function MenuProductDetailView({
                         `inventory:variant.mode.${getVariantStockMode(singleOption)}.label`,
                       )}
                     </ThemedText>
-                    <OptionStockLeft option={singleOption} />
+                    <OptionStockLeft
+                      option={singleOption}
+                      canManageStock={canManageStock}
+                    />
                   </ThemedView>
                   <Icon
                     name="chevron-right"
@@ -512,7 +549,13 @@ export default function MenuProductDetailView({
                           <ThemedText type="small" style={tw`text-gray-500`}>
                             {formatCurrency(option.price)}
                           </ThemedText>
-                          <OptionStockLeft option={option} />
+                          {/* Without variants, the Stock section above has it */}
+                          {!singleOption && (
+                            <OptionStockLeft
+                              option={option}
+                              canManageStock={canManageStock}
+                            />
+                          )}
                         </ThemedView>
                         {canManage && (
                           <IconButton

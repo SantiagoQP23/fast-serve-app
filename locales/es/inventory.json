@@ -65,15 +65,14 @@
     "INVENTORY_COUNT_INCREASE": "Conteo (sobrante)",
     "INVENTORY_COUNT_DECREASE": "Conteo (faltante)"
   },
-  "summary": {
-    "critical": "Crítico",
-    "criticalDescription": "Urgente reponer",
-    "low": "Bajo",
-    "lowDescription": "Por debajo del mínimo",
-    "optimal": "Óptimo",
-    "optimalDescription": "Sin alertas",
-    "noMinimum_one": "{{count}} sin stock mínimo",
-    "noMinimum_other": "{{count}} sin stock mínimo"
+  "filter": {
+    "clear": "Quitar filtro",
+    "empty": {
+      "critical": "Nada en estado crítico.",
+      "low": "Nada con stock bajo.",
+      "optimal": "Ningún insumo está en su nivel óptimo.",
+      "noMinimum": "Todos los insumos tienen un stock mínimo."
+    }
   },
   "status": {
     "critical": "Crítico",
@@ -487,13 +486,12 @@
     "coversShort_other": "Alcanza para {{count}}",
     "covers": "Alcanza para",
     "notTracked": "Sin control de stock",
-    "notTrackedHint": "Siempre disponible; las ventas no descuentan nada.",
-    "variantCount_one": "{{count}} variante",
-    "variantCount_other": "{{count}} variantes",
-    "variantsOut_one": "{{count}} agotada",
-    "variantsOut_other": "{{count}} agotadas",
-    "variantsLow_one": "{{count}} con stock bajo",
-    "variantsLow_other": "{{count}} con stock bajo",
+    "manageStock": "Gestionar stock",
+    "inventory": {
+      "title": "Inventario",
+      "description": "Esta variante no controla stock: siempre está disponible y las ventas no descuentan nada.",
+      "manage": "Gestionar"
+    },
     "outOfStock": "Agotado",
     "missingIngredient": "Falta {{name}}: hay {{stock}}, cada una usa {{used}}.",
     "limitingIngredient": "Se acaba primero {{name}}: hay {{stock}}, cada una usa {{used}}.",

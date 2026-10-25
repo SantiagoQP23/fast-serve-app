@@ -29,14 +29,12 @@ import {
   isAdminLevelRole,
 } from "@/core/auth/models/user.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import type { Section } from "@/core/menu/models/section.model";
 import type { Category } from "@/core/menu/models/category.model";
 import {
   getProductActiveOptions,
-  getProductDefaultOption,
   getProductStockAttention,
   getProductStockSummary,
   type Product,
@@ -44,7 +42,7 @@ import {
 import { getVariantStockMode } from "@/core/menu/models/product-optionl.model";
 import { getOwnStockLine } from "@/core/inventory/models/inventory-recipe.model";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
-import ProductStockLine from "@/presentation/menu-management/components/product-stock-line";
+import ProductVariantList from "@/presentation/menu-management/components/product-variant-list";
 import MenuProductDetailView from "@/presentation/menu-management/components/menu-product-detail-view";
 import MenuNamesSheet from "@/presentation/menu-management/components/menu-names-sheet";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
@@ -780,10 +778,6 @@ export default function MenuOverviewContent({
             />
           )}
           {filteredProducts.map((product) => {
-            const details =
-              product.options.length > 1
-                ? product.options.map((option) => option.name).join(", ")
-                : formatCurrency(getProductDefaultOption(product)?.price ?? 0);
             return (
               <Card
                 key={product.id}
@@ -797,7 +791,7 @@ export default function MenuOverviewContent({
                     "bg-secondary",
                 )}
               >
-                <ThemedView style={tw`gap-1 bg-transparent`}>
+                <ThemedView style={tw`gap-2 bg-transparent`}>
                   <ThemedView
                     style={tw`flex-row items-center gap-2 bg-transparent`}
                   >
@@ -815,16 +809,17 @@ export default function MenuOverviewContent({
                       <Label text={t("inactive")} size="small" />
                     )}
                   </ThemedView>
-                  <ThemedText
-                    type="body2"
-                    style={tw`text-gray-500`}
-                    numberOfLines={2}
-                  >
-                    {isFiltering
-                      ? `${product.category?.name} · ${details}`
-                      : details}
-                  </ThemedText>
-                  <ProductStockLine summary={stockSummaries.get(product.id)} />
+                  {/* Results span categories: say where each one is */}
+                  {isFiltering && (
+                    <ThemedText
+                      type="small"
+                      style={tw`-mt-1.5 text-gray-500`}
+                      numberOfLines={1}
+                    >
+                      {product.category?.name}
+                    </ThemedText>
+                  )}
+                  <ProductVariantList product={product} />
                 </ThemedView>
               </Card>
             );
