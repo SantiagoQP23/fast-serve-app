@@ -3,6 +3,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Label, { type LabelProps } from "@/presentation/theme/components/label";
 import tw from "@/presentation/theme/lib/tailwind";
+import type { IconName } from "@/presentation/theme/components/icon";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import {
@@ -16,6 +17,10 @@ import InventoryDetailTitle, {
 
 interface InventoryDetailSummaryCardProps {
   item: InventoryItem;
+  /** Defaults to the item's name and category (a variant shows its own). */
+  title?: string;
+  subtitle?: string;
+  icon?: IconName;
   /** Shown as a "Set" action while the item has no minimum. */
   onSetMinimum?: () => void;
 }
@@ -35,6 +40,9 @@ const STATUS_LABEL_COLOR: Record<InventoryStockStatus, LabelProps["color"]> = {
  */
 export default function InventoryDetailSummaryCard({
   item,
+  title,
+  subtitle,
+  icon = "package",
   onSetMinimum,
 }: InventoryDetailSummaryCardProps) {
   const { t } = useTranslation("inventory");
@@ -45,9 +53,11 @@ export default function InventoryDetailSummaryCard({
 
   return (
     <InventoryDetailTitle
-      icon="package"
-      title={item.name}
-      subtitle={item.category?.name ?? t("categories.uncategorized")}
+      icon={icon}
+      title={title ?? item.name}
+      subtitle={
+        subtitle ?? item.category?.name ?? t("categories.uncategorized")
+      }
       labels={
         <>
           {!item.isActive && (

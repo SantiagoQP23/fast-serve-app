@@ -35,7 +35,7 @@ export class InventoryService {
   static async getStockSummary(
     filters: Pick<
       FindAllInventoryItemsDto,
-      "categoryId" | "uncategorized"
+      "categoryId" | "uncategorized" | "kind"
     > = {},
   ): Promise<InventoryStockSummaryCounts> {
     const resp = await restaurantApi.get<InventoryStockSummaryCounts>(

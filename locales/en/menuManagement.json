@@ -31,6 +31,11 @@
       "nameMinLength": "Each name must be at least 2 characters",
       "nameMaxLength": "Each name must be at most 60 characters",
       "alreadyExists": "Already exists: {{names}}"
+    },
+    "stock": {
+      "out": "Sold out",
+      "low": "Low stock",
+      "products": "Products"
     }
   },
   "sections": {
@@ -198,12 +203,17 @@
         "title": "Copy variants",
         "empty": "No products with two or more variants yet.",
         "andMore": "{{names}} and {{count}} more"
-      }
+      },
+      "actions": "Variant options",
+      "openStock": "See stock and recipe"
     },
     "saveAndAddAnother": "Save and add another",
     "createdList": "Created: {{names}}",
     "moveAreaPartialError_one": "Couldn't move {{count}} product",
-    "moveAreaPartialError_other": "Couldn't move {{count}} products"
+    "moveAreaPartialError_other": "Couldn't move {{count}} products",
+    "stock": {
+      "title": "Stock"
+    }
   },
   "loading": "Loading...",
   "loadError": "Failed to load the menu",

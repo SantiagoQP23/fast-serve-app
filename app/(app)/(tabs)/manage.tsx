@@ -35,12 +35,7 @@ export default function ManageScreen() {
   const subscription = currentRestaurant?.subscription;
 
   const menuOptions: ManageOption[] = [
-    {
-      key: "overview",
-      icon: "utensils",
-      label: t("manage.menu.overview"),
-      onPress: () => router.push("/(profile)/menu/overview"),
-    },
+    // The menu itself lives in the Productos tab (Menú page).
     // ...(isAdmin
     //   ? [
     //       {

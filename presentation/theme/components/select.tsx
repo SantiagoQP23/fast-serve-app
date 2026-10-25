@@ -20,6 +20,8 @@ const VALUE_MARGIN_TOP = 25;
 type Option = {
   label: string;
   value: string | number;
+  /** Heading the picker shows above the first option of each group. */
+  group?: string;
 };
 
 type SelectProps = {

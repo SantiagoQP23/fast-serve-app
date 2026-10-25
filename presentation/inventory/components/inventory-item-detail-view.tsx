@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -25,6 +25,12 @@ import LinkedProductsList from "@/presentation/inventory/components/linked-produ
 import InventoryScreenHeader from "@/presentation/inventory/components/screen-header";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Skeleton from "@/presentation/theme/components/skeleton";
+import { isProductStockItem } from "@/core/inventory/models/inventory-item.model";
+import {
+  getLineItemId,
+  getOwnStockLine,
+} from "@/core/inventory/models/inventory-recipe.model";
+import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 
 interface InventoryItemDetailViewProps {
   itemId: string;
@@ -58,6 +64,26 @@ export default function InventoryItemDetailView({
   );
   const [refreshing, setRefreshing] = useState(false);
   const optionsSheetRef = useRef<BottomSheetMethods>(null);
+
+  // A variant's own stock is shown on that variant (counts, purchases, the
+  // shopping list and low-stock alerts can still open it by item id).
+  const ownerOptionId = useMenuStore((state) => {
+    if (!item || !isProductStockItem(item)) return null;
+    for (const product of state.products) {
+      for (const option of product.options ?? []) {
+        const own = getOwnStockLine(option.inventoryItems);
+        if (own && getLineItemId(own) === item.id) return option.id;
+      }
+    }
+    return null;
+  });
+  useEffect(() => {
+    if (embedded || ownerOptionId === null) return;
+    router.replace({
+      pathname: "/(profile)/menu/products/variant",
+      params: { productOptionId: String(ownerOptionId) },
+    });
+  }, [embedded, ownerOptionId]);
 
   const Container = embedded ? ThemedView : ScreenLayout;
   const close = onClose ?? (() => router.back());

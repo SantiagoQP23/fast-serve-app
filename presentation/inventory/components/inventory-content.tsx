@@ -1,11 +1,7 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { ScrollView, RefreshControl, Pressable, View } from "react-native";
 import { router } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
-import {
-  BottomSheetMethods,
-  BottomSheetView,
-} from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -16,11 +12,9 @@ import Button from "@/presentation/theme/components/button";
 import IconButton from "@/presentation/theme/components/icon-button";
 import TabBar, { type TabItem } from "@/presentation/theme/components/tab-bar";
 import TabPager from "@/presentation/theme/components/tab-pager";
-import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 import { useInventoryItemsSummary } from "@/presentation/inventory/hooks/useInventoryItemsSummary";
 import { useInventoryItemCategories } from "@/presentation/inventory/hooks/useInventoryItemCategories";
-import AddToInventoryOptions from "@/presentation/inventory/components/add-to-inventory-options";
 import InventoryCategoryFolder, {
   NewCategoryFolder,
   type InventoryFolderHealth,
@@ -29,9 +23,10 @@ import InventoryItemsView from "@/presentation/inventory/components/inventory-it
 import InventoryStockSummary from "@/presentation/inventory/components/inventory-stock-summary";
 import InventoryCountsTab from "@/presentation/inventory/components/inventory-counts-tab";
 import InventoryPurchasesTab from "@/presentation/inventory/components/inventory-purchases-tab";
-import InventoryRecipesTab from "@/presentation/inventory/components/inventory-recipes-tab";
+import MenuOverviewContent from "@/presentation/menu-management/components/menu-overview-content";
 import {
   getInventoryStockStatus,
+  isProductStockItem,
   type InventoryItem,
 } from "@/core/inventory/models/inventory-item.model";
 import { InventoryItemStockStatusFilter } from "@/presentation/inventory/interfaces/dto/find-all-inventory-items.dto";
@@ -40,7 +35,8 @@ import InventoryCountDetailView from "@/presentation/inventory/components/invent
 import InventoryPurchaseDetailView from "@/presentation/inventory/components/inventory-purchase-detail-view";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 
-type InventoryTab = "inventory" | "counts" | "purchases" | "recipes";
+/** "inventory" is the Insumos page. */
+type InventoryTab = "menu" | "inventory" | "purchases" | "counts";
 
 /** What the detail pane next to the list shows (tablet). */
 type PaneSelection = { kind: "item" | "count" | "purchase"; id: string };
@@ -69,10 +65,14 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   const { t } = useTranslation("inventory");
   const { user } = useAuthStore();
   const canManage = canManageInventory(user?.role?.name);
-  const { items: catalogItems, itemsQuery: catalogQuery } = useInventoryItems();
+  const { items: allItems, itemsQuery: catalogQuery } = useInventoryItems();
+  // Variant stock shows on its variant (Menú page), not among the insumos.
+  const catalogItems = useMemo(
+    () => allItems.filter((item) => !isProductStockItem(item)),
+    [allItems],
+  );
   const { categories, categoriesQuery } = useInventoryItemCategories();
-  const addSheetRef = useRef<BottomSheetMethods>(null);
-  const [activeTab, setActiveTab] = useState<InventoryTab>("inventory");
+  const [activeTab, setActiveTab] = useState<InventoryTab>("menu");
 
   // Tablet landscape: details open in a pane next to the list instead of
   // pushing a screen, and folders open in place of the folder grid.
@@ -147,16 +147,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   };
 
   const handleCreateItem = () => {
-    addSheetRef.current?.dismiss();
     router.push({ pathname: "/(profile)/inventory/items/form" });
-  };
-
-  const handleTrackMenuProduct = () => {
-    addSheetRef.current?.dismiss();
-    router.push({
-      pathname: "/(profile)/inventory/items/new-product",
-      params: { mode: "track" },
-    });
   };
 
   const handleNewCount = () => {
@@ -198,12 +189,12 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   const hasContent = catalogItems.length > 0 || categories.length > 0;
 
   const tabs: TabItem<InventoryTab>[] = [
+    { label: t("tabs.menu"), value: "menu" },
     { label: t("tabs.inventory"), value: "inventory" },
-    { label: t("tabs.counts"), value: "counts" },
     ...(canManage
       ? [{ label: t("tabs.purchases"), value: "purchases" as const }]
       : []),
-    { label: t("tabs.recipes"), value: "recipes" },
+    { label: t("tabs.counts"), value: "counts" },
   ];
 
   const content = (
@@ -267,7 +258,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                     label={t("createItem")}
                     leftIcon="plus"
                     variant="outline"
-                    onPress={() => addSheetRef.current?.present()}
+                    onPress={handleCreateItem}
                   />
                 )}
 
@@ -449,23 +440,15 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
               />
             )}
 
-            {tab === "recipes" && <InventoryRecipesTab canCreate={canManage} />}
+            {tab === "menu" && <MenuOverviewContent embedded />}
           </>
         )}
       />
-
-      <ThemedBottomSheetModal ref={addSheetRef} enablePanDownToClose>
-        <BottomSheetView style={tw`px-4 pb-6`}>
-          <AddToInventoryOptions
-            onTrackMenuProduct={handleTrackMenuProduct}
-            onCreateItem={handleCreateItem}
-          />
-        </BottomSheetView>
-      </ThemedBottomSheetModal>
     </>
   );
 
-  if (!isExpanded) return content;
+  // The menu lays out its own list + product panes.
+  if (!isExpanded || activeTab === "menu") return content;
 
   const listPane = folderView ? (
     <InventoryItemsView
@@ -485,10 +468,10 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
 
   const closePane = () => setSelection(null);
   const emptyPane = {
+    menu: { icon: "hamburger", text: t("pane.selectItem") },
     inventory: { icon: "package", text: t("pane.selectItem") },
     counts: { icon: "clipboard", text: t("pane.selectCount") },
     purchases: { icon: "receipt-text", text: t("pane.selectPurchase") },
-    recipes: { icon: "chef-hat", text: t("pane.selectRecipe") },
   } as const;
 
   return (

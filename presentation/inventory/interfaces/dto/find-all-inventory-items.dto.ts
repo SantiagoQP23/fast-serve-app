@@ -1,3 +1,5 @@
+import type { InventoryItemKind } from "@/core/inventory/models/inventory-item.model";
+
 export enum InventoryItemStockStatusFilter {
   CRITICAL = "CRITICAL",
   LOW = "LOW",
@@ -10,6 +12,7 @@ export interface FindAllInventoryItemsDto {
   uncategorized?: boolean;
   status?: InventoryItemStockStatusFilter;
   search?: string;
+  kind?: InventoryItemKind;
   limit?: number;
   offset?: number;
 }

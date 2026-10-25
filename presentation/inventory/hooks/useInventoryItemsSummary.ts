@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { InventoryItemKind } from "@/core/inventory/models/inventory-item.model";
 import { InventoryService } from "../services/inventory.service";
 import { inventoryItemsQueryKey } from "./useInventoryItems";
 
@@ -28,6 +29,8 @@ export const useInventoryItemsSummary = (
       InventoryService.getStockSummary({
         categoryId: categoryId ?? undefined,
         uncategorized: uncategorized ?? undefined,
+        // The tiles count insumos; variant stock shows in the menu.
+        kind: InventoryItemKind.INGREDIENT,
       }),
   });
 

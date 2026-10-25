@@ -1,5 +1,12 @@
 import { ProductionArea } from "./producion-area.model";
-import { ProductOption } from "./product-optionl.model";
+import {
+  getProductOptionAvailableQuantity,
+  getProductOptionStockLevel,
+  getVariantStockMode,
+  type ProductOption,
+  type ProductOptionStockLevel,
+  type VariantStockMode,
+} from "./product-optionl.model";
 import { Tag } from "./tag.model";
 
 export enum ProductStatus {
@@ -21,6 +28,8 @@ export interface Product {
   category: { id: string; name: string };
   options: ProductOption[];
   productionArea: ProductionArea;
+  /** False: one "Normal" variant that stands for the product itself. */
+  hasVariants?: boolean;
 }
 
 /**
@@ -47,4 +56,57 @@ export function withDefaultOption(
       isDefault: option.id === variantId,
     })),
   };
+}
+
+/** Active variants, or every variant when none is active. */
+export function getProductActiveOptions(product: Product): ProductOption[] {
+  const active = (product.options ?? []).filter((option) => option.isActive);
+  return active.length ? active : (product.options ?? []);
+}
+
+export interface ProductStockSummary {
+  /** Set when the product has one active variant: that variant's mode. */
+  mode: VariantStockMode | null;
+  /** Units left (own stock) or units the recipe covers; single variant only. */
+  available: number | null;
+  level: ProductOptionStockLevel | null;
+  variantCount: number;
+  /** Variants (of several) out of stock / low. */
+  outCount: number;
+  lowCount: number;
+  /** Several variants: sum of their own stock, when every one has it. */
+  ownStockTotal: number | null;
+}
+
+/** What the menu list says about a product's stock. */
+export function getProductStockSummary(product: Product): ProductStockSummary {
+  const options = getProductActiveOptions(product);
+  const levels = options.map((option) => getProductOptionStockLevel(option));
+  const summary: ProductStockSummary = {
+    mode: null,
+    available: null,
+    level: null,
+    variantCount: options.length,
+    outCount: levels.filter((level) => level === "out").length,
+    lowCount: levels.filter((level) => level === "low").length,
+    ownStockTotal: null,
+  };
+
+  if (options.length === 1) {
+    const [option] = options;
+    summary.mode = getVariantStockMode(option);
+    summary.available = getProductOptionAvailableQuantity(option);
+    summary.level = levels[0];
+  } else if (
+    options.length > 1 &&
+    options.every((option) => getVariantStockMode(option) === "own")
+  ) {
+    summary.ownStockTotal = options.reduce(
+      (total, option) =>
+        total + (getProductOptionAvailableQuantity(option) ?? 0),
+      0,
+    );
+  }
+
+  return summary;
 }
