@@ -12,6 +12,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
 import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuManagement";
+import { openProductForm } from "@/presentation/menu-management/utils/open-product-form";
 import { useProductionAreas } from "@/presentation/production-areas/hooks/useProductionAreas";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles, isValidRole } from "@/core/auth/models/user.model";
@@ -36,7 +37,6 @@ import {
   getVariantStockMode,
   type ProductOption,
 } from "@/core/menu/models/product-optionl.model";
-import { getProductDefaultOption } from "@/core/menu/models/product.model";
 import { typography } from "@/constants/theme";
 import ProductTagsSection from "@/presentation/menu-management/components/product-tags-section";
 
@@ -154,23 +154,7 @@ export default function MenuProductDetailView({
   }));
 
   const handleEditProduct = () => {
-    if (!product) return;
-    router.push({
-      pathname: "/(profile)/menu/products/form",
-      params: {
-        productId: product.id,
-        name: product.name,
-        description: product.description || "",
-        price: String(getProductDefaultOption(product)?.price ?? ""),
-        categoryId: product.category.id,
-        productionAreaId: product.productionArea?.id
-          ? String(product.productionArea.id)
-          : "",
-        isActive: String(product.isActive),
-        isPublic: String(product.isPublic),
-        options: JSON.stringify(product.options ?? []),
-      },
-    });
+    if (product) openProductForm(product);
   };
 
   const handleToggleProductActive = () => {

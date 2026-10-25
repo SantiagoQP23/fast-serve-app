@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { RefreshControl, ScrollView } from "react-native";
+import { BackHandler, RefreshControl, ScrollView } from "react-native";
 // Wins over the Productos tab pager, so the section chips scroll sideways.
 import { ScrollView as GestureScrollView } from "react-native-gesture-handler";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 
@@ -14,26 +14,41 @@ import TextInput from "@/presentation/theme/components/text-input";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Card from "@/presentation/theme/components/card";
 import Button from "@/presentation/theme/components/button";
+import Label from "@/presentation/theme/components/label";
+import ActionsBottomSheet, {
+  type ActionsBottomSheetSection,
+} from "@/presentation/theme/components/actions-bottom-sheet";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import AdjustStockModal from "@/presentation/inventory/components/adjust-stock-modal";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
 import { useProductSearch } from "@/presentation/restaurant-menu/hooks/useProductSearch";
 import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuManagement";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { isAdminLevelRole } from "@/core/auth/models/user.model";
+import {
+  canManageInventory,
+  isAdminLevelRole,
+} from "@/core/auth/models/user.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import type { Section } from "@/core/menu/models/section.model";
 import type { Category } from "@/core/menu/models/category.model";
 import {
+  getProductActiveOptions,
   getProductDefaultOption,
+  getProductStockAttention,
   getProductStockSummary,
   type Product,
 } from "@/core/menu/models/product.model";
+import { getVariantStockMode } from "@/core/menu/models/product-optionl.model";
+import { getOwnStockLine } from "@/core/inventory/models/inventory-recipe.model";
+import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
 import ProductStockLine from "@/presentation/menu-management/components/product-stock-line";
-import StockTile from "@/presentation/menu-management/components/stock-tile";
 import MenuProductDetailView from "@/presentation/menu-management/components/menu-product-detail-view";
 import MenuNamesSheet from "@/presentation/menu-management/components/menu-names-sheet";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
+import { openProductForm } from "@/presentation/menu-management/utils/open-product-form";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 
 const PRODUCT_PANE_WIDTH = 600;
@@ -44,9 +59,31 @@ interface MenuOverviewContentProps {
    * less top padding, since the tab already has a header.
    */
   embedded?: boolean;
+  /** Embedded: whether the Menú page is the one showing (Back clears it). */
+  active?: boolean;
+  /**
+   * Embedded: the search field opens from the tab header's search button.
+   * Standalone, the field is always there.
+   */
+  searchOpen?: boolean;
+  onSearchOpenChange?: (open: boolean) => void;
 }
 
 type StockFilter = "out" | "low";
+
+/** A variant's own stock, for restocking it from the product's actions. */
+interface OwnStock {
+  variantName: string;
+  item: InventoryItem;
+}
+
+function getOwnStocks(product: Product): OwnStock[] {
+  return getProductActiveOptions(product).flatMap((option) => {
+    if (getVariantStockMode(option) !== "own") return [];
+    const item = getOwnStockLine(option.inventoryItems)?.inventoryItem;
+    return item ? [{ variantName: option.name, item }] : [];
+  });
+}
 
 /**
  * The restaurant menu (sections, categories, products) with each product's
@@ -55,15 +92,20 @@ type StockFilter = "out" | "low";
  */
 export default function MenuOverviewContent({
   embedded = false,
+  active = true,
+  searchOpen = false,
+  onSearchOpenChange,
 }: MenuOverviewContentProps) {
   const { t } = useTranslation("menuManagement");
+  const { t: tInventory } = useTranslation("inventory");
   const primaryColor = useThemeColor({}, "primary");
   const { sections, categories, products, menuQuery } = useMenu();
   const { isLoading, isError, refetch, isRefetching } = menuQuery;
-  const { createSection, createCategory } = useMenuManagement();
+  const { createSection, createCategory, updateProduct } = useMenuManagement();
   const { user, currentRestaurant } = useAuthStore();
   const menuRestaurantId = useMenuStore((state) => state.restaurantId);
   const canManage = isAdminLevelRole(user?.role?.name);
+  const canAdjustStock = canManageInventory(user?.role?.name);
 
   const [sectionId, setSectionId] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -74,6 +116,12 @@ export default function MenuOverviewContent({
 
   const sectionSheetRef = useRef<BottomSheetMethods>(null);
   const categorySheetRef = useRef<BottomSheetMethods>(null);
+  const productActionsSheetRef = useRef<BottomSheetMethods>(null);
+  const [actionsProduct, setActionsProduct] = useState<Product | null>(null);
+  const [adjusting, setAdjusting] = useState<{
+    item: InventoryItem;
+    mode: "restock" | "decrease";
+  } | null>(null);
 
   // Tablet landscape: the selected product opens in a pane next to the menu
   const { isExpanded } = useResponsiveLayout();
@@ -91,6 +139,15 @@ export default function MenuOverviewContent({
     [categories, sectionId],
   );
 
+  const productCountByCategory = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const product of products) {
+      const id = product.category?.id;
+      if (id) counts.set(id, (counts.get(id) ?? 0) + 1);
+    }
+    return counts;
+  }, [products]);
+
   const getSectionName = (id: string) =>
     sections.find((section) => section.id === id)?.name ?? "";
 
@@ -107,7 +164,11 @@ export default function MenuOverviewContent({
     if (sectionCategories.some((category) => category.id === categoryId)) {
       return;
     }
-    setCategoryId(sectionCategories[0]?.id ?? "");
+    // Land on a category with products rather than an empty one
+    const firstWithProducts = sectionCategories.find((category) =>
+      productCountByCategory.get(category.id),
+    );
+    setCategoryId((firstWithProducts ?? sectionCategories[0])?.id ?? "");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sectionId, sectionCategories]);
 
@@ -128,8 +189,9 @@ export default function MenuOverviewContent({
       if (!product.isActive) continue;
       const summary = stockSummaries.get(product.id);
       if (!summary) continue;
-      if (summary.level === "out" || summary.outCount > 0) out += 1;
-      else if (summary.level === "low" || summary.lowCount > 0) low += 1;
+      const attention = getProductStockAttention(summary);
+      if (attention === "out") out += 1;
+      else if (attention === "low") low += 1;
     }
     return { out, low };
   }, [products, stockSummaries]);
@@ -138,16 +200,36 @@ export default function MenuOverviewContent({
     (product: Product) => {
       if (!stockFilter || !product.isActive) return !stockFilter;
       const summary = stockSummaries.get(product.id);
-      if (!summary) return false;
-      const isOut = summary.level === "out" || summary.outCount > 0;
-      if (stockFilter === "out") return isOut;
-      return !isOut && (summary.level === "low" || summary.lowCount > 0);
+      return !!summary && getProductStockAttention(summary) === stockFilter;
     },
     [stockFilter, stockSummaries],
   );
 
   // A search or a stock filter spans the whole menu, not one category.
   const isFiltering = !!search.trim() || !!stockFilter;
+  const showSearch = !embedded || searchOpen;
+
+  const clearFilters = useCallback(() => {
+    setSearch("");
+    setStockFilter(null);
+    onSearchOpenChange?.(false);
+  }, [onSearchOpenChange]);
+
+  // Back leaves a search or stock filter before it leaves the screen
+  const hasBackStep = active && (isFiltering || (embedded && searchOpen));
+  useFocusEffect(
+    useCallback(() => {
+      if (!hasBackStep) return;
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        () => {
+          clearFilters();
+          return true;
+        },
+      );
+      return () => subscription.remove();
+    }, [hasBackStep, clearFilters]),
+  );
   const searchResults = useProductSearch(products, search);
   const filteredProducts = useMemo(() => {
     if (isFiltering)
@@ -184,39 +266,29 @@ export default function MenuOverviewContent({
     }
   }, [menuQuery]);
 
-  const handleSelectSection = (section: Section) => {
-    if (sectionId === section.id) {
-      if (!canManage) return;
-      router.push({
-        pathname: "/(profile)/menu/sections/form",
-        params: {
-          sectionId: section.id,
-          name: section.name,
-          isPublic: String(section.isPublic),
-          isActive: String(section.isActive),
-        },
-      });
-      return;
-    }
-    setSectionId(section.id);
+  const editSection = (section: Section) => {
+    router.push({
+      pathname: "/(profile)/menu/sections/form",
+      params: {
+        sectionId: section.id,
+        name: section.name,
+        isPublic: String(section.isPublic),
+        isActive: String(section.isActive),
+      },
+    });
   };
 
-  const handleSelectCategory = (category: Category) => {
-    if (categoryId === category.id) {
-      if (!canManage) return;
-      router.push({
-        pathname: "/(profile)/menu/categories/form",
-        params: {
-          categoryId: category.id,
-          name: category.name,
-          sectionId: category.sectionId,
-          isPublic: String(category.isPublic),
-          isActive: String(category.isActive),
-        },
-      });
-      return;
-    }
-    setCategoryId(category.id);
+  const editCategory = (category: Category) => {
+    router.push({
+      pathname: "/(profile)/menu/categories/form",
+      params: {
+        categoryId: category.id,
+        name: category.name,
+        sectionId: category.sectionId,
+        isPublic: String(category.isPublic),
+        isActive: String(category.isActive),
+      },
+    });
   };
 
   const handleAddSection = () => {
@@ -236,6 +308,94 @@ export default function MenuOverviewContent({
       pathname: "/(profile)/menu/products/form",
       params: categoryId ? { categoryId } : undefined,
     });
+  };
+
+  const openProductActions = (product: Product) => {
+    setActionsProduct(product);
+    productActionsSheetRef.current?.present();
+  };
+
+  /** Closes the actions sheet, then runs what was picked in it. */
+  const fromActions = (action: () => void) => () => {
+    productActionsSheetRef.current?.dismiss();
+    action();
+  };
+
+  const getProductActions = (product: Product): ActionsBottomSheetSection[] => {
+    const ownStocks = canAdjustStock ? getOwnStocks(product) : [];
+    const stockHint = (item: InventoryItem) =>
+      item.quantity < 0
+        ? tInventory("variant.soldWithoutStock", { count: -item.quantity })
+        : tInventory("variant.inStock", { count: item.quantity });
+
+    const stockSection: ActionsBottomSheetSection =
+      ownStocks.length === 1
+        ? {
+            items: [
+              {
+                icon: "plus",
+                label: tInventory("restock"),
+                hint: stockHint(ownStocks[0].item),
+                onPress: fromActions(() =>
+                  setAdjusting({ item: ownStocks[0].item, mode: "restock" }),
+                ),
+              },
+              {
+                icon: "minus",
+                label: tInventory("decrease"),
+                onPress: fromActions(() =>
+                  setAdjusting({ item: ownStocks[0].item, mode: "decrease" }),
+                ),
+              },
+            ],
+          }
+        : {
+            // One row per variant; the adjust sheet can still switch to
+            // decrease.
+            title: tInventory("restock"),
+            items: ownStocks.map(({ variantName, item }) => ({
+              icon: "plus" as const,
+              label: variantName,
+              hint: stockHint(item),
+              onPress: fromActions(() =>
+                setAdjusting({ item, mode: "restock" }),
+              ),
+            })),
+          };
+
+    return [
+      stockSection,
+      {
+        items: [
+          {
+            icon: "eye",
+            label: t("overview.actions.viewProduct"),
+            onPress: fromActions(() => openProduct(product)),
+          },
+          ...(canManage
+            ? [
+                {
+                  icon: "pencil" as const,
+                  label: t("products.editProduct"),
+                  onPress: fromActions(() => openProductForm(product)),
+                },
+                {
+                  icon: product.isActive
+                    ? ("eye-off" as const)
+                    : ("eye" as const),
+                  label: product.isActive ? t("deactivate") : t("activate"),
+                  onPress: fromActions(() =>
+                    updateProduct.mutate({
+                      id: product.id,
+                      isActive: !product.isActive,
+                    }),
+                  ),
+                },
+              ]
+            : []),
+        ],
+      },
+    ];
   };
 
   const openProduct = (product: Product) => {
@@ -286,6 +446,29 @@ export default function MenuOverviewContent({
       />
     </>
   );
+
+  const productSheets = (
+    <>
+      <ThemedBottomSheetModal ref={productActionsSheetRef} enablePanDownToClose>
+        {actionsProduct && (
+          <ActionsBottomSheet
+            title={actionsProduct.name}
+            subtitle={actionsProduct.category?.name}
+            sections={getProductActions(actionsProduct)}
+          />
+        )}
+      </ThemedBottomSheetModal>
+      <AdjustStockModal
+        item={adjusting?.item ?? null}
+        initialMode={adjusting?.mode ?? "restock"}
+        onClose={() => setAdjusting(null)}
+      />
+    </>
+  );
+
+  const filterLabel = stockFilter
+    ? t(`overview.stock.${stockFilter}`)
+    : undefined;
 
   if (!hasMenu && isMenuLoaded && !menuQuery.isError) {
     return (
@@ -372,80 +555,143 @@ export default function MenuOverviewContent({
         </ThemedView>
       )}
 
-      <TextInput
-        value={search}
-        placeholder={t("products.searchPlaceholder")}
-        onChangeText={setSearch}
-        icon="search"
-        trailingIcon={
-          search && (
-            <IconButton
-              icon="circle-x"
-              onPress={() => setSearch("")}
-            ></IconButton>
-          )
-        }
-      />
+      {showSearch && (
+        <TextInput
+          value={search}
+          placeholder={t("products.searchPlaceholder")}
+          onChangeText={setSearch}
+          icon="search"
+          autoFocus={embedded}
+          returnKeyType="search"
+          trailingIcon={
+            search || embedded ? (
+              <IconButton
+                icon={embedded ? "x" : "circle-x"}
+                accessibilityLabel={
+                  embedded
+                    ? t("overview.search.close")
+                    : t("overview.search.clear")
+                }
+                onPress={() =>
+                  embedded && !search
+                    ? onSearchOpenChange?.(false)
+                    : setSearch("")
+                }
+              />
+            ) : null
+          }
+        />
+      )}
 
       {products.length > 0 && (
-        <ThemedView style={tw`flex-row gap-2 bg-transparent`}>
-          <StockTile
-            count={stockCounts.out}
-            label={t("overview.stock.out")}
-            selected={stockFilter === "out"}
-            onPress={() => setStockFilter((f) => (f === "out" ? null : "out"))}
-          />
-          <StockTile
-            count={stockCounts.low}
-            label={t("overview.stock.low")}
-            selected={stockFilter === "low"}
-            onPress={() => setStockFilter((f) => (f === "low" ? null : "low"))}
-          />
-          <StockTile
-            count={products.filter((product) => product.isActive).length}
-            label={t("overview.stock.products")}
-          />
-        </ThemedView>
+        <GestureScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={tw`flex-grow-0`}
+          contentContainerStyle={tw`gap-2`}
+        >
+          {(["out", "low"] as const).map((filter) => {
+            const count = stockCounts[filter];
+            return (
+              <Chip
+                key={filter}
+                label={t(`overview.stock.${filter}`)}
+                selected={stockFilter === filter}
+                onPress={() =>
+                  setStockFilter((current) =>
+                    current === filter ? null : filter,
+                  )
+                }
+                rightContent={
+                  <Label
+                    text={String(count)}
+                    size="small"
+                    color={
+                      count === 0
+                        ? "default"
+                        : filter === "out"
+                          ? "error"
+                          : "warning"
+                    }
+                  />
+                }
+              />
+            );
+          })}
+        </GestureScrollView>
       )}
 
-      {!isFiltering && (
-        <ThemedView style={tw`gap-2`}>
-          <ColumnLabel>{t("sections.title")}</ColumnLabel>
-          <GestureScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={tw`gap-2`}
+      {isFiltering ? (
+        // Without results the empty state says it and offers the way out
+        filteredProducts.length > 0 && (
+          <ThemedView
+            style={tw`flex-row items-center justify-between gap-2 min-h-12 bg-transparent`}
           >
-            {sortedSections.map((section) => (
-              <ThemedView
-                style={[tw`mr-2`, !section.isActive && tw`opacity-50`]}
-                key={section.id}
-              >
-                <Chip
-                  label={section.name}
-                  selected={sectionId === section.id}
-                  onPress={() => handleSelectSection(section)}
-                />
-              </ThemedView>
-            ))}
-            {canManage && (
-              <Chip
-                label={t("overview.add")}
-                icon="plus"
-                onPress={handleAddSection}
+            <ThemedText
+              type="body2"
+              style={tw`flex-1 text-gray-500`}
+              numberOfLines={1}
+            >
+              {[
+                filterLabel,
+                t("overview.filter.results", {
+                  count: filteredProducts.length,
+                }),
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </ThemedText>
+            {/* A search clears from its own field */}
+            {stockFilter && (
+              <Button
+                label={t("overview.filter.clear")}
+                variant="link"
+                size="small"
+                leftIcon="x"
+                onPress={() => setStockFilter(null)}
               />
             )}
-          </GestureScrollView>
-        </ThemedView>
+          </ThemedView>
+        )
+      ) : (
+        <GestureScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={tw`flex-grow-0`}
+          contentContainerStyle={tw`gap-2`}
+        >
+          {sortedSections.map((section) => (
+            <ThemedView
+              style={!section.isActive && tw`opacity-50`}
+              key={section.id}
+            >
+              <Chip
+                label={section.name}
+                selected={sectionId === section.id}
+                onPress={() => setSectionId(section.id)}
+                onLongPress={canManage ? () => editSection(section) : undefined}
+                accessibilityHint={
+                  canManage ? t("overview.longPressToEdit") : undefined
+                }
+              />
+            </ThemedView>
+          ))}
+          {canManage && (
+            <Chip
+              label={t("overview.add")}
+              icon="plus"
+              onPress={handleAddSection}
+            />
+          )}
+        </GestureScrollView>
       )}
 
-      <ThemedView style={tw`flex-row gap-2 flex-1 bg-transparent`}>
+      <ThemedView style={tw`flex-row gap-3 flex-1 bg-transparent`}>
         {!isFiltering && (
-          <ThemedView style={tw`w-30 flex-shrink-0 gap-2`}>
-            <ColumnLabel>{t("categories.title")}</ColumnLabel>
+          <ThemedView style={tw`w-32 flex-shrink-0`}>
             <ScrollView
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={tw`gap-2`}
+              contentContainerStyle={tw`gap-2 pb-8`}
             >
               {sectionCategories.map((category) => (
                 <ThemedView
@@ -455,7 +701,25 @@ export default function MenuOverviewContent({
                   <Chip
                     label={category.name}
                     selected={categoryId === category.id}
-                    onPress={() => handleSelectCategory(category)}
+                    showSelectedCheck={false}
+                    onPress={() => setCategoryId(category.id)}
+                    onLongPress={
+                      canManage ? () => editCategory(category) : undefined
+                    }
+                    accessibilityHint={
+                      canManage ? t("overview.longPressToEdit") : undefined
+                    }
+                    rightContent={
+                      <ThemedText
+                        type="small"
+                        style={[
+                          tw`text-gray-500 ml-auto`,
+                          { fontVariant: ["tabular-nums"] },
+                        ]}
+                      >
+                        {productCountByCategory.get(category.id) ?? 0}
+                      </ThemedText>
+                    }
                   />
                 </ThemedView>
               ))}
@@ -469,79 +733,107 @@ export default function MenuOverviewContent({
             </ScrollView>
           </ThemedView>
         )}
-        <ThemedView style={tw`gap-2 flex-1`}>
-          <ColumnLabel>{t("products.title")}</ColumnLabel>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={tw`gap-3 pb-8`}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing || isRefetching}
-                onRefresh={onRefresh}
-                tintColor={primaryColor}
-                colors={[primaryColor]}
-              />
-            }
-          >
-            {canManage && (
-              <Button
-                label={t("products.newProduct")}
-                leftIcon="plus"
-                variant="outline"
-                onPress={handleAddProduct}
-              />
-            )}
-            {filteredProducts.length === 0 && (
-              <ThemedView style={tw`items-center py-8 gap-3`}>
-                <Icon name="hamburger" size={40} color={tw.color("gray-400")} />
-                <ThemedText
-                  type="body2"
-                  style={tw`text-center text-gray-500 px-4`}
-                >
-                  {t("products.noProducts")}
-                </ThemedText>
-              </ThemedView>
-            )}
-            {filteredProducts.map((product) => (
+        <ScrollView
+          style={tw`flex-1`}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={tw`gap-2 pb-8`}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing || isRefetching}
+              onRefresh={onRefresh}
+              tintColor={primaryColor}
+              colors={[primaryColor]}
+            />
+          }
+        >
+          {canManage && !isFiltering && (
+            <Button
+              label={t("products.newProduct")}
+              leftIcon="plus"
+              variant="outline"
+              onPress={handleAddProduct}
+            />
+          )}
+          {filteredProducts.length === 0 && (
+            <ProductsEmpty
+              icon={
+                stockFilter && !search.trim() ? "circle-check" : "hamburger"
+              }
+              title={
+                search.trim()
+                  ? t("products.noSearchResults", { query: search.trim() })
+                  : stockFilter
+                    ? t(`overview.filter.empty.${stockFilter}`)
+                    : t("overview.emptyCategory")
+              }
+              actionLabel={
+                isFiltering
+                  ? search.trim()
+                    ? t("overview.search.clear")
+                    : t("overview.filter.clear")
+                  : undefined
+              }
+              onAction={() =>
+                search.trim() ? setSearch("") : setStockFilter(null)
+              }
+            />
+          )}
+          {filteredProducts.map((product) => {
+            const details =
+              product.options.length > 1
+                ? product.options.map((option) => option.name).join(", ")
+                : formatCurrency(getProductDefaultOption(product)?.price ?? 0);
+            return (
               <Card
                 key={product.id}
                 onPress={() => openProduct(product)}
+                onLongPress={() => openProductActions(product)}
+                accessibilityHint={t("overview.longPressForActions")}
                 style={tw.style(
-                  !product.isActive && "opacity-50",
+                  "px-4 py-3",
                   isExpanded &&
                     selectedProductId === product.id &&
                     "bg-secondary",
                 )}
               >
-                <ThemedView style={tw`flex-row items-center justify-between`}>
-                  <ThemedView style={tw`gap-4 flex-1 flex-row items-center`}>
-                    {/* <Icon */}
-                    {/*   name="fast-food-outline" */}
-                    {/*   size={28} */}
-                    {/*   color={tw.color("text-on-surface-variant")} */}
-                    {/* /> */}
-                    <ThemedView style={tw`flex-1 gap-2`}>
-                      <ThemedText type="body1">{product.name}</ThemedText>
-                      <ThemedText type="body2" style={tw`text-gray-500`}>
-                        {product.options.length > 1
-                          ? product.options
-                              .map((option) => option.name)
-                              .join(" - ")
-                          : `$${(getProductDefaultOption(product)?.price ?? 0).toFixed(2)}`}
-                      </ThemedText>
-                      <ProductStockLine
-                        summary={stockSummaries.get(product.id)}
-                      />
-                    </ThemedView>
+                <ThemedView style={tw`gap-1 bg-transparent`}>
+                  <ThemedView
+                    style={tw`flex-row items-center gap-2 bg-transparent`}
+                  >
+                    <ThemedText
+                      type="body1"
+                      style={tw.style(
+                        "flex-1",
+                        !product.isActive && "text-gray-500",
+                      )}
+                      numberOfLines={2}
+                    >
+                      {product.name}
+                    </ThemedText>
+                    {!product.isActive && (
+                      <Label text={t("inactive")} size="small" />
+                    )}
                   </ThemedView>
+                  <ThemedText
+                    type="body2"
+                    style={tw`text-gray-500`}
+                    numberOfLines={2}
+                  >
+                    {isFiltering
+                      ? `${product.category?.name} · ${details}`
+                      : details}
+                  </ThemedText>
+                  <ProductStockLine summary={stockSummaries.get(product.id)} />
                 </ThemedView>
               </Card>
-            ))}
-          </ScrollView>
-        </ThemedView>
+            );
+          })}
+        </ScrollView>
       </ThemedView>
 
       {nameSheets}
+      {productSheets}
     </>
   );
 
@@ -588,10 +880,32 @@ export default function MenuOverviewContent({
   );
 }
 
-function ColumnLabel({ children }: { children: string }) {
+/** No products to show: an empty category, a search miss or a clear filter. */
+function ProductsEmpty({
+  icon,
+  title,
+  actionLabel,
+  onAction,
+}: {
+  icon: "hamburger" | "circle-check";
+  title: string;
+  actionLabel?: string;
+  onAction: () => void;
+}) {
   return (
-    <ThemedText type="small" style={tw`text-gray-500 ml-1`}>
-      {children}
-    </ThemedText>
+    <ThemedView style={tw`items-center py-8 gap-3 bg-transparent`}>
+      <Icon name={icon} size={40} color={tw.color("gray-400")} />
+      <ThemedText type="body2" style={tw`text-center text-gray-500 px-4`}>
+        {title}
+      </ThemedText>
+      {actionLabel && (
+        <Button
+          label={actionLabel}
+          variant="outline"
+          size="small"
+          onPress={onAction}
+        />
+      )}
+    </ThemedView>
   );
 }

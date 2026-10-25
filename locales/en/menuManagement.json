@@ -34,8 +34,26 @@
     },
     "stock": {
       "out": "Sold out",
-      "low": "Low stock",
-      "products": "Products"
+      "low": "Low stock"
+    },
+    "emptyCategory": "This category has no products yet",
+    "longPressToEdit": "Long press to edit",
+    "longPressForActions": "Long press to restock, edit or deactivate",
+    "search": {
+      "close": "Close search",
+      "clear": "Clear search"
+    },
+    "filter": {
+      "results_one": "{{count}} product",
+      "results_other": "{{count}} products",
+      "clear": "Clear filter",
+      "empty": {
+        "out": "Nothing sold out. Everything that tracks stock can be sold.",
+        "low": "Nothing low on stock."
+      }
+    },
+    "actions": {
+      "viewProduct": "View product"
     }
   },
   "sections": {

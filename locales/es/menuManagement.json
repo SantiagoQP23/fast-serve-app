@@ -34,8 +34,26 @@
     },
     "stock": {
       "out": "Agotados",
-      "low": "Stock bajo",
-      "products": "Productos"
+      "low": "Stock bajo"
+    },
+    "emptyCategory": "Esta categoría aún no tiene productos",
+    "longPressToEdit": "Mantén presionado para editar",
+    "longPressForActions": "Mantén presionado para reabastecer, editar o desactivar",
+    "search": {
+      "close": "Cerrar búsqueda",
+      "clear": "Limpiar búsqueda"
+    },
+    "filter": {
+      "results_one": "{{count}} producto",
+      "results_other": "{{count}} productos",
+      "clear": "Quitar filtro",
+      "empty": {
+        "out": "Nada agotado. Todo lo que controla stock se puede vender.",
+        "low": "Nada con stock bajo."
+      }
+    },
+    "actions": {
+      "viewProduct": "Ver producto"
     }
   },
   "sections": {

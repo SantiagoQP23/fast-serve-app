@@ -22,7 +22,12 @@ export default function ProductStockLine({
   let text: string;
   let icon: "package" | "chef-hat" | null = null;
   if (summary.mode === "own") {
-    text = t("variant.inStock", { count: summary.available ?? 0 });
+    const available = summary.available ?? 0;
+    // Sales went on after it ran out: say so instead of "-7 en stock"
+    text =
+      available < 0
+        ? t("variant.soldWithoutStock", { count: -available })
+        : t("variant.inStock", { count: available });
     icon = "package";
   } else if (summary.mode === "recipe") {
     text = t("variant.coversShort", {
@@ -47,8 +52,9 @@ export default function ProductStockLine({
           : summary.lowCount > 0
             ? t("variant.variantsLow", { count: summary.lowCount })
             : null;
-  const labelColor =
-    summary.level === "out" || summary.outCount > 0 ? "error" : "warning";
+  // Red only when it can't be sold at all; some variants out is a warning,
+  // like the Stock bajo count it falls under
+  const labelColor = summary.level === "out" ? "error" : "warning";
 
   return (
     <ThemedView
@@ -57,7 +63,7 @@ export default function ProductStockLine({
       {icon && (
         <Icon
           name={icon}
-          size={13}
+          size={16}
           color={tw.color("text-on-surface-variant")}
         />
       )}

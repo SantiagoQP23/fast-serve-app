@@ -18,6 +18,7 @@ import TextInput from "@/presentation/theme/components/text-input";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import SwipeableRow from "@/presentation/theme/components/swipeable-row";
 import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuManagement";
+import { openProductForm } from "@/presentation/menu-management/utils/open-product-form";
 import {
   getProductDefaultOption,
   type Product,
@@ -47,24 +48,7 @@ export default function MenuProductsScreen() {
     router.push("/(profile)/menu/products/form");
   };
 
-  const handleEditProduct = (product: Product) => {
-    router.push({
-      pathname: "/(profile)/menu/products/form",
-      params: {
-        productId: product.id,
-        name: product.name,
-        description: product.description || "",
-        price: String(getProductDefaultOption(product)?.price ?? ""),
-        categoryId: product.category.id,
-        productionAreaId: product.productionArea?.id
-          ? String(product.productionArea.id)
-          : "",
-        isActive: String(product.isActive),
-        isPublic: String(product.isPublic),
-        options: JSON.stringify(product.options ?? []),
-      },
-    });
-  };
+  const handleEditProduct = (product: Product) => openProductForm(product);
 
   const handleViewProduct = (product: Product) => {
     router.push({
@@ -195,7 +179,10 @@ export default function MenuProductsScreen() {
                             •
                           </ThemedText>
                           <ThemedText type="small" style={tw`text-gray-500`}>
-                            ${(getProductDefaultOption(product)?.price ?? 0).toFixed(2)}
+                            $
+                            {(
+                              getProductDefaultOption(product)?.price ?? 0
+                            ).toFixed(2)}
                           </ThemedText>
                         </ThemedView>
                         {product.options?.some(
@@ -214,9 +201,7 @@ export default function MenuProductsScreen() {
                                   <Icon
                                     name="package"
                                     size={12}
-                                    color={tw.color(
-                                      "text-on-surface-variant",
-                                    )}
+                                    color={tw.color("text-on-surface-variant")}
                                   />
                                   <ThemedText
                                     type="small"

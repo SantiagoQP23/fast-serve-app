@@ -69,6 +69,7 @@ export interface ProductStockSummary {
   mode: VariantStockMode | null;
   /** Units left (own stock) or units the recipe covers; single variant only. */
   available: number | null;
+  /** One variant: its level. Several: "out" only when every one is out. */
   level: ProductOptionStockLevel | null;
   variantCount: number;
   /** Variants (of several) out of stock / low. */
@@ -97,16 +98,32 @@ export function getProductStockSummary(product: Product): ProductStockSummary {
     summary.mode = getVariantStockMode(option);
     summary.available = getProductOptionAvailableQuantity(option);
     summary.level = levels[0];
-  } else if (
-    options.length > 1 &&
-    options.every((option) => getVariantStockMode(option) === "own")
-  ) {
-    summary.ownStockTotal = options.reduce(
-      (total, option) =>
-        total + (getProductOptionAvailableQuantity(option) ?? 0),
-      0,
-    );
+  } else if (options.length > 1) {
+    if (summary.outCount === options.length) summary.level = "out";
+    if (options.every((option) => getVariantStockMode(option) === "own")) {
+      // Oversold variants (below zero) count as none left, not as debt
+      summary.ownStockTotal = options.reduce(
+        (total, option) =>
+          total + Math.max(getProductOptionAvailableQuantity(option) ?? 0, 0),
+        0,
+      );
+    }
   }
 
   return summary;
+}
+
+export type ProductStockAttention = "out" | "low";
+
+/**
+ * Which menu stock count a product falls under: "out" when it can't be sold
+ * at all, "low" when it's low or only some of its variants are out.
+ */
+export function getProductStockAttention(
+  summary: ProductStockSummary,
+): ProductStockAttention | null {
+  if (summary.level === "out") return "out";
+  if (summary.level === "low" || summary.outCount > 0 || summary.lowCount > 0)
+    return "low";
+  return null;
 }

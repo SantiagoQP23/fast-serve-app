@@ -21,8 +21,14 @@ type ChipProps = {
   selected?: boolean;
   disabled?: boolean;
   onPress?: () => void;
+  /** Secondary action, e.g. editing the item the chip stands for. */
+  onLongPress?: () => void;
+  /** Read after the label, e.g. to announce what a long press does. */
+  accessibilityHint?: string;
   onRemove?: () => void;
   icon?: IconName;
+  /** False drops the selected check, e.g. in a narrow rail where the fill says it. */
+  showSelectedCheck?: boolean;
   rightContent?: React.ReactNode;
   leftContent?: React.ReactNode;
 };
@@ -32,8 +38,11 @@ export default function Chip({
   variant = "filter",
   selected,
   onPress,
+  onLongPress,
+  accessibilityHint,
   onRemove,
   icon,
+  showSelectedCheck = true,
   rightContent,
   leftContent,
   disabled,
@@ -51,7 +60,8 @@ export default function Chip({
   // When filled and nothing else occupies the leading slot, show the M3
   // selected-state checkmark. An explicit `icon` always wins (e.g. a "close"
   // icon on an applied-filter chip means remove, not re-confirm selection).
-  const resolvedIcon = icon ?? (filled && !leftContent ? "check" : undefined);
+  const resolvedIcon =
+    icon ?? (filled && showSelectedCheck && !leftContent ? "check" : undefined);
 
   const trailingContent =
     rightContent ??
@@ -64,6 +74,8 @@ export default function Chip({
   return (
     <Pressable
       onPress={() => !disabled && onPress && onPress()}
+      onLongPress={onLongPress && !disabled ? onLongPress : undefined}
+      accessibilityHint={accessibilityHint}
       // ~32dp tall; extend the touch area to 48dp without changing the look.
       hitSlop={{ top: 8, bottom: 8 }}
       accessibilityRole="button"
@@ -86,7 +98,12 @@ export default function Chip({
       {resolvedIcon && <Icon name={resolvedIcon} size={16} color={iconColor} />}
       <ThemedText
         type="body2"
-        style={[tw`text-primary`, { fontFamily: typography.medium }]}
+        // Shrinks and wraps in a narrow column instead of pushing out
+        // trailing content
+        style={[
+          tw`text-primary flex-shrink`,
+          { fontFamily: typography.medium },
+        ]}
       >
         {label}
       </ThemedText>
