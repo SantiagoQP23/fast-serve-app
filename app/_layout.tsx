@@ -40,7 +40,7 @@ import {
 import "@/core/i18n/i18n.config";
 import { initializeDayjs } from "@/core/i18n/utils";
 import { usePushNotifications } from "@/presentation/shared/hooks/usePushNotifications";
-import { isDarkTheme, palettes, typography } from "@/constants/theme";
+import { getPalette, isDarkTheme, typography } from "@/constants/theme";
 import {
   useThemeHydrated,
   useThemeStore,
@@ -58,6 +58,7 @@ export default function RootLayout() {
   const setLanguage = useGlobalStore((state) => state.setLanguage);
   const theme = useThemeStore((state) => state.theme);
   const font = useThemeStore((state) => state.font);
+  const accent = useThemeStore((state) => state.accent);
   const themeHydrated = useThemeHydrated();
   const isRestoringNavigation = usePreserveNavigationOnThemeChange();
   usePushNotifications();
@@ -113,20 +114,22 @@ export default function RootLayout() {
   const renderContent = () => {
     const content = (
       <BottomSheetModalProvider>
-        {/* Remount screens on theme or font change so every tw style and
+        {/* Remount screens on theme, ink or font change so every tw style and
             font name is recomputed.
             The navigator restarts on its initial screen, so keep it hidden
             until the previous navigation state is restored. */}
         <ThemedView
-          key={`${theme}-${font}`}
+          key={`${theme}-${accent}-${font}`}
           style={tw.style("flex-1", isRestoringNavigation && "opacity-0")}
         >
           <Stack
             screenOptions={{
               headerShown: false,
               headerTitleStyle: { fontFamily: typography.medium },
-              headerTintColor: palettes[theme].text,
-              contentStyle: { backgroundColor: palettes[theme].background },
+              headerTintColor: getPalette(theme, accent).text,
+              contentStyle: {
+                backgroundColor: getPalette(theme, accent).background,
+              },
             }}
           >
             <Stack.Screen

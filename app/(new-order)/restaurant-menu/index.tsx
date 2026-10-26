@@ -387,7 +387,7 @@ export default function RestaurantMenuScreen() {
                 <ThemedText
                   type="body2"
                   style={[
-                    tw`text-primary`,
+                    tw`text-on-surface`,
                     isSelected && { fontFamily: typography.medium },
                   ]}
                 >

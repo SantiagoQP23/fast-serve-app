@@ -198,7 +198,7 @@ export default function TablesSettingsScreen() {
               {t("settings.tableName", { name: table.name })}
             </ThemedText>
             {table.chairs != null && (
-              <ThemedText type="small" style={tw`text-primary`}>
+              <ThemedText type="small" style={tw`text-on-surface`}>
                 {t("settings.chairsCount", { count: table.chairs })}
               </ThemedText>
             )}

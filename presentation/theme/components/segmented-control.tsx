@@ -44,7 +44,7 @@ export default function SegmentedControl<T extends string>({
               <ThemedText
                 type={textType}
                 style={[
-                  tw.style(isActive ? "text-primary" : "text-gray-500"),
+                  tw.style(isActive ? "text-on-surface" : "text-gray-500"),
                   {
                     fontFamily: isActive
                       ? typography.semibold
