@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ScrollView, Pressable, View } from "react-native";
+import { RefreshControl, ScrollView, Pressable, View } from "react-native";
 import { router } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 import {
@@ -39,6 +39,15 @@ import {
 } from "@/core/menu/models/product-optionl.model";
 import { typography } from "@/constants/theme";
 import ProductTagsSection from "@/presentation/menu-management/components/product-tags-section";
+import {
+  openVariant as openVariantById,
+  useVariantStockSection,
+  VariantAdjustButtons,
+  VariantStockDetails,
+  VariantStockMovements,
+  VariantStockOverlays,
+  VariantStockOverview,
+} from "@/presentation/menu-management/components/variant-stock-section";
 
 const STOCK_TEXT_COLOR = {
   ok: "text-gray-500",
@@ -71,11 +80,11 @@ function OptionStockLeft({ option }: { option: ProductOption }) {
   );
 }
 
-const openVariant = (option: ProductOption) =>
-  router.push({
-    pathname: "/(profile)/menu/products/variant",
-    params: { productOptionId: String(option.id) },
-  });
+const openVariant = (option: ProductOption) => openVariantById(option.id);
+
+/** What a product without variants calls its only one ("Normal"). */
+const isDefaultOptionName = (name: string) =>
+  name.trim().toLowerCase() === "normal";
 
 interface MenuProductDetailViewProps {
   productId: string;
@@ -121,6 +130,7 @@ export default function MenuProductDetailView({
   const [newOptionName, setNewOptionName] = useState("");
   const [newOptionPrice, setNewOptionPrice] = useState("");
   const [newOptionIsDefault, setNewOptionIsDefault] = useState(false);
+  const [currentOptionName, setCurrentOptionName] = useState("");
   const [newOptionError, setNewOptionError] = useState("");
 
   const [selectedOption, setSelectedOption] = useState<ProductOption | null>(
@@ -136,12 +146,18 @@ export default function MenuProductDetailView({
   );
 
   const product = products.find((p) => p.id === productId);
-  // A product without variants shows its stock right here.
+  // A product with one variant shows that variant's stock right here,
+  // instead of a list of one.
   const activeOptions = product?.options.filter((o) => o.isActive) ?? [];
-  const singleOption =
-    product && !product.hasVariants && activeOptions.length === 1
-      ? activeOptions[0]
-      : null;
+  const singleOption = activeOptions.length === 1 ? activeOptions[0] : null;
+  const [stock, stockSheets] = useVariantStockSection(
+    singleOption ? product : undefined,
+    singleOption ?? undefined,
+  );
+  // Its second variant needs the first one to have a real name.
+  const needsCurrentName =
+    !!singleOption &&
+    (!product?.hasVariants || isDefaultOptionName(singleOption.name));
 
   const categoryOptions = categories.map((category) => ({
     label: category.name,
@@ -192,6 +208,7 @@ export default function MenuProductDetailView({
     setNewOptionName("");
     setNewOptionPrice("");
     setNewOptionIsDefault(false);
+    setCurrentOptionName("");
     setNewOptionError("");
     addOptionSheetRef.current?.present();
   };
@@ -209,6 +226,22 @@ export default function MenuProductDetailView({
       setNewOptionError(t("products.variants.validations.priceInvalid"));
       return;
     }
+    const trimmedCurrentName = currentOptionName.trim();
+    if (needsCurrentName && !trimmedCurrentName) {
+      setNewOptionError(t("products.variants.validations.currentNameRequired"));
+      return;
+    }
+    const takenNames = needsCurrentName
+      ? [trimmedCurrentName]
+      : activeOptions.map((o) => o.name);
+    if (
+      takenNames.some(
+        (name) => name.trim().toLowerCase() === trimmedName.toLowerCase(),
+      )
+    ) {
+      setNewOptionError(t("products.variants.validations.sameName"));
+      return;
+    }
     setNewOptionError("");
 
     createProductOption.mutate(
@@ -218,6 +251,7 @@ export default function MenuProductDetailView({
         price: parsedPrice,
         isDefault: newOptionIsDefault,
         trackStock: false,
+        ...(needsCurrentName ? { currentOptionName: trimmedCurrentName } : {}),
       },
       {
         onSuccess: () => addOptionSheetRef.current?.dismiss(),
@@ -261,14 +295,23 @@ export default function MenuProductDetailView({
     });
   };
 
-  const handleOpenEditOption = () => {
-    if (!selectedOption) return;
-    closeOptionActions();
-    setEditOptionName(selectedOption.name);
-    setEditOptionPrice(String(selectedOption.price));
+  const openEditOption = (option: ProductOption) => {
+    setSelectedOption(option);
+    setEditOptionName(option.name);
+    setEditOptionPrice(String(option.price));
     setEditOptionError("");
     editOptionSheetRef.current?.present();
   };
+
+  const handleOpenEditOption = () => {
+    if (!selectedOption) return;
+    closeOptionActions();
+    openEditOption(selectedOption);
+  };
+
+  // A product keeps at least one active variant, or it can't be sold.
+  const isLastActiveOption =
+    !!selectedOption?.isActive && activeOptions.length <= 1;
 
   const handleSaveEditOption = () => {
     if (!product || !selectedOption) return;
@@ -377,6 +420,16 @@ export default function MenuProductDetailView({
             "gap-4",
             canManage ? "pb-28" : "pb-8",
           )}
+          refreshControl={
+            stock.ownItemId ? (
+              <RefreshControl
+                refreshing={stock.refreshing}
+                onRefresh={stock.onRefresh}
+                tintColor={tw.color("primary")}
+                colors={[tw.color("primary") as string]}
+              />
+            ) : undefined
+          }
         >
           <ThemedView style={tw`gap-1`}>
             <ThemedView style={tw`flex-row items-center gap-2`}>
@@ -386,6 +439,42 @@ export default function MenuProductDetailView({
               />
             </ThemedView>
             <ThemedText type="h1">{product.name}</ThemedText>
+            {singleOption && (
+              <ThemedText
+                type="body1"
+                style={{ fontFamily: typography.semibold }}
+              >
+                {formatCurrency(singleOption.price)}
+              </ThemedText>
+            )}
+            {singleOption && !isDefaultOptionName(singleOption.name) && (
+              <Pressable
+                onPress={
+                  canManage ? () => openEditOption(singleOption) : undefined
+                }
+                disabled={!canManage}
+                accessibilityRole={canManage ? "button" : undefined}
+                style={({ pressed }) =>
+                  tw.style(
+                    "flex-row items-center gap-1.5",
+                    pressed && "opacity-70",
+                  )
+                }
+              >
+                <ThemedText type="small" style={tw`text-gray-500`}>
+                  {t("products.variants.singleName", {
+                    name: singleOption.name,
+                  })}
+                </ThemedText>
+                {canManage && (
+                  <Icon
+                    name="square-pen"
+                    size={14}
+                    color={tw.color("gray-500")}
+                  />
+                )}
+              </Pressable>
+            )}
             {/* <ThemedText */}
             {/*   type="body1" */}
             {/*   style={[ */}
@@ -441,134 +530,160 @@ export default function MenuProductDetailView({
           ) : null}
 
           {singleOption && (
-            <ThemedView style={tw`gap-3 mt-4`}>
-              <ThemedText type="caption">
-                {t("products.stock.title")}
-              </ThemedText>
-              <Card onPress={() => openVariant(singleOption)} variant="outline">
-                <ThemedView
-                  style={tw`flex-row items-center gap-3 bg-transparent`}
-                >
-                  <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-                    <ThemedText type="body1" style={tw`font-semibold`}>
-                      {t(
-                        `inventory:variant.mode.${getVariantStockMode(singleOption)}.label`,
-                      )}
-                    </ThemedText>
-                    <OptionStockLeft option={singleOption} />
-                  </ThemedView>
-                  <Icon
-                    name="chevron-right"
+            <ThemedView style={tw`gap-4 mt-4`}>
+              <ThemedView style={tw`flex-row items-center justify-between`}>
+                <ThemedText type="caption">
+                  {t("products.stock.title")}
+                </ThemedText>
+                {stock.hasOptions && (
+                  <IconButton
+                    icon="ellipsis-vertical"
                     size={18}
-                    color={tw.color("gray-400")}
+                    onPress={stock.openOptions}
+                    accessibilityLabel={t("inventory:variant.actions.title")}
+                    style={tw`-my-2 -mr-2`}
                   />
-                </ThemedView>
-              </Card>
+                )}
+              </ThemedView>
+              <VariantStockOverview section={stock} />
+              <VariantAdjustButtons section={stock} />
+              <VariantStockDetails section={stock} />
             </ThemedView>
           )}
 
-          {(canManage || product.options.length > 0) && (
-            <ThemedView style={tw`gap-3 mt-4`}>
-              <ThemedText type="caption">
-                {t("products.variants.title")}
-              </ThemedText>
-
-              {product.options.length === 0 ? (
-                <ThemedView
-                  style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
-                >
-                  <Icon
-                    name="sliders-horizontal"
-                    size={28}
-                    color={tw.color("gray-400")}
-                  />
-                  <ThemedText
-                    type="body2"
-                    style={tw`text-center text-gray-500`}
-                  >
-                    {t("products.variants.empty")}
+          {singleOption
+            ? canManage && (
+                <ThemedView style={tw`gap-3 mt-4`}>
+                  <ThemedText type="caption">
+                    {t("products.variants.title")}
                   </ThemedText>
-                </ThemedView>
-              ) : (
-                <ThemedView style={tw`gap-3`}>
-                  {product.options.map((option, index) => (
-                    <Card
-                      key={option.id ?? index}
-                      containerStyle={!option.isActive && tw`opacity-50`}
-                      onPress={() => openVariant(option)}
+                  <ThemedText type="body2" style={tw`text-gray-500`}>
+                    {t("products.variants.singleHint")}
+                  </ThemedText>
+                  <ThemedView style={tw`flex-row`}>
+                    <Button
+                      label={t("products.variants.addVariant")}
+                      onPress={openAddOptionSheet}
                       variant="outline"
-                    >
-                      <ThemedView
-                        style={tw`flex-row items-center gap-3 bg-transparent`}
-                      >
-                        <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-                          <ThemedText
-                            type="body1"
-                            style={tw`font-semibold`}
-                            numberOfLines={1}
-                          >
-                            {option.name}
-                          </ThemedText>
-                          <ThemedText type="small" style={tw`text-gray-500`}>
-                            {formatCurrency(option.price)}
-                          </ThemedText>
-                          <OptionStockLeft option={option} />
-                        </ThemedView>
-                        {canManage && (
-                          <IconButton
-                            icon="ellipsis-vertical"
-                            size={18}
-                            onPress={() => handleOpenOptionActions(option)}
-                            accessibilityLabel={t("products.variants.actions")}
-                          />
-                        )}
-                        {option.isDefault ? (
-                          <Icon
-                            name="star"
-                            size={18}
-                            color={tw.color("on-secondary")}
-                          />
-                        ) : canManage ? (
-                          <Pressable
-                            onPress={() => handleMakeDefaultFromRow(option)}
-                            disabled={setDefaultProductOption.isPending}
-                            hitSlop={10}
-                            accessibilityRole="button"
-                            accessibilityLabel={t(
-                              "products.variants.makeDefault",
-                            )}
-                            style={({ pressed }) =>
-                              tw.style(pressed && "opacity-60")
-                            }
-                          >
-                            <Icon
-                              name="star"
-                              size={18}
-                              color={tw.color("gray-300")}
-                            />
-                          </Pressable>
-                        ) : null}
-                      </ThemedView>
-                    </Card>
-                  ))}
+                      size="small"
+                      leftIcon="plus"
+                    />
+                  </ThemedView>
                 </ThemedView>
-              )}
+              )
+            : (canManage || product.options.length > 0) && (
+                <ThemedView style={tw`gap-3 mt-4`}>
+                  <ThemedText type="caption">
+                    {t("products.variants.title")}
+                  </ThemedText>
 
-              {canManage && (
-                <ThemedView style={tw`flex-row`}>
-                  <Button
-                    label={t("products.variants.addVariant")}
-                    onPress={openAddOptionSheet}
-                    variant="outline"
-                    size="small"
-                    leftIcon="plus"
-                  />
+                  {product.options.length === 0 ? (
+                    <ThemedView
+                      style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
+                    >
+                      <Icon
+                        name="sliders-horizontal"
+                        size={28}
+                        color={tw.color("gray-400")}
+                      />
+                      <ThemedText
+                        type="body2"
+                        style={tw`text-center text-gray-500`}
+                      >
+                        {t("products.variants.empty")}
+                      </ThemedText>
+                    </ThemedView>
+                  ) : (
+                    <ThemedView style={tw`gap-3`}>
+                      {product.options.map((option, index) => (
+                        <Card
+                          key={option.id ?? index}
+                          containerStyle={!option.isActive && tw`opacity-50`}
+                          onPress={() => openVariant(option)}
+                          variant="outline"
+                        >
+                          <ThemedView
+                            style={tw`flex-row items-center gap-3 bg-transparent`}
+                          >
+                            <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+                              <ThemedText
+                                type="body1"
+                                style={tw`font-semibold`}
+                                numberOfLines={1}
+                              >
+                                {option.name}
+                              </ThemedText>
+                              <ThemedText
+                                type="small"
+                                style={tw`text-gray-500`}
+                              >
+                                {formatCurrency(option.price)}
+                              </ThemedText>
+                              <OptionStockLeft option={option} />
+                            </ThemedView>
+                            {canManage && (
+                              <IconButton
+                                icon="ellipsis-vertical"
+                                size={18}
+                                onPress={() => handleOpenOptionActions(option)}
+                                accessibilityLabel={t(
+                                  "products.variants.actions",
+                                )}
+                              />
+                            )}
+                            {option.isDefault ? (
+                              <Icon
+                                name="star"
+                                size={18}
+                                color={tw.color("on-secondary")}
+                              />
+                            ) : canManage ? (
+                              <Pressable
+                                onPress={() => handleMakeDefaultFromRow(option)}
+                                disabled={setDefaultProductOption.isPending}
+                                hitSlop={10}
+                                accessibilityRole="button"
+                                accessibilityLabel={t(
+                                  "products.variants.makeDefault",
+                                )}
+                                style={({ pressed }) =>
+                                  tw.style(pressed && "opacity-60")
+                                }
+                              >
+                                <Icon
+                                  name="star"
+                                  size={18}
+                                  color={tw.color("gray-300")}
+                                />
+                              </Pressable>
+                            ) : null}
+                          </ThemedView>
+                        </Card>
+                      ))}
+                    </ThemedView>
+                  )}
+
+                  {canManage && (
+                    <ThemedView style={tw`flex-row`}>
+                      <Button
+                        label={t("products.variants.addVariant")}
+                        onPress={openAddOptionSheet}
+                        variant="outline"
+                        size="small"
+                        leftIcon="plus"
+                      />
+                    </ThemedView>
+                  )}
                 </ThemedView>
               )}
-            </ThemedView>
-          )}
 
           <ProductTagsSection product={product} canManage={canManage} />
+
+          {singleOption && (
+            <ThemedView style={tw`mt-4`}>
+              <VariantStockMovements section={stock} />
+            </ThemedView>
+          )}
 
           {canManage && (
             <ThemedView style={tw`items-center mt-20`}>
@@ -645,6 +760,24 @@ export default function MenuProductDetailView({
         <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
           <ThemedText type="h3">{t("products.variants.addVariant")}</ThemedText>
 
+          {needsCurrentName && (
+            <>
+              <ThemedText type="small" style={tw`text-gray-500`}>
+                {t("products.variants.currentNameHint")}
+              </ThemedText>
+              <TextInput
+                bottomSheet
+                label={t("products.variants.currentName")}
+                placeholder={t("products.variants.currentNamePlaceholder")}
+                value={currentOptionName}
+                onChangeText={setCurrentOptionName}
+              />
+              <ThemedText type="caption">
+                {t("products.variants.newVariant")}
+              </ThemedText>
+            </>
+          )}
+
           <TextInput
             bottomSheet
             label={t("products.variants.fields.name")}
@@ -705,11 +838,13 @@ export default function MenuProductDetailView({
                 </ThemedView>
               </ThemedView>
 
-              <IconButton
-                icon={selectedOption.isActive ? "eye" : "eye-off"}
-                onPress={handleToggleOptionActive}
-                variant="surface"
-              />
+              {!isLastActiveOption && (
+                <IconButton
+                  icon={selectedOption.isActive ? "eye" : "eye-off"}
+                  onPress={handleToggleOptionActive}
+                  variant="surface"
+                />
+              )}
             </ThemedView>
             <Button
               label={t("products.variants.openStock")}
@@ -718,13 +853,15 @@ export default function MenuProductDetailView({
               onPress={handleOpenVariantFromActions}
             />
             <ThemedView style={tw`flex-row gap-4 items-center justify-center`}>
-              <Button
-                leftIcon="trash"
-                label={t("delete")}
-                variant="destructive"
-                onPress={handleRequestDeleteOption}
-                size="small"
-              />
+              {!isLastActiveOption && (
+                <Button
+                  leftIcon="trash"
+                  label={t("delete")}
+                  variant="destructive"
+                  onPress={handleRequestDeleteOption}
+                  size="small"
+                />
+              )}
               <Button
                 label={t("edit")}
                 leftIcon="square-pen"
@@ -776,6 +913,8 @@ export default function MenuProductDetailView({
           </ThemedView>
         </BottomSheetView>
       </ThemedBottomSheetModal>
+
+      <VariantStockOverlays section={stock} sheets={stockSheets} />
 
       <DialogModal
         visible={!!optionToDelete}

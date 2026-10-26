@@ -143,6 +143,8 @@
     "MENU_PRODUCT_DUPLICATE_NAME": "Ya existe un producto con ese nombre",
     "MENU_PRODUCT_INVALID_IMAGE": "El archivo debe ser una imagen",
     "MENU_PRODUCT_NOT_FOUND": "No se encontró el producto",
+    "MENU_PRODUCT_LAST_VARIANT": "Un producto necesita al menos una variante activa",
+    "MENU_PRODUCT_OPTION_DUPLICATE_NAME": "Ya existe una variante con ese nombre",
     "MENU_PRODUCT_OPTION_NOT_FOUND": "No se encontró la variante del producto",
     "MENU_PRODUCT_VARIANT_NOT_FOUND": "No se encontró la variante del producto",
     "MENU_SECTION_DUPLICATE_NAME": "Ya existe una sección con ese nombre",

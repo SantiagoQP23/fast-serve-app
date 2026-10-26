@@ -206,7 +206,23 @@ export const useMenuManagement = () => {
     CreateProductOptionDto
   >({
     mutationFn: (data) => ProductOptionsService.create(data),
-    onSuccess: (option) => {
+    onSuccess: (option, variables) => {
+      // The server also renamed the only variant and marked the product
+      // with variants; mirror it until the product's sync event arrives.
+      const renamed = variables.currentOptionName?.trim();
+      const product = useMenuStore
+        .getState()
+        .products.find((p) => p.id === option.productId);
+      if (product)
+        upsertProduct({
+          ...product,
+          hasVariants: true,
+          options: product.options.map((existing) =>
+            renamed && existing.isActive
+              ? { ...existing, name: renamed }
+              : existing,
+          ),
+        });
       addProductOption(option.productId, {
         id: option.id,
         name: option.name,

@@ -9,4 +9,6 @@ export interface CreateProductOptionDto {
   trackStock: boolean;
   order?: number;
   quantity?: number;
+  /** Names the product's only variant when this is its second. */
+  currentOptionName?: string;
 }

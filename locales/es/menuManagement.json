@@ -187,6 +187,12 @@
       "productionAreaRequired": "El área de producción es requerida"
     },
     "variants": {
+      "singleHint": "Este producto tiene un solo precio. Agrega variantes si tiene tamaños o sabores.",
+      "singleName": "Variante: {{name}}",
+      "currentName": "Variante actual",
+      "currentNamePlaceholder": "ej. Personal",
+      "currentNameHint": "Al tener dos variantes, cada una necesita un nombre. La actual conserva su stock y sus movimientos.",
+      "newVariant": "Nueva variante",
       "title": "Variantes",
       "addVariant": "Agregar variante",
       "editVariant": "Editar variante",
@@ -203,6 +209,8 @@
         "price": "0.00"
       },
       "validations": {
+        "currentNameRequired": "Ponle un nombre a la variante actual",
+        "sameName": "Las dos variantes necesitan nombres distintos",
         "nameRequired": "El nombre de la variante es requerido",
         "priceInvalid": "El precio debe ser un número positivo"
       },

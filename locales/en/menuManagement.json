@@ -187,6 +187,12 @@
       "productionAreaRequired": "Production area is required"
     },
     "variants": {
+      "singleHint": "This product has a single price. Add variants if it comes in sizes or flavors.",
+      "singleName": "Variant: {{name}}",
+      "currentName": "Current variant",
+      "currentNamePlaceholder": "e.g. Small",
+      "currentNameHint": "With two variants, each needs a name. The current one keeps its stock and movements.",
+      "newVariant": "New variant",
       "title": "Variants",
       "addVariant": "Add variant",
       "editVariant": "Edit variant",
@@ -203,6 +209,8 @@
         "price": "0.00"
       },
       "validations": {
+        "currentNameRequired": "Name the current variant",
+        "sameName": "The two variants need different names",
         "nameRequired": "Variant name is required",
         "priceInvalid": "Price must be a positive number"
       },
