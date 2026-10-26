@@ -67,23 +67,35 @@ export default function InventoryItemDetailView({
 
   // A variant's own stock is shown on that variant (counts, purchases, the
   // shopping list and low-stock alerts can still open it by item id).
-  const ownerOptionId = useMenuStore((state) => {
+  // The variant screen, or the product's own screen when it is its only
+  // variant (it shows the stock there).
+  const ownerRoute = useMenuStore((state) => {
     if (!item || !isProductStockItem(item)) return null;
     for (const product of state.products) {
       for (const option of product.options ?? []) {
         const own = getOwnStockLine(option.inventoryItems);
-        if (own && getLineItemId(own) === item.id) return option.id;
+        if (!own || getLineItemId(own) !== item.id) continue;
+        return product.options.filter((o) => o.isActive).length === 1
+          ? `product:${product.id}`
+          : `variant:${option.id}`;
       }
     }
     return null;
   });
   useEffect(() => {
-    if (embedded || ownerOptionId === null) return;
-    router.replace({
-      pathname: "/(profile)/menu/products/variant",
-      params: { productOptionId: String(ownerOptionId) },
-    });
-  }, [embedded, ownerOptionId]);
+    if (embedded || ownerRoute === null) return;
+    const [kind, id] = ownerRoute.split(":");
+    if (kind === "product")
+      router.replace({
+        pathname: "/(profile)/menu/products/detail",
+        params: { productId: id },
+      });
+    else
+      router.replace({
+        pathname: "/(profile)/menu/products/variant",
+        params: { productOptionId: id },
+      });
+  }, [embedded, ownerRoute]);
 
   const Container = embedded ? ThemedView : ScreenLayout;
   const close = onClose ?? (() => router.back());

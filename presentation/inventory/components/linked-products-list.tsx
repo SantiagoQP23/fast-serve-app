@@ -1,5 +1,4 @@
 import Icon from "@/presentation/theme/components/icon";
-import { router } from "expo-router";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { GroupedList } from "@/presentation/theme/components/grouped-list";
@@ -10,6 +9,7 @@ import InventorySectionHeader from "./inventory-section-header";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import type { InventoryUnit } from "@/core/inventory/models/inventory-item.model";
 import type { ProductOptionInventoryItem } from "@/core/inventory/models/inventory-recipe.model";
+import { openVariant } from "@/presentation/menu-management/components/variant-stock-section";
 
 interface LinkedProductsListProps {
   lines: ProductOptionInventoryItem[];
@@ -51,12 +51,7 @@ export default function LinkedProductsList({
         <GroupedList
           data={lines}
           keyExtractor={(line) => line.id}
-          onItemPress={(line) =>
-            router.push({
-              pathname: "/(profile)/menu/products/variant",
-              params: { productOptionId: String(line.productOptionId) },
-            })
-          }
+          onItemPress={(line) => openVariant(Number(line.productOptionId))}
           renderItem={(line) => {
             const label = [
               line.productOption?.product?.name,
