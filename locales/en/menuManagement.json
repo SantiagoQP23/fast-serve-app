@@ -151,6 +151,7 @@
     "deleteError": "Could not delete the product",
     "deleteTitle": "Delete product",
     "deleteMessage": "Are you sure you want to delete this product?",
+    "options": "Product options",
     "duplicate": "Duplicate",
     "duplicateSuccess": "Product duplicated successfully",
     "duplicateError": "Could not duplicate the product",
@@ -239,6 +240,10 @@
     "moveAreaPartialError_other": "Couldn't move {{count}} products",
     "stock": {
       "title": "Stock"
+    },
+    "tabs": {
+      "details": "Details",
+      "stock": "Stock"
     }
   },
   "loading": "Loading...",
