@@ -145,7 +145,8 @@ export default function HistoryScreen() {
       .sort((a, b) => a.fullName.localeCompare(b.fullName));
   }, [users, user, isAdmin]);
 
-  const hasActiveFilters = filters.userId !== undefined;
+  // Only owners/admins can filter by user; everyone else sees only their own
+  const hasActiveFilters = isAdmin && filters.userId !== undefined;
 
   const removeFilters = useCallback(async () => {
     setFilters({});
@@ -243,11 +244,13 @@ export default function HistoryScreen() {
             />
           </ThemedView>
 
-          <IconButton
-            icon="funnel"
-            onPress={handleOpenFilters}
-            variant={hasActiveFilters ? "filled" : "text"}
-          />
+          {isAdmin && (
+            <IconButton
+              icon="funnel"
+              onPress={handleOpenFilters}
+              variant={hasActiveFilters ? "filled" : "text"}
+            />
+          )}
         </ThemedView>
 
         <ThemedView style={tw`px-4 mb-4 items-center`}>

@@ -2,7 +2,6 @@ import { Redirect, Tabs, useNavigation, useRouter } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useEffect, useRef } from "react";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import {
@@ -139,9 +138,6 @@ export default function TabLayout() {
 
   // const { printComanda } = usePrintComanda();
   // useNewTicketListener(printComanda);
-
-  // Check if user has admin-level access (admin or owner)
-  const isAdmin = isAdminLevelRole(user?.role?.name);
 
   // Tablet in landscape (counter/POS): navigation rail on the left
   const { isTablet, isLandscape } = useResponsiveLayout();
@@ -307,7 +303,6 @@ export default function TabLayout() {
                 <Icon color={color} name="chart-column" size={24} />
               </ThemedView>
             ),
-            href: isAdmin ? "/incomes" : null,
           }}
         />
         <Tabs.Screen

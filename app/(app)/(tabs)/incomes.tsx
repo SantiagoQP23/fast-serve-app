@@ -189,7 +189,8 @@ export default function IncomesScreen() {
     startDate: dateFilter,
     endDate: dateFilter,
   });
-  const reportWaiters = dailyReport?.waiterStats ?? [];
+  // Per-waiter breakdown is a restaurant-wide view; others only see themselves
+  const reportWaiters = isAdmin ? (dailyReport?.waiterStats ?? []) : [];
 
   const { paymentMethodReport } = useTransactionPaymentMethodReport({
     startDate: dateFilter,
