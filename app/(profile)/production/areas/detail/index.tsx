@@ -190,7 +190,7 @@ export default function ProductionAreaDetailScreen() {
         <ThemedView style={tw`gap-1`}>
           <ThemedText type="h1">{area.name}</ThemedText>
         </ThemedView>
-        <ThemedText type="h4" style={tw`text-primary`}>
+        <ThemedText type="h4" style={tw`text-on-surface`}>
           {t("productCount", { count: products.length })}
         </ThemedText>
 

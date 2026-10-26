@@ -109,14 +109,14 @@ export default function TabBar<T extends string>({
           type={textType}
           numberOfLines={1}
           style={[
-            tw`text-primary`,
+            tw`text-on-surface`,
             { fontFamily: isActive ? typography.semibold : typography.medium },
           ]}
         >
           {tab.label}
         </ThemedText>
         {tab.count !== undefined ? (
-          <ThemedText type="body2" style={tw`text-primary`}>
+          <ThemedText type="body2" style={tw`text-on-surface`}>
             {tab.count}
           </ThemedText>
         ) : null}

@@ -71,7 +71,10 @@ export const variantName = (product: Product, option: ProductOption) =>
  * Opens a variant. A product with a single active variant shows that
  * variant on its own screen, so it opens the product instead.
  */
-export const openVariant = (productOptionId: number) => {
+export const openVariant = (
+  productOptionId: number,
+  { openStockMode = false }: { openStockMode?: boolean } = {},
+) => {
   const product = useMenuStore
     .getState()
     .products.find((p) => p.options?.some((o) => o.id === productOptionId));
@@ -85,7 +88,10 @@ export const openVariant = (productOptionId: number) => {
   }
   router.push({
     pathname: "/(profile)/menu/products/variant",
-    params: { productOptionId: String(productOptionId) },
+    params: {
+      productOptionId: String(productOptionId),
+      ...(openStockMode ? { openStockMode: "true" } : {}),
+    },
   });
 };
 
@@ -401,17 +407,31 @@ export function VariantStockOverview({
         </ThemedView>
       </Card>
     );
-  } else if (title) {
-    // On the product screen the mode card below already says it.
+  } else {
+    // Not tracked: one card that says so and leads to set it up
     body = (
       <Card>
-        <ThemedView style={tw`gap-1 bg-transparent`}>
-          <ThemedText type="body1" style={{ fontFamily: typography.semibold }}>
-            {t("variant.notTracked")}
-          </ThemedText>
-          <ThemedText type="small" style={tw`text-gray-500`}>
-            {t("variant.notTrackedHint")}
-          </ThemedText>
+        <ThemedView style={tw`gap-4 bg-transparent`}>
+          <ThemedView style={tw`flex-row items-start gap-3 bg-transparent`}>
+            <Icon name="package" size={22} color={tw.color("on-surface")} />
+            <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+              <ThemedText
+                type="body1"
+                style={{ fontFamily: typography.semibold }}
+              >
+                {t("variant.inventory.title")}
+              </ThemedText>
+              <ThemedText type="small" style={tw`text-gray-500`}>
+                {t("variant.inventory.description")}
+              </ThemedText>
+            </ThemedView>
+          </ThemedView>
+          {canManage && (
+            <Button
+              label={t("variant.inventory.manage")}
+              onPress={section.openModeSheet}
+            />
+          )}
         </ThemedView>
       </Card>
     );
@@ -553,36 +573,43 @@ export function VariantStockDetails({
 
   return (
     <>
-      {/* How the stock is tracked; changing it is the main setting here */}
-      <Card onPress={canManage ? section.openModeSheet : undefined}>
-        <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
-          <Icon
-            name={
-              mode === "own"
-                ? "hash"
-                : mode === "recipe"
-                  ? "chef-hat"
-                  : "circle-off"
-            }
-            size={22}
-            color={tw.color("on-surface")}
-          />
-          <ThemedView style={tw`flex-1 gap-0.5 bg-transparent`}>
-            <ThemedText
-              type="body2"
-              style={{ fontFamily: typography.semibold }}
-            >
-              {t(`variant.mode.${mode}.label`)}
-            </ThemedText>
-            <ThemedText type="small" style={tw`text-gray-500`}>
-              {t(`variant.mode.${mode}.short`)}
-            </ThemedText>
+      {/* How the stock is tracked; changing it is the main setting here.
+          Not tracked, the inventory card above leads there instead. */}
+      {mode !== "none" && (
+        <Card onPress={canManage ? section.openModeSheet : undefined}>
+          <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
+            <Icon
+              name={
+                mode === "own"
+                  ? "hash"
+                  : mode === "recipe"
+                    ? "chef-hat"
+                    : "circle-off"
+              }
+              size={22}
+              color={tw.color("on-surface")}
+            />
+            <ThemedView style={tw`flex-1 gap-0.5 bg-transparent`}>
+              <ThemedText
+                type="body2"
+                style={{ fontFamily: typography.semibold }}
+              >
+                {t(`variant.mode.${mode}.label`)}
+              </ThemedText>
+              <ThemedText type="small" style={tw`text-gray-500`}>
+                {t(`variant.mode.${mode}.short`)}
+              </ThemedText>
+            </ThemedView>
+            {canManage && (
+              <Icon
+                name="chevron-right"
+                size={18}
+                color={tw.color("gray-400")}
+              />
+            )}
           </ThemedView>
-          {canManage && (
-            <Icon name="chevron-right" size={18} color={tw.color("gray-400")} />
-          )}
-        </ThemedView>
-      </Card>
+        </Card>
+      )}
 
       {sharedWith.length > 0 && (
         <ThemedText type="small" style={tw`text-gray-500 -mt-2`}>

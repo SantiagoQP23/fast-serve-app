@@ -44,6 +44,8 @@ interface InventoryCategoryBrowserProps {
   onRefresh: () => void;
   /** Shown at the bottom of the categories column when set. */
   onManageCategories?: () => void;
+  /** Drops categories with no items, e.g. while a status filter is on. */
+  hideEmptyGroups?: boolean;
 }
 
 /**
@@ -60,6 +62,7 @@ export default function InventoryCategoryBrowser({
   refreshing,
   onRefresh,
   onManageCategories,
+  hideEmptyGroups = false,
 }: InventoryCategoryBrowserProps) {
   const { t } = useTranslation("inventory");
   const { gridColumns } = useResponsiveLayout();
@@ -73,11 +76,13 @@ export default function InventoryCategoryBrowser({
       else byCategory.set(key, [item]);
     }
     // Empty categories stay listed so a new one doesn't seem to vanish.
-    const result = categories.map((category) => ({
-      key: category.id,
-      name: category.name,
-      items: byCategory.get(category.id) ?? [],
-    }));
+    const result = categories
+      .map((category) => ({
+        key: category.id,
+        name: category.name,
+        items: byCategory.get(category.id) ?? [],
+      }))
+      .filter((group) => !hideEmptyGroups || group.items.length > 0);
     const uncategorized = byCategory.get(UNCATEGORIZED_KEY);
     if (uncategorized) {
       result.push({
@@ -87,7 +92,7 @@ export default function InventoryCategoryBrowser({
       });
     }
     return result;
-  }, [items, categories, t]);
+  }, [items, categories, hideEmptyGroups, t]);
 
   const [selectedKey, setSelectedKey] = useState("");
   const selected = groups.some((group) => group.key === selectedKey)

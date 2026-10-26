@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { RefreshControl, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -24,6 +25,8 @@ interface VariantDetailViewProps {
   /** Rendered as a pane (tablet): close button instead of back. */
   embedded?: boolean;
   onClose?: () => void;
+  /** Opens the stock mode sheet on arrival, e.g. from "Gestionar stock". */
+  openStockMode?: boolean;
 }
 
 /**
@@ -35,6 +38,7 @@ export default function VariantDetailView({
   productOptionId,
   embedded = false,
   onClose,
+  openStockMode = false,
 }: VariantDetailViewProps) {
   const { t } = useTranslation("inventory");
   const insets = useSafeAreaInsets();
@@ -45,6 +49,18 @@ export default function VariantDetailView({
   );
   const option = product?.options.find((o) => o.id === productOptionId);
   const [section, sectionSheets] = useVariantStockSection(product, option);
+
+  // Only once: closing the sheet shouldn't bring it back
+  const openedStockMode = useRef(false);
+  const hasOption = !!option;
+  const { canManage } = section;
+  const { modeSheetRef } = sectionSheets;
+  useEffect(() => {
+    if (!openStockMode || !canManage || !hasOption || openedStockMode.current)
+      return;
+    openedStockMode.current = true;
+    modeSheetRef.current?.present();
+  }, [openStockMode, canManage, hasOption, modeSheetRef]);
 
   const Container = embedded ? ThemedView : ScreenLayout;
   const close = onClose ?? (() => router.back());

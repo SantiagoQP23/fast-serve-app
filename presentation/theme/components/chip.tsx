@@ -101,7 +101,7 @@ export default function Chip({
         // Shrinks and wraps in a narrow column instead of pushing out
         // trailing content
         style={[
-          tw`text-primary flex-shrink`,
+          tw`text-on-surface flex-shrink`,
           { fontFamily: typography.medium },
         ]}
       >

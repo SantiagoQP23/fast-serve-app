@@ -1,10 +1,7 @@
-import { Pressable } from "react-native";
-import Icon from "@/presentation/theme/components/icon";
-import { ThemedText } from "@/presentation/theme/components/themed-text";
-import { ThemedView } from "@/presentation/theme/components/themed-view";
+import { ScrollView as GestureScrollView } from "react-native-gesture-handler";
 import tw from "@/presentation/theme/lib/tailwind";
-import { typography } from "@/constants/theme";
 import Chip from "@/presentation/theme/components/chip";
+import Label, { type LabelProps } from "@/presentation/theme/components/label";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import type { InventoryStockSummaryCounts } from "@/presentation/inventory/services/inventory.service";
 import { InventoryItemStockStatusFilter } from "@/presentation/inventory/interfaces/dto/find-all-inventory-items.dto";
@@ -15,6 +12,7 @@ interface InventoryStockSummaryProps {
   onSelectStatus: (status: InventoryItemStockStatusFilter | null) => void;
 }
 
+/** Stock status filter chips with their counts, like the menu's stock chips. */
 export default function InventoryStockSummary({
   counts,
   selectedStatus,
@@ -22,108 +20,71 @@ export default function InventoryStockSummary({
 }: InventoryStockSummaryProps) {
   const { t } = useTranslation("inventory");
 
-  const tiles = [
+  const noMinimumCount = counts.noMinimum ?? 0;
+  const filters: {
+    key: InventoryItemStockStatusFilter;
+    count: number;
+    label: string;
+    color: NonNullable<LabelProps["color"]>;
+  }[] = [
     {
       key: InventoryItemStockStatusFilter.CRITICAL,
       count: counts.critical,
-      label: t("summary.critical"),
-      description: t("summary.criticalDescription"),
-      icon: "triangle-alert" as const,
-      color: "red-500",
+      label: t("status.critical"),
+      color: "error",
     },
     {
       key: InventoryItemStockStatusFilter.LOW,
       count: counts.low,
-      label: t("summary.low"),
-      description: t("summary.lowDescription"),
-      icon: "trending-down" as const,
-      color: "orange-500",
+      label: t("status.low"),
+      color: "warning",
     },
     {
       key: InventoryItemStockStatusFilter.OPTIMAL,
       count: counts.optimal,
-      label: t("summary.optimal"),
-      description: t("summary.optimalDescription"),
-      icon: "circle-check" as const,
-      color: "emerald-500",
+      label: t("status.optimal"),
+      color: "success",
     },
+    // Items with no minimum fit none of the health buckets; this keeps
+    // them findable so a minimum can be set.
+    ...(noMinimumCount > 0 ||
+    selectedStatus === InventoryItemStockStatusFilter.NO_MINIMUM
+      ? [
+          {
+            key: InventoryItemStockStatusFilter.NO_MINIMUM,
+            count: noMinimumCount,
+            label: t("status.noMinimum"),
+            color: "default" as const,
+          },
+        ]
+      : []),
   ];
 
-  const noMinimumCount = counts.noMinimum ?? 0;
-  const isNoMinimumSelected =
-    selectedStatus === InventoryItemStockStatusFilter.NO_MINIMUM;
-
   return (
-    <ThemedView style={tw`gap-3 bg-transparent`}>
-      <ThemedView style={tw`flex-row gap-2.5`}>
-        {tiles.map((tile) => {
-          const isSelected = selectedStatus === tile.key;
-          return (
-            <Pressable
-              key={tile.key}
-              onPress={() => onSelectStatus(isSelected ? null : tile.key)}
-              style={({ pressed }) =>
-                tw.style("flex-1", pressed && "opacity-70")
-              }
-              accessibilityRole="button"
-              accessibilityLabel={`${tile.label}: ${tile.count}`}
-              accessibilityState={{ selected: isSelected }}
-            >
-              <ThemedView
-                style={[
-                  tw`bg-surface-container-low rounded-md p-3.5 gap-2`,
-                  isSelected && {
-                    borderWidth: 2,
-                    borderColor: tw.color(tile.color),
-                  },
-                ]}
-              >
-                <ThemedView
-                  style={tw`flex-row items-center justify-between bg-transparent`}
-                >
-                  <ThemedText type="small" style={tw`text-gray-500`}>
-                    {tile.label}
-                  </ThemedText>
-                  <Icon
-                    name={tile.icon}
-                    size={16}
-                    color={tw.color(tile.color)}
-                  />
-                </ThemedView>
-                <ThemedView style={tw`bg-transparent`}>
-                  <ThemedText
-                    type="h3"
-                    style={{
-                      fontFamily: typography.semibold,
-                      fontVariant: ["tabular-nums"],
-                    }}
-                  >
-                    {tile.count}
-                  </ThemedText>
-                </ThemedView>
-              </ThemedView>
-            </Pressable>
-          );
-        })}
-      </ThemedView>
-      {/* Items with no minimum fit none of the tiles; this keeps them
-          findable so a minimum can be set. */}
-      {(noMinimumCount > 0 || isNoMinimumSelected) && (
-        <ThemedView style={tw`flex-row bg-transparent`}>
+    <GestureScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={tw`flex-grow-0`}
+      contentContainerStyle={tw`gap-2`}
+    >
+      {filters.map((filter) => {
+        const isSelected = selectedStatus === filter.key;
+        return (
           <Chip
-            label={t("summary.noMinimum", { count: noMinimumCount })}
-            icon={isNoMinimumSelected ? undefined : "circle-dashed"}
-            selected={isNoMinimumSelected}
-            onPress={() =>
-              onSelectStatus(
-                isNoMinimumSelected
-                  ? null
-                  : InventoryItemStockStatusFilter.NO_MINIMUM,
-              )
+            key={filter.key}
+            label={filter.label}
+            selected={isSelected}
+            onPress={() => onSelectStatus(isSelected ? null : filter.key)}
+            rightContent={
+              <Label
+                text={String(filter.count)}
+                size="small"
+                color={filter.count === 0 ? "default" : filter.color}
+              />
             }
           />
-        </ThemedView>
-      )}
-    </ThemedView>
+        );
+      })}
+    </GestureScrollView>
   );
 }

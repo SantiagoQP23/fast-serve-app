@@ -56,7 +56,7 @@ function InfoSection({
       <ThemedText
         type="body1"
         accessibilityRole="header"
-        style={[tw`text-primary`, { fontFamily: typography.semibold }]}
+        style={[tw`text-on-surface`, { fontFamily: typography.semibold }]}
       >
         {title}
       </ThemedText>

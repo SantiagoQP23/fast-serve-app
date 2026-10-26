@@ -165,7 +165,7 @@ Teikio is used tableside, mid-service, often one-handed, by someone who can't af
 The Material-shaped color roles (`primary` / `onPrimary` / `primaryContainer` / `secondary` / `secondaryContainer` / `surface*` / `onSurfaceVariant` / `inverseSurface`) already speak Android's language, even though the components are hand-built rather than native Material widgets. That middle ground is deliberate, and the system should keep leaning into it as it moves toward fuller Android conformance rather than abandon it for something more decorative.
 
 **Key Characteristics:**
-- One typeface (Plus Jakarta Sans), one accent (ink), no display/body pairing.
+- One typeface (Plus Jakarta Sans), one accent (ink, black by default, other ink colors per device), no display/body pairing.
 - Core primitives (cards, buttons, chips, inputs, selects, grouped rows) share a tight 6px radius. Larger radii are kept for touch-only controls and floating chrome.
 - Outlines are drawn in ink (`primary`) on interactive elements. The pale hairline (`border`) is for resting fields and quiet dividers.
 - Thin-stroke Lucide icons throughout, from one family, tinted `icon` gray by default.
@@ -201,7 +201,7 @@ Paper and ink: a white page with neutral gray paper surfaces, ink-black as the o
 - **Success** (green/emerald), **Warning** (orange), **Error** (red), **Info** (blue): status labels and states (active/inactive, stock, form errors, IN_PROGRESS). These come from the standard Tailwind scales rather than the role set. Keep them as the semantic layer, and don't recruit Ink Black or the ink-blue wash for status meaning.
 
 ### Named Rules
-**The One Accent Rule.** Ink is the only brand color. Selection is the Ink-Blue Wash, not a tint of the primary, and status is the semantic four, never the primary. Accent-like UI (spinners, checkmarks, focus borders) uses `primary`, never a hard-coded `blue-500`, and blue appears only where it means *info*. If a screen seems to need a second brand color, that's a decision for `new-work`, not a local choice.
+**The One Accent Rule.** Ink is the only brand color. The user may pick its color (see Ink colors), but there is still one ink at a time. Selection is the Ink-Blue Wash, not a tint of the primary, and status is the semantic four, never the primary. Accent-like UI (spinners, checkmarks, focus borders) uses `primary`, never a hard-coded `blue-500`, and blue appears only where it means *info*. If a screen seems to need a second brand color, that's a decision for `new-work`, not a local choice.
 
 **The Roles, Not Colors Rule.** Every color comes from a role in `constants/theme.ts` (`Palette`), used as a prefix-free class (`bg-surface`, `text-on-surface-variant`, `border-primary`) or through `usePalette()` / `tw.color()` when a prop needs a raw value. Never hard-code a hex, `white` or `bg-white` on a themed surface, and never compute a color in a module-level `StyleSheet.create`, because it won't follow the theme.
 
@@ -212,6 +212,20 @@ The user picks a theme per device in Settings → Appearance (`useThemeStore`), 
 - **Black** (labelled "Dark"/"Oscuro"): dark paper. Warm charcoal canvas (`#141311`), surfaces `#1E1C19` / `#262420`, and raised panels a step lighter (`surface-bright` `#2E2B27`, so dialogs and the selected `ButtonGroup` pill lift above every other surface), ivory text, and ivory ink as the accent (`#EDE8DF` on `#141311`). Selection is deep navy (`#1F2A38`, text `#DCE4EE`), and the strong `secondary-container` inverts to a pale blue (`#B9C8DB`). Tailwind scales are remapped (`colorScaleOverrides`): `gray` becomes a warm charcoal ramp, pale shades (50–300) become dark fills and dark text shades (700+) become light, so `bg-red-100 text-red-800` still reads as a soft label.
 
 The One Accent Rule holds in every theme. Printed receipts and QR codes stay black on white.
+
+### Ink colors
+The user picks the ink per device in Settings → Ink color (`useThemeStore().accent`). It only replaces `primary`, `primaryContainer` and `onPrimaryContainer` (`getPalette(theme, accent)` in `constants/theme.ts`). Text, icons, the Ink-Blue Wash for selection and the semantic colors don't change. Each ink has a value per theme: a deeper shade on Paper and a pale ink on Dark, so On Ink stays the theme's own value.
+
+| Ink | Light | Paper | Dark |
+|---|---|---|---|
+| Black (`ink`, default) | `#1C1B19` | `#24211D` | `#EDE8DF` |
+| Blue (`blue`) | `#1F4A9E` | `#1C428C` | `#A9C3EE` |
+| Teal (`teal`) | `#0E5961` | `#0D4F56` | `#8FCBCF` |
+| Green (`green`) | `#215E3B` | `#1F5536` | `#A0CFAE` |
+| Burgundy (`burgundy`) | `#7D1F2E` | `#721D2A` | `#EDAAB3` |
+| Sepia (`sepia`) | `#6A4325` | `#5F3C21` | `#DDBF9E` |
+
+Never hard-code an ink hex or read `palettes[theme].primary`: use the role, `usePalette()` or `tw.color("primary")` so the chosen ink follows.
 
 ## Typography
 
@@ -370,7 +384,7 @@ A scrollable, haptic, iOS-style value picker (the `WheelColumn` primitive) for f
 - **Do** keep body text at medium weight (500), and drop to regular only for `body2`.
 
 ### Don't:
-- **Don't** introduce a second accent color. Ink is the only brand hue, and status uses the fixed semantic four.
+- **Don't** introduce a second accent color. Ink is the only brand hue (in whichever ink color the user picked), and status uses the fixed semantic four.
 - **Don't** put a shadow on a resting content surface other than `Card variant="elevated"`, or invent a shadow weight beyond `shadow-sm` (docked) and `shadow-lg` (free-floating).
 - **Don't** copy the 8–24px radii still found in older screen-level views onto new content. They're migration debt.
 - **Don't** reintroduce a soft/tinted `Label` style or a status dot on labels.

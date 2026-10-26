@@ -1,6 +1,12 @@
-import { useMemo, useState } from "react";
-import { ScrollView, RefreshControl, Pressable, View } from "react-native";
-import { router } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
+import {
+  BackHandler,
+  ScrollView,
+  RefreshControl,
+  Pressable,
+  View,
+} from "react-native";
+import { router, useFocusEffect } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -13,17 +19,17 @@ import Button from "@/presentation/theme/components/button";
 import TabBar, { type TabItem } from "@/presentation/theme/components/tab-bar";
 import TabPager from "@/presentation/theme/components/tab-pager";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
-import { useInventoryItemsSummary } from "@/presentation/inventory/hooks/useInventoryItemsSummary";
 import { useInventoryItemCategories } from "@/presentation/inventory/hooks/useInventoryItemCategories";
 import InventoryCategoryBrowser from "@/presentation/inventory/components/inventory-category-browser";
-import InventoryItemsView from "@/presentation/inventory/components/inventory-items-view";
 import InventoryStockSummary from "@/presentation/inventory/components/inventory-stock-summary";
 import InventoryCountsTab from "@/presentation/inventory/components/inventory-counts-tab";
 import InventoryPurchasesTab from "@/presentation/inventory/components/inventory-purchases-tab";
 import MenuOverviewContent from "@/presentation/menu-management/components/menu-overview-content";
 import {
+  getInventoryStockStatus,
   isProductStockItem,
   type InventoryItem,
+  type InventoryStockStatus,
 } from "@/core/inventory/models/inventory-item.model";
 import { InventoryItemStockStatusFilter } from "@/presentation/inventory/interfaces/dto/find-all-inventory-items.dto";
 import InventoryItemDetailView from "@/presentation/inventory/components/inventory-item-detail-view";
@@ -37,13 +43,15 @@ type InventoryTab = "menu" | "inventory" | "purchases" | "counts";
 /** What the detail pane next to the list shows (tablet). */
 type PaneSelection = { kind: "item" | "count" | "purchase"; id: string };
 
-/** What a folder (or summary card) opens: a slice of the item list. */
-interface ItemsScope {
-  categoryId: string | null;
-  uncategorized: boolean;
-  title: string;
-  status: InventoryItemStockStatusFilter | null;
-}
+const STATUS_BY_FILTER: Record<
+  InventoryItemStockStatusFilter,
+  InventoryStockStatus
+> = {
+  [InventoryItemStockStatusFilter.CRITICAL]: "critical",
+  [InventoryItemStockStatusFilter.LOW]: "low",
+  [InventoryItemStockStatusFilter.OPTIMAL]: "optimal",
+  [InventoryItemStockStatusFilter.NO_MINIMUM]: "noMinimum",
+};
 
 const LIST_PANE_WIDTH = 440;
 
@@ -66,17 +74,19 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   // The Menú page's search field opens from the header, like Insumos' search
   const [menuSearchOpen, setMenuSearchOpen] = useState(false);
 
+  // Status chips filter the Insumos in place, like the Menú's stock chips.
+  const [statusFilter, setStatusFilter] =
+    useState<InventoryItemStockStatusFilter | null>(null);
+
   // Tablet landscape: details open in a pane next to the list instead of
-  // pushing a screen, and item lists open in place of the categories.
+  // pushing a screen.
   const { isExpanded } = useResponsiveLayout();
   const [selection, setSelection] = useState<PaneSelection | null>(null);
-  const [folderView, setFolderView] = useState<ItemsScope | null>(null);
   const activeId = isExpanded ? selection?.id : undefined;
 
   const changeTab = (tab: InventoryTab) => {
     setActiveTab(tab);
     setSelection(null);
-    setFolderView(null);
   };
 
   const openItem = (item: InventoryItem) => {
@@ -90,26 +100,42 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     });
   };
 
-  // Global stock counts for the summary cards: they open the item list
-  // already filtered by that status, rather than filtering this screen.
-  const { summaryQuery, counts: summaryCounts } = useInventoryItemsSummary();
-
-  const openItems = (scope: ItemsScope) => {
-    if (isExpanded) {
-      setFolderView(scope);
-      return;
+  // Counted over the loaded catalog so each chip matches what it shows.
+  const statusCounts = useMemo(() => {
+    const counts = { critical: 0, low: 0, optimal: 0, noMinimum: 0 };
+    for (const item of catalogItems) {
+      const status = getInventoryStockStatus(item);
+      if (status !== "inactive") counts[status] += 1;
     }
-    router.push({
-      pathname: "/(profile)/inventory/items/list",
-      params: {
-        ...(scope.categoryId
-          ? { categoryId: scope.categoryId, name: scope.title }
-          : {}),
-        ...(scope.uncategorized ? { uncategorized: "true" } : {}),
-        ...(scope.status ? { status: scope.status } : {}),
-      },
-    });
-  };
+    return counts;
+  }, [catalogItems]);
+
+  const filteredItems = useMemo(
+    () =>
+      statusFilter
+        ? catalogItems.filter(
+            (item) =>
+              getInventoryStockStatus(item) === STATUS_BY_FILTER[statusFilter],
+          )
+        : catalogItems,
+    [catalogItems, statusFilter],
+  );
+
+  // Back clears the status filter before it leaves the screen
+  const hasBackStep = activeTab === "inventory" && !!statusFilter;
+  useFocusEffect(
+    useCallback(() => {
+      if (!hasBackStep) return;
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        () => {
+          setStatusFilter(null);
+          return true;
+        },
+      );
+      return () => subscription.remove();
+    }, [hasBackStep]),
+  );
 
   const handleOpenSearch = () => {
     if (activeTab === "menu") {
@@ -136,15 +162,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   };
 
   const handleRefresh = () =>
-    Promise.all([
-      catalogQuery.refetch(),
-      categoriesQuery.refetch(),
-      summaryQuery.refetch(),
-    ]);
-
-  const handleItemsRemoved = (ids: string[]) => {
-    if (selection && ids.includes(selection.id)) setSelection(null);
-  };
+    Promise.all([catalogQuery.refetch(), categoriesQuery.refetch()]);
 
   const hasContent = catalogItems.length > 0 || categories.length > 0;
 
@@ -219,26 +237,67 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
                 {!catalogQuery.isLoading &&
                   !catalogQuery.isError &&
                   catalogItems.length > 0 && (
-                    <InventoryStockSummary
-                      counts={summaryCounts}
-                      selectedStatus={null}
-                      onSelectStatus={(status) =>
-                        status &&
-                        openItems({
-                          categoryId: null,
-                          uncategorized: false,
-                          title: t("allItems"),
-                          status,
-                        })
-                      }
-                    />
+                    <ThemedView style={tw`gap-2 bg-transparent`}>
+                      <InventoryStockSummary
+                        counts={statusCounts}
+                        selectedStatus={statusFilter}
+                        onSelectStatus={setStatusFilter}
+                      />
+                      {/* Without results the empty state says it and
+                          offers the way out */}
+                      {statusFilter && filteredItems.length > 0 && (
+                        <ThemedView
+                          style={tw`flex-row items-center justify-between gap-2 bg-transparent`}
+                        >
+                          <ThemedText
+                            type="body2"
+                            style={tw`flex-1 text-gray-500`}
+                            numberOfLines={1}
+                          >
+                            {[
+                              t(`status.${STATUS_BY_FILTER[statusFilter]}`),
+                              t("categories.itemCount", {
+                                count: filteredItems.length,
+                              }),
+                            ].join(" · ")}
+                          </ThemedText>
+                          <Button
+                            label={t("filter.clear")}
+                            variant="link"
+                            size="small"
+                            leftIcon="x"
+                            onPress={() => setStatusFilter(null)}
+                          />
+                        </ThemedView>
+                      )}
+                    </ThemedView>
                   )}
 
-                {!catalogQuery.isLoading &&
-                !catalogQuery.isError &&
-                hasContent ? (
+                {statusFilter && filteredItems.length === 0 ? (
+                  <ThemedView style={tw`items-center py-8 gap-3 bg-transparent`}>
+                    <Icon
+                      name="circle-check"
+                      size={48}
+                      color={tw.color("gray-400")}
+                    />
+                    <ThemedText
+                      type="body1"
+                      style={tw`text-center text-gray-500 px-4`}
+                    >
+                      {t(`filter.empty.${STATUS_BY_FILTER[statusFilter]}`)}
+                    </ThemedText>
+                    <Button
+                      label={t("filter.clear")}
+                      variant="outline"
+                      onPress={() => setStatusFilter(null)}
+                    />
+                  </ThemedView>
+                ) : !catalogQuery.isLoading &&
+                  !catalogQuery.isError &&
+                  hasContent ? (
                   <InventoryCategoryBrowser
-                    items={catalogItems}
+                    items={filteredItems}
+                    hideEmptyGroups={!!statusFilter}
                     categories={categories}
                     onOpenItem={openItem}
                     activeId={activeId}
@@ -355,22 +414,6 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   // The menu lays out its own list + product panes.
   if (!isExpanded || activeTab === "menu") return content;
 
-  const listPane = folderView ? (
-    <InventoryItemsView
-      key={`${folderView.categoryId}-${folderView.uncategorized}-${folderView.status}`}
-      categoryId={folderView.categoryId}
-      uncategorized={folderView.uncategorized}
-      title={folderView.title}
-      initialStatus={folderView.status}
-      onBack={() => setFolderView(null)}
-      onOpenItem={openItem}
-      activeId={activeId}
-      onItemsRemoved={handleItemsRemoved}
-    />
-  ) : (
-    content
-  );
-
   const closePane = () => setSelection(null);
   const emptyPane = {
     menu: { icon: "hamburger", text: t("pane.selectItem") },
@@ -381,7 +424,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
 
   return (
     <ThemedView style={tw`flex-1 flex-row bg-transparent`}>
-      <View style={{ width: LIST_PANE_WIDTH }}>{listPane}</View>
+      <View style={{ width: LIST_PANE_WIDTH }}>{content}</View>
       <ThemedView style={tw`flex-1 border-l border-outline-variant`}>
         {selection?.kind === "item" && (
           <InventoryItemDetailView

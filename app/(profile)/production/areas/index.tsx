@@ -200,7 +200,7 @@ export default function ProductionAreasScreen() {
                       />
                       <ThemedView style={tw`flex-1 gap-4`}>
                         <ThemedView style={tw`gap-0.5`}>
-                          <ThemedText type="h4" style={tw`text-primary`}>
+                          <ThemedText type="h4" style={tw`text-on-surface`}>
                             {area.name}
                           </ThemedText>
                           <ThemedText type="small" style={tw`text-gray-500`}>

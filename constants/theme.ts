@@ -134,6 +134,64 @@ export const DEFAULT_THEME: ThemeName = "light";
 /** Themes with a dark background, for the status bar and native controls. */
 export const isDarkTheme = (theme: ThemeName) => theme === "black";
 
+type Accent = Pick<Palette, "primary" | "primaryContainer">;
+
+/**
+ * Ink colors the user can pick for the `primary` role, with one value per
+ * theme: a deeper ink on paper and a pale ink on black, like ivory.
+ * `ink` is the theme's own ink black.
+ */
+export const accents = {
+  ink: {
+    light: { primary: light.primary, primaryContainer: light.primaryContainer },
+    paper: { primary: paper.primary, primaryContainer: paper.primaryContainer },
+    black: { primary: black.primary, primaryContainer: black.primaryContainer },
+  },
+  blue: {
+    light: { primary: "#1F4A9E", primaryContainer: "#E9EDF5" },
+    paper: { primary: "#1C428C", primaryContainer: "#DEDEDD" },
+    black: { primary: "#A9C3EE", primaryContainer: "#373A3F" },
+  },
+  teal: {
+    light: { primary: "#0E5961", primaryContainer: "#E7EEEF" },
+    paper: { primary: "#0D4F56", primaryContainer: "#DDDFD8" },
+    black: { primary: "#8FCBCF", primaryContainer: "#323C3A" },
+  },
+  green: {
+    light: { primary: "#215E3B", primaryContainer: "#E9EFEB" },
+    paper: { primary: "#1F5536", primaryContainer: "#DFE0D4" },
+    black: { primary: "#A0CFAE", primaryContainer: "#353C34" },
+  },
+  burgundy: {
+    light: { primary: "#7D1F2E", primaryContainer: "#F2E9EA" },
+    paper: { primary: "#721D2A", primaryContainer: "#E7DAD3" },
+    black: { primary: "#EDAAB3", primaryContainer: "#433635" },
+  },
+  sepia: {
+    light: { primary: "#6A4325", primaryContainer: "#F0ECE9" },
+    paper: { primary: "#5F3C21", primaryContainer: "#E5DDD2" },
+    black: { primary: "#DDBF9E", primaryContainer: "#403931" },
+  },
+} satisfies Record<string, Record<ThemeName, Accent>>;
+
+export type AccentName = keyof typeof accents;
+
+export const DEFAULT_ACCENT: AccentName = "ink";
+
+export const isAccentName = (value: unknown): value is AccentName =>
+  typeof value === "string" && value in accents;
+
+/** A theme's color roles with the chosen ink as `primary`. */
+export const getPalette = (theme: ThemeName, accent: AccentName): Palette => {
+  const { primary, primaryContainer } = accents[accent][theme];
+  return {
+    ...palettes[theme],
+    primary,
+    primaryContainer,
+    onPrimaryContainer: primary,
+  };
+};
+
 // Tailwind's default scales, for the families the app uses.
 const tailwindScales = {
   red: {
@@ -334,11 +392,15 @@ export const colorScaleOverrides: Record<
   },
 };
 
-/** Colors the theme picker shows as a preview swatch. */
-export const themeSwatches: Record<ThemeName, string[]> = {
-  light: [light.background, light.surface, light.primary, light.secondary],
-  paper: [paper.background, paper.surface, paper.primary, paper.secondary],
-  black: [black.background, black.surface, black.primary, black.secondary],
+/** Colors the theme picker shows as a preview swatch, with the chosen ink. */
+export const themeSwatches = (theme: ThemeName, accent: AccentName) => {
+  const palette = getPalette(theme, accent);
+  return [
+    palette.background,
+    palette.surface,
+    palette.primary,
+    palette.secondary,
+  ];
 };
 
 export const Fonts = Platform.select({

@@ -181,7 +181,7 @@ export default function ManageScreen() {
         <ThemedView style={tw`my-6 gap-6`}>
           {/* Menu */}
           <ThemedView style={tw`gap-2`}>
-            <ThemedText type="body2" style={tw`text-primary`}>
+            <ThemedText type="body2" style={tw`text-on-surface`}>
               {t("manage.menu.title")}
             </ThemedText>
             <GroupedList
@@ -194,7 +194,7 @@ export default function ManageScreen() {
 
           {/* Restaurant */}
           <ThemedView style={tw`gap-2`}>
-            <ThemedText type="body2" style={tw`text-primary`}>
+            <ThemedText type="body2" style={tw`text-on-surface`}>
               {t("manage.restaurant")}
             </ThemedText>
             <GroupedList
