@@ -1,31 +1,24 @@
-import { ScrollView, RefreshControl, Alert, Pressable } from "react-native";
+import { ScrollView, RefreshControl, Alert } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 
-import Icon from "@/presentation/theme/components/icon";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { router } from "expo-router";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useQueryClient } from "@tanstack/react-query";
 import StatsCard from "@/presentation/home/components/stats-card";
 import { useDashboardStats } from "@/presentation/orders/hooks/useDashboardStats";
 import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
-import ProgressBar from "@/presentation/theme/components/progress-bar";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 import OrderCardSkeleton from "@/presentation/home/components/order-card-skeleton";
 import * as Haptics from "expo-haptics";
-import DailyReportSummaryCard from "@/presentation/home/components/daily-report-summary-card";
-import { useDailyReport } from "@/presentation/orders/hooks/useDailyReport";
 import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
-import Card from "@/presentation/theme/components/card";
-import { typography } from "@/constants/theme";
 import Chip from "@/presentation/theme/components/chip";
 import {
   DateRangeFilter,
@@ -37,7 +30,6 @@ import CustomDateRangeBottomSheet from "@/presentation/orders/components/custom-
 import BestSellingProductsCard from "@/presentation/home/components/best-selling-products-card";
 import BestSellingCategoriesCard from "@/presentation/home/components/best-selling-categories-card";
 import SalesByProductionAreaCard from "@/presentation/home/components/sales-by-production-area-card";
-import Button from "@/presentation/theme/components/button";
 import Label from "@/presentation/theme/components/label";
 
 export default function AnalyticsScreen() {
@@ -59,7 +51,6 @@ export default function AnalyticsScreen() {
   const primaryColor = useThemeColor({}, "primary");
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
-  const [showTotalAmount, setShowTotalAmount] = useState(false);
 
   const [selectedDateRangeFilter, setSelectedDateRangeFilter] =
     useState<DateRangeFilter>(DateRangeFilter.TODAY);
@@ -120,19 +111,12 @@ export default function AnalyticsScreen() {
 
   const { isLoading: isLoadingOrders } = useActiveOrders();
 
-  const { dailyReport } = useDailyReport({
-    startDate: dateRange.startDate,
-    endDate: dateRange.endDate,
-  });
-  const reportWaiters = dailyReport?.waiterStats || [];
-
   const onRefresh = useCallback(async () => {
     try {
       setRefreshing(true);
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       await Promise.all([
         refetchStats(),
-        queryClient.invalidateQueries({ queryKey: ["dailyReport"] }),
         queryClient.invalidateQueries({ queryKey: ["salesByProductionArea"] }),
       ]);
     } catch {
@@ -144,14 +128,6 @@ export default function AnalyticsScreen() {
       setRefreshing(false);
     }
   }, [queryClient, currentRestaurant?.id, t, refetchStats]);
-
-  const currencySymbol = t("common:currency.symbol");
-  const totalAmountValue = dashboardStats?.totalAmount ?? 0;
-  const formattedTotalAmount = `${currencySymbol}${totalAmountValue.toFixed(2)}`;
-
-  const displayedTotalAmount = showTotalAmount
-    ? formattedTotalAmount
-    : formattedTotalAmount.replace(/\d/g, "*");
 
   return (
     <ScreenLayout style={tw`flex-1 bg-background pt-4`}>
@@ -214,56 +190,8 @@ export default function AnalyticsScreen() {
           </ThemedView>
         ) : (
           <ThemedView style={tw`px-4 gap-8`}>
-            {/* Total Amount */}
-            <ThemedView style={tw`gap-4 rounded-lg mt-4`}>
-              <ThemedView style={tw`bg-transparent gap-1`}>
-                <ThemedView style={tw`flex-row items-center gap-2`}>
-                  <ThemedText type="small">
-                    {t("common:stats.totalAmount")}
-                  </ThemedText>
-                  <Pressable
-                    onPress={() => setShowTotalAmount((prev) => !prev)}
-                    hitSlop={8}
-                  >
-                    <Icon
-                      name={showTotalAmount ? "eye-off" : "eye"}
-                      size={18}
-                      color={tw.color("gray-500")}
-                    />
-                  </Pressable>
-                </ThemedView>
-                <ThemedText style={tw`text-5xl`}>
-                  {displayedTotalAmount}
-                </ThemedText>
-              </ThemedView>
-
-              {/* Income Progress */}
-              <ThemedView style={tw`gap-2`}>
-                <ThemedView
-                  style={tw`flex-row justify-between items-center gap-1`}
-                >
-                  <ThemedText type="small">
-                    {t("common:stats.totalIncome")}
-                  </ThemedText>
-                  <ThemedText
-                    type="body1"
-                    style={tw`font-semibold text-on-surface`}
-                  >
-                    {`${t("common:currency.symbol")}${dashboardStats?.totalIncome?.toFixed(2) ?? "0.00"}`}
-                  </ThemedText>
-                </ThemedView>
-                <ProgressBar
-                  height={2}
-                  progress={
-                    (dashboardStats?.totalIncome || 0) /
-                    (dashboardStats?.totalAmount || 1)
-                  }
-                />
-              </ThemedView>
-            </ThemedView>
-
             {/* Stats Cards Row */}
-            <ThemedView style={tw`flex-row gap-4`}>
+            <ThemedView style={tw`flex-row gap-4 mt-4`}>
               <StatsCard
                 title={t("common:stats.ordersQuantity")}
                 value={dashboardStats?.ordersQuantity ?? 0}
@@ -332,73 +260,6 @@ export default function AnalyticsScreen() {
         {/*   </ThemedView> */}
         {/* )} */}
 
-        {isAdmin && reportWaiters.length > 0 && (
-          <ThemedView style={tw`px-4`}>
-            <Card style={tw``}>
-              <ThemedText type="h4" style={tw`mb-3`}>
-                {t("reports:waiterStats.title")}
-              </ThemedText>
-              <ThemedView style={tw`gap-4`}>
-                {reportWaiters.map((waiter) => (
-                  <ThemedView key={waiter.userId} style={tw`gap-2`}>
-                    <ThemedView
-                      style={tw`flex-row justify-between items-center`}
-                    >
-                      <ThemedView style={tw`gap-1`}>
-                        <ThemedText
-                          type="body2"
-                          style={{ fontFamily: typography.medium }}
-                        >
-                          {waiter.fullName}
-                        </ThemedText>
-                        <ThemedText type="small" style={tw`text-gray-500`}>
-                          {waiter.totalOrders} {t("reports:waiterStats.orders")}
-                          {" · "}
-                          {formatCurrency(waiter.totalIncome)}
-                          {" · "}
-                          {t("reports:waiterStats.average")}{" "}
-                          {formatCurrency(waiter.averageOrderAmount ?? 0)}
-                        </ThemedText>
-                      </ThemedView>
-
-                      <ThemedView
-                        style={tw`flex-row gap-1 items-center justify-end`}
-                      >
-                        <ThemedText type="body2">
-                          {formatCurrency(waiter.totalAmount)}
-                        </ThemedText>
-                      </ThemedView>
-                    </ThemedView>
-                    <ProgressBar
-                      height={2}
-                      progress={
-                        (waiter?.totalIncome || 0) / (waiter?.totalAmount || 1)
-                      }
-                    />
-                  </ThemedView>
-                ))}
-              </ThemedView>
-            </Card>
-          </ThemedView>
-        )}
-
-        <ThemedView style={tw`px-4`}>
-          <Card onPress={() => router.push("/(profile)/history")}>
-            <ThemedView style={tw`flex-row items-center gap-3`}>
-              <Icon name="clock" size={22} color={tw.color("gray-500")} />
-              <ThemedView style={tw`flex-1`}>
-                <ThemedText type="body1">
-                  {t("common:stats.orderHistory")}
-                </ThemedText>
-              </ThemedView>
-              <Icon
-                name="chevron-right"
-                size={20}
-                color={tw.color("gray-400")}
-              />
-            </ThemedView>
-          </Card>
-        </ThemedView>
       </ScrollView>
 
       <ThemedBottomSheetModal ref={customRangeSheetRef} enablePanDownToClose>

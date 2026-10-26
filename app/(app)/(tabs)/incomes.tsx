@@ -42,6 +42,14 @@ import { GroupedList } from "@/presentation/theme/components/grouped-list";
 import Card from "@/presentation/theme/components/card";
 import TransactionDetailView from "@/presentation/transactions/components/transaction-detail-view";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
+import { useDashboardStats } from "@/presentation/orders/hooks/useDashboardStats";
+import { useDailyReport } from "@/presentation/orders/hooks/useDailyReport";
+import {
+  DateRangeFilter,
+  getDateRangeFor,
+} from "@/core/orders/enums/date-range-filter.enum";
+import AmountSummaryHeader from "@/presentation/reports/components/amount-summary-header";
+import WaiterSummaryCard from "@/presentation/reports/components/waiter-summary-card";
 
 const STORAGE_KEY = "incomes_selected_date";
 const FILTERS_STORAGE_KEY = "incomes_filters";
@@ -52,7 +60,6 @@ export default function IncomesScreen() {
   const router = useRouter();
   const { currentRestaurant } = useAuthStore();
   const [refreshing, setRefreshing] = useState(false);
-  const [showNetIncome, setShowNetIncome] = useState(false);
   const [showAccounts, setShowAccounts] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [filters, setFilters] = useState<FilterTransactionsDto>({});
@@ -167,6 +174,23 @@ export default function IncomesScreen() {
   // Convert date to ISO string format for API
   const dateFilter = dayjs(selectedDate).format("YYYY-MM-DD");
 
+  // Billed vs. collected totals and per-waiter breakdown for the selected day
+  const statsRange = useMemo(
+    () =>
+      getDateRangeFor(DateRangeFilter.CUSTOM, {
+        startDate: selectedDate,
+        endDate: selectedDate,
+      }),
+    [selectedDate],
+  );
+  const { dashboardStats, refetch: refetchStats } =
+    useDashboardStats(statsRange);
+  const { dailyReport } = useDailyReport({
+    startDate: dateFilter,
+    endDate: dateFilter,
+  });
+  const reportWaiters = dailyReport?.waiterStats ?? [];
+
   const { paymentMethodReport } = useTransactionPaymentMethodReport({
     startDate: dateFilter,
     endDate: dateFilter,
@@ -199,14 +223,10 @@ export default function IncomesScreen() {
 
   // Fetch transactions for the selected date
   const {
-    totalIncome,
     count,
-    totalExpense,
     transactions,
     isLoading: transactionsLoading,
-    isLoadingMore,
     refetch: refetchTransactions,
-    loadMore,
     reset: resetTransactionsPagination,
     hasMore,
   } = useTransactionsList({
@@ -217,6 +237,21 @@ export default function IncomesScreen() {
 
   const openFilterBottomSheet = () => {
     bottomSheetModalRef.current?.present();
+  };
+
+  const openAllTransactions = () => {
+    router.push({
+      pathname: "/transaction",
+      params: {
+        startDate: dateFilter,
+        endDate: dateFilter,
+        ...(filters.paymentMethodId
+          ? { paymentMethodId: String(filters.paymentMethodId) }
+          : {}),
+        ...(filters.accountId ? { accountId: String(filters.accountId) } : {}),
+        ...(filters.createdById ? { createdById: filters.createdById } : {}),
+      },
+    });
   };
 
   const openTransactionDetail = (transaction: Transaction) => {
@@ -253,6 +288,7 @@ export default function IncomesScreen() {
           ],
         }),
         refetchTransactions(),
+        refetchStats(),
       ]);
     } catch {
       Alert.alert(
@@ -262,16 +298,19 @@ export default function IncomesScreen() {
     } finally {
       setRefreshing(false);
     }
-  }, [queryClient, currentRestaurant?.id, dateFilter, refetchTransactions, t]);
+  }, [
+    queryClient,
+    currentRestaurant?.id,
+    dateFilter,
+    refetchTransactions,
+    refetchStats,
+    t,
+  ]);
 
   usePaymentProofsRealtime();
 
   const thereAreFiltersApplied =
     !!filters.paymentMethodId || !!filters.accountId || !!filters.createdById;
-  const formattedNetIncome = formatCurrency(totalIncome - totalExpense);
-  const displayedNetIncome = showNetIncome
-    ? formattedNetIncome
-    : formattedNetIncome.replace(/\d/g, "*");
 
   const content = (
     <>
@@ -352,29 +391,21 @@ export default function IncomesScreen() {
           />
         }
       >
+        {/* Amount Summary */}
+        <ThemedView style={tw`px-4 mt-2 mb-6 gap-1`}>
+          <AmountSummaryHeader
+            totalAmount={dashboardStats?.totalAmount ?? 0}
+            totalIncome={dashboardStats?.totalIncome ?? 0}
+          />
+          {count > 0 && (
+            <ThemedText type="small" style={tw`text-gray-400`}>
+              {count} transactions
+            </ThemedText>
+          )}
+        </ThemedView>
+
         {count > 0 && (
           <ThemedView style={tw`px-4`}>
-            {/* <DailyReportSummaryCard startDate={dateFilter} endDate={dateFilter} /> */}
-            <ThemedView style={tw` p-4 mb-4 items-center`}>
-              <ThemedView style={tw`flex-row items-center gap-2 mb-1`}>
-                <ThemedText type="h1" style={tw``}>
-                  {displayedNetIncome}
-                </ThemedText>
-                <Pressable
-                  onPress={() => setShowNetIncome((prev) => !prev)}
-                  hitSlop={8}
-                >
-                  <Icon
-                    name={showNetIncome ? "eye-off" : "eye"}
-                    size={18}
-                    color={tw.color("gray-500")}
-                  />
-                </Pressable>
-              </ThemedView>
-              <ThemedText type="small" style={tw`text-gray-400`}>
-                {count} transactions
-              </ThemedText>
-            </ThemedView>
             <PaymentMethodSummaryCard
               startDate={dateFilter}
               endDate={dateFilter}
@@ -457,6 +488,13 @@ export default function IncomesScreen() {
               </ThemedView>
             )}
 
+            {/* Waiter Summary */}
+            {reportWaiters.length > 0 && (
+              <ThemedView style={tw`mt-4 mb-4`}>
+                <WaiterSummaryCard waiters={reportWaiters} />
+              </ThemedView>
+            )}
+
             {/* Transactions Section */}
             <ThemedView style={tw`mb-4 mt-4`}>
               {/* Section Header */}
@@ -491,19 +529,14 @@ export default function IncomesScreen() {
                     )}
                   />
 
-                  {/* Load More Button */}
+                  {/* Only the first page lives here; the rest is one tap away */}
                   {hasMore && (
                     <ThemedView style={tw`mt-4`}>
                       <Button
-                        label={
-                          isLoadingMore
-                            ? t("common:status.loading")
-                            : t("common:actions.loadMore")
-                        }
-                        onPress={loadMore}
+                        label={t("common:transactions.seeAll", { count })}
+                        onPress={openAllTransactions}
                         variant="outline"
-                        disabled={isLoadingMore}
-                        loading={isLoadingMore}
+                        size="small"
                       />
                     </ThemedView>
                   )}
@@ -533,6 +566,13 @@ export default function IncomesScreen() {
           </ThemedView>
         )}
 
+        {/* Waiter Summary (no transactions yet, but orders may exist) */}
+        {count === 0 && reportWaiters.length > 0 && (
+          <ThemedView style={tw`px-4`}>
+            <WaiterSummaryCard waiters={reportWaiters} />
+          </ThemedView>
+        )}
+
         {/* Empty state: no incomes for the selected date / filters */}
         {!transactionsLoading && count === 0 && (
           <ThemedView style={tw`py-20 items-center px-4`}>
@@ -550,6 +590,24 @@ export default function IncomesScreen() {
             </ThemedText>
           </ThemedView>
         )}
+        {/* Order History */}
+        <ThemedView style={tw`px-4 mt-4`}>
+          <Card onPress={() => router.push("/(profile)/history")}>
+            <ThemedView style={tw`flex-row items-center gap-3`}>
+              <Icon name="clock" size={22} color={tw.color("gray-500")} />
+              <ThemedView style={tw`flex-1`}>
+                <ThemedText type="body1">
+                  {t("common:stats.orderHistory")}
+                </ThemedText>
+              </ThemedView>
+              <Icon
+                name="chevron-right"
+                size={20}
+                color={tw.color("gray-400")}
+              />
+            </ThemedView>
+          </Card>
+        </ThemedView>
       </ScrollView>
 
       {/* Filter Bottom Sheet */}

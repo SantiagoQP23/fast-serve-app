@@ -177,6 +177,7 @@
     "direct-bill:edit": "Guardando venta..."
   },
   "transactions": {
+    "seeAll": "Ver todas ({{count}})",
     "deleteConfirmTitle": "Eliminar Transacción",
     "deleteConfirmMessage": "¿Estás seguro de que deseas eliminar esta transacción? Esta acción no se puede deshacer.",
     "paymentMethod": "Método de Pago",
