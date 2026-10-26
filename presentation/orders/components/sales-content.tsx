@@ -166,12 +166,11 @@ export default function SalesContent({
     [reset],
   );
 
-  const handleSelectStatus = (status?: BillStatusFilter) => {
+  const handleSelectStatus = (status: BillStatusFilter) => {
     setFilters((prev) => ({ ...prev, status }));
   };
 
   const statusChips = [
-    { label: t("bills:filters.all"), value: undefined },
     {
       label: t("bills:filters.paidCount"),
       value: BillStatusFilter.PAID,
@@ -186,11 +185,7 @@ export default function SalesContent({
 
   // Empty state follows the status chip, so "unpaid" doesn't read as "no sales"
   const emptyKey =
-    filters.status === BillStatusFilter.UNPAID
-      ? "noUnpaidBills"
-      : filters.status === BillStatusFilter.PAID
-        ? "noPaidBills"
-        : "noBillsToday";
+    filters.status === BillStatusFilter.PAID ? "noPaidBills" : "noUnpaidBills";
 
   const hasActiveFilters =
     filters.paymentMethod !== undefined ||
@@ -267,16 +262,14 @@ export default function SalesContent({
       <ThemedView style={tw`flex-row gap-2 px-4 mb-2`}>
         {statusChips.map((chip) => (
           <Chip
-            key={chip.value ?? "all"}
+            key={chip.value}
             label={chip.label}
             selected={filters.status === chip.value}
             onPress={() => handleSelectStatus(chip.value)}
             rightContent={
-              chip.count !== undefined && (
-                <ThemedText type="small" style={tw`text-gray-500`}>
-                  {chip.count}
-                </ThemedText>
-              )
+              <ThemedText type="small" style={tw`text-gray-500`}>
+                {chip.count}
+              </ThemedText>
             }
           />
         ))}
