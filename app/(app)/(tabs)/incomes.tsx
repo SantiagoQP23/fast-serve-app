@@ -494,15 +494,10 @@ export default function IncomesScreen() {
             )}
 
             {/* Transactions Section */}
-            <ThemedView style={tw`mb-4 mt-4`}>
-              {/* Section Header */}
-              <ThemedView
-                style={tw`flex-row items-center justify-between mb-3`}
-              >
-                <ThemedText type="h4">
-                  {t("common:navigation.incomes")}
-                </ThemedText>
-              </ThemedView>
+            <Card containerStyle={tw`mb-4 mt-4`}>
+              <ThemedText type="h4" style={tw`mb-3`}>
+                {t("common:navigation.incomes")}
+              </ThemedText>
 
               {/* Transactions List */}
               {transactionsLoading &&
@@ -560,7 +555,7 @@ export default function IncomesScreen() {
                   </ThemedText>
                 </ThemedView>
               )}
-            </ThemedView>
+            </Card>
           </ThemedView>
         )}
 

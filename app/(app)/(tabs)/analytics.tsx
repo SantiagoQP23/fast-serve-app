@@ -13,8 +13,6 @@ import { useDashboardStats } from "@/presentation/orders/hooks/useDashboardStats
 import { useActiveOrders } from "@/presentation/orders/hooks/useActiveOrders";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
-import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
-import { OrderPaymentStatus } from "@/core/orders/enums/order-payment-status.enum";
 import OrderCardSkeleton from "@/presentation/home/components/order-card-skeleton";
 import * as Haptics from "expo-haptics";
 import { formatCurrency } from "@/core/i18n/utils";
@@ -35,18 +33,11 @@ import Label from "@/presentation/theme/components/label";
 export default function AnalyticsScreen() {
   const { t } = useTranslation(["common", "errors", "reports"]);
   const { user, currentRestaurant } = useAuthStore();
-  const allOrders = useOrdersStore((state) => state.orders);
   const isAdmin = isAdminLevelRole(user?.role?.name);
 
   // Admins can toggle between restaurant-wide data and their own data.
   // Non-admins always see their own data (enforced by the backend).
   const [viewOnlyMine, setViewOnlyMine] = useState(false);
-
-  // Use all orders for admin (unless scoped to "only me"), personal orders for non-admin
-  const orders =
-    isAdmin && !viewOnlyMine
-      ? allOrders
-      : allOrders.filter((order) => order.user?.id === user?.id);
 
   const primaryColor = useThemeColor({}, "primary");
   const queryClient = useQueryClient();
@@ -199,13 +190,9 @@ export default function AnalyticsScreen() {
                 loading={isLoadingStats}
               />
               <StatsCard
-                title={t("common:stats.ordersPendingPayment")}
-                value={
-                  orders.filter(
-                    (order) => order.paymentStatus !== OrderPaymentStatus.PAID,
-                  ).length
-                }
-                icon="receipt-text"
+                title={t("common:stats.ordersAmount")}
+                value={formatCurrency(dashboardStats?.ordersAmount ?? 0)}
+                icon="banknote"
                 loading={isLoadingStats}
               />
             </ThemedView>

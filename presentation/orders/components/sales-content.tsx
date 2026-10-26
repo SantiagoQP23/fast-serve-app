@@ -32,7 +32,6 @@ import {
   BillStatusFilter,
 } from "@/core/orders/dto/bill-list-filters.dto";
 import Chip from "@/presentation/theme/components/chip";
-import { formatCurrency } from "@/core/i18n/utils";
 import Button from "@/presentation/theme/components/button";
 import DatePicker from "@/presentation/theme/components/date-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -43,7 +42,6 @@ import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
-import { typography } from "@/constants/theme";
 import type { Bill } from "@/core/orders/models/bill.model";
 
 const STORAGE_KEY = "sales_selected_date";
@@ -63,7 +61,6 @@ export default function SalesContent({
   const router = useRouter();
   const primaryColor = useThemeColor({}, "primary");
   const [refreshing, setRefreshing] = useState(false);
-  const [showTotalSales, setShowTotalSales] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   // Status lives on screen (unpaid first); the sheet holds the other filters
   const [filters, setFilters] = useState<BillListFiltersDto>({
@@ -199,10 +196,6 @@ export default function SalesContent({
     filters.paymentMethod !== undefined ||
     filters.ownerId !== undefined ||
     filters.source !== undefined;
-  const formattedTotalSales = formatCurrency(data?.totalSales || 0);
-  const displayedTotalSales = showTotalSales
-    ? formattedTotalSales
-    : formattedTotalSales.replace(/\d/g, "*");
 
   const { users } = useUsers();
   const isAdmin = isAdminLevelRole(user?.role?.name);
@@ -271,7 +264,7 @@ export default function SalesContent({
       </ThemedView>
 
       {/* Payment status */}
-      <ThemedView style={tw`flex-row gap-2 px-4`}>
+      <ThemedView style={tw`flex-row gap-2 px-4 mb-2`}>
         {statusChips.map((chip) => (
           <Chip
             key={chip.value ?? "all"}
@@ -287,30 +280,6 @@ export default function SalesContent({
             }
           />
         ))}
-      </ThemedView>
-
-      <ThemedView style={tw` p-4 mb-4 items-center`}>
-        <ThemedView style={tw`flex-row items-center gap-2 mb-1`}>
-          <ThemedText
-            type="h1"
-            style={[tw`text-4xl `, { fontFamily: typography.regular }]}
-          >
-            {displayedTotalSales}
-          </ThemedText>
-          <Pressable
-            onPress={() => setShowTotalSales((prev) => !prev)}
-            hitSlop={8}
-          >
-            <Icon
-              name={showTotalSales ? "eye-off" : "eye"}
-              size={18}
-              color={tw.color("gray-500")}
-            />
-          </Pressable>
-        </ThemedView>
-        <ThemedText type="small" style={tw`text-gray-400`}>
-          {t("bills:list.salesCount", { count })}
-        </ThemedText>
       </ThemedView>
 
       {/* Bills list */}
