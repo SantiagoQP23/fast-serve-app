@@ -27,7 +27,11 @@ import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import Icon from "@/presentation/theme/components/icon";
 
 import BillsFilterBottomSheet from "@/presentation/orders/components/bills-filter-bottom-sheet";
-import { BillListFiltersDto } from "@/core/orders/dto/bill-list-filters.dto";
+import {
+  BillListFiltersDto,
+  BillStatusFilter,
+} from "@/core/orders/dto/bill-list-filters.dto";
+import Chip from "@/presentation/theme/components/chip";
 import { formatCurrency } from "@/core/i18n/utils";
 import Button from "@/presentation/theme/components/button";
 import DatePicker from "@/presentation/theme/components/date-picker";
@@ -61,7 +65,10 @@ export default function SalesContent({
   const [refreshing, setRefreshing] = useState(false);
   const [showTotalSales, setShowTotalSales] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [filters, setFilters] = useState<BillListFiltersDto>({});
+  // Status lives on screen (unpaid first); the sheet holds the other filters
+  const [filters, setFilters] = useState<BillListFiltersDto>({
+    status: BillStatusFilter.UNPAID,
+  });
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
   const [fabExpanded, setFabExpanded] = useState(true);
   const lastScrollY = useRef(0);
@@ -154,20 +161,42 @@ export default function SalesContent({
 
   const handleApplyFilters = useCallback(
     (newFilters: BillListFiltersDto) => {
-      setFilters(newFilters);
+      // The sheet no longer edits status; keep the on-screen choice
+      setFilters((prev) => ({ ...newFilters, status: prev.status }));
       reset();
       bottomSheetModalRef.current?.dismiss();
     },
     [reset],
   );
 
-  const handleResetFilters = useCallback(() => {
-    setFilters({});
-  }, []);
+  const handleSelectStatus = (status?: BillStatusFilter) => {
+    setFilters((prev) => ({ ...prev, status }));
+  };
+
+  const statusChips = [
+    { label: t("bills:filters.all"), value: undefined },
+    {
+      label: t("bills:filters.paidCount"),
+      value: BillStatusFilter.PAID,
+      count: data?.countPaid ?? 0,
+    },
+    {
+      label: t("bills:filters.unpaidCount"),
+      value: BillStatusFilter.UNPAID,
+      count: data?.countUnpaid ?? 0,
+    },
+  ];
+
+  // Empty state follows the status chip, so "unpaid" doesn't read as "no sales"
+  const emptyKey =
+    filters.status === BillStatusFilter.UNPAID
+      ? "noUnpaidBills"
+      : filters.status === BillStatusFilter.PAID
+        ? "noPaidBills"
+        : "noBillsToday";
 
   const hasActiveFilters =
     filters.paymentMethod !== undefined ||
-    filters.status !== undefined ||
     filters.ownerId !== undefined ||
     filters.source !== undefined;
   const formattedTotalSales = formatCurrency(data?.totalSales || 0);
@@ -239,6 +268,25 @@ export default function SalesContent({
             color={hasActiveFilters ? tw.color("on-surface") : tw.color("gray-600")}
           />
         </Pressable>
+      </ThemedView>
+
+      {/* Payment status */}
+      <ThemedView style={tw`flex-row gap-2 px-4`}>
+        {statusChips.map((chip) => (
+          <Chip
+            key={chip.value ?? "all"}
+            label={chip.label}
+            selected={filters.status === chip.value}
+            onPress={() => handleSelectStatus(chip.value)}
+            rightContent={
+              chip.count !== undefined && (
+                <ThemedText type="small" style={tw`text-gray-500`}>
+                  {chip.count}
+                </ThemedText>
+              )
+            }
+          />
+        ))}
       </ThemedView>
 
       <ThemedView style={tw` p-4 mb-4 items-center`}>
@@ -316,13 +364,13 @@ export default function SalesContent({
               color={tw.color("gray-300")}
             />
             <ThemedText type="h4" style={tw`text-gray-500 mt-4 text-center`}>
-              {t("bills:list.noBillsToday")}
+              {t(`bills:list.${emptyKey}`)}
             </ThemedText>
             <ThemedText
               type="body2"
               style={tw`text-gray-400 mt-2 text-center max-w-xs`}
             >
-              {t("bills:list.noBillsTodayDescription")}
+              {t(`bills:list.${emptyKey}Description`)}
             </ThemedText>
           </ThemedView>
         )}
@@ -342,10 +390,7 @@ export default function SalesContent({
           initialFilters={filters}
           availableWaiters={availableWaiters}
           isAdmin={isAdmin}
-          statusCounts={{
-            paid: data?.countPaid ?? 0,
-            unpaid: data?.countUnpaid ?? 0,
-          }}
+          showStatusFilter={false}
         />
       </ThemedBottomSheetModal>
     </>

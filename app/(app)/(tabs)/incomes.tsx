@@ -1,4 +1,4 @@
-import React, {
+import {
   useCallback,
   useState,
   useEffect,
@@ -254,6 +254,18 @@ export default function IncomesScreen() {
     });
   };
 
+  // Account screen: that account's transactions for the day + its total
+  const openAccount = (accountId: number) => {
+    router.push({
+      pathname: "/transaction",
+      params: {
+        startDate: dateFilter,
+        endDate: dateFilter,
+        accountId: String(accountId),
+      },
+    });
+  };
+
   const openTransactionDetail = (transaction: Transaction) => {
     if (isExpanded) {
       setSelectedTransactionId(transaction.id);
@@ -267,7 +279,7 @@ export default function IncomesScreen() {
     resetTransactionsPagination();
   }, [dateFilter, filters, resetTransactionsPagination]);
 
-  const onRefresh = useCallback(async () => {
+  const onRefresh = async () => {
     try {
       setRefreshing(true);
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -298,14 +310,7 @@ export default function IncomesScreen() {
     } finally {
       setRefreshing(false);
     }
-  }, [
-    queryClient,
-    currentRestaurant?.id,
-    dateFilter,
-    refetchTransactions,
-    refetchStats,
-    t,
-  ]);
+  };
 
   usePaymentProofsRealtime();
 
@@ -456,14 +461,7 @@ export default function IncomesScreen() {
                             borderWidth: 2,
                           },
                         ]}
-                        onPress={() =>
-                          handleFiltersChange({
-                            ...filters,
-                            accountId: isSelected
-                              ? undefined
-                              : account.accountId,
-                          })
-                        }
+                        onPress={() => openAccount(account.accountId)}
                       >
                         <ThemedText
                           type="small"

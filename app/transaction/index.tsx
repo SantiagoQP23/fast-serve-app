@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ScrollView, RefreshControl, Alert } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import dayjs from "dayjs";
@@ -7,10 +7,13 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatDate } from "@/core/i18n/utils";
+import { formatCurrency, formatDate } from "@/core/i18n/utils";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { useTransactionsList } from "@/presentation/transactions/hooks/useTransactionsList";
+import { useTransactionPaymentMethodReport } from "@/presentation/transactions/hooks/useTransactionPaymentMethodReport";
 import TransactionCard from "@/presentation/transactions/components/transaction-card";
+import TransactionStatusChips from "@/presentation/transactions/components/transaction-status-chips";
+import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
 import { GroupedList } from "@/presentation/theme/components/grouped-list";
 import Button from "@/presentation/theme/components/button";
 import Icon from "@/presentation/theme/components/icon";
@@ -26,21 +29,25 @@ type TransactionsListParams = {
 
 const toNumber = (value?: string) => (value ? Number(value) : undefined);
 
-// Full, paginated list behind the Incomes tab's "See all" (same day + filters)
+// Full, paginated list behind the Incomes tab's "See all" (same day + filters).
+// With an accountId it doubles as the account screen: account name + total.
 export default function TransactionsListScreen() {
   const { t } = useTranslation(["common", "errors"]);
   const router = useRouter();
   const params = useLocalSearchParams<TransactionsListParams>();
   const primaryColor = useThemeColor({}, "primary");
   const [refreshing, setRefreshing] = useState(false);
+  const [status, setStatus] = useState<TransactionStatus | null>(null);
 
   const {
     transactions,
     count,
+    statusCounts,
     isLoading,
     isLoadingMore,
     refetch,
     loadMore,
+    reset,
     hasMore,
   } = useTransactionsList({
     startDate: params.startDate,
@@ -48,13 +55,46 @@ export default function TransactionsListScreen() {
     paymentMethodId: toNumber(params.paymentMethodId),
     accountId: toNumber(params.accountId),
     createdById: params.createdById || undefined,
+    status: status ?? undefined,
   });
+
+  // Keep the last counts while a new status loads so the chips don't blink out
+  const [chipCounts, setChipCounts] = useState<
+    Partial<Record<TransactionStatus, number>>
+  >({});
+  if (statusCounts && statusCounts !== chipCounts) setChipCounts(statusCounts);
+
+  const handleSelectStatus = (next: TransactionStatus | null) => {
+    reset();
+    setStatus(next);
+  };
+
+  // Same report the Incomes account cards read, so the total matches the card
+  const accountId = toNumber(params.accountId);
+  const { paymentMethodReport, refetch: refetchReport } =
+    useTransactionPaymentMethodReport({
+      startDate: params.startDate,
+      endDate: params.endDate,
+    });
+  const account = useMemo(() => {
+    if (!accountId || !paymentMethodReport?.report) return undefined;
+    let accountName = "";
+    let totalIncome = 0;
+    paymentMethodReport.report.forEach((pm) => {
+      pm.incomeByAccount.forEach((a) => {
+        if (a.accountId !== accountId) return;
+        accountName = a.accountName;
+        totalIncome += a.totalIncome;
+      });
+    });
+    return { accountName, totalIncome };
+  }, [accountId, paymentMethodReport]);
 
   const onRefresh = useCallback(async () => {
     try {
       setRefreshing(true);
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      await refetch();
+      await Promise.all([refetch(), accountId ? refetchReport() : null]);
     } catch {
       Alert.alert(
         t("errors:order.fetchError"),
@@ -63,7 +103,7 @@ export default function TransactionsListScreen() {
     } finally {
       setRefreshing(false);
     }
-  }, [refetch, t]);
+  }, [refetch, refetchReport, accountId, t]);
 
   return (
     <ScreenLayout style={tw`flex-1`}>
@@ -80,11 +120,30 @@ export default function TransactionsListScreen() {
         }
       >
         <ThemedView style={tw`mb-4 gap-1`}>
-          <ThemedText type="h2">{t("common:navigation.incomes")}</ThemedText>
+          <ThemedText type="h2">
+            {account?.accountName || t("common:navigation.incomes")}
+          </ThemedText>
           <ThemedText type="small" style={tw`text-gray-500`}>
             {params.startDate ? formatDate(dayjs(params.startDate)) : ""}
             {count > 0 ? ` · ${count} transactions` : ""}
           </ThemedText>
+        </ThemedView>
+
+        {account && (
+          <ThemedView style={tw`mb-6 gap-1`}>
+            <ThemedText type="small">{t("common:labels.total")}</ThemedText>
+            <ThemedText style={tw`text-5xl`}>
+              {formatCurrency(account.totalIncome)}
+            </ThemedText>
+          </ThemedView>
+        )}
+
+        <ThemedView style={tw`mb-4`}>
+          <TransactionStatusChips
+            counts={chipCounts}
+            selectedStatus={status}
+            onSelectStatus={handleSelectStatus}
+          />
         </ThemedView>
 
         {isLoading && !refreshing && transactions.length === 0 ? (

@@ -22,6 +22,8 @@ interface BillsFilterBottomSheetProps {
   isAdmin?: boolean;
   /** Optional per-status counts shown next to the status chips. */
   statusCounts?: { paid: number; unpaid: number };
+  /** Hide the status section when the screen shows it inline (Sales tab). */
+  showStatusFilter?: boolean;
 }
 
 export default function BillsFilterBottomSheet({
@@ -31,6 +33,7 @@ export default function BillsFilterBottomSheet({
   availableWaiters,
   isAdmin = true,
   statusCounts,
+  showStatusFilter = true,
 }: BillsFilterBottomSheetProps) {
   const { t } = useTranslation(["bills", "common"]);
 
@@ -116,42 +119,44 @@ export default function BillsFilterBottomSheet({
         </ThemedText>
 
         {/* Status Filter */}
-        <ThemedView style={tw`gap-2`}>
-          <ThemedText type="small" style={tw`text-gray-500`}>
-            {t("bills:filters.paymentStatus")}
-          </ThemedText>
-          <ThemedView style={tw`flex-row gap-2`}>
-            <Chip
-              label={t("bills:filters.all")}
-              selected={status === "all"}
-              onPress={() => setStatus("all")}
-            />
-            <Chip
-              label={t("bills:filters.paidCount")}
-              rightContent={
-                statusCounts && (
-                  <ThemedText type="small" style={tw`text-gray-500`}>
-                    {statusCounts.paid}
-                  </ThemedText>
-                )
-              }
-              selected={status === BillStatusFilter.PAID}
-              onPress={() => setStatus(BillStatusFilter.PAID)}
-            />
-            <Chip
-              label={t("bills:filters.unpaidCount")}
-              rightContent={
-                statusCounts && (
-                  <ThemedText type="small" style={tw`text-gray-500`}>
-                    {statusCounts.unpaid}
-                  </ThemedText>
-                )
-              }
-              selected={status === BillStatusFilter.UNPAID}
-              onPress={() => setStatus(BillStatusFilter.UNPAID)}
-            />
+        {showStatusFilter && (
+          <ThemedView style={tw`gap-2`}>
+            <ThemedText type="small" style={tw`text-gray-500`}>
+              {t("bills:filters.paymentStatus")}
+            </ThemedText>
+            <ThemedView style={tw`flex-row gap-2`}>
+              <Chip
+                label={t("bills:filters.all")}
+                selected={status === "all"}
+                onPress={() => setStatus("all")}
+              />
+              <Chip
+                label={t("bills:filters.paidCount")}
+                rightContent={
+                  statusCounts && (
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {statusCounts.paid}
+                    </ThemedText>
+                  )
+                }
+                selected={status === BillStatusFilter.PAID}
+                onPress={() => setStatus(BillStatusFilter.PAID)}
+              />
+              <Chip
+                label={t("bills:filters.unpaidCount")}
+                rightContent={
+                  statusCounts && (
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {statusCounts.unpaid}
+                    </ThemedText>
+                  )
+                }
+                selected={status === BillStatusFilter.UNPAID}
+                onPress={() => setStatus(BillStatusFilter.UNPAID)}
+              />
+            </ThemedView>
           </ThemedView>
-        </ThemedView>
+        )}
 
         {/* Waiter Select - Only show for admin users */}
         {isAdmin && (

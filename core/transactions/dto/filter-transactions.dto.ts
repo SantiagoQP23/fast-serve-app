@@ -1,3 +1,5 @@
+import { TransactionStatus } from "../models/transaction-status.enum";
+
 export interface FilterTransactionsDto {
   limit?: number;
   offset?: number;
@@ -6,4 +8,5 @@ export interface FilterTransactionsDto {
   paymentMethodId?: number;
   accountId?: number;
   createdById?: string;
+  status?: TransactionStatus;
 }
