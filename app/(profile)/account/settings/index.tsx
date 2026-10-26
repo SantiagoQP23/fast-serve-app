@@ -25,9 +25,11 @@ import Switch from "@/presentation/theme/components/switch";
 import { useNotificationsStore } from "@/presentation/shared/store/useNotificationsStore";
 import { useThemeStore } from "@/presentation/theme/store/useThemeStore";
 import {
+  accents,
   fontFamilies,
   palettes,
   themeSwatches,
+  type AccentName,
   type FontName,
   type ThemeName,
 } from "@/constants/theme";
@@ -45,6 +47,9 @@ export default function SettingsScreen() {
   const theme = useThemeStore((state) => state.theme);
   const setTheme = useThemeStore((state) => state.setTheme);
   const themePickerRef = useRef<BottomSheetPickerRef>(null);
+  const accent = useThemeStore((state) => state.accent);
+  const setAccent = useThemeStore((state) => state.setAccent);
+  const accentPickerRef = useRef<BottomSheetPickerRef>(null);
   const font = useThemeStore((state) => state.font);
   const setFont = useThemeStore((state) => state.setFont);
   const fontPickerRef = useRef<BottomSheetPickerRef>(null);
@@ -91,6 +96,18 @@ export default function SettingsScreen() {
       setTheme(pendingThemeRef.current);
     }
     pendingThemeRef.current = null;
+  };
+
+  // Same as the theme: the ink remounts the screens.
+  const pendingAccentRef = useRef<AccentName | null>(null);
+  const handleAccentChange = (value: string | number) => {
+    pendingAccentRef.current = value as AccentName;
+  };
+  const handleAccentPickerDismiss = () => {
+    if (pendingAccentRef.current && pendingAccentRef.current !== accent) {
+      setAccent(pendingAccentRef.current);
+    }
+    pendingAccentRef.current = null;
   };
 
   // Same as the theme: the font remounts the screens.
@@ -202,7 +219,7 @@ export default function SettingsScreen() {
             </ThemedText>
             <ThemedView style={tw`flex-row items-center gap-2`}>
               <ThemedView style={tw`flex-row`}>
-                {themeSwatches[theme].map((color, index) => (
+                {themeSwatches(theme, accent).map((color, index) => (
                   <ThemedView
                     key={index}
                     style={[
@@ -230,6 +247,45 @@ export default function SettingsScreen() {
 
           <Card
             style={tw`gap-2 p-4 rounded-3xl`}
+            onPress={() => accentPickerRef.current?.present()}
+          >
+            <ThemedView style={tw`flex-row items-center justify-between`}>
+              <ThemedText type="body1">{t("settings.accentTitle")}</ThemedText>
+              <Icon
+                name="chevron-right"
+                size={20}
+                color={tw.color("gray-400")}
+              />
+            </ThemedView>
+            <ThemedText type="small">
+              {t("settings.accentDescription")}
+            </ThemedText>
+            <ThemedView style={tw`flex-row items-center gap-2`}>
+              <ThemedView
+                style={[
+                  tw`w-5 h-5 rounded-full`,
+                  { backgroundColor: accents[accent][theme].primary },
+                ]}
+              />
+              <Label text={t(`settings.accents.${accent}`)} color="info" />
+            </ThemedView>
+          </Card>
+
+          <BottomSheetPicker
+            ref={accentPickerRef}
+            title={t("settings.accentTitle")}
+            options={(Object.keys(accents) as AccentName[]).map((name) => ({
+              value: name,
+              label: t(`settings.accents.${name}`),
+              swatch: accents[name][theme].primary,
+            }))}
+            value={accent}
+            onChange={handleAccentChange}
+            onDismiss={handleAccentPickerDismiss}
+          />
+
+          <Card
+            style={tw`gap-2 p-4 rounded-3xl`}
             onPress={() => fontPickerRef.current?.present()}
           >
             <ThemedView style={tw`flex-row items-center justify-between`}>
@@ -240,7 +296,9 @@ export default function SettingsScreen() {
                 color={tw.color("gray-400")}
               />
             </ThemedView>
-            <ThemedText type="small">{t("settings.fontDescription")}</ThemedText>
+            <ThemedText type="small">
+              {t("settings.fontDescription")}
+            </ThemedText>
             <ThemedView style={tw`flex-row items-center gap-2`}>
               <Label text={t(`settings.fonts.${font}.name`)} color="info" />
             </ThemedView>

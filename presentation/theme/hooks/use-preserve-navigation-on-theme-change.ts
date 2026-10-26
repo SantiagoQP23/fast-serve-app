@@ -7,11 +7,14 @@ type NavigationContainerRef = ReturnType<typeof useNavigationContainerRef>;
 type RootState = ReturnType<NavigationContainerRef["getRootState"]>;
 
 /** Matches the root layout's remount key. */
-const appearanceKey = (state: { theme: string; font: string }) =>
-  `${state.theme}-${state.font}`;
+const appearanceKey = (state: {
+  theme: string;
+  accent: string;
+  font: string;
+}) => `${state.theme}-${state.accent}-${state.font}`;
 
 /**
- * The root layout remounts the navigator when the theme or font changes, and a
+ * The root layout remounts the navigator when the theme, ink or font changes, and a
  * navigator that unmounts drops its state, so the app would restart from its
  * initial screen. This snapshots the navigation state as they change and
  * restores it once the new navigator has mounted.
@@ -25,7 +28,7 @@ export function usePreserveNavigationOnThemeChange() {
   const snapshotRef = useRef<RootState>(undefined);
   const [restoredTheme, setRestoredTheme] = useState(theme);
 
-  // Runs inside setTheme / setFont, before React renders the remount, so the
+  // Runs inside setTheme / setAccent / setFont, before React renders the remount, so the
   // state of the old navigator is still readable.
   useEffect(
     () =>

@@ -247,7 +247,7 @@ export default function AnalyticsScreen() {
                   </ThemedText>
                   <ThemedText
                     type="body1"
-                    style={tw`font-semibold text-primary`}
+                    style={tw`font-semibold text-on-surface`}
                   >
                     {`${t("common:currency.symbol")}${dashboardStats?.totalIncome?.toFixed(2) ?? "0.00"}`}
                   </ThemedText>

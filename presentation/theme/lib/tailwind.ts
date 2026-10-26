@@ -1,6 +1,11 @@
 import { create, type TailwindFn } from "twrnc";
 
-import { DEFAULT_THEME, type ThemeName } from "@/constants/theme";
+import {
+  DEFAULT_ACCENT,
+  DEFAULT_THEME,
+  type AccentName,
+  type ThemeName,
+} from "@/constants/theme";
 
 const { buildTailwindConfig } = require(`../../../tailwind.config.js`);
 
@@ -11,16 +16,21 @@ type TwInstance = TailwindFn & {
   updateDeviceContext: (...args: any[]) => void;
 };
 
-// One twrnc instance per theme, built on first use.
-const instances: Partial<Record<ThemeName, TwInstance>> = {};
+type ThemeKey = `${ThemeName}-${AccentName}`;
 
-const instanceFor = (themeName: ThemeName): TwInstance => {
-  instances[themeName] ??= create(buildTailwindConfig(themeName)) as TwInstance;
-  return instances[themeName];
+// One twrnc instance per theme and ink, built on first use.
+const instances: Partial<Record<ThemeKey, TwInstance>> = {};
+
+const instanceFor = (themeName: ThemeName, accent: AccentName): TwInstance => {
+  const key: ThemeKey = `${themeName}-${accent}`;
+  instances[key] ??= create(
+    buildTailwindConfig(themeName, accent),
+  ) as TwInstance;
+  return instances[key];
 };
 
-let activeTheme: ThemeName = DEFAULT_THEME;
-let current = instanceFor(activeTheme);
+let activeTheme: ThemeKey = `${DEFAULT_THEME}-${DEFAULT_ACCENT}`;
+let current = instanceFor(DEFAULT_THEME, DEFAULT_ACCENT);
 let colorScheme: ReturnType<TwInstance["getColorScheme"]>;
 let deviceContext: any[] | null = null;
 
@@ -47,11 +57,12 @@ Object.defineProperty(tw, "memoBuster", {
   get: () => `${current.memoBuster}--${activeTheme}`,
 });
 
-/** Switches `tw` to another theme. Screens must re-render to pick it up. */
-export function setTwTheme(themeName: ThemeName) {
-  if (themeName === activeTheme) return;
-  activeTheme = themeName;
-  current = instanceFor(themeName);
+/** Switches `tw` to another theme or ink. Screens must re-render to pick it up. */
+export function setTwTheme(themeName: ThemeName, accent: AccentName) {
+  const key: ThemeKey = `${themeName}-${accent}`;
+  if (key === activeTheme) return;
+  activeTheme = key;
+  current = instanceFor(themeName, accent);
   if (colorScheme !== undefined) current.setColorScheme(colorScheme);
   if (deviceContext) current.updateDeviceContext(...deviceContext);
 }

@@ -29,6 +29,8 @@ export type Option = {
   description?: string;
   /** Familia de la etiqueta y la descripción, para mostrar una fuente en sí misma. */
   fontFamily?: string;
+  /** Color dot before the label, e.g. to preview an ink color. */
+  swatch?: string;
 };
 
 export type BottomSheetPickerAction = {
@@ -214,6 +216,14 @@ const BottomSheetPicker = forwardRef<
                         )
                       }
                     >
+                      {item.swatch && (
+                        <View
+                          style={[
+                            tw`w-6 h-6 rounded-full mr-3`,
+                            { backgroundColor: item.swatch },
+                          ]}
+                        />
+                      )}
                       <View style={tw`flex-1`}>
                         <ThemedText
                           type="body1"
