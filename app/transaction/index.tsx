@@ -78,6 +78,10 @@ export default function TransactionsListScreen() {
     });
   const account = useMemo(() => {
     if (!accountId || !paymentMethodReport?.report) return undefined;
+    const listed = paymentMethodReport.accounts?.find(
+      (a) => a.accountId === accountId,
+    );
+    if (listed) return listed;
     let accountName = "";
     let totalIncome = 0;
     paymentMethodReport.report.forEach((pm) => {

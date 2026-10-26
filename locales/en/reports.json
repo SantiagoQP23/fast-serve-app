@@ -66,7 +66,9 @@
     "selectDate": "Select Date"
   },
   "accounts": {
-    "title": "Accounts"
+    "title": "Accounts",
+    "pending_one": "{{count}} pending",
+    "pending_other": "{{count}} pending"
   },
   "empty": {
     "noReport": "No report data available",

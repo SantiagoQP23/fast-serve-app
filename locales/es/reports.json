@@ -66,7 +66,9 @@
     "selectDate": "Seleccionar Fecha"
   },
   "accounts": {
-    "title": "Cuentas"
+    "title": "Cuentas",
+    "pending_one": "{{count}} pendiente",
+    "pending_other": "{{count}} pendientes"
   },
   "empty": {
     "noReport": "No hay datos de reporte disponibles",

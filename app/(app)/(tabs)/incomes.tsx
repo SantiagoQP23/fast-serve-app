@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useState,
-  useEffect,
-  useRef,
-  useMemo,
-} from "react";
+import { useCallback, useState, useEffect, useRef, useMemo } from "react";
 import { ScrollView, RefreshControl, Alert, Pressable } from "react-native";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -50,6 +44,8 @@ import {
 } from "@/core/orders/enums/date-range-filter.enum";
 import AmountSummaryHeader from "@/presentation/reports/components/amount-summary-header";
 import WaiterSummaryCard from "@/presentation/reports/components/waiter-summary-card";
+import Label from "@/presentation/theme/components/label";
+import type { AccountReportItem } from "@/core/transactions/dto/payment-method-report-response.dto";
 
 const STORAGE_KEY = "incomes_selected_date";
 const FILTERS_STORAGE_KEY = "incomes_filters";
@@ -197,14 +193,13 @@ export default function IncomesScreen() {
     endDate: dateFilter,
   });
 
-  // Aggregate all accounts across payment methods
-  const accountsSummary = useMemo(() => {
+  // Every account, even without income that day, with its pending count.
+  // Older backends only send per-method income, so aggregate that instead.
+  const accountsSummary = useMemo<AccountReportItem[]>(() => {
+    if (paymentMethodReport?.accounts) return paymentMethodReport.accounts;
     if (!paymentMethodReport?.report) return [];
 
-    const accountMap = new Map<
-      number,
-      { accountId: number; accountName: string; totalIncome: number }
-    >();
+    const accountMap = new Map<number, AccountReportItem>();
 
     paymentMethodReport.report.forEach((pm) => {
       pm.incomeByAccount.forEach((account) => {
@@ -212,7 +207,7 @@ export default function IncomesScreen() {
           const existing = accountMap.get(account.accountId)!;
           existing.totalIncome += account.totalIncome;
         } else {
-          accountMap.set(account.accountId, { ...account });
+          accountMap.set(account.accountId, { ...account, pendingCount: 0 });
         }
       });
     });
@@ -221,6 +216,14 @@ export default function IncomesScreen() {
       (a, b) => b.totalIncome - a.totalIncome,
     );
   }, [paymentMethodReport]);
+
+  const accountRows = useMemo(() => {
+    const rows: AccountReportItem[][] = [];
+    for (let i = 0; i < accountsSummary.length; i += 2) {
+      rows.push(accountsSummary.slice(i, i + 2));
+    }
+    return rows;
+  }, [accountsSummary]);
 
   // Fetch transactions for the selected date
   const {
@@ -416,77 +419,96 @@ export default function IncomesScreen() {
               startDate={dateFilter}
               endDate={dateFilter}
             />
+          </ThemedView>
+        )}
 
-            {/* Accounts Summary Section */}
-            {accountsSummary.length > 0 && (
-              <ThemedView style={tw`mb-4 mt-8`}>
-                <ThemedView
-                  style={tw`flex-row items-center justify-between mb-3`}
+        {/* Accounts Summary: every account, even with no income yet */}
+        {accountsSummary.length > 0 && (
+          <ThemedView style={tw`px-4`}>
+            <ThemedView style={tw`mb-4 ${count > 0 ? "mt-8" : ""}`}>
+              <ThemedView
+                style={tw`flex-row items-center justify-between mb-3`}
+              >
+                <ThemedText type="h4">{t("reports:accounts.title")}</ThemedText>
+                <Pressable
+                  onPress={() => setShowAccounts((prev) => !prev)}
+                  hitSlop={8}
                 >
-                  <ThemedText type="h4">
-                    {t("reports:accounts.title")}
-                  </ThemedText>
-                  <Pressable
-                    onPress={() => setShowAccounts((prev) => !prev)}
-                    hitSlop={8}
-                  >
-                    <Icon
-                      name={showAccounts ? "eye-off" : "eye"}
-                      size={18}
-                      color={tw.color("gray-500")}
-                    />
-                  </Pressable>
-                </ThemedView>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={tw`gap-4`}
-                >
-                  {accountsSummary.map((account) => {
-                    const formattedAccountIncome = formatCurrency(
-                      account.totalIncome,
-                    );
-                    const displayedAccountIncome = showAccounts
-                      ? formattedAccountIncome
-                      : formattedAccountIncome.replace(/\d/g, "*");
-                    const isSelected = filters.accountId === account.accountId;
-
-                    return (
-                      <Card
-                        key={account.accountId}
-                        variant="outline"
-                        style={[
-                          tw`w-36`,
-                          isSelected && {
-                            borderColor: primaryColor,
-                            borderWidth: 2,
-                          },
-                        ]}
-                        onPress={() => openAccount(account.accountId)}
-                      >
-                        <ThemedText
-                          type="small"
-                          style={tw`text-gray-500 mb-3`}
-                          numberOfLines={1}
-                        >
-                          {account.accountName}
-                        </ThemedText>
-                        <ThemedText
-                          type="h3"
-                          style={[
-                            tw`font-semibold`,
-                            isSelected && { color: primaryColor },
-                          ]}
-                        >
-                          {displayedAccountIncome}
-                        </ThemedText>
-                      </Card>
-                    );
-                  })}
-                </ScrollView>
+                  <Icon
+                    name={showAccounts ? "eye-off" : "eye"}
+                    size={18}
+                    color={tw.color("gray-500")}
+                  />
+                </Pressable>
               </ThemedView>
-            )}
+              {/* Two-column grid; an odd last card keeps its column width */}
+              <ThemedView style={tw`gap-3`}>
+                {accountRows.map((row) => (
+                  <ThemedView
+                    key={row.map((a) => a.accountId).join("-")}
+                    style={tw`flex-row gap-3`}
+                  >
+                    {row.map((account) => {
+                      const formattedAccountIncome = formatCurrency(
+                        account.totalIncome,
+                      );
+                      const displayedAccountIncome = showAccounts
+                        ? formattedAccountIncome
+                        : formattedAccountIncome.replace(/\d/g, "*");
+                      const isSelected =
+                        filters.accountId === account.accountId;
 
+                      return (
+                        <Card
+                          key={account.accountId}
+                          containerStyle={tw`flex-1`}
+                          variant="outline"
+                          style={[
+                            tw`flex-grow justify-end`,
+                            isSelected && {
+                              borderColor: primaryColor,
+                              borderWidth: 2,
+                            },
+                          ]}
+                          onPress={() => openAccount(account.accountId)}
+                        >
+                          {account.pendingCount > 0 && (
+                            <ThemedView style={tw`self-start mb-2`}>
+                              <Label
+                                color="warning"
+                                size="small"
+                                text={t("reports:accounts.pending", {
+                                  count: account.pendingCount,
+                                })}
+                              />
+                            </ThemedView>
+                          )}
+                          <ThemedText
+                            type="body2"
+                            style={tw`mb-3`}
+                            numberOfLines={1}
+                          >
+                            {account.accountName}
+                          </ThemedText>
+                          <ThemedText
+                            type="h3"
+                            style={isSelected && { color: primaryColor }}
+                          >
+                            {displayedAccountIncome}
+                          </ThemedText>
+                        </Card>
+                      );
+                    })}
+                    {row.length === 1 && <ThemedView style={tw`flex-1`} />}
+                  </ThemedView>
+                ))}
+              </ThemedView>
+            </ThemedView>
+          </ThemedView>
+        )}
+
+        {count > 0 && (
+          <ThemedView style={tw`px-4`}>
             {/* Waiter Summary */}
             {reportWaiters.length > 0 && (
               <ThemedView style={tw`mt-4 mb-4`}>
