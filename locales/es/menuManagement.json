@@ -244,7 +244,8 @@
     "tabs": {
       "details": "Detalles",
       "stock": "Stock"
-    }
+    },
+    "properties": "Propiedades"
   },
   "loading": "Cargando...",
   "loadError": "Error al cargar el menú",
@@ -287,6 +288,7 @@
     "deleteMessage": "Se quitará «{{name}}» de todos los productos. Los pedidos anteriores la siguen mostrando.",
     "productHint": "El mesero puede elegir una o varias al pedir este producto.",
     "addToProduct": "Agregar etiquetas...",
+    "add": "Agregar etiqueta",
     "productSheetTitle": "Etiquetas del producto",
     "createNamed": "Crear «{{name}}»",
     "selectExisting": "Elegir «{{name}}»",

@@ -6,7 +6,8 @@ import { typography } from "@/constants/theme";
 
 interface InventorySectionHeaderProps {
   title: string;
-  count: number;
+  /** Size badge next to the title; left out, no badge. */
+  count?: number;
   /** Tints the count for the group that still needs attention. */
   highlight?: boolean;
   /** One line of guidance under the title. */
@@ -36,22 +37,24 @@ export default function InventorySectionHeader({
           >
             {title}
           </ThemedText>
-          <ThemedView
-            style={tw.style(
-              "px-2.5 py-1 rounded-full",
-              highlight ? "bg-primary-50" : "bg-gray-100",
-            )}
-          >
-            <ThemedText
-              type="small"
+          {count !== undefined && (
+            <ThemedView
               style={tw.style(
-                "font-semibold",
-                highlight ? "text-primary-700" : "text-gray-600",
+                "px-2.5 py-1 rounded-full",
+                highlight ? "bg-primary-50" : "bg-gray-100",
               )}
             >
-              {count}
-            </ThemedText>
-          </ThemedView>
+              <ThemedText
+                type="small"
+                style={tw.style(
+                  "font-semibold",
+                  highlight ? "text-primary-700" : "text-gray-600",
+                )}
+              >
+                {count}
+              </ThemedText>
+            </ThemedView>
+          )}
         </ThemedView>
         {right}
       </ThemedView>

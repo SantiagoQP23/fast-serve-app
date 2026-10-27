@@ -1,4 +1,4 @@
-import { useState, type RefObject } from "react";
+import { useRef, useState, type RefObject } from "react";
 import { Pressable } from "react-native";
 import {
   BottomSheetView,
@@ -27,7 +27,11 @@ interface StockModeSheetProps {
   ownStock?: number;
   recipeLineCount?: number;
   loading?: boolean;
-  onChoose: (mode: VariantStockMode, ownStock?: OwnStockInput) => void;
+  /** Resolves true when the change was saved. */
+  onChoose: (
+    mode: VariantStockMode,
+    ownStock?: OwnStockInput,
+  ) => Promise<boolean> | void;
 }
 
 const MODE_ICONS: Record<VariantStockMode, IconName> = {
@@ -47,7 +51,8 @@ const parseAmount = (value: string): number | undefined => {
 
 /**
  * "¿Cómo se controla el stock?": own units, a recipe of insumos, or not at
- * all. Choosing own stock asks how many there are now and the minimum.
+ * all. Choosing own stock asks how many there are now and the minimum in a
+ * sheet stacked on top.
  */
 export default function StockModeSheet({
   sheetRef,
@@ -61,6 +66,7 @@ export default function StockModeSheet({
   const [selected, setSelected] = useState<VariantStockMode>(currentMode);
   const [quantity, setQuantity] = useState("");
   const [minimum, setMinimum] = useState("");
+  const ownSheetRef = useRef<BottomSheetMethods>(null);
 
   const reset = () => {
     setSelected(currentMode);
@@ -80,103 +86,123 @@ export default function StockModeSheet({
 
   const handleContinue = () => {
     if (selected === "own" && currentMode !== "own") {
-      onChoose("own", {
-        quantity: parseAmount(quantity),
-        minimumQuantity: parseAmount(minimum) ?? null,
-      });
+      ownSheetRef.current?.present();
       return;
     }
     onChoose(selected);
   };
 
+  const handleSaveOwn = async () => {
+    const saved = await onChoose("own", {
+      quantity: parseAmount(quantity),
+      minimumQuantity: parseAmount(minimum) ?? null,
+    });
+    if (saved) ownSheetRef.current?.dismiss();
+  };
+
   return (
-    <ThemedBottomSheetModal
-      ref={sheetRef}
-      enablePanDownToClose
-      onDismiss={reset}
-    >
-      <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-3`}>
-        <ThemedText type="h3">{t("variant.mode.title")}</ThemedText>
+    <>
+      <ThemedBottomSheetModal
+        ref={sheetRef}
+        enablePanDownToClose
+        onDismiss={reset}
+      >
+        <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-3`}>
+          <ThemedText type="h3">{t("variant.mode.title")}</ThemedText>
 
-        {MODES.map((mode) => {
-          const isSelected = selected === mode;
-          return (
-            <Pressable
-              key={mode}
-              onPress={() => setSelected(mode)}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: isSelected }}
-              style={({ pressed }) =>
-                tw.style(
-                  "flex-row gap-3 items-start rounded-md border p-3.5",
-                  isSelected
-                    ? "bg-secondary border-transparent"
-                    : "border-outline-variant",
-                  pressed && "opacity-70",
-                )
-              }
-            >
-              <Icon
-                name={MODE_ICONS[mode]}
-                size={22}
-                color={tw.color("on-surface")}
-              />
-              <ThemedView style={tw`flex-1 gap-0.5 bg-transparent`}>
-                <ThemedText
-                  type="body1"
-                  style={{ fontFamily: typography.semibold }}
-                >
-                  {t(`variant.mode.${mode}.label`)}
-                  {mode === currentMode
-                    ? ` · ${t("variant.mode.current")}`
-                    : ""}
-                </ThemedText>
-                <ThemedText type="small" style={tw`text-gray-500`}>
-                  {t(`variant.mode.${mode}.description`)}
-                </ThemedText>
-              </ThemedView>
-            </Pressable>
-          );
-        })}
+          {MODES.map((mode) => {
+            const isSelected = selected === mode;
+            return (
+              <Pressable
+                key={mode}
+                onPress={() => setSelected(mode)}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: isSelected }}
+                style={({ pressed }) =>
+                  tw.style(
+                    "flex-row gap-3 items-start rounded-md border p-3.5",
+                    isSelected
+                      ? "bg-secondary border-transparent"
+                      : "border-outline-variant",
+                    pressed && "opacity-70",
+                  )
+                }
+              >
+                <Icon
+                  name={MODE_ICONS[mode]}
+                  size={22}
+                  color={tw.color("on-surface")}
+                />
+                <ThemedView style={tw`flex-1 gap-0.5 bg-transparent`}>
+                  <ThemedText
+                    type="body1"
+                    style={{ fontFamily: typography.semibold }}
+                  >
+                    {t(`variant.mode.${mode}.label`)}
+                    {mode === currentMode
+                      ? ` · ${t("variant.mode.current")}`
+                      : ""}
+                  </ThemedText>
+                  <ThemedText type="small" style={tw`text-gray-500`}>
+                    {t(`variant.mode.${mode}.description`)}
+                  </ThemedText>
+                </ThemedView>
+              </Pressable>
+            );
+          })}
 
-        {selected === "own" && currentMode !== "own" && (
-          <ThemedView style={tw`flex-row gap-3 bg-transparent`}>
-            <ThemedView style={tw`flex-1 bg-transparent`}>
-              <TextInput
-                bottomSheet
-                label={t("variant.mode.startQuantity")}
-                placeholder="0"
-                value={quantity}
-                onChangeText={setQuantity}
-                keyboardType="decimal-pad"
-              />
-            </ThemedView>
-            <ThemedView style={tw`flex-1 bg-transparent`}>
-              <TextInput
-                bottomSheet
-                label={t("variant.mode.minimum")}
-                placeholder={t("variant.mode.optional")}
-                value={minimum}
-                onChangeText={setMinimum}
-                keyboardType="decimal-pad"
-              />
-            </ThemedView>
+          {warning && (
+            <ThemedText type="small" style={tw`text-orange-700`}>
+              {warning}
+            </ThemedText>
+          )}
+
+          <Button
+            label={t("variant.mode.continue")}
+            onPress={handleContinue}
+            disabled={selected === currentMode || loading}
+            loading={loading}
+          />
+        </BottomSheetView>
+      </ThemedBottomSheetModal>
+
+      <ThemedBottomSheetModal ref={ownSheetRef} enablePanDownToClose>
+        <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
+          <ThemedView style={tw`gap-1 bg-transparent`}>
+            <ThemedText type="h3">{t("variant.mode.own.label")}</ThemedText>
+            <ThemedText type="body2" style={tw`text-gray-500`}>
+              {t("variant.mode.own.short")}
+            </ThemedText>
           </ThemedView>
-        )}
-
-        {warning && (
-          <ThemedText type="small" style={tw`text-orange-700`}>
-            {warning}
-          </ThemedText>
-        )}
-
-        <Button
-          label={t("variant.mode.continue")}
-          onPress={handleContinue}
-          disabled={selected === currentMode || loading}
-          loading={loading}
-        />
-      </BottomSheetView>
-    </ThemedBottomSheetModal>
+          <TextInput
+            bottomSheet
+            label={t("variant.mode.startQuantity")}
+            placeholder="0"
+            value={quantity}
+            onChangeText={setQuantity}
+            keyboardType="decimal-pad"
+          />
+          <ThemedView style={tw`gap-1 bg-transparent`}>
+            <TextInput
+              bottomSheet
+              label={t("variant.mode.minimum")}
+              placeholder={t("variant.mode.optional")}
+              value={minimum}
+              onChangeText={setMinimum}
+              keyboardType="decimal-pad"
+            />
+            <ThemedText type="small" style={tw`text-gray-500`}>
+              {t("variant.minimumHint")}
+            </ThemedText>
+          </ThemedView>
+          <Button
+            label={t("save")}
+            onPress={handleSaveOwn}
+            disabled={loading}
+            loading={loading}
+          />
+        </BottomSheetView>
+      </ThemedBottomSheetModal>
+    </>
   );
 }

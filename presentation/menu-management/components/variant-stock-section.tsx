@@ -1,4 +1,5 @@
 import { useRef, useState, type ReactNode } from "react";
+import { Pressable } from "react-native";
 import { router } from "expo-router";
 import {
   BottomSheetView,
@@ -177,7 +178,7 @@ export function useVariantStockSection(
     next: VariantStockMode,
     ownStock?: OwnStockInput,
   ) => {
-    if (!option) return;
+    if (!option) return false;
     try {
       if (next === "own") {
         await enable.mutateAsync({
@@ -188,13 +189,15 @@ export function useVariantStockSection(
         if (mode === "own") await disable.mutateAsync(option.id);
         modeSheetRef.current?.dismiss();
         openRecipeEditor();
-        return;
+        return true;
       } else {
         await disable.mutateAsync(option.id);
       }
       modeSheetRef.current?.dismiss();
+      return true;
     } catch {
       // The mutation shows the error; the sheet stays to retry.
+      return false;
     }
   };
 
@@ -405,6 +408,39 @@ export function VariantStockOverview({
             </ThemedText>
           )}
         </ThemedView>
+        <ThemedView
+          style={tw`gap-1 pt-4 mt-4 border-t border-divider bg-transparent`}
+        >
+          <InventorySectionHeader
+            title={t("variant.recipe")}
+            right={
+              canManage ? (
+                <Button
+                  label={t("common:actions.edit")}
+                  leftIcon="square-pen"
+                  variant="text"
+                  size="extra-small"
+                  onPress={section.openRecipeEditor}
+                />
+              ) : undefined
+            }
+          />
+          {section.recipeLines.map((line, index) => (
+            <Pressable
+              key={getLineItemId(line) ?? line.id}
+              onPress={() => openRecipeLine(line)}
+              style={({ pressed }) =>
+                tw.style(
+                  "py-3",
+                  index > 0 && "border-t border-outline-variant",
+                  pressed && "opacity-70",
+                )
+              }
+            >
+              <RecipeLine line={line} />
+            </Pressable>
+          ))}
+        </ThemedView>
       </Card>
     );
   } else {
@@ -558,24 +594,27 @@ export function VariantAdjustButtons({
 }
 
 /**
- * How the stock is tracked, then the recipe and the variants that use this
- * one. Returned as siblings, so they take the parent's spacing.
+ * How the stock is tracked and the variants that use this one (the recipe
+ * lives in the overview card). Returned as siblings, so they take the
+ * parent's spacing.
  */
 export function VariantStockDetails({
   section,
+  showMode = true,
 }: {
   section: VariantStockSection;
+  /** Off where a header edit button already opens the mode sheet. */
+  showMode?: boolean;
 }) {
   const { t } = useTranslation("inventory");
-  const products = useMenuStore((state) => state.products);
-  const { mode, canManage, sharedWith, usedIn, recipeLines } = section;
+  const { mode, canManage, sharedWith, usedIn } = section;
   if (!section.option) return null;
 
   return (
     <>
       {/* How the stock is tracked; changing it is the main setting here.
           Not tracked, the inventory card above leads there instead. */}
-      {mode !== "none" && (
+      {showMode && mode !== "none" && (
         <Card onPress={canManage ? section.openModeSheet : undefined}>
           <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
             <Icon
@@ -619,51 +658,6 @@ export function VariantStockDetails({
               .join(", "),
           })}
         </ThemedText>
-      )}
-
-      {mode === "recipe" && (
-        <ThemedView style={tw`gap-2 bg-transparent`}>
-          <InventorySectionHeader
-            title={t("variant.recipe")}
-            count={recipeLines.length}
-            right={
-              canManage ? (
-                <Button
-                  label={t("common:actions.edit")}
-                  leftIcon="square-pen"
-                  variant="text"
-                  size="extra-small"
-                  onPress={section.openRecipeEditor}
-                />
-              ) : undefined
-            }
-          />
-          <GroupedList
-            data={recipeLines}
-            keyExtractor={(line) => getLineItemId(line) ?? line.id}
-            onItemPress={(line) => {
-              const itemId = getLineItemId(line);
-              if (!itemId) return;
-              if (isProductStockItem(line.inventoryItem)) {
-                const owner = products
-                  .flatMap((p) => p.options ?? [])
-                  .find((o) => {
-                    const own = getOwnStockLine(o.inventoryItems);
-                    return own && getLineItemId(own) === itemId;
-                  });
-                if (owner) {
-                  openVariant(owner.id);
-                  return;
-                }
-              }
-              router.push({
-                pathname: "/(profile)/inventory/items/detail",
-                params: { itemId },
-              });
-            }}
-            renderItem={(line) => <RecipeLine line={line} />}
-          />
-        </ThemedView>
       )}
 
       {usedIn.length > 0 && (
@@ -802,7 +796,30 @@ export function VariantStockOverlays({
   );
 }
 
-/** A recipe line: the insumo, what one sale uses, and what is left. */
+/** An insumo opens its detail; another variant's own stock, that variant. */
+function openRecipeLine(line: ProductOptionInventoryItem) {
+  const itemId = getLineItemId(line);
+  if (!itemId) return;
+  if (isProductStockItem(line.inventoryItem)) {
+    const owner = useMenuStore
+      .getState()
+      .products.flatMap((p) => p.options ?? [])
+      .find((o) => {
+        const own = getOwnStockLine(o.inventoryItems);
+        return own && getLineItemId(own) === itemId;
+      });
+    if (owner) {
+      openVariant(owner.id);
+      return;
+    }
+  }
+  router.push({
+    pathname: "/(profile)/inventory/items/detail",
+    params: { itemId },
+  });
+}
+
+/** A recipe line: the insumo, what one sale uses, and whether it runs short. */
 function RecipeLine({ line }: { line: ProductOptionInventoryItem }) {
   const { t } = useTranslation("inventory");
   const stockItem = line.inventoryItem;
@@ -819,25 +836,13 @@ function RecipeLine({ line }: { line: ProductOptionInventoryItem }) {
 
   return (
     <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
-      <ThemedView style={tw`flex-1 gap-0.5 bg-transparent`}>
-        <ThemedText
-          type="body2"
-          style={{ fontFamily: typography.medium }}
-          numberOfLines={1}
-        >
-          {stockItem?.name ?? t("detail.unknownProduct")}
-        </ThemedText>
-        {stockItem && (
-          <ThemedText type="small" style={tw`text-gray-500`}>
-            {t("variant.hasStock", {
-              stock: t("quantityWithUnit", {
-                quantity: stockItem.quantity,
-                unit: unit(stockItem.quantity),
-              }),
-            })}
-          </ThemedText>
-        )}
-      </ThemedView>
+      <ThemedText
+        type="body2"
+        style={[tw`flex-1`, { fontFamily: typography.medium }]}
+        numberOfLines={1}
+      >
+        {stockItem?.name ?? t("detail.unknownProduct")}
+      </ThemedText>
       <ThemedText type="body2" style={{ fontFamily: typography.semibold }}>
         {t("quantityWithUnit", {
           quantity: line.quantity,

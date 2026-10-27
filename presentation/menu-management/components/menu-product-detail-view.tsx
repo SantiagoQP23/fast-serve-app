@@ -24,7 +24,6 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import Checkbox from "@/presentation/theme/components/checkbox";
-import Chip from "@/presentation/theme/components/chip";
 import IconButton from "@/presentation/theme/components/icon-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import Label from "@/presentation/theme/components/label";
@@ -33,8 +32,9 @@ import BottomSheetPicker, {
   type BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
 import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
-import TabBar from "@/presentation/theme/components/tab-bar";
-import TabPager from "@/presentation/theme/components/tab-pager";
+import Separator from "@/presentation/theme/components/separator";
+import Chip from "@/presentation/theme/components/chip";
+import { getSelectableTags } from "@/core/menu/models/tag.model";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { formatCurrency } from "@/core/i18n/utils";
 import {
@@ -45,6 +45,7 @@ import {
 } from "@/core/menu/models/product-optionl.model";
 import { typography } from "@/constants/theme";
 import ProductTagsSection from "@/presentation/menu-management/components/product-tags-section";
+import ProductSectionHeader from "@/presentation/menu-management/components/product-section-header";
 import {
   openVariant as openVariantById,
   useVariantStockSection,
@@ -117,8 +118,6 @@ const openVariant = (
 const isDefaultOptionName = (name: string) =>
   name.trim().toLowerCase() === "normal";
 
-type ProductTab = "details" | "stock";
-
 interface MenuProductDetailViewProps {
   productId: string;
   /**
@@ -186,11 +185,6 @@ export default function MenuProductDetailView({
   // instead of a list of one.
   const activeOptions = product?.options.filter((o) => o.isActive) ?? [];
   const singleOption = activeOptions.length === 1 ? activeOptions[0] : null;
-  const [activeTab, setActiveTab] = useState<ProductTab>("details");
-  const productTabs = [
-    { value: "details" as const, label: t("products.tabs.details") },
-    { value: "stock" as const, label: t("products.tabs.stock") },
-  ];
   const [stock, stockSheets] = useVariantStockSection(
     singleOption ? product : undefined,
     singleOption ?? undefined,
@@ -442,12 +436,11 @@ export default function MenuProductDetailView({
 
   const titleBlock = (
     <ThemedView style={tw`gap-1`}>
-      <ThemedView style={tw`flex-row items-center gap-2`}>
-        <Label
-          text={product.isActive ? t("active") : t("inactive")}
-          color={product.isActive ? "success" : "default"}
-        />
-      </ThemedView>
+      {!product.isActive && (
+        <ThemedView style={tw`flex-row items-center gap-2`}>
+          <Label text={t("inactive")} />
+        </ThemedView>
+      )}
       <ThemedText type="h1">{product.name}</ThemedText>
       {singleOption && (
         <ThemedText type="body1" style={{ fontFamily: typography.semibold }}>
@@ -473,6 +466,11 @@ export default function MenuProductDetailView({
           )}
         </Pressable>
       )}
+      {product.description ? (
+        <ThemedText type="body2" style={tw`text-gray-500 mt-1`}>
+          {product.description}
+        </ThemedText>
+      ) : null}
       {/* <ThemedText */}
       {/*   type="body1" */}
       {/*   style={[ */}
@@ -485,17 +483,10 @@ export default function MenuProductDetailView({
     </ThemedView>
   );
 
-  const productInfo = (
-    <>
+  const properties = (
+    <ThemedView style={tw`gap-3 mt-4`}>
+      <ProductSectionHeader title={t("products.properties")} />
       <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
-        {/* <Label */}
-        {/*   text={ */}
-        {/*     product.isPublic */}
-        {/*       ? t("products.visibleToCustomers") */}
-        {/*       : t("products.hiddenFromCustomers") */}
-        {/*   } */}
-        {/*   color={product.isPublic ? "info" : "default"} */}
-        {/* /> */}
         <Chip
           variant="filter"
           label={product.category?.name ?? t("products.fields.category")}
@@ -518,41 +509,31 @@ export default function MenuProductDetailView({
           }
         />
       </ThemedView>
+    </ThemedView>
+  );
 
-      {product.description ? (
-        <Card>
-          <ThemedText type="small" style={tw`text-gray-500 mb-1`}>
-            {t("products.fields.description")}
-          </ThemedText>
-          <ThemedText type="body2">{product.description}</ThemedText>
-        </Card>
-      ) : null}
-
+  const productInfo = (
+    <>
       {singleOption
         ? canManage && (
             <ThemedView style={tw`gap-3 mt-4`}>
-              <ThemedText type="caption">
-                {t("products.variants.title")}
-              </ThemedText>
-              <ThemedText type="body2" style={tw`text-gray-500`}>
-                {t("products.variants.singleHint")}
-              </ThemedText>
-              <ThemedView style={tw`flex-row`}>
-                <Button
-                  label={t("products.variants.addVariant")}
-                  onPress={openAddOptionSheet}
-                  variant="outline"
-                  size="small"
-                  leftIcon="plus"
-                />
-              </ThemedView>
+              <ProductSectionHeader
+                title={t("products.variants.title")}
+                hint={t("products.variants.singleHint")}
+                onAdd={openAddOptionSheet}
+                addLabel={t("products.variants.addVariant")}
+                empty
+              />
             </ThemedView>
           )
         : (canManage || product.options.length > 0) && (
             <ThemedView style={tw`gap-3 mt-4`}>
-              <ThemedText type="caption">
-                {t("products.variants.title")}
-              </ThemedText>
+              <ProductSectionHeader
+                title={t("products.variants.title")}
+                onAdd={canManage ? openAddOptionSheet : undefined}
+                addLabel={t("products.variants.addVariant")}
+                empty={product.options.length === 0}
+              />
 
               {product.options.length === 0 ? (
                 <ThemedView
@@ -637,18 +618,6 @@ export default function MenuProductDetailView({
                   ))}
                 </ThemedView>
               )}
-
-              {canManage && (
-                <ThemedView style={tw`flex-row`}>
-                  <Button
-                    label={t("products.variants.addVariant")}
-                    onPress={openAddOptionSheet}
-                    variant="outline"
-                    size="small"
-                    leftIcon="plus"
-                  />
-                </ThemedView>
-              )}
             </ThemedView>
           )}
 
@@ -689,53 +658,38 @@ export default function MenuProductDetailView({
           )}
         </ThemedView>
 
-        {singleOption ? (
-          <>
-            {/* One variant: its stock gets a tab of its own */}
-            <ThemedView style={tw`gap-4`}>
-              {titleBlock}
-              <TabBar
-                tabs={productTabs}
-                activeTab={activeTab}
-                onChange={setActiveTab}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={tw.style("gap-4", scrollPadding)}
+          refreshControl={
+            stock.ownItemId ? (
+              <RefreshControl
+                refreshing={stock.refreshing}
+                onRefresh={stock.onRefresh}
+                tintColor={tw.color("primary")}
+                colors={[tw.color("primary") as string]}
               />
-            </ThemedView>
-            <TabPager
-              tabs={productTabs}
-              activeTab={activeTab}
-              onChange={setActiveTab}
-              renderScene={(tab) =>
-                tab === "details" ? (
-                  <ScrollView
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={tw.style(
-                      "gap-4 pt-4",
-                      scrollPadding,
-                    )}
-                  >
-                    {productInfo}
-                  </ScrollView>
-                ) : (
-                  <ScrollView
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={tw.style(
-                      "gap-4 pt-4",
-                      scrollPadding,
-                    )}
-                    refreshControl={
-                      stock.ownItemId ? (
-                        <RefreshControl
-                          refreshing={stock.refreshing}
-                          onRefresh={stock.onRefresh}
-                          tintColor={tw.color("primary")}
-                          colors={[tw.color("primary") as string]}
+            ) : undefined
+          }
+        >
+          {titleBlock}
+          {properties}
+          {singleOption && (
+            <>
+              <ThemedView style={tw`mt-4`}>
+                <ProductSectionHeader
+                  title={t("products.tabs.stock")}
+                  right={
+                    <ThemedView style={tw`flex-row items-center -my-2 -mr-2`}>
+                      {canManage && stock.mode !== "none" && (
+                        <IconButton
+                          icon="square-pen"
+                          size={18}
+                          onPress={stock.openModeSheet}
+                          accessibilityLabel={t("inventory:variant.mode.title")}
                         />
-                      ) : undefined
-                    }
-                  >
-                    {/* The tab names the section; its options stay */}
-                    {stock.hasOptions && (
-                      <ThemedView style={tw`flex-row justify-end -mb-2`}>
+                      )}
+                      {stock.hasOptions && (
                         <IconButton
                           icon="ellipsis-vertical"
                           size={18}
@@ -743,30 +697,27 @@ export default function MenuProductDetailView({
                           accessibilityLabel={t(
                             "inventory:variant.actions.title",
                           )}
-                          style={tw`-my-2 -mr-2`}
                         />
-                      </ThemedView>
-                    )}
-                    <VariantStockOverview section={stock} />
-                    <VariantAdjustButtons section={stock} />
-                    <VariantStockDetails section={stock} />
-                    <ThemedView style={tw`mt-4`}>
-                      <VariantStockMovements section={stock} />
+                      )}
                     </ThemedView>
-                  </ScrollView>
-                )
-              }
-            />
-          </>
-        ) : (
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={tw.style("gap-4", scrollPadding)}
-          >
-            {titleBlock}
-            {productInfo}
-          </ScrollView>
-        )}
+                  }
+                />
+              </ThemedView>
+              <VariantStockOverview section={stock} />
+              <VariantAdjustButtons section={stock} />
+              <VariantStockDetails section={stock} showMode={false} />
+              <ThemedView style={tw`mt-4`}>
+                <VariantStockMovements section={stock} />
+              </ThemedView>
+              {/* Variants and tags below show only to managers or when
+                  the product has tags. */}
+              {(canManage || getSelectableTags(product.tags).length > 0) && (
+                <Separator style={tw``} />
+              )}
+            </>
+          )}
+          {productInfo}
+        </ScrollView>
       </Container>
 
       <ThemedBottomSheetModal ref={productActionsSheetRef} enablePanDownToClose>

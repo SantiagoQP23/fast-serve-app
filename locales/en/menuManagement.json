@@ -244,7 +244,8 @@
     "tabs": {
       "details": "Details",
       "stock": "Stock"
-    }
+    },
+    "properties": "Properties"
   },
   "loading": "Loading...",
   "loadError": "Failed to load the menu",
@@ -287,6 +288,7 @@
     "deleteMessage": "“{{name}}” will be removed from every product. Past orders still show it.",
     "productHint": "The waiter can pick one or more when ordering this product.",
     "addToProduct": "Add tags...",
+    "add": "Add tag",
     "productSheetTitle": "Product tags",
     "createNamed": "Create “{{name}}”",
     "selectExisting": "Pick “{{name}}”",

@@ -8,7 +8,6 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Chip from "@/presentation/theme/components/chip";
 import Button from "@/presentation/theme/components/button";
-import IconButton from "@/presentation/theme/components/icon-button";
 import TextInput from "@/presentation/theme/components/text-input";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -16,6 +15,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import type { Product } from "@/core/menu/models/product.model";
 import { getSelectableTags } from "@/core/menu/models/tag.model";
 import { useTags } from "@/presentation/menu-management/hooks/useTags";
+import ProductSectionHeader from "@/presentation/menu-management/components/product-section-header";
 
 interface ProductTagsSectionProps {
   product: Product;
@@ -100,25 +100,15 @@ export default function ProductTagsSection({
 
   return (
     <ThemedView style={tw`gap-3 mt-4`}>
-      <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
-        <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-          <ThemedText type="body1">{t("tags.title")}</ThemedText>
-          {canManage && (
-            <ThemedText type="small" style={tw`text-gray-500`}>
-              {t("tags.productHint")}
-            </ThemedText>
-          )}
-        </ThemedView>
-        {canManage && (
-          <Button
-            leftIcon="plus"
-            variant="outline"
-            size="small"
-            onPress={openSheet}
-            accessibilityLabel={t("tags.addToProduct")}
-          />
-        )}
-      </ThemedView>
+      <ProductSectionHeader
+        title={t("tags.title")}
+        hint={canManage ? t("tags.productHint") : undefined}
+        onAdd={canManage ? openSheet : undefined}
+        addLabel={
+          productTags.length === 0 ? t("tags.add") : t("tags.addToProduct")
+        }
+        empty={productTags.length === 0}
+      />
 
       {productTags.length > 0 && (
         <ThemedView style={tw`flex-row flex-wrap gap-2 bg-transparent`}>
