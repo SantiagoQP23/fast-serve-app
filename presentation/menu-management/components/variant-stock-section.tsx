@@ -62,9 +62,15 @@ interface RelatedVariant {
   line: ProductOptionInventoryItem;
 }
 
+/**
+ * "Producto · Variante", or just the product's name when this is its only
+ * active variant. An inactive variant keeps its name, so it can be told
+ * apart from the one still on sale. Doesn't rely on `hasVariants`, which
+ * products from before variants existed may still have off.
+ */
 export const variantName = (product: Product, option: ProductOption) =>
-  product.hasVariants === false ||
-  product.options.filter((o) => o.isActive).length <= 1
+  option.isActive &&
+  product.options.every((o) => o.id === option.id || !o.isActive)
     ? product.name
     : `${product.name} · ${option.name}`;
 
@@ -223,6 +229,16 @@ export function useVariantStockSection(
     minimumSheetRef.current?.present();
   };
 
+  const modeAction: ActionsBottomSheetItem = {
+    icon:
+      mode === "own" ? "hash" : mode === "recipe" ? "chef-hat" : "circle-off",
+    label: t("variant.actions.changeMode"),
+    onPress: () => {
+      optionsSheetRef.current?.dismiss();
+      modeSheetRef.current?.present();
+    },
+  };
+
   const ownActions: ActionsBottomSheetItem[] =
     mode === "own" && option
       ? [
@@ -291,6 +307,7 @@ export function useVariantStockSection(
     convertToIngredient,
     handleChooseMode,
     handleSaveMinimum,
+    modeAction,
     ownActions,
   };
   // Kept apart from the section, which is read during render.
@@ -339,6 +356,7 @@ export function VariantStockOverview({
           title={title}
           subtitle={formatCurrency(option.price)}
           onSetMinimum={canManage ? section.openMinimumSheet : undefined}
+          inactive={!option.isActive}
         />
       );
     body = (
@@ -477,6 +495,11 @@ export function VariantStockOverview({
   return (
     <ThemedView style={tw`gap-4 bg-transparent`}>
       <ThemedView style={tw`gap-1 bg-transparent`}>
+        {!option.isActive && (
+          <ThemedView style={tw`flex-row bg-transparent`}>
+            <Label text={t("status.inactive")} />
+          </ThemedView>
+        )}
         <ThemedText type="h1">{title}</ThemedText>
         <ThemedText type="body2" style={tw`text-gray-500`}>
           {formatCurrency(option.price)}
@@ -718,9 +741,15 @@ export function VariantStockMovements({
 export function VariantStockOverlays({
   section,
   sheets,
+  variantActions = [],
+  showModeAction = false,
 }: {
   section: VariantStockSection;
   sheets: VariantStockSheets;
+  /** The variant's own actions (edit, delete…), above the stock ones. */
+  variantActions?: ActionsBottomSheetItem[];
+  /** Changing the stock type from the sheet, where no card or button does. */
+  showModeAction?: boolean;
 }) {
   const { t } = useTranslation("inventory");
   const { option, mode, ownItem } = section;
@@ -747,9 +776,21 @@ export function VariantStockOverlays({
 
       <ThemedBottomSheetModal ref={optionsSheetRef} enablePanDownToClose>
         <ActionsBottomSheet
-          title={t("variant.actions.title")}
+          title={
+            variantActions.length > 0
+              ? t("menuManagement:products.variants.actions")
+              : t("variant.actions.title")
+          }
           subtitle={section.title}
-          items={section.ownActions}
+          sections={[
+            { items: variantActions },
+            {
+              items:
+                showModeAction && section.canManage
+                  ? [section.modeAction, ...section.ownActions]
+                  : section.ownActions,
+            },
+          ]}
         />
       </ThemedBottomSheetModal>
 

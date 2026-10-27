@@ -23,6 +23,8 @@ interface InventoryDetailSummaryCardProps {
   icon?: IconName;
   /** Shown as a "Set" action while the item has no minimum. */
   onSetMinimum?: () => void;
+  /** Labels it Inactive even if the item isn't, e.g. an inactive variant. */
+  inactive?: boolean;
 }
 
 const STATUS_LABEL_COLOR: Record<InventoryStockStatus, LabelProps["color"]> = {
@@ -44,6 +46,7 @@ export default function InventoryDetailSummaryCard({
   subtitle,
   icon = "package",
   onSetMinimum,
+  inactive = false,
 }: InventoryDetailSummaryCardProps) {
   const { t } = useTranslation("inventory");
   // An inactive item still has stock worth reading, so show its level
@@ -60,7 +63,7 @@ export default function InventoryDetailSummaryCard({
       }
       labels={
         <>
-          {!item.isActive && (
+          {(inactive || !item.isActive) && (
             <Label
               text={t("status.inactive")}
               color={STATUS_LABEL_COLOR.inactive}

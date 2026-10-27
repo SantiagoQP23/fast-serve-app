@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Label from "@/presentation/theme/components/label";
@@ -34,12 +35,16 @@ export default function ProductVariantList({ product }: { product: Product }) {
   );
 }
 
-function VariantRow({
+/** One variant: name, stock left (when tracked) and price. */
+export function VariantRow({
   option,
   showName,
+  leading,
 }: {
   option: ProductOption;
   showName: boolean;
+  /** Before the name, e.g. the product screen's default star. */
+  leading?: ReactNode;
 }) {
   const { t } = useTranslation("inventory");
   const mode = getVariantStockMode(option);
@@ -58,6 +63,7 @@ function VariantRow({
 
   return (
     <ThemedView style={tw`flex-row items-center gap-2 min-h-6 bg-transparent`}>
+      {leading}
       <ThemedText type="body2" style={tw`flex-1`} numberOfLines={1}>
         {showName ? option.name : ""}
       </ThemedText>

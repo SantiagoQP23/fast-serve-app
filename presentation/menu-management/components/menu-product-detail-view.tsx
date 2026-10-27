@@ -15,14 +15,9 @@ import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuM
 import { openProductForm } from "@/presentation/menu-management/utils/open-product-form";
 import { useProductionAreas } from "@/presentation/production-areas/hooks/useProductionAreas";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import {
-  Roles,
-  canManageInventory,
-  isValidRole,
-} from "@/core/auth/models/user.model";
+import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
-import Card from "@/presentation/theme/components/card";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import IconButton from "@/presentation/theme/components/icon-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
@@ -37,15 +32,14 @@ import Chip from "@/presentation/theme/components/chip";
 import { getSelectableTags } from "@/core/menu/models/tag.model";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { formatCurrency } from "@/core/i18n/utils";
-import {
-  getProductOptionAvailableQuantity,
-  getProductOptionStockLevel,
-  getVariantStockMode,
-  type ProductOption,
-} from "@/core/menu/models/product-optionl.model";
+import type { ProductOption } from "@/core/menu/models/product-optionl.model";
 import { typography } from "@/constants/theme";
 import ProductTagsSection from "@/presentation/menu-management/components/product-tags-section";
+import { VariantRow } from "@/presentation/menu-management/components/product-variant-list";
 import ProductSectionHeader from "@/presentation/menu-management/components/product-section-header";
+import EditVariantSheet, {
+  type EditVariantSheetRef,
+} from "@/presentation/menu-management/components/edit-variant-sheet";
 import {
   openVariant as openVariantById,
   useVariantStockSection,
@@ -55,59 +49,6 @@ import {
   VariantStockOverlays,
   VariantStockOverview,
 } from "@/presentation/menu-management/components/variant-stock-section";
-
-// The variant's stock as a label: own units or what its recipe covers. Not
-// tracked, it offers to set that up instead (for who can manage stock).
-function OptionStockLeft({
-  option,
-  canManageStock,
-}: {
-  option: ProductOption;
-  canManageStock: boolean;
-}) {
-  const { t } = useTranslation("inventory");
-  const mode = getVariantStockMode(option);
-  const available = getProductOptionAvailableQuantity(option);
-  const level = getProductOptionStockLevel(option, available);
-
-  if (mode === "none")
-    return canManageStock ? (
-      <ThemedView style={tw`flex-row bg-transparent`}>
-        <Button
-          label={t("variant.manageStock")}
-          leftIcon="package"
-          variant="outline"
-          size="extra-small"
-          onPress={() => openVariant(option, { openStockMode: true })}
-        />
-      </ThemedView>
-    ) : (
-      <ThemedText type="small" style={tw`text-gray-500`}>
-        {t("variant.notTracked")}
-      </ThemedText>
-    );
-
-  // Oversold (below zero) reads as none left
-  const quantity = Math.max(available ?? 0, 0);
-  return (
-    <ThemedView style={tw`flex-row bg-transparent`}>
-      {/* Just the number, like the menu list; spoken in full */}
-      <Label
-        text={String(quantity)}
-        leftIcon={mode === "own" ? "package" : "chef-hat"}
-        color={
-          level === "out" ? "error" : level === "low" ? "warning" : "default"
-        }
-        size="small"
-        accessibilityLabel={
-          mode === "own"
-            ? t("variant.inStock", { count: quantity })
-            : t("variant.coversShort", { count: quantity })
-        }
-      />
-    </ThemedView>
-  );
-}
 
 const openVariant = (
   option: ProductOption,
@@ -146,8 +87,6 @@ export default function MenuProductDetailView({
     updateProduct,
     deleteProduct,
     createProductOption,
-    updateProductOption,
-    deleteProductOption,
     setDefaultProductOption,
     duplicateProduct,
   } = useMenuManagement();
@@ -155,8 +94,6 @@ export default function MenuProductDetailView({
   const productionAreas = productionAreasQuery.data ?? [];
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
-  // Same rule as the variant screen's stock mode setting
-  const canManageStock = canManageInventory(user?.role?.name);
   const [productDeleteVisible, setProductDeleteVisible] = useState(false);
   const categoryPickerRef = useRef<BottomSheetPickerRef>(null);
   const productionAreaPickerRef = useRef<BottomSheetPickerRef>(null);
@@ -167,18 +104,8 @@ export default function MenuProductDetailView({
   const [currentOptionName, setCurrentOptionName] = useState("");
   const [newOptionError, setNewOptionError] = useState("");
 
-  const [selectedOption, setSelectedOption] = useState<ProductOption | null>(
-    null,
-  );
-  const optionActionsSheetRef = useRef<BottomSheetMethods>(null);
   const productActionsSheetRef = useRef<BottomSheetMethods>(null);
-  const editOptionSheetRef = useRef<BottomSheetMethods>(null);
-  const [editOptionName, setEditOptionName] = useState("");
-  const [editOptionPrice, setEditOptionPrice] = useState("");
-  const [editOptionError, setEditOptionError] = useState("");
-  const [optionToDelete, setOptionToDelete] = useState<ProductOption | null>(
-    null,
-  );
+  const editOptionSheetRef = useRef<EditVariantSheetRef>(null);
 
   const product = products.find((p) => p.id === productId);
   // A product with one variant shows that variant's stock right here,
@@ -296,107 +223,12 @@ export default function MenuProductDetailView({
     );
   };
 
-  const handleOpenOptionActions = (option: ProductOption) => {
-    setSelectedOption(option);
-    optionActionsSheetRef.current?.present();
-  };
-
-  const closeOptionActions = () => {
-    optionActionsSheetRef.current?.dismiss();
-  };
-
-  const handleMakeOptionDefault = () => {
-    if (!product || !selectedOption) return;
-    closeOptionActions();
-    setDefaultProductOption.mutate({
-      productId: product.id,
-      variantId: selectedOption.id,
-    });
-  };
-
   const handleMakeDefaultFromRow = (option: ProductOption) => {
     if (!product || option.isDefault) return;
     setDefaultProductOption.mutate({
       productId: product.id,
       variantId: option.id,
     });
-  };
-
-  const handleToggleOptionActive = () => {
-    if (!product || !selectedOption) return;
-    closeOptionActions();
-    updateProductOption.mutate({
-      id: selectedOption.id,
-      productId: product.id,
-      isActive: !selectedOption.isActive,
-    });
-  };
-
-  const openEditOption = (option: ProductOption) => {
-    setSelectedOption(option);
-    setEditOptionName(option.name);
-    setEditOptionPrice(String(option.price));
-    setEditOptionError("");
-    editOptionSheetRef.current?.present();
-  };
-
-  const handleOpenEditOption = () => {
-    if (!selectedOption) return;
-    closeOptionActions();
-    openEditOption(selectedOption);
-  };
-
-  // A product keeps at least one active variant, or it can't be sold.
-  const isLastActiveOption =
-    !!selectedOption?.isActive && activeOptions.length <= 1;
-
-  const handleSaveEditOption = () => {
-    if (!product || !selectedOption) return;
-    const trimmedName = editOptionName.trim();
-    const parsedPrice = Number(editOptionPrice);
-
-    if (!trimmedName) {
-      setEditOptionError(t("products.variants.validations.nameRequired"));
-      return;
-    }
-    if (!editOptionPrice || Number.isNaN(parsedPrice) || parsedPrice < 0) {
-      setEditOptionError(t("products.variants.validations.priceInvalid"));
-      return;
-    }
-    setEditOptionError("");
-
-    updateProductOption.mutate(
-      {
-        id: selectedOption.id,
-        productId: product.id,
-        name: trimmedName,
-        price: parsedPrice,
-      },
-      {
-        onSuccess: () => editOptionSheetRef.current?.dismiss(),
-      },
-    );
-  };
-
-  const handleOpenVariantFromActions = () => {
-    if (!selectedOption) return;
-    closeOptionActions();
-    openVariant(selectedOption);
-  };
-
-  const handleRequestDeleteOption = () => {
-    if (!selectedOption) return;
-    closeOptionActions();
-    setOptionToDelete(selectedOption);
-  };
-
-  const handleConfirmDeleteOption = async () => {
-    if (!product || !optionToDelete) return;
-    await deleteProductOption.mutateAsync({
-      id: optionToDelete.id,
-      productId: product.id,
-    });
-    setOptionToDelete(null);
   };
 
   const handleConfirmDeleteProduct = async () => {
@@ -449,7 +281,11 @@ export default function MenuProductDetailView({
       )}
       {singleOption && !isDefaultOptionName(singleOption.name) && (
         <Pressable
-          onPress={canManage ? () => openEditOption(singleOption) : undefined}
+          onPress={
+            canManage
+              ? () => editOptionSheetRef.current?.present(singleOption)
+              : undefined
+          }
           disabled={!canManage}
           accessibilityRole={canManage ? "button" : undefined}
           style={({ pressed }) =>
@@ -552,69 +388,62 @@ export default function MenuProductDetailView({
                   </ThemedText>
                 </ThemedView>
               ) : (
-                <ThemedView style={tw`gap-3`}>
+                <ThemedView>
+                  {/* Rows like the menu list's product card, the default
+                      star before the name */}
                   {product.options.map((option, index) => (
-                    <Card
+                    <Pressable
                       key={option.id ?? index}
-                      containerStyle={!option.isActive && tw`opacity-50`}
                       onPress={() => openVariant(option)}
-                      variant="outline"
+                      accessibilityRole="button"
+                      style={({ pressed }) =>
+                        tw.style(
+                          "py-3",
+                          index > 0 && "border-t border-outline-variant",
+                          !option.isActive && "opacity-50",
+                          pressed && "opacity-70",
+                        )
+                      }
                     >
-                      <ThemedView
-                        style={tw`flex-row items-center gap-3 bg-transparent`}
-                      >
-                        <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-                          <ThemedText
-                            type="body1"
-                            style={tw`font-semibold`}
-                            numberOfLines={1}
-                          >
-                            {option.name}
-                          </ThemedText>
-                          <ThemedText type="small" style={tw`text-gray-500`}>
-                            {formatCurrency(option.price)}
-                          </ThemedText>
-                          <OptionStockLeft
-                            option={option}
-                            canManageStock={canManageStock}
-                          />
-                        </ThemedView>
-                        {canManage && (
-                          <IconButton
-                            icon="ellipsis-vertical"
-                            size={18}
-                            onPress={() => handleOpenOptionActions(option)}
-                            accessibilityLabel={t("products.variants.actions")}
-                          />
-                        )}
-                        {option.isDefault ? (
-                          <Icon
-                            name="star"
-                            size={18}
-                            color={tw.color("on-secondary")}
-                          />
-                        ) : canManage ? (
-                          <Pressable
-                            onPress={() => handleMakeDefaultFromRow(option)}
-                            disabled={setDefaultProductOption.isPending}
-                            hitSlop={10}
-                            accessibilityRole="button"
-                            accessibilityLabel={t(
-                              "products.variants.makeDefault",
-                            )}
-                            style={({ pressed }) =>
-                              tw.style(pressed && "opacity-60")
-                            }
-                          >
+                      <VariantRow
+                        option={option}
+                        showName
+                        leading={
+                          option.isDefault ? (
                             <Icon
                               name="star"
                               size={18}
-                              color={tw.color("gray-300")}
+                              color={tw.color("on-secondary")}
+                              accessibilityLabel={t(
+                                "products.variants.fields.isDefault",
+                              )}
                             />
-                          </Pressable>
-                        ) : null}
-                      </ThemedView>
-                    </Card>
+                          ) : canManage ? (
+                            <Pressable
+                              onPress={() => handleMakeDefaultFromRow(option)}
+                              disabled={setDefaultProductOption.isPending}
+                              hitSlop={10}
+                              accessibilityRole="button"
+                              accessibilityLabel={t(
+                                "products.variants.makeDefault",
+                              )}
+                              style={({ pressed }) =>
+                                tw.style(pressed && "opacity-60")
+                              }
+                            >
+                              <Icon
+                                name="star"
+                                size={18}
+                                color={tw.color("gray-300")}
+                              />
+                            </Pressable>
+                          ) : (
+                            // Keeps the names lined up
+                            <View style={tw`w-[18px]`} />
+                          )
+                        }
+                      />
+                    </Pressable>
                   ))}
                 </ThemedView>
               )}
@@ -842,116 +671,9 @@ export default function MenuProductDetailView({
         </BottomSheetView>
       </ThemedBottomSheetModal>
 
-      <ThemedBottomSheetModal ref={optionActionsSheetRef} enablePanDownToClose>
-        {selectedOption && (
-          <ThemedView style={tw`px-4 pb-4 gap-6`}>
-            <ThemedView
-              style={tw`flex-row justify-between items-start gap-3`}
-            ></ThemedView>
-
-            <ThemedView style={tw`flex-row justify-center items-start gap-3`}>
-              <ThemedView style={tw`flex-1 gap-2`}>
-                <ThemedText type="h2" style={{ fontFamily: typography.medium }}>
-                  {selectedOption.name}
-                </ThemedText>
-                <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
-                  <ThemedView style={tw`flex-row items-center gap-1`}>
-                    {/* <ThemedText type="small" style={tw`text-gray-500`}> */}
-                    {/*   {formatCurrency(selectedOption.price)} */}
-                    {/* </ThemedText> */}
-                  </ThemedView>
-                </ThemedView>
-              </ThemedView>
-
-              {!isLastActiveOption && (
-                <IconButton
-                  icon={selectedOption.isActive ? "eye" : "eye-off"}
-                  onPress={handleToggleOptionActive}
-                  variant="surface"
-                />
-              )}
-            </ThemedView>
-            <Button
-              label={t("products.variants.openStock")}
-              leftIcon="package"
-              variant="outline"
-              onPress={handleOpenVariantFromActions}
-            />
-            <ThemedView style={tw`flex-row gap-4 items-center justify-center`}>
-              {!isLastActiveOption && (
-                <Button
-                  leftIcon="trash"
-                  label={t("delete")}
-                  variant="destructive"
-                  onPress={handleRequestDeleteOption}
-                  size="small"
-                />
-              )}
-              <Button
-                label={t("edit")}
-                leftIcon="square-pen"
-                variant="surface"
-                onPress={handleOpenEditOption}
-                size="small"
-              />
-            </ThemedView>
-          </ThemedView>
-        )}
-      </ThemedBottomSheetModal>
-
-      <ThemedBottomSheetModal ref={editOptionSheetRef} enablePanDownToClose>
-        <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
-          <ThemedText type="h3">
-            {t("products.variants.editVariant")}
-          </ThemedText>
-
-          <TextInput
-            bottomSheet
-            label={t("products.variants.fields.name")}
-            placeholder={t("products.variants.placeholders.name")}
-            value={editOptionName}
-            onChangeText={setEditOptionName}
-          />
-
-          <TextInput
-            bottomSheet
-            label={t("products.variants.fields.price")}
-            placeholder={t("products.variants.placeholders.price")}
-            value={editOptionPrice}
-            onChangeText={setEditOptionPrice}
-            keyboardType="decimal-pad"
-          />
-
-          {editOptionError ? (
-            <ThemedText type="small" style={tw`text-red-500`}>
-              {editOptionError}
-            </ThemedText>
-          ) : null}
-
-          <ThemedView style={tw`flex-row gap-4 items-center justify-end`}>
-            <Button
-              label={t("products.save")}
-              onPress={handleSaveEditOption}
-              loading={updateProductOption.isPending}
-              disabled={updateProductOption.isPending}
-            />
-          </ThemedView>
-        </BottomSheetView>
-      </ThemedBottomSheetModal>
+      <EditVariantSheet ref={editOptionSheetRef} productId={product.id} />
 
       <VariantStockOverlays section={stock} sheets={stockSheets} />
-
-      <DialogModal
-        visible={!!optionToDelete}
-        title={t("products.variants.deleteTitle")}
-        message={t("products.variants.deleteMessage")}
-        confirmLabel={t("confirm")}
-        cancelLabel={t("cancel")}
-        confirmVariant="destructive"
-        loading={deleteProductOption.isPending}
-        onConfirm={handleConfirmDeleteOption}
-        onCancel={() => setOptionToDelete(null)}
-      />
     </View>
   );
 }

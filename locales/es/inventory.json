@@ -506,6 +506,7 @@
     "actions": {
       "title": "Stock del producto",
       "setMinimum": "Stock mínimo",
+      "changeMode": "Cambiar tipo de stock",
       "separate": "Separar stock",
       "separateHint": "Esta variante tendrá su propio stock, empezando en 0.",
       "toIngredient": "Usar como insumo",

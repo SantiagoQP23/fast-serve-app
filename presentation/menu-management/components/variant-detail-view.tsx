@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RefreshControl, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -9,6 +9,14 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Icon from "@/presentation/theme/components/icon";
 import IconButton from "@/presentation/theme/components/icon-button";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
+import type { ActionsBottomSheetItem } from "@/presentation/theme/components/actions-bottom-sheet";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { Roles, isValidRole } from "@/core/auth/models/user.model";
+import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuManagement";
+import EditVariantSheet, {
+  type EditVariantSheetRef,
+} from "@/presentation/menu-management/components/edit-variant-sheet";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import InventoryScreenHeader from "@/presentation/inventory/components/screen-header";
 import {
@@ -43,6 +51,15 @@ export default function VariantDetailView({
   const { t } = useTranslation("inventory");
   const insets = useSafeAreaInsets();
   const products = useMenuStore((state) => state.products);
+  const { user } = useAuthStore();
+  // Same rule as the product screen's variant actions
+  const canManageVariant = isValidRole(user?.role?.name, [
+    Roles.ADMIN,
+    Roles.OWNER,
+  ]);
+  const { updateProductOption, deleteProductOption } = useMenuManagement();
+  const editSheetRef = useRef<EditVariantSheetRef>(null);
+  const [deleteVisible, setDeleteVisible] = useState(false);
 
   const product = products.find((p) =>
     p.options?.some((option) => option.id === productOptionId),
@@ -64,6 +81,66 @@ export default function VariantDetailView({
 
   const Container = embedded ? ThemedView : ScreenLayout;
   const close = onClose ?? (() => router.back());
+
+  // A product keeps at least one active variant, or it can't be sold.
+  const isLastActiveOption =
+    !!option?.isActive &&
+    (product?.options.filter((o) => o.isActive).length ?? 0) <= 1;
+
+  const variantActions: ActionsBottomSheetItem[] =
+    canManageVariant && product && option
+      ? [
+          {
+            icon: "square-pen",
+            label: t("menuManagement:edit"),
+            onPress: () => {
+              sectionSheets.optionsSheetRef.current?.dismiss();
+              editSheetRef.current?.present(option);
+            },
+          },
+          ...(!isLastActiveOption
+            ? [
+                {
+                  icon: option.isActive
+                    ? ("eye-off" as const)
+                    : ("eye" as const),
+                  label: option.isActive
+                    ? t("menuManagement:deactivate")
+                    : t("menuManagement:activate"),
+                  onPress: () => {
+                    sectionSheets.optionsSheetRef.current?.dismiss();
+                    updateProductOption.mutate({
+                      id: option.id,
+                      productId: product.id,
+                      isActive: !option.isActive,
+                    });
+                  },
+                },
+                {
+                  icon: "trash" as const,
+                  label: t("menuManagement:delete"),
+                  color: "text-red-600",
+                  onPress: () => {
+                    sectionSheets.optionsSheetRef.current?.dismiss();
+                    setDeleteVisible(true);
+                  },
+                },
+              ]
+            : []),
+        ]
+      : [];
+  // Changing the stock type lives in the sheet too, for whoever manages it
+  const hasOptions = section.canManage || variantActions.length > 0;
+
+  const handleConfirmDelete = async () => {
+    if (!product || !option) return;
+    await deleteProductOption.mutateAsync({
+      id: option.id,
+      productId: product.id,
+    });
+    setDeleteVisible(false);
+    close();
+  };
 
   if (!product || !option) {
     return (
@@ -89,7 +166,7 @@ export default function VariantDetailView({
           onBack={close}
           backIcon={embedded ? "x" : "arrow-left"}
           right={
-            section.hasOptions ? (
+            hasOptions ? (
               <IconButton
                 icon="ellipsis-vertical"
                 onPress={section.openOptions}
@@ -116,7 +193,7 @@ export default function VariantDetailView({
         }
       >
         <VariantStockOverview section={section} title={section.title} />
-        <VariantStockDetails section={section} />
+        <VariantStockDetails section={section} showMode={false} />
         <VariantStockMovements section={section} />
       </ScrollView>
 
@@ -131,7 +208,26 @@ export default function VariantDetailView({
         </ThemedView>
       )}
 
-      <VariantStockOverlays section={section} sheets={sectionSheets} />
+      <VariantStockOverlays
+        section={section}
+        sheets={sectionSheets}
+        variantActions={variantActions}
+        showModeAction
+      />
+
+      <EditVariantSheet ref={editSheetRef} productId={product.id} />
+
+      <DialogModal
+        visible={deleteVisible}
+        title={t("menuManagement:products.variants.deleteTitle")}
+        message={t("menuManagement:products.variants.deleteMessage")}
+        confirmLabel={t("confirm")}
+        cancelLabel={t("cancel")}
+        confirmVariant="destructive"
+        loading={deleteProductOption.isPending}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteVisible(false)}
+      />
     </Container>
   );
 }
