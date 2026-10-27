@@ -406,21 +406,12 @@ export default function IncomesScreen() {
             totalAmount={dashboardStats?.totalAmount ?? 0}
             totalIncome={dashboardStats?.totalIncome ?? 0}
           />
-          {count > 0 && (
-            <ThemedText type="small" style={tw`text-gray-400`}>
-              {count} transactions
-            </ThemedText>
-          )}
+          {/* {count > 0 && ( */}
+          {/*   <ThemedText type="small" style={tw`text-gray-400`}> */}
+          {/*     {count} transactions */}
+          {/*   </ThemedText> */}
+          {/* )} */}
         </ThemedView>
-
-        {count > 0 && (
-          <ThemedView style={tw`px-4`}>
-            <PaymentMethodSummaryCard
-              startDate={dateFilter}
-              endDate={dateFilter}
-            />
-          </ThemedView>
-        )}
 
         {/* Accounts Summary: every account, even with no income yet */}
         {accountsSummary.length > 0 && (
@@ -582,13 +573,6 @@ export default function IncomesScreen() {
           </ThemedView>
         )}
 
-        {/* Waiter Summary (no transactions yet, but orders may exist) */}
-        {count === 0 && reportWaiters.length > 0 && (
-          <ThemedView style={tw`px-4`}>
-            <WaiterSummaryCard waiters={reportWaiters} />
-          </ThemedView>
-        )}
-
         {/* Empty state: no incomes for the selected date / filters */}
         {!transactionsLoading && count === 0 && (
           <ThemedView style={tw`py-20 items-center px-4`}>
@@ -606,6 +590,22 @@ export default function IncomesScreen() {
             </ThemedText>
           </ThemedView>
         )}
+        {/* Waiter Summary (no transactions yet, but orders may exist) */}
+        {count === 0 && reportWaiters.length > 0 && (
+          <ThemedView style={tw`px-4`}>
+            <WaiterSummaryCard waiters={reportWaiters} />
+          </ThemedView>
+        )}
+
+        {count > 0 && (
+          <ThemedView style={tw`px-4`}>
+            <PaymentMethodSummaryCard
+              startDate={dateFilter}
+              endDate={dateFilter}
+            />
+          </ThemedView>
+        )}
+
         {/* Order History */}
         <ThemedView style={tw`px-4 mt-4`}>
           <Card onPress={() => router.push("/(profile)/history")}>

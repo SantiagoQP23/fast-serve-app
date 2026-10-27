@@ -18,7 +18,7 @@ type CardProps = PressableProps & {
 
 const containerVariantStyles: Record<CardVariant, string> = {
   default: " bg-surface-container-low rounded-2xl",
-  outline: "border border-primary  bg-transparent rounded-2xl",
+  outline: "border-2 border-primary  bg-transparent rounded-2xl",
   // Elevation needs an opaque fill: Android casts the shadow from the
   // background outline, and iOS would otherwise shadow the children.
   elevated: "bg-surface-container-low rounded-2xl ",

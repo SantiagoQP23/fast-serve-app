@@ -47,7 +47,7 @@ export default function TableCard({
         onPress={onPress}
         accessibilityLabel={`${t("tables:details.table", { name: table.name })}, ${statusText}`}
         style={tw`p-2 rounded-lg`}
-        containerStyle={[tw``, isOccupied && tw`border-2`]}
+        containerStyle={[tw``, isOccupied && tw`bg-secondary`]}
         variant="outline"
       >
         {/* Overlay instead of a border so selecting doesn't change the card size */}
