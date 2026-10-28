@@ -41,11 +41,13 @@ import { useUnprintedTicketsStore } from "@/presentation/orders/store/useUnprint
 import { Ticket } from "@/core/tickets/models/ticket.model";
 import { useAppForeground } from "@/presentation/shared/hooks/useAppForeground";
 import { SocketContext } from "@/presentation/shared/context/SocketContext";
+import { syncQueryKey } from "../sync-query-key";
+import { onSyncApplied, resetSyncCursor } from "../sync-cursor";
+import { resetAppliedSequences } from "../applied-sequences";
 
 const INCREMENTAL_SYNC_LIMIT = 1000;
 
-export const syncQueryKey = (restaurantId?: string) =>
-  ["sync", restaurantId] as const;
+export { syncQueryKey } from "../sync-query-key";
 
 function applySnapshot(
   snapshot: SnapshotSyncResponseDto,
@@ -309,6 +311,8 @@ async function applySyncResponse(
 ): Promise<number> {
   console.log("[useSync] Applying sync response", response.type);
   if (response.type === "snapshot") {
+    resetAppliedSequences(response.sequence);
+    resetSyncCursor();
     applySnapshot(response, restaurantId);
     return response.sequence;
   }
@@ -366,6 +370,7 @@ export const useSync = () => {
           currentRestaurant.id,
         );
         setSynced(finalSequence);
+        onSyncApplied(finalSequence);
         return finalSequence;
       } catch (error) {
         setError();

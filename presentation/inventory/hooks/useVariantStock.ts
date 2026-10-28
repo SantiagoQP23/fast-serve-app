@@ -10,6 +10,10 @@ import {
   type VariantStockResponse,
 } from "../services/variant-stock.service";
 import { inventoryItemsQueryKey } from "./useInventoryItems";
+import {
+  requestSync,
+  SELF_CHECK_DELAY_MS,
+} from "@/presentation/sync/request-sync";
 
 /**
  * Puts the variant's new lines in the menu kept on the phone right away;
@@ -35,6 +39,7 @@ export const useVariantStock = () => {
   const onSuccess = (response: VariantStockResponse) => {
     applyToMenu(response);
     queryClient.invalidateQueries({ queryKey: inventoryItemsQueryKey });
+    requestSync(SELF_CHECK_DELAY_MS);
   };
   const onError = (error: Error) =>
     toast.error(getErrorMessage(error, { fallback: t("variant.saveError") }));

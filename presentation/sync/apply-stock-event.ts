@@ -2,6 +2,8 @@ import { SyncEventDto } from "@/core/sync/dto/sync-response.dto";
 import { InventoryItem } from "@/core/inventory/models/inventory-item.model";
 import { Product } from "@/core/menu/models/product.model";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
+import { isStaleItemChange, markItemApplied } from "./applied-sequences";
+import { refreshInventoryQueries } from "./refresh-inventory-queries";
 
 interface StockEventData {
   items: (Partial<InventoryItem> & { id: string })[];
@@ -17,10 +19,14 @@ export function applyStockEvents(events: SyncEventDto[]) {
   const changes = new Map<string, Partial<InventoryItem>>();
   for (const event of events) {
     for (const item of (event.data as StockEventData)?.items ?? []) {
+      // An older event arriving late must not undo newer stock.
+      if (isStaleItemChange(item.id, event.sequence)) continue;
+      markItemApplied(item.id, event.sequence);
       changes.set(item.id, { ...changes.get(item.id), ...item });
     }
   }
   if (!changes.size) return;
+  refreshInventoryQueries();
 
   const updated: Product[] = [];
   for (const product of useMenuStore.getState().products) {

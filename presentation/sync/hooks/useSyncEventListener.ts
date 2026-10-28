@@ -13,7 +13,7 @@ import { Order } from "@/core/orders/models/order.model";
 import { Table } from "@/core/tables/models/table.model";
 import { Category } from "@/core/menu/models/category.model";
 import { Section } from "@/core/menu/models/section.model";
-import { useSyncStore } from "../store/useSyncStore";
+import { advanceSyncCursor } from "../sync-cursor";
 import { shouldSkipOrderSyncEvent } from "@/presentation/offline/pending-orders";
 import { applyTicketEvent } from "../apply-ticket-event";
 import { applyProductEvents } from "../apply-product-event";
@@ -119,13 +119,6 @@ const PRODUCT_BATCH_MS = 100;
 let pendingProductEvents: SyncEventDto[] = [];
 let productBatchTimer: ReturnType<typeof setTimeout> | null = null;
 
-function markSynced(sequence: number) {
-  const syncState = useSyncStore.getState();
-  if (sequence > syncState.lastSequence) {
-    syncState.setSynced(sequence);
-  }
-}
-
 function flushProductEvents() {
   if (productBatchTimer) clearTimeout(productBatchTimer);
   productBatchTimer = null;
@@ -134,7 +127,7 @@ function flushProductEvents() {
   const events = pendingProductEvents;
   pendingProductEvents = [];
   applyProductEvents(events);
-  markSynced(Math.max(...events.map((e) => e.sequence)));
+  advanceSyncCursor(events.map((e) => e.sequence));
 }
 
 function queueProductEvent(event: SyncEventDto) {
@@ -206,7 +199,7 @@ export const useSyncEventListener = () => {
           );
       }
 
-      markSynced(event.sequence);
+      advanceSyncCursor([event.sequence]);
     },
   );
 };

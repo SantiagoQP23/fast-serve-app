@@ -11,6 +11,10 @@ import type {
 import { InventoryCountService } from "../services/inventory-count.service";
 import { inventoryItemsQueryKey } from "./useInventoryItems";
 import { getErrorMessage } from "@/core/api/get-error-message";
+import {
+  requestSync,
+  SELF_CHECK_DELAY_MS,
+} from "@/presentation/sync/request-sync";
 
 export const inventoryCountsQueryKey = ["inventory-counts"];
 
@@ -30,6 +34,7 @@ const invalidateAfterStockChange = () => {
   invalidateCountList();
   queryClient.invalidateQueries({ queryKey: inventoryItemsQueryKey });
   queryClient.invalidateQueries({ queryKey: ["inventory-movements"] });
+  requestSync(SELF_CHECK_DELAY_MS);
 };
 
 /**

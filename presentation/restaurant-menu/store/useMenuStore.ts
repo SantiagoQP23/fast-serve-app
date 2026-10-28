@@ -37,6 +37,30 @@ interface MenuActions {
   removeProductOption: (productId: string, optionId: number) => void;
 }
 
+/**
+ * Some answers (older backends' product create/update) bring variants
+ * without `inventoryItems`. Keep the stored recipe lines then: replacing
+ * them with nothing would show the product without stock until its next
+ * sync event. An empty list is a real "no recipe" and still replaces.
+ */
+function keepRecipes(product: Product, stored: Product | undefined): Product {
+  if (!stored || !product.options) return product;
+  if (product.options.every((option) => option.inventoryItems !== undefined))
+    return product;
+  return {
+    ...product,
+    options: product.options.map((option) =>
+      option.inventoryItems !== undefined
+        ? option
+        : {
+            ...option,
+            inventoryItems: stored.options?.find((o) => o.id === option.id)
+              ?.inventoryItems,
+          },
+    ),
+  };
+}
+
 const initialState: MenuState = {
   sections: [],
   categories: [],
@@ -113,7 +137,10 @@ export const useMenuStore = create<MenuState & MenuActions>()(
       upsertProducts: (products: Product[]) =>
         set((state) => {
           if (!products.length) return state;
-          const byId = new Map(products.map((p) => [p.id, p]));
+          const stored = new Map(state.products.map((p) => [p.id, p]));
+          const byId = new Map(
+            products.map((p) => [p.id, keepRecipes(p, stored.get(p.id))]),
+          );
           const existing = new Set(state.products.map((p) => p.id));
           const activeProduct = state.activeProduct
             ? (byId.get(state.activeProduct.id) ?? state.activeProduct)

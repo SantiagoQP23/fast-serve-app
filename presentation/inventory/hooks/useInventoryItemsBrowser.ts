@@ -76,9 +76,12 @@ export const useInventoryItemsBrowser = (
 
   useEffect(() => {
     if (!query.data) return;
-    setAllItems((prev) =>
-      page === 0 ? query.data.items : [...prev, ...query.data.items],
-    );
+    // Replaces this page's slot rather than appending, so a refetch of the
+    // current page (stock changed on another phone) doesn't repeat items.
+    setAllItems((prev) => [
+      ...prev.slice(0, page * PAGE_SIZE),
+      ...query.data.items,
+    ]);
   }, [query.data, page]);
 
   const count = query.data?.count ?? 0;
