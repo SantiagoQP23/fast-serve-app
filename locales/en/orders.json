@@ -63,6 +63,7 @@
     "orderTickets": "Order tickets",
     "moreOptions": "More options",
     "tabs": {
+      "overview": "Overview",
       "products": "Products",
       "bills": "Bills",
       "tickets": "Tickets"

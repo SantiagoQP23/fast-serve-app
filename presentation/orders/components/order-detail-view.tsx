@@ -89,7 +89,7 @@ dayjs.extend(relativeTime);
 
 type MoreOptionItem = ActionsBottomSheetItem;
 
-type OrderTab = "products" | "bills" | "tickets";
+type OrderTab = "overview" | "products" | "bills" | "tickets";
 
 interface OrderDetailViewProps {
   /**
@@ -766,11 +766,17 @@ export default function OrderDetailView({
         : null;
   const deliverInBar = !chargeAction && canMarkDelivered;
   const closeInBar = !chargeAction && !deliverInBar && canCloseOrder;
+  const hasBarAction =
+    !isClosed && (!!chargeAction || deliverInBar || closeInBar);
 
   const productsCount = allDetails.filter(
     (detail) => detail.status !== OrderDetailStatus.CANCELLED,
   ).length;
   const tabs = [
+    {
+      value: "overview" as const,
+      label: t("orders:details.tabs.overview"),
+    },
     {
       value: "products" as const,
       label: t("orders:details.tabs.products"),
@@ -800,6 +806,15 @@ export default function OrderDetailView({
         {count}
       </ThemedText>
     </ThemedView>
+  );
+
+  const renderRefreshControl = () => (
+    <RefreshControl
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      tintColor={primaryColor}
+      colors={[primaryColor]}
+    />
   );
 
   return (
@@ -902,7 +917,13 @@ export default function OrderDetailView({
               </ThemedView>
             </ThemedView>
 
-            <TabBar tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
+            <TabBar
+              scrollable
+              gap={6}
+              tabs={tabs}
+              activeTab={activeTab}
+              onChange={setActiveTab}
+            />
           </ThemedView>
 
           {/* Tab Content; drag left/right to switch tabs (off while
@@ -914,19 +935,12 @@ export default function OrderDetailView({
             enabled={!isSelectionMode}
             renderScene={(tab) => (
               <>
-                {tab === "products" && (
+                {tab === "overview" && (
                   <ScrollView
                     style={tw`flex-1`}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={tw`pt-4 pb-6`}
-                    refreshControl={
-                      <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={onRefresh}
-                        tintColor={primaryColor}
-                        colors={[primaryColor]}
-                      />
-                    }
+                    refreshControl={renderRefreshControl()}
                   >
                     {/* Status, payment and time left */}
                     <ThemedView
@@ -1017,6 +1031,19 @@ export default function OrderDetailView({
                       </ThemedView>
                     )}
 
+                    <ThemedText type="small" style={tw`mt-2`}>
+                      {activityLine}
+                    </ThemedText>
+                  </ScrollView>
+                )}
+
+                {tab === "products" && (
+                  <ScrollView
+                    style={tw`flex-1`}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={tw`pt-4 pb-6`}
+                    refreshControl={renderRefreshControl()}
+                  >
                     {/* Pending Items Section */}
                     {!isClosed && pendingDetails.length > 0 && (
                       <ThemedView style={tw`mb-6`}>
@@ -1055,6 +1082,20 @@ export default function OrderDetailView({
                             />
                           ))}
                         </ThemedView>
+                      </ThemedView>
+                    )}
+
+                    {/* Below what's still pending, where new items will land */}
+                    {!isClosed && (
+                      <ThemedView style={tw`flex-row`}>
+                        <Button
+                          variant="outline"
+                          leftIcon="plus"
+                          label={t("orders:details.addProduct")}
+                          onPress={handleAddProduct}
+                          style={tw`mb-6`}
+                          size="small"
+                        />
                       </ThemedView>
                     )}
 
@@ -1146,8 +1187,8 @@ export default function OrderDetailView({
                       </ThemedView>
                     )}
 
-                    {/* Empty state for closed orders with no items */}
-                    {isClosed && !hasItems && (
+                    {/* Empty state for orders with no items */}
+                    {!hasItems && (
                       <ThemedView
                         style={tw`mb-6 p-8 items-center justify-center`}
                       >
@@ -1164,10 +1205,6 @@ export default function OrderDetailView({
                         </ThemedText>
                       </ThemedView>
                     )}
-
-                    <ThemedText type="small" style={tw`mt-2`}>
-                      {activityLine}
-                    </ThemedText>
                   </ScrollView>
                 )}
 
@@ -1178,9 +1215,9 @@ export default function OrderDetailView({
           />
         </Container>
 
-        {/* Bottom bar: thumb-reach actions, or the bulk-deliver bar while
+        {/* Bottom bar: the order's next step, or the bulk-deliver bar while
             selecting */}
-        {(isSelectionMode || !isClosed) && (
+        {(isSelectionMode || hasBarAction) && (
           <ThemedView
             style={[
               tw`px-4 pt-3 border-t border-divider bg-background`,
@@ -1225,25 +1262,15 @@ export default function OrderDetailView({
                 />
               </ThemedView>
             ) : (
-              <ThemedView style={tw`flex-row gap-3`}>
-                <Button
-                  variant="outline"
-                  leftIcon="plus"
-                  label={t("common:actions.add")}
-                  onPress={handleAddProduct}
-                  style={
-                    chargeAction || deliverInBar || closeInBar
-                      ? undefined
-                      : tw`flex-1`
-                  }
-                />
+              <ThemedView style={tw`flex-row gap-3 justify-center`}>
                 {chargeAction && (
                   <Button
                     label={t("orders:details.chargeAmount", {
                       amount: formatCurrency(chargeAction.amount),
                     })}
                     onPress={chargeAction.onPress}
-                    style={tw`flex-1`}
+                    style={tw``}
+                    shape="rounded"
                   />
                 )}
                 {deliverInBar && (
@@ -1251,7 +1278,8 @@ export default function OrderDetailView({
                     leftIcon="check-check"
                     label={t("orders:options.markDelivered")}
                     onPress={() => markDelivered(order)}
-                    style={tw`flex-1`}
+                    style={tw``}
+                    shape="rounded"
                   />
                 )}
                 {closeInBar && (
@@ -1259,7 +1287,8 @@ export default function OrderDetailView({
                     leftIcon="lock"
                     label={t("orders:options.closeOrder")}
                     onPress={openCloseModal}
-                    style={tw`flex-1`}
+                    style={tw``}
+                    shape="rounded"
                   />
                 )}
               </ThemedView>

@@ -3,7 +3,7 @@
  * path by design; these React Compiler rules can't tell a SharedValue's
  * `.value` from a plain React ref and flag that as unsafe, but it's the
  * standard, safe Reanimated pattern. */
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   View,
   type LayoutChangeEvent,
@@ -79,17 +79,30 @@ export default function TabPager<T extends string>({
     setVisited(new Set([...visited, activeTab]));
   }
 
-  // Tab changed (tap on the bar, or the end of a swipe): settle on its page.
+  // Measured width, also kept in state so the first measure lands on the
+  // active page: a shared value written straight from onLayout can be lost
+  // before the row's animated style is attached, leaving a tab that doesn't
+  // start first showing the first page's content.
+  const [pageWidth, setPageWidth] = useState(0);
+  const placedWidth = useRef(0);
+
+  // First measure (or a resize) jumps to the active page; a tab change (tap
+  // on the bar, or the end of a swipe) settles on its page.
   useEffect(() => {
-    if (width.value === 0) return;
-    offset.value = withTiming(-index * width.value, {
+    if (pageWidth === 0) return;
+    width.value = pageWidth;
+    if (placedWidth.current !== pageWidth) {
+      placedWidth.current = pageWidth;
+      offset.value = -index * pageWidth;
+      return;
+    }
+    offset.value = withTiming(-index * pageWidth, {
       duration: SETTLE_DURATION,
     });
-  }, [index, width, offset]);
+  }, [index, pageWidth, width, offset]);
 
   const onLayout = (e: LayoutChangeEvent) => {
-    width.value = e.nativeEvent.layout.width;
-    offset.value = -index * width.value;
+    setPageWidth(e.nativeEvent.layout.width);
   };
 
   const goTo = (target: number) => {

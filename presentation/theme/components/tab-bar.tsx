@@ -24,6 +24,8 @@ interface TabBarProps<T extends string> {
   fullWidth?: boolean;
   /** Scrolls horizontally when the tabs overflow; implies `fullWidth={false}`. */
   scrollable?: boolean;
+  /** Space between tabs (tailwind gap step) when they size to their labels. */
+  gap?: number;
   /** Label text size, e.g. `h3` for a screen-level tab bar. */
   textType?: ThemedTextProps["type"];
 }
@@ -43,6 +45,7 @@ export default function TabBar<T extends string>({
   onChange,
   fullWidth = true,
   scrollable = false,
+  gap = 4,
   textType = "body1",
 }: TabBarProps<T>) {
   const stretch = fullWidth && !scrollable;
@@ -163,7 +166,7 @@ export default function TabBar<T extends string>({
         showsHorizontalScrollIndicator={false}
         accessibilityRole="tablist"
         style={tw`grow-0`}
-        contentContainerStyle={tw`flex-row gap-4`}
+        contentContainerStyle={tw`flex-row gap-${gap}`}
       >
         {items}
         {indicator}
@@ -177,7 +180,7 @@ export default function TabBar<T extends string>({
         accessibilityRole="tablist"
         style={tw.style(
           "flex-row rounded-3xl ",
-          !fullWidth && "self-start gap-4",
+          !fullWidth && `self-start gap-${gap}`,
         )}
       >
         {items}

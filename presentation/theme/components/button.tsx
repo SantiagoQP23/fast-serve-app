@@ -27,6 +27,7 @@ export interface ButtonProps extends PressableProps {
   rightIcon?: IconName;
   layout?: "horizontal" | "vertical";
   icon?: IconName;
+  shape?: "square" | "rounded";
 }
 
 export default function Button({
@@ -40,6 +41,7 @@ export default function Button({
   size = "medium",
   layout = "horizontal",
   icon: verticalIcon,
+  shape = "square",
   style,
   accessibilityLabel,
   hitSlop,
@@ -63,12 +65,22 @@ export default function Button({
     disabled && variant === "primary" ? "bg-gray-400" : variants[variant];
 
   const sizeStyles = {
-    "extra-small": "px-3 py-[6px] rounded-xl",
-    small: "px-4 py-[10px] rounded-xl",
-    medium: "px-6 py-4 rounded-2xl",
-    large: "px-12 py-8 rounded-[28px]",
-    "extra-large": "px-16 py-12 rounded-[28px]",
+    "extra-small": "px-3 py-[6px]",
+    small: "px-4 py-[10px]",
+    medium: "px-6 py-4",
+    large: "px-12 py-8",
+    "extra-large": "px-16 py-12",
   };
+
+  const squareRadius = {
+    "extra-small": "rounded-xl",
+    small: "rounded-xl",
+    medium: "rounded-2xl",
+    large: "rounded-[28px]",
+    "extra-large": "rounded-[28px]",
+  };
+
+  const radius = shape === "rounded" ? "rounded-full" : squareRadius[size];
 
   const verticalSizeStyles = {
     "extra-small": "w-12 h-12 p-1",
@@ -184,7 +196,7 @@ export default function Button({
       accessibilityState={{ disabled: disabled || loading, busy: loading }}
       style={({ pressed }) => [
         tw.style(
-          ` flex-row justify-center items-center ${background} ${isLink ? "p-0" : sizeStyles[size]} `,
+          ` flex-row justify-center items-center ${background} ${isLink ? "p-0" : `${sizeStyles[size]} ${radius}`} `,
           pressed && "opacity-80",
           disabled && "opacity-50",
         ),
