@@ -12,13 +12,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useUsers } from "@/presentation/users/hooks/useUsers";
-import DatePicker from "@/presentation/theme/components/date-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import dayjs from "dayjs";
 import Icon from "@/presentation/theme/components/icon";
 import { useTransactionsList } from "@/presentation/transactions/hooks/useTransactionsList";
 import TransactionCard from "@/presentation/transactions/components/transaction-card";
-import { formatCurrency } from "@/core/i18n/utils";
+import { formatCurrency, formatDate } from "@/core/i18n/utils";
 import Button from "@/presentation/theme/components/button";
 
 import TransactionsFilterBottomSheet from "@/presentation/transactions/components/transactions-filter-bottom-sheet";
@@ -45,9 +44,10 @@ import {
 import AmountSummaryHeader from "@/presentation/reports/components/amount-summary-header";
 import WaiterSummaryCard from "@/presentation/reports/components/waiter-summary-card";
 import Label from "@/presentation/theme/components/label";
+import CustomDateRangeBottomSheet from "@/presentation/orders/components/custom-date-range-bottom-sheet";
 import type { AccountReportItem } from "@/core/transactions/dto/payment-method-report-response.dto";
 
-const STORAGE_KEY = "incomes_selected_date";
+const DATE_RANGE_STORAGE_KEY = "incomes_date_range";
 const FILTERS_STORAGE_KEY = "incomes_filters";
 const LIST_PANE_WIDTH = 440;
 
@@ -57,7 +57,13 @@ export default function IncomesScreen() {
   const { currentRestaurant } = useAuthStore();
   const [refreshing, setRefreshing] = useState(false);
   const [showAccounts, setShowAccounts] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDateRangeFilter, setSelectedDateRangeFilter] =
+    useState<DateRangeFilter>(DateRangeFilter.TODAY);
+  const [customRange, setCustomRange] = useState<{
+    startDate: Date;
+    endDate: Date;
+  }>();
+  const customRangeSheetRef = useRef<BottomSheetMethods>(null);
   const [filters, setFilters] = useState<FilterTransactionsDto>({});
   const primaryColor = useThemeColor({}, "primary");
   const queryClient = useQueryClient();
@@ -86,16 +92,27 @@ export default function IncomesScreen() {
       .sort((a, b) => a.fullName.localeCompare(b.fullName));
   }, [users, user, isAdmin]);
 
-  // Load persisted date and filters on mount
+  // Load persisted date range and filters on mount
   useEffect(() => {
     const loadPersistedData = async () => {
       try {
-        const [savedDate, savedFilters] = await Promise.all([
-          AsyncStorage.getItem(STORAGE_KEY),
+        const [savedDateRange, savedFilters] = await Promise.all([
+          AsyncStorage.getItem(DATE_RANGE_STORAGE_KEY),
           AsyncStorage.getItem(FILTERS_STORAGE_KEY),
         ]);
-        if (savedDate) {
-          setSelectedDate(new Date(savedDate));
+        if (savedDateRange) {
+          const { filter, startDate, endDate } = JSON.parse(savedDateRange);
+          if (filter === DateRangeFilter.CUSTOM) {
+            if (startDate && endDate) {
+              setCustomRange({
+                startDate: new Date(startDate),
+                endDate: new Date(endDate),
+              });
+              setSelectedDateRangeFilter(filter);
+            }
+          } else if (Object.values(DateRangeFilter).includes(filter)) {
+            setSelectedDateRangeFilter(filter);
+          }
         }
         if (savedFilters) {
           setFilters(JSON.parse(savedFilters));
@@ -107,15 +124,71 @@ export default function IncomesScreen() {
     loadPersistedData();
   }, []);
 
-  // Persist date whenever it changes
-  const handleDateChange = useCallback(async (date: Date) => {
-    setSelectedDate(date);
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, date.toISOString());
-    } catch {
-      // Silently fail
+  const dateRangeChips = [
+    { filter: DateRangeFilter.TODAY, label: t("common:stats.dateRange.today") },
+    {
+      filter: DateRangeFilter.WEEK_TO_DATE,
+      label: t("common:stats.dateRange.weekToDate"),
+    },
+    {
+      filter: DateRangeFilter.MONTH_TO_DATE,
+      label: t("common:stats.dateRange.monthToDate"),
+    },
+    {
+      filter: DateRangeFilter.YEAR_TO_DATE,
+      label: t("common:stats.dateRange.yearToDate"),
+    },
+    {
+      filter: DateRangeFilter.CUSTOM,
+      // Once applied, the custom chip shows the picked day(s)
+      label:
+        selectedDateRangeFilter === DateRangeFilter.CUSTOM && customRange
+          ? dayjs(customRange.startDate).isSame(customRange.endDate, "day")
+            ? formatDate(customRange.startDate)
+            : `${formatDate(customRange.startDate)} – ${formatDate(customRange.endDate)}`
+          : t("common:stats.dateRange.custom"),
+    },
+  ];
+
+  // Persist the date range whenever it changes
+  const persistDateRange = useCallback(
+    async (
+      filter: DateRangeFilter,
+      range?: { startDate: Date; endDate: Date },
+    ) => {
+      try {
+        await AsyncStorage.setItem(
+          DATE_RANGE_STORAGE_KEY,
+          JSON.stringify({
+            filter,
+            startDate: range?.startDate.toISOString(),
+            endDate: range?.endDate.toISOString(),
+          }),
+        );
+      } catch {
+        // Silently fail
+      }
+    },
+    [],
+  );
+
+  const handleSelectDateRangeFilter = (filter: DateRangeFilter) => {
+    if (filter === DateRangeFilter.CUSTOM) {
+      customRangeSheetRef.current?.present();
+      return;
     }
-  }, []);
+    setSelectedDateRangeFilter(filter);
+    persistDateRange(filter);
+  };
+
+  const handleApplyCustomRange = (range: {
+    startDate: Date;
+    endDate: Date;
+  }) => {
+    setCustomRange(range);
+    setSelectedDateRangeFilter(DateRangeFilter.CUSTOM);
+    persistDateRange(DateRangeFilter.CUSTOM, range);
+  };
 
   // Handle filter changes
   const handleFiltersChange = useCallback(
@@ -167,33 +240,27 @@ export default function IncomesScreen() {
     }
   }, []);
 
-  // Convert date to ISO string format for API
-  const dateFilter = dayjs(selectedDate).format("YYYY-MM-DD");
-
-  // Billed vs. collected totals and per-waiter breakdown for the selected day
-  const statsRange = useMemo(
-    () =>
-      getDateRangeFor(DateRangeFilter.CUSTOM, {
-        startDate: selectedDate,
-        endDate: selectedDate,
-      }),
-    [selectedDate],
+  const dateRange = useMemo(
+    () => getDateRangeFor(selectedDateRangeFilter, customRange),
+    [selectedDateRangeFilter, customRange],
   );
+  // Day-only strings for the report and transaction APIs
+  const startDate = dayjs(dateRange.startDate).format("YYYY-MM-DD");
+  const endDate = dayjs(dateRange.endDate).format("YYYY-MM-DD");
+
+  // Billed vs. collected totals and per-waiter breakdown for the selected range
   const { dashboardStats, refetch: refetchStats } =
-    useDashboardStats(statsRange);
-  const { dailyReport } = useDailyReport({
-    startDate: dateFilter,
-    endDate: dateFilter,
-  });
+    useDashboardStats(dateRange);
+  const { dailyReport } = useDailyReport({ startDate, endDate });
   // Per-waiter breakdown is a restaurant-wide view; others only see themselves
   const reportWaiters = isAdmin ? (dailyReport?.waiterStats ?? []) : [];
 
   const { paymentMethodReport } = useTransactionPaymentMethodReport({
-    startDate: dateFilter,
-    endDate: dateFilter,
+    startDate,
+    endDate,
   });
 
-  // Every account, even without income that day, with its pending count.
+  // Every account, even without income in the range, with its pending count.
   // Older backends only send per-method income, so aggregate that instead.
   const accountsSummary = useMemo<AccountReportItem[]>(() => {
     if (paymentMethodReport?.accounts) return paymentMethodReport.accounts;
@@ -225,7 +292,7 @@ export default function IncomesScreen() {
     return rows;
   }, [accountsSummary]);
 
-  // Fetch transactions for the selected date
+  // Fetch transactions for the selected range
   const {
     count,
     transactions,
@@ -234,8 +301,8 @@ export default function IncomesScreen() {
     reset: resetTransactionsPagination,
     hasMore,
   } = useTransactionsList({
-    startDate: dateFilter,
-    endDate: dateFilter,
+    startDate,
+    endDate,
     ...filters,
   });
 
@@ -247,8 +314,8 @@ export default function IncomesScreen() {
     router.push({
       pathname: "/transaction",
       params: {
-        startDate: dateFilter,
-        endDate: dateFilter,
+        startDate,
+        endDate,
         ...(filters.paymentMethodId
           ? { paymentMethodId: String(filters.paymentMethodId) }
           : {}),
@@ -258,13 +325,13 @@ export default function IncomesScreen() {
     });
   };
 
-  // Account screen: that account's transactions for the day + its total
+  // Account screen: that account's transactions for the range + its total
   const openAccount = (accountId: number) => {
     router.push({
       pathname: "/transaction",
       params: {
-        startDate: dateFilter,
-        endDate: dateFilter,
+        startDate,
+        endDate,
         accountId: String(accountId),
       },
     });
@@ -278,10 +345,10 @@ export default function IncomesScreen() {
     router.push(`/transaction/${transaction.id}`);
   };
 
-  // Reset pagination when date or filters change
+  // Reset pagination when the date range or filters change
   useEffect(() => {
     resetTransactionsPagination();
-  }, [dateFilter, filters, resetTransactionsPagination]);
+  }, [startDate, endDate, filters, resetTransactionsPagination]);
 
   const onRefresh = async () => {
     try {
@@ -293,14 +360,14 @@ export default function IncomesScreen() {
           queryKey: [
             "dailyReport",
             currentRestaurant?.id,
-            { startDate: dateFilter, endDate: dateFilter },
+            { startDate, endDate },
           ],
         }),
         queryClient.refetchQueries({
           queryKey: [
             "transactionPaymentMethodReport",
             currentRestaurant?.id,
-            { startDate: dateFilter, endDate: dateFilter },
+            { startDate, endDate },
           ],
         }),
         refetchTransactions(),
@@ -327,19 +394,26 @@ export default function IncomesScreen() {
         <ThemedText type="h2">{t("common:navigation.incomes")}</ThemedText>
       </ThemedView>
 
-      {/* Date Picker */}
-      <ThemedView style={tw`flex-row items-center gap-4 px-4 mb-4`}>
-        <ThemedView style={tw` flex-1`}>
-          <DatePicker
-            value={selectedDate}
-            onChange={handleDateChange}
-            showTodayButton={true}
-          />
-        </ThemedView>
+      {/* Date Range Chips */}
+      <ThemedView style={tw`flex-row items-center gap-2 pl-4 pr-2 mb-4`}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={tw`flex-1`}
+          contentContainerStyle={tw`gap-2`}
+        >
+          {dateRangeChips.map(({ filter, label }) => (
+            <Chip
+              key={filter}
+              label={label}
+              selected={selectedDateRangeFilter === filter}
+              onPress={() => handleSelectDateRangeFilter(filter)}
+            />
+          ))}
+        </ScrollView>
         <IconButton
           icon="funnel"
           onPress={openFilterBottomSheet}
-          style={tw``}
           variant={thereAreFiltersApplied ? "filled" : "text"}
         />
       </ThemedView>
@@ -573,7 +647,7 @@ export default function IncomesScreen() {
           </ThemedView>
         )}
 
-        {/* Empty state: no incomes for the selected date / filters */}
+        {/* Empty state: no incomes for the selected range / filters */}
         {!transactionsLoading && count === 0 && (
           <ThemedView style={tw`py-20 items-center px-4`}>
             <Icon name="receipt-text" size={64} color={tw.color("gray-300")} />
@@ -599,10 +673,7 @@ export default function IncomesScreen() {
 
         {count > 0 && (
           <ThemedView style={tw`px-4`}>
-            <PaymentMethodSummaryCard
-              startDate={dateFilter}
-              endDate={dateFilter}
-            />
+            <PaymentMethodSummaryCard startDate={startDate} endDate={endDate} />
           </ThemedView>
         )}
 
@@ -625,6 +696,15 @@ export default function IncomesScreen() {
           </Card>
         </ThemedView>
       </ScrollView>
+
+      <ThemedBottomSheetModal ref={customRangeSheetRef} enablePanDownToClose>
+        <CustomDateRangeBottomSheet
+          onClose={() => customRangeSheetRef.current?.dismiss()}
+          onApply={handleApplyCustomRange}
+          initialStartDate={customRange?.startDate}
+          initialEndDate={customRange?.endDate}
+        />
+      </ThemedBottomSheetModal>
 
       {/* Filter Bottom Sheet */}
       <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>

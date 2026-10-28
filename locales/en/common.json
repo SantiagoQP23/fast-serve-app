@@ -99,7 +99,7 @@
     "noData": "No data available",
     "noResults": "No results found",
     "noIncomes": "No incomes",
-    "noIncomesDescription": "There are no incomes registered for this date.",
+    "noIncomesDescription": "There are no incomes registered for this period.",
     "noIncomesFiltered": "There are no incomes matching the applied filters."
   },
   "currency": {

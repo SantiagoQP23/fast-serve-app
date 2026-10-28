@@ -129,6 +129,9 @@ export default function TransactionsListScreen() {
           </ThemedText>
           <ThemedText type="small" style={tw`text-gray-500`}>
             {params.startDate ? formatDate(dayjs(params.startDate)) : ""}
+            {params.endDate && params.endDate !== params.startDate
+              ? ` – ${formatDate(dayjs(params.endDate))}`
+              : ""}
             {count > 0 ? ` · ${count} transactions` : ""}
           </ThemedText>
         </ThemedView>
