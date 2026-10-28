@@ -4,6 +4,7 @@ import {
 } from "@expo/ui/community/bottom-sheet";
 import Icon from "@/presentation/theme/components/icon";
 import dayjs from "dayjs";
+import { formatDateTime } from "@/core/i18n/utils";
 import relativeTime from "dayjs/plugin/relativeTime";
 
 import { OrderDetail } from "@/core/orders/models/order-detail.model";
@@ -27,12 +28,8 @@ export default function OrderDetailActivityBottomSheet({
   const { t } = useTranslation(["orders"]);
   const createdAt = dayjs(detail.createdAt);
   const updatedAt = dayjs(detail.updatedAt);
-  const createdAtLabel = `${createdAt.fromNow()} · ${createdAt.format(
-    "MMM D, HH:mm",
-  )}`;
-  const updatedAtLabel = `${updatedAt.fromNow()} · ${updatedAt.format(
-    "MMM D, HH:mm",
-  )}`;
+  const createdAtLabel = `${createdAt.fromNow()} · ${formatDateTime(createdAt)}`;
+  const updatedAtLabel = `${updatedAt.fromNow()} · ${formatDateTime(updatedAt)}`;
   const createdByName = detail.createdBy
     ? `${detail.createdBy.person.firstName} ${detail.createdBy.person.lastName}`
     : null;

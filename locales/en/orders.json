@@ -149,7 +149,18 @@
   },
   "edit": {
     "title": "Edit Order",
-    "saveChanges": "Save changes"
+    "saveChanges": "Save changes",
+    "saved": "Changes saved",
+    "discardTitle": "Discard changes?",
+    "discardMessage": "Your edits to this item won't be saved.",
+    "discard": "Discard",
+    "keepEditing": "Keep editing",
+    "delivered": "Delivered",
+    "deliveredCount": "{{delivered}} of {{total}}",
+    "quantityFloorDelivered": "Can't go below {{count}} delivered",
+    "quantityFloorBilled": "Can't go below {{count}} already on a bill",
+    "invalidPrice": "Enter a price of 0 or more",
+    "menuPrice": "Menu price: {{price}}"
   },
   "print": {
     "title": "Print Order",
@@ -232,7 +243,8 @@
     "readyCount_one": "{{count}} ready",
     "readyCount_other": "{{count}} ready",
     "change": "Change",
-    "customPrice": "Custom price"
+    "customPrice": "Custom price",
+    "replace": "Replace"
   },
   "waiterSummary": {
     "title": "Waiters Overview",

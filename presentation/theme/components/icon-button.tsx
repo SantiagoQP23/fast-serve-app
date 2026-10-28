@@ -66,7 +66,7 @@ export default function IconButton({
       onPress={onPress}
       hitSlop={slop}
       style={({ pressed }) => [
-        tw`rounded-3xl p-3 ${pressed ? "opacity-80" : "opacity-100"} ${disabled ? "opacity-50" : ""} bg-transparent ${variantStyles[variant]} ${variants[variant]} `,
+        tw`rounded-3xl p-2 ${pressed ? "opacity-80" : "opacity-100"} ${disabled ? "opacity-50" : ""} bg-transparent ${variantStyles[variant]} ${variants[variant]} `,
         style,
       ]}
       disabled={disabled}

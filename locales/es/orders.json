@@ -149,7 +149,19 @@
   },
   "edit": {
     "title": "Editar Pedido",
-    "saveChanges": "Guardar cambios"
+    "saveChanges": "Guardar cambios",
+    "saved": "Cambios guardados",
+    "discardTitle": "¿Descartar cambios?",
+    "discardMessage": "Los cambios a este producto no se guardarán.",
+    "discard": "Descartar",
+    "keepEditing": "Seguir editando",
+    "delivered": "Entregados",
+    "deliveredCount": "{{delivered}} de {{total}}",
+    "quantityFloorDelivered_one": "No puede ser menor a {{count}} entregado",
+    "quantityFloorDelivered_other": "No puede ser menor a {{count}} entregados",
+    "quantityFloorBilled": "No puede ser menor a {{count}} ya en una cuenta",
+    "invalidPrice": "Ingresa un precio de 0 o más",
+    "menuPrice": "Precio del menú: {{price}}"
   },
   "print": {
     "title": "Imprimir Pedido",
@@ -232,7 +244,8 @@
     "readyCount_one": "{{count}} listo",
     "readyCount_other": "{{count}} listos",
     "change": "Cambiar",
-    "customPrice": "Precio personalizado"
+    "customPrice": "Precio personalizado",
+    "replace": "Reemplazar"
   },
   "waiterSummary": {
     "title": "Resumen de Meseros",

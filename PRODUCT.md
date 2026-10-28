@@ -25,7 +25,9 @@ A restaurant operations app covering order-taking, tables, bills/payments, kitch
 
 ## Operating Context
 
-Used live during restaurant service across three physical contexts: the floor (tableside order-taking on a phone), the kitchen (order tickets via production-area thermal printers), and the back office (menu/staff/reports/subscription management, likely less time-pressured).
+Used live during restaurant service across four physical contexts: the floor (tableside order-taking on a phone), the counter (a landscape tablet working as a POS/cashier station), the kitchen (order tickets via production-area thermal printers), and the back office (menu/staff/reports/subscription management, likely less time-pressured).
+
+Phones are locked to portrait; tablets rotate, and the landscape counter/POS station is the confirmed tablet target (decided 2026-10-14). Tablet layouts are additive: the waiter phone flows must stay unchanged.
 
 Restaurants are multi-tenant: staff join a restaurant via QR invite or by creating one (`app/join-restaurant`, `app/scan-qr-invite`, `app/create-restaurant`), and can belong to / switch between more than one restaurant. Owners manage a subscription/plan per restaurant (trial/active states, in-app purchases via `expo-iap`).
 
@@ -34,11 +36,10 @@ A dedicated `sync` module and a "Restaurant Offline Data" settings entry indicat
 ## Capabilities and Constraints
 
 - **Platform detail**: ships as a React Native/Expo app to iOS and Android (bundle/package `com.teikio.app`) plus a static web export target; Android is the primary platform design should conform to going forward (per this session). Predictive Back is explicitly disabled on Android (`predictiveBackGestureEnabled: false` in `app.config.js`) — a deliberate existing setting, not an oversight to "fix."
-- **Domains**: auth/roles, restaurants (multi-tenant, QR invite), orders (new order, cart, edit order, order tickets/"comandas"), tables, bills/payments, menu (sections/categories/products/options — recently consolidated into a single `menu-overview` management screen), inventory (stock lives on a dedicated `InventoryItem` entity tied to a product option, *not* on `Product`/`ProductOption` directly as of a 2026-09-22 migration), printers & production areas (kitchen ticket printing), staff, subscriptions, reports (best-selling products/categories, daily report, payment-method report), push notifications, transactions.
+- **Domains**: auth/roles, restaurants (multi-tenant, QR invite), orders (new order, cart, edit order, order tickets/"comandas"), tables, bills/payments, menu (sections/categories/products/options — consolidated into a single menu overview management screen at `app/(profile)/menu/overview`), inventory (stock lives on a dedicated `InventoryItem` entity tied to a product option, *not* on `Product`/`ProductOption` directly as of a 2026-09-22 migration), printers & production areas (kitchen ticket printing), staff, subscriptions, reports (best-selling products/categories, daily report, payment-method report), push notifications, transactions.
 - **Stack**: Expo Router (typed routes) on React Native; React Query for data; Zustand-style stores per domain; `twrnc` (Tailwind) for styling; react-hook-form + zod for forms.
 - **i18n**: English and Spanish (`locales/en`, `locales/es`), namespaced per domain; translations exist for every user-facing string.
-- **Design system**: single custom component library shared across iOS/Android today (see Platform); no native Material/UIKit components in use yet.
-- **Open / undecided**: how far to push native-Android (Material) conformance against the existing custom component system before it counts as a redesign — not yet resolved, flagged for whichever command (`polish`, `audit`, `bolder`, `new-work`) first needs to make that call.
+- **Design system**: a single custom component library shared across iOS/Android, used on phone and tablet. **Decided (2026-10-28): the custom system is the deliberate direction, not Material 3.** Native Android *behavior* still applies (system back, touch targets, system bars, platform interaction expectations), but there is no Material look and no move toward Material components.
 
 ## Brand Commitments
 
@@ -57,8 +58,8 @@ None found (no case studies, testimonials, press, or benchmark data in the repo)
 2. Fast, simple ordering over feature depth — the ordering path is the product's core promise and shouldn't be compromised to serve the secondary (kitchen/inventory/staff/reporting) flows.
 3. One app, every role — admins/owners, cooks, cashiers, and waiters all share the same app with role-gated screens, not separate apps.
 4. Built for real restaurant conditions — offline resilience and physical constraints (thermal ticket printers, production areas) are first-class, not edge cases.
-5. One shared component system serves iOS and Android today; native-Android conformance is the stated future direction, not yet the current implementation — treat existing custom components as current evidence, not as slop to eliminate on sight.
+5. One custom component system, native Android behavior — the custom components are the product's deliberate identity, not something to swap for Material. Conform to Android in behavior (back, targets, system UI), never by adopting the Material look.
 
 ## Accessibility & Inclusion
 
-No product-specific requirement established yet.
+- **Large touch targets (hard rule)**: interactive targets are at least 48dp, and the core floor flows (ordering, tables, bills) must be usable one-handed, with primary actions within thumb reach. Staff use the app fast, mid-service, often with one hand busy.

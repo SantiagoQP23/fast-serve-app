@@ -76,11 +76,9 @@ const OrderDetailVariantBottomSheet = ({
                   onPress={() => handleSelectOption(option)}
                   variant="outline"
                   accessibilityRole="radio"
-                  accessibilityState={{ selected: isSelected }}
-                  style={tw.style(
-                    "min-w-36 gap-2 p-4",
-                    isSelected && "bg-secondary",
-                  )}
+                  accessibilityState={{ checked: isSelected }}
+                  containerStyle={isSelected && tw`bg-surface`}
+                  style={tw`min-w-36 gap-2 p-4`}
                 >
                   <ThemedView
                     style={tw`flex-row items-center justify-between gap-2`}

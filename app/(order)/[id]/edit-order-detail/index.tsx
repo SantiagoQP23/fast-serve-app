@@ -8,17 +8,23 @@ import TextInput from "@/presentation/theme/components/text-input";
 import Button from "@/presentation/theme/components/button";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Label from "@/presentation/theme/components/label";
+import Icon from "@/presentation/theme/components/icon";
 import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useReplaceOrderDetailStore } from "@/presentation/orders/store/replaceOrderDetailStore";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { useRestaurantSettings } from "@/presentation/restaurant/hooks/useRestaurantSettings";
+import { DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK } from "@/core/restaurant/models/restaurant-settings.model";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
-import { ProductOption } from "@/core/menu/models/product-optionl.model";
+import {
+  ProductOption,
+  getProductOptionAvailableQuantity,
+} from "@/core/menu/models/product-optionl.model";
 import {
   BottomSheetView,
   type BottomSheetMethods,
@@ -32,24 +38,37 @@ import {
   getReplaceBlockReason,
 } from "@/core/orders/models/order-detail.model";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
-import { KeyboardAvoidingView } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Pressable,
+  ScrollView,
+  View,
+} from "react-native";
+import { toast } from "sonner-native";
 import OrderDetailActivityBottomSheet from "@/presentation/orders/components/order-detail-activity-bottom-sheet";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
 import Chip from "@/presentation/theme/components/chip";
-import Slider from "@/presentation/theme/components/slider";
-import OrderDetailStatusBottomSheet from "@/presentation/orders/components/order-detail-status-bottom-sheet";
-import OrderDetailVariantBottomSheet from "@/presentation/orders/components/order-detail-variant-bottom-sheet";
 import Card from "@/presentation/theme/components/card";
+import Slider from "@/presentation/theme/components/slider";
+import OrderDetailVariantBottomSheet from "@/presentation/orders/components/order-detail-variant-bottom-sheet";
 import InfoBottomSheet from "@/presentation/theme/components/info-bottom-sheet";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
+import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
+import { typography } from "@/constants/theme";
+
+const MAX_QUANTITY = 20;
+
+const sameIds = (a: string[], b: string[]) =>
+  [...a].sort().join() === [...b].sort().join();
 
 export default function EditOrderDetailScreen() {
   const { t } = useTranslation(["common", "orders", "menu", "inventory"]);
-  const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
+  const customPriceSheetRef = useRef<BottomSheetMethods>(null);
+  const moreSheetRef = useRef<BottomSheetMethods>(null);
   const noteSheetRef = useRef<BottomSheetMethods>(null);
   const activitySheetRef = useRef<BottomSheetMethods>(null);
   const variantSheetRef = useRef<BottomSheetMethods>(null);
-  const statusSheetRef = useRef<BottomSheetMethods>(null);
   const replaceBlockedSheetRef = useRef<BottomSheetMethods>(null);
   const typePickerRef = useRef<BottomSheetPickerRef>(null);
   const orderDetail = useOrdersStore((state) => state.activeOrderDetail);
@@ -58,26 +77,23 @@ export default function EditOrderDetailScreen() {
     state.products.find((p) => p.id === orderDetail?.product.id),
   );
 
+  // Everything on this screen is a draft until "Save changes".
+  const [qtyDelivered, setQtyDelivered] = useState(
+    orderDetail?.qtyDelivered ?? 0,
+  );
+
+  // Delivered units, and units already on a bill, can't be taken off the
+  // order, so the quantity never drops below them.
+  const minQuantity = Math.max(1, qtyDelivered, orderDetail?.qtyPaid ?? 0);
   const { counter, increment, decrement } = useCounter(
     orderDetail?.quantity,
     1,
-    20,
-    orderDetail?.qtyDelivered || 1,
+    MAX_QUANTITY,
+    minQuantity,
   );
 
-  // Everything on this screen is a draft until "Save changes".
-  const [status, setStatus] = useState(
-    orderDetail?.status ?? OrderDetailStatus.PENDING,
-  );
   const [typeOrderDetail, setTypeOrderDetail] = useState(
     orderDetail?.typeOrderDetail ?? OrderType.IN_PLACE,
-  );
-
-  const { counter: qtyDelivered, setCounter: setQtyDelivered } = useCounter(
-    orderDetail?.qtyDelivered,
-    1,
-    orderDetail?.quantity,
-    0,
   );
 
   const router = useRouter();
@@ -86,6 +102,13 @@ export default function EditOrderDetailScreen() {
   const isAdmin = isAdminLevelRole(user?.role?.name);
   const { isLoading, mutate: updateOrderDetail } =
     useOrders().updateOrderDetail;
+
+  const { settings } = useRestaurantSettings();
+  // With the setting off, the server rejects anything beyond the stock left,
+  // so don't let the waiter ask for it.
+  const blocksWithoutStock =
+    (settings?.ALLOW_ORDERS_WITHOUT_STOCK ??
+      DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK) === false;
 
   const [notes, setNotes] = useState(orderDetail?.description || "");
   const [selectedOption, setSelectedOption] = useState<ProductOption | null>(
@@ -111,102 +134,113 @@ export default function EditOrderDetailScreen() {
   );
   const startReplace = useReplaceOrderDetailStore((state) => state.start);
 
+  // The waiter only says how many units went out; the status follows. All
+  // of them delivered is DELIVERED. Taking a delivered item back sends it to
+  // the kitchen again (PENDING). Otherwise the kitchen's status stands.
+  const originalStatus = orderDetail?.status ?? OrderDetailStatus.PENDING;
+  const status =
+    qtyDelivered >= counter
+      ? OrderDetailStatus.DELIVERED
+      : originalStatus === OrderDetailStatus.DELIVERED
+        ? OrderDetailStatus.PENDING
+        : originalStatus;
+
   const { statusText, statusIcon, labelColor } = useOrderDetailStatus(status);
 
-  const openCustomBottomSheet = () => {
-    bottomSheetModalRef.current?.present();
-  };
+  const parsedPrice = parseFloat(price);
+  const isPriceValid = Number.isFinite(parsedPrice) && parsedPrice >= 0;
+  const effectivePrice = isPriceValid
+    ? parsedPrice
+    : (selectedOption?.price ?? orderDetail?.price ?? 0);
 
-  const closeCustomBottomSheet = () => {
-    bottomSheetModalRef.current?.dismiss();
-  };
+  const isDirty =
+    !!orderDetail &&
+    (counter !== orderDetail.quantity ||
+      qtyDelivered !== orderDetail.qtyDelivered ||
+      notes !== (orderDetail.description || "") ||
+      effectivePrice !== Number(orderDetail.price) ||
+      typeOrderDetail !== orderDetail.typeOrderDetail ||
+      (selectedOption?.id ?? null) !==
+        (orderDetail.productOption?.id ?? null) ||
+      !sameIds(selectedTagIds, orderDetail.tags?.map((tag) => tag.id) ?? []));
 
-  const openVariantBottomSheet = () => {
-    variantSheetRef.current?.present();
-  };
+  // Leaving with unsaved edits asks first. A successful save leaves freely.
+  const [showDiscard, setShowDiscard] = useState(false);
+  const pendingAction = useRef<any>(null);
+  const savedRef = useRef(false);
 
-  const closeVariantBottomSheet = () => {
-    variantSheetRef.current?.dismiss();
-  };
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("beforeRemove", (e: any) => {
+      if (!isDirty || savedRef.current) return;
+      e.preventDefault();
+      pendingAction.current = e.data.action;
+      setShowDiscard(true);
+    });
+    return unsubscribe;
+  }, [navigation, isDirty]);
 
-  const openActivityBottomSheet = () => {
-    activitySheetRef.current?.present();
-  };
+  const replaceBlockReason = orderDetail
+    ? getReplaceBlockReason(orderDetail)
+    : null;
 
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}>
+        <ThemedView style={tw`flex-row items-center gap-1 bg-transparent`}>
           <IconButton
-            icon="info"
-            onPress={openActivityBottomSheet}
-            size={24}
+            icon="history"
+            onPress={() => activitySheetRef.current?.present()}
+            size={20}
             accessibilityLabel={t("orders:details.activity")}
           />
-          <Button
-            label={t("orders:detailActions.change")}
-            variant="outline"
-            size="small"
-            onPress={openVariantBottomSheet}
-            shape="rounded"
+          <IconButton
+            icon="ellipsis-vertical"
+            onPress={() => moreSheetRef.current?.present()}
+            size={20}
+            accessibilityLabel={t("orders:details.moreOptions")}
           />
-          {isAdmin && (
-            <IconButton
-              icon="square-pen"
-              size={18}
-              onPress={openCustomBottomSheet}
-              accessibilityLabel={t("orders:detailActions.customPrice")}
-              variant="outlined"
-            />
-          )}
         </ThemedView>
       ),
     });
-  }, [
-    navigation,
-    openCustomBottomSheet,
-    openVariantBottomSheet,
-    openActivityBottomSheet,
-    isAdmin,
-    t,
-  ]);
-
-  const openNoteBottomSheet = () => {
-    noteSheetRef.current?.present();
-  };
-
-  const closeNoteBottomSheet = () => {
-    noteSheetRef.current?.dismiss();
-  };
-
-  const saveNote = (note: string) => {
-    setNotes(note);
-    closeNoteBottomSheet();
-  };
+  }, [navigation, t]);
 
   if (!orderDetail || !product) {
     return (
-      <ThemedView style={tw`flex-1 justify-center items-center`}>
-        <ThemedText type="h2">{t("orders:details.noActiveOrder")}</ThemedText>
+      <ThemedView style={tw`flex-1 justify-center items-center gap-6 px-8`}>
+        <ThemedText type="h3" style={tw`text-center`}>
+          {t("orders:details.noActiveOrder")}
+        </ThemedText>
+        <Button
+          label={t("common:actions.goBack")}
+          variant="outline"
+          onPress={() => router.back()}
+        />
       </ThemedView>
     );
   }
 
-  const parsedPrice = parseFloat(price);
-  const effectivePrice = Number.isFinite(parsedPrice)
-    ? parsedPrice
-    : (selectedOption?.price ?? orderDetail.price);
+  // Units of this line were taken from stock when it was ordered, so keeping
+  // the same variant only needs stock for the units added.
+  const available = selectedOption
+    ? getProductOptionAvailableQuantity(selectedOption)
+    : null;
+  const stockLeft =
+    available === null
+      ? null
+      : selectedOption?.id === orderDetail.productOption?.id
+        ? Math.max(available, 0) + orderDetail.quantity
+        : Math.max(available, 0);
+  const exceedsStock = stockLeft !== null && counter > stockLeft;
+  const blockedByStock = blocksWithoutStock && exceedsStock;
+  const atStockLimit =
+    blocksWithoutStock && stockLeft !== null && counter >= stockLeft;
 
+  // A price typed by hand survives a variant change; the menu price doesn't.
   const onChangeSelectedOption = (option: ProductOption) => {
+    if (!isPriceValid || parsedPrice === selectedOption?.price) {
+      setPrice(String(option.price));
+    }
     setSelectedOption(option);
-    setPrice(String(option.price));
-  };
-
-  const replaceBlockReason = getReplaceBlockReason(orderDetail);
-
-  const handleReplaceProduct = () => {
-    startReplace(order!.id, orderDetail);
-    router.push("/(new-order)/restaurant-menu");
   };
 
   const onUpdateOrderDetail = () => {
@@ -227,6 +261,8 @@ export default function EditOrderDetailScreen() {
       },
       {
         onSuccess: () => {
+          savedRef.current = true;
+          toast.success(t("orders:edit.saved"));
           setActiveOrderDetail(null);
           router.back();
         },
@@ -234,210 +270,294 @@ export default function EditOrderDetailScreen() {
     );
   };
 
-  const openStatusSheet = () => {
-    statusSheetRef.current?.present();
+  // Always offered; when the item can't be replaced, it explains why.
+  const handleReplaceProduct = () => {
+    moreSheetRef.current?.dismiss();
+    if (replaceBlockReason) {
+      replaceBlockedSheetRef.current?.present();
+      return;
+    }
+    if (!order) return;
+    startReplace(order.id, orderDetail);
+    router.push("/(new-order)/restaurant-menu");
   };
 
-  // Delivered means every unit went out; back to pending means none did.
-  const onSelectStatus = (nextStatus: OrderDetailStatus) => {
-    setStatus(nextStatus);
-    setQtyDelivered(
-      nextStatus === OrderDetailStatus.DELIVERED ? orderDetail.quantity : 0,
-    );
-    statusSheetRef.current?.dismiss();
-  };
+  const hasNote = notes.trim() !== "";
+  const hasVariants = product.options.length > 1;
+  const selectableTags = getSelectableTags(product.tags);
+  const lineTotal = counter * effectivePrice;
+  const floorReason =
+    counter === minQuantity && minQuantity > 1
+      ? (orderDetail.qtyPaid ?? 0) >= minQuantity
+        ? t("orders:edit.quantityFloorBilled", { count: minQuantity })
+        : t("orders:edit.quantityFloorDelivered", { count: minQuantity })
+      : null;
 
   return (
     <>
       <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
-        <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
-          <ThemedView style={tw`flex-1`} />
-          <ThemedView style={tw` text-center mb-4 gap-4`}>
-            <ThemedView style={tw`flex-row items-center gap-2 flex-wrap  `}>
-              <Label
-                text={statusText}
-                color={labelColor}
-                leftIcon={statusIcon}
-                rightIcon="chevron-down"
-                onPress={openStatusSheet}
-                accessibilityLabel={`${t("orders:detailActions.statusTitle")}: ${statusText}`}
-                hitSlop={8}
-                size="small"
-              />
-              {orderDetail.readyQuantity > 0 && (
-                <Label
-                  leftIcon="bell"
-                  text={t("orders:detailActions.readyCount", {
-                    count: orderDetail.readyQuantity,
-                  })}
-                  color="success"
-                  size="small"
-                />
-              )}
-            </ThemedView>
-
-            <ThemedView style={tw`gap-2 mb-2`}>
-              <ThemedView
-                style={tw`flex-row items-center justify-between gap-2`}
-              >
-                <ThemedText type="h3">
+        <ScreenLayout>
+          {/* Content sits at the bottom, near the thumb, and scrolls once it
+              outgrows the screen. */}
+          <ScrollView
+            contentContainerStyle={tw` px-4 pt-6 pb-4 gap-6`}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <ThemedView style={tw`gap-3`}>
+              <ThemedView style={tw`gap-1`}>
+                <ThemedText type="h3" accessibilityRole="header">
                   {product.name}
-                  {product.options.length > 1 && selectedOption && (
-                    <ThemedText type="h3" style={tw``}>
-                      {" "}
-                      {selectedOption.name}
-                    </ThemedText>
-                  )}
                 </ThemedText>
-                <ThemedText type="body1">
-                  {formatCurrency(counter * effectivePrice)}
+                <ThemedText type="body2" style={tw`text-gray-500`}>
+                  {hasVariants && selectedOption
+                    ? `${selectedOption.name} · ${formatCurrency(effectivePrice)}`
+                    : formatCurrency(effectivePrice)}
                 </ThemedText>
               </ThemedView>
-              {product.description && (
-                <ThemedText type="body1" style={tw`text-gray-600`}>
+
+              {product.description ? (
+                <ThemedText type="body2" style={tw`text-gray-600`}>
                   {product.description}
                 </ThemedText>
-              )}
-            </ThemedView>
-            {notes.trim() && (
-              <TextInput
-                numberOfLines={4}
-                multiline
-                value={notes}
-                onChangeText={setNotes}
-                placeholder={t("orders:newOrder.addNote")}
-                pointerEvents="none"
-                style={tw`bg-transparent`}
-                containerStyle={tw`bg-transparent border-0 p-0`}
-              />
-            )}
+              ) : null}
 
-            {orderDetail.quantity > 1 && (
-              <Card style={tw`gap-1`} variant="default">
-                <ThemedView style={tw`flex-row items-center justify-between`}>
-                  <ThemedText type="body2" style={tw`text-gray-500`}>
-                    {t("common:status.delivered")}
-                  </ThemedText>
-                  <ThemedText type="body2" style={tw`text-gray-500`}>
-                    {qtyDelivered} / {orderDetail.quantity}
-                  </ThemedText>
-                </ThemedView>
-                <Slider
-                  value={qtyDelivered}
-                  minimumValue={0}
-                  maximumValue={orderDetail.quantity}
-                  step={1}
-                  height={12}
-                  onValueChange={setQtyDelivered}
-                  onSlidingComplete={setQtyDelivered}
+              <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
+                <Label
+                  text={statusText}
+                  color={labelColor}
+                  leftIcon={statusIcon}
+                  size="small"
+                  accessibilityLabel={`${t("orders:detailActions.statusTitle")}: ${statusText}`}
                 />
-              </Card>
-            )}
+                {orderDetail.readyQuantity > 0 &&
+                  status !== OrderDetailStatus.DELIVERED && (
+                    <Label
+                      leftIcon="bell"
+                      text={t("orders:detailActions.readyCount", {
+                        count: orderDetail.readyQuantity,
+                      })}
+                      color="success"
+                      size="small"
+                    />
+                  )}
+                <Chip
+                  variant="assist"
+                  icon={
+                    typeOrderDetail === OrderType.IN_PLACE
+                      ? "utensils"
+                      : "shopping-bag"
+                  }
+                  label={
+                    typeOrderDetail === OrderType.IN_PLACE
+                      ? t("common:orderType.inPlace")
+                      : t("common:orderType.takeAway")
+                  }
+                  onPress={() => typePickerRef.current?.present()}
+                />
+              </ThemedView>
 
-            {getSelectableTags(product.tags).length > 0 && (
-              <ThemedView style={tw`flex-row flex-wrap gap-2 `}>
-                {getSelectableTags(product.tags).map((tag) => (
-                  <Label
+              {/* The note itself, or "Add note" when there is none: tap to edit. */}
+              <Pressable
+                onPress={() => noteSheetRef.current?.present()}
+                accessibilityRole="button"
+                accessibilityLabel={
+                  hasNote
+                    ? `${t("menu:product.editNote")}: ${notes}`
+                    : t("orders:newOrder.addNote")
+                }
+                style={({ pressed }) => [
+                  tw`self-start py-3 min-h-12 justify-center`,
+                  hasNote && tw`self-stretch`,
+                  pressed && tw`opacity-60`,
+                ]}
+              >
+                <ThemedText
+                  type="body2"
+                  numberOfLines={hasNote ? 3 : 1}
+                  style={!hasNote && tw`text-gray-500`}
+                >
+                  {hasNote ? notes : `${t("orders:newOrder.addNote")}...`}
+                </ThemedText>
+              </Pressable>
+            </ThemedView>
+
+            <Card style={tw`gap-2`} variant="default">
+              <ThemedView
+                style={tw`flex-row items-center justify-between bg-transparent`}
+              >
+                <ThemedText type="body2">{t("orders:edit.delivered")}</ThemedText>
+                <ThemedText
+                  type="body2"
+                  accessibilityLiveRegion="polite"
+                  style={{ fontFamily: typography.bold }}
+                >
+                  {t("orders:edit.deliveredCount", {
+                    delivered: qtyDelivered,
+                    total: counter,
+                  })}
+                </ThemedText>
+              </ThemedView>
+              <Slider
+                value={qtyDelivered}
+                minimumValue={0}
+                maximumValue={counter}
+                step={1}
+                height={12}
+                onValueChange={setQtyDelivered}
+                onSlidingComplete={setQtyDelivered}
+              />
+            </Card>
+
+            {selectableTags.length > 0 && (
+              <ThemedView style={tw`flex-row flex-wrap gap-2`}>
+                {selectableTags.map((tag) => (
+                  <Chip
                     key={tag.id}
-                    text={tag.name}
-                    color={
-                      selectedTagIds.includes(tag.id) ? "default" : "outline"
-                    }
+                    label={tag.name}
+                    selected={selectedTagIds.includes(tag.id)}
                     onPress={() => toggleTag(tag.id)}
                   />
                 ))}
               </ThemedView>
             )}
-          </ThemedView>
 
-          <ThemedView style={tw`gap-8`}>
-            <ThemedView style={tw`flex-row  justify-center gap-4 w-full `}>
-              <ThemedView style={tw`flex-row items-center gap-6`}>
-                <IconButton
-                  icon="minus"
-                  onPress={decrement}
-                  variant="surface"
-                  size={50}
-                  accessibilityLabel={t("common:actions.decrease")}
-                />
-                <ThemedText type="h1" accessibilityLiveRegion="polite">
-                  {counter}
-                </ThemedText>
-                <IconButton
-                  icon="plus"
-                  onPress={increment}
-                  variant="surface"
-                  size={50}
-                  accessibilityLabel={t("common:actions.increase")}
-                />
-              </ThemedView>
-            </ThemedView>
-            <ThemedView style={tw`flex-row items-center justify-center gap-2 `}>
-              <Chip
-                label={
-                  typeOrderDetail === OrderType.IN_PLACE
-                    ? t("common:orderType.inPlace")
-                    : t("common:orderType.takeAway")
-                }
-                icon={
-                  typeOrderDetail === OrderType.IN_PLACE
-                    ? "utensils"
-                    : "shopping-bag"
-                }
-                variant="filter"
-                onPress={() => typePickerRef.current?.present()}
-              />
-
-              {!notes.trim() && (
+            {hasVariants && selectedOption && (
+              <View style={tw`flex-row`}>
                 <Chip
                   variant="assist"
-                  label={t("orders:newOrder.addNote")}
-                  icon="file-text"
-                  onPress={openNoteBottomSheet}
+                  icon="layers"
+                  label={selectedOption.name}
+                  onPress={() => variantSheetRef.current?.present()}
                 />
-              )}
-            </ThemedView>
+              </View>
+            )}
+          </ScrollView>
 
-            <ThemedView style={tw`flex-row gap-5  mb-4`}>
-              <Button
-                label={t("orders:edit.saveChanges")}
-                onPress={onUpdateOrderDetail}
-                leftIcon="save"
-                loading={isLoading}
-                style={tw`flex-1`}
+          <ThemedView style={tw`px-4 pt-2 pb-4 gap-3`}>
+            <ThemedView style={tw`flex-row items-center justify-center gap-6`}>
+              <IconButton
+                icon="minus"
+                onPress={decrement}
+                disabled={counter <= minQuantity}
+                variant="surface"
+                size={28}
+                style={tw`p-4`}
+                accessibilityLabel={t("common:actions.decrease")}
+              />
+              <ThemedText
+                type="h1"
+                accessibilityLiveRegion="polite"
+                style={tw`min-w-12 text-center`}
+              >
+                {counter}
+              </ThemedText>
+              <IconButton
+                icon="plus"
+                onPress={increment}
+                disabled={counter >= MAX_QUANTITY || atStockLimit}
+                variant="surface"
+                size={28}
+                style={tw`p-4`}
+                accessibilityLabel={t("common:actions.increase")}
               />
             </ThemedView>
+
+            {floorReason && (
+              <ThemedText type="small" style={tw`text-gray-500 text-center`}>
+                {floorReason}
+              </ThemedText>
+            )}
+
+            {exceedsStock && (
+              <ThemedView
+                style={tw`flex-row items-center justify-center gap-1.5`}
+              >
+                <Icon
+                  name="circle-alert"
+                  size={16}
+                  color={tw.color("orange-700")}
+                />
+                <ThemedText type="small" style={tw`text-orange-700`}>
+                  {stockLeft === 0
+                    ? t("menu:product.stock.noneLeft")
+                    : t("menu:product.stock.exceeds", { count: stockLeft })}
+                </ThemedText>
+              </ThemedView>
+            )}
+
+            <Button
+              label={`${t("orders:edit.saveChanges")} · ${formatCurrency(lineTotal)}`}
+              onPress={onUpdateOrderDetail}
+              loading={isLoading}
+              disabled={!isDirty || blockedByStock || isLoading}
+            />
           </ThemedView>
         </ScreenLayout>
 
-        <ThemedBottomSheetModal ref={bottomSheetModalRef} enablePanDownToClose>
+        <ThemedBottomSheetModal ref={customPriceSheetRef} enablePanDownToClose>
           <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
+            <ThemedText type="h4">
+              {t("orders:newOrder.customPrice")}
+            </ThemedText>
             <TextInput
-              label={t("orders:newOrder.customPrice")}
+              label={t("menu:product.price")}
+              icon="dollar-sign"
               value={price}
               onChangeText={setPrice}
               keyboardType="decimal-pad"
+              error={isPriceValid ? undefined : t("orders:edit.invalidPrice")}
               bottomSheet
             />
+            {selectedOption && (
+              <ThemedText type="body2" style={tw`text-gray-500`}>
+                {t("orders:edit.menuPrice", {
+                  price: formatCurrency(selectedOption.price),
+                })}
+              </ThemedText>
+            )}
 
             <Button
               label={t("common:actions.done")}
-              onPress={closeCustomBottomSheet}
+              disabled={!isPriceValid}
+              onPress={() => customPriceSheetRef.current?.dismiss()}
             />
           </BottomSheetView>
+        </ThemedBottomSheetModal>
+
+        <ThemedBottomSheetModal ref={moreSheetRef} enablePanDownToClose>
+          <ActionsBottomSheet
+            items={[
+              {
+                icon: "arrow-left-right",
+                label: t("orders:detailActions.replaceItem"),
+                onPress: handleReplaceProduct,
+              },
+              ...(isAdmin
+                ? [
+                    {
+                      icon: "circle-dollar-sign" as const,
+                      label: t("orders:detailActions.customPrice"),
+                      hint: formatCurrency(effectivePrice),
+                      onPress: () => {
+                        moreSheetRef.current?.dismiss();
+                        customPriceSheetRef.current?.present();
+                      },
+                    },
+                  ]
+                : []),
+            ]}
+          />
         </ThemedBottomSheetModal>
 
         <NoteBottomSheet
           ref={noteSheetRef}
           initialValue={notes}
-          onSave={saveNote}
+          onSave={(note) => {
+            setNotes(note.trim());
+            noteSheetRef.current?.dismiss();
+          }}
           placeholder={t("orders:newOrder.addNote")}
-        />
-
-        <OrderDetailStatusBottomSheet
-          ref={statusSheetRef}
-          value={status}
-          onSelectStatus={onSelectStatus}
         />
 
         <OrderDetailActivityBottomSheet
@@ -451,11 +571,7 @@ export default function EditOrderDetailScreen() {
             options={product.options}
             selectedOptionId={selectedOption?.id}
             onSelectOption={onChangeSelectedOption}
-            onReplace={handleReplaceProduct}
-            onReplaceBlockedInfo={() =>
-              replaceBlockedSheetRef.current?.present()
-            }
-            onClose={closeVariantBottomSheet}
+            onClose={() => variantSheetRef.current?.dismiss()}
           />
         </ThemedBottomSheetModal>
 
@@ -481,6 +597,24 @@ export default function EditOrderDetailScreen() {
           onChange={(value) => setTypeOrderDetail(value as OrderType)}
         />
       </KeyboardAvoidingView>
+
+      <DialogModal
+        visible={showDiscard}
+        title={t("orders:edit.discardTitle")}
+        message={t("orders:edit.discardMessage")}
+        confirmLabel={t("orders:edit.discard")}
+        cancelLabel={t("orders:edit.keepEditing")}
+        confirmVariant="destructive"
+        onConfirm={() => {
+          setShowDiscard(false);
+          savedRef.current = true;
+          if (pendingAction.current) navigation.dispatch(pendingAction.current);
+        }}
+        onCancel={() => {
+          pendingAction.current = null;
+          setShowDiscard(false);
+        }}
+      />
     </>
   );
 }
