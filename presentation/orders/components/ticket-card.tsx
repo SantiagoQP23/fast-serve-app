@@ -4,6 +4,7 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import Icon from "@/presentation/theme/components/icon";
 import { useProductionAreasStore } from "@/presentation/production-areas/store/useProductionAreasStore";
+import { isPrintableArea } from "@/presentation/production-areas/utils/printable-area.util";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { Ticket } from "@/core/tickets/models/ticket.model";
 import { TicketType } from "@/core/tickets/enums/ticket-type.enum";
@@ -30,6 +31,8 @@ interface TicketCardProps {
   selectionMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (ticket: Ticket) => void;
+  /** Hides items from areas that can't print (no active printer). */
+  printableAreasOnly?: boolean;
 }
 
 export default function TicketCard({
@@ -42,6 +45,7 @@ export default function TicketCard({
   selectionMode = false,
   selected = false,
   onToggleSelect,
+  printableAreasOnly = false,
 }: TicketCardProps) {
   const { t } = useTranslation(["common", "orders"]);
   const { productionAreas } = useProductionAreasStore();
@@ -62,6 +66,7 @@ export default function TicketCard({
       if (!areaId) return acc;
 
       const area = productionAreas.find((pa) => pa.id === areaId);
+      if (printableAreasOnly && (!area || !isPrintableArea(area))) return acc;
       const areaName = area?.name || item.productionAreaName || "Unknown";
 
       if (!acc[areaId]) {

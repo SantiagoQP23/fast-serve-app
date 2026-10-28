@@ -153,6 +153,7 @@ export default function UnprintedTicketsScreen() {
             selectionMode={isSelectionMode}
             selected={selectedIds.has(ticket.id)}
             onToggleSelect={toggleSelect}
+            printableAreasOnly
           />
         ))}
         <ThemedView style={tw`h-20`} />

@@ -4,6 +4,7 @@ import { Order } from "@/core/orders/models/order.model";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useUnprintedTicketsStore } from "@/presentation/orders/store/useUnprintedTicketsStore";
 import { useProductionAreasStore } from "@/presentation/production-areas/store/useProductionAreasStore";
+import { isPrintableArea } from "@/presentation/production-areas/utils/printable-area.util";
 
 export interface UnprintedTicket {
   ticket: Ticket;
@@ -13,8 +14,7 @@ export interface UnprintedTicket {
 /**
  * Unprinted, unskipped tickets of the active orders, oldest first. Tickets of
  * orders that are no longer active drop out on their own, and so do tickets
- * with no item in an area that can print (active area with an active printer,
- * same rule as `printComanda`).
+ * with no item in an area that can print (`isPrintableArea`).
  */
 export const useUnprintedTickets = (): UnprintedTicket[] => {
   const tickets = useUnprintedTicketsStore((state) => state.tickets);
@@ -25,12 +25,7 @@ export const useUnprintedTickets = (): UnprintedTicket[] => {
 
   return useMemo(() => {
     const printableAreaIds = new Set(
-      productionAreas
-        .filter(
-          (area) =>
-            area.isActive && area.printers?.some((printer) => printer.isActive),
-        )
-        .map((area) => area.id),
+      productionAreas.filter(isPrintableArea).map((area) => area.id),
     );
 
     const ordersById = new Map(
