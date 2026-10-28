@@ -1,7 +1,4 @@
 import { ScrollView, Pressable, RefreshControl, Platform } from "react-native";
-// Horizontal rows use gesture-handler's ScrollView, so a swipe on them scrolls
-// the row instead of switching the screen's tab (TabPager)
-import { ScrollView as GestureScrollView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -911,10 +908,6 @@ export default function OrderDetailView({
                   <OrderSyncLabel orderId={order.id} />
                 </ThemedView>
               </ThemedView>
-              <ThemedView style={tw`items-end`}>
-                <ThemedText type="small">{t("common:labels.total")}</ThemedText>
-                <ThemedText type="h3">{formatCurrency(order.total)}</ThemedText>
-              </ThemedView>
             </ThemedView>
 
             <TabBar
@@ -977,11 +970,7 @@ export default function OrderDetailView({
                     </ThemedView>
 
                     {/* Closed orders can't change, so their chips are read-only. */}
-                    <GestureScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      contentContainerStyle={tw`gap-2 mb-6`}
-                    >
+                    <ThemedView style={tw`flex-row flex-wrap gap-2 mb-6`}>
                       <Chip
                         icon="hourglass"
                         label={(deliveryTime ?? createdAt).format("HH:mm")}
@@ -1004,7 +993,7 @@ export default function OrderDetailView({
                         }
                         disabled={isClosed}
                       />
-                    </GestureScrollView>
+                    </ThemedView>
 
                     {/* Notes Section */}
                     {order.notes && (

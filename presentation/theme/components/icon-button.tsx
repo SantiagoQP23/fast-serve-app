@@ -43,7 +43,7 @@ export default function IconButton({
     filled: "bg-primary",
     secondary: "bg-secondary",
     surface: "bg-surface",
-    outlined: "border border-border bg-transparent",
+    outlined: "border border-primary bg-transparent",
     text: "bg-transparent",
     destructive: "bg-red-50",
   };
@@ -52,7 +52,7 @@ export default function IconButton({
     filled: palette.onPrimary,
     secondary: palette.onSecondary,
     surface: palette.onSurfaceVariant,
-    outlined: palette.onSurfaceVariant,
+    outlined: palette.text,
     text: palette.text,
     destructive: tw.color("red-600") as string,
   };

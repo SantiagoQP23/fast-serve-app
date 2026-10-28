@@ -15,6 +15,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import * as Haptics from "expo-haptics";
 import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import { toast } from "sonner-native";
+import { formatCurrency } from "@/core/i18n/utils";
 
 interface OrderBillsTabProps {
   order: Order;
@@ -81,6 +82,11 @@ export default function OrderBillsTab({ order }: OrderBillsTabProps) {
         />
       }
     >
+      <ThemedView style={tw`flex-row items-center justify-between gap-4`}>
+        <ThemedText type="body1">{t("common:labels.total")}</ThemedText>
+        <ThemedText type="h3">{formatCurrency(order.total)}</ThemedText>
+      </ThemedView>
+
       {bills?.length === 0 ? (
         <ThemedView style={tw`items-center gap-3 pt-12 px-8`}>
           <Icon name="receipt-text" size={40} color={tw.color("gray-500")} />

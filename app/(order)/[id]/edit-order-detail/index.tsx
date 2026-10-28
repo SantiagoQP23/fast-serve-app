@@ -145,17 +145,18 @@ export default function EditOrderDetailScreen() {
           />
           <Button
             label={t("orders:detailActions.change")}
-            leftIcon="arrow-left-right"
             variant="outline"
             size="small"
             onPress={openVariantBottomSheet}
+            shape="rounded"
           />
           {isAdmin && (
             <IconButton
               icon="square-pen"
-              size={24}
+              size={18}
               onPress={openCustomBottomSheet}
               accessibilityLabel={t("orders:detailActions.customPrice")}
+              variant="outlined"
             />
           )}
         </ThemedView>
