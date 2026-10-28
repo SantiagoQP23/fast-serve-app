@@ -10,6 +10,10 @@ import type { UpdateInventoryItemDto } from "../interfaces/dto/update-inventory-
 import type { AdjustInventoryDto } from "../interfaces/dto/adjust-inventory.dto";
 import type { LinkProductOptionsDto } from "../interfaces/dto/link-product-option.dto";
 import { getErrorMessage } from "@/core/api/get-error-message";
+import {
+  requestSync,
+  SELF_CHECK_DELAY_MS,
+} from "@/presentation/sync/request-sync";
 
 export const inventoryItemsQueryKey = ["inventory-items"];
 
@@ -26,8 +30,11 @@ export const useInventoryItems = () => {
     queryFn: () => InventoryService.getAll({ limit: ALL_ITEMS_LIMIT }),
   });
 
-  const invalidate = () =>
+  // The menu's copy of the products changes too: check it got there.
+  const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: inventoryItemsQueryKey });
+    requestSync(SELF_CHECK_DELAY_MS);
+  };
 
   const createItem = useMutation<
     InventoryItem,
@@ -103,6 +110,7 @@ export const useInventoryItems = () => {
       queryClient.invalidateQueries({
         queryKey: ["inventory-items", variables.itemId],
       });
+      requestSync(SELF_CHECK_DELAY_MS);
     },
     onError: (error) => {
       toast.error(getErrorMessage(error, { fallback: t("linkProductError") }));

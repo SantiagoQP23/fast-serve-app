@@ -8,6 +8,10 @@ import { InventoryPurchaseService } from "../services/inventory-purchase.service
 import type { CreateInventoryPurchaseDto } from "../interfaces/dto/create-inventory-purchase.dto";
 import { inventoryItemsQueryKey } from "./useInventoryItems";
 import { getErrorMessage } from "@/core/api/get-error-message";
+import {
+  requestSync,
+  SELF_CHECK_DELAY_MS,
+} from "@/presentation/sync/request-sync";
 
 export const inventoryPurchasesQueryKey = ["inventory-purchases"];
 
@@ -19,6 +23,7 @@ const invalidateAfterStockChange = () => {
   queryClient.invalidateQueries({ queryKey: inventoryPurchasesQueryKey });
   queryClient.invalidateQueries({ queryKey: inventoryItemsQueryKey });
   queryClient.invalidateQueries({ queryKey: ["inventory-movements"] });
+  requestSync(SELF_CHECK_DELAY_MS);
 };
 
 /** Paginated purchase history, newest first, accumulated with load-more. */

@@ -7,6 +7,10 @@ import { InventoryRecipeService } from "../services/inventory-recipe.service";
 import type { CreateRecipeDto } from "../interfaces/dto/create-recipe.dto";
 import type { UpdateRecipeDto } from "../interfaces/dto/update-recipe.dto";
 import { getErrorMessage } from "@/core/api/get-error-message";
+import {
+  requestSync,
+  SELF_CHECK_DELAY_MS,
+} from "@/presentation/sync/request-sync";
 
 const getRecipesQueryKey = (productOptionId?: number) => [
   "inventory-recipes",
@@ -22,10 +26,13 @@ export const useInventoryRecipes = (productOptionId?: number) => {
     enabled: !!productOptionId,
   });
 
-  const invalidate = () =>
+  // The recipe lives in the menu's copy of the product too: sync it.
+  const invalidate = () => {
     queryClient.invalidateQueries({
       queryKey: getRecipesQueryKey(productOptionId),
     });
+    requestSync(SELF_CHECK_DELAY_MS);
+  };
 
   const createRecipe = useMutation<
     ProductOptionInventoryItem,

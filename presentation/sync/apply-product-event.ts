@@ -3,6 +3,8 @@ import { SyncOperation } from "@/core/sync/enums/sync-operation.enum";
 import { Product, withDefaultOption } from "@/core/menu/models/product.model";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
+import { applyProductSequence, isStaleProductEvent } from "./applied-sequences";
+import { refreshInventoryQueries } from "./refresh-inventory-queries";
 
 // Some product events carry only what changed (e.g. a new default variant is
 // `{ id, defaultVariantId, price }`), so they are merged into the stored
@@ -33,6 +35,9 @@ export function applyProductEvents(events: SyncEventDto[]) {
   };
 
   for (const event of events) {
+    // An older event arriving late must not undo a newer one.
+    if (isStaleProductEvent(event)) continue;
+
     switch (event.operation) {
       case SyncOperation.CREATED:
       case SyncOperation.UPDATED: {
@@ -47,7 +52,10 @@ export function applyProductEvents(events: SyncEventDto[]) {
           product = withDefaultOption(product, defaultVariantId);
         }
 
-        pending.set(event.resourceId, product);
+        pending.set(
+          event.resourceId,
+          applyProductSequence(event, product, existing),
+        );
         break;
       }
       case SyncOperation.DELETED:
@@ -58,4 +66,6 @@ export function applyProductEvents(events: SyncEventDto[]) {
   }
 
   flush();
+  // Stock shown on the inventory screens may have changed too.
+  if (events.length) refreshInventoryQueries();
 }
