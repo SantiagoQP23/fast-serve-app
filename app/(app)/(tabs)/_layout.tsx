@@ -212,17 +212,17 @@ export default function TabLayout() {
                 elevation: 0,
               }
             : {
-                backgroundColor: palette.surface,
+                backgroundColor: palette.surfaceBright,
                 height: tabBarHeight,
                 paddingTop: TAB_BAR_PADDING_VERTICAL,
                 paddingBottom: TAB_BAR_PADDING_VERTICAL,
-                borderRadius: 20,
                 shadowColor: "transparent",
                 shadowOffset: { width: 0, height: 0 },
                 shadowOpacity: 0,
                 shadowRadius: 0,
                 elevation: 0,
-                borderTopWidth: 0,
+                borderTopWidth: 1,
+                borderTopColor: palette.border,
               },
           tabBarItemStyle: isRail
             ? {
