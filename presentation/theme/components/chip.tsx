@@ -15,9 +15,14 @@ import { usePalette } from "@/presentation/theme/store/useThemeStore";
 // label-only tap-to-choose chip.
 export type ChipVariant = "filter" | "assist" | "input" | "suggestion";
 
+// Visual style, independent of the M3 type above. "surface" matches Button's
+// surface variant: filled with the surface color, no outline.
+export type ChipAppearance = "outline" | "surface";
+
 type ChipProps = {
   label: string;
   variant?: ChipVariant;
+  appearance?: ChipAppearance;
   selected?: boolean;
   disabled?: boolean;
   onPress?: () => void;
@@ -36,6 +41,7 @@ type ChipProps = {
 export default function Chip({
   label,
   variant = "filter",
+  appearance = "outline",
   selected,
   onPress,
   onLongPress,
@@ -87,8 +93,9 @@ export default function Chip({
         tw`flex-row items-center px-4 py-[6px] rounded-lg gap-2`,
         filled
           ? tw`bg-secondary`
-          : variant === "input"
-            ? tw` border border-primary`
+          : appearance === "surface"
+            ? // Transparent border keeps the same height as an outline chip.
+              tw`bg-surface border border-transparent`
             : tw`border border-primary`,
         pressed && tw`opacity-75`,
         disabled && tw`opacity-50`,

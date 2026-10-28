@@ -7,7 +7,6 @@ import { useRouter, useNavigation } from "expo-router";
 import TextInput from "@/presentation/theme/components/text-input";
 import Button from "@/presentation/theme/components/button";
 import IconButton from "@/presentation/theme/components/icon-button";
-import Label from "@/presentation/theme/components/label";
 import Icon from "@/presentation/theme/components/icon";
 import { useCounter } from "@/presentation/shared/hooks/useCounter";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
@@ -145,7 +144,8 @@ export default function EditOrderDetailScreen() {
         ? OrderDetailStatus.PENDING
         : originalStatus;
 
-  const { statusText, statusIcon, labelColor } = useOrderDetailStatus(status);
+  const { statusText, statusIcon, statusIconColor } =
+    useOrderDetailStatus(status);
 
   const parsedPrice = parseFloat(price);
   const isPriceValid = Number.isFinite(parsedPrice) && parsedPrice >= 0;
@@ -323,22 +323,34 @@ export default function EditOrderDetailScreen() {
               ) : null}
 
               <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
-                <Label
-                  text={statusText}
-                  color={labelColor}
-                  leftIcon={statusIcon}
-                  size="small"
-                  accessibilityLabel={`${t("orders:detailActions.statusTitle")}: ${statusText}`}
+                <Chip
+                  variant="assist"
+                  label={statusText}
+                  leftContent={
+                    <Icon
+                      name={statusIcon}
+                      size={16}
+                      color={tw.color(statusIconColor)}
+                    />
+                  }
+                  accessibilityHint={t("orders:detailActions.statusTitle")}
+                  appearance="surface"
                 />
                 {orderDetail.readyQuantity > 0 &&
                   status !== OrderDetailStatus.DELIVERED && (
-                    <Label
-                      leftIcon="bell"
-                      text={t("orders:detailActions.readyCount", {
+                    <Chip
+                      variant="assist"
+                      label={t("orders:detailActions.readyCount", {
                         count: orderDetail.readyQuantity,
                       })}
-                      color="success"
-                      size="small"
+                      leftContent={
+                        <Icon
+                          name="bell"
+                          size={16}
+                          color={tw.color("emerald-500")}
+                        />
+                      }
+                      appearance="surface"
                     />
                   )}
                 <Chip
@@ -354,6 +366,7 @@ export default function EditOrderDetailScreen() {
                       : t("common:orderType.takeAway")
                   }
                   onPress={() => typePickerRef.current?.present()}
+                  appearance="surface"
                 />
               </ThemedView>
 
@@ -386,7 +399,9 @@ export default function EditOrderDetailScreen() {
               <ThemedView
                 style={tw`flex-row items-center justify-between bg-transparent`}
               >
-                <ThemedText type="body2">{t("orders:edit.delivered")}</ThemedText>
+                <ThemedText type="body2">
+                  {t("orders:edit.delivered")}
+                </ThemedText>
                 <ThemedText
                   type="body2"
                   accessibilityLiveRegion="polite"
