@@ -18,6 +18,7 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
+import Card from "@/presentation/theme/components/card";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import IconButton from "@/presentation/theme/components/icon-button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
@@ -388,22 +389,18 @@ export default function MenuProductDetailView({
                   </ThemedText>
                 </ThemedView>
               ) : (
-                <ThemedView>
-                  {/* Rows like the menu list's product card, the default
-                      star before the name */}
+                <ThemedView style={tw`gap-2`}>
+                  {/* One card per variant, like the menu list's product
+                      card, the default star before the name */}
                   {product.options.map((option, index) => (
-                    <Pressable
+                    <Card
                       key={option.id ?? index}
                       onPress={() => openVariant(option)}
                       accessibilityRole="button"
-                      style={({ pressed }) =>
-                        tw.style(
-                          "py-3",
-                          index > 0 && "border-t border-outline-variant",
-                          !option.isActive && "opacity-50",
-                          pressed && "opacity-70",
-                        )
-                      }
+                      containerStyle={tw.style(
+                        !option.isActive && "opacity-50",
+                      )}
+                      style={tw`px-4 py-3`}
                     >
                       <VariantRow
                         option={option}
@@ -443,7 +440,7 @@ export default function MenuProductDetailView({
                           )
                         }
                       />
-                    </Pressable>
+                    </Card>
                   ))}
                 </ThemedView>
               )}
