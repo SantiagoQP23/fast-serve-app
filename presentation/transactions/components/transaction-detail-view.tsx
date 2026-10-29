@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, type ReactNode } from "react";
+import { useState, useRef, useCallback } from "react";
 import {
   ScrollView,
   Image,
@@ -8,8 +8,6 @@ import {
   View,
   RefreshControl,
   Modal,
-  type StyleProp,
-  type ViewStyle,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -21,12 +19,15 @@ import { typography } from "@/constants/theme";
 import { formatCurrency } from "@/core/i18n/utils";
 import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import Button from "@/presentation/theme/components/button";
-import Label, {
-  labelSolidStyles,
-  type LabelProps,
-} from "@/presentation/theme/components/label";
+import Label, { type LabelProps } from "@/presentation/theme/components/label";
 import Avatar from "@/presentation/theme/components/avatar";
 import Card from "@/presentation/theme/components/card";
+import {
+  DetailCard,
+  DetailCardRow,
+  DetailCardTitle,
+} from "@/presentation/theme/components/detail-card";
+import DetailHeader from "@/presentation/theme/components/detail-header";
 import { usePaymentProofs } from "@/presentation/transactions/hooks/usePaymentProofs";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useTranslation } from "react-i18next";
@@ -524,51 +525,17 @@ export default function TransactionDetailView({
         }
       >
         {/* Header: amount, what it was for, and when */}
-        <ThemedView style={tw`gap-5 mb-2`}>
-          <ThemedView style={tw`flex-row items-start gap-4`}>
-            <ThemedView style={tw`flex-1 gap-1`}>
-              <ThemedText
-                type="h1"
-                // h1 fixes its height for 32px text; size the box for 44px.
-                style={{
-                  fontSize: 44,
-                  fontFamily: typography.bold,
-                  lineHeight: 54,
-                  height: 54,
-                }}
-              >
-                {formatCurrency(transaction.amount)}
-              </ThemedText>
-              <ThemedText type="h4">{transaction.name}</ThemedText>
-              <ThemedText type="body1" style={tw`text-gray-500`}>
-                {dayjs(transaction.createdAt).format(DATE_FORMAT)}
-              </ThemedText>
-            </ThemedView>
-
-            {/* Payment method, with the status as a badge */}
-            <ThemedView
-              accessible
-              accessibilityLabel={`${transaction.paymentMethod.name}, ${statusText}`}
-              style={tw`w-16 h-16 mt-1 rounded-full items-center justify-center bg-surface`}
-            >
-              <Icon
-                name={
-                  paymentMethodIcon[transaction.paymentMethod.type] ?? "wallet"
-                }
-                size={28}
-                color={tw.color("primary")}
-              />
-              <ThemedView
-                style={[
-                  tw`absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full items-center justify-center ${labelSolidStyles[status.color ?? "default"].dot}`,
-                  { borderWidth: 2, borderColor: tw.color("background") },
-                ]}
-              >
-                <Icon name={status.icon} size={12} color="white" />
-              </ThemedView>
-            </ThemedView>
-          </ThemedView>
-
+        <DetailHeader
+          amount={formatCurrency(transaction.amount)}
+          title={transaction.name}
+          subtitle={dayjs(transaction.createdAt).format(DATE_FORMAT)}
+          icon={paymentMethodIcon[transaction.paymentMethod.type] ?? "wallet"}
+          badge={{
+            color: status.color ?? "default",
+            icon: status.icon,
+            label: `${transaction.paymentMethod.name}, ${statusText}`,
+          }}
+        >
           {(mainAction || canChangeAccount || hasMoreActions) && (
             <ThemedView style={tw`flex-row flex-wrap gap-3`}>
               {mainAction === "approve" && (
@@ -611,23 +578,23 @@ export default function TransactionDetailView({
               )}
             </ThemedView>
           )}
-        </ThemedView>
+        </DetailHeader>
 
         {/* Info */}
-        <InfoCard style={tw`py-2`}>
-          <CardRow label={t("common:transactions.statusLabel")}>
+        <DetailCard style={tw`py-2`}>
+          <DetailCardRow label={t("common:transactions.statusLabel")}>
             <Label
               size="small"
               color={status.color}
               leftIcon={status.icon}
               text={statusText}
             />
-          </CardRow>
-          <CardRow
+          </DetailCardRow>
+          <DetailCardRow
             label={t("common:transactions.paymentMethod")}
             value={transaction.paymentMethod.name}
           />
-          <CardRow
+          <DetailCardRow
             label={t("common:transactions.destinationAccount")}
             value={accountLabel ?? "—"}
             trailing={
@@ -644,41 +611,41 @@ export default function TransactionDetailView({
             }
           />
           {metadata?.type === "TRANSFER" && !!metadata.bankReference && (
-            <CardRow
+            <DetailCardRow
               label={t("bills:proofUpload.bankReference")}
               value={metadata.bankReference}
             />
           )}
           {metadata?.type === "TRANSFER" && !!metadata.senderName && (
-            <CardRow
+            <DetailCardRow
               label={t("bills:proofUpload.senderName")}
               value={metadata.senderName}
             />
           )}
           {metadata?.type === "CARD" && (
-            <CardRow
+            <DetailCardRow
               label={t("common:transactions.totalWithCommission")}
               value={formatCurrency(metadata.totalWithCommission)}
             />
           )}
           {metadata?.type === "CASH" && metadata.cashReceived != null && (
-            <CardRow
+            <DetailCardRow
               label={t("common:transactions.cashReceived")}
               value={formatCurrency(metadata.cashReceived)}
             />
           )}
           {metadata?.type === "CASH" && metadata.changeGiven != null && (
-            <CardRow
+            <DetailCardRow
               label={t("common:transactions.changeGiven")}
               value={formatCurrency(metadata.changeGiven)}
             />
           )}
-        </InfoCard>
+        </DetailCard>
 
         {/* Proof: the thing being verified, shown big enough to read */}
         {isTransfer && (
-          <InfoCard style={tw`py-5 gap-4`}>
-            <CardTitle title={t("bills:proofUpload.proof")} />
+          <DetailCard style={tw`py-5 gap-4`}>
+            <DetailCardTitle title={t("bills:proofUpload.proof")} />
 
             {latestProof ? (
               <ThemedView style={tw`gap-2`}>
@@ -819,12 +786,12 @@ export default function TransactionDetailView({
                 })}
               </ThemedView>
             )}
-          </InfoCard>
+          </DetailCard>
         )}
 
         {/* Who recorded it */}
-        <InfoCard style={tw`py-5 gap-4`}>
-          <CardTitle title={t("common:transactions.createdBy")} />
+        <DetailCard style={tw`py-5 gap-4`}>
+          <DetailCardTitle title={t("common:transactions.createdBy")} />
           <ThemedView style={tw`flex-row items-center gap-4`}>
             <Avatar
               name={transaction.createdBy ? creatorName : undefined}
@@ -841,7 +808,7 @@ export default function TransactionDetailView({
               )}
             </ThemedView>
           </ThemedView>
-        </InfoCard>
+        </DetailCard>
 
         {/* The bill this payment belongs to */}
         {bill && (
@@ -1090,68 +1057,6 @@ function ProofNotes({ proof, meta }: { proof: PaymentProof; meta: string }) {
           {t("bills:proofUpload.reviewedBy", { name: reviewer })}
         </ThemedText>
       )}
-    </ThemedView>
-  );
-}
-
-/** Outlined card that groups related rows. */
-function InfoCard({
-  style,
-  children,
-}: {
-  style?: StyleProp<ViewStyle>;
-  children: ReactNode;
-}) {
-  return (
-    <Card variant="outline" style={[tw`px-5`, style]}>
-      {children}
-    </Card>
-  );
-}
-
-/** Quiet heading inside a card. */
-function CardTitle({ title }: { title: string }) {
-  return (
-    <ThemedText accessibilityRole="header" style={tw`text-gray-500`}>
-      {title}
-    </ThemedText>
-  );
-}
-
-/**
- * Label on the left, value on the right. Values are selectable so a
- * reference can be copied; `children` replaces the value (e.g. a Label) and
- * `trailing` holds a row action.
- */
-function CardRow({
-  label,
-  value,
-  trailing,
-  children,
-}: {
-  label: string;
-  value?: string;
-  trailing?: ReactNode;
-  children?: ReactNode;
-}) {
-  return (
-    <ThemedView
-      // Grouping would hide a trailing control from screen readers.
-      accessible={!trailing && value != null}
-      accessibilityLabel={
-        !trailing && value != null ? `${label}, ${value}` : undefined
-      }
-      style={tw`flex-row items-center gap-4 min-h-14 py-2`}
-    >
-      <ThemedText style={tw`text-gray-500`}>{label}</ThemedText>
-      <ThemedView style={tw`flex-1 flex-row items-center justify-end gap-2`}>
-        {children ?? (
-          <ThemedText selectable style={tw`flex-shrink text-right`}>
-            {value}
-          </ThemedText>
-        )}
-        {trailing}
-      </ThemedView>
     </ThemedView>
   );
 }

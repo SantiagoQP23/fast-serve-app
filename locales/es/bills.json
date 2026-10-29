@@ -65,7 +65,10 @@
     "deleteBill": "Eliminar cuenta",
     "editDiscount": "Editar descuento",
     "amountToCharge": "Monto a cobrar",
-    "plusCommission": "+ {{percentage}}% de comisión"
+    "plusCommission": "+ {{percentage}}% de comisión",
+    "service": "Servicio",
+    "products": "Productos",
+    "remaining": "Por cobrar"
   },
   "paymentMethods": {
     "cash": "Efectivo",

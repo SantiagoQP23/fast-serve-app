@@ -65,7 +65,10 @@
     "deleteBill": "Delete bill",
     "editDiscount": "Edit discount",
     "amountToCharge": "Amount to charge",
-    "plusCommission": "+ {{percentage}}% commission"
+    "plusCommission": "+ {{percentage}}% commission",
+    "service": "Service",
+    "products": "Products",
+    "remaining": "Remaining"
   },
   "paymentMethods": {
     "cash": "Cash",
