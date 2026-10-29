@@ -6,13 +6,13 @@ import {
 } from "react-native";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
-import Checkbox from "@/presentation/theme/components/checkbox";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Icon from "@/presentation/theme/components/icon";
 import IconButton from "@/presentation/theme/components/icon-button";
 import tw from "@/presentation/theme/lib/tailwind";
+import { typography } from "@/constants/theme";
 import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -57,6 +57,26 @@ const signupSchema = z
 
 type SignupFormData = z.infer<typeof signupSchema>;
 
+/** A titled group of form fields. */
+const FormSection = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) => (
+  <ThemedView style={tw`gap-3`}>
+    <ThemedText
+      type="body1"
+      accessibilityRole="header"
+      style={[tw`text-on-surface`, { fontFamily: typography.semibold }]}
+    >
+      {title}
+    </ThemedText>
+    <ThemedView style={tw`gap-4`}>{children}</ThemedView>
+  </ThemedView>
+);
+
 const SignupScreen = () => {
   const { t } = useTranslation(["auth", "errors"]);
   const { height } = useWindowDimensions();
@@ -83,7 +103,6 @@ const SignupScreen = () => {
   });
 
   const onSubmit = async (data: SignupFormData) => {
-    console.log("Form data:", data);
     setIsSubmitting(true);
 
     const result = await register(
@@ -138,16 +157,20 @@ const SignupScreen = () => {
 
   return (
     <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
-      <ScreenLayout style={tw`px-4 gap-4`}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <IconButton
-            icon="arrow-left"
-            onPress={handleBack}
-            accessibilityLabel={t("common:actions.goBack")}
-            style={tw`self-start -ml-3 mt-2`}
-            size={24}
-          />
+      <ScreenLayout style={tw`px-4`}>
+        <IconButton
+          icon="arrow-left"
+          onPress={handleBack}
+          accessibilityLabel={t("common:actions.goBack")}
+          style={tw`self-start -ml-3 mt-2`}
+          size={24}
+        />
 
+        <ScrollView
+          style={tw`flex-1`}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
           {/* Header */}
           <ThemedView style={[{ paddingTop: height * 0.03, gap: 2 }]}>
             <ThemedText type="h1">{t("auth:signup.title")}</ThemedText>
@@ -156,171 +179,168 @@ const SignupScreen = () => {
             </ThemedText>
           </ThemedView>
 
-          <ThemedView style={tw`my-4`} />
-
           {/* Form */}
-          <ThemedView style={tw`gap-4`}>
-            <Controller
-              control={control}
-              name="firstName"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label={t("auth:signup.firstName")}
-                  icon="user"
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onChange}
-                  error={
-                    errors.firstName ? errors.firstName.message : undefined
-                  }
-                />
-              )}
-            />
+          <ThemedView style={tw`mt-8 gap-8`}>
+            <FormSection title={t("auth:signup.sections.personal")}>
+              <Controller
+                control={control}
+                name="firstName"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    label={t("auth:signup.firstName")}
+                    icon="user"
+                    onBlur={onBlur}
+                    value={value}
+                    onChangeText={onChange}
+                    error={
+                      errors.firstName ? errors.firstName.message : undefined
+                    }
+                  />
+                )}
+              />
 
-            <Controller
-              control={control}
-              name="lastName"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label={t("auth:signup.lastName")}
-                  icon="user"
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onChange}
-                  error={errors.lastName ? errors.lastName.message : undefined}
-                />
-              )}
-            />
+              <Controller
+                control={control}
+                name="lastName"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    label={t("auth:signup.lastName")}
+                    icon="user"
+                    onBlur={onBlur}
+                    value={value}
+                    onChangeText={onChange}
+                    error={
+                      errors.lastName ? errors.lastName.message : undefined
+                    }
+                  />
+                )}
+              />
 
-            <Controller
-              control={control}
-              name="username"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label={t("auth:signup.username")}
-                  icon="at-sign"
-                  autoCapitalize="none"
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onChange}
-                  error={errors.username ? errors.username.message : undefined}
-                />
-              )}
-            />
+              <Controller
+                control={control}
+                name="numPhone"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    label={t("auth:signup.phone")}
+                    icon="phone"
+                    keyboardType="phone-pad"
+                    onBlur={onBlur}
+                    value={value}
+                    onChangeText={onChange}
+                    error={
+                      errors.numPhone ? errors.numPhone.message : undefined
+                    }
+                  />
+                )}
+              />
+            </FormSection>
 
-            <Controller
-              control={control}
-              name="numPhone"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label={t("auth:signup.phone")}
-                  icon="phone"
-                  keyboardType="phone-pad"
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onChange}
-                  error={errors.numPhone ? errors.numPhone.message : undefined}
-                />
-              )}
-            />
+            <FormSection title={t("auth:signup.sections.account")}>
+              <Controller
+                control={control}
+                name="username"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    label={t("auth:signup.username")}
+                    icon="at-sign"
+                    autoCapitalize="none"
+                    onBlur={onBlur}
+                    value={value}
+                    onChangeText={onChange}
+                    error={
+                      errors.username ? errors.username.message : undefined
+                    }
+                  />
+                )}
+              />
 
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label={t("auth:signup.email")}
-                  icon="mail"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onChange}
-                  error={errors.email ? errors.email.message : undefined}
-                />
-              )}
-            />
+              <Controller
+                control={control}
+                name="email"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    label={t("auth:signup.email")}
+                    icon="mail"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    onBlur={onBlur}
+                    value={value}
+                    onChangeText={onChange}
+                    error={errors.email ? errors.email.message : undefined}
+                  />
+                )}
+              />
+            </FormSection>
 
-            <Controller
-              control={control}
-              name="password"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label={t("auth:signup.password")}
-                  icon="lock"
-                  secureTextEntry={!showPassword}
-                  autoCapitalize="none"
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onChange}
-                  error={errors.password ? errors.password.message : undefined}
-                  trailingIcon={
-                    value && (
-                      <Pressable
-                        onPress={() => setShowPassword((prev) => !prev)}
-                      >
-                        <Icon
-                          name={showPassword ? "eye-off" : "eye"}
-                          size={20}
-                          style={{ color: tw.color("gray-400") }}
-                        />
-                      </Pressable>
-                    )
-                  }
-                />
-              )}
-            />
+            <FormSection title={t("auth:signup.sections.security")}>
+              <Controller
+                control={control}
+                name="password"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    label={t("auth:signup.password")}
+                    icon="lock"
+                    secureTextEntry={!showPassword}
+                    autoCapitalize="none"
+                    onBlur={onBlur}
+                    value={value}
+                    onChangeText={onChange}
+                    error={
+                      errors.password ? errors.password.message : undefined
+                    }
+                    trailingIcon={
+                      value && (
+                        <Pressable
+                          onPress={() => setShowPassword((prev) => !prev)}
+                        >
+                          <Icon
+                            name={showPassword ? "eye-off" : "eye"}
+                            size={20}
+                            style={{ color: tw.color("gray-400") }}
+                          />
+                        </Pressable>
+                      )
+                    }
+                  />
+                )}
+              />
 
-            <Controller
-              control={control}
-              name="samePassword"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label={t("auth:signup.confirmPassword")}
-                  icon="lock"
-                  secureTextEntry={!showConfirmPassword}
-                  autoCapitalize="none"
-                  onBlur={onBlur}
-                  value={value}
-                  onChangeText={onChange}
-                  error={
-                    errors.samePassword
-                      ? errors.samePassword.message
-                      : undefined
-                  }
-                  trailingIcon={
-                    value && (
-                      <Pressable
-                        onPress={() => setShowConfirmPassword((prev) => !prev)}
-                      >
-                        <Icon
-                          name={showConfirmPassword ? "eye-off" : "eye"}
-                          size={20}
-                          style={{ color: tw.color("gray-400") }}
-                        />
-                      </Pressable>
-                    )
-                  }
-                />
-              )}
-            />
-
-            {/* <Controller */}
-            {/*   control={control} */}
-            {/*   name="termsAccepted" */}
-            {/*   render={({ field: { onChange, value } }) => ( */}
-            {/*     <Checkbox */}
-            {/*       value={value} */}
-            {/*       onValueChange={onChange} */}
-            {/*       label={t("auth:signup.termsLabel")} */}
-            {/*       error={ */}
-            {/*         errors.termsAccepted */}
-            {/*           ? errors.termsAccepted.message */}
-            {/*           : undefined */}
-            {/*       } */}
-            {/*     /> */}
-            {/*   )} */}
-            {/* /> */}
+              <Controller
+                control={control}
+                name="samePassword"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    label={t("auth:signup.confirmPassword")}
+                    icon="lock"
+                    secureTextEntry={!showConfirmPassword}
+                    autoCapitalize="none"
+                    onBlur={onBlur}
+                    value={value}
+                    onChangeText={onChange}
+                    error={
+                      errors.samePassword
+                        ? errors.samePassword.message
+                        : undefined
+                    }
+                    trailingIcon={
+                      value && (
+                        <Pressable
+                          onPress={() =>
+                            setShowConfirmPassword((prev) => !prev)
+                          }
+                        >
+                          <Icon
+                            name={showConfirmPassword ? "eye-off" : "eye"}
+                            size={20}
+                            style={{ color: tw.color("gray-400") }}
+                          />
+                        </Pressable>
+                      )
+                    }
+                  />
+                )}
+              />
+            </FormSection>
           </ThemedView>
 
           <ThemedView style={tw`my-6`} />
