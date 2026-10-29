@@ -5,11 +5,16 @@ import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Checkbox from "@/presentation/theme/components/checkbox";
+import Label from "@/presentation/theme/components/label";
+import DetailHeader from "@/presentation/theme/components/detail-header";
+import {
+  DetailCard,
+  DetailSectionTitle,
+} from "@/presentation/theme/components/detail-card";
 import BottomSheetPicker, {
   type BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
@@ -182,124 +187,112 @@ export default function ProductionAreaProductsScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={tw.style(
-          "gap-8",
+          "gap-4",
           isSelecting ? "pb-32" : "pb-8",
         )}
       >
-        <ThemedView style={tw`gap-1`}>
-          <ThemedText type="h1">{area.name}</ThemedText>
-        </ThemedView>
-        <ThemedText type="h4" style={tw`text-on-surface`}>
-          {t("productCount", { count: products.length })}
-        </ThemedText>
-
-        {/* {!!area.printers?.length && ( */}
-        {/*   <ThemedView style={tw`flex-row flex-wrap gap-2`}> */}
-        {/*     {area.printers.map((printer) => ( */}
-        {/*       <Chip */}
-        {/*         key={printer.id} */}
-        {/*         variant="assist" */}
-        {/*         icon="printer" */}
-        {/*         label={printer.name} */}
-        {/*       /> */}
-        {/*     ))} */}
-        {/*   </ThemedView> */}
-        {/* )} */}
+        <DetailHeader
+          title={area.name}
+          subtitle={t("productCount", { count: products.length })}
+          status={!area.isActive && <Label text={t("inactive")} />}
+          icon="hamburger"
+        >
+          {canManage && !isSelecting && (
+            <ThemedView style={tw`flex-row flex-wrap gap-3`}>
+              <Button
+                label={t("products.addProducts")}
+                leftIcon="plus"
+                variant="surface"
+                shape="rounded"
+                size="small"
+                onPress={() =>
+                  router.push({
+                    pathname: "/(profile)/production/areas/products/add",
+                    params: { areaId },
+                  })
+                }
+              />
+            </ThemedView>
+          )}
+        </DetailHeader>
 
         {products.length === 0 ? (
-          <ThemedView
-            style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4 mt-2`}
-          >
+          <DetailCard style={tw`py-8 items-center gap-2`}>
             <Icon name="hamburger" size={28} color={tw.color("gray-400")} />
-            <ThemedText type="body2" style={tw`font-semibold`}>
+            <ThemedText type="body2" style={tw`text-center`}>
               {t("products.empty")}
             </ThemedText>
             <ThemedText type="small" style={tw`text-center text-gray-500`}>
               {t("products.emptyDescription")}
             </ThemedText>
-          </ThemedView>
+          </DetailCard>
         ) : (
-          <>
-            {groups.map((group) => {
-              const groupSelected = group.products.every((p) =>
-                selectedIds.has(p.id),
-              );
-              return (
-                <ThemedView key={group.key} style={tw`gap-1`}>
-                  <ThemedView
-                    style={tw`flex-row items-center justify-between gap-3`}
-                  >
-                    <ThemedText type="caption" style={tw`flex-1`}>
-                      {group.name}
-                    </ThemedText>
-                    {isSelecting && (
-                      <Checkbox
-                        size="small"
-                        value={groupSelected}
-                        onValueChange={() => toggleGroup(group)}
-                      />
-                    )}
-                  </ThemedView>
-
-                  {group.products.map((product) => {
-                    const checked = selectedIds.has(product.id);
-                    return (
-                      <Pressable
-                        key={product.id}
-                        disabled={!canManage}
-                        onPress={
-                          isSelecting
-                            ? () => toggleProduct(product.id, !checked)
-                            : undefined
-                        }
-                        onLongPress={() => toggleProduct(product.id, !checked)}
-                        style={({ pressed }) =>
-                          tw.style(
-                            "flex-row items-center gap-3 py-3",
-                            !product.isActive && "opacity-50",
-                            pressed && "opacity-80",
-                          )
-                        }
-                      >
-                        <ThemedText
-                          type="body1"
-                          style={[
-                            tw`flex-1`,
-                            { fontFamily: typography.medium },
-                          ]}
-                          numberOfLines={1}
+          groups.map((group) => {
+            const groupSelected = group.products.every((p) =>
+              selectedIds.has(p.id),
+            );
+            return (
+              <ThemedView key={group.key} style={tw`gap-3 mt-4`}>
+                <DetailSectionTitle
+                  title={group.name}
+                  action={
+                    isSelecting && (
+                      // Lines up with the row checkboxes inside the card
+                      <ThemedView style={tw`pr-[22px]`}>
+                        <Checkbox
+                          size="small"
+                          value={groupSelected}
+                          onValueChange={() => toggleGroup(group)}
+                        />
+                      </ThemedView>
+                    )
+                  }
+                />
+                <DetailCard style={tw`py-2`}>
+                  <ThemedView>
+                    {group.products.map((product, index) => {
+                      const checked = selectedIds.has(product.id);
+                      return (
+                        <Pressable
+                          key={product.id}
+                          disabled={!canManage}
+                          onPress={
+                            isSelecting
+                              ? () => toggleProduct(product.id, !checked)
+                              : undefined
+                          }
+                          onLongPress={() =>
+                            toggleProduct(product.id, !checked)
+                          }
+                          style={({ pressed }) =>
+                            tw.style(
+                              "flex-row items-center gap-3 py-3 min-h-12",
+                              index < group.products.length - 1 &&
+                                "border-b border-divider",
+                              !product.isActive && "opacity-50",
+                              pressed && "opacity-80",
+                            )
+                          }
                         >
-                          {product.name}
-                        </ThemedText>
-                        {isSelecting && (
-                          <Checkbox
-                            value={checked}
-                            onValueChange={(value) =>
-                              toggleProduct(product.id, value)
-                            }
-                          />
-                        )}
-                      </Pressable>
-                    );
-                  })}
-                </ThemedView>
-              );
-            })}
-          </>
-        )}
-
-        {canManage && !isSelecting && (
-          <Button
-            label={t("products.addProducts")}
-            leftIcon="plus"
-            variant="outline"
-            onPress={() =>
-              router.push({
-                pathname: "/(profile)/production/areas/products/add",
-                params: { areaId },
-              })
-            }
-          />
+                          <ThemedText style={tw`flex-1`} numberOfLines={1}>
+                            {product.name}
+                          </ThemedText>
+                          {isSelecting && (
+                            <Checkbox
+                              value={checked}
+                              onValueChange={(value) =>
+                                toggleProduct(product.id, value)
+                              }
+                            />
+                          )}
+                        </Pressable>
+                      );
+                    })}
+                  </ThemedView>
+                </DetailCard>
+              </ThemedView>
+            );
+          })
         )}
       </ScrollView>
 

@@ -15,7 +15,7 @@ import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-s
 import DetailHeader from "@/presentation/theme/components/detail-header";
 import {
   DetailCard,
-  DetailCardTitle,
+  DetailSectionTitle,
 } from "@/presentation/theme/components/detail-card";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
@@ -198,105 +198,132 @@ export default function ProductionAreaDetailScreen() {
         </DetailHeader>
 
         {/* Products: a preview, the full list is one tap away */}
-        <DetailCard style={tw`py-5 gap-4`}>
-          <DetailCardTitle title={t("products.title")} />
-          {products.length ? (
-            <ThemedView>
-              {products
-                .slice(0, PRODUCTS_PREVIEW_LIMIT)
-                .map((product, index, shown) => (
-                  <ThemedView
-                    key={product.id}
-                    style={tw.style(
-                      "flex-row items-center gap-3 py-3",
-                      index < shown.length - 1 && "border-b border-divider",
-                    )}
-                  >
-                    <ThemedText style={tw`flex-1`} numberOfLines={1}>
-                      {product.name}
-                    </ThemedText>
-                    {!!product.category?.name && (
-                      <ThemedText
-                        type="small"
-                        style={tw`text-gray-500 max-w-1/2`}
-                        numberOfLines={1}
-                      >
-                        {product.category.name}
+        <ThemedView style={tw`gap-3 mt-4`}>
+          <DetailSectionTitle
+            title={t("products.title")}
+            action={
+              products.length > PRODUCTS_PREVIEW_LIMIT && (
+                <Button
+                  label={t("products.seeAll", { count: products.length })}
+                  variant="text"
+                  size="extra-small"
+                  style={tw`-mr-3`}
+                  onPress={handleOpenProducts}
+                />
+              )
+            }
+          />
+          <DetailCard style={tw`py-2`}>
+            {products.length ? (
+              <ThemedView>
+                {products
+                  .slice(0, PRODUCTS_PREVIEW_LIMIT)
+                  .map((product, index, shown) => (
+                    <ThemedView
+                      key={product.id}
+                      style={tw.style(
+                        "flex-row items-center gap-3 py-3",
+                        index < shown.length - 1 && "border-b border-divider",
+                      )}
+                    >
+                      <ThemedText style={tw`flex-1`} numberOfLines={1}>
+                        {product.name}
                       </ThemedText>
-                    )}
-                  </ThemedView>
-                ))}
-            </ThemedView>
-          ) : (
-            <ThemedText type="body2" style={tw`text-gray-500`}>
-              {t("products.empty")}
-            </ThemedText>
-          )}
-          {products.length > PRODUCTS_PREVIEW_LIMIT && (
-            <Button
-              label={t("products.seeAll", { count: products.length })}
-              variant="text"
-              size="small"
-              style={tw`self-start -ml-3`}
-              onPress={handleOpenProducts}
-            />
-          )}
-        </DetailCard>
+                      {!!product.category?.name && (
+                        <ThemedText
+                          type="small"
+                          style={tw`text-gray-500 max-w-1/2`}
+                          numberOfLines={1}
+                        >
+                          {product.category.name}
+                        </ThemedText>
+                      )}
+                    </ThemedView>
+                  ))}
+              </ThemedView>
+            ) : (
+              <ThemedText type="body2" style={tw`text-gray-500 py-3`}>
+                {t("products.empty")}
+              </ThemedText>
+            )}
+          </DetailCard>
+        </ThemedView>
 
         {/* Printers */}
-        <DetailCard style={tw`py-5 gap-4`}>
-          <DetailCardTitle title={t("fields.printers")} />
-          {area.printers?.length ? (
-            <ThemedView>
-              {area.printers.map((printer, index, printers) => (
-                <Pressable
-                  key={printer.id}
-                  onPress={() =>
-                    printerActionsSheetRef.current?.present(printer)
-                  }
-                  disabled={!canManage}
-                  accessibilityRole={canManage ? "button" : undefined}
-                  style={({ pressed }) => [
-                    tw`flex-row items-center gap-3 py-2 min-h-12`,
-                    index < printers.length - 1 && tw`border-b border-divider`,
-                    pressed && tw`opacity-60`,
-                  ]}
-                >
-                  <Icon
-                    name="printer"
-                    size={20}
-                    color={tw.color("on-surface-variant")}
-                  />
-                  <ThemedText style={tw`flex-1`} numberOfLines={1}>
-                    {printer.name}
-                  </ThemedText>
-                  {canManage && (
-                    <IconButton
-                      icon="x"
-                      size={18}
-                      disabled={updateProductionArea.isPending}
-                      accessibilityLabel={`${t("delete")} ${printer.name}`}
-                      onPress={() => handleRemovePrinter(printer.id)}
+        <ThemedView style={tw`gap-3 mt-4`}>
+          <DetailSectionTitle
+            title={t("fields.printers")}
+            action={
+              // With none yet, the button sits in the card instead
+              canManage &&
+              !!area.printers?.length && (
+                <Button
+                  label={t("add")}
+                  accessibilityLabel={t("printersSheet.addPrinter")}
+                  leftIcon="plus"
+                  variant="outline"
+                  size="extra-small"
+                  onPress={() => printersSheetRef.current?.present(area)}
+                />
+              )
+            }
+          />
+          <DetailCard style={tw`py-2`}>
+            {area.printers?.length ? (
+              <ThemedView>
+                {area.printers.map((printer, index, printers) => (
+                  <Pressable
+                    key={printer.id}
+                    onPress={() =>
+                      printerActionsSheetRef.current?.present(printer)
+                    }
+                    disabled={!canManage}
+                    accessibilityRole={canManage ? "button" : undefined}
+                    style={({ pressed }) => [
+                      tw`flex-row items-center gap-3 py-2 min-h-12`,
+                      index < printers.length - 1 &&
+                        tw`border-b border-divider`,
+                      pressed && tw`opacity-60`,
+                    ]}
+                  >
+                    <Icon
+                      name="printer"
+                      size={20}
+                      color={tw.color("on-surface-variant")}
                     />
-                  )}
-                </Pressable>
-              ))}
-            </ThemedView>
-          ) : (
-            <ThemedText type="body2" style={tw`text-gray-500`}>
-              {t("noPrintersAssigned")}
-            </ThemedText>
-          )}
-          {canManage && (
-            <Button
-              label={t("printersSheet.addPrinter")}
-              leftIcon="plus"
-              variant="outline"
-              size="small"
-              onPress={() => printersSheetRef.current?.present(area)}
-            />
-          )}
-        </DetailCard>
+                    <ThemedText style={tw`flex-1`} numberOfLines={1}>
+                      {printer.name}
+                    </ThemedText>
+                    {canManage && (
+                      <IconButton
+                        icon="x"
+                        size={18}
+                        disabled={updateProductionArea.isPending}
+                        accessibilityLabel={`${t("delete")} ${printer.name}`}
+                        onPress={() => handleRemovePrinter(printer.id)}
+                      />
+                    )}
+                  </Pressable>
+                ))}
+              </ThemedView>
+            ) : (
+              <ThemedView style={tw`items-center gap-3 py-4`}>
+                <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
+                  {t("noPrintersAssigned")}
+                </ThemedText>
+                {canManage && (
+                  <Button
+                    label={t("printersSheet.addPrinter")}
+                    leftIcon="plus"
+                    variant="outline"
+                    size="small"
+                    onPress={() => printersSheetRef.current?.present(area)}
+                  />
+                )}
+              </ThemedView>
+            )}
+          </DetailCard>
+        </ThemedView>
       </ScrollView>
 
       <ThemedBottomSheetModal ref={moreSheetRef} enablePanDownToClose>
