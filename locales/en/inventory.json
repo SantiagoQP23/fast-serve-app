@@ -362,14 +362,16 @@
     "allGood": "All good, nothing low on stock",
     "empty": "No items low on stock",
     "emptyDescription": "Items below their minimum stock show up here.",
-    "stockAndMinimum": "{{stock}} left · Minimum {{minimum}}",
-    "toBuy": "To buy",
     "toBuyTitle": "To buy",
     "outWithoutMinimum": "Out of stock, no minimum",
     "outWithoutMinimumHint": "Set a minimum stock to know how much to buy.",
-    "remaining": "{{stock}} left",
     "startPurchase": "Start a purchase with this list",
-    "share": "Share list"
+    "share": "Share list",
+    "seeFull": "See full list",
+    "moreCount_one": "{{count}} more",
+    "moreCount_other": "{{count}} more",
+    "outWithoutMinimumCount_one": "{{count}} out of stock without minimum",
+    "outWithoutMinimumCount_other": "{{count}} out of stock without minimum"
   },
   "counts": {
     "title": "Inventory counts",
@@ -437,18 +439,27 @@
     "name": "Count"
   },
   "tabs": {
-    "lowStock": "Low stock",
     "menu": "Menu",
     "inventory": "Supplies",
     "counts": "Counts",
     "purchases": "Purchases"
   },
+  "hub": {
+    "menuCount_one": "{{count}} product",
+    "menuCount_other": "{{count}} products",
+    "itemsCount_one": "{{count}} item",
+    "itemsCount_other": "{{count}} items",
+    "countsInProgress_one": "{{count}} in progress",
+    "countsInProgress_other": "{{count}} in progress",
+    "countsNone": "None in progress",
+    "lastPurchase": "Last: {{date}}",
+    "noPurchases": "No purchases yet"
+  },
   "pane": {
     "selectItem": "Select a supply to see its stock and movements.",
     "selectCount": "Select a count to see its supplies.",
     "selectPurchase": "Select a purchase to see its supplies.",
-    "selectRecipe": "Open a recipe to see or change its ingredients.",
-    "selectLowStock": "Select a product or supply to see its stock."
+    "selectRecipe": "Open a recipe to see or change its ingredients."
   },
   "cards": {
     "moreItems": "+{{count}} more"
@@ -544,11 +555,5 @@
       }
     },
     "menuProducts": "Menu products"
-  },
-  "lowStock": {
-    "products": "Menu products",
-    "inventory": "Supplies",
-    "empty": "Everything is well stocked",
-    "loadError": "Error loading stock"
   }
 }

@@ -65,6 +65,8 @@ export const useInventoryCounts = (status?: InventoryCountStatus) => {
   return {
     countsQuery: query,
     counts,
+    /** Every count matching `status`, not just the loaded pages. */
+    total: query.data?.pages[0]?.count ?? 0,
     hasMore: query.hasNextPage,
     isLoadingMore: query.isFetchingNextPage,
     loadMore: () => query.fetchNextPage(),

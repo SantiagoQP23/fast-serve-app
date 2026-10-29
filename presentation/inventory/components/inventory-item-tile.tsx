@@ -56,7 +56,9 @@ export default function InventoryItemTile({
         highlighted && "bg-secondary",
         status === "inactive" && "opacity-50",
       )}
-      style={tw`flex-1 p-4 gap-3 justify-between`}
+      // grow, not flex-1: a 0 flex-basis lets Yoga collapse the card to no
+      // height, since the container's height comes from the row.
+      style={tw`grow p-4 gap-3 justify-between`}
     >
       <ThemedView style={tw`flex-row items-start gap-2 bg-transparent`}>
         <ThemedText

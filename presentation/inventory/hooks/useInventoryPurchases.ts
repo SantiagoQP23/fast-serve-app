@@ -26,9 +26,13 @@ const invalidateAfterStockChange = () => {
   requestSync(SELF_CHECK_DELAY_MS);
 };
 
-/** Paginated purchase history, newest first, accumulated with load-more. */
-export const useInventoryPurchases = () => {
+/**
+ * Paginated purchase history, newest first, accumulated with load-more.
+ * `enabled: false` skips the request, e.g. for roles that can't see it.
+ */
+export const useInventoryPurchases = ({ enabled = true } = {}) => {
   const query = useInfiniteQuery({
+    enabled,
     queryKey: [...inventoryPurchasesQueryKey, "list"],
     queryFn: ({ pageParam }) =>
       InventoryPurchaseService.getAll({ limit: PAGE_SIZE, offset: pageParam }),
