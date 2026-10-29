@@ -15,7 +15,10 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import type { Product } from "@/core/menu/models/product.model";
 import { getSelectableTags } from "@/core/menu/models/tag.model";
 import { useTags } from "@/presentation/menu-management/hooks/useTags";
-import ProductSectionHeader from "@/presentation/menu-management/components/product-section-header";
+import {
+  DetailCard,
+  DetailSectionTitle,
+} from "@/presentation/theme/components/detail-card";
 
 interface ProductTagsSectionProps {
   product: Product;
@@ -100,29 +103,52 @@ export default function ProductTagsSection({
 
   return (
     <ThemedView style={tw`gap-3 mt-4`}>
-      <ProductSectionHeader
+      <DetailSectionTitle
         title={t("tags.title")}
-        hint={canManage ? t("tags.productHint") : undefined}
-        onAdd={canManage ? openSheet : undefined}
-        addLabel={
-          productTags.length === 0 ? t("tags.add") : t("tags.addToProduct")
-        }
-        empty={productTags.length === 0}
-      />
-
-      {productTags.length > 0 && (
-        <ThemedView style={tw`flex-row flex-wrap gap-2 bg-transparent`}>
-          {productTags.map((tag) => (
-            <Chip
-              key={tag.id}
-              variant="input"
-              label={tag.name}
-              disabled={setProductTags.isPending}
-              onRemove={canManage ? () => handleRemove(tag.id) : undefined}
+        action={
+          // With none yet, the button sits in the card instead
+          canManage &&
+          productTags.length > 0 && (
+            <Button
+              label={t("common:actions.add")}
+              accessibilityLabel={t("tags.addToProduct")}
+              leftIcon="plus"
+              variant="outline"
+              size="extra-small"
+              onPress={openSheet}
             />
-          ))}
-        </ThemedView>
-      )}
+          )
+        }
+      />
+      <DetailCard style={tw`py-4`}>
+        {productTags.length > 0 ? (
+          <ThemedView style={tw`flex-row flex-wrap gap-2 bg-transparent`}>
+            {productTags.map((tag) => (
+              <Chip
+                key={tag.id}
+                variant="input"
+                label={tag.name}
+                disabled={setProductTags.isPending}
+                onRemove={canManage ? () => handleRemove(tag.id) : undefined}
+              />
+            ))}
+          </ThemedView>
+        ) : (
+          // Only managers get here: the hint says what tags are for
+          <ThemedView style={tw`items-center gap-3`}>
+            <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
+              {t("tags.productHint")}
+            </ThemedText>
+            <Button
+              label={t("tags.add")}
+              leftIcon="plus"
+              variant="outline"
+              size="small"
+              onPress={openSheet}
+            />
+          </ThemedView>
+        )}
+      </DetailCard>
 
       <ThemedBottomSheetModal ref={sheetRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>

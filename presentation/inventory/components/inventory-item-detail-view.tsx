@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
 import { router } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Icon from "@/presentation/theme/components/icon";
 import { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -19,12 +18,13 @@ import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-b
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 import { useInventoryItemDetail } from "@/presentation/inventory/hooks/useInventoryItemDetail";
 import AdjustStockModal from "@/presentation/inventory/components/adjust-stock-modal";
-import InventoryDetailSummaryCard from "@/presentation/inventory/components/inventory-detail-summary-card";
+import { InventoryStockCard } from "@/presentation/inventory/components/inventory-stock-card";
+import Label from "@/presentation/theme/components/label";
 import InventoryMovementHistory from "@/presentation/inventory/components/inventory-movement-history";
 import LinkedProductsList from "@/presentation/inventory/components/linked-products-list";
 import InventoryScreenHeader from "@/presentation/inventory/components/screen-header";
-import IconButton from "@/presentation/theme/components/icon-button";
 import Skeleton from "@/presentation/theme/components/skeleton";
+import DetailHeader from "@/presentation/theme/components/detail-header";
 import { isProductStockItem } from "@/core/inventory/models/inventory-item.model";
 import {
   getLineItemId,
@@ -52,7 +52,6 @@ export default function InventoryItemDetailView({
   const { user } = useAuthStore();
   const canManage = canManageInventory(user?.role?.name);
   const primaryColor = useThemeColor({}, "primary");
-  const insets = useSafeAreaInsets();
 
   const { item, itemQuery, movements, movementsQuery } =
     useInventoryItemDetail(itemId);
@@ -160,22 +159,12 @@ export default function InventoryItemDetailView({
         <InventoryScreenHeader
           onBack={close}
           backIcon={embedded ? "x" : "arrow-left"}
-          right={
-            canManage && item ? (
-              <IconButton
-                icon="ellipsis-vertical"
-                onPress={() => optionsSheetRef.current?.present()}
-                accessibilityLabel={t("options")}
-                style={tw`-mr-3`}
-              />
-            ) : undefined
-          }
         />
       </ThemedView>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`px-4 gap-8 pt-6 pb-10`}
+        contentContainerStyle={tw`px-4 gap-4 pt-6 pb-10`}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -186,15 +175,19 @@ export default function InventoryItemDetailView({
         }
       >
         {itemQuery.isLoading && (
-          // Same shape as the summary below, so nothing jumps when it loads
+          // Same shape as the header and stock card, so nothing jumps
           <ThemedView
             style={tw`gap-4 bg-transparent`}
             accessibilityLabel={t("loading")}
           >
             <Skeleton style={tw`h-9 w-3/4`} />
-            <Skeleton style={tw`h-5 w-1/3`} />
             <Skeleton style={tw`h-6 w-24 rounded-full`} />
-            <Skeleton style={tw`h-12 w-1/2`} />
+            <Skeleton style={tw`h-5 w-1/3`} />
+            <ThemedView style={tw`flex-row gap-3 mt-1 bg-transparent`}>
+              <Skeleton style={tw`h-9 w-32 rounded-full`} />
+              <Skeleton style={tw`h-9 w-28 rounded-full`} />
+            </ThemedView>
+            <Skeleton style={tw`h-40 mt-6 rounded-2xl`} />
           </ThemedView>
         )}
 
@@ -214,7 +207,48 @@ export default function InventoryItemDetailView({
 
         {item && (
           <>
-            <InventoryDetailSummaryCard
+            <DetailHeader
+              title={item.name}
+              subtitle={item.category?.name ?? t("categories.uncategorized")}
+              status={
+                // The stock level sits in the stock card
+                !item.isActive && (
+                  <Label text={t("status.inactive")} size="small" />
+                )
+              }
+              icon="package"
+            >
+              {/* Stock movements are open to every role */}
+              <ThemedView style={tw`flex-row flex-wrap gap-3`}>
+                <Button
+                  label={t("restock")}
+                  leftIcon="plus"
+                  shape="rounded"
+                  size="small"
+                  onPress={() => setAdjustMode("restock")}
+                />
+                <Button
+                  label={t("decrease")}
+                  leftIcon="minus"
+                  variant="surface"
+                  shape="rounded"
+                  size="small"
+                  onPress={() => setAdjustMode("decrease")}
+                />
+                {canManage && (
+                  <Button
+                    leftIcon="ellipsis"
+                    variant="surface"
+                    shape="rounded"
+                    size="small"
+                    accessibilityLabel={t("options")}
+                    onPress={() => optionsSheetRef.current?.present()}
+                  />
+                )}
+              </ThemedView>
+            </DetailHeader>
+
+            <InventoryStockCard
               item={item}
               onSetMinimum={canManage ? handleEditItem : undefined}
             />
@@ -238,31 +272,6 @@ export default function InventoryItemDetailView({
           </>
         )}
       </ScrollView>
-
-      {/* Docked like the order and bill bars; stock movements are open to
-          every role */}
-      {item && (
-        <ThemedView
-          style={[
-            tw`flex-row items-center gap-3 px-4 pt-3 border-t border-divider bg-background`,
-            { paddingBottom: embedded ? 16 : Math.max(insets.bottom, 16) },
-          ]}
-        >
-          <Button
-            label={t("decrease")}
-            leftIcon="minus"
-            variant="outline"
-            onPress={() => setAdjustMode("decrease")}
-            style={tw`flex-1`}
-          />
-          <Button
-            label={t("restock")}
-            leftIcon="plus"
-            onPress={() => setAdjustMode("restock")}
-            style={tw`flex-1`}
-          />
-        </ThemedView>
-      )}
 
       <AdjustStockModal
         item={adjustMode ? (item ?? null) : null}

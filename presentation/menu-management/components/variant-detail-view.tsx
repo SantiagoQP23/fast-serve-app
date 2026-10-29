@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { RefreshControl, ScrollView } from "react-native";
 import { router } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Icon from "@/presentation/theme/components/icon";
-import IconButton from "@/presentation/theme/components/icon-button";
+import Button from "@/presentation/theme/components/button";
+import DetailHeader from "@/presentation/theme/components/detail-header";
+import Label from "@/presentation/theme/components/label";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import type { ActionsBottomSheetItem } from "@/presentation/theme/components/actions-bottom-sheet";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
@@ -24,11 +26,8 @@ import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore"
 import InventoryScreenHeader from "@/presentation/inventory/components/screen-header";
 import {
   useVariantStockSection,
-  VariantAdjustButtons,
-  VariantStockDetails,
-  VariantStockMovements,
+  VariantStockCards,
   VariantStockOverlays,
-  VariantStockOverview,
   openVariant,
 } from "@/presentation/menu-management/components/variant-stock-section";
 
@@ -53,7 +52,6 @@ export default function VariantDetailView({
   openStockMode = false,
 }: VariantDetailViewProps) {
   const { t } = useTranslation("inventory");
-  const insets = useSafeAreaInsets();
   const products = useMenuStore((state) => state.products);
   const { user } = useAuthStore();
   // Same rule as the product screen's variant actions
@@ -144,6 +142,8 @@ export default function VariantDetailView({
       : [];
   // Changing the stock type lives in the sheet too, for whoever manages it
   const hasOptions = section.canManage || variantActions.length > 0;
+  const canAdjust = section.mode === "own" && !!section.ownItem;
+  const canSetUp = section.mode === "none" && section.canManage;
 
   const handleConfirmDelete = async () => {
     if (!product || !option) return;
@@ -178,22 +178,12 @@ export default function VariantDetailView({
         <InventoryScreenHeader
           onBack={close}
           backIcon={embedded ? "x" : "arrow-left"}
-          right={
-            hasOptions ? (
-              <IconButton
-                icon="ellipsis-vertical"
-                onPress={section.openOptions}
-                accessibilityLabel={t("options")}
-                style={tw`-mr-3`}
-              />
-            ) : undefined
-          }
         />
       </ThemedView>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`px-4 gap-8 pt-6 pb-10`}
+        contentContainerStyle={tw`px-4 gap-4 pt-6 pb-10`}
         refreshControl={
           section.ownItemId ? (
             <RefreshControl
@@ -205,21 +195,65 @@ export default function VariantDetailView({
           ) : undefined
         }
       >
-        <VariantStockOverview section={section} title={section.title} />
-        <VariantStockDetails section={section} showMode={false} />
-        <VariantStockMovements section={section} />
-      </ScrollView>
-
-      {section.mode === "own" && section.ownItem && (
-        <ThemedView
-          style={[
-            tw`px-4 pt-3 border-t border-divider bg-background`,
-            { paddingBottom: embedded ? 16 : Math.max(insets.bottom, 16) },
-          ]}
+        <DetailHeader
+          title={section.title}
+          subtitle={formatCurrency(option.price)}
+          status={
+            // The stock level sits in the stock cards
+            !option.isActive && (
+              <Label text={t("status.inactive")} size="small" />
+            )
+          }
+          icon="hamburger"
         >
-          <VariantAdjustButtons section={section} />
-        </ThemedView>
-      )}
+          {(canAdjust || canSetUp || hasOptions) && (
+            <ThemedView style={tw`flex-row flex-wrap gap-3`}>
+              {/* Stock movements are open to every role */}
+              {canAdjust && (
+                <>
+                  <Button
+                    label={t("restock")}
+                    leftIcon="plus"
+                    shape="rounded"
+                    size="small"
+                    onPress={() => section.openAdjust("restock")}
+                  />
+                  <Button
+                    label={t("decrease")}
+                    leftIcon="minus"
+                    variant="surface"
+                    shape="rounded"
+                    size="small"
+                    onPress={() => section.openAdjust("decrease")}
+                  />
+                </>
+              )}
+              {canSetUp && (
+                // Not tracked: setting it up is the main action
+                <Button
+                  label={t("variant.manageStock")}
+                  leftIcon="package"
+                  shape="rounded"
+                  size="small"
+                  onPress={section.openModeSheet}
+                />
+              )}
+              {hasOptions && (
+                <Button
+                  leftIcon="ellipsis"
+                  variant="surface"
+                  shape="rounded"
+                  size="small"
+                  accessibilityLabel={t("options")}
+                  onPress={section.openOptions}
+                />
+              )}
+            </ThemedView>
+          )}
+        </DetailHeader>
+
+        <VariantStockCards section={section} />
+      </ScrollView>
 
       <VariantStockOverlays
         section={section}

@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from "react";
+import { useRef, useState } from "react";
 import { Pressable } from "react-native";
 import { router } from "expo-router";
 import {
@@ -10,14 +10,11 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatCurrency } from "@/core/i18n/utils";
 import Button from "@/presentation/theme/components/button";
-import Card from "@/presentation/theme/components/card";
 import Icon from "@/presentation/theme/components/icon";
-import Label, { type LabelProps } from "@/presentation/theme/components/label";
+import Label from "@/presentation/theme/components/label";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import TextInput from "@/presentation/theme/components/text-input";
-import { GroupedList } from "@/presentation/theme/components/grouped-list";
 import ActionsBottomSheet, {
   type ActionsBottomSheetItem,
 } from "@/presentation/theme/components/actions-bottom-sheet";
@@ -28,9 +25,13 @@ import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore"
 import { useInventoryItemDetail } from "@/presentation/inventory/hooks/useInventoryItemDetail";
 import { useVariantStock } from "@/presentation/inventory/hooks/useVariantStock";
 import AdjustStockModal from "@/presentation/inventory/components/adjust-stock-modal";
-import InventoryDetailSummaryCard from "@/presentation/inventory/components/inventory-detail-summary-card";
 import InventoryMovementHistory from "@/presentation/inventory/components/inventory-movement-history";
-import InventorySectionHeader from "@/presentation/inventory/components/inventory-section-header";
+import { InventoryStockCard } from "@/presentation/inventory/components/inventory-stock-card";
+import {
+  DetailCard,
+  DetailSectionTitle,
+} from "@/presentation/theme/components/detail-card";
+import Skeleton from "@/presentation/theme/components/skeleton";
 import StockModeSheet, {
   type OwnStockInput,
 } from "@/presentation/menu-management/components/stock-mode-sheet";
@@ -40,10 +41,8 @@ import {
   type ProductOptionInventoryItem,
 } from "@/core/inventory/models/inventory-recipe.model";
 import {
-  getInventoryStockStatus,
   isProductStockItem,
   type InventoryItem,
-  type InventoryStockStatus,
 } from "@/core/inventory/models/inventory-item.model";
 import {
   getLimitingRecipeLine,
@@ -318,404 +317,6 @@ export function useVariantStockSection(
 export type VariantStockSection = ReturnType<typeof useVariantStockSection>[0];
 export type VariantStockSheets = ReturnType<typeof useVariantStockSection>[1];
 
-const STATUS_LABEL_COLOR: Record<InventoryStockStatus, LabelProps["color"]> = {
-  critical: "error",
-  low: "warning",
-  optimal: "success",
-  noMinimum: "default",
-  inactive: "default",
-};
-
-/**
- * The stock figure: own units with the minimum, what the recipe covers, or
- * that it isn't tracked. With `title`, it is the top of the variant screen
- * (name and price); without, a card under the product's own title.
- */
-export function VariantStockOverview({
-  section,
-  title,
-}: {
-  section: VariantStockSection;
-  title?: string;
-}) {
-  const { t } = useTranslation("inventory");
-  const { option, mode, ownItem, itemQuery, canManage } = section;
-  if (!option) return null;
-
-  const available = getProductOptionAvailableQuantity(option);
-  const level = getProductOptionStockLevel(option, available);
-  const limitingLine = getLimitingRecipeLine(option);
-
-  let body: ReactNode = null;
-  if (mode === "own" && ownItem) {
-    if (title)
-      return (
-        <InventoryDetailSummaryCard
-          item={ownItem}
-          icon="hamburger"
-          title={title}
-          subtitle={formatCurrency(option.price)}
-          onSetMinimum={canManage ? section.openMinimumSheet : undefined}
-          inactive={!option.isActive}
-        />
-      );
-    body = (
-      <OwnStockCard
-        item={ownItem}
-        onSetMinimum={canManage ? section.openMinimumSheet : undefined}
-      />
-    );
-  } else if (mode === "own") {
-    body = itemQuery.isLoading ? (
-      <ThemedText type="body2" style={tw`text-gray-500`}>
-        {t("loading")}
-      </ThemedText>
-    ) : null;
-  } else if (mode === "recipe") {
-    body = (
-      <Card>
-        <ThemedView style={tw`gap-1 bg-transparent`}>
-          <ThemedView
-            style={tw`flex-row items-center justify-between bg-transparent`}
-          >
-            <ThemedText type="small" style={tw`text-gray-500`}>
-              {t("variant.covers")}
-            </ThemedText>
-            {level === "out" && (
-              <Label
-                text={t("variant.outOfStock")}
-                color="error"
-                size="small"
-              />
-            )}
-            {level === "low" && (
-              <Label text={t("status.low")} color="warning" size="small" />
-            )}
-          </ThemedView>
-          <ThemedText
-            type="h1"
-            style={[
-              { fontFamily: typography.semibold },
-              { fontVariant: ["tabular-nums"] },
-            ]}
-          >
-            {Math.max(available ?? 0, 0)}
-          </ThemedText>
-          {limitingLine?.inventoryItem && (
-            <ThemedText type="small" style={tw`text-gray-500`}>
-              {t(
-                level === "out"
-                  ? "variant.missingIngredient"
-                  : "variant.limitingIngredient",
-                {
-                  name: limitingLine.inventoryItem.name,
-                  stock: t("quantityWithUnit", {
-                    quantity: limitingLine.inventoryItem.quantity,
-                    unit: t(`units.${limitingLine.inventoryItem.unit}`, {
-                      count: limitingLine.inventoryItem.quantity,
-                    }),
-                  }),
-                  used: t("quantityWithUnit", {
-                    quantity: limitingLine.quantity,
-                    unit: t(`units.${limitingLine.inventoryItem.unit}`, {
-                      count: limitingLine.quantity,
-                    }),
-                  }),
-                },
-              )}
-            </ThemedText>
-          )}
-        </ThemedView>
-        <ThemedView
-          style={tw`gap-1 pt-4 mt-4 border-t border-divider bg-transparent`}
-        >
-          <InventorySectionHeader
-            title={t("variant.recipe")}
-            right={
-              canManage ? (
-                <Button
-                  label={t("common:actions.edit")}
-                  leftIcon="square-pen"
-                  variant="text"
-                  size="extra-small"
-                  onPress={section.openRecipeEditor}
-                />
-              ) : undefined
-            }
-          />
-          {section.recipeLines.map((line, index) => (
-            <Pressable
-              key={getLineItemId(line) ?? line.id}
-              onPress={() => openRecipeLine(line)}
-              style={({ pressed }) =>
-                tw.style(
-                  "py-3",
-                  index > 0 && "border-t border-outline-variant",
-                  pressed && "opacity-70",
-                )
-              }
-            >
-              <RecipeLine line={line} />
-            </Pressable>
-          ))}
-        </ThemedView>
-      </Card>
-    );
-  } else {
-    // Not tracked: one card that says so and leads to set it up
-    body = (
-      <Card>
-        <ThemedView style={tw`gap-4 bg-transparent`}>
-          <ThemedView style={tw`flex-row items-start gap-3 bg-transparent`}>
-            <Icon name="package" size={22} color={tw.color("on-surface")} />
-            <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-              <ThemedText
-                type="body1"
-                style={{ fontFamily: typography.semibold }}
-              >
-                {t("variant.inventory.title")}
-              </ThemedText>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {t("variant.inventory.description")}
-              </ThemedText>
-            </ThemedView>
-          </ThemedView>
-          {canManage && (
-            <Button
-              label={t("variant.inventory.manage")}
-              onPress={section.openModeSheet}
-            />
-          )}
-        </ThemedView>
-      </Card>
-    );
-  }
-
-  if (!title) return <>{body}</>;
-  return (
-    <ThemedView style={tw`gap-4 bg-transparent`}>
-      <ThemedView style={tw`gap-1 bg-transparent`}>
-        {!option.isActive && (
-          <ThemedView style={tw`flex-row bg-transparent`}>
-            <Label text={t("status.inactive")} />
-          </ThemedView>
-        )}
-        <ThemedText type="h1">{title}</ThemedText>
-        <ThemedText type="body2" style={tw`text-gray-500`}>
-          {formatCurrency(option.price)}
-        </ThemedText>
-      </ThemedView>
-      {body}
-    </ThemedView>
-  );
-}
-
-/** Own stock as a card, for the product screen (it has its own title). */
-function OwnStockCard({
-  item,
-  onSetMinimum,
-}: {
-  item: InventoryItem;
-  onSetMinimum?: () => void;
-}) {
-  const { t } = useTranslation("inventory");
-  const stockStatus = getInventoryStockStatus({ ...item, isActive: true });
-  const unitLabel = t(`units.${item.unit}`, { count: item.quantity });
-
-  return (
-    <Card>
-      <ThemedView style={tw`gap-1 bg-transparent`}>
-        <ThemedView
-          style={tw`flex-row items-center justify-between bg-transparent`}
-        >
-          <ThemedText type="small" style={tw`text-gray-500`}>
-            {t("detail.currentStock")}
-          </ThemedText>
-          <Label
-            text={t(`status.${stockStatus}`)}
-            color={STATUS_LABEL_COLOR[stockStatus]}
-            size="small"
-          />
-        </ThemedView>
-        <ThemedView style={tw`flex-row items-baseline gap-1.5 bg-transparent`}>
-          <ThemedText
-            type="h1"
-            style={[
-              { fontFamily: typography.semibold },
-              { fontVariant: ["tabular-nums"] },
-            ]}
-          >
-            {item.quantity}
-          </ThemedText>
-          <ThemedText type="body1" style={tw`text-on-surface-variant`}>
-            {unitLabel}
-          </ThemedText>
-        </ThemedView>
-        {item.quantity < 0 && (
-          <ThemedText type="small" style={tw`text-gray-500`}>
-            {t("detail.negativeStockHint")}
-          </ThemedText>
-        )}
-        <ThemedView
-          style={tw`flex-row items-baseline gap-2 pt-3 mt-2 border-t border-divider bg-transparent`}
-        >
-          <ThemedText type="small" style={tw`text-gray-500 flex-1`}>
-            {t("detail.minimumStock")}
-          </ThemedText>
-          {item.minimumQuantity ? (
-            <ThemedText type="body2" style={{ fontFamily: typography.medium }}>
-              {t("quantityWithUnit", {
-                quantity: item.minimumQuantity,
-                unit: t(`units.${item.unit}`, {
-                  count: item.minimumQuantity,
-                }),
-              })}
-            </ThemedText>
-          ) : onSetMinimum ? (
-            <Button
-              label={t("detail.setMinimum")}
-              variant="text"
-              size="extra-small"
-              onPress={onSetMinimum}
-            />
-          ) : (
-            <ThemedText type="body2" style={{ fontFamily: typography.medium }}>
-              {t("detail.minimumNotSet")}
-            </ThemedText>
-          )}
-        </ThemedView>
-      </ThemedView>
-    </Card>
-  );
-}
-
-/** Disminuir / Reabastecer. Stock movements are open to every role. */
-export function VariantAdjustButtons({
-  section,
-}: {
-  section: VariantStockSection;
-}) {
-  const { t } = useTranslation("inventory");
-  if (section.mode !== "own" || !section.ownItem) return null;
-  return (
-    <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
-      <Button
-        label={t("decrease")}
-        leftIcon="minus"
-        variant="outline"
-        onPress={() => section.openAdjust("decrease")}
-        style={tw`flex-1`}
-      />
-      <Button
-        label={t("restock")}
-        leftIcon="plus"
-        onPress={() => section.openAdjust("restock")}
-        style={tw`flex-1`}
-      />
-    </ThemedView>
-  );
-}
-
-/**
- * How the stock is tracked and the variants that use this one (the recipe
- * lives in the overview card). Returned as siblings, so they take the
- * parent's spacing.
- */
-export function VariantStockDetails({
-  section,
-  showMode = true,
-}: {
-  section: VariantStockSection;
-  /** Off where a header edit button already opens the mode sheet. */
-  showMode?: boolean;
-}) {
-  const { t } = useTranslation("inventory");
-  const { mode, canManage, sharedWith, usedIn } = section;
-  if (!section.option) return null;
-
-  return (
-    <>
-      {/* How the stock is tracked; changing it is the main setting here.
-          Not tracked, the inventory card above leads there instead. */}
-      {showMode && mode !== "none" && (
-        <Card onPress={canManage ? section.openModeSheet : undefined}>
-          <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
-            <Icon
-              name={
-                mode === "own"
-                  ? "hash"
-                  : mode === "recipe"
-                    ? "chef-hat"
-                    : "circle-off"
-              }
-              size={22}
-              color={tw.color("on-surface")}
-            />
-            <ThemedView style={tw`flex-1 gap-0.5 bg-transparent`}>
-              <ThemedText
-                type="body2"
-                style={{ fontFamily: typography.semibold }}
-              >
-                {t(`variant.mode.${mode}.label`)}
-              </ThemedText>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {t(`variant.mode.${mode}.short`)}
-              </ThemedText>
-            </ThemedView>
-            {canManage && (
-              <Icon
-                name="chevron-right"
-                size={18}
-                color={tw.color("gray-400")}
-              />
-            )}
-          </ThemedView>
-        </Card>
-      )}
-
-      {sharedWith.length > 0 && (
-        <ThemedText type="small" style={tw`text-gray-500 -mt-2`}>
-          {t("variant.sharedWith", {
-            names: sharedWith
-              .map((related) => variantName(related.product, related.option))
-              .join(", "),
-          })}
-        </ThemedText>
-      )}
-
-      {usedIn.length > 0 && (
-        <ThemedView style={tw`gap-2 bg-transparent`}>
-          <InventorySectionHeader
-            title={t("variant.usedIn")}
-            count={usedIn.length}
-          />
-          <GroupedList
-            data={usedIn}
-            keyExtractor={(related) => String(related.option.id)}
-            onItemPress={(related) => openVariant(related.option.id)}
-            renderItem={(related) => (
-              <ThemedView
-                style={tw`flex-row items-center justify-between gap-3 bg-transparent`}
-              >
-                <ThemedText
-                  type="body2"
-                  style={[tw`flex-1`, { fontFamily: typography.medium }]}
-                  numberOfLines={1}
-                >
-                  {variantName(related.product, related.option)}
-                </ThemedText>
-                <ThemedText type="small" style={tw`text-gray-500`}>
-                  {t("variant.perSale", { count: related.line.quantity })}
-                </ThemedText>
-              </ThemedView>
-            )}
-          />
-        </ThemedView>
-      )}
-    </>
-  );
-}
-
 /** Movements of the variant's own stock (needs the network). */
 export function VariantStockMovements({
   section,
@@ -737,12 +338,199 @@ export function VariantStockMovements({
   );
 }
 
+/**
+ * The variant screen's sections as titled cards, like the inventory item
+ * screen: own stock (with who else uses it and its movements), what the
+ * recipe covers and its lines, or that it isn't tracked.
+ */
+export function VariantStockCards({
+  section,
+  showMovements = true,
+}: {
+  section: VariantStockSection;
+  /** Off where the screen puts VariantStockMovements further down. */
+  showMovements?: boolean;
+}) {
+  const { t } = useTranslation("inventory");
+  const { option, mode, ownItem, itemQuery, canManage, sharedWith, usedIn } =
+    section;
+  if (!option) return null;
+
+  if (mode === "none")
+    return (
+      <ThemedView style={tw`gap-3 mt-4`}>
+        <DetailSectionTitle title={t("variant.inventory.title")} />
+        <DetailCard style={tw`py-4`}>
+          <ThemedText type="body2" style={tw`text-gray-500`}>
+            {t("variant.inventory.description")}
+          </ThemedText>
+        </DetailCard>
+      </ThemedView>
+    );
+
+  if (mode === "recipe") {
+    const available = getProductOptionAvailableQuantity(option);
+    const level = getProductOptionStockLevel(option, available);
+    const limitingLine = getLimitingRecipeLine(option);
+    const limitingItem = limitingLine?.inventoryItem;
+    return (
+      <>
+        <ThemedView style={tw`gap-3 mt-4`}>
+          <DetailSectionTitle title={t("variant.covers")} />
+          <DetailCard style={tw`py-4 gap-1`}>
+            <ThemedView style={tw`flex-row items-center gap-3`}>
+              <ThemedText
+                type="h1"
+                style={[
+                  tw`flex-1`,
+                  { fontFamily: typography.semibold },
+                  { fontVariant: ["tabular-nums"] },
+                ]}
+              >
+                {Math.max(available ?? 0, 0)}
+              </ThemedText>
+              {level === "out" && (
+                <Label
+                  text={t("variant.outOfStock")}
+                  color="error"
+                  size="small"
+                />
+              )}
+              {level === "low" && (
+                <Label text={t("status.low")} color="warning" size="small" />
+              )}
+            </ThemedView>
+            {limitingLine && limitingItem && (
+              <ThemedText type="small" style={tw`text-gray-500`}>
+                {t(
+                  level === "out"
+                    ? "variant.missingIngredient"
+                    : "variant.limitingIngredient",
+                  {
+                    name: limitingItem.name,
+                    stock: t("quantityWithUnit", {
+                      quantity: limitingItem.quantity,
+                      unit: t(`units.${limitingItem.unit}`, {
+                        count: limitingItem.quantity,
+                      }),
+                    }),
+                    used: t("quantityWithUnit", {
+                      quantity: limitingLine.quantity,
+                      unit: t(`units.${limitingItem.unit}`, {
+                        count: limitingLine.quantity,
+                      }),
+                    }),
+                  },
+                )}
+              </ThemedText>
+            )}
+          </DetailCard>
+        </ThemedView>
+
+        <ThemedView style={tw`gap-3 mt-4`}>
+          <DetailSectionTitle
+            title={t("variant.recipe")}
+            action={
+              canManage && (
+                <Button
+                  label={t("common:actions.edit")}
+                  leftIcon="square-pen"
+                  variant="outline"
+                  size="extra-small"
+                  onPress={section.openRecipeEditor}
+                />
+              )
+            }
+          />
+          <DetailCard style={tw`py-2`}>
+            {section.recipeLines.map((line, index, lines) => (
+              <Pressable
+                key={getLineItemId(line) ?? line.id}
+                onPress={() => openRecipeLine(line)}
+                accessibilityRole="button"
+                style={({ pressed }) => [
+                  tw`py-3`,
+                  index < lines.length - 1 && tw`border-b border-divider`,
+                  pressed && tw`opacity-60`,
+                ]}
+              >
+                <RecipeLine line={line} />
+              </Pressable>
+            ))}
+          </DetailCard>
+        </ThemedView>
+      </>
+    );
+  }
+
+  // Own stock, still on its way from the server
+  if (!ownItem)
+    return itemQuery.isLoading ? (
+      <Skeleton style={tw`h-40 mt-4 rounded-2xl`} />
+    ) : null;
+
+  return (
+    <>
+      <InventoryStockCard
+        item={ownItem}
+        onSetMinimum={canManage ? section.openMinimumSheet : undefined}
+        footnote={
+          sharedWith.length > 0
+            ? t("variant.sharedWith", {
+                names: sharedWith
+                  .map((related) =>
+                    variantName(related.product, related.option),
+                  )
+                  .join(", "),
+              })
+            : undefined
+        }
+      />
+
+      {usedIn.length > 0 && (
+        <ThemedView style={tw`gap-3 mt-4`}>
+          <DetailSectionTitle title={t("variant.usedIn")} />
+          <DetailCard style={tw`py-2`}>
+            {usedIn.map((related, index) => (
+              <Pressable
+                key={related.option.id}
+                onPress={() => openVariant(related.option.id)}
+                accessibilityRole="button"
+                style={({ pressed }) => [
+                  tw`flex-row items-center gap-3 py-3`,
+                  index < usedIn.length - 1 && tw`border-b border-divider`,
+                  pressed && tw`opacity-60`,
+                ]}
+              >
+                <ThemedText style={tw`flex-1`} numberOfLines={1}>
+                  {variantName(related.product, related.option)}
+                </ThemedText>
+                <ThemedText type="small" style={tw`text-gray-500`}>
+                  {t("variant.perSale", { count: related.line.quantity })}
+                </ThemedText>
+                <Icon
+                  name="chevron-right"
+                  size={18}
+                  color={tw.color("gray-400")}
+                />
+              </Pressable>
+            ))}
+          </DetailCard>
+        </ThemedView>
+      )}
+
+      {showMovements && <VariantStockMovements section={section} />}
+    </>
+  );
+}
+
 /** The sheets and modals the section opens; render once, outside scrolls. */
 export function VariantStockOverlays({
   section,
   sheets,
   variantActions = [],
   showModeAction = false,
+  optionsTitle,
 }: {
   section: VariantStockSection;
   sheets: VariantStockSheets;
@@ -750,6 +538,8 @@ export function VariantStockOverlays({
   variantActions?: ActionsBottomSheetItem[];
   /** Changing the stock type from the sheet, where no card or button does. */
   showModeAction?: boolean;
+  /** Title of the options sheet, e.g. when it holds the product's actions. */
+  optionsTitle?: string;
 }) {
   const { t } = useTranslation("inventory");
   const { option, mode, ownItem } = section;
@@ -777,9 +567,10 @@ export function VariantStockOverlays({
       <ThemedBottomSheetModal ref={optionsSheetRef} enablePanDownToClose>
         <ActionsBottomSheet
           title={
-            variantActions.length > 0
+            optionsTitle ??
+            (variantActions.length > 0
               ? t("menuManagement:products.variants.actions")
-              : t("variant.actions.title")
+              : t("variant.actions.title"))
           }
           subtitle={section.title}
           sections={[
