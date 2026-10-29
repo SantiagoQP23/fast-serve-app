@@ -101,9 +101,8 @@ export default function OrdersLayout() {
         <Stack.Screen
           name="production/areas/index"
           options={{
-            headerShown: true,
-            title: t("manage.productionAreas"),
-            headerShadowVisible: false,
+            // The screen draws its own title
+            headerShown: false,
           }}
         />
 

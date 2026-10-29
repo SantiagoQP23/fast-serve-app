@@ -202,7 +202,6 @@ export default function ProductionAreaProductsScreen() {
               <Button
                 label={t("products.addProducts")}
                 leftIcon="plus"
-                variant="surface"
                 shape="rounded"
                 size="small"
                 onPress={() =>

@@ -14,7 +14,7 @@ interface DetailHeaderProps {
   /** Right under the title, e.g. an "Inactive" Label. */
   status?: ReactNode;
   /** What the record is, e.g. the payment method; drawn in a circle. */
-  icon: IconName;
+  icon?: IconName;
   /** Status pinned to the icon's corner. */
   badge?: {
     color: NonNullable<LabelProps["color"]>;
@@ -70,23 +70,25 @@ export default function DetailHeader({
           )}
         </ThemedView>
 
-        <ThemedView
-          accessible={!!badge}
-          accessibilityLabel={badge?.label}
-          style={tw`w-16 h-16 mt-1 rounded-full items-center justify-center bg-surface`}
-        >
-          <Icon name={icon} size={28} color={tw.color("primary")} />
-          {badge && (
-            <ThemedView
-              style={[
-                tw`absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full items-center justify-center ${labelSolidStyles[badge.color].dot}`,
-                { borderWidth: 2, borderColor: tw.color("background") },
-              ]}
-            >
-              <Icon name={badge.icon} size={12} color="white" />
-            </ThemedView>
-          )}
-        </ThemedView>
+        {icon && (
+          <ThemedView
+            accessible={!!badge}
+            accessibilityLabel={badge?.label}
+            style={tw`w-16 h-16 mt-1 rounded-full items-center justify-center bg-surface`}
+          >
+            <Icon name={icon} size={28} color={tw.color("primary")} />
+            {badge && (
+              <ThemedView
+                style={[
+                  tw`absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full items-center justify-center ${labelSolidStyles[badge.color].dot}`,
+                  { borderWidth: 2, borderColor: tw.color("background") },
+                ]}
+              >
+                <Icon name={badge.icon} size={12} color="white" />
+              </ThemedView>
+            )}
+          </ThemedView>
+        )}
       </ThemedView>
 
       {children}

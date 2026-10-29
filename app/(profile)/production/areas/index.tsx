@@ -1,5 +1,5 @@
 import { useMemo, useRef } from "react";
-import { ScrollView, RefreshControl } from "react-native";
+import { Pressable, ScrollView, RefreshControl } from "react-native";
 import { router } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -13,7 +13,7 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
 import Chip from "@/presentation/theme/components/chip";
-import Fab from "@/presentation/theme/components/fab";
+import DetailHeader from "@/presentation/theme/components/detail-header";
 import type { ProductionArea } from "@/core/menu/models/producion-area.model";
 import AreaPrintersBottomSheet, {
   type AreaPrintersBottomSheetRef,
@@ -59,7 +59,19 @@ export default function ProductionAreasScreen() {
   };
 
   return (
-    <ScreenLayout style={tw`flex-1 px-4 pt-2`}>
+    <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
+      <ThemedView style={tw`items-center flex-row mb-6`}>
+        <Pressable
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel={t("common:actions.goBack")}
+          hitSlop={12}
+          style={({ pressed }) => tw.style(pressed && "opacity-70")}
+        >
+          <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
+        </Pressable>
+      </ThemedView>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={tw`gap-4 pb-8`}
@@ -72,6 +84,28 @@ export default function ProductionAreasScreen() {
           />
         }
       >
+        <DetailHeader title={t("title")} subtitle={t("subtitle")}>
+          <ThemedView style={tw`flex-row flex-wrap gap-3`}>
+            {canManage && (
+              <Button
+                label={t("newArea")}
+                leftIcon="plus"
+                shape="rounded"
+                size="small"
+                onPress={handleCreateArea}
+              />
+            )}
+            <Button
+              label={t("managePrinters")}
+              leftIcon="printer"
+              variant="surface"
+              shape="rounded"
+              size="small"
+              onPress={() => router.push("/(profile)/production/printers")}
+            />
+          </ThemedView>
+        </DetailHeader>
+
         {isLoading && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
             <Icon name="package" size={48} color={tw.color("gray-400")} />
@@ -186,18 +220,7 @@ export default function ProductionAreasScreen() {
             ))}
           </ThemedView>
         )}
-
-        {!isLoading && !isError && (
-          <Button
-            label={t("managePrinters")}
-            leftIcon="printer"
-            variant="outline"
-            onPress={() => router.push("/(profile)/production/printers")}
-          />
-        )}
       </ScrollView>
-
-      {canManage && <Fab icon="plus" onPress={handleCreateArea} />}
 
       <AreaPrintersBottomSheet ref={printersSheetRef} />
       <PrinterActionsBottomSheet ref={printerActionsSheetRef} />
