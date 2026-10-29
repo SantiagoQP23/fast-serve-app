@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { Pressable, RefreshControl, ScrollView, Share } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -35,7 +34,6 @@ export default function InventoryShoppingListScreen() {
   const { lowItems, outWithoutMinimum, itemsQuery } = useShoppingList();
   const currentRestaurant = useAuthStore((state) => state.currentRestaurant);
   const [categoryId, setCategoryId] = useState<string | null>(null);
-  const insets = useSafeAreaInsets();
   const primaryColor = useThemeColor({}, "primary");
 
   const categories = useMemo(() => {
@@ -53,7 +51,6 @@ export default function InventoryShoppingListScreen() {
   const visibleItems = lowItems.filter(inCategory);
   const visibleOutWithoutMinimum = outWithoutMinimum.filter(inCategory);
   const isEmpty = lowItems.length === 0 && outWithoutMinimum.length === 0;
-  const showStartBar = visibleItems.length > 0;
 
   const subtitle = itemsQuery.isLoading
     ? t("loading")
@@ -110,7 +107,7 @@ export default function InventoryShoppingListScreen() {
       <ScrollView
         style={tw`flex-1`}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`px-4 pt-6 gap-4 ${showStartBar ? "pb-32" : "pb-10"}`}
+        contentContainerStyle={tw`px-4 pt-6 pb-10 gap-4`}
         refreshControl={
           <RefreshControl
             refreshing={itemsQuery.isRefetching}
@@ -125,9 +122,16 @@ export default function InventoryShoppingListScreen() {
           subtitle={subtitle}
           icon="clipboard-list"
         >
-          {/* Starting the purchase lives in the bottom bar */}
           {visibleItems.length > 0 && (
             <ThemedView style={tw`flex-row flex-wrap gap-3`}>
+              <Button
+                label={t("purchases.register")}
+                leftIcon="shopping-cart"
+                shape="rounded"
+                size="small"
+                accessibilityLabel={t("shoppingList.startPurchase")}
+                onPress={handleStartPurchase}
+              />
               <Button
                 label={t("common:actions.share")}
                 leftIcon="share-2"
@@ -273,22 +277,6 @@ export default function InventoryShoppingListScreen() {
           </DetailCard>
         )}
       </ScrollView>
-
-      {/* The list's one primary action, docked like the bill's charge bar */}
-      {showStartBar && (
-        <ThemedView
-          style={[
-            tw`absolute bottom-0 left-0 right-0 bg-background border-t border-divider px-4 pt-3`,
-            { paddingBottom: Math.max(insets.bottom, 16) },
-          ]}
-        >
-          <Button
-            leftIcon="shopping-cart"
-            label={t("shoppingList.startPurchase")}
-            onPress={handleStartPurchase}
-          />
-        </ThemedView>
-      )}
     </ScreenLayout>
   );
 }
