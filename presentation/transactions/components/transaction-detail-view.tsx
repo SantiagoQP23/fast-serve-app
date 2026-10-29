@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, type ReactNode } from "react";
 import {
   ScrollView,
   Image,
@@ -20,7 +20,6 @@ import { formatCurrency } from "@/core/i18n/utils";
 import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import Button from "@/presentation/theme/components/button";
 import Label, { type LabelProps } from "@/presentation/theme/components/label";
-import InfoRow from "@/presentation/theme/components/info-row";
 import { usePaymentProofs } from "@/presentation/transactions/hooks/usePaymentProofs";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useTranslation } from "react-i18next";
@@ -55,6 +54,8 @@ import { getErrorMessage } from "@/core/api/get-error-message";
 import BottomSheetPicker, {
   type BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 
 interface TransactionDetailViewProps {
   transactionId: number;
@@ -156,6 +157,9 @@ export default function TransactionDetailView({
   const accountBottomSheetRef = useRef<BottomSheetPickerRef>(null);
   const rejectSheetRef = useRef<RejectTransactionSheetRef>(null);
   const accountLockedSheetRef = useRef<BottomSheetMethods>(null);
+  const uploadSourceSheetRef = useRef<BottomSheetMethods>(null);
+  // Source picked in the sheet; the picker opens once the sheet has closed.
+  const pendingSourceRef = useRef<"camera" | "gallery" | null>(null);
 
   const {
     isOpen: approveModalIsOpen,
@@ -237,6 +241,19 @@ export default function TransactionDetailView({
     if (!result.canceled && result.assets.length > 0) {
       setSelectedImage(result.assets[0]);
     }
+  };
+
+  const chooseUploadSource = (source: "camera" | "gallery") => {
+    pendingSourceRef.current = source;
+    uploadSourceSheetRef.current?.dismiss();
+  };
+
+  // Opening the picker while the native sheet is still closing fails on iOS
+  // and is unreliable on Android, so wait for the dismiss to finish.
+  const handleUploadSourceSheetDismiss = () => {
+    const source = pendingSourceRef.current;
+    pendingSourceRef.current = null;
+    if (source) pickImage(source);
   };
 
   const handleUploadProof = async () => {
@@ -390,22 +407,23 @@ export default function TransactionDetailView({
   const proofMeta = (proof: PaymentProof) =>
     t("bills:proofUpload.uploadedByOn", {
       name:
-        personName(proof.uploadedBy?.person) ||
-        t("common:labels.deletedUser"),
+        personName(proof.uploadedBy?.person) || t("common:labels.deletedUser"),
       date: dayjs(proof.createdAt).format(DATE_FORMAT),
     });
 
   const accountRow = (
-    <InfoRow
+    <DetailRow
       label={t("common:transactions.destinationAccount")}
-      value={accountLabel}
-      onPress={
-        canChangeAccount
-          ? () => accountBottomSheetRef.current?.present()
-          : undefined
-      }
+      value={accountLabel ?? "—"}
       trailing={
-        canManage && accountLockReason ? (
+        canChangeAccount ? (
+          <Button
+            size="small"
+            variant="text"
+            label={t("common:actions.change")}
+            onPress={() => accountBottomSheetRef.current?.present()}
+          />
+        ) : canManage && accountLockReason ? (
           <IconButton
             icon="info"
             size={20}
@@ -413,7 +431,6 @@ export default function TransactionDetailView({
             accessibilityLabel={t(
               "common:transactions.accountLocked.infoLabel",
             )}
-            style={tw`-my-3`}
           />
         ) : undefined
       }
@@ -544,6 +561,14 @@ export default function TransactionDetailView({
                     ? t("bills:proofUpload.noProofSettled")
                     : t("bills:proofUpload.noProofTitle")}
                 </ThemedText>
+                {canUploadProof && !selectedImage && (
+                  <Button
+                    label={t("bills:proofUpload.uploadProof")}
+                    leftIcon="upload"
+                    onPress={() => uploadSourceSheetRef.current?.present()}
+                    style={tw`mt-2`}
+                  />
+                )}
               </ThemedView>
             )}
 
@@ -588,29 +613,15 @@ export default function TransactionDetailView({
                   </ThemedView>
                 </ThemedView>
               ) : (
-                <ThemedView style={tw`gap-2`}>
-                  {latestProof && (
-                    <ThemedText type="small">
-                      {t("bills:proofUpload.uploadAnother")}
-                    </ThemedText>
-                  )}
-                  <ThemedView style={tw`flex-row gap-3`}>
-                    <Button
-                      label={t("bills:proofUpload.fromGallery")}
-                      leftIcon="images"
-                      variant="outline"
-                      onPress={() => pickImage("gallery")}
-                      style={tw`flex-1`}
-                    />
-                    <Button
-                      label={t("bills:proofUpload.fromCamera")}
-                      leftIcon="camera"
-                      variant="outline"
-                      onPress={() => pickImage("camera")}
-                      style={tw`flex-1`}
-                    />
-                  </ThemedView>
-                </ThemedView>
+                // With no proof yet, the button sits in the empty card above.
+                latestProof && (
+                  <Button
+                    label={t("bills:proofUpload.uploadAnother")}
+                    leftIcon="upload"
+                    variant="outline"
+                    onPress={() => uploadSourceSheetRef.current?.present()}
+                  />
+                )
               ))}
 
             {/* What to match the proof against */}
@@ -680,7 +691,16 @@ export default function TransactionDetailView({
               value={t("common:transactions.billNumber", {
                 num: transaction.bill.num,
               })}
-              onPress={() => router.push(`/(bills)/${transaction.bill!.id}`)}
+              trailing={
+                <Button
+                  size="extra-small"
+                  variant="text"
+                  label={t("common:actions.see")}
+                  onPress={() =>
+                    router.push(`/(bills)/${transaction.bill!.id}`)
+                  }
+                />
+              }
             />
           )}
           {!isTransfer && accountRow}
@@ -790,7 +810,10 @@ export default function TransactionDetailView({
           <View
             style={[
               tw`absolute top-0 left-0 right-0 px-2 flex-row justify-between items-center`,
-              { paddingTop: insets.top + 8, backgroundColor: "rgba(0,0,0,0.6)" },
+              {
+                paddingTop: insets.top + 8,
+                backgroundColor: "rgba(0,0,0,0.6)",
+              },
             ]}
           >
             <ThemedText
@@ -880,6 +903,28 @@ export default function TransactionDetailView({
         }
       />
 
+      <ThemedBottomSheetModal
+        ref={uploadSourceSheetRef}
+        enablePanDownToClose
+        onDismiss={handleUploadSourceSheetDismiss}
+      >
+        <ActionsBottomSheet
+          title={t("bills:proofUpload.uploadTitle")}
+          items={[
+            {
+              icon: "images",
+              label: t("bills:proofUpload.fromGallery"),
+              onPress: () => chooseUploadSource("gallery"),
+            },
+            {
+              icon: "camera",
+              label: t("bills:proofUpload.fromCamera"),
+              onPress: () => chooseUploadSource("camera"),
+            },
+          ]}
+        />
+      </ThemedBottomSheetModal>
+
       <BottomSheetPicker
         ref={accountBottomSheetRef}
         title={t("bills:account.destinationAccount")}
@@ -938,43 +983,29 @@ function SectionTitle({ title }: { title: string }) {
 
 /**
  * Label stacked over its value, as on the restaurant info screen. Values are
- * selectable so a reference can be copied; `onPress` adds a chevron.
+ * selectable so a reference can be copied; `trailing` holds a row action.
  */
 function DetailRow({
   label,
   value,
-  onPress,
+  trailing,
 }: {
   label: string;
   value: string;
-  onPress?: () => void;
+  trailing?: ReactNode;
 }) {
-  const content = (
-    <ThemedView style={tw`flex-row items-center gap-3 min-h-16`}>
+  return (
+    <ThemedView
+      // Grouping would hide a trailing control from screen readers.
+      accessible={!trailing}
+      accessibilityLabel={trailing ? undefined : `${label}, ${value}`}
+      style={tw`flex-row items-center gap-3 min-h-16`}
+    >
       <ThemedView style={tw`flex-1 gap-0.5`}>
         <ThemedText type="small">{label}</ThemedText>
-        <ThemedText selectable={!onPress}>{value}</ThemedText>
+        <ThemedText selectable>{value}</ThemedText>
       </ThemedView>
-      {onPress && <Icon name="chevron-right" size={18} />}
-    </ThemedView>
-  );
-
-  if (onPress) {
-    return (
-      <Pressable
-        onPress={onPress}
-        accessibilityRole="button"
-        accessibilityLabel={`${label}, ${value}`}
-        style={({ pressed }) => [pressed && tw`opacity-60`]}
-      >
-        {content}
-      </Pressable>
-    );
-  }
-
-  return (
-    <ThemedView accessible accessibilityLabel={`${label}, ${value}`}>
-      {content}
+      {trailing}
     </ThemedView>
   );
 }

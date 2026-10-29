@@ -462,8 +462,9 @@ export default function IncomesScreen() {
         </ThemedView>
       )}
 
+      {/* Sections are spaced by the container gap only, never by margins */}
       <ScrollView
-        contentContainerStyle={tw`pb-20`}
+        contentContainerStyle={tw`px-4 pb-20 gap-6`}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -475,181 +476,163 @@ export default function IncomesScreen() {
         }
       >
         {/* Amount Summary */}
-        <ThemedView style={tw`px-4 mt-2 mb-6 gap-1`}>
-          <AmountSummaryHeader
-            totalAmount={dashboardStats?.totalAmount ?? 0}
-            totalIncome={dashboardStats?.totalIncome ?? 0}
-          />
-          {/* {count > 0 && ( */}
-          {/*   <ThemedText type="small" style={tw`text-gray-400`}> */}
-          {/*     {count} transactions */}
-          {/*   </ThemedText> */}
-          {/* )} */}
-        </ThemedView>
+        <AmountSummaryHeader
+          totalAmount={dashboardStats?.totalAmount ?? 0}
+          totalIncome={dashboardStats?.totalIncome ?? 0}
+        />
 
         {/* Accounts Summary: every account, even with no income yet */}
         {accountsSummary.length > 0 && (
-          <ThemedView style={tw`px-4`}>
-            <ThemedView style={tw`mb-4 ${count > 0 ? "mt-8" : ""}`}>
-              <ThemedView
-                style={tw`flex-row items-center justify-between mb-3`}
+          <ThemedView>
+            <ThemedView style={tw`flex-row items-center justify-between mb-3`}>
+              <ThemedText type="h4">{t("reports:accounts.title")}</ThemedText>
+              <Pressable
+                onPress={() => setShowAccounts((prev) => !prev)}
+                hitSlop={8}
               >
-                <ThemedText type="h4">{t("reports:accounts.title")}</ThemedText>
-                <Pressable
-                  onPress={() => setShowAccounts((prev) => !prev)}
-                  hitSlop={8}
+                <Icon
+                  name={showAccounts ? "eye-off" : "eye"}
+                  size={18}
+                  color={tw.color("gray-500")}
+                />
+              </Pressable>
+            </ThemedView>
+            {/* Two-column grid; an odd last card keeps its column width */}
+            <ThemedView style={tw`gap-3`}>
+              {accountRows.map((row) => (
+                <ThemedView
+                  key={row.map((a) => a.accountId).join("-")}
+                  style={tw`flex-row gap-3`}
                 >
-                  <Icon
-                    name={showAccounts ? "eye-off" : "eye"}
-                    size={18}
-                    color={tw.color("gray-500")}
-                  />
-                </Pressable>
-              </ThemedView>
-              {/* Two-column grid; an odd last card keeps its column width */}
-              <ThemedView style={tw`gap-3`}>
-                {accountRows.map((row) => (
-                  <ThemedView
-                    key={row.map((a) => a.accountId).join("-")}
-                    style={tw`flex-row gap-3`}
-                  >
-                    {row.map((account) => {
-                      const formattedAccountIncome = formatCurrency(
-                        account.totalIncome,
-                      );
-                      const displayedAccountIncome = showAccounts
-                        ? formattedAccountIncome
-                        : formattedAccountIncome.replace(/\d/g, "*");
-                      const isSelected =
-                        filters.accountId === account.accountId;
+                  {row.map((account) => {
+                    const formattedAccountIncome = formatCurrency(
+                      account.totalIncome,
+                    );
+                    const displayedAccountIncome = showAccounts
+                      ? formattedAccountIncome
+                      : formattedAccountIncome.replace(/\d/g, "*");
+                    const isSelected = filters.accountId === account.accountId;
 
-                      return (
-                        <Card
-                          key={account.accountId}
-                          containerStyle={tw`flex-1`}
-                          variant="outline"
-                          style={[
-                            tw`flex-grow justify-end`,
-                            isSelected && {
-                              borderColor: primaryColor,
-                              borderWidth: 2,
-                            },
-                          ]}
-                          onPress={() => openAccount(account.accountId)}
+                    return (
+                      <Card
+                        key={account.accountId}
+                        containerStyle={tw`flex-1`}
+                        variant="outline"
+                        style={[
+                          tw`flex-grow justify-end`,
+                          isSelected && {
+                            borderColor: primaryColor,
+                            borderWidth: 2,
+                          },
+                        ]}
+                        onPress={() => openAccount(account.accountId)}
+                      >
+                        {account.pendingCount > 0 && (
+                          <ThemedView style={tw`self-start mb-2`}>
+                            <Label
+                              color="warning"
+                              size="small"
+                              text={t("reports:accounts.pending", {
+                                count: account.pendingCount,
+                              })}
+                            />
+                          </ThemedView>
+                        )}
+                        <ThemedText
+                          type="body2"
+                          style={tw`mb-3`}
+                          numberOfLines={1}
                         >
-                          {account.pendingCount > 0 && (
-                            <ThemedView style={tw`self-start mb-2`}>
-                              <Label
-                                color="warning"
-                                size="small"
-                                text={t("reports:accounts.pending", {
-                                  count: account.pendingCount,
-                                })}
-                              />
-                            </ThemedView>
-                          )}
-                          <ThemedText
-                            type="body2"
-                            style={tw`mb-3`}
-                            numberOfLines={1}
-                          >
-                            {account.accountName}
-                          </ThemedText>
-                          <ThemedText
-                            type="h3"
-                            style={isSelected && { color: primaryColor }}
-                          >
-                            {displayedAccountIncome}
-                          </ThemedText>
-                        </Card>
-                      );
-                    })}
-                    {row.length === 1 && <ThemedView style={tw`flex-1`} />}
-                  </ThemedView>
-                ))}
-              </ThemedView>
+                          {account.accountName}
+                        </ThemedText>
+                        <ThemedText
+                          type="h3"
+                          style={isSelected && { color: primaryColor }}
+                        >
+                          {displayedAccountIncome}
+                        </ThemedText>
+                      </Card>
+                    );
+                  })}
+                  {row.length === 1 && <ThemedView style={tw`flex-1`} />}
+                </ThemedView>
+              ))}
             </ThemedView>
           </ThemedView>
         )}
 
+        {/* Waiter Summary (also shown before any income, orders may exist) */}
+        {reportWaiters.length > 0 && (
+          <WaiterSummaryCard waiters={reportWaiters} />
+        )}
+
+        {/* Transactions Section */}
         {count > 0 && (
-          <ThemedView style={tw`px-4`}>
-            {/* Waiter Summary */}
-            {reportWaiters.length > 0 && (
-              <ThemedView style={tw`mt-4 mb-4`}>
-                <WaiterSummaryCard waiters={reportWaiters} />
+          <Card>
+            <ThemedText type="h4" style={tw`mb-3`}>
+              {t("common:navigation.incomes")}
+            </ThemedText>
+
+            {/* Transactions List */}
+            {transactionsLoading && !refreshing && transactions.length === 0 ? (
+              <ThemedView style={tw`py-12 items-center`}>
+                <ThemedText type="body2" style={tw`text-gray-400`}>
+                  {t("common:status.loading")}
+                </ThemedText>
+              </ThemedView>
+            ) : transactions.length > 0 ? (
+              <>
+                <GroupedList
+                  data={transactions}
+                  keyExtractor={(item) => item.id.toString()}
+                  renderItem={(item) => (
+                    <TransactionCard
+                      transaction={item}
+                      active={isExpanded && item.id === selectedTransactionId}
+                      onPress={() => openTransactionDetail(item)}
+                    />
+                  )}
+                />
+
+                {/* Only the first page lives here; the rest is one tap away */}
+                {hasMore && (
+                  <ThemedView style={tw`mt-4`}>
+                    <Button
+                      label={t("common:transactions.seeAll", { count })}
+                      onPress={openAllTransactions}
+                      variant="outline"
+                      size="small"
+                    />
+                  </ThemedView>
+                )}
+              </>
+            ) : (
+              <ThemedView style={tw`py-12 items-center px-4`}>
+                <Icon
+                  name="receipt-text"
+                  size={64}
+                  color={tw.color("gray-300")}
+                />
+                <ThemedText
+                  type="h4"
+                  style={tw`text-gray-500 mt-4 text-center`}
+                >
+                  {t("common:empty.noData")}
+                </ThemedText>
+                <ThemedText
+                  type="body2"
+                  style={tw`text-gray-400 mt-2 text-center max-w-xs`}
+                >
+                  {t("common:empty.noResults")}
+                </ThemedText>
               </ThemedView>
             )}
-
-            {/* Transactions Section */}
-            <Card containerStyle={tw`mb-4 mt-4`}>
-              <ThemedText type="h4" style={tw`mb-3`}>
-                {t("common:navigation.incomes")}
-              </ThemedText>
-
-              {/* Transactions List */}
-              {transactionsLoading &&
-              !refreshing &&
-              transactions.length === 0 ? (
-                <ThemedView style={tw`py-20 items-center`}>
-                  <ThemedText type="body2" style={tw`text-gray-400`}>
-                    {t("common:status.loading")}
-                  </ThemedText>
-                </ThemedView>
-              ) : transactions.length > 0 ? (
-                <>
-                  <GroupedList
-                    data={transactions}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={(item) => (
-                      <TransactionCard
-                        transaction={item}
-                        active={isExpanded && item.id === selectedTransactionId}
-                        onPress={() => openTransactionDetail(item)}
-                      />
-                    )}
-                  />
-
-                  {/* Only the first page lives here; the rest is one tap away */}
-                  {hasMore && (
-                    <ThemedView style={tw`mt-4`}>
-                      <Button
-                        label={t("common:transactions.seeAll", { count })}
-                        onPress={openAllTransactions}
-                        variant="outline"
-                        size="small"
-                      />
-                    </ThemedView>
-                  )}
-                </>
-              ) : (
-                <ThemedView style={tw`py-20 items-center px-4`}>
-                  <Icon
-                    name="receipt-text"
-                    size={64}
-                    color={tw.color("gray-300")}
-                  />
-                  <ThemedText
-                    type="h4"
-                    style={tw`text-gray-500 mt-4 text-center`}
-                  >
-                    {t("common:empty.noData")}
-                  </ThemedText>
-                  <ThemedText
-                    type="body2"
-                    style={tw`text-gray-400 mt-2 text-center max-w-xs`}
-                  >
-                    {t("common:empty.noResults")}
-                  </ThemedText>
-                </ThemedView>
-              )}
-            </Card>
-          </ThemedView>
+          </Card>
         )}
 
         {/* Empty state: no incomes for the selected range / filters */}
         {!transactionsLoading && count === 0 && (
-          <ThemedView style={tw`py-20 items-center px-4`}>
+          <ThemedView style={tw`py-12 items-center`}>
             <Icon name="receipt-text" size={64} color={tw.color("gray-300")} />
             <ThemedText type="h4" style={tw`text-gray-500 mt-4 text-center`}>
               {t("common:empty.noIncomes")}
@@ -664,37 +647,23 @@ export default function IncomesScreen() {
             </ThemedText>
           </ThemedView>
         )}
-        {/* Waiter Summary (no transactions yet, but orders may exist) */}
-        {count === 0 && reportWaiters.length > 0 && (
-          <ThemedView style={tw`px-4`}>
-            <WaiterSummaryCard waiters={reportWaiters} />
-          </ThemedView>
-        )}
 
         {count > 0 && (
-          <ThemedView style={tw`px-4`}>
-            <PaymentMethodSummaryCard startDate={startDate} endDate={endDate} />
-          </ThemedView>
+          <PaymentMethodSummaryCard startDate={startDate} endDate={endDate} />
         )}
 
         {/* Order History */}
-        <ThemedView style={tw`px-4 mt-4`}>
-          <Card onPress={() => router.push("/(profile)/history")}>
-            <ThemedView style={tw`flex-row items-center gap-3`}>
-              <Icon name="clock" size={22} color={tw.color("gray-500")} />
-              <ThemedView style={tw`flex-1`}>
-                <ThemedText type="body1">
-                  {t("common:stats.orderHistory")}
-                </ThemedText>
-              </ThemedView>
-              <Icon
-                name="chevron-right"
-                size={20}
-                color={tw.color("gray-400")}
-              />
+        <Card onPress={() => router.push("/(profile)/history")}>
+          <ThemedView style={tw`flex-row items-center gap-3`}>
+            <Icon name="clock" size={22} color={tw.color("gray-500")} />
+            <ThemedView style={tw`flex-1`}>
+              <ThemedText type="body1">
+                {t("common:stats.orderHistory")}
+              </ThemedText>
             </ThemedView>
-          </Card>
-        </ThemedView>
+            <Icon name="chevron-right" size={20} color={tw.color("gray-400")} />
+          </ThemedView>
+        </Card>
       </ScrollView>
 
       <ThemedBottomSheetModal ref={customRangeSheetRef} enablePanDownToClose>

@@ -403,14 +403,14 @@ export default function BillDetailView({
                 {formatCurrency(bill.total)}
               </ThemedText>
 
-              {isPartiallyPaid && (
-                <ThemedText type="body2" style={tw`text-gray-500 mt-1`}>
-                  {t("bills:details.paidAndRemaining", {
-                    paid: formatCurrency(committedAmount),
-                    remaining: formatCurrency(amountDue),
-                  })}
-                </ThemedText>
-              )}
+              {/* {isPartiallyPaid && ( */}
+              {/*   <ThemedText type="body2" style={tw`text-gray-500 mt-1`}> */}
+              {/*     {t("bills:details.paidAndRemaining", { */}
+              {/*       paid: formatCurrency(committedAmount), */}
+              {/*       remaining: formatCurrency(amountDue), */}
+              {/*     })} */}
+              {/*   </ThemedText> */}
+              {/* )} */}
             </ThemedView>
 
             <ThemedView
@@ -611,11 +611,12 @@ export default function BillDetailView({
           ]}
         >
           {isAwaitingTransfer ? (
-            <ThemedView style={tw`flex-row items-center gap-3 py-3`}>
-              <Icon name="hourglass" size={20} />
-              <ThemedText type="body2" style={tw`flex-1 text-gray-600`}>
-                {t("bills:details.awaitingTransfer")}
-              </ThemedText>
+            <ThemedView style={tw`items-center py-3`}>
+              <Label
+                color="warning"
+                leftIcon="hourglass"
+                text={t("bills:details.awaitingTransfer")}
+              />
             </ThemedView>
           ) : (
             <Button

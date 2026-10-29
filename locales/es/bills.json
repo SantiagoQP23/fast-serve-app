@@ -61,7 +61,7 @@
     "payments": "Pagos",
     "chargeAmount": "Cobrar {{amount}}",
     "paidAndRemaining": "{{paid}} pagado · {{remaining}} por cobrar",
-    "awaitingTransfer": "El resto está cubierto por una transferencia pendiente de aprobación.",
+    "awaitingTransfer": "Transferencia pendiente de aprobación",
     "deleteBill": "Eliminar cuenta",
     "editDiscount": "Editar descuento",
     "amountToCharge": "Monto a cobrar",

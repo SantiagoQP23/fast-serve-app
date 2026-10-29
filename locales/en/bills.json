@@ -61,7 +61,7 @@
     "payments": "Payments",
     "chargeAmount": "Charge {{amount}}",
     "paidAndRemaining": "{{paid}} paid · {{remaining}} left to charge",
-    "awaitingTransfer": "The rest is covered by a transfer waiting for approval.",
+    "awaitingTransfer": "Transfer pending approval",
     "deleteBill": "Delete bill",
     "editDiscount": "Edit discount",
     "amountToCharge": "Amount to charge",
