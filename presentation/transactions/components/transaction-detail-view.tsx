@@ -702,6 +702,7 @@ export default function TransactionDetailView({
                     leftIcon="upload"
                     onPress={() => uploadSourceSheetRef.current?.present()}
                     style={tw`mt-2`}
+                    variant="outline"
                   />
                 )}
               </ThemedView>
