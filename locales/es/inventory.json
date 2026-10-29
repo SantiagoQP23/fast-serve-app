@@ -437,6 +437,7 @@
     "name": "Conteo"
   },
   "tabs": {
+    "lowStock": "Stock bajo",
     "menu": "Menú",
     "inventory": "Insumos",
     "counts": "Conteos",
@@ -446,7 +447,8 @@
     "selectItem": "Selecciona un insumo para ver su stock y movimientos.",
     "selectCount": "Selecciona un conteo para ver sus insumos.",
     "selectPurchase": "Selecciona una compra para ver sus insumos.",
-    "selectRecipe": "Abre una receta para ver o cambiar sus ingredientes."
+    "selectRecipe": "Abre una receta para ver o cambiar sus ingredientes.",
+    "selectLowStock": "Selecciona un producto o insumo para ver su stock."
   },
   "cards": {
     "moreItems": "+{{count}} más"
@@ -542,5 +544,11 @@
       }
     },
     "menuProducts": "Productos del menú"
+  },
+  "lowStock": {
+    "products": "Productos del menú",
+    "inventory": "Insumos",
+    "empty": "Todo tiene stock suficiente",
+    "loadError": "Error al cargar el stock"
   }
 }

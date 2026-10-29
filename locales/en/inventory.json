@@ -437,6 +437,7 @@
     "name": "Count"
   },
   "tabs": {
+    "lowStock": "Low stock",
     "menu": "Menu",
     "inventory": "Supplies",
     "counts": "Counts",
@@ -446,7 +447,8 @@
     "selectItem": "Select a supply to see its stock and movements.",
     "selectCount": "Select a count to see its supplies.",
     "selectPurchase": "Select a purchase to see its supplies.",
-    "selectRecipe": "Open a recipe to see or change its ingredients."
+    "selectRecipe": "Open a recipe to see or change its ingredients.",
+    "selectLowStock": "Select a product or supply to see its stock."
   },
   "cards": {
     "moreItems": "+{{count}} more"
@@ -542,5 +544,11 @@
       }
     },
     "menuProducts": "Menu products"
+  },
+  "lowStock": {
+    "products": "Menu products",
+    "inventory": "Supplies",
+    "empty": "Everything is well stocked",
+    "loadError": "Error loading stock"
   }
 }
