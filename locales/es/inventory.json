@@ -364,6 +364,7 @@
     "emptyDescription": "Aquí aparecen los artículos con stock menor a su mínimo.",
     "stockAndMinimum": "Quedan {{stock}} · Mínimo {{minimum}}",
     "toBuy": "Comprar",
+    "toBuyTitle": "Por comprar",
     "outWithoutMinimum": "Agotados sin mínimo",
     "outWithoutMinimumHint": "Define un stock mínimo para saber cuánto comprar.",
     "remaining": "Quedan {{stock}}",

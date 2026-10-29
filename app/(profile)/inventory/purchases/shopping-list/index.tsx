@@ -1,18 +1,24 @@
 import { useMemo, useState } from "react";
 import { Pressable, RefreshControl, ScrollView, Share } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
+import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatDate } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 import Button from "@/presentation/theme/components/button";
 import Chip from "@/presentation/theme/components/chip";
-import IconButton from "@/presentation/theme/components/icon-button";
+import DetailHeader from "@/presentation/theme/components/detail-header";
+import {
+  DetailCard,
+  DetailCardTitle,
+} from "@/presentation/theme/components/detail-card";
 import InventoryScreenHeader from "@/presentation/inventory/components/screen-header";
-import InventorySectionHeader from "@/presentation/inventory/components/inventory-section-header";
 import { useShoppingList } from "@/presentation/inventory/hooks/useShoppingList";
 import { usePurchaseCartStore } from "@/presentation/inventory/store/purchaseCartStore";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
@@ -29,6 +35,8 @@ export default function InventoryShoppingListScreen() {
   const { lowItems, outWithoutMinimum, itemsQuery } = useShoppingList();
   const currentRestaurant = useAuthStore((state) => state.currentRestaurant);
   const [categoryId, setCategoryId] = useState<string | null>(null);
+  const insets = useSafeAreaInsets();
+  const primaryColor = useThemeColor({}, "primary");
 
   const categories = useMemo(() => {
     const byId = new Map<string, string>();
@@ -45,6 +53,13 @@ export default function InventoryShoppingListScreen() {
   const visibleItems = lowItems.filter(inCategory);
   const visibleOutWithoutMinimum = outWithoutMinimum.filter(inCategory);
   const isEmpty = lowItems.length === 0 && outWithoutMinimum.length === 0;
+  const showStartBar = visibleItems.length > 0;
+
+  const subtitle = itemsQuery.isLoading
+    ? t("loading")
+    : lowItems.length > 0
+      ? t("shoppingList.lowCount", { count: lowItems.length })
+      : t("shoppingList.allGood");
 
   const withUnit = (item: InventoryItem, quantity: number) =>
     t("quantityWithUnit", {
@@ -88,19 +103,43 @@ export default function InventoryShoppingListScreen() {
 
   return (
     <ScreenLayout style={tw`flex-1`}>
-      <ThemedView style={tw`px-4 pt-8 gap-4 bg-transparent`}>
-        <InventoryScreenHeader
+      <ThemedView style={tw`px-4 pt-8 bg-transparent`}>
+        <InventoryScreenHeader />
+      </ThemedView>
+
+      <ScrollView
+        style={tw`flex-1`}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={tw`px-4 pt-6 gap-4 ${showStartBar ? "pb-32" : "pb-10"}`}
+        refreshControl={
+          <RefreshControl
+            refreshing={itemsQuery.isRefetching}
+            onRefresh={() => itemsQuery.refetch()}
+            tintColor={primaryColor}
+            colors={[primaryColor]}
+          />
+        }
+      >
+        <DetailHeader
           title={t("shoppingList.title")}
-          right={
-            visibleItems.length > 0 ? (
-              <IconButton
-                icon="share-2"
-                onPress={handleShare}
+          subtitle={subtitle}
+          icon="clipboard-list"
+        >
+          {/* Starting the purchase lives in the bottom bar */}
+          {visibleItems.length > 0 && (
+            <ThemedView style={tw`flex-row flex-wrap gap-3`}>
+              <Button
+                label={t("common:actions.share")}
+                leftIcon="share-2"
+                variant="surface"
+                shape="rounded"
+                size="small"
                 accessibilityLabel={t("shoppingList.share")}
+                onPress={handleShare}
               />
-            ) : undefined
-          }
-        />
+            </ThemedView>
+          )}
+        </DetailHeader>
 
         {categories.length > 1 && (
           <ScrollView
@@ -127,18 +166,7 @@ export default function InventoryShoppingListScreen() {
             ))}
           </ScrollView>
         )}
-      </ThemedView>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`px-4 pb-8 pt-4 gap-1`}
-        refreshControl={
-          <RefreshControl
-            refreshing={itemsQuery.isRefetching}
-            onRefresh={() => itemsQuery.refetch()}
-          />
-        }
-      >
         {itemsQuery.isLoading && (
           <ThemedText type="body1" style={tw`text-gray-500 text-center py-8`}>
             {t("loading")}
@@ -166,7 +194,7 @@ export default function InventoryShoppingListScreen() {
               size={48}
               color={tw.color("emerald-500")}
             />
-            <ThemedText type="body1" style={tw`font-semibold`}>
+            <ThemedText type="body1" style={{ fontFamily: typography.bold }}>
               {t("shoppingList.empty")}
             </ThemedText>
             <ThemedText type="body2" style={tw`text-center text-gray-500 px-4`}>
@@ -175,55 +203,48 @@ export default function InventoryShoppingListScreen() {
           </ThemedView>
         )}
 
-        {visibleItems.map((item) => (
-          <Pressable
-            key={item.id}
-            onPress={() => openItem(item)}
-            accessibilityRole="button"
-            // The bleed keeps the text on the screen's gutter while the press
-            // area gets room around it.
-            style={({ pressed }) =>
-              tw.style(
-                "flex-row items-start gap-4 -mx-3 px-3 py-2 rounded-md",
-                pressed && "opacity-70",
-              )
-            }
-          >
-            <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-              <ThemedText type="body1" numberOfLines={2}>
-                {item.name}
-              </ThemedText>
-              <ThemedText type="body2" style={tw`text-gray-500`}>
-                {t("shoppingList.stockAndMinimum", {
-                  stock: withUnit(item, item.quantity),
-                  minimum: withUnit(item, item.minimumQuantity ?? 0),
-                })}
-              </ThemedText>
-            </ThemedView>
-            <ThemedView style={tw`items-end gap-1 bg-transparent`}>
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {t("shoppingList.toBuy")}
-              </ThemedText>
-              <ThemedText type="body1">
-                {withUnit(item, getSuggestedPurchaseQuantity(item))}
-              </ThemedText>
-            </ThemedView>
-          </Pressable>
-        ))}
+        {/* What to buy and how much, like the bill's products card */}
+        {visibleItems.length > 0 && (
+          <DetailCard style={tw`py-5 gap-4`}>
+            <DetailCardTitle title={t("shoppingList.toBuyTitle")} />
+            {visibleItems.map((item) => (
+              <Pressable
+                key={item.id}
+                onPress={() => openItem(item)}
+                accessibilityRole="button"
+                style={({ pressed }) =>
+                  tw.style("flex-row items-center gap-4", pressed && "opacity-70")
+                }
+              >
+                <ThemedView style={tw`flex-1 gap-0.5 bg-transparent`}>
+                  <ThemedText numberOfLines={2}>{item.name}</ThemedText>
+                  <ThemedText type="small" style={tw`text-gray-500`}>
+                    {t("shoppingList.stockAndMinimum", {
+                      stock: withUnit(item, item.quantity),
+                      minimum: withUnit(item, item.minimumQuantity ?? 0),
+                    })}
+                  </ThemedText>
+                </ThemedView>
+                <ThemedView style={tw`items-end gap-0.5 bg-transparent`}>
+                  <ThemedText>
+                    {withUnit(item, getSuggestedPurchaseQuantity(item))}
+                  </ThemedText>
+                  <ThemedText type="small" style={tw`text-gray-500`}>
+                    {t("shoppingList.toBuy")}
+                  </ThemedText>
+                </ThemedView>
+              </Pressable>
+            ))}
+          </DetailCard>
+        )}
 
         {visibleOutWithoutMinimum.length > 0 && (
-          <ThemedView
-            style={tw.style(
-              "gap-1 bg-transparent",
-              visibleItems.length > 0 && "pt-6",
-            )}
-          >
-            <ThemedView style={tw`pb-2 bg-transparent`}>
-              <InventorySectionHeader
-                title={t("shoppingList.outWithoutMinimum")}
-                count={visibleOutWithoutMinimum.length}
-                hint={t("shoppingList.outWithoutMinimumHint")}
-              />
+          <DetailCard style={tw`py-5 gap-4`}>
+            <ThemedView style={tw`gap-1 bg-transparent`}>
+              <DetailCardTitle title={t("shoppingList.outWithoutMinimum")} />
+              <ThemedText type="small" style={tw`text-gray-500`}>
+                {t("shoppingList.outWithoutMinimumHint")}
+              </ThemedText>
             </ThemedView>
             {visibleOutWithoutMinimum.map((item) => (
               <Pressable
@@ -231,17 +252,12 @@ export default function InventoryShoppingListScreen() {
                 onPress={() => openItem(item)}
                 accessibilityRole="button"
                 style={({ pressed }) =>
-                  tw.style(
-                    "flex-row items-center gap-4 -mx-3 px-3 py-2 rounded-md",
-                    pressed && "opacity-70",
-                  )
+                  tw.style("flex-row items-center gap-4", pressed && "opacity-70")
                 }
               >
-                <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-                  <ThemedText type="body1" numberOfLines={2}>
-                    {item.name}
-                  </ThemedText>
-                  <ThemedText type="body2" style={tw`text-red-600`}>
+                <ThemedView style={tw`flex-1 gap-0.5 bg-transparent`}>
+                  <ThemedText numberOfLines={2}>{item.name}</ThemedText>
+                  <ThemedText type="small" style={tw`text-red-600`}>
                     {t("shoppingList.remaining", {
                       stock: withUnit(item, item.quantity),
                     })}
@@ -254,12 +270,18 @@ export default function InventoryShoppingListScreen() {
                 />
               </Pressable>
             ))}
-          </ThemedView>
+          </DetailCard>
         )}
       </ScrollView>
 
-      {visibleItems.length > 0 && (
-        <ThemedView style={tw`px-4 pb-2 pt-2 bg-transparent`}>
+      {/* The list's one primary action, docked like the bill's charge bar */}
+      {showStartBar && (
+        <ThemedView
+          style={[
+            tw`absolute bottom-0 left-0 right-0 bg-background border-t border-divider px-4 pt-3`,
+            { paddingBottom: Math.max(insets.bottom, 16) },
+          ]}
+        >
           <Button
             leftIcon="shopping-cart"
             label={t("shoppingList.startPurchase")}

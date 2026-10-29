@@ -364,6 +364,7 @@
     "emptyDescription": "Items below their minimum stock show up here.",
     "stockAndMinimum": "{{stock}} left · Minimum {{minimum}}",
     "toBuy": "To buy",
+    "toBuyTitle": "To buy",
     "outWithoutMinimum": "Out of stock, no minimum",
     "outWithoutMinimumHint": "Set a minimum stock to know how much to buy.",
     "remaining": "{{stock}} left",
