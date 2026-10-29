@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { ScrollView, Pressable } from "react-native";
+import { useMemo, useRef, useState } from "react";
+import { Pressable, ScrollView } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -8,111 +8,155 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
-import TextInput from "@/presentation/theme/components/text-input";
-import Chip from "@/presentation/theme/components/chip";
 import Button from "@/presentation/theme/components/button";
 import Checkbox from "@/presentation/theme/components/checkbox";
+import BottomSheetPicker, {
+  type BottomSheetPickerRef,
+} from "@/presentation/theme/components/bottom-sheet-picker";
 import { useProductionAreas } from "@/presentation/production-areas/hooks/useProductionAreas";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
-import { useProductSearch } from "@/presentation/restaurant-menu/hooks/useProductSearch";
 import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuManagement";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { Roles, isValidRole } from "@/core/auth/models/user.model";
+import type { Product } from "@/core/menu/models/product.model";
 
-/**
- * Checkbox list of the menu products that are not in this production area
- * yet, to bring several of them in at once. A product belongs to a single
- * area, so adding it here takes it out of its current one.
- */
-export default function ProductionAreaAddProductsScreen() {
+interface CategoryGroup {
+  key: string;
+  name: string;
+  products: Product[];
+}
+
+export default function ProductionAreaProductsScreen() {
   const { t } = useTranslation("productionAreas");
   const { areaId } = useLocalSearchParams<{ areaId: string }>();
+  const { user } = useAuthStore();
+  const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
   const { productionAreas, getAllQuery } = useProductionAreas();
-  const { categories: allCategories, products } = useMenu();
+  const { products: menuProducts } = useMenu();
   const { moveProductsToArea } = useMenuManagement();
+
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const areaPickerRef = useRef<BottomSheetPickerRef>(null);
+
   const area = productionAreas.find((current) => String(current.id) === areaId);
 
-  const [search, setSearch] = useState("");
-  const [categoryId, setCategoryId] = useState<string | null>(null);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-
-  // Products already in the area are not offered again.
-  const candidates = useMemo(
+  const products = useMemo(
     () =>
-      products.filter(
-        (product) => String(product.productionArea?.id) !== areaId,
+      menuProducts.filter(
+        (product) => String(product.productionArea?.id) === areaId,
       ),
-    [products, areaId],
+    [menuProducts, areaId],
   );
-  const categories = useMemo(
-    () => allCategories.filter((category) => category.isActive),
-    [allCategories],
-  );
-  const categoryProducts = useMemo(
-    () =>
-      categoryId
-        ? candidates.filter((product) => product.category?.id === categoryId)
-        : candidates,
-    [candidates, categoryId],
-  );
-  const filteredProducts = useProductSearch(categoryProducts, search);
 
-  // Ids that left the list (added from another phone) drop out of the
-  // selection on their own.
+  const groups = useMemo<CategoryGroup[]>(() => {
+    const byCategory = new Map<string, CategoryGroup>();
+    for (const product of products) {
+      const key = product.category?.id ?? "";
+      const group = byCategory.get(key) ?? {
+        key,
+        name: product.category?.name ?? t("products.noCategory"),
+        products: [],
+      };
+      group.products.push(product);
+      byCategory.set(key, group);
+    }
+    const sorted = [...byCategory.values()].sort((a, b) =>
+      a.name.localeCompare(b.name),
+    );
+    for (const group of sorted) {
+      group.products.sort((a, b) => a.name.localeCompare(b.name));
+    }
+    return sorted;
+  }, [products, t]);
+
+  const targetOptions = productionAreas
+    .filter((current) => String(current.id) !== areaId)
+    .map((current) => ({ label: current.name, value: current.id }));
+
+  // Ids that are no longer in this area (moved by this screen or from another
+  // phone) drop out of the selection on their own.
   const selected = useMemo(
-    () => candidates.filter((p) => selectedIds.has(p.id)).map((p) => p.id),
-    [candidates, selectedIds],
+    () => products.filter((p) => selectedIds.has(p.id)).map((p) => p.id),
+    [products, selectedIds],
   );
+  const isSelecting = selected.length > 0;
+  const allSelected =
+    products.length > 0 && selected.length === products.length;
 
-  const toggle = (productId: string, value: boolean) =>
+  const toggleProduct = (id: string, value: boolean) => {
     setSelectedIds((current) => {
       const next = new Set(current);
-      if (value) next.add(productId);
-      else next.delete(productId);
+      if (value) next.add(id);
+      else next.delete(id);
       return next;
     });
-
-  const handleAdd = async () => {
-    if (!area) return;
-    const { failed } = await moveProductsToArea.mutateAsync({
-      productIds: selected,
-      productionAreaId: area.id,
-    });
-    // Added products leave this list on their own, so failed ones stay
-    // selected for a retry.
-    if (failed === 0) router.back();
   };
 
-  return (
-    <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
-      <ThemedView style={tw`items-center gap-4 flex-row mb-6`}>
-        <Pressable
-          onPress={() => router.back()}
-          accessibilityRole="button"
-          accessibilityLabel={t("common:actions.goBack")}
-          style={({ pressed }) => tw.style(pressed && "opacity-70")}
-        >
-          <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
-        </Pressable>
-        <ThemedView style={tw`flex-1 bg-transparent`}>
-          <ThemedText
-            type="h3"
-            style={{ fontFamily: typography.regular }}
-            numberOfLines={1}
-          >
-            {t("products.addTitle")}
-          </ThemedText>
-          {area && (
-            <ThemedText
-              type="body2"
-              style={tw`text-gray-500`}
-              numberOfLines={1}
-            >
-              {area.name}
-            </ThemedText>
-          )}
-        </ThemedView>
-      </ThemedView>
+  const toggleGroup = (group: CategoryGroup) => {
+    const groupSelected = group.products.every((p) => selectedIds.has(p.id));
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      for (const product of group.products) {
+        if (groupSelected) next.delete(product.id);
+        else next.add(product.id);
+      }
+      return next;
+    });
+  };
 
-      {!area ? (
+  const toggleAll = () => {
+    setSelectedIds(
+      allSelected ? new Set() : new Set(products.map((p) => p.id)),
+    );
+  };
+
+  const handleMove = async (value: string | number) => {
+    const { failed } = await moveProductsToArea.mutateAsync({
+      productIds: selected,
+      productionAreaId: Number(value),
+    });
+    // Moved products leave this list on their own, so failed ones stay
+    // selected for a retry.
+    if (failed === 0) setSelectedIds(new Set());
+  };
+
+  const header = (
+    <ThemedView style={tw`items-center gap-3 flex-row mb-6 bg-transparent`}>
+      <Pressable
+        onPress={() => router.back()}
+        accessibilityRole="button"
+        accessibilityLabel={t("common:actions.goBack")}
+        style={({ pressed }) => tw.style(pressed && "opacity-70")}
+      >
+        <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
+      </Pressable>
+      {isSelecting && (
+        <ThemedView
+          style={tw`flex-row items-center gap-2 ml-auto bg-transparent`}
+        >
+          {!allSelected && (
+            <Button
+              label={t("products.selectAll")}
+              variant="text"
+              size="extra-small"
+              onPress={toggleAll}
+            />
+          )}
+          <Button
+            label={t("products.cancelSelection")}
+            variant="surface"
+            size="extra-small"
+            onPress={() => setSelectedIds(new Set())}
+          />
+        </ThemedView>
+      )}
+    </ThemedView>
+  );
+
+  if (!area) {
+    return (
+      <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
+        {header}
         <ThemedView style={tw`items-center py-8 gap-3`}>
           {getAllQuery.isLoading ? (
             <ThemedText type="body1" style={tw`text-gray-500`}>
@@ -127,118 +171,164 @@ export default function ProductionAreaAddProductsScreen() {
             </>
           )}
         </ThemedView>
-      ) : (
-        <ThemedView style={tw`gap-4 flex-1`}>
-          <TextInput
-            placeholder={t("products.searchPlaceholder")}
-            icon="search"
-            value={search}
-            onChangeText={setSearch}
-            returnKeyType="search"
-          />
+      </ScreenLayout>
+    );
+  }
 
-          {categories.length > 0 && (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={tw`gap-2 items-center`}
-              style={tw`flex-none`}
-            >
-              <Chip
-                label={t("products.allCategories")}
-                selected={categoryId === null}
-                onPress={() => setCategoryId(null)}
-              />
-              {categories.map((category) => (
-                <Chip
-                  key={category.id}
-                  label={category.name}
-                  selected={categoryId === category.id}
-                  onPress={() =>
-                    setCategoryId((current) =>
-                      current === category.id ? null : category.id,
-                    )
-                  }
-                />
-              ))}
-            </ScrollView>
-          )}
+  return (
+    <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
+      {header}
 
-          <ScrollView
-            style={tw`flex-1`}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={tw`gap-3 pb-8`}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={tw.style(
+          "gap-8",
+          isSelecting ? "pb-32" : "pb-8",
+        )}
+      >
+        <ThemedView style={tw`gap-1`}>
+          <ThemedText type="h1">{area.name}</ThemedText>
+        </ThemedView>
+        <ThemedText type="h4" style={tw`text-on-surface`}>
+          {t("productCount", { count: products.length })}
+        </ThemedText>
+
+        {/* {!!area.printers?.length && ( */}
+        {/*   <ThemedView style={tw`flex-row flex-wrap gap-2`}> */}
+        {/*     {area.printers.map((printer) => ( */}
+        {/*       <Chip */}
+        {/*         key={printer.id} */}
+        {/*         variant="assist" */}
+        {/*         icon="printer" */}
+        {/*         label={printer.name} */}
+        {/*       /> */}
+        {/*     ))} */}
+        {/*   </ThemedView> */}
+        {/* )} */}
+
+        {products.length === 0 ? (
+          <ThemedView
+            style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4 mt-2`}
           >
-            {candidates.length === 0 && (
-              <ThemedView style={tw`items-center py-8 gap-3`}>
-                <Icon name="hamburger" size={40} color={tw.color("gray-400")} />
-                <ThemedText type="body1" style={tw`font-semibold`}>
-                  {t("products.nothingToAdd")}
-                </ThemedText>
-              </ThemedView>
-            )}
-
-            {candidates.length > 0 && filteredProducts.length === 0 && (
-              <ThemedView style={tw`items-center py-8 gap-3`}>
-                <Icon name="search" size={40} color={tw.color("gray-400")} />
-                <ThemedText type="body1" style={tw`font-semibold`}>
-                  {t("products.noResults")}
-                </ThemedText>
-              </ThemedView>
-            )}
-
-            {filteredProducts.map((product) => {
-              const checked = selectedIds.has(product.id);
+            <Icon name="hamburger" size={28} color={tw.color("gray-400")} />
+            <ThemedText type="body2" style={tw`font-semibold`}>
+              {t("products.empty")}
+            </ThemedText>
+            <ThemedText type="small" style={tw`text-center text-gray-500`}>
+              {t("products.emptyDescription")}
+            </ThemedText>
+          </ThemedView>
+        ) : (
+          <>
+            {groups.map((group) => {
+              const groupSelected = group.products.every((p) =>
+                selectedIds.has(p.id),
+              );
               return (
-                <Pressable
-                  key={product.id}
-                  onPress={() => toggle(product.id, !checked)}
-                  accessibilityRole="checkbox"
-                  accessibilityState={{ checked }}
-                  style={({ pressed }) => [
-                    tw`p-4 rounded-2xl bg-surface-container-low flex-row items-center gap-3`,
-                    !product.isActive && tw`opacity-50`,
-                    pressed && tw`opacity-80`,
-                  ]}
-                >
-                  <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-                    <ThemedText type="body1" numberOfLines={1}>
-                      {product.name}
+                <ThemedView key={group.key} style={tw`gap-1`}>
+                  <ThemedView
+                    style={tw`flex-row items-center justify-between gap-3`}
+                  >
+                    <ThemedText type="caption" style={tw`flex-1`}>
+                      {group.name}
                     </ThemedText>
-                    <ThemedText
-                      type="body2"
-                      style={tw`text-gray-600`}
-                      numberOfLines={1}
-                    >
-                      {[
-                        product.category?.name,
-                        product.productionArea?.name ?? t("products.noArea"),
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </ThemedText>
+                    {isSelecting && (
+                      <Checkbox
+                        size="small"
+                        value={groupSelected}
+                        onValueChange={() => toggleGroup(group)}
+                      />
+                    )}
                   </ThemedView>
-                  <Checkbox
-                    value={checked}
-                    onValueChange={(value) => toggle(product.id, value)}
-                  />
-                </Pressable>
+
+                  {group.products.map((product) => {
+                    const checked = selectedIds.has(product.id);
+                    return (
+                      <Pressable
+                        key={product.id}
+                        disabled={!canManage}
+                        onPress={
+                          isSelecting
+                            ? () => toggleProduct(product.id, !checked)
+                            : undefined
+                        }
+                        onLongPress={() => toggleProduct(product.id, !checked)}
+                        style={({ pressed }) =>
+                          tw.style(
+                            "flex-row items-center gap-3 py-3",
+                            !product.isActive && "opacity-50",
+                            pressed && "opacity-80",
+                          )
+                        }
+                      >
+                        <ThemedText
+                          type="body1"
+                          style={[
+                            tw`flex-1`,
+                            { fontFamily: typography.medium },
+                          ]}
+                          numberOfLines={1}
+                        >
+                          {product.name}
+                        </ThemedText>
+                        {isSelecting && (
+                          <Checkbox
+                            value={checked}
+                            onValueChange={(value) =>
+                              toggleProduct(product.id, value)
+                            }
+                          />
+                        )}
+                      </Pressable>
+                    );
+                  })}
+                </ThemedView>
               );
             })}
-          </ScrollView>
+          </>
+        )}
 
-          {selected.length > 0 && (
-            <ThemedView style={tw`pt-2 pb-6`}>
-              <Button
-                label={t("products.addCount", { count: selected.length })}
-                onPress={() => void handleAdd().catch(() => {})}
-                loading={moveProductsToArea.isPending}
-                disabled={moveProductsToArea.isPending}
-              />
-            </ThemedView>
-          )}
+        {canManage && !isSelecting && (
+          <Button
+            label={t("products.addProducts")}
+            leftIcon="plus"
+            variant="outline"
+            onPress={() =>
+              router.push({
+                pathname: "/(profile)/production/areas/products/add",
+                params: { areaId },
+              })
+            }
+          />
+        )}
+      </ScrollView>
+
+      {isSelecting && (
+        <ThemedView
+          style={tw`absolute bottom-6 left-4 right-4 flex-row items-center gap-4 p-4 rounded-3xl bg-surface-high`}
+        >
+          <ThemedText type="body1" style={tw`flex-1`}>
+            {t("products.selectedCount", { count: selected.length })}
+          </ThemedText>
+          <Button
+            label={t("products.moveToArea")}
+            leftIcon="arrow-right-left"
+            size="small"
+            loading={moveProductsToArea.isPending}
+            disabled={
+              moveProductsToArea.isPending || targetOptions.length === 0
+            }
+            onPress={() => areaPickerRef.current?.present()}
+          />
         </ThemedView>
       )}
+
+      <BottomSheetPicker
+        ref={areaPickerRef}
+        title={t("products.moveSheetTitle")}
+        options={targetOptions}
+        onChange={(value) => void handleMove(value).catch(() => {})}
+      />
     </ScreenLayout>
   );
 }

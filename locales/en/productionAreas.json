@@ -61,6 +61,7 @@
   "products": {
     "title": "Products",
     "viewProducts": "View products",
+    "seeAll": "See all ({{count}})",
     "empty": "This area has no products",
     "emptyDescription": "Assign an area to each product from its page in the menu.",
     "noCategory": "No category",

@@ -61,6 +61,7 @@
   "products": {
     "title": "Productos",
     "viewProducts": "Ver productos",
+    "seeAll": "Ver todos ({{count}})",
     "empty": "Esta área no tiene productos",
     "emptyDescription": "Asigna un área a cada producto desde su ficha en el menú.",
     "noCategory": "Sin categoría",
