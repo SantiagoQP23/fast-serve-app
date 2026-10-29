@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RefreshControl, ScrollView, Pressable, View } from "react-native";
 import { router } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
@@ -176,6 +176,47 @@ export default function MenuProductDetailView({
     if (!product) return;
     updateProduct.mutate({ id: product.id, productionAreaId: Number(value) });
   };
+
+  // Ids known when the user left to create a category or area; the first one
+  // missing from them on return is the new one, and goes on this product.
+  const knownCategoryIdsRef = useRef<Set<string> | null>(null);
+  const knownAreaIdsRef = useRef<Set<number> | null>(null);
+
+  const handleCreateCategory = () => {
+    knownCategoryIdsRef.current = new Set(categories.map((c) => c.id));
+    const sectionId = categories.find(
+      (c) => c.id === product?.category?.id,
+    )?.sectionId;
+    router.push({
+      pathname: "/(profile)/menu/categories/form",
+      params: sectionId ? { sectionId } : {},
+    });
+  };
+
+  const handleCreateProductionArea = () => {
+    knownAreaIdsRef.current = new Set(productionAreas.map((area) => area.id));
+    router.push("/(profile)/production/areas/form");
+  };
+
+  useEffect(() => {
+    const knownIds = knownCategoryIdsRef.current;
+    if (!knownIds || !product) return;
+    const created = categories.find((c) => !knownIds.has(c.id));
+    if (!created) return;
+    knownCategoryIdsRef.current = null;
+    updateProduct.mutate({ id: product.id, categoryId: created.id });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categories]);
+
+  useEffect(() => {
+    const knownIds = knownAreaIdsRef.current;
+    if (!knownIds || !product) return;
+    const created = productionAreas.find((area) => !knownIds.has(area.id));
+    if (!created) return;
+    knownAreaIdsRef.current = null;
+    updateProduct.mutate({ id: product.id, productionAreaId: created.id });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productionAreas]);
 
   const openAddOptionSheet = () => {
     setNewOptionName("");
@@ -695,6 +736,10 @@ export default function MenuProductDetailView({
         options={categoryOptions}
         value={product.category?.id}
         onChange={handleChangeCategory}
+        headerAction={{
+          label: t("categories.newCategory"),
+          onPress: handleCreateCategory,
+        }}
       />
 
       <BottomSheetPicker
@@ -707,6 +752,10 @@ export default function MenuProductDetailView({
             : undefined
         }
         onChange={handleChangeProductionArea}
+        headerAction={{
+          label: t("productionAreas:newArea"),
+          onPress: handleCreateProductionArea,
+        }}
       />
 
       <ThemedBottomSheetModal ref={addOptionSheetRef} enablePanDownToClose>
