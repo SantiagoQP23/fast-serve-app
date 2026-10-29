@@ -232,7 +232,30 @@
         "andMore": "{{names}} y {{count}} más"
       },
       "actions": "Opciones de la variante",
-      "openStock": "Ver stock y receta"
+      "openStock": "Ver stock y receta",
+      "duplicate": {
+        "action": "Duplicar variante",
+        "title": "Duplicar \"{{name}}\"",
+        "copyName": "{{name}} (copia)",
+        "copy": "Copia",
+        "newStock": "Stock nuevo",
+        "newStockHint": "Empieza en 0",
+        "newStockHintMinimum": "Empieza en 0, con el mismo mínimo ({{minimum}})",
+        "sharedStock": "Compartir stock con \"{{name}}\"",
+        "sharedStockHint_one": "Las dos venden de la misma {{count}} unidad",
+        "sharedStockHint_other": "Las dos venden de las mismas {{count}} unidades",
+        "quantity": "Unidades ahora (opcional)",
+        "quantityInvalid": "Las unidades deben ser un número positivo",
+        "recipe": "Receta · se copia igual",
+        "moreLines_one": "y {{count}} insumo más",
+        "moreLines_other": "y {{count}} insumos más",
+        "recipeHint": "Podrás cambiar la receta después de duplicar.",
+        "noneHint": "Sin control de stock, como la original. Podrás cambiarlo después de duplicar.",
+        "nameTaken": "Ya hay una variante con ese nombre",
+        "submit": "Duplicar",
+        "success": "Variante duplicada",
+        "error": "No se pudo duplicar la variante"
+      }
     },
     "saveAndAddAnother": "Guardar y crear otro",
     "createdList": "Creados: {{names}}",

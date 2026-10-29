@@ -2,6 +2,7 @@ import { restaurantApi } from "@/core/api/restaurantApi";
 import type { ProductOption } from "@/core/menu/models/product-optionl.model";
 import type { CreateProductOptionDto } from "../interfaces/dto/create-product-option.dto";
 import type { UpdateProductOptionDto } from "../interfaces/dto/update-product-option.dto";
+import type { DuplicateProductOptionDto } from "../interfaces/dto/duplicate-product-option.dto";
 
 export interface CreatedProductOption extends ProductOption {
   productId: string;
@@ -25,6 +26,18 @@ export class ProductOptionsService {
   ): Promise<CreatedProductOption> {
     const resp = await restaurantApi.patch<CreatedProductOption>(
       `/product-options/${id}`,
+      data,
+    );
+    return resp.data;
+  }
+
+  /** Copies a variant into its product, with its stock settings. */
+  static async duplicate(
+    id: number,
+    data: DuplicateProductOptionDto,
+  ): Promise<CreatedProductOption> {
+    const resp = await restaurantApi.post<CreatedProductOption>(
+      `/product-options/${id}/duplicate`,
       data,
     );
     return resp.data;

@@ -41,6 +41,9 @@ import ProductSectionHeader from "@/presentation/menu-management/components/prod
 import EditVariantSheet, {
   type EditVariantSheetRef,
 } from "@/presentation/menu-management/components/edit-variant-sheet";
+import DuplicateVariantSheet, {
+  type DuplicateVariantSheetRef,
+} from "@/presentation/menu-management/components/duplicate-variant-sheet";
 import {
   openVariant as openVariantById,
   useVariantStockSection,
@@ -107,6 +110,7 @@ export default function MenuProductDetailView({
 
   const productActionsSheetRef = useRef<BottomSheetMethods>(null);
   const editOptionSheetRef = useRef<EditVariantSheetRef>(null);
+  const duplicateOptionSheetRef = useRef<DuplicateVariantSheetRef>(null);
 
   const product = products.find((p) => p.id === productId);
   // A product with one variant shows that variant's stock right here,
@@ -515,7 +519,7 @@ export default function MenuProductDetailView({
                           accessibilityLabel={t("inventory:variant.mode.title")}
                         />
                       )}
-                      {stock.hasOptions && (
+                      {(stock.hasOptions || canManage) && (
                         <IconButton
                           icon="ellipsis-vertical"
                           size={18}
@@ -670,7 +674,32 @@ export default function MenuProductDetailView({
 
       <EditVariantSheet ref={editOptionSheetRef} productId={product.id} />
 
-      <VariantStockOverlays section={stock} sheets={stockSheets} />
+      <VariantStockOverlays
+        section={stock}
+        sheets={stockSheets}
+        variantActions={
+          canManage && singleOption
+            ? [
+                {
+                  icon: "copy",
+                  label: t("products.variants.duplicate.action"),
+                  onPress: () => {
+                    stockSheets.optionsSheetRef.current?.dismiss();
+                    duplicateOptionSheetRef.current?.present(
+                      product,
+                      singleOption,
+                    );
+                  },
+                },
+              ]
+            : []
+        }
+      />
+
+      <DuplicateVariantSheet
+        ref={duplicateOptionSheetRef}
+        onDuplicated={(copyId) => openVariantById(copyId)}
+      />
     </View>
   );
 }

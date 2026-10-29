@@ -20,7 +20,14 @@ import type { CreateProductDto } from "../interfaces/dto/create-product.dto";
 import type { UpdateProductDto } from "../interfaces/dto/update-product.dto";
 import type { CreateProductOptionDto } from "../interfaces/dto/create-product-option.dto";
 import type { UpdateProductOptionDto } from "../interfaces/dto/update-product-option.dto";
+import type { DuplicateProductOptionDto } from "../interfaces/dto/duplicate-product-option.dto";
 import { getErrorMessage } from "@/core/api/get-error-message";
+import { queryClient } from "@/app/_layout";
+import { inventoryItemsQueryKey } from "@/presentation/inventory/hooks/useInventoryItems";
+import {
+  requestSync,
+  SELF_CHECK_DELAY_MS,
+} from "@/presentation/sync/request-sync";
 
 const MOVE_BATCH_SIZE = 4;
 
@@ -244,6 +251,56 @@ export const useMenuManagement = () => {
     },
   });
 
+  const duplicateProductOption = useMutation<
+    CreatedProductOption,
+    Error,
+    DuplicateProductOptionDto & { id: number; productId: string }
+  >({
+    mutationFn: ({ id, productId: _productId, ...data }) =>
+      ProductOptionsService.duplicate(id, data),
+    onSuccess: (copy, { id, productId, currentOptionName }) => {
+      // Mirror what the server did until the product's sync event arrives:
+      // the copy right after the original, a renamed "Normal", variants on.
+      const product = useMenuStore
+        .getState()
+        .products.find((p) => p.id === productId);
+      if (product) {
+        const renamed = currentOptionName?.trim();
+        const options = product.options
+          .filter((existing) => existing.id !== copy.id)
+          .map((existing) =>
+            renamed && existing.isActive
+              ? { ...existing, name: renamed }
+              : existing,
+          );
+        const at = options.findIndex((existing) => existing.id === id);
+        options.splice(at < 0 ? options.length : at + 1, 0, {
+          id: copy.id,
+          name: copy.name,
+          price: copy.price,
+          cost: copy.cost,
+          isActive: copy.isActive,
+          isAvailable: copy.isAvailable,
+          isDefault: copy.isDefault,
+          trackStock: copy.trackStock,
+          quantity: copy.quantity,
+          inventoryItems: copy.inventoryItems ?? [],
+        });
+        upsertProduct({ ...product, hasVariants: true, options });
+      }
+      queryClient.invalidateQueries({ queryKey: inventoryItemsQueryKey });
+      requestSync(SELF_CHECK_DELAY_MS);
+      toast.success(t("products.variants.duplicate.success"));
+    },
+    onError: (error) => {
+      toast.error(
+        getErrorMessage(error, {
+          fallback: t("products.variants.duplicate.error"),
+        }),
+      );
+    },
+  });
+
   const updateProductOption = useMutation<
     CreatedProductOption,
     Error,
@@ -329,6 +386,7 @@ export const useMenuManagement = () => {
     deleteProduct,
     duplicateProduct,
     createProductOption,
+    duplicateProductOption,
     updateProductOption,
     deleteProductOption,
     setDefaultProductOption,
