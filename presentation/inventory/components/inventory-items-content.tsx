@@ -1,11 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
-import {
-  BackHandler,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-} from "react-native";
+import { BackHandler, RefreshControl, ScrollView } from "react-native";
 import { router, useFocusEffect } from "expo-router";
+import type { IFuseOptions } from "fuse.js";
 import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -15,6 +11,9 @@ import { typography } from "@/constants/theme";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { canManageInventory } from "@/core/auth/models/user.model";
 import Button from "@/presentation/theme/components/button";
+import DetailHeader from "@/presentation/theme/components/detail-header";
+import TextInput from "@/presentation/theme/components/text-input";
+import { useFuzzySearch } from "@/presentation/shared/hooks/useFuzzySearch";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 import { useInventoryItemCategories } from "@/presentation/inventory/hooks/useInventoryItemCategories";
 import InventoryCategoryBrowser from "@/presentation/inventory/components/inventory-category-browser";
@@ -41,6 +40,13 @@ const STATUS_BY_FILTER: Record<
   [InventoryItemStockStatusFilter.NO_MINIMUM]: "noMinimum",
 };
 
+const ITEM_SEARCH_OPTIONS: IFuseOptions<InventoryItem> = {
+  keys: [
+    { name: "name", weight: 3 },
+    { name: "category.name", weight: 1 },
+  ],
+};
+
 /** The Insumos page: insumos grouped by category, filterable by status. */
 export default function InventoryItemsContent() {
   const { t } = useTranslation("inventory");
@@ -53,6 +59,15 @@ export default function InventoryItemsContent() {
     [allItems],
   );
   const { categories, categoriesQuery } = useInventoryItemCategories();
+
+  // The search bar narrows the loaded catalog in place; no backend call.
+  const [search, setSearch] = useState("");
+  const hasSearch = !!search.trim();
+  const searchedItems = useFuzzySearch(
+    catalogItems,
+    search,
+    ITEM_SEARCH_OPTIONS,
+  );
 
   // Status chips filter the insumos in place, like the Menú's stock chips.
   const [statusFilter, setStatusFilter] =
@@ -74,42 +89,51 @@ export default function InventoryItemsContent() {
     });
   };
 
-  // Counted over the loaded catalog so each chip matches what it shows.
+  // Counted over the searched items so each chip matches what it shows.
   const statusCounts = useMemo(() => {
     const counts = { critical: 0, low: 0, optimal: 0, noMinimum: 0 };
-    for (const item of catalogItems) {
+    for (const item of searchedItems) {
       const status = getInventoryStockStatus(item);
       if (status !== "inactive") counts[status] += 1;
     }
     return counts;
-  }, [catalogItems]);
+  }, [searchedItems]);
 
   const filteredItems = useMemo(
     () =>
       statusFilter
-        ? catalogItems.filter(
+        ? searchedItems.filter(
             (item) =>
               getInventoryStockStatus(item) === STATUS_BY_FILTER[statusFilter],
           )
-        : catalogItems,
-    [catalogItems, statusFilter],
+        : searchedItems,
+    [searchedItems, statusFilter],
   );
 
-  // Back clears the status filter before it leaves the screen
-  const hasBackStep = !!statusFilter;
+  // Back clears the search, then the status filter, before it leaves the
+  // screen
+  const hasBackStep = hasSearch || !!statusFilter;
   useFocusEffect(
     useCallback(() => {
       if (!hasBackStep) return;
       const subscription = BackHandler.addEventListener(
         "hardwareBackPress",
         () => {
-          setStatusFilter(null);
+          if (hasSearch) setSearch("");
+          else setStatusFilter(null);
           return true;
         },
       );
       return () => subscription.remove();
-    }, [hasBackStep]),
+    }, [hasBackStep, hasSearch]),
   );
+
+  // From a search with no match, the form starts with what was typed
+  const handleCreateItem = () =>
+    router.push({
+      pathname: "/(profile)/inventory/items/form",
+      params: hasSearch ? { name: search.trim() } : {},
+    });
 
   const handleRefresh = () =>
     Promise.all([catalogQuery.refetch(), categoriesQuery.refetch()]);
@@ -119,39 +143,55 @@ export default function InventoryItemsContent() {
   const list = (
     <>
       <ThemedView style={tw`px-4 pt-8 bg-transparent`}>
-        <InventoryScreenHeader
-          title={t("tabs.inventory")}
-          right={
-            <Pressable
-              onPress={() =>
-                router.push({ pathname: "/(profile)/inventory/search" })
-              }
-              hitSlop={13}
-              style={({ pressed }) => tw.style(pressed && "opacity-70")}
-              accessibilityLabel={t("searchPlaceholder")}
-              accessibilityRole="button"
-            >
-              <Icon name="search" color={tw.color("on-surface")} size={22} />
-            </Pressable>
-          }
-        />
+        <InventoryScreenHeader />
       </ThemedView>
 
-      <ThemedView style={tw`flex-1 px-4 pt-6 gap-6 bg-transparent`}>
-        {canManage && (
-          <Button
-            label={t("createItem")}
-            leftIcon="plus"
-            variant="outline"
-            onPress={() =>
-              router.push({ pathname: "/(profile)/inventory/items/form" })
-            }
+      <ThemedView style={tw`flex-1 px-4 pt-6 gap-4 bg-transparent`}>
+        <DetailHeader
+          title={t("tabs.inventory")}
+          subtitle={
+            catalogQuery.isLoading
+              ? t("loading")
+              : t("categories.itemCount", { count: catalogItems.length })
+          }
+          icon="package"
+        >
+          {canManage && (
+            <ThemedView style={tw`flex-row flex-wrap gap-3`}>
+              <Button
+                label={t("createItem")}
+                leftIcon="plus"
+                shape="rounded"
+                size="small"
+                onPress={handleCreateItem}
+              />
+              <Button
+                label={t("categories.manageCategories")}
+                leftIcon="folder-cog"
+                variant="surface"
+                shape="rounded"
+                size="small"
+                onPress={() =>
+                  router.push({ pathname: "/(profile)/inventory/categories" })
+                }
+              />
+            </ThemedView>
+          )}
+        </DetailHeader>
+
+        {catalogItems.length > 0 && (
+          <TextInput
+            placeholder={t("searchPlaceholder")}
+            icon="search"
+            value={search}
+            onChangeText={setSearch}
+            returnKeyType="search"
           />
         )}
 
         {!catalogQuery.isLoading &&
           !catalogQuery.isError &&
-          catalogItems.length > 0 && (
+          searchedItems.length > 0 && (
             <ThemedView style={tw`gap-2 bg-transparent`}>
               <InventoryStockSummary
                 counts={statusCounts}
@@ -188,7 +228,26 @@ export default function InventoryItemsContent() {
             </ThemedView>
           )}
 
-        {statusFilter && filteredItems.length === 0 ? (
+        {hasSearch && searchedItems.length === 0 ? (
+          <ThemedView style={tw`items-center py-8 gap-3 bg-transparent`}>
+            <Icon name="search" size={40} color={tw.color("gray-400")} />
+            <ThemedText type="body1" style={{ fontFamily: typography.bold }}>
+              {t("noResults")}
+            </ThemedText>
+            <ThemedText type="body2" style={tw`text-center text-gray-500 px-4`}>
+              {t("noResultsDescription")}
+            </ThemedText>
+            {canManage && (
+              <Button
+                label={t("createItem")}
+                leftIcon="plus"
+                size="small"
+                onPress={handleCreateItem}
+                style={tw`mt-2`}
+              />
+            )}
+          </ThemedView>
+        ) : statusFilter && filteredItems.length === 0 ? (
           <ThemedView style={tw`items-center py-8 gap-3 bg-transparent`}>
             <Icon name="circle-check" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`text-center text-gray-500 px-4`}>
@@ -203,18 +262,12 @@ export default function InventoryItemsContent() {
         ) : !catalogQuery.isLoading && !catalogQuery.isError && hasContent ? (
           <InventoryCategoryBrowser
             items={filteredItems}
-            hideEmptyGroups={!!statusFilter}
+            hideEmptyGroups={!!statusFilter || hasSearch}
             categories={categories}
             onOpenItem={openItem}
             activeId={isExpanded ? (selectedId ?? undefined) : undefined}
             refreshing={catalogQuery.isFetching}
             onRefresh={handleRefresh}
-            onManageCategories={
-              canManage
-                ? () =>
-                    router.push({ pathname: "/(profile)/inventory/categories" })
-                : undefined
-            }
           />
         ) : (
           <ScrollView

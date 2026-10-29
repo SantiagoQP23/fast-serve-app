@@ -8,7 +8,8 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { groupByDay } from "@/core/i18n/utils";
 import Button from "@/presentation/theme/components/button";
-import Chip from "@/presentation/theme/components/chip";
+import TabBar, { type TabItem } from "@/presentation/theme/components/tab-bar";
+import TabPager from "@/presentation/theme/components/tab-pager";
 import DaySectionHeader from "@/presentation/inventory/components/day-section-header";
 import InventoryCountCard from "@/presentation/inventory/components/inventory-count-card";
 import { useInventoryCounts } from "@/presentation/inventory/hooks/useInventoryCounts";
@@ -26,22 +27,19 @@ interface InventoryCountsTabProps {
   activeId?: string;
 }
 
+/** Counts split into In progress / Completed pages under a pinned tab bar. */
 export default function InventoryCountsTab({
   onAdd,
   onOpenCount,
   activeId,
 }: InventoryCountsTabProps) {
   const { t } = useTranslation("inventory");
-  const [status, setStatus] = useState<InventoryCountStatus | undefined>();
-  const { countsQuery, counts, hasMore, isLoadingMore, loadMore, refresh } =
-    useInventoryCounts(status);
-  const days = useMemo(
-    () => groupByDay(counts, (count) => count.createdAt),
-    [counts],
+  // Opens on what still needs finishing; there's no "All" view.
+  const [status, setStatus] = useState<InventoryCountStatus>(
+    InventoryCountStatus.IN_PROGRESS,
   );
 
-  const statusFilters: { label: string; value?: InventoryCountStatus }[] = [
-    { label: t("common:filters.all") },
+  const statusTabs: TabItem<InventoryCountStatus>[] = [
     {
       label: t("counts.countStatus.IN_PROGRESS"),
       value: InventoryCountStatus.IN_PROGRESS,
@@ -51,6 +49,43 @@ export default function InventoryCountsTab({
       value: InventoryCountStatus.COMPLETED,
     },
   ];
+
+  return (
+    <ThemedView style={tw`flex-1 bg-transparent`}>
+      <ThemedView style={tw`px-4 pt-4 bg-transparent`}>
+        <TabBar tabs={statusTabs} activeTab={status} onChange={setStatus} />
+      </ThemedView>
+      {/* Drag left/right to switch between in progress and completed */}
+      <TabPager
+        tabs={statusTabs}
+        activeTab={status}
+        onChange={setStatus}
+        renderScene={(value) => (
+          <CountsList
+            status={value}
+            onAdd={onAdd}
+            onOpenCount={onOpenCount}
+            activeId={activeId}
+          />
+        )}
+      />
+    </ThemedView>
+  );
+}
+
+interface CountsListProps extends InventoryCountsTabProps {
+  status: InventoryCountStatus;
+}
+
+/** One page of the pager: the counts with one status, grouped by day. */
+function CountsList({ status, onAdd, onOpenCount, activeId }: CountsListProps) {
+  const { t } = useTranslation("inventory");
+  const { countsQuery, counts, hasMore, isLoadingMore, loadMore, refresh } =
+    useInventoryCounts(status);
+  const days = useMemo(
+    () => groupByDay(counts, (count) => count.createdAt),
+    [counts],
+  );
 
   const openCount = (count: InventoryCount) =>
     onOpenCount
@@ -79,18 +114,6 @@ export default function InventoryCountsTab({
           onPress={onAdd}
         />
       )}
-
-      <ThemedView style={tw`flex-row flex-wrap gap-2 bg-transparent`}>
-        {statusFilters.map((filter) => (
-          <Chip
-            key={filter.value ?? "all"}
-            label={filter.label}
-            selected={status === filter.value}
-            onPress={() => setStatus(filter.value)}
-          />
-        ))}
-      </ThemedView>
-
       {countsQuery.isLoading && !isLoadingMore && (
         <ThemedText type="body1" style={tw`text-gray-500 text-center py-8`}>
           {t("loading")}
@@ -117,16 +140,8 @@ export default function InventoryCountsTab({
           <ThemedView style={tw`items-center py-8 gap-3`}>
             <Icon name="clipboard" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`font-semibold`}>
-              {status ? t("counts.emptyFiltered") : t("counts.empty")}
+              {t("counts.emptyFiltered")}
             </ThemedText>
-            {!status && (
-              <ThemedText
-                type="body2"
-                style={tw`text-center text-gray-500 px-4`}
-              >
-                {t("counts.emptyDescription")}
-              </ThemedText>
-            )}
           </ThemedView>
         )}
 
