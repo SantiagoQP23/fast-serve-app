@@ -49,7 +49,8 @@
     "undo": "Deshacer",
     "increase": "Aumentar",
     "decrease": "Disminuir",
-    "gotIt": "Entendido"
+    "gotIt": "Entendido",
+    "more": "Más"
   },
   "status": {
     "pending": "Pendiente",
@@ -201,6 +202,9 @@
     "accountUpdated": "Cuenta de destino actualizada",
     "bill": "Cuenta",
     "billNumber": "Cuenta #{{num}}",
+    "seeBill": "Ver cuenta",
+    "changeAccount": "Cambiar cuenta",
+    "statusLabel": "Estado",
     "totalWithCommission": "Total con comisión",
     "cashReceived": "Efectivo recibido",
     "changeGiven": "Cambio",

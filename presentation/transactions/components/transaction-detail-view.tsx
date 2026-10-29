@@ -8,6 +8,8 @@ import {
   View,
   RefreshControl,
   Modal,
+  type StyleProp,
+  type ViewStyle,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -19,7 +21,12 @@ import { typography } from "@/constants/theme";
 import { formatCurrency } from "@/core/i18n/utils";
 import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import Button from "@/presentation/theme/components/button";
-import Label, { type LabelProps } from "@/presentation/theme/components/label";
+import Label, {
+  labelSolidStyles,
+  type LabelProps,
+} from "@/presentation/theme/components/label";
+import Avatar from "@/presentation/theme/components/avatar";
+import Card from "@/presentation/theme/components/card";
 import { usePaymentProofs } from "@/presentation/transactions/hooks/usePaymentProofs";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useTranslation } from "react-i18next";
@@ -55,7 +62,9 @@ import BottomSheetPicker, {
   type BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
-import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
+import ActionsBottomSheet, {
+  type ActionsBottomSheetItem,
+} from "@/presentation/theme/components/actions-bottom-sheet";
 
 interface TransactionDetailViewProps {
   transactionId: number;
@@ -160,6 +169,9 @@ export default function TransactionDetailView({
   const uploadSourceSheetRef = useRef<BottomSheetMethods>(null);
   // Source picked in the sheet; the picker opens once the sheet has closed.
   const pendingSourceRef = useRef<"camera" | "gallery" | null>(null);
+  const moreSheetRef = useRef<BottomSheetMethods>(null);
+  // Action picked in the ⋯ sheet; it runs once the sheet has closed.
+  const pendingMoreActionRef = useRef<(() => void) | null>(null);
 
   const {
     isOpen: approveModalIsOpen,
@@ -254,6 +266,17 @@ export default function TransactionDetailView({
     const source = pendingSourceRef.current;
     pendingSourceRef.current = null;
     if (source) pickImage(source);
+  };
+
+  const chooseMoreAction = (action: () => void) => {
+    pendingMoreActionRef.current = action;
+    moreSheetRef.current?.dismiss();
+  };
+
+  const handleMoreSheetDismiss = () => {
+    const action = pendingMoreActionRef.current;
+    pendingMoreActionRef.current = null;
+    action?.();
   };
 
   const handleUploadProof = async () => {
@@ -378,6 +401,7 @@ export default function TransactionDetailView({
   const status =
     transactionStatusLabel[transaction.status] ??
     transactionStatusLabel[TransactionStatus.COMPLETED];
+  const statusText = t(`common:transactions.status.${status.key}`);
   const accountLabel = transaction.account
     ? transaction.account.num
       ? `${transaction.account.name} #${transaction.account.num}`
@@ -386,6 +410,11 @@ export default function TransactionDetailView({
   const metadata = transaction.metadata;
   const latestProof = proofs[0];
   const previousProofs = proofs.slice(1);
+  const bill = transaction.bill;
+  const creatorName = getUserDisplayName(
+    transaction.createdBy,
+    t("common:labels.deletedUser"),
+  );
 
   // Settled (approved or cancelled) with no proof: nothing is missing anymore.
   const isSettled =
@@ -411,31 +440,57 @@ export default function TransactionDetailView({
       date: dayjs(proof.createdAt).format(DATE_FORMAT),
     });
 
-  const accountRow = (
-    <DetailRow
-      label={t("common:transactions.destinationAccount")}
-      value={accountLabel ?? "—"}
-      trailing={
-        canChangeAccount ? (
-          <Button
-            size="small"
-            variant="text"
-            label={t("common:actions.change")}
-            onPress={() => accountBottomSheetRef.current?.present()}
-          />
-        ) : canManage && accountLockReason ? (
-          <IconButton
-            icon="info"
-            size={20}
-            onPress={() => accountLockedSheetRef.current?.present()}
-            accessibilityLabel={t(
-              "common:transactions.accountLocked.infoLabel",
-            )}
-          />
-        ) : undefined
-      }
-    />
-  );
+  const openBill = () => {
+    if (bill) router.push(`/(bills)/${bill.id}`);
+  };
+
+  // One main pill: approving when the user reviews transfers, otherwise
+  // uploading the proof the transfer is still missing.
+  const mainAction: "approve" | "upload" | null = canApproveTransaction
+    ? "approve"
+    : canUploadProof && !selectedImage
+      ? "upload"
+      : null;
+
+  // With no proof yet, the upload button sits in the proof card.
+  const canUploadAnother =
+    canUploadProof &&
+    !!latestProof &&
+    !selectedImage &&
+    mainAction !== "upload";
+  const hasMoreActions = canRejectTransaction || canUploadAnother || !!bill;
+
+  const moreItems: ActionsBottomSheetItem[] = [
+    ...(canRejectTransaction
+      ? [
+          {
+            icon: "circle-x" as IconName,
+            label: t("common:actions.reject"),
+            onPress: () =>
+              chooseMoreAction(() => rejectSheetRef.current?.present()),
+          },
+        ]
+      : []),
+    ...(canUploadAnother
+      ? [
+          {
+            icon: "upload" as IconName,
+            label: t("bills:proofUpload.uploadAnother"),
+            onPress: () =>
+              chooseMoreAction(() => uploadSourceSheetRef.current?.present()),
+          },
+        ]
+      : []),
+    ...(bill
+      ? [
+          {
+            icon: "receipt-text" as IconName,
+            label: t("common:transactions.seeBill"),
+            onPress: () => chooseMoreAction(openBill),
+          },
+        ]
+      : []),
+  ];
 
   const viewedProof = proofs[previewIndex];
   const viewedProofStatus = viewedProof
@@ -457,11 +512,7 @@ export default function TransactionDetailView({
       )}
       <ScrollView
         style={tw`flex-1`}
-        contentContainerStyle={[
-          tw`px-4 pt-2 gap-8`,
-          // Keep the last row clear of the docked action bar.
-          { paddingBottom: hasActionBar ? 128 : 32 },
-        ]}
+        contentContainerStyle={tw`px-4 pt-2 pb-8 gap-4`}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -472,45 +523,162 @@ export default function TransactionDetailView({
           />
         }
       >
-        {/* Amount: what the cashier checks the proof against */}
-        <ThemedView style={tw`gap-3`}>
-          <ThemedView style={tw`gap-1`}>
-            <ThemedText type="caption" style={tw`text-gray-500`}>
-              {transaction.name}
-            </ThemedText>
-            <ThemedText
-              type="h1"
-              // h1 fixes its height for 32px text; size the box for 48px.
-              style={[
-                tw`text-5xl`,
-                { fontFamily: typography.regular, lineHeight: 58, height: 58 },
-              ]}
+        {/* Header: amount, what it was for, and when */}
+        <ThemedView style={tw`gap-5 mb-2`}>
+          <ThemedView style={tw`flex-row items-start gap-4`}>
+            <ThemedView style={tw`flex-1 gap-1`}>
+              <ThemedText
+                type="h1"
+                // h1 fixes its height for 32px text; size the box for 44px.
+                style={{
+                  fontSize: 44,
+                  fontFamily: typography.bold,
+                  lineHeight: 54,
+                  height: 54,
+                }}
+              >
+                {formatCurrency(transaction.amount)}
+              </ThemedText>
+              <ThemedText type="h4">{transaction.name}</ThemedText>
+              <ThemedText type="body1" style={tw`text-gray-500`}>
+                {dayjs(transaction.createdAt).format(DATE_FORMAT)}
+              </ThemedText>
+            </ThemedView>
+
+            {/* Payment method, with the status as a badge */}
+            <ThemedView
+              accessible
+              accessibilityLabel={`${transaction.paymentMethod.name}, ${statusText}`}
+              style={tw`w-16 h-16 mt-1 rounded-full items-center justify-center bg-surface`}
             >
-              {formatCurrency(transaction.amount)}
-            </ThemedText>
+              <Icon
+                name={
+                  paymentMethodIcon[transaction.paymentMethod.type] ?? "wallet"
+                }
+                size={28}
+                color={tw.color("primary")}
+              />
+              <ThemedView
+                style={[
+                  tw`absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full items-center justify-center ${labelSolidStyles[status.color ?? "default"].dot}`,
+                  { borderWidth: 2, borderColor: tw.color("background") },
+                ]}
+              >
+                <Icon name={status.icon} size={12} color="white" />
+              </ThemedView>
+            </ThemedView>
           </ThemedView>
-          <ThemedView style={tw`flex-row flex-wrap items-center gap-2`}>
+
+          {(mainAction || canChangeAccount || hasMoreActions) && (
+            <ThemedView style={tw`flex-row flex-wrap gap-3`}>
+              {mainAction === "approve" && (
+                <Button
+                  label={t("common:actions.approve")}
+                  leftIcon="check"
+                  shape="rounded"
+                  size="small"
+                  onPress={openApproveModal}
+                />
+              )}
+              {mainAction === "upload" && (
+                <Button
+                  label={t("bills:proofUpload.uploadProof")}
+                  leftIcon="upload"
+                  shape="rounded"
+                  size="small"
+                  onPress={() => uploadSourceSheetRef.current?.present()}
+                />
+              )}
+              {canChangeAccount && (
+                <Button
+                  label={t("common:transactions.changeAccount")}
+                  leftIcon="landmark"
+                  variant="surface"
+                  shape="rounded"
+                  size="small"
+                  onPress={() => accountBottomSheetRef.current?.present()}
+                />
+              )}
+              {hasMoreActions && (
+                <Button
+                  leftIcon="ellipsis"
+                  variant="surface"
+                  shape="rounded"
+                  size="small"
+                  accessibilityLabel={t("common:actions.more")}
+                  onPress={() => moreSheetRef.current?.present()}
+                />
+              )}
+            </ThemedView>
+          )}
+        </ThemedView>
+
+        {/* Info */}
+        <InfoCard style={tw`py-2`}>
+          <CardRow label={t("common:transactions.statusLabel")}>
             <Label
               size="small"
               color={status.color}
               leftIcon={status.icon}
-              text={t(`common:transactions.status.${status.key}`)}
+              text={statusText}
             />
-            <Label
-              size="small"
-              color="default"
-              leftIcon={
-                paymentMethodIcon[transaction.paymentMethod.type] ?? "wallet"
-              }
-              text={transaction.paymentMethod.name}
+          </CardRow>
+          <CardRow
+            label={t("common:transactions.paymentMethod")}
+            value={transaction.paymentMethod.name}
+          />
+          <CardRow
+            label={t("common:transactions.destinationAccount")}
+            value={accountLabel ?? "—"}
+            trailing={
+              canManage && accountLockReason ? (
+                <IconButton
+                  icon="info"
+                  size={20}
+                  onPress={() => accountLockedSheetRef.current?.present()}
+                  accessibilityLabel={t(
+                    "common:transactions.accountLocked.infoLabel",
+                  )}
+                />
+              ) : undefined
+            }
+          />
+          {metadata?.type === "TRANSFER" && !!metadata.bankReference && (
+            <CardRow
+              label={t("bills:proofUpload.bankReference")}
+              value={metadata.bankReference}
             />
-          </ThemedView>
-        </ThemedView>
+          )}
+          {metadata?.type === "TRANSFER" && !!metadata.senderName && (
+            <CardRow
+              label={t("bills:proofUpload.senderName")}
+              value={metadata.senderName}
+            />
+          )}
+          {metadata?.type === "CARD" && (
+            <CardRow
+              label={t("common:transactions.totalWithCommission")}
+              value={formatCurrency(metadata.totalWithCommission)}
+            />
+          )}
+          {metadata?.type === "CASH" && metadata.cashReceived != null && (
+            <CardRow
+              label={t("common:transactions.cashReceived")}
+              value={formatCurrency(metadata.cashReceived)}
+            />
+          )}
+          {metadata?.type === "CASH" && metadata.changeGiven != null && (
+            <CardRow
+              label={t("common:transactions.changeGiven")}
+              value={formatCurrency(metadata.changeGiven)}
+            />
+          )}
+        </InfoCard>
 
         {/* Proof: the thing being verified, shown big enough to read */}
         {isTransfer && (
-          <ThemedView style={tw`gap-4`}>
-            <SectionTitle title={t("bills:proofUpload.proof")} />
+          <InfoCard style={tw`py-5 gap-4`}>
+            <CardTitle title={t("bills:proofUpload.proof")} />
 
             {latestProof ? (
               <ThemedView style={tw`gap-2`}>
@@ -521,7 +689,7 @@ export default function TransactionDetailView({
                     `common:status.${proofStatusLabel[latestProof.status].key}`,
                   )}`}
                   style={({ pressed }) => [
-                    tw`rounded-md overflow-hidden bg-surface`,
+                    tw`rounded-2xl overflow-hidden bg-surface`,
                     pressed && tw`opacity-80`,
                   ]}
                 >
@@ -553,7 +721,7 @@ export default function TransactionDetailView({
               </ThemedView>
             ) : (
               <ThemedView
-                style={tw`items-center gap-2 px-6 py-8 rounded-md bg-surface`}
+                style={tw`items-center gap-2 px-6 py-8 rounded-2xl bg-surface`}
               >
                 <Icon name="image" size={32} color={tw.color("gray-500")} />
                 <ThemedText type="h4" style={tw`text-center`}>
@@ -579,67 +747,39 @@ export default function TransactionDetailView({
             )}
 
             {/* Upload: a picked image waits here until it's sent */}
-            {canUploadProof &&
-              (selectedImage ? (
-                <ThemedView style={tw`gap-3`}>
-                  <Pressable
-                    onPress={() => openPreview(proofs.length)}
-                    accessibilityRole="imagebutton"
-                    accessibilityLabel={t("bills:proofUpload.viewProof")}
-                    style={tw`rounded-md overflow-hidden bg-surface`}
-                  >
-                    <Image
-                      source={{ uri: selectedImage.uri }}
-                      style={tw`w-full h-64`}
-                      resizeMode="contain"
-                    />
-                  </Pressable>
-                  <ThemedView style={tw`flex-row gap-3`}>
-                    <Button
-                      label={t("bills:proofUpload.removeSelected")}
-                      variant="outline"
-                      onPress={() => setSelectedImage(null)}
-                      disabled={isUploading}
-                      style={tw`flex-1`}
-                    />
-                    <Button
-                      label={t("bills:proofUpload.uploadProof")}
-                      leftIcon="upload"
-                      onPress={handleUploadProof}
-                      loading={isUploading}
-                      disabled={isUploading}
-                      style={{ flexGrow: 2, flexShrink: 1, flexBasis: 0 }}
-                    />
-                  </ThemedView>
-                </ThemedView>
-              ) : (
-                // With no proof yet, the button sits in the empty card above.
-                latestProof && (
-                  <Button
-                    label={t("bills:proofUpload.uploadAnother")}
-                    leftIcon="upload"
-                    variant="outline"
-                    onPress={() => uploadSourceSheetRef.current?.present()}
+            {canUploadProof && selectedImage && (
+              <ThemedView style={tw`gap-3`}>
+                <Pressable
+                  onPress={() => openPreview(proofs.length)}
+                  accessibilityRole="imagebutton"
+                  accessibilityLabel={t("bills:proofUpload.viewProof")}
+                  style={tw`rounded-2xl overflow-hidden bg-surface`}
+                >
+                  <Image
+                    source={{ uri: selectedImage.uri }}
+                    style={tw`w-full h-64`}
+                    resizeMode="contain"
                   />
-                )
-              ))}
-
-            {/* What to match the proof against */}
-            <ThemedView>
-              {metadata?.type === "TRANSFER" && metadata.bankReference ? (
-                <DetailRow
-                  label={t("bills:proofUpload.bankReference")}
-                  value={metadata.bankReference}
-                />
-              ) : null}
-              {metadata?.type === "TRANSFER" && metadata.senderName ? (
-                <DetailRow
-                  label={t("bills:proofUpload.senderName")}
-                  value={metadata.senderName}
-                />
-              ) : null}
-              {accountRow}
-            </ThemedView>
+                </Pressable>
+                <ThemedView style={tw`flex-row gap-3`}>
+                  <Button
+                    label={t("bills:proofUpload.removeSelected")}
+                    variant="outline"
+                    onPress={() => setSelectedImage(null)}
+                    disabled={isUploading}
+                    style={tw`flex-1`}
+                  />
+                  <Button
+                    label={t("bills:proofUpload.uploadProof")}
+                    leftIcon="upload"
+                    onPress={handleUploadProof}
+                    loading={isUploading}
+                    disabled={isUploading}
+                    style={{ flexGrow: 2, flexShrink: 1, flexBasis: 0 }}
+                  />
+                </ThemedView>
+              </ThemedView>
+            )}
 
             {previousProofs.length > 0 && (
               <ThemedView style={tw`gap-1`}>
@@ -679,99 +819,77 @@ export default function TransactionDetailView({
                 })}
               </ThemedView>
             )}
-          </ThemedView>
+          </InfoCard>
         )}
 
-        {/* Details */}
-        <ThemedView>
-          <SectionTitle title={t("common:transactions.details")} />
-          {transaction.bill && (
-            <DetailRow
-              label={t("common:transactions.bill")}
-              value={t("common:transactions.billNumber", {
-                num: transaction.bill.num,
-              })}
-              trailing={
-                <Button
-                  size="extra-small"
-                  variant="text"
-                  label={t("common:actions.see")}
-                  onPress={() =>
-                    router.push(`/(bills)/${transaction.bill!.id}`)
-                  }
-                />
-              }
+        {/* Who recorded it */}
+        <InfoCard style={tw`py-5 gap-4`}>
+          <CardTitle title={t("common:transactions.createdBy")} />
+          <ThemedView style={tw`flex-row items-center gap-4`}>
+            <Avatar
+              name={transaction.createdBy ? creatorName : undefined}
+              size={48}
             />
-          )}
-          {!isTransfer && accountRow}
-          {metadata?.type === "CARD" && (
-            <DetailRow
-              label={t("common:transactions.totalWithCommission")}
-              value={formatCurrency(metadata.totalWithCommission)}
-            />
-          )}
-          {metadata?.type === "CASH" && metadata.cashReceived != null && (
-            <DetailRow
-              label={t("common:transactions.cashReceived")}
-              value={formatCurrency(metadata.cashReceived)}
-            />
-          )}
-          {metadata?.type === "CASH" && metadata.changeGiven != null && (
-            <DetailRow
-              label={t("common:transactions.changeGiven")}
-              value={formatCurrency(metadata.changeGiven)}
-            />
-          )}
-          <DetailRow
-            label={t("common:transactions.category")}
-            value={transaction.category.name}
-          />
-          <DetailRow
-            label={t("common:transactions.createdBy")}
-            value={getUserDisplayName(
-              transaction.createdBy,
-              t("common:labels.deletedUser"),
-            )}
-          />
-          <DetailRow
-            label={t("common:labels.date")}
-            value={dayjs(transaction.createdAt).format(DATE_FORMAT)}
-          />
-          {!!transaction.description && (
-            <DetailRow
-              label={t("common:transactions.description")}
-              value={transaction.description}
-            />
-          )}
-        </ThemedView>
-      </ScrollView>
+            <ThemedView style={tw`flex-1 gap-0.5`}>
+              <ThemedText style={{ fontFamily: typography.bold }}>
+                {creatorName}
+              </ThemedText>
+              {!!transaction.createdBy?.email && (
+                <ThemedText type="body2" selectable style={tw`text-gray-500`}>
+                  {transaction.createdBy.email}
+                </ThemedText>
+              )}
+            </ThemedView>
+          </ThemedView>
+        </InfoCard>
 
-      {/* Review bar: the screen's one decision, in thumb reach */}
-      {hasActionBar && (
-        <ThemedView
-          style={[
-            tw`absolute bottom-0 left-0 right-0 flex-row gap-3 bg-background border-t border-divider px-4 pt-3`,
-            { paddingBottom: embedded ? 16 : Math.max(insets.bottom, 16) },
-          ]}
-        >
-          {canRejectTransaction && (
-            <Button
-              label={t("common:actions.reject")}
+        {/* The bill this payment belongs to */}
+        {bill && (
+          <ThemedView style={tw`gap-3 mt-4`}>
+            <ThemedText type="h3" accessibilityRole="header">
+              {t("common:transactions.bill")}
+            </ThemedText>
+            <Card
               variant="outline"
-              onPress={() => rejectSheetRef.current?.present()}
-              style={tw`flex-1`}
-            />
-          )}
-          {canApproveTransaction && (
-            <Button
-              label={t("common:actions.approve")}
-              leftIcon="check"
-              onPress={openApproveModal}
-              style={{ flexGrow: 2, flexShrink: 1, flexBasis: 0 }}
-            />
-          )}
-        </ThemedView>
-      )}
+              onPress={openBill}
+              accessibilityRole="button"
+              accessibilityLabel={`${t("common:transactions.seeBill")}, ${t(
+                "common:transactions.billNumber",
+                { num: bill.num },
+              )}`}
+              style={tw`flex-row items-center gap-4 px-5 py-4`}
+            >
+              <ThemedView
+                style={tw`w-12 h-12 rounded-full items-center justify-center bg-surface`}
+              >
+                <Icon
+                  name="receipt-text"
+                  size={22}
+                  color={tw.color("primary")}
+                />
+              </ThemedView>
+              <ThemedView style={tw`flex-1 gap-0.5`}>
+                <ThemedText style={{ fontFamily: typography.semibold }}>
+                  {t("common:transactions.billNumber", { num: bill.num })}
+                </ThemedText>
+                {!!bill.createdAt && (
+                  <ThemedText type="body2" style={tw`text-gray-500`}>
+                    {dayjs(bill.createdAt).format(DATE_FORMAT)}
+                  </ThemedText>
+                )}
+              </ThemedView>
+              {bill.total != null && (
+                <ThemedText>{formatCurrency(bill.total)}</ThemedText>
+              )}
+              <Icon
+                name="chevron-right"
+                size={20}
+                color={tw.color("gray-500")}
+              />
+            </Card>
+          </ThemedView>
+        )}
+      </ScrollView>
 
       <ApproveTransactionModal
         transaction={transaction}
@@ -904,6 +1022,14 @@ export default function TransactionDetailView({
       />
 
       <ThemedBottomSheetModal
+        ref={moreSheetRef}
+        enablePanDownToClose
+        onDismiss={handleMoreSheetDismiss}
+      >
+        <ActionsBottomSheet items={moreItems} />
+      </ThemedBottomSheetModal>
+
+      <ThemedBottomSheetModal
         ref={uploadSourceSheetRef}
         enablePanDownToClose
         onDismiss={handleUploadSourceSheetDismiss}
@@ -968,44 +1094,64 @@ function ProofNotes({ proof, meta }: { proof: PaymentProof; meta: string }) {
   );
 }
 
-/** Section heading, matching the restaurant info screen. */
-function SectionTitle({ title }: { title: string }) {
+/** Outlined card that groups related rows. */
+function InfoCard({
+  style,
+  children,
+}: {
+  style?: StyleProp<ViewStyle>;
+  children: ReactNode;
+}) {
   return (
-    <ThemedText
-      type="body1"
-      accessibilityRole="header"
-      style={[tw`text-on-surface`, { fontFamily: typography.semibold }]}
-    >
+    <Card variant="outline" style={[tw`px-5`, style]}>
+      {children}
+    </Card>
+  );
+}
+
+/** Quiet heading inside a card. */
+function CardTitle({ title }: { title: string }) {
+  return (
+    <ThemedText accessibilityRole="header" style={tw`text-gray-500`}>
       {title}
     </ThemedText>
   );
 }
 
 /**
- * Label stacked over its value, as on the restaurant info screen. Values are
- * selectable so a reference can be copied; `trailing` holds a row action.
+ * Label on the left, value on the right. Values are selectable so a
+ * reference can be copied; `children` replaces the value (e.g. a Label) and
+ * `trailing` holds a row action.
  */
-function DetailRow({
+function CardRow({
   label,
   value,
   trailing,
+  children,
 }: {
   label: string;
-  value: string;
+  value?: string;
   trailing?: ReactNode;
+  children?: ReactNode;
 }) {
   return (
     <ThemedView
       // Grouping would hide a trailing control from screen readers.
-      accessible={!trailing}
-      accessibilityLabel={trailing ? undefined : `${label}, ${value}`}
-      style={tw`flex-row items-center gap-3 min-h-16`}
+      accessible={!trailing && value != null}
+      accessibilityLabel={
+        !trailing && value != null ? `${label}, ${value}` : undefined
+      }
+      style={tw`flex-row items-center gap-4 min-h-14 py-2`}
     >
-      <ThemedView style={tw`flex-1 gap-0.5`}>
-        <ThemedText type="small">{label}</ThemedText>
-        <ThemedText selectable>{value}</ThemedText>
+      <ThemedText style={tw`text-gray-500`}>{label}</ThemedText>
+      <ThemedView style={tw`flex-1 flex-row items-center justify-end gap-2`}>
+        {children ?? (
+          <ThemedText selectable style={tw`flex-shrink text-right`}>
+            {value}
+          </ThemedText>
+        )}
+        {trailing}
       </ThemedView>
-      {trailing}
     </ThemedView>
   );
 }

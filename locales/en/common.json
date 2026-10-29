@@ -49,7 +49,8 @@
     "undo": "Undo",
     "increase": "Increase",
     "decrease": "Decrease",
-    "gotIt": "Got it"
+    "gotIt": "Got it",
+    "more": "More"
   },
   "status": {
     "pending": "Pending",
@@ -201,6 +202,9 @@
     "accountUpdated": "Destination account updated",
     "bill": "Bill",
     "billNumber": "Bill #{{num}}",
+    "seeBill": "See bill",
+    "changeAccount": "Change account",
+    "statusLabel": "Status",
     "totalWithCommission": "Total with commission",
     "cashReceived": "Cash received",
     "changeGiven": "Change",
