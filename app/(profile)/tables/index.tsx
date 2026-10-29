@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ScrollView, RefreshControl } from "react-native";
-import { router, useNavigation } from "expo-router";
+import { Pressable, ScrollView, RefreshControl } from "react-native";
+import { router } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -12,6 +12,8 @@ import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
+import DetailHeader from "@/presentation/theme/components/detail-header";
+import { DetailSectionTitle } from "@/presentation/theme/components/detail-card";
 import type { Table } from "@/core/tables/models/table.model";
 import { typography } from "@/constants/theme";
 import {
@@ -36,7 +38,6 @@ const chunk = <T,>(items: T[], size: number) =>
 
 export default function TablesSettingsScreen() {
   const { t } = useTranslation("tables");
-  const navigation = useNavigation();
   const { tables, tablesQuery } = useTables();
   const { isLoading, isError, refetch, isRefetching } = tablesQuery;
   const { user } = useAuthStore();
@@ -111,30 +112,6 @@ export default function TablesSettingsScreen() {
   }, []);
 
   const canReorder = canManage && tables.length > 1;
-
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: isSelecting
-        ? () => (
-            <Button
-              label={t("areas.cancelSelection")}
-              variant="surface"
-              size="extra-small"
-              onPress={() => setSelectedIds(new Set())}
-            />
-          )
-        : canReorder
-          ? () => (
-              <Button
-                leftIcon="arrow-up-down"
-                variant="surface"
-                size="extra-small"
-                onPress={() => router.push("/(profile)/tables/reorder")}
-              />
-            )
-          : undefined,
-    });
-  }, [navigation, canReorder, isSelecting, t]);
 
   const handleCreateTable = (areaId?: string) => {
     router.push({
@@ -232,10 +209,30 @@ export default function TablesSettingsScreen() {
   );
 
   return (
-    <ScreenLayout style={tw`flex-1 px-4 pt-2`}>
+    <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
+      <ThemedView style={tw`items-center flex-row justify-between mb-6`}>
+        <Pressable
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel={t("common:actions.goBack")}
+          hitSlop={12}
+          style={({ pressed }) => tw.style(pressed && "opacity-70")}
+        >
+          <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
+        </Pressable>
+        {isSelecting && (
+          <Button
+            label={t("areas.cancelSelection")}
+            variant="surface"
+            size="extra-small"
+            onPress={() => setSelectedIds(new Set())}
+          />
+        )}
+      </ThemedView>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`gap-8 pb-8`}
+        contentContainerStyle={tw`gap-4 pb-8`}
         refreshControl={
           <RefreshControl
             refreshing={isRefetching}
@@ -245,6 +242,41 @@ export default function TablesSettingsScreen() {
           />
         }
       >
+        <DetailHeader
+          title={t("settings.title")}
+          subtitle={t("settings.subtitle")}
+        >
+          {canAdd && (
+            <ThemedView style={tw`flex-row flex-wrap gap-3`}>
+              <Button
+                label={t("settings.newTable")}
+                leftIcon="plus"
+                shape="rounded"
+                size="small"
+                onPress={() => handleCreateTable()}
+              />
+              <Button
+                label={t("areas.manage")}
+                leftIcon="gallery-vertical-end"
+                variant="surface"
+                shape="rounded"
+                size="small"
+                onPress={() => router.push("/(profile)/tables/areas")}
+              />
+              {canReorder && (
+                <Button
+                  leftIcon="arrow-up-down"
+                  accessibilityLabel={t("settings.reorderTables")}
+                  variant="surface"
+                  shape="rounded"
+                  size="small"
+                  onPress={() => router.push("/(profile)/tables/reorder")}
+                />
+              )}
+            </ThemedView>
+          )}
+        </DetailHeader>
+
         {isLoading && tables.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
             <Icon name="layout-grid" size={48} color={tw.color("gray-400")} />
@@ -287,30 +319,28 @@ export default function TablesSettingsScreen() {
         {/* )} */}
 
         {visibleGroups.map((group) => (
-          <ThemedView key={group.area?.id ?? "no-area"} style={tw`gap-3`}>
+          <ThemedView key={group.area?.id ?? "no-area"} style={tw`gap-3 mt-4`}>
             {hasAreas && (
-              <ThemedView style={tw`flex-row items-center gap-2`}>
-                <ThemedText type="h4">
-                  {group.area?.name ?? t("areas.noArea")}
-                </ThemedText>
-                <ThemedText type="small" style={tw`text-gray-500`}>
-                  {t("areas.tablesCount", { count: group.tables.length })}
-                </ThemedText>
-                {group.area && !group.area.isActive && (
-                  <ThemedText type="small" style={tw`text-gray-500`}>
-                    · {t("areas.hidden")}
-                  </ThemedText>
-                )}
-                {isSelecting && group.tables.length > 0 && (
-                  <Button
-                    label={t("areas.selectAll")}
-                    variant="surface"
-                    size="extra-small"
-                    style={tw`ml-auto`}
-                    onPress={() => selectGroup(group.tables)}
-                  />
-                )}
-              </ThemedView>
+              <DetailSectionTitle
+                title={group.area?.name ?? t("areas.noArea")}
+                action={
+                  isSelecting && group.tables.length > 0 ? (
+                    <Button
+                      label={t("areas.selectAll")}
+                      variant="surface"
+                      size="extra-small"
+                      onPress={() => selectGroup(group.tables)}
+                    />
+                  ) : (
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {t("areas.tablesCount", { count: group.tables.length })}
+                      {group.area && !group.area.isActive
+                        ? ` · ${t("areas.hidden")}`
+                        : ""}
+                    </ThemedText>
+                  )
+                }
+              />
             )}
             <ThemedView style={tw`gap-3`}>
               {chunk<GridItem>(
@@ -338,28 +368,6 @@ export default function TablesSettingsScreen() {
             </ThemedView>
           </ThemedView>
         ))}
-        {canManage && (
-          <ThemedView style={tw`gap-8`}>
-            {canAdd && (
-              <ThemedView style={tw`items-center flex-row`}>
-                <Button
-                  label={t("areas.newArea")}
-                  leftIcon="plus"
-                  variant="outline"
-                  size="small"
-                  onPress={() => router.push("/(profile)/tables/areas/form")}
-                />
-              </ThemedView>
-            )}
-            <Button
-              label={t("areas.manage")}
-              leftIcon="gallery-vertical-end"
-              variant="text"
-              size="small"
-              onPress={() => router.push("/(profile)/tables/areas")}
-            />
-          </ThemedView>
-        )}
       </ScrollView>
 
       {isSelecting && (

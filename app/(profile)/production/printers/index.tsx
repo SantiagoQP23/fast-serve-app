@@ -1,5 +1,10 @@
 import { useRef, useState } from "react";
-import { ScrollView, RefreshControl, ActivityIndicator } from "react-native";
+import {
+  ScrollView,
+  RefreshControl,
+  ActivityIndicator,
+  Pressable,
+} from "react-native";
 import { router } from "expo-router";
 import { toast } from "sonner-native";
 import Icon from "@/presentation/theme/components/icon";
@@ -14,8 +19,8 @@ import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
-import Fab from "@/presentation/theme/components/fab";
 import IconButton from "@/presentation/theme/components/icon-button";
+import DetailHeader from "@/presentation/theme/components/detail-header";
 import PrinterActionsBottomSheet, {
   type PrinterActionsBottomSheetRef,
 } from "@/presentation/printers/components/printer-actions-bottom-sheet";
@@ -54,7 +59,19 @@ export default function PrintersScreen() {
   };
 
   return (
-    <ScreenLayout style={tw`flex-1 px-4 pt-2`}>
+    <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
+      <ThemedView style={tw`items-center flex-row mb-6`}>
+        <Pressable
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel={t("common:actions.goBack")}
+          hitSlop={12}
+          style={({ pressed }) => tw.style(pressed && "opacity-70")}
+        >
+          <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
+        </Pressable>
+      </ThemedView>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={tw`gap-4 pb-8`}
@@ -67,6 +84,20 @@ export default function PrintersScreen() {
           />
         }
       >
+        <DetailHeader title={t("title")} subtitle={t("subtitle")}>
+          {canManage && (
+            <ThemedView style={tw`flex-row flex-wrap gap-3`}>
+              <Button
+                label={t("newPrinter")}
+                leftIcon="plus"
+                shape="rounded"
+                size="small"
+                onPress={handleCreatePrinter}
+              />
+            </ThemedView>
+          )}
+        </DetailHeader>
+
         {isLoading && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
             <Icon name="printer" size={48} color={tw.color("gray-400")} />
@@ -118,19 +149,15 @@ export default function PrintersScreen() {
                 <ThemedView style={tw`gap-4`}>
                   {/* Printer Name & Status */}
                   <ThemedView style={tw`flex-row items-center justify-between`}>
-                    <ThemedView style={tw`flex-row  items-center gap-4 flex-1`}>
+                    <ThemedView style={tw`flex-row items-center gap-4 flex-1`}>
                       <Icon
                         name="printer"
                         size={30}
                         color={tw.color("text-on-surface-variant")}
                       />
-                      <ThemedView
-                        style={tw`flex-1 text-on-surface-variant gap-2`}
-                      >
-                        <ThemedText type="h4" style={tw`font-semibold`}>
-                          {printer.name}
-                        </ThemedText>
-                        <ThemedText type="small">
+                      <ThemedView style={tw`flex-1 gap-0.5`}>
+                        <ThemedText type="h4">{printer.name}</ThemedText>
+                        <ThemedText type="small" style={tw`text-gray-500`}>
                           {printer.ipAddress}
                         </ThemedText>
                       </ThemedView>
@@ -156,8 +183,6 @@ export default function PrintersScreen() {
           </ThemedView>
         )}
       </ScrollView>
-
-      {canManage && <Fab icon="plus" onPress={handleCreatePrinter} />}
 
       <PrinterActionsBottomSheet ref={actionsSheetRef} />
     </ScreenLayout>

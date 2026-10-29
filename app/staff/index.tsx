@@ -22,7 +22,11 @@ import StaffMemberBottomSheet, {
 import { useRemoveUser } from "@/presentation/users/hooks/useRemoveUser";
 import { Roles, User } from "@/core/auth/models/user.model";
 import Button from "@/presentation/theme/components/button";
-import InventorySectionHeader from "@/presentation/inventory/components/inventory-section-header";
+import DetailHeader from "@/presentation/theme/components/detail-header";
+import {
+  DetailCard,
+  DetailSectionTitle,
+} from "@/presentation/theme/components/detail-card";
 
 /** Order the role groups appear in, from most to least privileged. */
 const ROLE_ORDER = [
@@ -102,69 +106,89 @@ export default function StaffScreen() {
   ].filter((group) => group.members.length > 0);
 
   return (
-    <ScreenLayout style={tw`px-4 pt-8 flex-1 gap-4`}>
-      <ThemedView style={tw`flex-row items-center gap-6 mb-4`}>
-        <Pressable onPress={() => router.back()}>
+    <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
+      <ThemedView style={tw`items-center flex-row mb-6`}>
+        <Pressable
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel={t("common:actions.goBack")}
+          hitSlop={12}
+          style={({ pressed }) => tw.style(pressed && "opacity-70")}
+        >
           <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
         </Pressable>
-        <ThemedText type="h3" style={tw`flex-1`}>
-          {t("staff.title")}
-        </ThemedText>
-        <Button
-          leftIcon="user-plus"
-          label={t("staff.addUser")}
-          onPress={handlePresentInvite}
-          accessibilityLabel={t("staff.addUser")}
-          variant="outline"
-          size="extra-small"
-        />
       </ThemedView>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={tw`gap-4 pb-8`}
         refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={refetch}
+            tintColor={tw.color("primary")}
+            colors={[tw.color("primary") as string]}
+          />
         }
-        contentContainerStyle={tw`pb-8`}
       >
-        <ThemedView style={tw`gap-8 px-2`}>
-          {staffMembers.length === 0 && !isLoading && (
-            <ThemedView style={tw`items-center py-12 gap-3`}>
-              <Icon name="users" size={48} color={tw.color("gray-400")} />
-              <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
-                {t("staff.empty")}
-              </ThemedText>
-            </ThemedView>
-          )}
+        <DetailHeader title={t("staff.title")} subtitle={t("staff.subtitle")}>
+          <ThemedView style={tw`flex-row flex-wrap gap-3`}>
+            <Button
+              label={t("staff.addUser")}
+              leftIcon="user-plus"
+              shape="rounded"
+              size="small"
+              onPress={handlePresentInvite}
+            />
+          </ThemedView>
+        </DetailHeader>
 
-          {staffGroups.map((group) => (
-            <ThemedView key={group.key} style={tw`gap-4`}>
-              <InventorySectionHeader
-                title={group.title}
-                count={group.members.length}
-              />
-              <ThemedView style={tw`gap-5`}>
-                {group.members.map((staffMember) => (
-                  <Pressable
-                    key={staffMember.id}
-                    style={tw`gap-4 flex-row items-center`}
-                    onPress={() => handlePresentStaffMember(staffMember)}
-                  >
-                    <Avatar
-                      name={staffMember.person?.firstName}
-                      size={40}
-                      variant="surface"
-                    />
-                    <ThemedText type="body1" style={tw`flex-1`}>
-                      {staffMember.person?.firstName}{" "}
-                      {staffMember.person?.lastName}
-                    </ThemedText>
-                  </Pressable>
-                ))}
-              </ThemedView>
-            </ThemedView>
-          ))}
-        </ThemedView>
+        {staffMembers.length === 0 && !isLoading && (
+          <ThemedView style={tw`items-center py-8 gap-3`}>
+            <Icon name="users" size={48} color={tw.color("gray-400")} />
+            <ThemedText type="body2" style={tw`text-center text-gray-500 px-4`}>
+              {t("staff.empty")}
+            </ThemedText>
+          </ThemedView>
+        )}
+
+        {staffGroups.map((group) => (
+          <ThemedView key={group.key} style={tw`gap-3 mt-4`}>
+            <DetailSectionTitle
+              title={group.title}
+              action={
+                <ThemedText type="small" style={tw`text-gray-500`}>
+                  {group.members.length}
+                </ThemedText>
+              }
+            />
+            <DetailCard style={tw`py-2`}>
+              {group.members.map((staffMember, index) => (
+                <Pressable
+                  key={staffMember.id}
+                  onPress={() => handlePresentStaffMember(staffMember)}
+                  accessibilityRole="button"
+                  style={({ pressed }) => [
+                    tw`flex-row items-center gap-3 py-3`,
+                    index < group.members.length - 1 &&
+                      tw`border-b border-divider`,
+                    pressed && tw`opacity-60`,
+                  ]}
+                >
+                  <Avatar
+                    name={staffMember.person?.firstName}
+                    size={40}
+                    variant="surface"
+                  />
+                  <ThemedText style={tw`flex-1`} numberOfLines={1}>
+                    {staffMember.person?.firstName}{" "}
+                    {staffMember.person?.lastName}
+                  </ThemedText>
+                </Pressable>
+              ))}
+            </DetailCard>
+          </ThemedView>
+        ))}
       </ScrollView>
 
       <ThemedBottomSheetModal ref={inviteBottomSheetRef} enablePanDownToClose>

@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ScrollView, Pressable, View } from "react-native";
+import { ScrollView, Pressable } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
@@ -15,12 +15,16 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
-import Card from "@/presentation/theme/components/card";
 import Label from "@/presentation/theme/components/label";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
-import FloatingToolbar from "@/presentation/theme/components/floating-toolbar";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
+import DetailHeader from "@/presentation/theme/components/detail-header";
+import {
+  DetailCard,
+  DetailCardRow,
+  DetailSectionTitle,
+} from "@/presentation/theme/components/detail-card";
 import {
   AccountType,
   type Account,
@@ -52,6 +56,7 @@ export default function PaymentMethodDetailsScreen() {
   const [deleteVisible, setDeleteVisible] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const accountActionsSheetRef = useRef<BottomSheetMethods>(null);
+  const moreSheetRef = useRef<BottomSheetMethods>(null);
 
   const method = paymentMethods.find((m) => String(m.id) === params.methodId);
 
@@ -73,6 +78,7 @@ export default function PaymentMethodDetailsScreen() {
 
   const handleToggleActive = () => {
     if (!method) return;
+    moreSheetRef.current?.dismiss();
     updatePaymentMethod.mutate({
       id: method.id,
       data: { isActive: !method.isActive },
@@ -153,18 +159,24 @@ export default function PaymentMethodDetailsScreen() {
     handleCloseAccountActions();
   };
 
+  const header = (
+    <ThemedView style={tw`items-center flex-row mb-6`}>
+      <Pressable
+        onPress={() => router.back()}
+        accessibilityRole="button"
+        accessibilityLabel={t("common:actions.goBack")}
+        hitSlop={12}
+        style={({ pressed }) => tw.style(pressed && "opacity-70")}
+      >
+        <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
+      </Pressable>
+    </ThemedView>
+  );
+
   if (!method) {
     return (
       <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
-        <ThemedView style={tw`items-center gap-4 flex-row`}>
-          <Pressable
-            onPress={() => router.back()}
-            hitSlop={12}
-            style={({ pressed }) => tw.style(pressed && "opacity-70")}
-          >
-            <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
-          </Pressable>
-        </ThemedView>
+        {header}
         <ThemedView style={tw`items-center py-8 gap-3`}>
           <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
           <ThemedText type="body1" style={tw`text-gray-500`}>
@@ -188,142 +200,170 @@ export default function PaymentMethodDetailsScreen() {
   });
 
   return (
-    <View style={tw`flex-1 relative`}>
-      <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
-        <ThemedView style={tw`items-center flex-row mb-6`}>
-          <Pressable
-            onPress={() => router.back()}
-            hitSlop={12}
-            style={({ pressed }) => tw.style(pressed && "opacity-70")}
-          >
-            <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
-          </Pressable>
-        </ThemedView>
+    <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
+      {header}
 
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={tw`gap-4 pb-8`}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={tw`gap-4 pb-8`}
+      >
+        <DetailHeader
+          title={method.name}
+          status={!method.isActive && <Label text={t("inactive")} />}
+          icon={categoryIcons[method.type]}
         >
-          <ThemedView style={tw`gap-1`}>
-            <ThemedText type="h1">{method.name}</ThemedText>
+          {canManage && (
+            <ThemedView style={tw`flex-row flex-wrap gap-3`}>
+              {!method.isActive && (
+                // Inactive: bringing it back is the main action
+                <Button
+                  label={t("activate")}
+                  leftIcon="eye"
+                  shape="rounded"
+                  size="small"
+                  loading={updatePaymentMethod.isPending}
+                  disabled={updatePaymentMethod.isPending}
+                  onPress={handleToggleActive}
+                />
+              )}
+              <Button
+                label={t("edit")}
+                leftIcon="square-pen"
+                variant="surface"
+                shape="rounded"
+                size="small"
+                onPress={handleEditMethod}
+              />
+              <Button
+                leftIcon="ellipsis"
+                variant="surface"
+                shape="rounded"
+                size="small"
+                accessibilityLabel={t("common:actions.more")}
+                onPress={() => moreSheetRef.current?.present()}
+              />
+            </ThemedView>
+          )}
+        </DetailHeader>
+
+        {/* Information: the rows say what they are, so no title */}
+        <DetailCard style={tw`py-2`}>
+          <ThemedView style={tw`border-b border-divider`}>
+            <DetailCardRow
+              label={t("methods.fields.category")}
+              value={t(getPaymentMethodTranslationKey(method.type))}
+            />
           </ThemedView>
+          <DetailCardRow
+            label={t("methods.fields.commission")}
+            value={`${method.commissionPercentage}%`}
+          />
+        </DetailCard>
 
-          <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
-            <Label
-              text={method.isActive ? t("active") : t("inactive")}
-              color={method.isActive ? "success" : "default"}
-            />
-            <Label
-              text={t(getPaymentMethodTranslationKey(method.type))}
-              leftIcon={categoryIcons[method.type]}
-              variant="outline"
-            />
-            <Label
-              text={`${method.commissionPercentage}%`}
-              leftIcon="tag"
-              variant="outline"
-            />
-          </ThemedView>
-
-          <ThemedView style={tw`gap-3 mt-4`}>
-            {/* <ThemedView style={tw`gap-1`}> */}
-            {/*   <ThemedText type="h4"> */}
-            {/*     {t("methods.fields.allowedAccounts")} */}
-            {/*   </ThemedText> */}
-            {/*   <ThemedText type="small" style={tw`text-gray-500`}> */}
-            {/*     {t("methods.fields.allowedAccountsDescription")} */}
-            {/*   </ThemedText> */}
-            {/* </ThemedView> */}
-
-            <ThemedView style={tw`gap-3`}>
-              {sortedAccounts.map((account) => {
-                const isDefault =
-                  method.defaultDestinationAccount?.id === account.id;
-                return (
-                  <Card
-                    key={account.id}
-                    onPress={
-                      canManage
-                        ? () => handleOpenAccountActions(account)
-                        : undefined
-                    }
-                  >
-                    <ThemedView
-                      style={tw`flex-row items-center gap-3 bg-transparent`}
+        {/* Accounts */}
+        <ThemedView style={tw`gap-3 mt-4`}>
+          <DetailSectionTitle
+            title={t("accounts.title")}
+            action={
+              // With none yet, the button sits in the card instead
+              canManage &&
+              sortedAccounts.length > 0 && (
+                <Button
+                  label={t("common:actions.add")}
+                  accessibilityLabel={t("methods.fields.addAccount")}
+                  leftIcon="plus"
+                  variant="outline"
+                  size="extra-small"
+                  onPress={handleAddAccount}
+                />
+              )
+            }
+          />
+          <DetailCard style={tw`py-2`}>
+            {sortedAccounts.length ? (
+              <ThemedView>
+                {sortedAccounts.map((account, index) => {
+                  const isDefault =
+                    method.defaultDestinationAccount?.id === account.id;
+                  return (
+                    <Pressable
+                      key={account.id}
+                      onPress={() => handleOpenAccountActions(account)}
+                      disabled={!canManage}
+                      accessibilityRole={canManage ? "button" : undefined}
+                      style={({ pressed }) => [
+                        tw`flex-row items-center gap-3 py-3 min-h-14`,
+                        index < sortedAccounts.length - 1 &&
+                          tw`border-b border-divider`,
+                        !account.isActive && tw`opacity-50`,
+                        pressed && tw`opacity-60`,
+                      ]}
                     >
-                      <Icon name={accountIcon(account.type)} size={26} />
-                      <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
-                        <ThemedText
-                          type="body1"
-                          style={[
-                            tw`font-semibold`,
-                            isDefault && tw`text-on-secondary`,
-                          ]}
-                        >
+                      <Icon
+                        name={accountIcon(account.type)}
+                        size={20}
+                        color={tw.color("on-surface-variant")}
+                      />
+                      <ThemedView style={tw`flex-1 gap-0.5`}>
+                        <ThemedText numberOfLines={1}>
                           {account.name}
                         </ThemedText>
-                        <ThemedText
-                          type="small"
-                          style={
-                            isDefault
-                              ? tw`text-on-secondary/70`
-                              : tw`text-gray-500`
-                          }
-                        >
+                        <ThemedText type="small" style={tw`text-gray-500`}>
                           {t(`accounts.types.${account.type}`)}
                         </ThemedText>
                       </ThemedView>
-                      {isDefault && (
-                        <Icon
-                          name="star"
-                          size={18}
-                          color={tw.color("on-secondary")}
-                        />
-                      )}
-                    </ThemedView>
-                  </Card>
-                );
-              })}
-            </ThemedView>
-
-            {canManage && (
-              <ThemedView style={tw`flex-row`}>
-                <Button
-                  label={t("methods.fields.addAccount")}
-                  onPress={handleAddAccount}
-                  variant="outline"
-                  size="small"
-                  leftIcon="plus"
-                />
+                      {isDefault && <Label text={t("methods.defaultLabel")} />}
+                    </Pressable>
+                  );
+                })}
+              </ThemedView>
+            ) : (
+              <ThemedView style={tw`items-center gap-3 py-4`}>
+                <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
+                  {t("accounts.noAccounts")}
+                </ThemedText>
+                {canManage && (
+                  <Button
+                    label={t("methods.fields.addAccount")}
+                    leftIcon="plus"
+                    variant="outline"
+                    size="small"
+                    onPress={handleAddAccount}
+                  />
+                )}
               </ThemedView>
             )}
-          </ThemedView>
-        </ScrollView>
-      </ScreenLayout>
+          </DetailCard>
+        </ThemedView>
+      </ScrollView>
 
-      {canManage && (
-        <View
-          style={tw`absolute bottom-8 left-0 right-0 items-center`}
-          pointerEvents="box-none"
-        >
-          <FloatingToolbar
-            items={[
-              {
-                icon: "square-pen",
-                onPress: handleEditMethod,
+      <ThemedBottomSheetModal ref={moreSheetRef} enablePanDownToClose>
+        <ActionsBottomSheet
+          title={method.name}
+          items={[
+            // Activate lives in the header while inactive
+            ...(method.isActive
+              ? [
+                  {
+                    icon: "eye-off" as const,
+                    label: t("deactivate"),
+                    onPress: handleToggleActive,
+                    disabled: updatePaymentMethod.isPending,
+                  },
+                ]
+              : []),
+            {
+              icon: "trash",
+              label: t("delete"),
+              color: "text-red-600",
+              onPress: () => {
+                moreSheetRef.current?.dismiss();
+                setDeleteVisible(true);
               },
-              {
-                icon: method.isActive ? "eye-off" : "eye",
-                onPress: handleToggleActive,
-              },
-              {
-                icon: "trash",
-                onPress: () => setDeleteVisible(true),
-              },
-            ]}
-          />
-        </View>
-      )}
+            },
+          ]}
+        />
+      </ThemedBottomSheetModal>
 
       <DialogModal
         visible={deleteVisible}
@@ -380,6 +420,6 @@ export default function PaymentMethodDetailsScreen() {
           />
         )}
       </ThemedBottomSheetModal>
-    </View>
+    </ScreenLayout>
   );
 }

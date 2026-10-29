@@ -85,9 +85,8 @@ export default function OrdersLayout() {
         <Stack.Screen
           name="production/printers/index"
           options={{
-            headerShown: true,
-            title: t("printers:title"),
-            headerShadowVisible: false,
+            // The screen draws its own title
+            headerShown: false,
           }}
         />
 
@@ -338,9 +337,8 @@ export default function OrdersLayout() {
         <Stack.Screen
           name="tables/index"
           options={{
-            headerShown: true,
-            title: t("tables:settings.title"),
-            headerShadowVisible: false,
+            // The screen draws its own title
+            headerShown: false,
           }}
         />
 
@@ -381,9 +379,8 @@ export default function OrdersLayout() {
         <Stack.Screen
           name="tables/areas/index"
           options={{
-            headerShown: true,
-            title: t("tables:areas.title"),
-            headerShadowVisible: false,
+            // The screen draws its own title
+            headerShown: false,
           }}
         />
 
@@ -404,9 +401,8 @@ export default function OrdersLayout() {
         <Stack.Screen
           name="payment-methods/index"
           options={{
-            headerShown: true,
-            title: t("paymentMethods:title"),
-            headerShadowVisible: false,
+            // The screen draws its own title
+            headerShown: false,
           }}
         />
 

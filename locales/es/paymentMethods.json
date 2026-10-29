@@ -59,6 +59,7 @@
     "title": "Métodos",
     "subtitle": "Define comisiones y cuentas destino.",
     "newMethod": "Nuevo método",
+    "defaultLabel": "Predeterminada",
     "editMethod": "Editar método de pago",
     "createMethod": "Crear método de pago",
     "saveMethod": "Guardar método de pago",

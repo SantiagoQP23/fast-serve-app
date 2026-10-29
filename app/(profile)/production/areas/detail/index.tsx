@@ -177,6 +177,18 @@ export default function ProductionAreaDetailScreen() {
         >
           {canManage && (
             <ThemedView style={tw`flex-row flex-wrap gap-3`}>
+              {!area.isActive && (
+                // Inactive: bringing it back is the main action
+                <Button
+                  label={t("activate")}
+                  leftIcon="eye"
+                  shape="rounded"
+                  size="small"
+                  loading={updateProductionArea.isPending}
+                  disabled={updateProductionArea.isPending}
+                  onPress={handleToggleActive}
+                />
+              )}
               <Button
                 label={t("edit")}
                 leftIcon="square-pen"
@@ -330,12 +342,17 @@ export default function ProductionAreaDetailScreen() {
         <ActionsBottomSheet
           title={area.name}
           items={[
-            {
-              icon: area.isActive ? "eye-off" : "eye",
-              label: area.isActive ? t("deactivate") : t("activate"),
-              onPress: handleToggleActive,
-              disabled: updateProductionArea.isPending,
-            },
+            // Activate lives in the header while inactive
+            ...(area.isActive
+              ? [
+                  {
+                    icon: "eye-off" as const,
+                    label: t("deactivate"),
+                    onPress: handleToggleActive,
+                    disabled: updateProductionArea.isPending,
+                  },
+                ]
+              : []),
             {
               icon: "trash",
               label: t("delete"),

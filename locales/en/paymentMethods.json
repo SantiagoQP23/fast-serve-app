@@ -59,6 +59,7 @@
     "title": "Methods",
     "subtitle": "Define commissions and destination accounts.",
     "newMethod": "New method",
+    "defaultLabel": "Default",
     "editMethod": "Edit payment method",
     "createMethod": "Create payment method",
     "saveMethod": "Save payment method",

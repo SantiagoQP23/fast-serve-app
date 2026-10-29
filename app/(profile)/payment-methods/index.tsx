@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ScrollView, RefreshControl, ActivityIndicator } from "react-native";
+import { ScrollView, RefreshControl, Pressable } from "react-native";
 import { router } from "expo-router";
 import Icon, { type IconName } from "@/presentation/theme/components/icon";
 import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
@@ -15,9 +15,7 @@ import { Roles, isValidRole } from "@/core/auth/models/user.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import Card from "@/presentation/theme/components/card";
-import Label from "@/presentation/theme/components/label";
-import IconButton from "@/presentation/theme/components/icon-button";
-import Fab from "@/presentation/theme/components/fab";
+import DetailHeader from "@/presentation/theme/components/detail-header";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.model";
@@ -63,13 +61,6 @@ export default function PaymentMethodsSettingsScreen() {
   const handleOpenMethodDetails = (methodId: number) => {
     router.push({
       pathname: "/(profile)/payment-methods/details",
-      params: { methodId: String(methodId) },
-    });
-  };
-
-  const handleAddAccount = (methodId: number) => {
-    router.push({
-      pathname: "/(profile)/payment-methods/account-select",
       params: { methodId: String(methodId) },
     });
   };
@@ -145,7 +136,19 @@ export default function PaymentMethodsSettingsScreen() {
   };
 
   return (
-    <ScreenLayout style={tw`flex-1 px-4 pt-2`}>
+    <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
+      <ThemedView style={tw`items-center flex-row mb-6`}>
+        <Pressable
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel={t("common:actions.goBack")}
+          hitSlop={12}
+          style={({ pressed }) => tw.style(pressed && "opacity-70")}
+        >
+          <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
+        </Pressable>
+      </ThemedView>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={tw`gap-4 pb-8`}
@@ -158,95 +161,87 @@ export default function PaymentMethodsSettingsScreen() {
           />
         }
       >
-        <ThemedView style={tw`gap-4`}>
-          {/* <ThemedView style={tw`flex-row items-center justify-between`}> */}
-          {/*   <ThemedView style={tw`gap-1`}> */}
-          {/*     <ThemedText type="h4">{t("methods.title")}</ThemedText> */}
-          {/*     <ThemedText type="small" style={tw`text-gray-500`}> */}
-          {/*       {t("methods.subtitle")} */}
-          {/*     </ThemedText> */}
-          {/*   </ThemedView> */}
-          {/* </ThemedView> */}
-
-          {paymentMethodsQuery.isLoading && (
-            <ThemedView
-              style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
-            >
-              <ActivityIndicator color={tw.color("primary")} />
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {t("loading")}
-              </ThemedText>
-            </ThemedView>
-          )}
-
-          {!paymentMethodsQuery.isLoading && paymentMethodsQuery.isError && (
-            <ThemedView
-              style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
-            >
-              <Icon name="circle-alert" size={28} color={tw.color("red-500")} />
-              <ThemedText type="small" style={tw`text-center text-gray-500`}>
-                {t("loadError")}
-              </ThemedText>
+        <DetailHeader title={t("title")} subtitle={t("methods.subtitle")}>
+          {canManage && (
+            <ThemedView style={tw`flex-row flex-wrap gap-3`}>
               <Button
-                label={t("retry")}
-                onPress={() => paymentMethodsQuery.refetch()}
-                variant="outline"
+                label={t("methods.newMethod")}
+                leftIcon="plus"
+                shape="rounded"
                 size="small"
+                onPress={handleCreateMethod}
               />
             </ThemedView>
           )}
+        </DetailHeader>
 
-          {!paymentMethodsQuery.isLoading &&
-            !paymentMethodsQuery.isError &&
-            paymentMethods.length === 0 && (
-              <ThemedView
-                style={tw`items-center py-6 gap-2 bg-gray-50 rounded-3xl px-4`}
+        {paymentMethodsQuery.isLoading && (
+          <ThemedView style={tw`items-center py-8 gap-3`}>
+            <Icon name="credit-card" size={48} color={tw.color("gray-400")} />
+            <ThemedText type="body1" style={tw`text-gray-500`}>
+              {t("loading")}
+            </ThemedText>
+          </ThemedView>
+        )}
+
+        {!paymentMethodsQuery.isLoading && paymentMethodsQuery.isError && (
+          <ThemedView style={tw`items-center py-8 gap-3`}>
+            <Icon name="circle-alert" size={48} color={tw.color("red-500")} />
+            <ThemedText type="body1" style={tw`text-red-500`}>
+              {t("loadError")}
+            </ThemedText>
+            <Button
+              label={t("retry")}
+              onPress={() => paymentMethodsQuery.refetch()}
+              variant="outline"
+            />
+          </ThemedView>
+        )}
+
+        {!paymentMethodsQuery.isLoading &&
+          !paymentMethodsQuery.isError &&
+          paymentMethods.length === 0 && (
+            <ThemedView style={tw`items-center py-8 gap-3`}>
+              <Icon name="credit-card" size={48} color={tw.color("gray-400")} />
+              <ThemedText type="body1" style={tw`font-semibold`}>
+                {t("methods.noMethods")}
+              </ThemedText>
+              <ThemedText
+                type="body2"
+                style={tw`text-center text-gray-500 px-4`}
               >
-                <Icon
-                  name="credit-card"
-                  size={32}
-                  color={tw.color("gray-400")}
-                />
-                <ThemedText type="body2" style={tw`font-semibold`}>
-                  {t("methods.noMethods")}
-                </ThemedText>
-                <ThemedText type="small" style={tw`text-center text-gray-500`}>
-                  {t("methods.noMethodsDescription")}
-                </ThemedText>
-              </ThemedView>
-            )}
+                {t("methods.noMethodsDescription")}
+              </ThemedText>
+            </ThemedView>
+          )}
 
-          {paymentMethods.length > 0 && (
-            <ThemedView style={tw`gap-3`}>
-              {paymentMethods.map((method) => (
-                <Card
-                  key={method.id}
-                  onPress={() => handleOpenMethodDetails(method.id)}
-                  style={!method.isActive && tw`opacity-50`}
-                >
-                  <ThemedView style={tw`gap-3`}>
-                    <ThemedView
-                      style={tw`flex-row items-center justify-between`}
-                    >
-                      <ThemedView
-                        style={tw`gap-3 flex-1 flex-row items-center`}
-                      >
-                        <Icon
-                          name={paymentMethodIcons[method.type]}
-                          size={26}
-                          color={tw.color("text-on-surface-variant")}
-                        />
-                        <ThemedText type="h4" style={tw`flex-1`}>
-                          {method.name}
-                        </ThemedText>
-                      </ThemedView>
-                      <Icon
-                        name="chevron-right"
-                        size={18}
-                        color={tw.color("gray-400")}
-                      />
-                    </ThemedView>
+        {paymentMethods.length > 0 && (
+          <ThemedView style={tw`gap-4`}>
+            {paymentMethods.map((method) => (
+              <Card
+                key={method.id}
+                onPress={() => handleOpenMethodDetails(method.id)}
+                style={!method.isActive && tw`opacity-50`}
+                variant="outline"
+              >
+                <ThemedView style={tw`gap-3`}>
+                  <ThemedView style={tw`flex-row items-center gap-3`}>
+                    <Icon
+                      name={paymentMethodIcons[method.type]}
+                      size={26}
+                      color={tw.color("text-on-surface-variant")}
+                    />
+                    <ThemedText type="h4" style={tw`flex-1`}>
+                      {method.name}
+                    </ThemedText>
+                    <Icon
+                      name="chevron-right"
+                      size={18}
+                      color={tw.color("gray-400")}
+                    />
+                  </ThemedView>
 
+                  {method.allowedDestinationAccounts.length > 0 && (
                     <ThemedView
                       style={tw`flex-row items-center gap-2 flex-wrap`}
                     >
@@ -262,24 +257,14 @@ export default function PaymentMethodsSettingsScreen() {
                           }
                         />
                       ))}
-                      {/* {canManage && ( */}
-                      {/*   <IconButton */}
-                      {/*     icon="circle-plus" */}
-                      {/*     size={20} */}
-                      {/*     variant="text" */}
-                      {/*     onPress={() => handleAddAccount(method.id)} */}
-                      {/*   /> */}
-                      {/* )} */}
                     </ThemedView>
-                  </ThemedView>
-                </Card>
-              ))}
-            </ThemedView>
-          )}
-        </ThemedView>
+                  )}
+                </ThemedView>
+              </Card>
+            ))}
+          </ThemedView>
+        )}
       </ScrollView>
-
-      {canManage && <Fab icon="plus" onPress={handleCreateMethod} />}
 
       <ThemedBottomSheetModal ref={accountActionsSheetRef} enablePanDownToClose>
         {selectedAccountContext && (

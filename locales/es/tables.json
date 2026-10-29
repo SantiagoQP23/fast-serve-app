@@ -40,6 +40,7 @@
   },
   "settings": {
     "title": "Mesas",
+    "subtitle": "Organiza las mesas de tu restaurante",
     "tableName": "Mesa {{name}}",
     "chairsCount": "{{count}} sillas",
     "newTable": "Nueva mesa",
