@@ -232,7 +232,30 @@
         "andMore": "{{names}} and {{count}} more"
       },
       "actions": "Variant options",
-      "openStock": "See stock and recipe"
+      "openStock": "See stock and recipe",
+      "duplicate": {
+        "action": "Duplicate variant",
+        "title": "Duplicate \"{{name}}\"",
+        "copyName": "{{name}} (copy)",
+        "copy": "Copy",
+        "newStock": "New stock",
+        "newStockHint": "Starts at 0",
+        "newStockHintMinimum": "Starts at 0, with the same minimum ({{minimum}})",
+        "sharedStock": "Share stock with \"{{name}}\"",
+        "sharedStockHint_one": "Both sell from the same {{count}} unit",
+        "sharedStockHint_other": "Both sell from the same {{count}} units",
+        "quantity": "Units on hand (optional)",
+        "quantityInvalid": "Units must be a positive number",
+        "recipe": "Recipe · copied as is",
+        "moreLines_one": "and {{count}} more supply",
+        "moreLines_other": "and {{count}} more supplies",
+        "recipeHint": "You can change the recipe after duplicating.",
+        "noneHint": "No stock control, like the original. You can change it after duplicating.",
+        "nameTaken": "There is already a variant with that name",
+        "submit": "Duplicate",
+        "success": "Variant duplicated",
+        "error": "Couldn't duplicate the variant"
+      }
     },
     "saveAndAddAnother": "Save and add another",
     "createdList": "Created: {{names}}",

@@ -17,6 +17,9 @@ import { useMenuManagement } from "@/presentation/menu-management/hooks/useMenuM
 import EditVariantSheet, {
   type EditVariantSheetRef,
 } from "@/presentation/menu-management/components/edit-variant-sheet";
+import DuplicateVariantSheet, {
+  type DuplicateVariantSheetRef,
+} from "@/presentation/menu-management/components/duplicate-variant-sheet";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import InventoryScreenHeader from "@/presentation/inventory/components/screen-header";
 import {
@@ -26,6 +29,7 @@ import {
   VariantStockMovements,
   VariantStockOverlays,
   VariantStockOverview,
+  openVariant,
 } from "@/presentation/menu-management/components/variant-stock-section";
 
 interface VariantDetailViewProps {
@@ -59,6 +63,7 @@ export default function VariantDetailView({
   ]);
   const { updateProductOption, deleteProductOption } = useMenuManagement();
   const editSheetRef = useRef<EditVariantSheetRef>(null);
+  const duplicateSheetRef = useRef<DuplicateVariantSheetRef>(null);
   const [deleteVisible, setDeleteVisible] = useState(false);
 
   const product = products.find((p) =>
@@ -96,6 +101,14 @@ export default function VariantDetailView({
             onPress: () => {
               sectionSheets.optionsSheetRef.current?.dismiss();
               editSheetRef.current?.present(option);
+            },
+          },
+          {
+            icon: "copy",
+            label: t("menuManagement:products.variants.duplicate.action"),
+            onPress: () => {
+              sectionSheets.optionsSheetRef.current?.dismiss();
+              duplicateSheetRef.current?.present(product, option);
             },
           },
           ...(!isLastActiveOption
@@ -216,6 +229,11 @@ export default function VariantDetailView({
       />
 
       <EditVariantSheet ref={editSheetRef} productId={product.id} />
+
+      <DuplicateVariantSheet
+        ref={duplicateSheetRef}
+        onDuplicated={(copyId) => openVariant(copyId)}
+      />
 
       <DialogModal
         visible={deleteVisible}
