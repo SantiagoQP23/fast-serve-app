@@ -122,11 +122,8 @@ export default function MenuInventorySearchScreen() {
           <InventoryItemCard
             key={item.id}
             item={item}
-            canManage={false}
             onPress={handleSelectItem}
-            onOptionsPress={() => {}}
-            onAdjustPress={() => {}}
-            onReactivatePress={() => {}}
+            showCategory
           />
         ))}
       </ScrollView>

@@ -12,7 +12,6 @@ import tw from "@/presentation/theme/lib/tailwind";
 import Chip from "@/presentation/theme/components/chip";
 import TextInput from "@/presentation/theme/components/text-input";
 import IconButton from "@/presentation/theme/components/icon-button";
-import Card from "@/presentation/theme/components/card";
 import Button from "@/presentation/theme/components/button";
 import Label from "@/presentation/theme/components/label";
 import ActionsBottomSheet, {
@@ -42,7 +41,7 @@ import {
 import { getVariantStockMode } from "@/core/menu/models/product-optionl.model";
 import { getOwnStockLine } from "@/core/inventory/models/inventory-recipe.model";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
-import ProductVariantList from "@/presentation/menu-management/components/product-variant-list";
+import MenuProductCard from "@/presentation/menu-management/components/menu-product-card";
 import MenuProductDetailView from "@/presentation/menu-management/components/menu-product-detail-view";
 import MenuNamesSheet from "@/presentation/menu-management/components/menu-names-sheet";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
@@ -777,53 +776,18 @@ export default function MenuOverviewContent({
               }
             />
           )}
-          {filteredProducts.map((product) => {
-            return (
-              <Card
-                key={product.id}
-                onPress={() => openProduct(product)}
-                onLongPress={() => openProductActions(product)}
-                accessibilityHint={t("overview.longPressForActions")}
-                style={tw.style(
-                  "px-4 py-3",
-                  isExpanded &&
-                    selectedProductId === product.id &&
-                    "bg-secondary",
-                )}
-              >
-                <ThemedView style={tw`gap-2 bg-transparent`}>
-                  <ThemedView
-                    style={tw`flex-row items-center gap-2 bg-transparent`}
-                  >
-                    <ThemedText
-                      type="body1"
-                      style={tw.style(
-                        "flex-1",
-                        !product.isActive && "text-gray-500",
-                      )}
-                      numberOfLines={2}
-                    >
-                      {product.name}
-                    </ThemedText>
-                    {!product.isActive && (
-                      <Label text={t("inactive")} size="small" />
-                    )}
-                  </ThemedView>
-                  {/* Results span categories: say where each one is */}
-                  {isFiltering && (
-                    <ThemedText
-                      type="small"
-                      style={tw`-mt-1.5 text-gray-500`}
-                      numberOfLines={1}
-                    >
-                      {product.category?.name}
-                    </ThemedText>
-                  )}
-                  <ProductVariantList product={product} />
-                </ThemedView>
-              </Card>
-            );
-          })}
+          {filteredProducts.map((product) => (
+            <MenuProductCard
+              key={product.id}
+              product={product}
+              onPress={openProduct}
+              onLongPress={openProductActions}
+              accessibilityHint={t("overview.longPressForActions")}
+              // Results span categories: say where each one is
+              showCategory={isFiltering}
+              active={isExpanded && selectedProductId === product.id}
+            />
+          ))}
         </ScrollView>
       </ThemedView>
 

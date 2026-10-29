@@ -24,6 +24,9 @@ import InventoryCategoryBrowser from "@/presentation/inventory/components/invent
 import InventoryStockSummary from "@/presentation/inventory/components/inventory-stock-summary";
 import InventoryCountsTab from "@/presentation/inventory/components/inventory-counts-tab";
 import InventoryPurchasesTab from "@/presentation/inventory/components/inventory-purchases-tab";
+import InventoryLowStockTab from "@/presentation/inventory/components/inventory-low-stock-tab";
+import { useLowStock } from "@/presentation/inventory/hooks/useLowStock";
+import MenuProductDetailView from "@/presentation/menu-management/components/menu-product-detail-view";
 import MenuOverviewContent from "@/presentation/menu-management/components/menu-overview-content";
 import {
   getInventoryStockStatus,
@@ -38,10 +41,13 @@ import InventoryPurchaseDetailView from "@/presentation/inventory/components/inv
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 
 /** "inventory" is the Insumos page. */
-type InventoryTab = "menu" | "inventory" | "purchases" | "counts";
+type InventoryTab = "lowStock" | "menu" | "inventory" | "purchases" | "counts";
 
 /** What the detail pane next to the list shows (tablet). */
-type PaneSelection = { kind: "item" | "count" | "purchase"; id: string };
+type PaneSelection = {
+  kind: "item" | "product" | "count" | "purchase";
+  id: string;
+};
 
 const STATUS_BY_FILTER: Record<
   InventoryItemStockStatusFilter,
@@ -70,7 +76,9 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     [allItems],
   );
   const { categories, categoriesQuery } = useInventoryItemCategories();
-  const [activeTab, setActiveTab] = useState<InventoryTab>("menu");
+  // Opens on what needs restocking
+  const [activeTab, setActiveTab] = useState<InventoryTab>("lowStock");
+  const { total: lowStockTotal } = useLowStock();
   // The Menú page's search field opens from the header, like Insumos' search
   const [menuSearchOpen, setMenuSearchOpen] = useState(false);
 
@@ -167,6 +175,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
   const hasContent = catalogItems.length > 0 || categories.length > 0;
 
   const tabs: TabItem<InventoryTab>[] = [
+    { label: t("tabs.lowStock"), value: "lowStock", count: lowStockTotal },
     { label: t("tabs.menu"), value: "menu" },
     { label: t("tabs.inventory"), value: "inventory" },
     ...(canManage
@@ -214,7 +223,14 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
             </Pressable>
           )}
         </ThemedView>
-        <TabBar tabs={tabs} activeTab={activeTab} onChange={changeTab} />
+        {/* Five tabs don't fit a phone's width without truncating */}
+        <TabBar
+          scrollable
+          gap={6}
+          tabs={tabs}
+          activeTab={activeTab}
+          onChange={changeTab}
+        />
       </ThemedView>
 
       <TabPager
@@ -372,6 +388,19 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
               </ThemedView>
             )}
 
+            {tab === "lowStock" && (
+              <InventoryLowStockTab
+                activeId={activeId}
+                onOpenItem={isExpanded ? openItem : undefined}
+                onOpenProduct={
+                  isExpanded
+                    ? (product) =>
+                        setSelection({ kind: "product", id: product.id })
+                    : undefined
+                }
+              />
+            )}
+
             {tab === "counts" && (
               <InventoryCountsTab
                 onAdd={canManage ? handleNewCount : undefined}
@@ -416,6 +445,7 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
 
   const closePane = () => setSelection(null);
   const emptyPane = {
+    lowStock: { icon: "triangle-alert", text: t("pane.selectLowStock") },
     menu: { icon: "hamburger", text: t("pane.selectItem") },
     inventory: { icon: "package", text: t("pane.selectItem") },
     counts: { icon: "clipboard", text: t("pane.selectCount") },
@@ -432,6 +462,15 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
             itemId={selection.id}
             embedded
             onClose={closePane}
+          />
+        )}
+        {selection?.kind === "product" && (
+          <MenuProductDetailView
+            key={selection.id}
+            productId={selection.id}
+            embedded
+            onClose={closePane}
+            onOpenProduct={(id) => setSelection({ kind: "product", id })}
           />
         )}
         {selection?.kind === "count" && (

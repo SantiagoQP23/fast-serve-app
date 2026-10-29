@@ -3,10 +3,8 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Label, { LabelProps } from "@/presentation/theme/components/label";
 import tw from "@/presentation/theme/lib/tailwind";
-import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import {
-  getInventoryStockRatio,
   getInventoryStockStatus,
   type InventoryItem,
   type InventoryStockStatus,
@@ -15,11 +13,13 @@ import Card from "@/presentation/theme/components/card";
 
 interface InventoryItemCardProps {
   item: InventoryItem;
-  canManage: boolean;
+  canManage?: boolean;
   onPress?: (item: InventoryItem) => void;
-  onOptionsPress: (item: InventoryItem) => void;
-  onAdjustPress: (item: InventoryItem) => void;
-  onReactivatePress: (item: InventoryItem) => void;
+  /** For lists that span categories: says where each item is. */
+  showCategory?: boolean;
+  onOptionsPress?: (item: InventoryItem) => void;
+  onAdjustPress?: (item: InventoryItem) => void;
+  onReactivatePress?: (item: InventoryItem) => void;
   selectionMode?: boolean;
   selected?: boolean;
   /** Highlights the item open in the detail pane (tablet). */
@@ -72,18 +72,24 @@ export const INVENTORY_STATUS_STYLES: Record<
   },
 };
 
+// Like the menu's variant stock: only what needs attention gets a color.
 const QUANTITY_LABEL_COLOR: Record<InventoryStockStatus, LabelProps["color"]> =
   {
     critical: "error",
     low: "warning",
-    optimal: "success",
+    optimal: "default",
     noMinimum: "default",
     inactive: "default",
   };
 
+// Stock is stored with 3 decimals; trims float noise like 1.4999999.
+const formatQuantity = (quantity: number) => Number(quantity.toFixed(3));
+
+/** An insumo laid out like the menu's product card: name, then its stock. */
 export default function InventoryItemCard({
   item,
   onPress,
+  showCategory = false,
   selectionMode,
   selected,
   active,
@@ -92,30 +98,23 @@ export default function InventoryItemCard({
 }: InventoryItemCardProps) {
   const { t } = useTranslation("inventory");
   const status = getInventoryStockStatus(item);
-  const ratio = getInventoryStockRatio(item);
-  const styles = INVENTORY_STATUS_STYLES[status];
   const isInactive = status === "inactive";
-  const showStockBar =
-    !isInactive && !!item.minimumQuantity && item.minimumQuantity > 0;
-  const quantityLabelColor = QUANTITY_LABEL_COLOR[status];
+  const withUnit = (quantity: number) =>
+    t("quantityWithUnit", {
+      quantity: formatQuantity(quantity),
+      unit: t(`units.${item.unit}`, { count: quantity }),
+    });
+  const hasMinimum = !!item.minimumQuantity && item.minimumQuantity > 0;
 
   return (
     <Card
-      variant="outline"
       disabled={!onPress && !selectionMode}
       onPress={() => (selectionMode ? onToggleSelect?.(item) : onPress?.(item))}
-      onLongPress={() => onLongPress?.(item)}
-      style={({ pressed }) =>
-        tw.style(
-          " gap-3 p-4",
-          isInactive && "opacity-50 border border-dashed border-border",
-          active && !selectionMode && "bg-secondary",
-          selected && "border border-primary bg-secondary",
-          pressed && (onPress || selectionMode) && "opacity-80",
-        )
-      }
+      onLongPress={onLongPress ? () => onLongPress(item) : undefined}
+      style={tw.style("px-4 py-3", active && !selectionMode && "bg-secondary")}
+      containerStyle={selected && tw`bg-secondary`}
     >
-      <ThemedView style={tw`flex-row items-start justify-between gap-3`}>
+      <ThemedView style={tw`flex-row items-center gap-3 bg-transparent`}>
         {selectionMode && (
           <Icon
             name={selected ? "circle-check" : "circle"}
@@ -123,42 +122,46 @@ export default function InventoryItemCard({
             color={selected ? tw.color("primary") : tw.color("gray-400")}
           />
         )}
-        <ThemedView style={tw`flex-1 gap-1 flex-row`}>
-          <Label
-            text={t("quantityWithUnit", {
-              quantity: item.quantity,
-              unit: t(`units.${item.unit}`, { count: item.quantity }),
-            })}
-            color={quantityLabelColor}
-          />
-          <ThemedText
-            type="body1"
-            style={[{ fontFamily: typography.semibold }, tw`text-on-surface`]}
-            numberOfLines={2}
-          >
-            {item.name}
-          </ThemedText>
-        </ThemedView>
-      </ThemedView>
-
-      <ThemedView style={tw`gap-2`}>
-        <ThemedView style={tw`flex-row items-baseline justify-between`}>
-          {!!item.productOptionsCount ? (
-            <ThemedText type="small" style={tw`text-gray-500`}>
-              {t("usedInCount", { count: item.productOptionsCount })}
+        <ThemedView style={tw`flex-1 gap-2 bg-transparent`}>
+          <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}>
+            <ThemedText
+              type="body1"
+              style={tw.style("flex-1", isInactive && "text-gray-500")}
+              numberOfLines={2}
+            >
+              {item.name}
             </ThemedText>
-          ) : (
-            <ThemedView></ThemedView>
+            {isInactive && <Label text={t("status.inactive")} size="small" />}
+          </ThemedView>
+          {showCategory && (
+            <ThemedText
+              type="small"
+              style={tw`-mt-1.5 text-gray-500`}
+              numberOfLines={1}
+            >
+              {item.category?.name ?? t("categories.none")}
+            </ThemedText>
           )}
+          <ThemedView
+            style={tw`flex-row items-center gap-2 min-h-6 bg-transparent`}
+          >
+            <ThemedText
+              type="body2"
+              style={tw`flex-1 text-gray-500`}
+              numberOfLines={1}
+            >
+              {hasMinimum
+                ? `${t("minimumLabel")} ${withUnit(item.minimumQuantity as number)}`
+                : ""}
+            </ThemedText>
+            <Label
+              text={withUnit(item.quantity)}
+              leftIcon="package"
+              color={QUANTITY_LABEL_COLOR[status]}
+              size="small"
+            />
+          </ThemedView>
         </ThemedView>
-        {/* {showStockBar && ( */}
-        {/*   <ProgressBar */}
-        {/*     progress={ratio} */}
-        {/*     height={2} */}
-        {/*     bgColor="bg-gray-100" */}
-        {/*     progressColor={`bg-${styles.color}`} */}
-        {/*   /> */}
-        {/* )} */}
       </ThemedView>
     </Card>
   );
