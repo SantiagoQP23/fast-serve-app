@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, type StyleProp, type ViewStyle } from "react-native";
 import Animated, {
   Extrapolation,
   interpolate,
@@ -27,17 +27,18 @@ export function useCollapsibleHeaderScroll() {
   return { scrollY, scrollHandler };
 }
 
-type CollapsibleLargeTitleProps = {
+type CollapsibleBlockProps = {
   scrollY: SharedValue<number>;
-  title: string;
-  subtitle?: ReactNode;
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
 };
 
-export function CollapsibleLargeTitle({
+/** Fades and lifts its content away as the screen scrolls. */
+export function CollapsibleBlock({
   scrollY,
-  title,
-  subtitle,
-}: CollapsibleLargeTitleProps) {
+  children,
+  style,
+}: CollapsibleBlockProps) {
   const animatedStyle = useAnimatedStyle(() => {
     const opacity = interpolate(
       scrollY.value,
@@ -56,10 +57,26 @@ export function CollapsibleLargeTitle({
   });
 
   return (
-    <Animated.View style={[tw`gap-2`, animatedStyle]}>
+    <Animated.View style={[style, animatedStyle]}>{children}</Animated.View>
+  );
+}
+
+type CollapsibleLargeTitleProps = {
+  scrollY: SharedValue<number>;
+  title: string;
+  subtitle?: ReactNode;
+};
+
+export function CollapsibleLargeTitle({
+  scrollY,
+  title,
+  subtitle,
+}: CollapsibleLargeTitleProps) {
+  return (
+    <CollapsibleBlock scrollY={scrollY} style={tw`gap-2`}>
       <ThemedText type="h1">{title}</ThemedText>
       {subtitle}
-    </Animated.View>
+    </CollapsibleBlock>
   );
 }
 
@@ -116,11 +133,11 @@ export function CollapsibleHeaderTitle({
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: 16,
-    lineHeight: 19,
+    fontSize: 20,
+    lineHeight: 24,
   },
   subtitle: {
-    fontSize: 11,
-    lineHeight: 13,
+    fontSize: 12,
+    lineHeight: 15,
   },
 });

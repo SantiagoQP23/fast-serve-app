@@ -46,6 +46,12 @@ interface TabPagerProps<T extends string> {
    * for heavy pages (e.g. one menu section each).
    */
   keepVisited?: boolean;
+  /**
+   * For pages inside a parent ScrollView: each page keeps its own content
+   * height and the pager takes the active page's, instead of filling the
+   * space (`flex: 1`).
+   */
+  autoHeight?: boolean;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -60,6 +66,7 @@ export default function TabPager<T extends string>({
   renderScene,
   enabled = true,
   keepVisited = true,
+  autoHeight = false,
   style,
 }: TabPagerProps<T>) {
   const count = tabs.length;
@@ -103,6 +110,17 @@ export default function TabPager<T extends string>({
 
   const onLayout = (e: LayoutChangeEvent) => {
     setPageWidth(e.nativeEvent.layout.width);
+  };
+
+  // autoHeight: each page's own height; the pager follows the active one.
+  const [pageHeights, setPageHeights] = useState<Partial<Record<T, number>>>(
+    {},
+  );
+  const onPageLayout = (value: T) => (e: LayoutChangeEvent) => {
+    const height = e.nativeEvent.layout.height;
+    setPageHeights((current) =>
+      current[value] === height ? current : { ...current, [value]: height },
+    );
   };
 
   const goTo = (target: number) => {
@@ -154,11 +172,17 @@ export default function TabPager<T extends string>({
     <GestureDetector gesture={pan}>
       <View
         onLayout={onLayout}
-        style={[{ flex: 1, overflow: "hidden" }, style]}
+        style={[
+          autoHeight
+            ? { height: pageHeights[activeTab], overflow: "hidden" }
+            : { flex: 1, overflow: "hidden" },
+          style,
+        ]}
       >
         <Animated.View
           style={[
-            { flex: 1, flexDirection: "row", width: `${count * 100}%` },
+            autoHeight ? { alignItems: "flex-start" } : { flex: 1 },
+            { flexDirection: "row", width: `${count * 100}%` },
             rowStyle,
           ]}
         >
@@ -171,6 +195,7 @@ export default function TabPager<T extends string>({
               <View
                 key={tab.value}
                 style={{ width: `${100 / count}%` }}
+                onLayout={autoHeight ? onPageLayout(tab.value) : undefined}
                 importantForAccessibility={
                   isActive ? "auto" : "no-hide-descendants"
                 }

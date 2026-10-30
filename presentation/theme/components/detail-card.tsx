@@ -15,7 +15,7 @@ export function DetailCard({
   children: ReactNode;
 }) {
   return (
-    <Card variant="outline" style={[tw`px-5`, style]}>
+    <Card variant="default" style={[tw`px-5`, style]}>
       {children}
     </Card>
   );

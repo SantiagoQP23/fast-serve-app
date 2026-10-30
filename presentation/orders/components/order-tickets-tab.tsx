@@ -16,9 +16,17 @@ import { useThemeColor } from "@/presentation/theme/hooks/use-theme-color";
 
 interface OrderTicketsTabProps {
   order: Order;
+  /**
+   * `false` when a parent screen already scrolls (and refreshes) it, like the
+   * order detail.
+   */
+  scrollable?: boolean;
 }
 
-export default function OrderTicketsTab({ order }: OrderTicketsTabProps) {
+export default function OrderTicketsTab({
+  order,
+  scrollable = true,
+}: OrderTicketsTabProps) {
   const { t } = useTranslation(["common", "orders", "bills"]);
   const { printComanda } = usePrintComanda();
   const primaryColor = useThemeColor({}, "primary");
@@ -45,20 +53,8 @@ export default function OrderTicketsTab({ order }: OrderTicketsTabProps) {
     );
   }
 
-  return (
-    <ScrollView
-      style={tw`flex-1`}
-      contentContainerStyle={tw`gap-6 pt-4 pb-6 grow`}
-      showsVerticalScrollIndicator={false}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          tintColor={primaryColor}
-          colors={[primaryColor]}
-        />
-      }
-    >
+  const content = (
+    <>
       {isError && tickets.length === 0 ? (
         <ThemedView style={tw`items-center gap-4 pt-12 px-8`}>
           <Icon name="wifi-off" size={40} color={tw.color("gray-500")} />
@@ -94,6 +90,28 @@ export default function OrderTicketsTab({ order }: OrderTicketsTabProps) {
           />
         ))
       )}
+    </>
+  );
+
+  if (!scrollable) {
+    return <ThemedView style={tw`gap-6 pt-4 pb-6`}>{content}</ThemedView>;
+  }
+
+  return (
+    <ScrollView
+      style={tw`flex-1`}
+      contentContainerStyle={tw`gap-6 pt-4 pb-6 grow`}
+      showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor={primaryColor}
+          colors={[primaryColor]}
+        />
+      }
+    >
+      {content}
     </ScrollView>
   );
 }

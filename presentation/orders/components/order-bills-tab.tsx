@@ -19,9 +19,17 @@ import { formatCurrency } from "@/core/i18n/utils";
 
 interface OrderBillsTabProps {
   order: Order;
+  /**
+   * `false` when a parent screen already scrolls (and refreshes) it, like the
+   * order detail.
+   */
+  scrollable?: boolean;
 }
 
-export default function OrderBillsTab({ order }: OrderBillsTabProps) {
+export default function OrderBillsTab({
+  order,
+  scrollable = true,
+}: OrderBillsTabProps) {
   const { t } = useTranslation(["common", "orders", "bills", "errors"]);
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
@@ -68,20 +76,8 @@ export default function OrderBillsTab({ order }: OrderBillsTabProps) {
     );
   }
 
-  return (
-    <ScrollView
-      style={tw`flex-1`}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={tw`gap-4 pt-4 pb-6 grow`}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          tintColor={primaryColor}
-          colors={[primaryColor]}
-        />
-      }
-    >
+  const content = (
+    <>
       <ThemedView style={tw`flex-row items-center justify-between gap-4`}>
         <ThemedText type="body1">{t("common:labels.total")}</ThemedText>
         <ThemedText type="h3">{formatCurrency(order.total)}</ThemedText>
@@ -102,6 +98,28 @@ export default function OrderBillsTab({ order }: OrderBillsTabProps) {
           <BillCard key={bill.id} bill={bill} onPress={() => openBill(bill)} />
         ))
       )}
+    </>
+  );
+
+  if (!scrollable) {
+    return <ThemedView style={tw`gap-4 pt-4 pb-6`}>{content}</ThemedView>;
+  }
+
+  return (
+    <ScrollView
+      style={tw`flex-1`}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={tw`gap-4 pt-4 pb-6 grow`}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor={primaryColor}
+          colors={[primaryColor]}
+        />
+      }
+    >
+      {content}
     </ScrollView>
   );
 }

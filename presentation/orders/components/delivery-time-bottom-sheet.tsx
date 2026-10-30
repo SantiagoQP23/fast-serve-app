@@ -48,13 +48,15 @@ export type DeliveryTimeBottomSheetRef = {
 interface DeliveryTimeBottomSheetProps {
   value: Date | null;
   onChange: (time: Date | null) => void;
+  /** Offer "Clear" (back to no delivery time) once a time is set. */
+  clearable?: boolean;
 }
 
 /** Picks today's delivery time on hour/minute wheels, committed on Done. */
 const DeliveryTimeBottomSheet = forwardRef<
   DeliveryTimeBottomSheetRef,
   DeliveryTimeBottomSheetProps
->(({ value, onChange }, ref) => {
+>(({ value, onChange, clearable = true }, ref) => {
   const { t } = useTranslation(["common", "orders"]);
   const sheetRef = useRef<BottomSheetMethods>(null);
   const hoursData = useMemo(() => range(0, 23), []);
@@ -95,7 +97,7 @@ const DeliveryTimeBottomSheet = forwardRef<
       <BottomSheetView style={tw`px-4 pb-6`}>
         <View style={tw`flex-row items-center justify-between mb-4`}>
           <ThemedText type="h3">{t("orders:form.deliveryTime")}</ThemedText>
-          {value && (
+          {value && clearable && (
             <Button
               label={t("common:actions.clear")}
               leftIcon="x"
