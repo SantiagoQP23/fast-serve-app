@@ -882,6 +882,7 @@ export default function OrderDetailView({
                     <Button
                       label={t("orders:details.addProduct")}
                       leftIcon="plus"
+                      variant="surface"
                       shape="rounded"
                       size="small"
                       onPress={handleAddProduct}
