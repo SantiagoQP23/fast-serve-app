@@ -13,7 +13,9 @@ export default function NotificationBadge({
   if (!value || value <= 0) return null;
 
   return (
+    // The badge overlaps its icon button; let taps pass through to it.
     <View
+      pointerEvents="none"
       style={tw`
         absolute top-1 right-1
         bg-primary 
