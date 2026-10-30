@@ -257,6 +257,25 @@ export default function MenuProductFormScreen() {
     });
   }, [productionAreas, setValue]);
 
+  // Same for categories created from the category picker.
+  const knownCategoryIdsRef = useRef<Set<string> | null>(null);
+
+  const handleCreateCategory = () => {
+    knownCategoryIdsRef.current = new Set(categories.map((c) => c.id));
+    router.push("/(profile)/menu/categories/form");
+  };
+
+  useEffect(() => {
+    const knownCategoryIds = knownCategoryIdsRef.current;
+    if (!knownCategoryIds) return;
+    const createdCategory = categories.find(
+      (category) => !knownCategoryIds.has(category.id),
+    );
+    if (!createdCategory) return;
+    knownCategoryIdsRef.current = null;
+    setValue("categoryId", createdCategory.id, { shouldValidate: true });
+  }, [categories, setValue]);
+
   const animateLayout = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
   };
@@ -550,6 +569,13 @@ export default function MenuProductFormScreen() {
                       >
                         {t("products.noCategoriesAvailableDescription")}
                       </ThemedText>
+                      <Button
+                        leftIcon="plus"
+                        label={t("categories.newCategory")}
+                        variant="outline"
+                        onPress={handleCreateCategory}
+                        style={tw`mt-2`}
+                      />
                     </ThemedView>
                   ) : (
                     <Controller
@@ -562,6 +588,10 @@ export default function MenuProductFormScreen() {
                           value={value}
                           onChange={(v) => onChange(String(v))}
                           placeholder={t("products.placeholders.category")}
+                          headerAction={{
+                            label: t("categories.newCategory"),
+                            onPress: handleCreateCategory,
+                          }}
                         />
                       )}
                     />
