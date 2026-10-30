@@ -20,6 +20,7 @@ import { TransactionStatus } from "@/core/transactions/models/transaction-status
 import { Transaction } from "@/core/transactions/models/transaction.model";
 import { PaymentProofsService } from "@/core/transactions/services/payment-proofs.service";
 import { usePaymentStore } from "@/presentation/payment/store/usePaymentStore";
+import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
 import { generateIdempotencyKey } from "@/helpers/idempotency";
 import { getErrorMessage } from "@/core/api/get-error-message";
 import { roundTo } from "@/core/common/utils/format.util";
@@ -113,8 +114,12 @@ export default function AccountScreen() {
   // What the customer is charged; the commission isn't applied to the bill.
   const totalToPay = applyCommission(amount, commissionPercentage);
 
+  // Read live so accounts linked from the Edit button show up on return.
+  const liveMethod = usePaymentMethodsStore((state) =>
+    state.paymentMethods.find((m) => m.id === selectedPaymentMethod?.id),
+  );
   const accounts: Account[] =
-    selectedPaymentMethod?.allowedDestinationAccounts ?? [];
+    (liveMethod ?? selectedPaymentMethod)?.allowedDestinationAccounts ?? [];
 
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
     null,
@@ -323,11 +328,7 @@ export default function AccountScreen() {
       >
         {accounts.length === 0 ? (
           <ThemedView style={tw`items-center py-8 gap-2`}>
-            <Icon
-              name="wallet"
-              size={40}
-              color={tw.color("gray-400")}
-            />
+            <Icon name="wallet" size={40} color={tw.color("gray-400")} />
             <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
               {t("bills:account.noAccountsAvailable")}
             </ThemedText>

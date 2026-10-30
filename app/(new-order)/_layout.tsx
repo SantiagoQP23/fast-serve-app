@@ -8,15 +8,18 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
 import { useEditSaleStore } from "@/presentation/orders/store/editSaleStore";
 import IconButton from "@/presentation/theme/components/icon-button";
+import Button from "@/presentation/theme/components/button";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { useCallback, useRef } from "react";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { typography } from "@/constants/theme";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 import { usePalette } from "@/presentation/theme/store/useThemeStore";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import { isAdminLevelRole } from "@/core/auth/models/user.model";
 
 export default function NewOrderLayout() {
   const palette = usePalette();
@@ -33,6 +36,9 @@ export default function NewOrderLayout() {
   }, []);
 
   const { isExpanded } = useResponsiveLayout();
+  const router = useRouter();
+  const user = useAuthStore((state) => state.user);
+  const canEditMenu = isAdminLevelRole(user?.role?.name);
 
   // Options for the draft being built: turn it into a sale or an order, or
   // clear it. Not while adding to an existing order.
@@ -72,10 +78,19 @@ export default function NewOrderLayout() {
             headerShadowVisible: false,
             // On phones the cart bar docked above the search leads to the
             // cart; beside the side-pane cart, offer its actions here.
-            headerRight: () =>
-              !order && !isSaleEditMode && isExpanded
-                ? renderCartActions()
-                : null,
+            headerRight: () => (
+              <ThemedView style={tw`flex-row items-center gap-2`}>
+                {canEditMenu && (
+                  <Button
+                    label={t("common:actions.edit")}
+                    variant="surface"
+                    size="extra-small"
+                    onPress={() => router.push("/(profile)/menu/overview")}
+                  />
+                )}
+                {!order && !isSaleEditMode && isExpanded && renderCartActions()}
+              </ThemedView>
+            ),
           }}
         />
         {/* Host for a native bottom sheet over the menu: the screen itself is
