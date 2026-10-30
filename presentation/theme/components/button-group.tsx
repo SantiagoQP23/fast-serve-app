@@ -37,11 +37,10 @@ export default function ButtonGroup({
 
   return (
     <View
-      style={tw`${isHorizontal ? "flex-row" : "flex-wrap"}    border border-primary rounded-full`}
+      style={tw`${isHorizontal ? "flex-row" : "flex-wrap"} gap-1 p-1 rounded-full bg-surface`}
     >
-      {options.map((option, index) => {
+      {options.map((option) => {
         const isActive = selected === option.value;
-        const hasSeparator = index > 0;
         const showIcon = !!option.icon;
         const showLabel = !(iconOnly && showIcon);
 
@@ -57,7 +56,7 @@ export default function ButtonGroup({
                 "rounded-full",
                 isSmall ? "px-3 py-[8px] " : "flex-1 py-2",
                 showIcon && "flex-row items-center justify-center gap-2",
-                isActive ? "bg-surface-high" : "bg-transparent",
+                isActive ? "bg-surface-bright" : "bg-transparent",
                 pressed && "opacity-80",
               )
             }

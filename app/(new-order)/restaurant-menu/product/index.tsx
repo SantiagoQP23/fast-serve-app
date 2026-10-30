@@ -38,13 +38,11 @@ import {
   BottomSheetView,
   type BottomSheetMethods,
 } from "@expo/ui/community/bottom-sheet";
-import BottomSheetPicker, {
-  BottomSheetPickerRef,
-} from "@/presentation/theme/components/bottom-sheet-picker";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
-import { Pressable, useWindowDimensions, View } from "react-native";
+import { Pressable, useWindowDimensions } from "react-native";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
+import ButtonGroup from "@/presentation/theme/components/button-group";
 import Chip from "@/presentation/theme/components/chip";
 import Card from "@/presentation/theme/components/card";
 import { typography } from "@/constants/theme";
@@ -60,8 +58,13 @@ const STOCK_TEXT_COLOR: Record<ProductOptionStockLevel, string> = {
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <ThemedView style={tw`gap-2`}>
-      {title ? <ThemedText type="small">{title}</ThemedText> : null}
+    <ThemedView style={tw`gap-3`}>
+      <ThemedText
+        accessibilityRole="header"
+        style={{ fontFamily: typography.bold }}
+      >
+        {title}
+      </ThemedText>
       {children}
     </ThemedView>
   );
@@ -80,7 +83,6 @@ export default function ProductScreen() {
   const exitsFlowRef = useRef(false);
   const customPriceSheetRef = useRef<BottomSheetMethods>(null);
   const noteSheetRef = useRef<BottomSheetMethods>(null);
-  const typePickerRef = useRef<BottomSheetPickerRef>(null);
   const activeOrderDetail = useNewOrderStore((state) => state.activeDetail);
   const orderType = useNewOrderStore((state) => state.orderType);
 
@@ -391,53 +393,90 @@ export default function ProductScreen() {
         <BottomSheetView style={tw`pb-6`}>
           <ThemedView style={tw`px-4 pt-2 pb-2 bg-transparent`}>
             <ThemedView style={tw`gap-1 pt-1 bg-transparent`}>
-              <ThemedText type="h3" accessibilityRole="header">
-                {activeProduct.name}
-              </ThemedText>
-              {activeOptions.length === 1 && selectedOption && (
-                <ThemedView
-                  style={tw`flex-row items-center gap-3 flex-wrap bg-transparent`}
-                >
-                  <ThemedText type="body2" style={tw`text-gray-500`}>
-                    {selectedOption.name} ·{" "}
-                    {formatCurrency(selectedOption.price)}
+              <ThemedView style={tw`flex-row items-start gap-2 bg-transparent`}>
+                <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+                  <ThemedText type="h3" accessibilityRole="header">
+                    {activeProduct.name}
                   </ThemedText>
-                  {/* Products with variants show stock on each variant instead. */}
-                  {selectedStock && (
-                    <Label
-                      size="small"
-                      leftIcon="package"
-                      color="default"
-                      text={
-                        selectedStock.level === "out"
-                          ? t("menu:product.stock.out")
-                          : t("menu:product.stock.left", {
-                              count: selectedStock.remaining,
-                            })
-                      }
-                    />
+                  {activeOptions.length === 1 && selectedOption && (
+                    <ThemedView
+                      style={tw`flex-row items-center gap-3 flex-wrap bg-transparent`}
+                    >
+                      <ThemedText type="body2" style={tw`text-gray-500`}>
+                        {formatCurrency(effectivePrice)}
+                      </ThemedText>
+                      {/* Products with variants show stock on each variant instead. */}
+                      {selectedStock && (
+                        <Label
+                          size="small"
+                          leftIcon="package"
+                          color="default"
+                          text={
+                            selectedStock.level === "out"
+                              ? t("menu:product.stock.out")
+                              : t("menu:product.stock.left", {
+                                  count: selectedStock.remaining,
+                                })
+                          }
+                        />
+                      )}
+                    </ThemedView>
                   )}
                 </ThemedView>
-              )}
-              {hasNote && (
-                <Pressable
-                  onPress={() => noteSheetRef.current?.present()}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${t("menu:product.editNote")}: ${notes}`}
-                  hitSlop={8}
-                  style={({ pressed }) => [
-                    tw`flex-row items-start gap-1.5 py-4`,
-                    pressed && tw`opacity-60`,
-                  ]}
+                {isAdmin && (
+                  <IconButton
+                    icon="pencil"
+                    variant="surface"
+                    size={20}
+                    onPress={() => customPriceSheetRef.current?.present()}
+                    accessibilityLabel={t("orders:detailActions.customPrice")}
+                  />
+                )}
+              </ThemedView>
+              {/* The note itself, or "Add note" when there is none: tap to edit. */}
+              <Pressable
+                onPress={() => noteSheetRef.current?.present()}
+                accessibilityRole="button"
+                accessibilityLabel={
+                  hasNote
+                    ? `${t("menu:product.editNote")}: ${notes}`
+                    : t("orders:newOrder.addNote")
+                }
+                style={({ pressed }) => [
+                  tw`self-start py-3 min-h-12 justify-center`,
+                  hasNote && tw`self-stretch`,
+                  pressed && tw`opacity-60`,
+                ]}
+              >
+                <ThemedText
+                  type="body2"
+                  numberOfLines={hasNote ? 3 : 1}
+                  style={!hasNote && tw`text-gray-500`}
                 >
-                  <ThemedText
-                    type="body2"
-                    numberOfLines={2}
-                    style={tw`flex-1 `}
-                  >
-                    {notes}
-                  </ThemedText>
-                </Pressable>
+                  {hasNote ? notes : `${t("orders:newOrder.addNote")}...`}
+                </ThemedText>
+              </Pressable>
+              {/* Hugs its content; the order type is a quick toggle. */}
+              {!isSaleEditMode && (
+                <ThemedView style={tw`flex-row bg-transparent`}>
+                  <ButtonGroup
+                    options={[
+                      {
+                        label: t("common:orderType.inPlace"),
+                        value: OrderType.IN_PLACE,
+                        icon: "utensils",
+                      },
+                      {
+                        label: t("common:orderType.takeAway"),
+                        value: OrderType.TAKE_AWAY,
+                        icon: "shopping-bag",
+                      },
+                    ]}
+                    size="small"
+                    selected={typeOrderDetail}
+                    onChange={(value: OrderType) => setTypeOrderDetail(value)}
+                  />
+                </ThemedView>
               )}
             </ThemedView>
           </ThemedView>
@@ -542,7 +581,7 @@ export default function ProductScreen() {
             )}
 
             {selectableTags.length > 0 && (
-              <Section title={""}>
+              <Section title={t("menu:product.customize")}>
                 <ThemedView style={tw`flex-row flex-wrap gap-2`}>
                   {selectableTags.map((tag) => (
                     <Chip
@@ -554,44 +593,6 @@ export default function ProductScreen() {
                   ))}
                 </ThemedView>
               </Section>
-            )}
-
-            {/* The note and the line's settings read as one row of chips. */}
-            {(!hasNote || !isSaleEditMode || isAdmin) && (
-              <View style={tw`flex-row flex-wrap gap-2`}>
-                {!hasNote && (
-                  <Chip
-                    variant="assist"
-                    label={t("menu:product.addNote")}
-                    icon="file-text"
-                    onPress={() => noteSheetRef.current?.present()}
-                  />
-                )}
-                {!isSaleEditMode && (
-                  <Chip
-                    variant="assist"
-                    icon={
-                      typeOrderDetail === OrderType.IN_PLACE
-                        ? "utensils"
-                        : "shopping-bag"
-                    }
-                    label={
-                      typeOrderDetail === OrderType.IN_PLACE
-                        ? t("common:orderType.inPlace")
-                        : t("common:orderType.takeAway")
-                    }
-                    onPress={() => typePickerRef.current?.present()}
-                  />
-                )}
-                {isAdmin && (
-                  <Chip
-                    variant="assist"
-                    icon="circle-dollar-sign"
-                    label={formatCurrency(effectivePrice)}
-                    onPress={() => customPriceSheetRef.current?.present()}
-                  />
-                )}
-              </View>
             )}
           </BottomSheetScrollView>
 
@@ -676,17 +677,6 @@ export default function ProductScreen() {
           </ThemedView>
         </BottomSheetView>
       </ThemedBottomSheetModal>
-
-      <BottomSheetPicker
-        ref={typePickerRef}
-        title={t("orders:newOrder.orderType")}
-        options={[
-          { label: t("common:orderType.inPlace"), value: OrderType.IN_PLACE },
-          { label: t("common:orderType.takeAway"), value: OrderType.TAKE_AWAY },
-        ]}
-        value={typeOrderDetail}
-        onChange={(value) => setTypeOrderDetail(value as OrderType)}
-      />
 
       <ThemedBottomSheetModal ref={customPriceSheetRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>

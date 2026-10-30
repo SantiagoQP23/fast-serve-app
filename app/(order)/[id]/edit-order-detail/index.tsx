@@ -28,9 +28,6 @@ import {
   BottomSheetView,
   type BottomSheetMethods,
 } from "@expo/ui/community/bottom-sheet";
-import BottomSheetPicker, {
-  BottomSheetPickerRef,
-} from "@/presentation/theme/components/bottom-sheet-picker";
 import { useOrderDetailStatus } from "@/presentation/orders/hooks/useOrderDetailStatus";
 import {
   OrderDetailStatus,
@@ -48,6 +45,8 @@ import OrderDetailActivityBottomSheet from "@/presentation/orders/components/ord
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
 import Chip from "@/presentation/theme/components/chip";
+import Label from "@/presentation/theme/components/label";
+import ButtonGroup from "@/presentation/theme/components/button-group";
 import Card from "@/presentation/theme/components/card";
 import Slider from "@/presentation/theme/components/slider";
 import OrderDetailVariantBottomSheet from "@/presentation/orders/components/order-detail-variant-bottom-sheet";
@@ -69,7 +68,6 @@ export default function EditOrderDetailScreen() {
   const activitySheetRef = useRef<BottomSheetMethods>(null);
   const variantSheetRef = useRef<BottomSheetMethods>(null);
   const replaceBlockedSheetRef = useRef<BottomSheetMethods>(null);
-  const typePickerRef = useRef<BottomSheetPickerRef>(null);
   const orderDetail = useOrdersStore((state) => state.activeOrderDetail);
   const order = useOrdersStore((state) => state.activeOrder);
   const product = useMenuStore((state) =>
@@ -84,12 +82,26 @@ export default function EditOrderDetailScreen() {
   // Delivered units, and units already on a bill, can't be taken off the
   // order, so the quantity never drops below them.
   const minQuantity = Math.max(1, qtyDelivered, orderDetail?.qtyPaid ?? 0);
-  const { counter, increment, decrement } = useCounter(
+  const { counter, increment, decrement, setCounter } = useCounter(
     orderDetail?.quantity,
     1,
     MAX_QUANTITY,
     minQuantity,
   );
+
+  // What's typed in the quantity box, while it's being edited.
+  const [quantityDraft, setQuantityDraft] = useState<string | null>(null);
+
+  // Typed digits update the quantity right away, kept within its bounds.
+  const onChangeQuantityInput = (text: string) => {
+    const digits = text.replace(/\D/g, "");
+    setQuantityDraft(digits);
+    const parsed = parseInt(digits, 10);
+    if (Number.isNaN(parsed)) return;
+    setCounter(Math.min(MAX_QUANTITY, Math.max(minQuantity, parsed)));
+  };
+
+  const clearQuantityDraft = () => setQuantityDraft(null);
 
   const [typeOrderDetail, setTypeOrderDetail] = useState(
     orderDetail?.typeOrderDetail ?? OrderType.IN_PLACE,
@@ -144,8 +156,7 @@ export default function EditOrderDetailScreen() {
         ? OrderDetailStatus.PENDING
         : originalStatus;
 
-  const { statusText, statusIcon, statusIconColor } =
-    useOrderDetailStatus(status);
+  const { statusText, statusIcon, labelColor } = useOrderDetailStatus(status);
 
   const parsedPrice = parseFloat(price);
   const isPriceValid = Number.isFinite(parsedPrice) && parsedPrice >= 0;
@@ -323,51 +334,24 @@ export default function EditOrderDetailScreen() {
               ) : null}
 
               <ThemedView style={tw`flex-row items-center gap-2 flex-wrap`}>
-                <Chip
-                  variant="assist"
-                  label={statusText}
-                  leftContent={
-                    <Icon
-                      name={statusIcon}
-                      size={16}
-                      color={tw.color(statusIconColor)}
-                    />
-                  }
+                <Label
+                  text={statusText}
+                  color={labelColor}
+                  leftIcon={statusIcon}
+                  size="small"
                   accessibilityHint={t("orders:detailActions.statusTitle")}
-                  appearance="surface"
                 />
                 {orderDetail.readyQuantity > 0 &&
                   status !== OrderDetailStatus.DELIVERED && (
-                    <Chip
-                      variant="assist"
-                      label={t("orders:detailActions.readyCount", {
+                    <Label
+                      text={t("orders:detailActions.readyCount", {
                         count: orderDetail.readyQuantity,
                       })}
-                      leftContent={
-                        <Icon
-                          name="bell"
-                          size={16}
-                          color={tw.color("emerald-500")}
-                        />
-                      }
-                      appearance="surface"
+                      color="success"
+                      leftIcon="bell"
+                      size="small"
                     />
                   )}
-                <Chip
-                  variant="assist"
-                  icon={
-                    typeOrderDetail === OrderType.IN_PLACE
-                      ? "utensils"
-                      : "shopping-bag"
-                  }
-                  label={
-                    typeOrderDetail === OrderType.IN_PLACE
-                      ? t("common:orderType.inPlace")
-                      : t("common:orderType.takeAway")
-                  }
-                  onPress={() => typePickerRef.current?.present()}
-                  appearance="surface"
-                />
               </ThemedView>
 
               {/* The note itself, or "Add note" when there is none: tap to edit. */}
@@ -393,6 +377,26 @@ export default function EditOrderDetailScreen() {
                   {hasNote ? notes : `${t("orders:newOrder.addNote")}...`}
                 </ThemedText>
               </Pressable>
+
+              <View style={tw`flex-row`}>
+                <ButtonGroup
+                  options={[
+                    {
+                      label: t("common:orderType.inPlace"),
+                      value: OrderType.IN_PLACE,
+                      icon: "utensils",
+                    },
+                    {
+                      label: t("common:orderType.takeAway"),
+                      value: OrderType.TAKE_AWAY,
+                      icon: "shopping-bag",
+                    },
+                  ]}
+                  size="small"
+                  selected={typeOrderDetail}
+                  onChange={(value: OrderType) => setTypeOrderDetail(value)}
+                />
+              </View>
             </ThemedView>
 
             <Card style={tw`gap-2`} variant="default">
@@ -450,26 +454,45 @@ export default function EditOrderDetailScreen() {
           </ScrollView>
 
           <ThemedView style={tw`px-4 pt-2 pb-4 gap-3`}>
-            <ThemedView style={tw`flex-row items-center justify-center gap-6`}>
+            <ThemedView style={tw`flex-row items-center justify-center gap-3`}>
               <IconButton
                 icon="minus"
-                onPress={decrement}
+                onPress={() => {
+                  clearQuantityDraft();
+                  decrement();
+                }}
                 disabled={counter <= minQuantity}
                 variant="surface"
                 size={28}
                 style={tw`p-4`}
                 accessibilityLabel={t("common:actions.decrease")}
               />
-              <ThemedText
-                type="h1"
-                accessibilityLiveRegion="polite"
-                style={tw`min-w-12 text-center`}
-              >
-                {counter}
-              </ThemedText>
+              <TextInput
+                variant="filled"
+                inputMode="numeric"
+                keyboardType="number-pad"
+                returnKeyType="done"
+                maxLength={2}
+                selectTextOnFocus
+                value={quantityDraft ?? String(counter)}
+                onChangeText={onChangeQuantityInput}
+                onBlur={clearQuantityDraft}
+                onSubmitEditing={clearQuantityDraft}
+                accessibilityLabel={t("menu:product.quantityValue", {
+                  count: counter,
+                })}
+                containerStyle={tw`w-20 px-1 min-h-15`}
+                style={[
+                  tw`h-15 mt-0 text-center`,
+                  { fontSize: 24, fontFamily: typography.bold },
+                ]}
+              />
               <IconButton
                 icon="plus"
-                onPress={increment}
+                onPress={() => {
+                  clearQuantityDraft();
+                  increment();
+                }}
                 disabled={counter >= MAX_QUANTITY || atStockLimit}
                 variant="surface"
                 size={28}
@@ -597,20 +620,6 @@ export default function EditOrderDetailScreen() {
             message={t(`orders:replaceItem.reasons.${replaceBlockReason}`)}
           />
         )}
-
-        <BottomSheetPicker
-          ref={typePickerRef}
-          title={t("orders:newOrder.orderType")}
-          options={[
-            { label: t("common:orderType.inPlace"), value: OrderType.IN_PLACE },
-            {
-              label: t("common:orderType.takeAway"),
-              value: OrderType.TAKE_AWAY,
-            },
-          ]}
-          value={typeOrderDetail}
-          onChange={(value) => setTypeOrderDetail(value as OrderType)}
-        />
       </KeyboardAvoidingView>
 
       <DialogModal

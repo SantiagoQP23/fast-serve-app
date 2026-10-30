@@ -345,7 +345,7 @@ Crisp ink slips: tight-cornered, flat and decisive.
 - **SegmentedControl `pill`** (the default): equal-width Paper Surface segments with 4px gaps. The active segment fills with Deep Ink Blue, takes the 24px radius and lifts with `shadow-sm`.
 - **SegmentedControl `text`:** bare text tabs 20px apart, ink when active and Muted Text when inactive.
 - **TabBar:** text tabs where the active tab gets a 2px ink underline.
-- **ButtonGroup:** a Paper Surface High track with a 24px radius where the active option sits on a Surface Bright pill, with an `on-surface` icon (`on-surface-variant` when inactive).
+- **ButtonGroup:** a Paper Surface (`surface`) track with 4px padding, 4px gaps and a 24px radius, no border. The active option sits on a Surface Bright pill (white in Light, no shadow), with an `on-surface` icon (`on-surface-variant` when inactive).
 
 ### Floating Actions & Dialogs
 - **Fab:** a 16px radius, Ink Black fill and `shadow-lg`. It's icon-only at rest (64dp square). An optional label grows the width with a short width-and-opacity animation rather than popping in.

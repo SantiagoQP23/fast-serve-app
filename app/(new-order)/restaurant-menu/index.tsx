@@ -523,7 +523,6 @@ export default function RestaurantMenuScreen() {
               label={t("menu:backToSale")}
               icon="receipt-text"
               count={cart.count}
-              total={cart.total}
               onPress={() => router.back()}
             />
           ) : (
@@ -533,7 +532,6 @@ export default function RestaurantMenuScreen() {
                 label={t("menu:goToCart")}
                 icon="shopping-cart"
                 count={cart.count}
-                total={cart.total}
                 onPress={() => router.push("/(new-order)/cart")}
               />
             )
