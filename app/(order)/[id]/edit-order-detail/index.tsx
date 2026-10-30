@@ -44,6 +44,7 @@ import { toast } from "sonner-native";
 import OrderDetailActivityBottomSheet from "@/presentation/orders/components/order-detail-activity-bottom-sheet";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
+import QuantityStepper from "@/presentation/orders/components/quantity-stepper";
 import Chip from "@/presentation/theme/components/chip";
 import Label from "@/presentation/theme/components/label";
 import ButtonGroup from "@/presentation/theme/components/button-group";
@@ -82,26 +83,12 @@ export default function EditOrderDetailScreen() {
   // Delivered units, and units already on a bill, can't be taken off the
   // order, so the quantity never drops below them.
   const minQuantity = Math.max(1, qtyDelivered, orderDetail?.qtyPaid ?? 0);
-  const { counter, increment, decrement, setCounter } = useCounter(
+  const { counter, setCounter } = useCounter(
     orderDetail?.quantity,
     1,
     MAX_QUANTITY,
     minQuantity,
   );
-
-  // What's typed in the quantity box, while it's being edited.
-  const [quantityDraft, setQuantityDraft] = useState<string | null>(null);
-
-  // Typed digits update the quantity right away, kept within its bounds.
-  const onChangeQuantityInput = (text: string) => {
-    const digits = text.replace(/\D/g, "");
-    setQuantityDraft(digits);
-    const parsed = parseInt(digits, 10);
-    if (Number.isNaN(parsed)) return;
-    setCounter(Math.min(MAX_QUANTITY, Math.max(minQuantity, parsed)));
-  };
-
-  const clearQuantityDraft = () => setQuantityDraft(null);
 
   const [typeOrderDetail, setTypeOrderDetail] = useState(
     orderDetail?.typeOrderDetail ?? OrderType.IN_PLACE,
@@ -454,52 +441,13 @@ export default function EditOrderDetailScreen() {
           </ScrollView>
 
           <ThemedView style={tw`px-4 pt-2 pb-4 gap-3`}>
-            <ThemedView style={tw`flex-row items-center justify-center gap-3`}>
-              <IconButton
-                icon="minus"
-                onPress={() => {
-                  clearQuantityDraft();
-                  decrement();
-                }}
-                disabled={counter <= minQuantity}
-                variant="surface"
-                size={28}
-                style={tw`p-4`}
-                accessibilityLabel={t("common:actions.decrease")}
-              />
-              <TextInput
-                variant="filled"
-                inputMode="numeric"
-                keyboardType="number-pad"
-                returnKeyType="done"
-                maxLength={2}
-                selectTextOnFocus
-                value={quantityDraft ?? String(counter)}
-                onChangeText={onChangeQuantityInput}
-                onBlur={clearQuantityDraft}
-                onSubmitEditing={clearQuantityDraft}
-                accessibilityLabel={t("menu:product.quantityValue", {
-                  count: counter,
-                })}
-                containerStyle={tw`w-20 px-1 min-h-15`}
-                style={[
-                  tw`h-15 mt-0 text-center`,
-                  { fontSize: 24, fontFamily: typography.bold },
-                ]}
-              />
-              <IconButton
-                icon="plus"
-                onPress={() => {
-                  clearQuantityDraft();
-                  increment();
-                }}
-                disabled={counter >= MAX_QUANTITY || atStockLimit}
-                variant="surface"
-                size={28}
-                style={tw`p-4`}
-                accessibilityLabel={t("common:actions.increase")}
-              />
-            </ThemedView>
+            <QuantityStepper
+              value={counter}
+              onChange={setCounter}
+              min={minQuantity}
+              max={MAX_QUANTITY}
+              incrementDisabled={atStockLimit}
+            />
 
             {floorReason && (
               <ThemedText type="small" style={tw`text-gray-500 text-center`}>

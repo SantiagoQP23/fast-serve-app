@@ -42,6 +42,7 @@ import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { Pressable, useWindowDimensions } from "react-native";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
+import QuantityStepper from "@/presentation/orders/components/quantity-stepper";
 import ButtonGroup from "@/presentation/theme/components/button-group";
 import Chip from "@/presentation/theme/components/chip";
 import Card from "@/presentation/theme/components/card";
@@ -96,29 +97,13 @@ export default function ProductScreen() {
   const saleLines = useEditSaleStore((state) => state.lines);
   const replacingDetail = useReplaceOrderDetailStore((state) => state.detail);
   const resetReplace = useReplaceOrderDetailStore((state) => state.reset);
-  const { counter, increment, decrement, setCounter } = useCounter(
+  const { counter, setCounter } = useCounter(
     activeOrderDetail?.quantity ??
       (isReplaceMode ? replacingDetail?.quantity : undefined),
     1,
     MAX_QUANTITY,
     MIN_QUANTITY,
   );
-  // What's typed in the quantity field while editing it; null shows the
-  // quantity itself.
-  const [quantityDraft, setQuantityDraft] = useState<string | null>(null);
-
-  // Typed digits update the quantity right away, so adding while the
-  // keyboard is still open uses what's on screen.
-  const onChangeQuantityInput = (text: string) => {
-    const digits = text.replace(/\D/g, "");
-    setQuantityDraft(digits);
-    const parsed = parseInt(digits, 10);
-    if (Number.isNaN(parsed)) return;
-    setCounter(Math.min(MAX_QUANTITY, Math.max(MIN_QUANTITY, parsed)));
-  };
-
-  // Empty or out-of-range text snaps back to the quantity kept.
-  const clearQuantityDraft = () => setQuantityDraft(null);
   const { activeProduct } = useMenuStore();
   const [notes, setNotes] = useState(activeOrderDetail?.description || "");
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
@@ -597,53 +582,14 @@ export default function ProductScreen() {
           </BottomSheetScrollView>
 
           <ThemedView style={tw`px-4 pt-3 gap-3`}>
-            <ThemedView style={tw`flex-row items-center justify-center gap-3`}>
-              <IconButton
-                icon="minus"
-                onPress={() => {
-                  clearQuantityDraft();
-                  decrement();
-                }}
-                variant="surface"
-                size={28}
-                style={tw`p-4`}
-                disabled={counter <= 1}
-                accessibilityLabel={t("menu:product.decrease")}
-              />
-              <TextInput
-                variant="filled"
-                inputMode="numeric"
-                keyboardType="number-pad"
-                returnKeyType="done"
-                maxLength={2}
-                selectTextOnFocus
-                bottomSheet
-                value={quantityDraft ?? String(counter)}
-                onChangeText={onChangeQuantityInput}
-                onBlur={clearQuantityDraft}
-                onSubmitEditing={clearQuantityDraft}
-                accessibilityLabel={t("menu:product.quantityValue", {
-                  count: counter,
-                })}
-                containerStyle={tw`w-20 px-1 min-h-15`}
-                style={[
-                  tw`h-15 mt-0 text-center`,
-                  { fontSize: 24, fontFamily: typography.bold },
-                ]}
-              />
-              <IconButton
-                icon="plus"
-                onPress={() => {
-                  clearQuantityDraft();
-                  increment();
-                }}
-                variant="surface"
-                size={28}
-                style={tw`p-4`}
-                disabled={atStockLimit}
-                accessibilityLabel={t("menu:product.increase")}
-              />
-            </ThemedView>
+            <QuantityStepper
+              value={counter}
+              onChange={setCounter}
+              min={MIN_QUANTITY}
+              max={MAX_QUANTITY}
+              incrementDisabled={atStockLimit}
+              bottomSheet
+            />
 
             <Button
               label={`${addLabel} · ${formatCurrency(counter * effectivePrice)}`}

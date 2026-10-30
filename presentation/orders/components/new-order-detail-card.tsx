@@ -1,11 +1,8 @@
-import React, { useEffect, useState } from "react";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { View, Pressable, PressableProps } from "react-native";
+import { Pressable, PressableProps } from "react-native";
 import Label from "@/presentation/theme/components/label";
-import { useCounter } from "@/presentation/shared/hooks/useCounter";
-import { router } from "expo-router";
 import { NewOrderDetail } from "@/core/orders/dto/new-order-detail.dto";
 import { useNewOrderStore } from "../store/newOrderStore";
 import { useEditOrderCartStore } from "../store/editOrderCartStore";
@@ -16,7 +13,7 @@ import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Card from "@/presentation/theme/components/card";
 import { typography } from "@/constants/theme";
-import TextInput from "@/presentation/theme/components/text-input";
+import QuantityStepper from "./quantity-stepper";
 
 const MIN_QUANTITY = 1;
 const MAX_QUANTITY = 20;
@@ -43,33 +40,6 @@ export default function NewOrderDetailCard({
     }
     const updatedDetail = { ...detail, quantity: value };
     updateDetail(updatedDetail);
-  };
-
-  const { counter, increment, decrement, setCounter } = useCounter(
-    detail.quantity,
-    1,
-    MAX_QUANTITY,
-    MIN_QUANTITY,
-    onQuantityChange,
-  );
-
-  const [quantityInput, setQuantityInput] = useState(String(counter));
-
-  useEffect(() => {
-    setQuantityInput(String(counter));
-  }, [counter]);
-
-  const commitQuantityInput = () => {
-    const parsed = parseInt(quantityInput, 10);
-    if (Number.isNaN(parsed)) {
-      setQuantityInput(String(counter));
-      return;
-    }
-    const value = Math.min(MAX_QUANTITY, Math.max(MIN_QUANTITY, parsed));
-    setQuantityInput(String(value));
-    if (value === counter) return;
-    setCounter(value);
-    onQuantityChange(value);
   };
 
   const onRemoveDetail = () => {
@@ -111,38 +81,13 @@ export default function NewOrderDetailCard({
               {showProductOptionName && detail.productOption.name}
             </ThemedText>
 
-            <ThemedView
-              style={tw`flex-row items-center gap-2 bg-transparent flex-shrink-0`}
-            >
-              <IconButton
-                icon="minus"
-                onPress={decrement}
-                style={tw`p-1`}
-                size={20}
-              />
-              <TextInput
-                variant="filled"
-                inputMode="numeric"
-                keyboardType="number-pad"
-                returnKeyType="done"
-                maxLength={2}
-                selectTextOnFocus
-                value={quantityInput}
-                onChangeText={(text) =>
-                  setQuantityInput(text.replace(/\D/g, ""))
-                }
-                onBlur={commitQuantityInput}
-                onSubmitEditing={commitQuantityInput}
-                containerStyle={tw`w-15 px-1 min-h-8`}
-                style={tw`h-8 mt-0 text-center`}
-              />
-              <IconButton
-                icon="plus"
-                onPress={increment}
-                style={tw`p-1`}
-                size={20}
-              />
-            </ThemedView>
+            <QuantityStepper
+              value={detail.quantity}
+              onChange={onQuantityChange}
+              min={MIN_QUANTITY}
+              max={MAX_QUANTITY}
+              size="small"
+            />
           </ThemedView>
           {detail.description && (
             <ThemedText type="body2" style={tw`mt-2`}>
