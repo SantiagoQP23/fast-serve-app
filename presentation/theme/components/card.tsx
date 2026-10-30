@@ -32,19 +32,28 @@ export default function Card({
   containerStyle,
   ...rest
 }: CardProps) {
+  const outerStyle: ViewStyle = StyleSheet.flatten([
+    tw`${containerVariantStyles[variant]}`,
+    variant === "elevated" && shadows.elevated,
+    containerStyle,
+  ]);
+  // Callers tint the inner pressable (e.g. `bg-secondary` when selected), so
+  // it needs the container's rounding, inset by the border, or the fill
+  // shows square corners inside the rounded outline.
+  const innerRadius = Math.max(
+    0,
+    (Number(outerStyle.borderRadius) || 0) -
+      (Number(outerStyle.borderWidth) || 0),
+  );
+
   return (
-    <ThemedView
-      style={[
-        tw`${containerVariantStyles[variant]}`,
-        variant === "elevated" && shadows.elevated,
-        containerStyle,
-      ]}
-    >
+    <ThemedView style={outerStyle}>
       <Pressable
         {...rest}
         style={(state) =>
           [
             tw`p-6  bg-transparent`,
+            { borderRadius: innerRadius },
             state.pressed && onPress && tw`opacity-80`,
             typeof style === "function" ? style(state) : style,
           ].filter(Boolean)
