@@ -1,5 +1,4 @@
 import Animated from "react-native-reanimated";
-import { ScrollView } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -35,15 +34,18 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { hasActiveSubscription } from "@/core/common/models/restaurant.model";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import SubscriptionPaywallBottomSheet from "@/presentation/subscriptions/components/subscription-paywall-bottom-sheet";
-import TabBar from "@/presentation/theme/components/tab-bar";
-import TabPager from "@/presentation/theme/components/tab-pager";
 import CartInformation from "@/presentation/orders/components/cart-information";
-
-type CartTab = "products" | "information";
+import CartNote from "@/presentation/orders/components/cart-note";
+import SectionTitle from "@/presentation/theme/components/section-title";
+import Separator from "@/presentation/theme/components/separator";
 
 type CartRow =
   | { kind: "title" }
+  | { kind: "note" }
+  | { kind: "productsHeader" }
   | { kind: "item"; detail: NewOrderDetail; key: string };
+
+const ItemSeparator = () => <Separator style={tw`h-px bg-gray-200`} />;
 
 interface CartPanelProps {
   /**
@@ -81,7 +83,6 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
 
   const [total, setTotal] = useState(0);
   const [printOnCreate, setPrintOnCreate] = useState(false);
-  const [activeTab, setActiveTab] = useState<CartTab>("products");
   const router = useRouter();
   const navigation = useNavigation();
   const { scrollY, scrollHandler } = useCollapsibleHeaderScroll();
@@ -260,15 +261,16 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
           <Animated.FlatList
             style={tw`flex-1`}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={tw`gap-4 pb-4`}
+            contentContainerStyle={tw`pb-4`}
             onScroll={scrollHandler}
             scrollEventThrottle={16}
             data={newItems}
             keyExtractor={(itm) =>
               itm.id || `${itm.product.id}-${Math.random()}`
             }
+            ItemSeparatorComponent={ItemSeparator}
             ListHeaderComponent={
-              <ThemedView style={tw`gap-4`}>
+              <ThemedView style={tw`gap-4 pb-2`}>
                 {renderTitle(
                   `${t("orders:editCart.newItems")} ${newItems.length}`,
                 )}
@@ -310,6 +312,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
                   label={t("menu:cart.addProduct")}
                   variant="outline"
                   onPress={() => router.push("/(new-order)/restaurant-menu")}
+                  style={tw`mt-4`}
                 />
               )
             }
@@ -351,109 +354,102 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
     );
   }
 
-  const cartTabs = [
-    {
-      label: t("menu:cart.tabs.products"),
-      value: "products" as const,
-      count: details.length,
-    },
-    {
-      label: t("menu:cart.tabs.information"),
-      value: "information" as const,
-    },
-  ];
-  const detailRows: CartRow[] = details.map((detail, index) => ({
-    kind: "item",
-    detail,
-    key: `${index}`,
-  }));
   const isOrderCart = cartType === "order";
-  // The title scrolls away with the list, except when embedded or in an
-  // order cart, where it stays fixed above the tabs.
-  const titleInList = !embedded && !isOrderCart;
+  // The title scrolls away with the list, except when embedded.
+  const titleInList = !embedded;
   const cartListData: CartRow[] = [
     ...(titleInList ? [{ kind: "title" } as const] : []),
-    ...detailRows,
+    ...(isOrderCart
+      ? [{ kind: "note" } as const, { kind: "productsHeader" } as const]
+      : []),
+    ...details.map(
+      (detail, index): CartRow => ({ kind: "item", detail, key: `${index}` }),
+    ),
   ];
 
-  const productsList = (
-    <Animated.FlatList
-      style={tw`flex-1`}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={tw`gap-4 pb-4`}
-      onScroll={titleInList ? scrollHandler : undefined}
-      scrollEventThrottle={16}
-      data={cartListData}
-      keyExtractor={(row) => (row.kind === "item" ? row.key : row.kind)}
-      renderItem={({ item: row }) => {
-        if (row.kind === "title") {
-          return renderTitle(cartSubtitle);
-        }
-
-        return (
-          <NewOrderDetailCard
-            orderType={orderType}
-            detail={row.detail}
-            onPress={() => openProduct(row.detail)}
-          />
-        );
-      }}
-      ListFooterComponent={
-        !embedded ? (
-          <Button
-            leftIcon="plus"
-            label={t("menu:cart.addProduct")}
-            variant="text"
-            onPress={() => router.push("/(new-order)/restaurant-menu")}
-          />
-        ) : details.length === 0 ? (
-          <ThemedView style={tw`items-center py-12`}>
-            <Icon name="shopping-cart" size={48} color={tw.color("gray-400")} />
-            <ThemedText type="body1" style={tw`text-gray-500 mt-4 text-center`}>
-              {t("menu:cart.empty")}
-            </ThemedText>
-          </ThemedView>
-        ) : null
-      }
+  const productsFooter = !embedded ? (
+    <Button
+      leftIcon="plus"
+      label={t("menu:cart.addProduct")}
+      variant="text"
+      onPress={() => router.push("/(new-order)/restaurant-menu")}
     />
-  );
+  ) : details.length === 0 ? (
+    <ThemedView style={tw`items-center py-12`}>
+      <Icon name="shopping-cart" size={48} color={tw.color("gray-400")} />
+      <ThemedText type="body1" style={tw`text-gray-500 mt-4 text-center`}>
+        {t("menu:cart.empty")}
+      </ThemedText>
+    </ThemedView>
+  ) : null;
 
   return (
     <>
       <Container style={tw`px-4 ${embedded ? "pt-4" : "pt-8"} flex-1 gap-4`}>
         {!titleInList && renderTitle(cartSubtitle)}
-        {isOrderCart ? (
-          <>
-            <TabBar
-              tabs={cartTabs}
-              activeTab={activeTab}
-              onChange={setActiveTab}
-              fullWidth={false}
-            />
-            {/* Drag left/right to switch between products and information */}
-            <TabPager
-              tabs={cartTabs}
-              activeTab={activeTab}
-              onChange={setActiveTab}
-              renderScene={(tab) =>
-                tab === "products" ? (
-                  productsList
-                ) : (
-                  <ScrollView
-                    style={tw`flex-1`}
-                    showsVerticalScrollIndicator={false}
-                    keyboardShouldPersistTaps="handled"
-                    contentContainerStyle={tw`pb-4`}
-                  >
-                    <CartInformation />
-                  </ScrollView>
-                )
-              }
-            />
-          </>
-        ) : (
-          productsList
-        )}
+        <Animated.FlatList
+          style={tw`flex-1`}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={tw`pb-4`}
+          onScroll={titleInList ? scrollHandler : undefined}
+          scrollEventThrottle={16}
+          data={cartListData}
+          keyExtractor={(row) => (row.kind === "item" ? row.key : row.kind)}
+          renderItem={({ item: row, index }) => {
+            if (row.kind === "title") {
+              return (
+                <ThemedView style={tw`pb-4`}>
+                  {renderTitle(cartSubtitle)}
+                </ThemedView>
+              );
+            }
+
+            if (row.kind === "note") {
+              return (
+                <ThemedView style={tw`pb-2`}>
+                  <CartNote />
+                </ThemedView>
+              );
+            }
+
+            if (row.kind === "productsHeader") {
+              return (
+                <ThemedView style={tw`pb-1`}>
+                  <SectionTitle
+                    title={t("menu:cart.sections.products")}
+                    count={details.length}
+                  />
+                </ThemedView>
+              );
+            }
+
+            // Items are plain rows split by a gray line, not cards.
+            return (
+              <>
+                {cartListData[index - 1]?.kind === "item" && <ItemSeparator />}
+                <NewOrderDetailCard
+                  orderType={orderType}
+                  detail={row.detail}
+                  onPress={() => openProduct(row.detail)}
+                />
+              </>
+            );
+          }}
+          ListFooterComponent={
+            isOrderCart ? (
+              <ThemedView style={tw`gap-4 pt-2`}>
+                {productsFooter}
+                <ThemedView style={tw`gap-3 pt-4`}>
+                  <SectionTitle title={t("menu:cart.sections.place")} />
+                  <CartInformation />
+                </ThemedView>
+              </ThemedView>
+            ) : (
+              <ThemedView style={tw`pt-2`}>{productsFooter}</ThemedView>
+            )
+          }
+        />
         <ThemedView style={tw`gap-4 pb-2 `}>
           <ThemedView style={tw`flex-row justify-between items-center`}>
             <ThemedText type="h4">{t("common:labels.total")}</ThemedText>

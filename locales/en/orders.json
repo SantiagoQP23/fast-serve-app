@@ -113,7 +113,10 @@
     "inPlace": "In Place",
     "takeAway": "Take Away",
     "notesPlaceholder": "Add any special instructions or notes",
-    "resetCart": "Clear"
+    "resetCart": "Clear",
+    "deliveryStandard": "Standard",
+    "deliverySchedule": "Schedule",
+    "selectTime": "Select time"
   },
   "dialogs": {
     "removeTitle": "Delete Order",

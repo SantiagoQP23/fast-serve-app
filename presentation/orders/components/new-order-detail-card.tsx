@@ -11,7 +11,6 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import IconButton from "@/presentation/theme/components/icon-button";
-import Card from "@/presentation/theme/components/card";
 import { typography } from "@/constants/theme";
 import QuantityStepper from "./quantity-stepper";
 
@@ -66,8 +65,9 @@ export default function NewOrderDetailCard({
         </ThemedView>
       )}
     >
-      <Card variant="outline" style={tw`p-4 bg-transparent`}>
-        <Pressable style={tw`flex-col gap-2`} onPress={onPress}>
+      {/* A plain row: the cart list draws gray separators between items. */}
+      <ThemedView>
+        <Pressable style={tw`flex-col gap-2 py-3`} onPress={onPress}>
           {/* <ThemedView */}
           {/*   style={tw`absolute  rounded-full items-center justify-center  z-10 right-0 top-0`} */}
           {/* ></ThemedView> */}
@@ -132,7 +132,7 @@ export default function NewOrderDetailCard({
           {/*   </ThemedText> */}
           {/* </ThemedView> */}
         </Pressable>
-      </Card>
+      </ThemedView>
     </Swipeable>
   );
 }

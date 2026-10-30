@@ -46,9 +46,9 @@
   },
   "cart": {
     "title": "Carrito",
-    "tabs": {
+    "sections": {
       "products": "Productos",
-      "information": "Información"
+      "place": "Lugar"
     },
     "products": "Productos:",
     "table": "Mesa",

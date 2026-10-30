@@ -113,7 +113,10 @@
     "inPlace": "En el Lugar",
     "takeAway": "Para Llevar",
     "notesPlaceholder": "Agregue instrucciones especiales o notas",
-    "resetCart": "Limpiar"
+    "resetCart": "Limpiar",
+    "deliveryStandard": "Estándar",
+    "deliverySchedule": "Programar",
+    "selectTime": "Seleccionar hora"
   },
   "dialogs": {
     "removeTitle": "Eliminar pedido",
