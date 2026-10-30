@@ -13,14 +13,13 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { Pressable, PressableProps } from "react-native";
 import Animated from "react-native-reanimated";
 import { useCountPop } from "@/presentation/shared/hooks/useCountPop";
-import Card from "../theme/components/card";
 import { typography } from "@/constants/theme";
 
-interface ProductCardProps extends PressableProps {
+interface ProductRowProps extends PressableProps {
   product: Product;
   /** Units of this product already in the cart, shown as a count. */
   inCartCount?: number;
-  /** Adds one unit; shown as a + button. Tapping the card itself opens it. */
+  /** Adds one unit; shown as a + button. Tapping the row itself opens it. */
   onAdd?: () => void;
   /** Hints with a chevron that tapping opens the product. */
   showOpenHint?: boolean;
@@ -74,7 +73,9 @@ function InCartCount({
   );
 }
 
-export default function ProductCard({
+/** One menu product as a flat list row: name, price and stock, then the
+ * in-cart count and quick-add button. Tapping the row opens the product. */
+export default function ProductRow({
   product,
   onPress,
   onLongPress,
@@ -82,7 +83,7 @@ export default function ProductCard({
   onAdd,
   showOpenHint = false,
   onPressCount,
-}: ProductCardProps) {
+}: ProductRowProps) {
   const { t } = useTranslation(["menu"]);
   const activeOptions = product.options.filter((option) => option.isActive);
   const singleOption = activeOptions.length === 1 ? activeOptions[0] : null;
@@ -160,8 +161,7 @@ export default function ProductCard({
   );
 
   return (
-    <Card
-      style={tw`p-4`}
+    <Pressable
       onPress={onPress}
       onLongPress={onLongPress}
       accessibilityRole="button"
@@ -174,11 +174,14 @@ export default function ProductCard({
       ]
         .filter(Boolean)
         .join(", ")}
-      variant="outline"
+      style={({ pressed }) => tw.style("py-3", pressed && "opacity-70")}
     >
       <ThemedView style={tw`bg-transparent gap-2`}>
         <ThemedView style={tw`bg-transparent flex-row items-start gap-2`}>
-          <ThemedText type="body1" style={tw`flex-1 pt-1.5`}>
+          <ThemedText
+            type="body1"
+            style={[tw`flex-1 pt-1.5`, { fontFamily: typography.medium }]}
+          >
             {product.name}
           </ThemedText>
           {trailing}
@@ -216,6 +219,6 @@ export default function ProductCard({
           </ThemedView>
         )}
       </ThemedView>
-    </Card>
+    </Pressable>
   );
 }

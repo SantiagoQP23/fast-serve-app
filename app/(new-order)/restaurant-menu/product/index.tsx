@@ -521,7 +521,7 @@ export default function ProductScreen() {
                           .join(", ")}
                         containerStyle={[
                           { width: "48.5%" },
-                          isSelected && tw`bg-surface`,
+                          isSelected && tw`bg-secondary`,
                         ]}
                         style={tw`px-4 py-3 gap-1 min-h-16 justify-center`}
                       >

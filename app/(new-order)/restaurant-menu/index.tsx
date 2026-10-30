@@ -11,12 +11,13 @@ import {
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import ProductCard from "@/presentation/restaurant-menu/product-card";
+import ProductRow from "@/presentation/restaurant-menu/product-row";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import TabBar from "@/presentation/theme/components/tab-bar";
 import TabPager from "@/presentation/theme/components/tab-pager";
 import { useRouter } from "expo-router";
-import FloatingSearchBar from "@/presentation/theme/components/floating-search-bar";
+import TextInput from "@/presentation/theme/components/text-input";
+import IconButton from "@/presentation/theme/components/icon-button";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
 import { useProductSearch } from "@/presentation/restaurant-menu/hooks/useProductSearch";
 import { useSyncRefresh } from "@/presentation/sync/hooks/useSyncRefresh";
@@ -323,13 +324,14 @@ export default function RestaurantMenuScreen() {
   }
 
   const renderProductGrid = (items: Product[]) => (
-    <View style={[tw`flex-row flex-wrap`, { gap: PRODUCT_GAP }]}>
+    // Flat rows; on wide panes they flow into columns
+    <View style={[tw`flex-row flex-wrap`, { columnGap: PRODUCT_GAP }]}>
       {items.map((product) => (
         <View
           key={product.id}
           style={productWidth ? { width: productWidth } : tw`w-full`}
         >
-          <ProductCard
+          <ProductRow
             product={product}
             onPress={() => openProduct(product)}
             onAdd={
@@ -368,7 +370,7 @@ export default function RestaurantMenuScreen() {
             flexShrink: 0,
           }}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={tw`gap-1 pb-40`}
+          contentContainerStyle={tw`gap-1 pb-28`}
         >
           {pageCategories.map((c) => {
             const isSelected = selected === c.id;
@@ -381,14 +383,18 @@ export default function RestaurantMenuScreen() {
                 accessibilityState={{ selected: isSelected }}
                 style={tw.style(
                   "px-3 py-2.5 rounded-md",
-                  isSelected && "bg-surface",
+                  isSelected && "bg-secondary",
                 )}
               >
                 <ThemedText
                   type="body2"
                   style={[
-                    tw`text-on-surface`,
-                    isSelected && { fontFamily: typography.medium },
+                    isSelected ? tw`text-on-secondary` : tw`text-on-surface`,
+                    {
+                      fontFamily: isSelected
+                        ? typography.bold
+                        : typography.medium,
+                    },
                   ]}
                 >
                   {c.name}
@@ -409,7 +415,7 @@ export default function RestaurantMenuScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
-          contentContainerStyle={tw`gap-6 pb-40`}
+          contentContainerStyle={tw`gap-6 pb-28`}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -422,12 +428,12 @@ export default function RestaurantMenuScreen() {
           {pageCategories.map((c) => (
             <View
               key={c.id}
-              style={tw`gap-3`}
+              style={tw`gap-1`}
               onLayout={(e) =>
                 categoryGroupY.current.set(c.id, e.nativeEvent.layout.y)
               }
             >
-              <ThemedText type="body1">{c.name}</ThemedText>
+              <ThemedText type="h4">{c.name}</ThemedText>
               {renderProductGrid(productsByCategory.get(c.id) ?? [])}
             </View>
           ))}
@@ -465,9 +471,29 @@ export default function RestaurantMenuScreen() {
           </ThemedText>
         </ThemedView>
       )}
+      <TextInput
+        value={search}
+        onChangeText={setSearch}
+        onFocus={() => setIsSearchFocused(true)}
+        onBlur={() => setIsSearchFocused(false)}
+        placeholder={t("menu:searchPlaceholder")}
+        icon="search"
+        returnKeyType="search"
+        autoCorrect={false}
+        trailingIcon={
+          search ? (
+            <IconButton
+              icon="circle-x"
+              onPress={() => setSearch("")}
+              accessibilityLabel={t("common:actions.clear")}
+            />
+          ) : undefined
+        }
+      />
       {!search && (
         <TabBar
           scrollable
+          textType="h4"
           tabs={sectionTabs}
           activeTab={section}
           onChange={onChangeSection}
@@ -480,7 +506,7 @@ export default function RestaurantMenuScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
-          contentContainerStyle={tw`gap-6 pb-40`}
+          contentContainerStyle={tw`gap-6 pb-28`}
         >
           {searchResults.length > 0 ? (
             renderProductGrid(searchResults)
@@ -507,12 +533,9 @@ export default function RestaurantMenuScreen() {
         />
       )}
 
-      <FloatingSearchBar
-        value={search}
-        onChangeText={setSearch}
-        onFocus={() => setIsSearchFocused(true)}
-        onBlur={() => setIsSearchFocused(false)}
-        placeholder={t("menu:searchPlaceholder")}
+      <View
+        pointerEvents="box-none"
+        style={tw`absolute left-0 right-0 bottom-0 px-4 pb-4`}
       >
         {/* Hidden while searching so it doesn't crowd the keyboard, and
             when the cart is already visible in the side pane. */}
@@ -536,7 +559,7 @@ export default function RestaurantMenuScreen() {
               />
             )
           ))}
-      </FloatingSearchBar>
+      </View>
 
       <ThemedBottomSheetModal
         ref={lineSheetRef}
