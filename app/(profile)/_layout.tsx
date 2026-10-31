@@ -115,6 +115,15 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="restaurant/authorization-codes/index"
+          options={{
+            headerShown: true,
+            title: t("orders:authorization.screenTitle"),
+            headerShadowVisible: false,
+          }}
+        />
+
+        <Stack.Screen
           name="restaurant/settings/index"
           options={{
             headerShown: true,

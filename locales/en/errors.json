@@ -208,6 +208,13 @@
     "USER_NOT_FOUND": "User not found",
     "USER_NOT_IN_RESTAURANT": "The user doesn't belong to this restaurant",
     "USER_ROLE_NOT_FOUND": "The role doesn't exist",
-    "USER_SUPER_ADMIN_CANNOT_BE_DELETED": "Super admin accounts can't be deleted here"
+    "USER_SUPER_ADMIN_CANNOT_BE_DELETED": "Super admin accounts can't be deleted here",
+    "ORDER_AUTH_CODE_REQUIRED": "A code from an admin is needed",
+    "ORDER_AUTH_CODE_INVALID": "The code isn't valid",
+    "ORDER_AUTH_CODE_EXPIRED": "The code expired. Ask for a new one",
+    "ORDER_AUTH_CODE_USED": "The code was already used. Ask for a new one",
+    "ORDER_AUTH_CODE_TOO_MANY_ATTEMPTS": "Too many wrong codes. Wait a few minutes",
+    "ORDER_AUTH_CODE_FORBIDDEN": "Only the owner or an admin can generate codes",
+    "ORDER_PRICE_CHANGE_FORBIDDEN": "Only the owner or an admin can change the price"
   }
 }

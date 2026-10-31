@@ -19,6 +19,7 @@ import { RootToaster } from "@/presentation/shared/components/app-toaster";
 import { SyncIndicator } from "@/presentation/shared/components/sync-indicator";
 import { GlobalLoader } from "@/presentation/shared/components/global-loader";
 import { SocketLoaderBottomSheet } from "@/presentation/shared/components/socket-loader-bottom-sheet";
+import { AuthorizationCodeSheet } from "@/presentation/orders/authorization/authorization-code-sheet";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import * as Device from "expo-device";
 import * as ScreenOrientation from "expo-screen-orientation";
@@ -231,6 +232,7 @@ export default function RootLayout() {
           {!isAuthPage && <SyncIndicator />}
 
           <GlobalLoader />
+          {!isAuthPage && <AuthorizationCodeSheet />}
           <SocketLoaderBottomSheet />
         </ThemedView>
       </BottomSheetModalProvider>

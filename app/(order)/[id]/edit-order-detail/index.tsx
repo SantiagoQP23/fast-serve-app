@@ -13,6 +13,10 @@ import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useReplaceOrderDetailStore } from "@/presentation/orders/store/replaceOrderDetailStore";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
+import {
+  emitterAction,
+  useRemovalAuthorization,
+} from "@/presentation/orders/authorization/useRemovalAuthorization";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { useRestaurantSettings } from "@/presentation/restaurant/hooks/useRestaurantSettings";
 import { DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK } from "@/core/restaurant/models/restaurant-settings.model";
@@ -100,6 +104,7 @@ export default function EditOrderDetailScreen() {
   const isAdmin = isAdminLevelRole(user?.role?.name);
   const { isLoading, mutate: updateOrderDetail } =
     useOrders().updateOrderDetail;
+  const { authorize, canChangePrice } = useRemovalAuthorization();
 
   const { settings } = useRestaurantSettings();
   // With the setting off, the server rejects anything beyond the stock left,
@@ -242,30 +247,45 @@ export default function EditOrderDetailScreen() {
   };
 
   const onUpdateOrderDetail = () => {
-    updateOrderDetail(
-      {
-        id: orderDetail.id,
-        quantity: counter,
-        qtyDelivered,
-        description: notes,
-        price: effectivePrice,
-        orderId: order!.id,
-        tagIds: selectedTagIds,
-        productOptionId: selectedOption?.id,
-        ...(status !== orderDetail.status && { status }),
-        ...(typeOrderDetail !== orderDetail.typeOrderDetail && {
-          typeOrderDetail,
+    const payload = {
+      id: orderDetail.id,
+      quantity: counter,
+      qtyDelivered,
+      description: notes,
+      price: effectivePrice,
+      orderId: order!.id,
+      tagIds: selectedTagIds,
+      productOptionId: selectedOption?.id,
+      ...(status !== orderDetail.status && { status }),
+      ...(typeOrderDetail !== orderDetail.typeOrderDetail && {
+        typeOrderDetail,
+      }),
+    };
+    const onSaved = () => {
+      savedRef.current = true;
+      toast.success(t("orders:edit.saved"));
+      setActiveOrderDetail(null);
+      router.back();
+    };
+
+    // Fewer units than ordered may need an owner/admin code.
+    if (counter < orderDetail.quantity) {
+      void authorize(
+        t("orders:authorization.summaryDecrease", {
+          product: orderDetail.product.name,
+          from: orderDetail.quantity,
+          to: counter,
         }),
-      },
-      {
-        onSuccess: () => {
-          savedRef.current = true;
-          toast.success(t("orders:edit.saved"));
-          setActiveOrderDetail(null);
-          router.back();
-        },
-      },
-    );
+        emitterAction(
+          updateOrderDetail,
+          (code) => ({ ...payload, ...(code && { authorizationCode: code }) }),
+          onSaved,
+        ),
+      );
+      return;
+    }
+
+    updateOrderDetail(payload, { onSuccess: onSaved });
   };
 
   // Always offered; when the item can't be replaced, it explains why.
@@ -519,7 +539,7 @@ export default function EditOrderDetailScreen() {
                 label: t("orders:detailActions.replaceItem"),
                 onPress: handleReplaceProduct,
               },
-              ...(isAdmin
+              ...(isAdmin && canChangePrice
                 ? [
                     {
                       icon: "circle-dollar-sign" as const,

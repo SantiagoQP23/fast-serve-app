@@ -279,7 +279,8 @@
     "skip": "Omitir",
     "skipped": "Omitido",
     "loadError": "No se pudieron cargar los tickets",
-    "notPrinted": "Sin imprimir"
+    "notPrinted": "Sin imprimir",
+    "typeCancel": "CANCELAR"
   },
   "unprintedTickets": {
     "title": "Tickets por imprimir",
@@ -442,5 +443,53 @@
       "READY": "«Listo» lo marca cocina cuando el producto está listo para entregar."
     },
     "infoLabel": "Por qué no puedes elegir este estado"
+  },
+  "authorization": {
+    "screenTitle": "Código de autorización",
+    "sheetTitle": "Pide un código a un administrador",
+    "sheetHint": "El administrador lo genera en su teléfono",
+    "codeLabel": "Código de autorización",
+    "confirm": "Confirmar",
+    "needsConnectionTitle": "Sin conexión",
+    "needsConnection": "Para quitar productos se necesita conexión, porque el código se revisa en el servidor.",
+    "summaryDelete_one": "Eliminar {{count}} × {{product}}",
+    "summaryDelete_other": "Eliminar {{count}} × {{product}}",
+    "summaryDecrease": "Bajar {{product}} de {{from}} a {{to}}",
+    "summaryReplace": "Reemplazar {{from}} por {{to}}",
+    "summaryCancelOrder": "Eliminar el pedido {{order}}",
+    "authorizedBy": "Autorizó {{name}}",
+    "authorizedByAt": "Autorizado por {{name}} · {{time}}",
+    "generateCode": "Generar código",
+    "generateAnother": "Generar otro código",
+    "generateError": "No se pudo generar el código",
+    "giveCode": "Dale este código al mesero",
+    "expiresIn": "Sirve una vez · vence en {{time}}",
+    "noActiveCode": "No hay un código activo. Genera uno cuando alguien necesite quitar productos.",
+    "share": "Compartir",
+    "void": "Anular",
+    "shareMessage": "Código de autorización de {{restaurant}}: {{code}}. Sirve una vez y vence en 10 minutos.",
+    "today": "Hoy",
+    "noCodesToday": "Hoy no se han generado códigos",
+    "loadError": "No se pudieron cargar los códigos",
+    "onlyAdmins": "Solo el dueño o un administrador puede generar códigos",
+    "settingOff": "\"Pedir código para quitar productos\" está apagado en Configuración avanzada, así que nadie necesita código por ahora.",
+    "codeTitle": "Código {{code}}",
+    "codeShort": "código {{code}}",
+    "createdAt": "Generado a las {{time}}",
+    "by": "por {{name}}",
+    "orderNumber": "Pedido #{{num}}",
+    "status": {
+      "active": "Activo",
+      "expired": "Vencido",
+      "voided": "Anulado"
+    },
+    "usage": {
+      "deleteItem_one": "{{name}} eliminó {{count}} × {{product}}",
+      "deleteItem_other": "{{name}} eliminó {{count}} × {{product}}",
+      "decrease": "{{name}} bajó {{product}} de {{from}} a {{to}}",
+      "replace": "{{name}} reemplazó {{product}}",
+      "cancelOrder": "{{name}} eliminó el pedido",
+      "used": "{{name}} usó el código"
+    }
   }
 }

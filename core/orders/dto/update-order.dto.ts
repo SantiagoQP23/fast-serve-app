@@ -29,6 +29,8 @@ export interface UpdateOrderDetailDto {
   typeOrderDetail?: OrderType;
   tagIds?: string[];
   status?: OrderDetailStatus;
+  /** Owner/admin code (REQUIRE_CODE_TO_REMOVE_ITEMS). */
+  authorizationCode?: string;
 }
 
 export interface AddOrderDetailToOrderDto {
@@ -45,12 +47,16 @@ export interface AddOrderDetailToOrderDto {
 export interface DeleteOrderDetailDto {
   detailId: string;
   orderId: string;
+  /** Owner/admin code (REQUIRE_CODE_TO_REMOVE_ITEMS). */
+  authorizationCode?: string;
 }
 
 export interface ReplaceOrderDetailDto {
   orderId: string;
   detailId: string;
   newDetail: Omit<AddOrderDetailToOrderDto, "orderId">;
+  /** Owner/admin code (REQUIRE_CODE_TO_REMOVE_ITEMS). */
+  authorizationCode?: string;
 }
 
 export interface MergeOrderDto {
@@ -112,4 +118,11 @@ export interface UpdateOrderDetailsDto {
     description?: string;
     typeOrderDetail?: OrderType;
   }[];
+}
+
+/** delete-order: a plain id still works for older servers' sake. */
+export interface DeleteOrderDto {
+  id: string;
+  /** Owner/admin code (REQUIRE_CODE_TO_REMOVE_ITEMS). */
+  authorizationCode?: string;
 }
