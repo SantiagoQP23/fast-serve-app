@@ -328,5 +328,89 @@
     "validations": {
       "nameMinLength": "The name must be at least 2 characters"
     }
+  },
+  "modifierGroups": {
+    "title": "Option groups",
+    "newGroup": "New group",
+    "searchPlaceholder": "Search group or option...",
+    "loadError": "Couldn't load the groups",
+    "empty": "No option groups yet",
+    "emptyDescription": "Create groups like “Flavor” or “Extras” and add them to your products.",
+    "pickOne": "Pick 1",
+    "pickMany": "Several",
+    "required": "Required",
+    "optional": "Optional",
+    "inactive": "Inactive",
+    "optionsCount_one": "{{count}} option",
+    "optionsCount_other": "{{count}} options",
+    "productsCount_one": "{{count}} product",
+    "productsCount_other": "{{count}} products",
+    "notFound": "Group not found",
+    "delete": "Delete group",
+    "deleteTitle": "Delete this group?",
+    "deleteMessage_one": "It will be removed from {{count}} product. Past orders keep what was picked.",
+    "deleteMessage_other": "It will be removed from {{count}} products. Past orders keep what was picked.",
+    "save": "Save group",
+    "saved": "Group saved",
+    "saveError": "Couldn't save the group",
+    "deleted": "Group deleted",
+    "deleteError": "Couldn't delete the group",
+    "addOption": "Add option",
+    "removeOption": "Remove option",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "usedIn": "Used in",
+    "notUsed": "No product uses this group yet.",
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "E.g. Flavor, Seafood extras",
+      "howMany": "How many can be picked?",
+      "required": "Required",
+      "min": "Minimum",
+      "max": "Maximum",
+      "noLimit": "No limit",
+      "active": "Active",
+      "options": "Options",
+      "optionName": "Option",
+      "priceDelta": "Price +",
+      "optionActive": "Available",
+      "inventoryItem": "Inventory item",
+      "noInventoryItem": "No inventory item",
+      "inventoryQuantity": "Quantity per unit"
+    },
+    "errors": {
+      "name": "Enter a name of at least 2 letters",
+      "noOptions": "Add at least one option",
+      "optionValues": "Check the prices and inventory quantities",
+      "limits": "Check the minimum and maximum"
+    }
+  },
+  "customization": {
+    "title": "Customization",
+    "hint": "Add what the dish includes and options like flavors or extras.",
+    "setUp": "Set up",
+    "includes": "Includes",
+    "includesHint": "What the dish comes with. If removable, the waiter can order it without.",
+    "removable": "removable",
+    "removableFor": "remove −{{amount}}",
+    "groups": "Option groups",
+    "groupsHint": "Shown in this order when taking the order.",
+    "linkGroup": "Add group",
+    "unlinkGroup": "Remove group",
+    "manageGroups": "Manage",
+    "addItem": "Add item",
+    "removeItem": "Remove item",
+    "save": "Save customization",
+    "saved": "Customization saved",
+    "saveError": "Couldn't save the customization",
+    "fields": {
+      "itemName": "Item",
+      "itemPlaceholder": "E.g. Rice, Fries",
+      "removable": "Can be removed",
+      "discount": "Discount when removed"
+    },
+    "errors": {
+      "values": "Check the discounts and inventory quantities"
+    }
   }
 }
