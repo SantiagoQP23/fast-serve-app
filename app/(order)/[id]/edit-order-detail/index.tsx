@@ -59,6 +59,20 @@ import InfoBottomSheet from "@/presentation/theme/components/info-bottom-sheet";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import { typography } from "@/constants/theme";
+import {
+  buildModifierRows,
+  calculateUnitPrice,
+  cleanSelection,
+  customizationKey,
+  getActiveGroups,
+  getProductComponents,
+  getSelectionProblem,
+  selectionFromRows,
+  toCustomizationPayload,
+  type CustomizationSelection,
+} from "@/core/menu/models/customization.model";
+import CustomizationPicker from "@/presentation/restaurant-menu/components/customization-picker";
+import ModifierLines from "@/presentation/orders/components/modifier-lines";
 
 const MAX_QUANTITY = 20;
 
@@ -122,6 +136,21 @@ export default function EditOrderDetailScreen() {
   const [price, setPrice] = useState(
     String(orderDetail?.price ?? selectedOption?.price ?? ""),
   );
+  const [selection, setSelection] = useState<CustomizationSelection>(() =>
+    selectionFromRows(orderDetail?.modifiers),
+  );
+  // A price that isn't the variant plus its customizations was typed by
+  // hand; it stays. Otherwise the price follows the picks.
+  const [priceTyped, setPriceTyped] = useState(
+    () =>
+      !!orderDetail &&
+      calculateUnitPrice(
+        orderDetail.basePrice ??
+          orderDetail.productOption?.price ??
+          orderDetail.price,
+        orderDetail.modifiers,
+      ) !== Number(orderDetail.price),
+  );
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
     orderDetail?.tags?.map((t) => t.id) ?? [],
   );
@@ -150,17 +179,46 @@ export default function EditOrderDetailScreen() {
 
   const { statusText, statusIcon, labelColor } = useOrderDetailStatus(status);
 
+  // The kitchen hasn't touched it: the picks can still change.
+  const canCustomize =
+    !!product &&
+    !!orderDetail &&
+    orderDetail.status === OrderDetailStatus.PENDING &&
+    (orderDetail.qtyDelivered ?? 0) === 0 &&
+    (orderDetail.qtyPaid ?? 0) === 0 &&
+    (getActiveGroups(product).length > 0 ||
+      getProductComponents(product).length > 0);
+  const modifierRows = canCustomize
+    ? buildModifierRows(product, selection)
+    : (orderDetail?.modifiers ?? []);
+  const customizationChanged =
+    canCustomize &&
+    customizationKey(modifierRows) !== customizationKey(orderDetail?.modifiers);
+  const selectionProblem = canCustomize
+    ? getSelectionProblem(product, selection)
+    : null;
+
   const parsedPrice = parseFloat(price);
   const isPriceValid = Number.isFinite(parsedPrice) && parsedPrice >= 0;
-  const effectivePrice = isPriceValid
-    ? parsedPrice
-    : (selectedOption?.price ?? orderDetail?.price ?? 0);
+  const calculatedPrice = calculateUnitPrice(
+    selectedOption?.price ?? orderDetail?.price ?? 0,
+    modifierRows,
+  );
+  const effectivePrice =
+    priceTyped && isPriceValid
+      ? parsedPrice
+      : canCustomize
+        ? calculatedPrice
+        : isPriceValid
+          ? parsedPrice
+          : (selectedOption?.price ?? orderDetail?.price ?? 0);
 
   const isDirty =
     !!orderDetail &&
     (counter !== orderDetail.quantity ||
       qtyDelivered !== orderDetail.qtyDelivered ||
       notes !== (orderDetail.description || "") ||
+      customizationChanged ||
       effectivePrice !== Number(orderDetail.price) ||
       typeOrderDetail !== orderDetail.typeOrderDetail ||
       (selectedOption?.id ?? null) !==
@@ -244,6 +302,8 @@ export default function EditOrderDetailScreen() {
       setPrice(String(option.price));
     }
     setSelectedOption(option);
+    if (canCustomize)
+      setSelection((current) => cleanSelection(product, current));
   };
 
   const onUpdateOrderDetail = () => {
@@ -256,6 +316,15 @@ export default function EditOrderDetailScreen() {
       orderId: order!.id,
       tagIds: selectedTagIds,
       productOptionId: selectedOption?.id,
+      ...((customizationChanged ||
+        (canCustomize &&
+          selectedOption?.id !== orderDetail.productOption?.id)) && {
+        customization: toCustomizationPayload(
+          selection,
+          modifierRows,
+          priceTyped && isPriceValid,
+        ),
+      }),
       ...(status !== orderDetail.status && { status }),
       ...(typeOrderDetail !== orderDetail.typeOrderDetail && {
         typeOrderDetail,
@@ -435,6 +504,17 @@ export default function EditOrderDetailScreen() {
               />
             </Card>
 
+            {canCustomize ? (
+              <CustomizationPicker
+                product={product}
+                selection={selection}
+                onChange={setSelection}
+                blocksWithoutStock={blocksWithoutStock}
+              />
+            ) : (
+              <ModifierLines modifiers={orderDetail.modifiers} />
+            )}
+
             {selectableTags.length > 0 && (
               <ThemedView style={tw`flex-row flex-wrap gap-2`}>
                 {selectableTags.map((tag) => (
@@ -496,8 +576,18 @@ export default function EditOrderDetailScreen() {
               label={`${t("orders:edit.saveChanges")} · ${formatCurrency(lineTotal)}`}
               onPress={onUpdateOrderDetail}
               loading={isLoading}
-              disabled={!isDirty || blockedByStock || isLoading}
+              disabled={
+                !isDirty || blockedByStock || isLoading || !!selectionProblem
+              }
             />
+            {selectionProblem && (
+              <ThemedText type="small" style={tw`text-gray-600 text-center`}>
+                {t("menu:customization.pickToContinue", {
+                  count: selectionProblem.min,
+                  group: selectionProblem.groupName,
+                })}
+              </ThemedText>
+            )}
           </ThemedView>
         </ScreenLayout>
 
@@ -510,7 +600,10 @@ export default function EditOrderDetailScreen() {
               label={t("menu:product.price")}
               icon="dollar-sign"
               value={price}
-              onChangeText={setPrice}
+              onChangeText={(value) => {
+                setPrice(value);
+                setPriceTyped(true);
+              }}
               keyboardType="decimal-pad"
               error={isPriceValid ? undefined : t("orders:edit.invalidPrice")}
               bottomSheet

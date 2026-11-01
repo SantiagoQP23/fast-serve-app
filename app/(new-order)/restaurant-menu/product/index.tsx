@@ -59,15 +59,11 @@ import {
   getActiveGroups,
   getProductComponents,
   getSelectionProblem,
-  isModifierOutOfStock,
   selectionFromRows,
   toCustomizationPayload,
-  toggleComponent,
-  toggleModifier,
-  type ActiveGroup,
   type CustomizationSelection,
-  type ModifierOption,
 } from "@/core/menu/models/customization.model";
+import CustomizationPicker from "@/presentation/restaurant-menu/components/customization-picker";
 
 const MIN_QUANTITY = 1;
 const MAX_QUANTITY = 20;
@@ -78,97 +74,17 @@ const STOCK_TEXT_COLOR: Record<ProductOptionStockLevel, string> = {
   out: "text-gray-700",
 };
 
-function Section({
-  title,
-  subtitle,
-  children,
-}: {
-  title: string;
-  /** Short hint after the title, e.g. "Obligatorio · elige 1". */
-  subtitle?: string;
-  children: ReactNode;
-}) {
+function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <ThemedView style={tw`gap-3`}>
-      <ThemedView style={tw`flex-row items-baseline gap-2 flex-wrap`}>
-        <ThemedText
-          accessibilityRole="header"
-          style={{ fontFamily: typography.bold }}
-        >
-          {title}
-        </ThemedText>
-        {subtitle ? (
-          <ThemedText type="small" style={tw`text-gray-500`}>
-            {subtitle}
-          </ThemedText>
-        ) : null}
-      </ThemedView>
+      <ThemedText
+        accessibilityRole="header"
+        style={{ fontFamily: typography.bold }}
+      >
+        {title}
+      </ThemedText>
       {children}
     </ThemedView>
-  );
-}
-
-const signedCurrency = (value: number) =>
-  `${value < 0 ? "−" : "+"}${formatCurrency(Math.abs(value))}`;
-
-/** One option of a group: radio when the group takes one, checkbox otherwise. */
-function ModifierOptionRow({
-  option,
-  single,
-  selected,
-  soldOut,
-  disabled,
-  soldOutLabel,
-  onPress,
-}: {
-  option: ModifierOption;
-  single: boolean;
-  selected: boolean;
-  soldOut: boolean;
-  disabled: boolean;
-  soldOutLabel: string;
-  onPress: () => void;
-}) {
-  const delta = Number(option.priceDelta);
-  return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled}
-      accessibilityRole={single ? "radio" : "checkbox"}
-      accessibilityState={{ checked: selected, disabled }}
-      accessibilityLabel={[
-        option.name,
-        delta ? signedCurrency(delta) : null,
-        soldOut ? soldOutLabel : null,
-      ]
-        .filter(Boolean)
-        .join(", ")}
-      style={({ pressed }) => [
-        tw`flex-row items-center gap-3 min-h-12`,
-        pressed && tw`opacity-60`,
-        disabled && tw`opacity-50`,
-      ]}
-    >
-      <Icon
-        name={
-          single
-            ? selected
-              ? "circle-dot"
-              : "circle"
-            : selected
-              ? "square-check"
-              : "square"
-        }
-        size={22}
-      />
-      <ThemedText style={tw`flex-1`}>{option.name}</ThemedText>
-      {soldOut && <Label size="small" color="default" text={soldOutLabel} />}
-      {delta !== 0 && (
-        <ThemedText type="body2" style={tw`text-gray-600`}>
-          {signedCurrency(delta)}
-        </ThemedText>
-      )}
-    </Pressable>
   );
 }
 
@@ -429,18 +345,7 @@ export default function ProductScreen() {
     ? toCustomizationPayload(selection, modifierRows, customPrice)
     : undefined;
 
-  const groupSubtitle = (group: ActiveGroup) => {
-    if (group.min > 0)
-      return group.max !== null && group.max !== group.min
-        ? t("menu:customization.requiredRange", {
-            min: group.min,
-            max: group.max,
-          })
-        : t("menu:customization.required", { count: group.min });
-    return group.max !== null
-      ? t("menu:customization.optionalUpTo", { count: group.max })
-      : t("menu:customization.optional");
-  };
+
 
   const selectableTags = getSelectableTags(activeProduct.tags);
 
@@ -744,90 +649,14 @@ export default function ProductScreen() {
               </Section>
             )}
 
-            {components.length > 0 && (
-              <Section
-                title={t("menu:customization.includes")}
-                subtitle={
-                  components.some((component) => component.removable)
-                    ? t("menu:customization.tapToRemove")
-                    : undefined
-                }
-              >
-                <ThemedView style={tw`flex-row flex-wrap gap-2`}>
-                  {components.map((component) => {
-                    const removed = selection.removedComponentIds.includes(
-                      component.id,
-                    );
-                    const delta = Number(component.removalPriceDelta);
-                    const label = removed
-                      ? `${t("menu:customization.without")} ${component.name}${
-                          delta ? ` (${signedCurrency(delta)})` : ""
-                        }`
-                      : component.name;
-                    return (
-                      <Chip
-                        key={component.id}
-                        label={label}
-                        selected={!removed}
-                        disabled={!component.removable}
-                        onPress={() =>
-                          setSelection((current) =>
-                            toggleComponent(current, component.id),
-                          )
-                        }
-                      />
-                    );
-                  })}
-                </ThemedView>
-              </Section>
+            {isCustomizable && (
+              <CustomizationPicker
+                product={activeProduct}
+                selection={selection}
+                onChange={setSelection}
+                blocksWithoutStock={blocksWithoutStock}
+              />
             )}
-
-            {groups.map((group) => {
-              const single = group.max === 1;
-              const pickedInGroup = group.options.filter((option) =>
-                selection.modifierIds.includes(option.id),
-              ).length;
-              const groupFull =
-                group.max !== null && pickedInGroup >= group.max;
-              return (
-                <Section
-                  key={group.linkId}
-                  title={group.group.name}
-                  subtitle={groupSubtitle(group)}
-                >
-                  <ThemedView
-                    accessibilityRole={single ? "radiogroup" : undefined}
-                  >
-                    {group.options.map((option) => {
-                      const selected = selection.modifierIds.includes(
-                        option.id,
-                      );
-                      const soldOut = isModifierOutOfStock(option);
-                      return (
-                        <ModifierOptionRow
-                          key={option.id}
-                          option={option}
-                          single={single}
-                          selected={selected}
-                          soldOut={soldOut}
-                          soldOutLabel={t("menu:customization.soldOut")}
-                          disabled={
-                            !selected &&
-                            ((soldOut && blocksWithoutStock) ||
-                              (!single && groupFull))
-                          }
-                          onPress={() =>
-                            setSelection((current) =>
-                              toggleModifier(current, group, option.id),
-                            )
-                          }
-                        />
-                      );
-                    })}
-                  </ThemedView>
-                </Section>
-              );
-            })}
 
             {selectableTags.length > 0 && (
               <Section title={t("menu:product.customize")}>
