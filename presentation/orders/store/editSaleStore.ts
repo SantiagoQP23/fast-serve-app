@@ -2,6 +2,11 @@ import { create } from "zustand";
 import { Bill } from "@/core/orders/models/bill.model";
 import { Product } from "@/core/menu/models/product.model";
 import { ProductOption } from "@/core/menu/models/product-optionl.model";
+import {
+  customizationKey,
+  type CustomizationSelection,
+  type OrderDetailModifier,
+} from "@/core/menu/models/customization.model";
 
 export interface EditSaleLine {
   /** Stable key for lists: the bill line id, or a local id for new lines. */
@@ -11,6 +16,11 @@ export interface EditSaleLine {
   productOption?: ProductOption;
   price: number;
   quantity: number;
+  /** New lines: what was picked on the product sheet. */
+  customization?: CustomizationSelection;
+  /** Frozen customization rows (saved lines keep the server's copy). */
+  modifiers?: OrderDetailModifier[];
+  customPrice?: boolean;
 }
 
 /**
@@ -47,17 +57,20 @@ export const useEditSaleStore = create<EditSaleState>()((set) => ({
         productOption: detail.productOption,
         price: detail.price,
         quantity: detail.quantity,
+        modifiers: detail.modifiers,
       })),
     }),
 
   addLine: (line) =>
     set((state) => {
-      // The same product, variant and price added twice is one new line.
+      // The same product, variant, customization and price added twice is
+      // one new line.
       const existing = state.lines.find(
         (l) =>
           !l.billDetailId &&
           l.productOption?.id === line.productOption?.id &&
-          l.price === line.price,
+          l.price === line.price &&
+          customizationKey(l.modifiers) === customizationKey(line.modifiers),
       );
       if (existing)
         return {

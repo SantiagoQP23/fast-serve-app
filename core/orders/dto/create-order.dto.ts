@@ -1,3 +1,4 @@
+import type { LineCustomizationPayload } from "@/core/menu/models/customization.model";
 import { OrderType } from "../enums/order-type.enum";
 
 export interface CreateOrderDto {
@@ -18,4 +19,7 @@ export interface CreateOrderDetailDto {
   price?: number;
   productOptionId: number;
   typeOrderDetail: OrderType;
+  tagIds?: string[];
+  /** Picks and removals; the server checks them and sets the price. */
+  customization?: LineCustomizationPayload;
 }

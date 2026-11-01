@@ -1,4 +1,10 @@
 import { useState, useRef } from "react";
+import ModifierLines from "@/presentation/orders/components/modifier-lines";
+import {
+  calculateUnitPrice,
+  selectionFromRows,
+  toCustomizationPayload,
+} from "@/core/menu/models/customization.model";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -138,6 +144,14 @@ export default function OrderDetailCard({
     return t(`orders:addAgain.reasons.${blocked.reason}`);
   };
 
+  // A price typed by hand differs from the variant plus its customizations.
+  const hasCustomPrice =
+    !!detail.productOption &&
+    calculateUnitPrice(
+      detail.basePrice ?? detail.productOption.price,
+      detail.modifiers,
+    ) !== Number(detail.price);
+
   const handleAddAgain = () => {
     if (!order || !canAddAgain) return;
 
@@ -150,6 +164,14 @@ export default function OrderDetailCard({
       description: detail.description,
       tagIds: detail.tags?.map((tag) => tag.id) ?? [],
       typeOrderDetail: detail.typeOrderDetail,
+      // Same picks again; a hand-typed price stays as it was.
+      ...(detail.modifiers?.length && {
+        customization: toCustomizationPayload(
+          selectionFromRows(detail.modifiers),
+          detail.modifiers,
+          hasCustomPrice,
+        ),
+      }),
     });
   };
 
@@ -385,8 +407,7 @@ export default function OrderDetailCard({
                             </ThemedText>
                           </ThemedText>
 
-                          {detail.productOption &&
-                            detail.productOption.price !== detail.price && (
+                          {detail.productOption && hasCustomPrice && (
                               <Label
                                 text={formatCurrency(detail.price)}
                                 color="default"
@@ -400,6 +421,7 @@ export default function OrderDetailCard({
                           </ThemedText>
                         )}
                       </ThemedView>
+                      <ModifierLines modifiers={detail.modifiers} />
                       {detail.description && (
                         <ThemedText type="body2">
                           {detail.description}

@@ -51,6 +51,23 @@ import ButtonGroup from "@/presentation/theme/components/button-group";
 import Chip from "@/presentation/theme/components/chip";
 import Card from "@/presentation/theme/components/card";
 import { typography } from "@/constants/theme";
+import {
+  buildModifierRows,
+  calculateUnitPrice,
+  cleanSelection,
+  EMPTY_SELECTION,
+  getActiveGroups,
+  getProductComponents,
+  getSelectionProblem,
+  isModifierOutOfStock,
+  selectionFromRows,
+  toCustomizationPayload,
+  toggleComponent,
+  toggleModifier,
+  type ActiveGroup,
+  type CustomizationSelection,
+  type ModifierOption,
+} from "@/core/menu/models/customization.model";
 
 const MIN_QUANTITY = 1;
 const MAX_QUANTITY = 20;
@@ -61,17 +78,97 @@ const STOCK_TEXT_COLOR: Record<ProductOptionStockLevel, string> = {
   out: "text-gray-700",
 };
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+function Section({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  /** Short hint after the title, e.g. "Obligatorio · elige 1". */
+  subtitle?: string;
+  children: ReactNode;
+}) {
   return (
     <ThemedView style={tw`gap-3`}>
-      <ThemedText
-        accessibilityRole="header"
-        style={{ fontFamily: typography.bold }}
-      >
-        {title}
-      </ThemedText>
+      <ThemedView style={tw`flex-row items-baseline gap-2 flex-wrap`}>
+        <ThemedText
+          accessibilityRole="header"
+          style={{ fontFamily: typography.bold }}
+        >
+          {title}
+        </ThemedText>
+        {subtitle ? (
+          <ThemedText type="small" style={tw`text-gray-500`}>
+            {subtitle}
+          </ThemedText>
+        ) : null}
+      </ThemedView>
       {children}
     </ThemedView>
+  );
+}
+
+const signedCurrency = (value: number) =>
+  `${value < 0 ? "−" : "+"}${formatCurrency(Math.abs(value))}`;
+
+/** One option of a group: radio when the group takes one, checkbox otherwise. */
+function ModifierOptionRow({
+  option,
+  single,
+  selected,
+  soldOut,
+  disabled,
+  soldOutLabel,
+  onPress,
+}: {
+  option: ModifierOption;
+  single: boolean;
+  selected: boolean;
+  soldOut: boolean;
+  disabled: boolean;
+  soldOutLabel: string;
+  onPress: () => void;
+}) {
+  const delta = Number(option.priceDelta);
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityRole={single ? "radio" : "checkbox"}
+      accessibilityState={{ checked: selected, disabled }}
+      accessibilityLabel={[
+        option.name,
+        delta ? signedCurrency(delta) : null,
+        soldOut ? soldOutLabel : null,
+      ]
+        .filter(Boolean)
+        .join(", ")}
+      style={({ pressed }) => [
+        tw`flex-row items-center gap-3 min-h-12`,
+        pressed && tw`opacity-60`,
+        disabled && tw`opacity-50`,
+      ]}
+    >
+      <Icon
+        name={
+          single
+            ? selected
+              ? "circle-dot"
+              : "circle"
+            : selected
+              ? "square-check"
+              : "square"
+        }
+        size={22}
+      />
+      <ThemedText style={tw`flex-1`}>{option.name}</ThemedText>
+      {soldOut && <Label size="small" color="default" text={soldOutLabel} />}
+      {delta !== 0 && (
+        <ThemedText type="body2" style={tw`text-gray-600`}>
+          {signedCurrency(delta)}
+        </ThemedText>
+      )}
+    </Pressable>
   );
 }
 
@@ -200,9 +297,34 @@ export default function ProductScreen() {
     },
   );
 
+  // What the waiter picked: options of the product's groups and the
+  // included items taken off. Editing a cart line starts from its picks.
+  const [selection, setSelection] = useState<CustomizationSelection>(
+    () =>
+      activeOrderDetail?.customization ??
+      (activeOrderDetail?.modifiers
+        ? selectionFromRows(activeOrderDetail.modifiers)
+        : EMPTY_SELECTION),
+  );
+
   const [price, setPrice] = useState(
     String(activeOrderDetail ? activeOrderDetail.price : selectedOption?.price),
   );
+  // Only a price typed by hand replaces the calculated one.
+  const [priceTyped, setPriceTyped] = useState(() => {
+    if (!activeOrderDetail) return false;
+    if (activeOrderDetail.customPrice !== undefined)
+      return activeOrderDetail.customPrice;
+    return (
+      activeOrderDetail.price !== undefined &&
+      !!activeOrderDetail.productOption &&
+      Number(activeOrderDetail.price) !==
+        calculateUnitPrice(
+          activeOrderDetail.productOption.price,
+          activeOrderDetail.modifiers,
+        )
+    );
+  });
 
   const navigation = useNavigation();
   const { user } = useAuthStore();
@@ -275,12 +397,50 @@ export default function ProductScreen() {
   const atStockLimit =
     blocksWithoutStock && !!selectedStock && counter >= selectedStock.remaining;
 
+  const groups = getActiveGroups(activeProduct);
+  const components = getProductComponents(activeProduct);
+  // Products with groups or included items always send their selection, so
+  // the server prices it and spends the right insumos.
+  const isCustomizable = groups.length > 0 || components.length > 0;
+  const modifierRows = isCustomizable
+    ? buildModifierRows(activeProduct, selection)
+    : [];
+  const selectionProblem = isCustomizable
+    ? getSelectionProblem(activeProduct, selection)
+    : null;
+
+  const basePrice =
+    selectedOption?.price ?? getProductDefaultOption(activeProduct)?.price ?? 0;
   const parsedCustomPrice = parseFloat(price);
-  const effectivePrice = Number.isFinite(parsedCustomPrice)
-    ? parsedCustomPrice
-    : (selectedOption?.price ??
-      getProductDefaultOption(activeProduct)?.price ??
-      0);
+  const effectivePrice =
+    priceTyped && Number.isFinite(parsedCustomPrice)
+      ? parsedCustomPrice
+      : calculateUnitPrice(basePrice, modifierRows);
+  const customPrice = priceTyped && Number.isFinite(parsedCustomPrice);
+
+  const lineCustomization = isCustomizable
+    ? {
+        customization: selection,
+        modifiers: modifierRows,
+        customPrice,
+      }
+    : {};
+  const customizationPayload = isCustomizable
+    ? toCustomizationPayload(selection, modifierRows, customPrice)
+    : undefined;
+
+  const groupSubtitle = (group: ActiveGroup) => {
+    if (group.min > 0)
+      return group.max !== null && group.max !== group.min
+        ? t("menu:customization.requiredRange", {
+            min: group.min,
+            max: group.max,
+          })
+        : t("menu:customization.required", { count: group.min });
+    return group.max !== null
+      ? t("menu:customization.optionalUpTo", { count: group.max })
+      : t("menu:customization.optional");
+  };
 
   const selectableTags = getSelectableTags(activeProduct.tags);
 
@@ -292,6 +452,7 @@ export default function ProductScreen() {
     tagIds: selectedTagIds,
     productOption: selectedOption!,
     typeOrderDetail: typeOrderDetail || order?.type || orderType,
+    ...lineCustomization,
   });
 
   const addProductToOrder = () => {
@@ -306,6 +467,7 @@ export default function ProductScreen() {
         tagIds: selectedTagIds,
         productOptionId: selectedOption!.id,
         typeOrderDetail: typeOrderDetail || order.type,
+        ...(customizationPayload && { customization: customizationPayload }),
       },
       {},
     );
@@ -328,6 +490,7 @@ export default function ProductScreen() {
         tagIds: selectedTagIds,
         productOptionId: selectedOption?.id,
         typeOrderDetail: typeOrderDetail || order.type,
+        ...(customizationPayload && { customization: customizationPayload }),
       },
     };
 
@@ -371,6 +534,9 @@ export default function ProductScreen() {
   const onChangeSelectedOption = (option: ProductOption) => {
     setSelectedOption(option);
     setPrice(String(option.price));
+    setPriceTyped(false);
+    // Groups belong to the product, so the picks carry over.
+    setSelection((current) => cleanSelection(activeProduct, current));
   };
 
   const addLabel = isReplaceMode
@@ -578,6 +744,91 @@ export default function ProductScreen() {
               </Section>
             )}
 
+            {components.length > 0 && (
+              <Section
+                title={t("menu:customization.includes")}
+                subtitle={
+                  components.some((component) => component.removable)
+                    ? t("menu:customization.tapToRemove")
+                    : undefined
+                }
+              >
+                <ThemedView style={tw`flex-row flex-wrap gap-2`}>
+                  {components.map((component) => {
+                    const removed = selection.removedComponentIds.includes(
+                      component.id,
+                    );
+                    const delta = Number(component.removalPriceDelta);
+                    const label = removed
+                      ? `${t("menu:customization.without")} ${component.name}${
+                          delta ? ` (${signedCurrency(delta)})` : ""
+                        }`
+                      : component.name;
+                    return (
+                      <Chip
+                        key={component.id}
+                        label={label}
+                        selected={!removed}
+                        disabled={!component.removable}
+                        onPress={() =>
+                          setSelection((current) =>
+                            toggleComponent(current, component.id),
+                          )
+                        }
+                      />
+                    );
+                  })}
+                </ThemedView>
+              </Section>
+            )}
+
+            {groups.map((group) => {
+              const single = group.max === 1;
+              const pickedInGroup = group.options.filter((option) =>
+                selection.modifierIds.includes(option.id),
+              ).length;
+              const groupFull =
+                group.max !== null && pickedInGroup >= group.max;
+              return (
+                <Section
+                  key={group.linkId}
+                  title={group.group.name}
+                  subtitle={groupSubtitle(group)}
+                >
+                  <ThemedView
+                    accessibilityRole={single ? "radiogroup" : undefined}
+                  >
+                    {group.options.map((option) => {
+                      const selected = selection.modifierIds.includes(
+                        option.id,
+                      );
+                      const soldOut = isModifierOutOfStock(option);
+                      return (
+                        <ModifierOptionRow
+                          key={option.id}
+                          option={option}
+                          single={single}
+                          selected={selected}
+                          soldOut={soldOut}
+                          soldOutLabel={t("menu:customization.soldOut")}
+                          disabled={
+                            !selected &&
+                            ((soldOut && blocksWithoutStock) ||
+                              (!single && groupFull))
+                          }
+                          onPress={() =>
+                            setSelection((current) =>
+                              toggleModifier(current, group, option.id),
+                            )
+                          }
+                        />
+                      );
+                    })}
+                  </ThemedView>
+                </Section>
+              );
+            })}
+
             {selectableTags.length > 0 && (
               <Section title={t("menu:product.customize")}>
                 <ThemedView style={tw`flex-row flex-wrap gap-2`}>
@@ -613,9 +864,19 @@ export default function ProductScreen() {
                 blockedByStock ||
                 isReplacing ||
                 requiresOptionSelection ||
+                !!selectionProblem ||
                 (!selectedOption && !isReplaceMode)
               }
             />
+
+            {selectionProblem && (
+              <ThemedText type="small" style={tw`text-gray-600`}>
+                {t("menu:customization.pickToContinue", {
+                  count: selectionProblem.min,
+                  group: selectionProblem.groupName,
+                })}
+              </ThemedText>
+            )}
 
             {exceedsStock && (
               <ThemedView style={tw`flex-row items-center gap-1.5`}>
@@ -643,7 +904,10 @@ export default function ProductScreen() {
           <TextInput
             label={t("menu:product.price")}
             value={price}
-            onChangeText={setPrice}
+            onChangeText={(value) => {
+              setPrice(value);
+              setPriceTyped(true);
+            }}
             keyboardType="decimal-pad"
             bottomSheet
           />

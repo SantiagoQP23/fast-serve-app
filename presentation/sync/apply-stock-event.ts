@@ -48,7 +48,29 @@ export function applyStockEvents(events: SyncEventDto[]) {
       touched = true;
       return { ...option, inventoryItems };
     });
-    if (touched) updated.push({ ...product, options: options! });
+    // Options and included items with an insumo show "Agotado" from it.
+    const withItem = <T extends { inventoryItem: { id: string; quantity: number } | null }>(
+      entry: T,
+    ): T => {
+      const change = entry.inventoryItem && changes.get(entry.inventoryItem.id);
+      if (!change || change.quantity === undefined) return entry;
+      touched = true;
+      return {
+        ...entry,
+        inventoryItem: { ...entry.inventoryItem!, quantity: Number(change.quantity) },
+      };
+    };
+    const modifierGroups = product.modifierGroups?.map((link) =>
+      link.group
+        ? {
+            ...link,
+            group: { ...link.group, modifiers: link.group.modifiers.map(withItem) },
+          }
+        : link,
+    );
+    const components = product.components?.map(withItem);
+    if (touched)
+      updated.push({ ...product, options: options!, modifierGroups, components });
   }
 
   // Orders show names and prices, not stock, so only the menu changes.

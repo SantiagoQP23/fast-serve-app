@@ -75,5 +75,19 @@
   "addOne": "Agregar {{product}}",
   "editInCart": "Editar en el carrito",
   "inCart_other": "{{count}} en el carrito",
-  "noResults": "Ningún producto coincide con “{{search}}”"
+  "noResults": "Ningún producto coincide con “{{search}}”",
+  "customization": {
+    "without": "Sin",
+    "includes": "Incluye",
+    "tapToRemove": "Toca para quitar",
+    "required_one": "Obligatorio · elige {{count}}",
+    "required_other": "Obligatorio · elige {{count}}",
+    "requiredRange": "Obligatorio · elige de {{min}} a {{max}}",
+    "optional": "Opcional",
+    "optionalUpTo_one": "Opcional · hasta {{count}}",
+    "optionalUpTo_other": "Opcional · hasta {{count}}",
+    "soldOut": "Agotado",
+    "pickToContinue_one": "Elige una opción en {{group}} para continuar",
+    "pickToContinue_other": "Elige {{count}} opciones en {{group}} para continuar"
+  }
 }

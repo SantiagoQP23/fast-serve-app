@@ -6,6 +6,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import { useOrderPaymentStatus } from "./useOrderPaymentStatus";
+import { formatModifierLines } from "@/core/menu/models/customization.model";
 import { OrderDetailStatus } from "@/core/orders/models/order-detail.model";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 
@@ -45,6 +46,9 @@ export const useOrderPrint = (order: Order | null) => {
             <span>${detail.quantity}x ${detail.product.name} ${showProductOptionName ? (detail.productOption ? `${detail.productOption.name}` : "") : ""}</span>
             <span style="white-space:nowrap;margin-left:8px;">$${(detail.quantity * detail.price).toFixed(2)}</span>
           </div>
+          ${formatModifierLines(detail.modifiers, { without: t("menu:customization.without") })
+            .map((line) => `<div style="padding-left:12px;font-size:12px;color:#000;">${line}</div>`)
+            .join("")}
           ${detail.tags.length ? `<div style="padding-left:12px;font-size:12px;color:#000;">${detail.tags.map((t) => t.name).join(", ")}</div>` : ""}
           ${detail.description ? `<div style="padding-left:12px;font-size:12px;color:#000;">${detail.description}</div>` : ""}
           <div style="padding-left:12px;font-size:12px;color:#333;">

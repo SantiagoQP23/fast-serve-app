@@ -42,6 +42,7 @@ export const usePrintOrderReceipt = () => {
           notes: t("common:labels.notes"),
           total: t("common:labels.total"),
           quantity: t("common:labels.quantity"),
+          without: t("menu:customization.without"),
         });
 
         toast.success(t("orders:options.printOrderSuccess"), { id: toastId });

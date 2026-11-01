@@ -8,6 +8,10 @@ import {
   type VariantStockMode,
 } from "./product-optionl.model";
 import { Tag } from "./tag.model";
+import type {
+  ProductComponent,
+  ProductModifierGroup,
+} from "./customization.model";
 
 export enum ProductStatus {
   AVAILABLE = "AVAILABLE",
@@ -30,6 +34,10 @@ export interface Product {
   productionArea: ProductionArea;
   /** False: one "Normal" variant that stands for the product itself. */
   hasVariants?: boolean;
+  /** Included items ("Incluye"). Undefined when the payload didn't bring them. */
+  components?: ProductComponent[];
+  /** Linked groups of options, with the group and its options. */
+  modifierGroups?: ProductModifierGroup[];
 }
 
 /**

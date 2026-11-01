@@ -5,6 +5,10 @@ import { Ticket } from "@/core/tickets/models/ticket.model";
 import { TicketItem } from "@/core/tickets/models/ticket-item.model";
 import { TicketType } from "@/core/tickets/enums/ticket-type.enum";
 import { TicketItemAction } from "@/core/tickets/enums/ticket-item-action.enum";
+import {
+  customizationKey,
+  sortedRows,
+} from "@/core/menu/models/customization.model";
 
 /**
  * Builds on the phone the comanda the server would create for an action, so
@@ -27,6 +31,7 @@ const buildItem = (
     ? detail.tags.map((tag) => tag.name).join(", ")
     : null,
   description: detail.description || null,
+  modifiersSnapshot: detail.modifiers?.length ? sortedRows(detail.modifiers) : null,
   price: Number(detail.price),
   productionAreaId: detail.product?.productionArea?.id || null,
   productionAreaName: detail.product?.productionArea?.name || null,
@@ -65,7 +70,10 @@ export const buildLocalCancelTicket = (order: Order, detail: OrderDetail) =>
     buildItem(detail, TicketItemAction.REMOVE),
   ]);
 
-/** Ticket for an item edit, or null when quantity and variant didn't change. */
+/**
+ * Ticket for an item edit, or null when quantity, variant and
+ * customizations didn't change. Like the server's planTicketForUpdate.
+ */
 export const buildLocalUpdateTicket = (
   order: Order,
   before: OrderDetail,
@@ -74,7 +82,10 @@ export const buildLocalUpdateTicket = (
   const oldOptionId = before.productOption?.id ?? null;
   const newOptionId = after.productOption?.id ?? null;
 
-  if (oldOptionId !== newOptionId) {
+  if (
+    oldOptionId !== newOptionId ||
+    customizationKey(before.modifiers) !== customizationKey(after.modifiers)
+  ) {
     return buildTicket(order, TicketType.UPDATE, [
       buildItem(before, TicketItemAction.REMOVE),
       buildItem(after, TicketItemAction.ADD),

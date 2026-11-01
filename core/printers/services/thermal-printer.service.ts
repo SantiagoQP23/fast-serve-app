@@ -6,6 +6,11 @@ import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { TicketItem } from "@/core/tickets/models/ticket-item.model";
 import { TicketType } from "@/core/tickets/enums/ticket-type.enum";
 import { Bill, BillSource } from "@/core/orders/models/bill.model";
+import {
+  formatModifierLines,
+  sortedRows,
+  type OrderDetailModifier,
+} from "@/core/menu/models/customization.model";
 
 const formatDateTime = (date: Date | string): string => {
   const d = new Date(date);
@@ -18,6 +23,35 @@ const formatTime = (date: Date | string): string => {
   const pad = (n: number) => n.toString().padStart(2, "0");
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
+
+/**
+ * Kitchen lines for a product's customization, one per row, with removed
+ * items in capitals so they stand out ("SIN CHIFLES").
+ */
+const kitchenModifierText = (
+  rows: OrderDetailModifier[] | null | undefined,
+  without = "-",
+): string =>
+  sortedRows(rows)
+    .map((row) => {
+      const [line] = formatModifierLines([row], { without });
+      return `[L]  ${row.kind === "REMOVED" ? `<b>${line.toUpperCase()}</b>` : line}\n`;
+    })
+    .join("");
+
+/** Receipt lines: only customizations that changed the price, indented. */
+const receiptModifierText = (
+  rows: OrderDetailModifier[] | null | undefined,
+  without = "-",
+): string =>
+  sortedRows(rows)
+    .filter((row) => Number(row.priceDelta) !== 0)
+    .map((row) => {
+      const [line] = formatModifierLines([row], { without });
+      const delta = Number(row.priceDelta);
+      return `[L]   ${line}[R]${delta < 0 ? "-" : "+"}$${Math.abs(delta).toFixed(2)}\n`;
+    })
+    .join("");
 
 // ESC B n t — printer buzzer: beeps `times` times, each lasting `duration` x 50ms (1-9).
 const buzzer = (times: number, duration: number): string =>
@@ -76,6 +110,7 @@ export class ThermalPrinterService {
         if (detail.productOption) {
           extra += `[L]  + ${detail.productOption.name}\n`;
         }
+        extra += kitchenModifierText(detail.modifiers, translations.without);
         if (detail.tags.length) {
           extra += `[L]  + ${detail.tags.map((t) => t.name).join(", ")}\n`;
         }
@@ -140,6 +175,8 @@ export class ThermalPrinterService {
       inPlace: string;
       detailTakeAway: string;
       deletedUser: string;
+      /** Prefix for removed items, e.g. "Sin". */
+      without?: string;
     },
   ): Promise<void> => {
     const detailsText = areaDetails
@@ -159,6 +196,7 @@ export class ThermalPrinterService {
         } else {
           extra += `\n`;
         }
+        extra += kitchenModifierText(detail.modifiers, translations.without);
         if (detail.tags.length) {
           extra += `[L]  + ${detail.tags.map((t) => t.name).join(", ")}\n`;
         }
@@ -237,6 +275,8 @@ export class ThermalPrinterService {
       deletedUser: string;
       deliveryTime: string;
       itemAction: (action: TicketItem["action"]) => string;
+      /** Prefix for removed items, e.g. "Sin". */
+      without?: string;
     },
   ): Promise<void> => {
     const isCancel = ticketType === TicketType.CANCEL;
@@ -252,6 +292,10 @@ export class ThermalPrinterService {
         } else {
           extra += `\n`;
         }
+        extra += kitchenModifierText(
+          item.modifiersSnapshot,
+          translations.without,
+        );
         if (item.tagsSnapshot) {
           extra += `[L]  + ${item.tagsSnapshot}\n`;
         }
@@ -328,6 +372,8 @@ export class ThermalPrinterService {
       discount: string;
       total: string;
       payments: string;
+      /** Prefix for removed items, e.g. "Sin". */
+      without?: string;
     },
   ): Promise<void> => {
     const itemsText = bill.details
@@ -339,7 +385,12 @@ export class ThermalPrinterService {
         const optionName =
           detail.productOption?.name || detail.orderDetail?.productOption?.name;
 
-        return `[L]${detail.quantity}x ${productName}${optionName ? ` (${optionName})` : ""}[R]$${detail.total.toFixed(2)}\n`;
+        const modifiers = detail.orderDetail?.modifiers ?? detail.modifiers;
+
+        return (
+          `[L]${detail.quantity}x ${productName}${optionName ? ` (${optionName})` : ""}[R]$${detail.total.toFixed(2)}\n` +
+          receiptModifierText(modifiers, translations.without)
+        );
       })
       .join("");
 

@@ -1,4 +1,5 @@
 import { useCallback, useContext } from "react";
+import { rowsFromPayload } from "@/core/menu/models/customization.model";
 import { SocketContext } from "@/presentation/shared/context/SocketContext";
 import { SocketResponseData } from "@/core/common/dto/socket.dto";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -183,6 +184,7 @@ export const useOrderOutbox = () => {
         description: item.description,
         tagIds: "tagIds" in item ? item.tagIds : undefined,
         typeOrderDetail: item.typeOrderDetail,
+        modifiers: rowsFromPayload(item.customization),
       },
       useAuthStore.getState().user,
     );

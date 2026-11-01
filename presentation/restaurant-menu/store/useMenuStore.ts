@@ -44,7 +44,13 @@ interface MenuActions {
  * sync event. An empty list is a real "no recipe" and still replaces.
  */
 function keepRecipes(product: Product, stored: Product | undefined): Product {
-  if (!stored || !product.options) return product;
+  if (!stored) return product;
+  // Payloads that don't load the customization leave it out: keep ours.
+  if (product.components === undefined && stored.components !== undefined)
+    product = { ...product, components: stored.components };
+  if (product.modifierGroups === undefined && stored.modifierGroups !== undefined)
+    product = { ...product, modifierGroups: stored.modifierGroups };
+  if (!product.options) return product;
   if (product.options.every((option) => option.inventoryItems !== undefined))
     return product;
   return {

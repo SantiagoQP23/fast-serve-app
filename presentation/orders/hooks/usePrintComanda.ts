@@ -80,6 +80,7 @@ export const usePrintComanda = () => {
         deliveryTime: t("orders:comanda.deliveryTime"),
         itemAction: (action: TicketItemAction) =>
           t(`orders:comanda.itemActionPrefix.${action}`),
+        without: t("menu:customization.without"),
       };
 
       let printedAny = false;
