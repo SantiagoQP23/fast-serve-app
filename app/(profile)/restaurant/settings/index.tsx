@@ -15,6 +15,7 @@ import {
   DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK,
   DEFAULT_LOW_STOCK_EMAIL_HOUR,
   DEFAULT_ORDER_PREP_TIME,
+  DEFAULT_REQUIRE_CODE_TO_REMOVE_ITEMS,
 } from "@/core/restaurant/models/restaurant-settings.model";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -68,6 +69,19 @@ export default function RestaurantSettingsScreen() {
       ? pendingAllowOrdersWithoutStock
       : (settings?.ALLOW_ORDERS_WITHOUT_STOCK ??
         DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK);
+
+  const pendingRequireCode = updateSettings.isPending
+    ? updateSettings.variables?.REQUIRE_CODE_TO_REMOVE_ITEMS
+    : undefined;
+  const requireCodeToRemoveItems =
+    typeof pendingRequireCode === "boolean"
+      ? pendingRequireCode
+      : (settings?.REQUIRE_CODE_TO_REMOVE_ITEMS ??
+        DEFAULT_REQUIRE_CODE_TO_REMOVE_ITEMS);
+
+  const handleToggleRequireCode = (value: boolean) => {
+    updateSettings.mutate({ REQUIRE_CODE_TO_REMOVE_ITEMS: value });
+  };
 
   const handleToggleAllowOrdersWithoutStock = (value: boolean) => {
     updateSettings.mutate({ ALLOW_ORDERS_WITHOUT_STOCK: value });
@@ -139,6 +153,17 @@ export default function RestaurantSettingsScreen() {
                   editable={canEdit}
                 />
               </Card>
+              <Card style={tw`gap-1 p-4 rounded-3xl`}>
+                <Switch
+                  label={t("restaurantSettings.requireCodeToRemoveItems.title")}
+                  value={requireCodeToRemoveItems}
+                  onValueChange={handleToggleRequireCode}
+                  disabled={!canEdit || updateSettings.isPending}
+                />
+                <ThemedText type="small" style={tw`text-gray-500`}>
+                  {t("restaurantSettings.requireCodeToRemoveItems.description")}
+                </ThemedText>
+              </Card>
 
               <ThemedText type="small" style={tw`text-gray-500`}>
                 {t("restaurantSettings.inventoryGroup")}
@@ -163,7 +188,11 @@ export default function RestaurantSettingsScreen() {
                     {formatHour(lowStockEmailHour)}
                   </ThemedText>
                   {canEdit && (
-                    <Icon name="chevron-down" size={16} color={tw.color("gray-400")} />
+                    <Icon
+                      name="chevron-down"
+                      size={16}
+                      color={tw.color("gray-400")}
+                    />
                   )}
                 </Pressable>
               </Card>

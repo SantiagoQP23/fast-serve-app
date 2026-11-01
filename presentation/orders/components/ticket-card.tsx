@@ -57,7 +57,12 @@ export default function TicketCard({
         ? t("orders:tickets.typeAdd")
         : ticket.type === TicketType.UPDATE
           ? t("orders:tickets.typeUpdate")
-          : ticket.type;
+          : ticket.type === TicketType.CANCEL
+            ? t("orders:tickets.typeCancel")
+            : ticket.type;
+
+  const createdByName = ticket.createdBy?.person?.firstName;
+  const authorizedByName = ticket.authorizedBy?.person?.firstName;
 
   // Group items by production area using denormalized data
   const itemsByArea = ticket.items.reduce(
@@ -240,6 +245,29 @@ export default function TicketCard({
           </ThemedView>
         ))}
       </ThemedView>
+
+      {(createdByName || authorizedByName) && (
+        <ThemedView style={tw`flex-row flex-wrap gap-2 pb-3`}>
+          {createdByName && (
+            <Label
+              text={createdByName}
+              leftIcon="user"
+              size="small"
+              color="default"
+            />
+          )}
+          {authorizedByName && (
+            <Label
+              text={t("orders:authorization.authorizedBy", {
+                name: authorizedByName,
+              })}
+              leftIcon="shield-check"
+              size="small"
+              color="info"
+            />
+          )}
+        </ThemedView>
+      )}
 
       {!selectionMode && (
         <ThemedView style={tw`flex-row gap-2`}>

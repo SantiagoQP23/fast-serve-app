@@ -22,6 +22,12 @@ import InfoBottomSheet from "@/presentation/theme/components/info-bottom-sheet";
 import { useOrders } from "../hooks/useOrders";
 import { useOrdersStore } from "../store/useOrdersStore";
 import { useReplaceOrderDetailStore } from "../store/replaceOrderDetailStore";
+import {
+  emitterAction,
+  useRemovalAuthorization,
+} from "../authorization/useRemovalAuthorization";
+import { toast } from "sonner-native";
+import dayjs from "dayjs";
 import { router } from "expo-router";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { type BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
@@ -79,11 +85,20 @@ export default function OrderDetailCard({
   const updatedBy = detail.updatedBy;
 
   const showCreatedBy = createdBy && createdBy.id !== orderUserId;
+  // Owner/admin who authorized removing units of this item.
+  const authorizedByName = detail.authorizedBy?.person?.firstName ?? "";
+  const authorizedText = detail.authorizedAt
+    ? t("orders:authorization.authorizedByAt", {
+        name: authorizedByName,
+        time: dayjs(detail.authorizedAt).format("HH:mm"),
+      })
+    : t("orders:authorization.authorizedBy", { name: authorizedByName });
   const showUpdatedBy = updatedBy && updatedBy.id !== orderUserId;
 
   const { mutate: updateOrderDetail } = useOrders().updateOrderDetail;
 
   const { mutate: removeOrderDetail } = useOrders().removeOrderDetail;
+  const { authorize } = useRemovalAuthorization();
   const { mutate: addOrderDetailToOrder } = useOrders().addOrderDetailToOrder;
   const menuProduct = useMenuStore((state) =>
     state.products.find((product) => product.id === detail.product.id),
@@ -167,16 +182,19 @@ export default function OrderDetailCard({
     const currentOrderId = orderId || order?.id;
     if (!currentOrderId) return;
 
-    removeOrderDetail(
-      {
+    // Removing units may need an owner/admin code; the code sheet takes
+    // over from the dialog then.
+    closeModal();
+    void authorize(
+      t("orders:authorization.summaryDelete", {
+        count: detail.quantity,
+        product: detail.product.name,
+      }),
+      emitterAction(removeOrderDetail, (code) => ({
         detailId: detail.id,
         orderId: currentOrderId,
-      },
-      {
-        onSuccess: () => {
-          closeModal();
-        },
-      },
+        ...(code && { authorizationCode: code }),
+      })),
     );
   };
 
@@ -451,6 +469,16 @@ export default function OrderDetailCard({
                       color="default"
                       leftIcon="user"
                       size="small"
+                    />
+                  )}
+                  {authorizedByName && (
+                    <Label
+                      text={authorizedByName}
+                      color="info"
+                      leftIcon="shield-check"
+                      size="small"
+                      accessibilityLabel={authorizedText}
+                      onPress={() => toast(authorizedText)}
                     />
                   )}
                 </ThemedView>

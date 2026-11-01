@@ -10,6 +10,7 @@ export interface RestaurantSettings {
   DEFAULT_PRINTER?: string;
   LOW_STOCK_EMAIL_HOUR?: number;
   ALLOW_ORDERS_WITHOUT_STOCK?: boolean;
+  REQUIRE_CODE_TO_REMOVE_ITEMS?: boolean;
   [key: string]: RestaurantSettingValue | undefined;
 }
 
@@ -23,3 +24,9 @@ export const DEFAULT_LOW_STOCK_EMAIL_HOUR = 22;
  * Also what the app assumes while settings haven't loaded (e.g. offline).
  */
 export const DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK = true;
+
+/**
+ * Whether someone who isn't owner/admin needs an owner/admin code to remove
+ * units from an order, and can't change prices.
+ */
+export const DEFAULT_REQUIRE_CODE_TO_REMOVE_ITEMS = false;

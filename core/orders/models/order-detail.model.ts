@@ -42,6 +42,12 @@ export interface OrderDetail {
   tags: Tag[];
   createdBy?: User;
   updatedBy?: User;
+  /**
+   * Owner/admin who authorized the last removal of units (delete, lower
+   * quantity, replace) while "Pedir código para quitar productos" was on.
+   */
+  authorizedBy?: User | null;
+  authorizedAt?: string | null;
   typeOrderDetail: OrderType;
 
   // typeOrderDetail: TypeOrder;

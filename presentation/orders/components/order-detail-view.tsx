@@ -91,6 +91,11 @@ import { typography } from "@/constants/theme";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import OrderSyncLabel from "@/presentation/offline/components/order-sync-label";
 import { orderNumberText } from "@/presentation/offline/local-order";
+import { useRestaurantSettings } from "@/presentation/restaurant/hooks/useRestaurantSettings";
+import {
+  emitterAction,
+  useRemovalAuthorization,
+} from "@/presentation/orders/authorization/useRemovalAuthorization";
 
 dayjs.extend(relativeTime);
 
@@ -122,6 +127,10 @@ export default function OrderDetailView({
   const init = useEditOrderCartStore((state) => state.init);
   const { mutate: updateOrder } = useOrders().updateOrder;
   const { mutate: deleteOrder } = useOrders().deleteOrder;
+  const { authorize } = useRemovalAuthorization();
+  const { settings: restaurantSettings } = useRestaurantSettings();
+  const protectionOn =
+    restaurantSettings?.REQUIRE_CODE_TO_REMOVE_ITEMS === true;
   const { mutate: updateOrderDetails } = useOrders().updateOrderDetails;
   const updateOrderInStore = useOrdersStore((state) => state.updateOrder);
   const { mutate: mergeOrder } = useOrders().mergeOrder;
@@ -361,16 +370,25 @@ export default function OrderDetailView({
   const deliveryTime = order.deliveryTime ? dayjs(order.deliveryTime) : null;
 
   const onRemoveOrder = () => {
-    deleteOrder(order.id, {
-      onSuccess: () => {
-        setDeleteDialogVisible(false);
-        setActiveOrder(null);
-        // Embedded: clearing the active order already empties the pane
-        if (!embedded) {
-          router.replace("/(app)/(tabs)/(orders-module)/my-orders");
-        }
-      },
-    });
+    setDeleteDialogVisible(false);
+    // Cancelling the order may need an owner/admin code.
+    void authorize(
+      t("orders:authorization.summaryCancelOrder", {
+        order: orderNumberText(order, t),
+      }),
+      emitterAction(
+        deleteOrder,
+        // A plain id when there's no code, like before.
+        (code) => (code ? { id: order.id, authorizationCode: code } : order.id),
+        () => {
+          setActiveOrder(null);
+          // Embedded: clearing the active order already empties the pane
+          if (!embedded) {
+            router.replace("/(app)/(tabs)/(orders-module)/my-orders");
+          }
+        },
+      ),
+    );
   };
 
   const handleCloseOrder = () => {
@@ -517,7 +535,9 @@ export default function OrderDetailView({
             onSuccess: (resp) => {
               // Online the server answers { order }; the outbox answers the order.
               const data = resp.data as unknown as
-                Order | { order?: Order } | undefined;
+                | Order
+                | { order?: Order }
+                | undefined;
               const updated: Order | undefined =
                 data && "order" in data ? data.order : (data as Order);
               if (!updated?.id) return;
@@ -631,6 +651,11 @@ export default function OrderDetailView({
     deleteBlockedSheetRef.current?.present();
   };
 
+  const handleAuthorizationCodeFromMenu = () => {
+    moreOptionsSheetRef.current?.dismiss();
+    router.push("/(profile)/restaurant/authorization-codes");
+  };
+
   const handleDeleteFromMenu = () => {
     if (deleteBlockReason) return;
     moreOptionsSheetRef.current?.dismiss();
@@ -703,6 +728,16 @@ export default function OrderDetailView({
             icon: "lock" as const,
             label: t("orders:options.forceCloseOrder"),
             onPress: handleForceCloseFromMenu,
+          },
+        ]
+      : []),
+    // Owners/admins hand out codes when the protection is on.
+    ...(isAdmin && protectionOn && !isClosed
+      ? [
+          {
+            icon: "key-round" as const,
+            label: t("orders:authorization.generateCode"),
+            onPress: handleAuthorizationCodeFromMenu,
           },
         ]
       : []),

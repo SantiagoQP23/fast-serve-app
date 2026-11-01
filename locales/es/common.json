@@ -221,5 +221,9 @@
       "approved": "Esta transferencia ya fue aprobada, así que el dinero quedó registrado en {{account}}. Solo un administrador o el dueño puede cambiarla.",
       "cancelled": "Esta transacción fue cancelada."
     }
+  },
+  "numberPad": {
+    "delete": "Borrar",
+    "confirm": "Confirmar"
   }
 }

@@ -13,6 +13,7 @@ import {
   MergeOrderDto,
   MergeOrderResp,
   ReplaceOrderDetailDto,
+  DeleteOrderDto,
   UpdateOrderResp,
   UpdateOrderDetailsDto,
   UpdateOrderDetailDto,
@@ -21,6 +22,7 @@ import {
 import { SocketEvent } from "@/core/common/dto/socket.dto";
 import { useWebsocketEventListener } from "@/presentation/shared/hooks/useWebsocketEventListener";
 import { usePrintComanda } from "./usePrintComanda";
+import { isAuthorizationError } from "@/core/orders/authorization/authorization-code.model";
 import {
   QueueOptions,
   isQueueableOrderUpdate,
@@ -113,6 +115,8 @@ export const useOrders = () => {
       }
     },
     onError: (resp) => {
+      // The code sheet shows these itself.
+      if (isAuthorizationError(resp.code)) return;
       Alert.alert("Error", resp.msg);
     },
   });
@@ -164,15 +168,17 @@ export const useOrders = () => {
     },
   });
 
-  const deleteOrderEmitter = useWebsocketEventEmitter<Order, string>(
-    OrderSocketEvent.deleteOrder,
-    {
-      onSuccess: (resp) => {},
-      onError: (resp) => {
-        Alert.alert("Error", resp.msg);
-      },
+  const deleteOrderEmitter = useWebsocketEventEmitter<
+    Order,
+    string | DeleteOrderDto
+  >(OrderSocketEvent.deleteOrder, {
+    onSuccess: (resp) => {},
+    onError: (resp) => {
+      // The code sheet shows these itself.
+      if (isAuthorizationError(resp.code)) return;
+      Alert.alert("Error", resp.msg);
     },
-  );
+  });
 
   const removeOrderDetailEmitter = useWebsocketEventEmitter<
     UpdateOrderResp,
@@ -189,6 +195,8 @@ export const useOrders = () => {
       }
     },
     onError: (resp) => {
+      // The code sheet shows these itself.
+      if (isAuthorizationError(resp.code)) return;
       Alert.alert("Error", resp.msg);
     },
   });
@@ -208,6 +216,8 @@ export const useOrders = () => {
       }
     },
     onError: (resp) => {
+      // The code sheet shows these itself.
+      if (isAuthorizationError(resp.code)) return;
       Alert.alert("Error", resp.msg);
     },
   });

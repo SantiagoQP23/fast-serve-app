@@ -278,7 +278,8 @@
     "skip": "Skip",
     "skipped": "Skipped",
     "loadError": "Couldn't load the tickets",
-    "notPrinted": "Not printed"
+    "notPrinted": "Not printed",
+    "typeCancel": "CANCEL"
   },
   "unprintedTickets": {
     "title": "Tickets to print",
@@ -441,5 +442,53 @@
       "READY": "The kitchen sets “Ready” when the item is ready to hand out."
     },
     "infoLabel": "Why you can't pick this status"
+  },
+  "authorization": {
+    "screenTitle": "Authorization code",
+    "sheetTitle": "Ask an admin for a code",
+    "sheetHint": "The admin generates it on their phone",
+    "codeLabel": "Authorization code",
+    "confirm": "Confirm",
+    "needsConnectionTitle": "No connection",
+    "needsConnection": "Removing items needs a connection, because the code is checked on the server.",
+    "summaryDelete_one": "Delete {{count}} × {{product}}",
+    "summaryDelete_other": "Delete {{count}} × {{product}}",
+    "summaryDecrease": "Lower {{product}} from {{from}} to {{to}}",
+    "summaryReplace": "Replace {{from}} with {{to}}",
+    "summaryCancelOrder": "Delete order {{order}}",
+    "authorizedBy": "Authorized by {{name}}",
+    "authorizedByAt": "Authorized by {{name}} · {{time}}",
+    "generateCode": "Generate code",
+    "generateAnother": "Generate another code",
+    "generateError": "Couldn't generate the code",
+    "giveCode": "Give this code to the waiter",
+    "expiresIn": "Works once · expires in {{time}}",
+    "noActiveCode": "There's no active code. Generate one when someone needs to remove items.",
+    "share": "Share",
+    "void": "Void",
+    "shareMessage": "Authorization code for {{restaurant}}: {{code}}. It works once and expires in 10 minutes.",
+    "today": "Today",
+    "noCodesToday": "No codes generated today",
+    "loadError": "Couldn't load the codes",
+    "onlyAdmins": "Only the owner or an admin can generate codes",
+    "settingOff": "\"Require a code to remove items\" is off in Advanced settings, so nobody needs a code for now.",
+    "codeTitle": "Code {{code}}",
+    "codeShort": "code {{code}}",
+    "createdAt": "Generated at {{time}}",
+    "by": "by {{name}}",
+    "orderNumber": "Order #{{num}}",
+    "status": {
+      "active": "Active",
+      "expired": "Expired",
+      "voided": "Voided"
+    },
+    "usage": {
+      "deleteItem_one": "{{name}} deleted {{count}} × {{product}}",
+      "deleteItem_other": "{{name}} deleted {{count}} × {{product}}",
+      "decrease": "{{name}} lowered {{product}} from {{from}} to {{to}}",
+      "replace": "{{name}} replaced {{product}}",
+      "cancelOrder": "{{name}} deleted the order",
+      "used": "{{name}} used the code"
+    }
   }
 }

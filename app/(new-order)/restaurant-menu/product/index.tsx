@@ -13,6 +13,10 @@ import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore"
 import { useMenuCart } from "@/presentation/restaurant-menu/hooks/useMenuCart";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
+import {
+  emitterAction,
+  useRemovalAuthorization,
+} from "@/presentation/orders/authorization/useRemovalAuthorization";
 import { useReplaceOrderDetailStore } from "@/presentation/orders/store/replaceOrderDetailStore";
 import { useEditSaleStore } from "@/presentation/orders/store/editSaleStore";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
@@ -230,6 +234,7 @@ export default function ProductScreen() {
   const { mutate: addOrderDetailToOrder } = useOrders().addOrderDetailToOrder;
   const { isLoading: isReplacing, mutate: replaceOrderDetail } =
     useOrders().replaceOrderDetail;
+  const { authorize } = useRemovalAuthorization();
 
   // However the sheet closes (button, scrim, system back), the product and
   // the line being edited stop being active.
@@ -312,28 +317,36 @@ export default function ProductScreen() {
   const replaceProductInOrder = () => {
     if (!order || !replacingDetail || requiresOptionSelection) return;
 
-    replaceOrderDetail(
-      {
-        orderId: order.id,
-        detailId: replacingDetail.id,
-        newDetail: {
-          productId: activeProduct.id,
-          quantity: counter,
-          price: effectivePrice,
-          description: notes,
-          tagIds: selectedTagIds,
-          productOptionId: selectedOption?.id,
-          typeOrderDetail: typeOrderDetail || order.type,
-        },
+    const payload = {
+      orderId: order.id,
+      detailId: replacingDetail.id,
+      newDetail: {
+        productId: activeProduct.id,
+        quantity: counter,
+        price: effectivePrice,
+        description: notes,
+        tagIds: selectedTagIds,
+        productOptionId: selectedOption?.id,
+        typeOrderDetail: typeOrderDetail || order.type,
       },
-      {
-        onSuccess: () => {
+    };
+
+    // Taking the old item off may need an owner/admin code.
+    void authorize(
+      t("orders:authorization.summaryReplace", {
+        from: replacingDetail.product.name,
+        to: activeProduct.name,
+      }),
+      emitterAction(
+        replaceOrderDetail,
+        (code) => ({ ...payload, ...(code && { authorizationCode: code }) }),
+        () => {
           resetReplace();
           // Close the whole menu flow and land back on the order.
           exitsFlowRef.current = true;
           sheetRef.current?.dismiss();
         },
-      },
+      ),
     );
   };
 

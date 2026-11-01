@@ -105,6 +105,17 @@ export default function ManageScreen() {
           },
         ]
       : []),
+    ...(isAdmin
+      ? [
+          {
+            key: "authorizationCodes",
+            icon: "key-round" as const,
+            label: t("manage.authorizationCodes"),
+            onPress: () =>
+              router.push("/(profile)/restaurant/authorization-codes"),
+          },
+        ]
+      : []),
     {
       key: "restaurantSettings",
       icon: "sliders-horizontal",
