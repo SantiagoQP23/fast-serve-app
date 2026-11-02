@@ -1,4 +1,6 @@
 import { ScrollView } from "react-native";
+import { lineCustomization } from "@/core/menu/models/customization.model";
+import ModifierLines from "@/presentation/orders/components/modifier-lines";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -120,6 +122,7 @@ export default function EditSaleScreen() {
                 productOptionId: line.productOption!.id,
                 quantity: line.quantity,
                 price: line.price,
+                customization: lineCustomization(line),
               },
         ),
       },
@@ -252,6 +255,7 @@ function EditSaleLineCard({
             {line.product?.name}
             {showOptionName && ` ${line.productOption?.name}`}
           </ThemedText>
+          <ModifierLines modifiers={line.modifiers} />
           <ThemedText type="body2" style={tw`text-gray-500`}>
             {formatCurrency(line.price)}
           </ThemedText>

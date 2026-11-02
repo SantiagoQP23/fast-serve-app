@@ -1,3 +1,4 @@
+import type { LineCustomizationPayload } from "@/core/menu/models/customization.model";
 import { Ticket } from "@/core/tickets/models/ticket.model";
 import { OrderType } from "../enums/order-type.enum";
 import { OrderDetailStatus } from "../models/order-detail.model";
@@ -31,6 +32,8 @@ export interface UpdateOrderDetailDto {
   status?: OrderDetailStatus;
   /** Owner/admin code (REQUIRE_CODE_TO_REMOVE_ITEMS). */
   authorizationCode?: string;
+  /** Picks and removals; the server checks them and sets the price. */
+  customization?: LineCustomizationPayload;
 }
 
 export interface AddOrderDetailToOrderDto {
@@ -42,6 +45,8 @@ export interface AddOrderDetailToOrderDto {
   productOptionId?: number;
   tagIds?: string[];
   typeOrderDetail?: OrderType;
+  /** Picks and removals; the server checks them and sets the price. */
+  customization?: LineCustomizationPayload;
 }
 
 export interface DeleteOrderDetailDto {
@@ -94,6 +99,8 @@ export interface OrderDetailBatchItemDto {
   productOptionId?: number;
   tagIds?: string[];
   typeOrderDetail?: OrderType;
+  /** Picks and removals; the server checks them and sets the price. */
+  customization?: LineCustomizationPayload;
 }
 
 export interface AddOrderDetailsDto {

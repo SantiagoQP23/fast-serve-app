@@ -3,6 +3,12 @@ import * as Haptics from "expo-haptics";
 
 import { Product, ProductStatus } from "@/core/menu/models/product.model";
 import { getProductOptionAvailableQuantity } from "@/core/menu/models/product-optionl.model";
+import {
+  customizationKey,
+  EMPTY_SELECTION,
+  hasCustomization,
+  hasRequiredGroups,
+} from "@/core/menu/models/customization.model";
 import { NewOrderDetail } from "@/core/orders/dto/new-order-detail.dto";
 import { DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK } from "@/core/restaurant/models/restaurant-settings.model";
 import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
@@ -111,6 +117,9 @@ export function useMenuCart() {
         productOption: line.productOption,
         price: line.price ?? line.productOption.price,
         quantity: line.quantity,
+        customization: line.customization,
+        modifiers: line.modifiers,
+        customPrice: line.customPrice,
       });
       const added = useEditSaleStore
         .getState()
@@ -118,7 +127,8 @@ export function useMenuCart() {
           (l) =>
             !l.billDetailId &&
             l.productOption?.id === line.productOption.id &&
-            l.price === (line.price ?? line.productOption.price),
+            l.price === (line.price ?? line.productOption.price) &&
+            customizationKey(l.modifiers) === customizationKey(line.modifiers),
         );
       if (!added) return null;
       return () => {
@@ -182,6 +192,8 @@ export function useMenuCart() {
   const getQuickAddOption = (product: Product) => {
     if (mode !== "cart" && mode !== "edit" && mode !== "sale") return null;
     if (product.status !== ProductStatus.AVAILABLE) return null;
+    // A group that must be answered needs the product sheet.
+    if (hasRequiredGroups(product)) return null;
 
     const activeOptions = product.options.filter((option) => option.isActive);
     if (activeOptions.length !== 1) return null;
@@ -209,6 +221,10 @@ export function useMenuCart() {
       description: "",
       tagIds: [],
       typeOrderDetail: defaultOrderType,
+      // Nothing picked: the server prices it and spends the included items.
+      ...(hasCustomization(product) || product.components?.length
+        ? { customization: EMPTY_SELECTION, modifiers: [] }
+        : {}),
     });
   };
 

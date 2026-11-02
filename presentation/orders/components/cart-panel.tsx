@@ -19,6 +19,7 @@ import NewOrderDetailCard from "@/presentation/orders/components/new-order-detai
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { NewOrderDetail } from "@/core/orders/dto/new-order-detail.dto";
 import { useOrders } from "@/presentation/orders/hooks/useOrders";
+import { lineCustomization } from "@/core/menu/models/customization.model";
 import { mapStoreToCreateOrderDto } from "@/presentation/orders/mappers/createOrder.mapper";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useEditOrderCartStore } from "@/presentation/orders/store/editOrderCartStore";
@@ -223,6 +224,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
       productOptionId: item.productOption?.id,
       typeOrderDetail: item.typeOrderDetail,
       tagIds: item.tagIds,
+      customization: lineCustomization(item),
     }));
 
     addOrderDetails(

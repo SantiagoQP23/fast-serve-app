@@ -215,6 +215,15 @@
     "ORDER_AUTH_CODE_USED": "El código ya fue usado. Pide uno nuevo",
     "ORDER_AUTH_CODE_TOO_MANY_ATTEMPTS": "Demasiados códigos incorrectos. Espera unos minutos",
     "ORDER_AUTH_CODE_FORBIDDEN": "Solo el dueño o un administrador puede generar códigos",
-    "ORDER_PRICE_CHANGE_FORBIDDEN": "Solo el dueño o un administrador puede cambiar el precio"
+    "ORDER_PRICE_CHANGE_FORBIDDEN": "Solo el dueño o un administrador puede cambiar el precio",
+    "MENU_MODIFIER_GROUP_DUPLICATE_NAME": "Ya existe un grupo de opciones con ese nombre",
+    "MENU_MODIFIER_GROUP_NOT_FOUND": "No se encontró el grupo de opciones",
+    "MENU_MODIFIER_NOT_FOUND": "No se encontró la opción",
+    "MENU_PRODUCT_COMPONENT_NOT_FOUND": "No se encontró el ingrediente incluido",
+    "MENU_MODIFIER_GROUP_INVALID_LIMITS": "El mínimo no puede ser mayor que el máximo",
+    "MENU_INVENTORY_ITEM_NOT_FOUND": "No se encontró el insumo",
+    "ORDER_CUSTOMIZATION_REQUIRED": "Elige al menos {{min}} en {{groupName}}",
+    "ORDER_CUSTOMIZATION_TOO_MANY": "Elige como máximo {{max}} en {{groupName}}",
+    "ORDER_CUSTOMIZATION_UNAVAILABLE": "Una de las opciones elegidas ya no está disponible"
   }
 }

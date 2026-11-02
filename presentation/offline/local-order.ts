@@ -16,6 +16,8 @@ import {
   UpdateOrderDetailsDto,
   UpdateOrderDto,
 } from "@/core/orders/dto/update-order.dto";
+import type { OrderDetailModifier } from "@/core/menu/models/customization.model";
+import { rowsFromPayload } from "@/core/menu/models/customization.model";
 
 /**
  * Builds and edits orders on the phone while their actions wait in the
@@ -45,6 +47,7 @@ export interface LocalDetailInput {
   description?: string;
   tagIds?: string[];
   typeOrderDetail?: OrderType;
+  modifiers?: OrderDetailModifier[];
 }
 
 export const buildLocalDetail = (
@@ -74,6 +77,7 @@ export const buildLocalDetail = (
     ),
     createdBy: user,
     typeOrderDetail: input.typeOrderDetail ?? OrderType.IN_PLACE,
+    modifiers: input.modifiers ?? [],
   };
 };
 
@@ -164,6 +168,8 @@ export const applyLocalDetailUpdate = (
           dto.tagIds!.includes(tag.id),
         );
       }
+      if ("customization" in dto && dto.customization)
+        next.modifiers = rowsFromPayload(dto.customization);
 
       // Same rules the server applies to the item's status.
       if (dto.status === undefined) {

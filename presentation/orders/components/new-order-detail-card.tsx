@@ -1,4 +1,5 @@
 import { ThemedText } from "@/presentation/theme/components/themed-text";
+import ModifierLines from "@/presentation/orders/components/modifier-lines";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { Pressable, PressableProps } from "react-native";
@@ -89,6 +90,7 @@ export default function NewOrderDetailCard({
               size="small"
             />
           </ThemedView>
+          <ModifierLines modifiers={detail.modifiers} />
           {detail.description && (
             <ThemedText type="body2" style={tw`mt-2`}>
               {detail.description}

@@ -4,6 +4,7 @@ import {
 } from "@/core/orders/dto/create-order.dto";
 import { NewOrderState } from "../store/newOrderStore";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
+import { lineCustomization } from "@/core/menu/models/customization.model";
 
 export const mapStoreToCreateOrderDto = (
   state: NewOrderState,
@@ -19,6 +20,8 @@ export const mapStoreToCreateOrderDto = (
         price: detail.price ?? detail.productOption.price,
         productOptionId: detail.productOption.id,
         typeOrderDetail: detail.typeOrderDetail || OrderType.IN_PLACE,
+        tagIds: detail.tagIds,
+        customization: lineCustomization(detail),
       };
       return orderDetail;
     }),

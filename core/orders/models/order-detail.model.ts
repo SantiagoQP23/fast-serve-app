@@ -6,6 +6,7 @@ import {
 import { Product, ProductStatus } from "@/core/menu/models/product.model";
 import { Tag } from "@/core/menu/models/tag.model";
 import { OrderType } from "../enums/order-type.enum";
+import type { OrderDetailModifier } from "@/core/menu/models/customization.model";
 
 export enum OrderDetailStatus {
   PENDING = "PENDING",
@@ -52,6 +53,10 @@ export interface OrderDetail {
 
   // typeOrderDetail: TypeOrder;
   productOption?: ProductOption;
+  /** Frozen customizations (choices, extras, removed items). */
+  modifiers?: OrderDetailModifier[];
+  /** Variant price before customizations; null without them. */
+  basePrice?: number | null;
 }
 
 export enum ReplaceBlockReason {

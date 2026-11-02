@@ -1,4 +1,5 @@
 import { ScrollView, View, RefreshControl } from "react-native";
+import ModifierLines from "@/presentation/orders/components/modifier-lines";
 import { toast } from "sonner-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -459,7 +460,14 @@ export default function BillDetailView({
                         {detail.quantity}
                       </ThemedText>
                     </ThemedView>
-                    <ThemedText style={tw`flex-1`}>{productName}</ThemedText>
+                    <ThemedView style={tw`flex-1 bg-transparent`}>
+                      <ThemedText>{productName}</ThemedText>
+                      <ModifierLines
+                        modifiers={
+                          detail.orderDetail?.modifiers ?? detail.modifiers
+                        }
+                      />
+                    </ThemedView>
                     <ThemedView style={tw`items-end`}>
                       <ThemedText>{formatCurrency(detail.total)}</ThemedText>
                       <ThemedText type="small" style={tw`text-gray-500`}>

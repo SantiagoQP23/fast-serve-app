@@ -1,4 +1,5 @@
 import { Pressable } from "react-native";
+import ModifierLines from "@/presentation/orders/components/modifier-lines";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -224,6 +225,12 @@ export default function TicketCard({
                       {item.productOptionName}
                     </ThemedText>
                   )}
+
+                  {item.modifiersSnapshot?.length ? (
+                    <ThemedView style={tw`ml-8 bg-transparent`}>
+                      <ModifierLines modifiers={item.modifiersSnapshot} />
+                    </ThemedView>
+                  ) : null}
 
                   {item.tagsSnapshot && (
                     <ThemedText type="small" style={tw`text-gray-500 ml-8`}>

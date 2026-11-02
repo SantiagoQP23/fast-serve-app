@@ -51,6 +51,19 @@ import ButtonGroup from "@/presentation/theme/components/button-group";
 import Chip from "@/presentation/theme/components/chip";
 import Card from "@/presentation/theme/components/card";
 import { typography } from "@/constants/theme";
+import {
+  buildModifierRows,
+  calculateUnitPrice,
+  cleanSelection,
+  EMPTY_SELECTION,
+  getActiveGroups,
+  getProductComponents,
+  getSelectionProblem,
+  selectionFromRows,
+  toCustomizationPayload,
+  type CustomizationSelection,
+} from "@/core/menu/models/customization.model";
+import CustomizationPicker from "@/presentation/restaurant-menu/components/customization-picker";
 
 const MIN_QUANTITY = 1;
 const MAX_QUANTITY = 20;
@@ -200,9 +213,34 @@ export default function ProductScreen() {
     },
   );
 
+  // What the waiter picked: options of the product's groups and the
+  // included items taken off. Editing a cart line starts from its picks.
+  const [selection, setSelection] = useState<CustomizationSelection>(
+    () =>
+      activeOrderDetail?.customization ??
+      (activeOrderDetail?.modifiers
+        ? selectionFromRows(activeOrderDetail.modifiers)
+        : EMPTY_SELECTION),
+  );
+
   const [price, setPrice] = useState(
     String(activeOrderDetail ? activeOrderDetail.price : selectedOption?.price),
   );
+  // Only a price typed by hand replaces the calculated one.
+  const [priceTyped, setPriceTyped] = useState(() => {
+    if (!activeOrderDetail) return false;
+    if (activeOrderDetail.customPrice !== undefined)
+      return activeOrderDetail.customPrice;
+    return (
+      activeOrderDetail.price !== undefined &&
+      !!activeOrderDetail.productOption &&
+      Number(activeOrderDetail.price) !==
+        calculateUnitPrice(
+          activeOrderDetail.productOption.price,
+          activeOrderDetail.modifiers,
+        )
+    );
+  });
 
   const navigation = useNavigation();
   const { user } = useAuthStore();
@@ -275,12 +313,39 @@ export default function ProductScreen() {
   const atStockLimit =
     blocksWithoutStock && !!selectedStock && counter >= selectedStock.remaining;
 
+  const groups = getActiveGroups(activeProduct);
+  const components = getProductComponents(activeProduct);
+  // Products with groups or included items always send their selection, so
+  // the server prices it and spends the right insumos.
+  const isCustomizable = groups.length > 0 || components.length > 0;
+  const modifierRows = isCustomizable
+    ? buildModifierRows(activeProduct, selection)
+    : [];
+  const selectionProblem = isCustomizable
+    ? getSelectionProblem(activeProduct, selection)
+    : null;
+
+  const basePrice =
+    selectedOption?.price ?? getProductDefaultOption(activeProduct)?.price ?? 0;
   const parsedCustomPrice = parseFloat(price);
-  const effectivePrice = Number.isFinite(parsedCustomPrice)
-    ? parsedCustomPrice
-    : (selectedOption?.price ??
-      getProductDefaultOption(activeProduct)?.price ??
-      0);
+  const effectivePrice =
+    priceTyped && Number.isFinite(parsedCustomPrice)
+      ? parsedCustomPrice
+      : calculateUnitPrice(basePrice, modifierRows);
+  const customPrice = priceTyped && Number.isFinite(parsedCustomPrice);
+
+  const lineCustomization = isCustomizable
+    ? {
+        customization: selection,
+        modifiers: modifierRows,
+        customPrice,
+      }
+    : {};
+  const customizationPayload = isCustomizable
+    ? toCustomizationPayload(selection, modifierRows, customPrice)
+    : undefined;
+
+
 
   const selectableTags = getSelectableTags(activeProduct.tags);
 
@@ -292,6 +357,7 @@ export default function ProductScreen() {
     tagIds: selectedTagIds,
     productOption: selectedOption!,
     typeOrderDetail: typeOrderDetail || order?.type || orderType,
+    ...lineCustomization,
   });
 
   const addProductToOrder = () => {
@@ -306,6 +372,7 @@ export default function ProductScreen() {
         tagIds: selectedTagIds,
         productOptionId: selectedOption!.id,
         typeOrderDetail: typeOrderDetail || order.type,
+        ...(customizationPayload && { customization: customizationPayload }),
       },
       {},
     );
@@ -328,6 +395,7 @@ export default function ProductScreen() {
         tagIds: selectedTagIds,
         productOptionId: selectedOption?.id,
         typeOrderDetail: typeOrderDetail || order.type,
+        ...(customizationPayload && { customization: customizationPayload }),
       },
     };
 
@@ -371,6 +439,9 @@ export default function ProductScreen() {
   const onChangeSelectedOption = (option: ProductOption) => {
     setSelectedOption(option);
     setPrice(String(option.price));
+    setPriceTyped(false);
+    // Groups belong to the product, so the picks carry over.
+    setSelection((current) => cleanSelection(activeProduct, current));
   };
 
   const addLabel = isReplaceMode
@@ -578,6 +649,15 @@ export default function ProductScreen() {
               </Section>
             )}
 
+            {isCustomizable && (
+              <CustomizationPicker
+                product={activeProduct}
+                selection={selection}
+                onChange={setSelection}
+                blocksWithoutStock={blocksWithoutStock}
+              />
+            )}
+
             {selectableTags.length > 0 && (
               <Section title={t("menu:product.customize")}>
                 <ThemedView style={tw`flex-row flex-wrap gap-2`}>
@@ -613,9 +693,19 @@ export default function ProductScreen() {
                 blockedByStock ||
                 isReplacing ||
                 requiresOptionSelection ||
+                !!selectionProblem ||
                 (!selectedOption && !isReplaceMode)
               }
             />
+
+            {selectionProblem && (
+              <ThemedText type="small" style={tw`text-gray-600`}>
+                {t("menu:customization.pickToContinue", {
+                  count: selectionProblem.min,
+                  group: selectionProblem.groupName,
+                })}
+              </ThemedText>
+            )}
 
             {exceedsStock && (
               <ThemedView style={tw`flex-row items-center gap-1.5`}>
@@ -643,7 +733,10 @@ export default function ProductScreen() {
           <TextInput
             label={t("menu:product.price")}
             value={price}
-            onChangeText={setPrice}
+            onChangeText={(value) => {
+              setPrice(value);
+              setPriceTyped(true);
+            }}
             keyboardType="decimal-pad"
             bottomSheet
           />

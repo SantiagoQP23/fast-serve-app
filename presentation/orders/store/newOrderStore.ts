@@ -165,6 +165,9 @@ export const useNewOrderStore = create<NewOrderState & NewOrderActions>()(
                   tagIds: detail.tagIds,
                   productOption: detail.productOption,
                   typeOrderDetail: detail.typeOrderDetail,
+                  customization: detail.customization,
+                  modifiers: detail.modifiers,
+                  customPrice: detail.customPrice,
                 }
               : d,
           ),

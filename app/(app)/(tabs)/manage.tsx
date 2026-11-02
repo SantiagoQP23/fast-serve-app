@@ -46,6 +46,16 @@ export default function ManageScreen() {
     //       },
     //     ]
     //   : []),
+    ...(isAdmin
+      ? [
+          {
+            key: "modifierGroups",
+            icon: "list-checks" as IconName,
+            label: t("manage.menu.modifierGroups"),
+            onPress: () => router.push("/(profile)/menu/modifier-groups"),
+          },
+        ]
+      : []),
     {
       key: "productionAreas",
       icon: "package",

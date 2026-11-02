@@ -328,5 +328,89 @@
     "validations": {
       "nameMinLength": "El nombre debe tener al menos 2 caracteres"
     }
+  },
+  "modifierGroups": {
+    "title": "Grupos de opciones",
+    "newGroup": "Nuevo grupo",
+    "searchPlaceholder": "Buscar grupo u opción...",
+    "loadError": "No se pudieron cargar los grupos",
+    "empty": "Aún no hay grupos de opciones",
+    "emptyDescription": "Crea grupos como “Sabor” o “Extras” y agrégalos a tus productos.",
+    "pickOne": "Elige 1",
+    "pickMany": "Varios",
+    "required": "Obligatorio",
+    "optional": "Opcional",
+    "inactive": "Inactivo",
+    "optionsCount_one": "{{count}} opción",
+    "optionsCount_other": "{{count}} opciones",
+    "productsCount_one": "{{count}} producto",
+    "productsCount_other": "{{count}} productos",
+    "notFound": "No se encontró el grupo",
+    "delete": "Eliminar grupo",
+    "deleteTitle": "¿Eliminar este grupo?",
+    "deleteMessage_one": "Se quitará de {{count}} producto. Los pedidos anteriores conservan lo elegido.",
+    "deleteMessage_other": "Se quitará de {{count}} productos. Los pedidos anteriores conservan lo elegido.",
+    "save": "Guardar grupo",
+    "saved": "Grupo guardado",
+    "saveError": "No se pudo guardar el grupo",
+    "deleted": "Grupo eliminado",
+    "deleteError": "No se pudo eliminar el grupo",
+    "addOption": "Agregar opción",
+    "removeOption": "Quitar opción",
+    "moveUp": "Subir",
+    "moveDown": "Bajar",
+    "usedIn": "Usado en",
+    "notUsed": "Ningún producto usa este grupo todavía.",
+    "fields": {
+      "name": "Nombre",
+      "namePlaceholder": "Ej. Sabor, Extras de mariscos",
+      "howMany": "¿Cuántas puede elegir?",
+      "required": "Obligatorio",
+      "min": "Mínimo",
+      "max": "Máximo",
+      "noLimit": "Sin límite",
+      "active": "Activo",
+      "options": "Opciones",
+      "optionName": "Opción",
+      "priceDelta": "Precio +",
+      "optionActive": "Disponible",
+      "inventoryItem": "Insumo",
+      "noInventoryItem": "Sin insumo",
+      "inventoryQuantity": "Cantidad por unidad"
+    },
+    "errors": {
+      "name": "Escribe un nombre de al menos 2 letras",
+      "noOptions": "Agrega al menos una opción",
+      "optionValues": "Revisa los precios y las cantidades de insumo",
+      "limits": "Revisa el mínimo y el máximo"
+    }
+  },
+  "customization": {
+    "title": "Personalización",
+    "hint": "Agrega lo que incluye el plato y opciones como sabores o extras.",
+    "setUp": "Configurar",
+    "includes": "Incluye",
+    "includesHint": "Lo que trae el plato. Si se puede quitar, el mesero puede pedirlo sin eso.",
+    "removable": "se puede quitar",
+    "removableFor": "quitar −{{amount}}",
+    "groups": "Grupos de opciones",
+    "groupsHint": "Se muestran en este orden al tomar el pedido.",
+    "linkGroup": "Agregar grupo",
+    "unlinkGroup": "Quitar grupo",
+    "manageGroups": "Administrar",
+    "addItem": "Agregar ingrediente",
+    "removeItem": "Quitar ingrediente",
+    "save": "Guardar personalización",
+    "saved": "Personalización guardada",
+    "saveError": "No se pudo guardar la personalización",
+    "fields": {
+      "itemName": "Ingrediente",
+      "itemPlaceholder": "Ej. Arroz, Patacones",
+      "removable": "Se puede quitar",
+      "discount": "Descuento al quitarlo"
+    },
+    "errors": {
+      "values": "Revisa los descuentos y las cantidades de insumo"
+    }
   }
 }

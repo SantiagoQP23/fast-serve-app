@@ -3,6 +3,7 @@ import {
   CreateSaleDto,
 } from "@/core/orders/dto/create-sale.dto";
 import { NewOrderState } from "../store/newOrderStore";
+import { lineCustomization } from "@/core/menu/models/customization.model";
 
 export const mapStoreToCreateSaleDto = (
   state: NewOrderState,
@@ -15,6 +16,7 @@ export const mapStoreToCreateSaleDto = (
         quantity: detail.quantity,
         price: detail.price ?? detail.productOption.price,
         productOptionId: detail.productOption.id,
+        customization: lineCustomization(detail),
       };
       return orderDetail;
     }),

@@ -26,6 +26,7 @@ export const usePrintBillReceipt = (bill: Bill | null | undefined) => {
           discount: t("bills:details.discount"),
           total: t("bills:details.total"),
           payments: t("orders:options.payments"),
+          without: t("menu:customization.without"),
         });
 
         toast.success(t("bills:print.printSuccess"), { id: toastId });

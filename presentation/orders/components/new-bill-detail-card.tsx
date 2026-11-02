@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import ModifierLines from "@/presentation/orders/components/modifier-lines";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -78,6 +79,7 @@ export default function NewBillDetailCard({
               {` ×${availableQty}`}
             </ThemedText>
           </ThemedText>
+          <ModifierLines modifiers={detail.modifiers} />
           <ThemedText type="body2" style={tw`text-gray-500`}>
             {formatCurrency(detail.price)}
           </ThemedText>
