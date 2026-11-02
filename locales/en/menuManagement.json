@@ -437,6 +437,21 @@
     "reorderHint": "Press and hold to reorder",
     "discardMessage": "Your changes to this customization won't be saved.",
     "groupsEmpty": "Add groups like Flavor or Extras so the waiter can choose when taking the order.",
-    "groupsReorderHint": "Shown in this order when taking the order. Press and hold to move them."
+    "groupsReorderHint": "Shown in this order when taking the order. Press and hold to move them.",
+    "limits": {
+      "title": "Limits on this product",
+      "own": "Use own limits",
+      "usesGroup": "Uses the group's: {{rule}}",
+      "ownTag": "Own limits",
+      "exactly_one": "pick {{count}}",
+      "exactly_other": "pick {{count}}",
+      "range": "{{min}} to {{max}}",
+      "atLeast_one": "at least {{count}}",
+      "atLeast_other": "at least {{count}}",
+      "upTo_one": "up to {{count}}",
+      "upTo_other": "up to {{count}}",
+      "maxRequired_one": "Enter a maximum. The group allows up to {{count}}.",
+      "maxRequired_other": "Enter a maximum. The group allows up to {{count}}."
+    }
   }
 }
