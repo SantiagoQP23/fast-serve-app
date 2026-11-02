@@ -20,7 +20,10 @@ import {
 import InventoryScreenHeader from "@/presentation/inventory/components/screen-header";
 import ShoppingListRow from "@/presentation/inventory/components/shopping-list-row";
 import { useShoppingList } from "@/presentation/inventory/hooks/useShoppingList";
-import { usePurchaseCartStore } from "@/presentation/inventory/store/purchaseCartStore";
+import {
+  newPurchaseDraftId,
+  usePurchaseCartStore,
+} from "@/presentation/inventory/store/purchaseCartStore";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { canManageInventory } from "@/core/auth/models/user.model";
 import {
@@ -92,17 +95,20 @@ export default function InventoryShoppingListScreen() {
     Share.share({ message: [header, ...lines].join("\n") });
   };
 
-  // Fills the purchase cart with the suggested amounts. Items already in the
-  // cart keep what the user typed.
+  // Starts a new draft purchase pre-filled with the suggested amounts.
   const handleStartPurchase = () => {
-    const { lines, setLine } = usePurchaseCartStore.getState();
-    const inCart = new Set(lines.map((line) => line.item.id));
-    for (const item of visibleItems) {
-      if (!inCart.has(item.id)) {
-        setLine(item, getSuggestedPurchaseQuantity(item));
-      }
-    }
-    router.push({ pathname: "/(profile)/inventory/purchases/cart" });
+    const draftId = newPurchaseDraftId();
+    usePurchaseCartStore.getState().fillDraft(
+      draftId,
+      visibleItems.map((item) => ({
+        item,
+        quantity: getSuggestedPurchaseQuantity(item),
+      })),
+    );
+    router.push({
+      pathname: "/(profile)/inventory/purchases/cart",
+      params: { draftId },
+    });
   };
 
   return (

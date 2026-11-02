@@ -1,5 +1,7 @@
+import { useLocalSearchParams } from "expo-router";
 import PurchaseCartPanel from "@/presentation/inventory/components/purchase-cart-panel";
 
 export default function MenuInventoryPurchaseCartScreen() {
-  return <PurchaseCartPanel />;
+  const { draftId } = useLocalSearchParams<{ draftId: string }>();
+  return <PurchaseCartPanel draftId={draftId} />;
 }

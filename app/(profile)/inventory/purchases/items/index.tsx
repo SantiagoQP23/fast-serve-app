@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { ScrollView } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -20,7 +20,10 @@ import PurchaseQuantityModal, {
 } from "@/presentation/inventory/components/purchase-quantity-modal";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 import { useInventoryItemCategories } from "@/presentation/inventory/hooks/useInventoryItemCategories";
-import { usePurchaseCartStore } from "@/presentation/inventory/store/purchaseCartStore";
+import {
+  usePurchaseCartStore,
+  usePurchaseDraft,
+} from "@/presentation/inventory/store/purchaseCartStore";
 import {
   isProductStockItem,
   type InventoryItem,
@@ -41,7 +44,8 @@ export default function MenuInventoryPurchaseItemsScreen() {
   const { t } = useTranslation("inventory");
   const { items, itemsQuery } = useInventoryItems();
   const { categories } = useInventoryItemCategories();
-  const lines = usePurchaseCartStore((state) => state.lines);
+  const { draftId } = useLocalSearchParams<{ draftId: string }>();
+  const { lines } = usePurchaseDraft(draftId);
   const setLine = usePurchaseCartStore((state) => state.setLine);
   const [search, setSearch] = useState("");
   const [pickedCategoryId, setCategoryId] = useState<string | null>(null);
@@ -107,12 +111,15 @@ export default function MenuInventoryPurchaseItemsScreen() {
     });
 
   const handleConfirm = (quantity: number) => {
-    if (target) setLine(target.item, quantity);
+    if (target) setLine(draftId, target.item, quantity);
     setTarget(null);
   };
 
   const openCart = () =>
-    router.push({ pathname: "/(profile)/inventory/purchases/cart" });
+    router.push({
+      pathname: "/(profile)/inventory/purchases/cart",
+      params: { draftId },
+    });
 
   const picker = (
     <ScreenLayout fullWidth={isExpanded} style={tw`flex-1`}>
@@ -286,7 +293,7 @@ export default function MenuInventoryPurchaseItemsScreen() {
           { width: CART_PANEL_WIDTH },
         ]}
       >
-        <PurchaseCartPanel embedded />
+        <PurchaseCartPanel embedded draftId={draftId} />
       </ThemedView>
     </ThemedView>
   );

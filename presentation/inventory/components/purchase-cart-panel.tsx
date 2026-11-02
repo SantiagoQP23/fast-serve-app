@@ -18,10 +18,15 @@ import PurchaseQuantityModal, {
 } from "@/presentation/inventory/components/purchase-quantity-modal";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 import { useCreateInventoryPurchase } from "@/presentation/inventory/hooks/useInventoryPurchases";
-import { usePurchaseCartStore } from "@/presentation/inventory/store/purchaseCartStore";
+import {
+  usePurchaseCartStore,
+  usePurchaseDraft,
+} from "@/presentation/inventory/store/purchaseCartStore";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
 
 interface PurchaseCartPanelProps {
+  /** Draft purchase shown and edited by the panel. */
+  draftId: string;
   /**
    * Rendered as a side pane next to the item picker (tablet) instead of as
    * its own screen: no back button and no "add product" button.
@@ -30,17 +35,16 @@ interface PurchaseCartPanelProps {
 }
 
 export default function PurchaseCartPanel({
+  draftId,
   embedded = false,
 }: PurchaseCartPanelProps) {
   const { t } = useTranslation("inventory");
   const Container = embedded ? ThemedView : ScreenLayout;
-  const lines = usePurchaseCartStore((state) => state.lines);
-  const note = usePurchaseCartStore((state) => state.note);
-  const idempotencyKey = usePurchaseCartStore((state) => state.idempotencyKey);
+  const { draft, lines, note } = usePurchaseDraft(draftId);
   const setLine = usePurchaseCartStore((state) => state.setLine);
   const removeLine = usePurchaseCartStore((state) => state.removeLine);
   const setNote = usePurchaseCartStore((state) => state.setNote);
-  const reset = usePurchaseCartStore((state) => state.reset);
+  const discard = usePurchaseCartStore((state) => state.discard);
   const createPurchase = useCreateInventoryPurchase();
   const { items: catalogItems } = useInventoryItems();
   const [target, setTarget] = useState<PurchaseQuantityTarget | null>(null);
@@ -55,16 +59,21 @@ export default function PurchaseCartPanel({
     currentItems.get(item.id) ?? item;
 
   const handleConfirmQuantity = (quantity: number) => {
-    if (target) setLine(target.item, quantity);
+    if (target) setLine(draftId, target.item, quantity);
     setTarget(null);
   };
 
   const handleAddProduct = () => {
     if (router.canGoBack()) router.back();
-    else router.push({ pathname: "/(profile)/inventory/purchases/items" });
+    else
+      router.push({
+        pathname: "/(profile)/inventory/purchases/items",
+        params: { draftId },
+      });
   };
 
   const handleRegister = () => {
+    if (!draft) return;
     createPurchase.mutate(
       {
         items: lines.map((line) => ({
@@ -72,11 +81,11 @@ export default function PurchaseCartPanel({
           quantity: line.quantity,
         })),
         note: note.trim() || undefined,
-        idempotencyKey,
+        idempotencyKey: draft.idempotencyKey,
       },
       {
         onSuccess: (purchase) => {
-          reset();
+          discard(draftId);
           // Drops the item picker under this screen too, so going back from
           // the new purchase lands where the flow started. Embedded, the
           // picker is the current screen and replace alone does that.
@@ -131,17 +140,13 @@ export default function PurchaseCartPanel({
                   baseStock: item.quantity,
                 })
               }
-              onRemove={() => removeLine(line.item.id)}
+              onRemove={() => removeLine(draftId, line.item.id)}
             />
           );
         }}
         ListEmptyComponent={
           <ThemedView style={tw`items-center py-12`}>
-            <Icon
-              name="shopping-cart"
-              size={48}
-              color={tw.color("gray-400")}
-            />
+            <Icon name="shopping-cart" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`text-gray-500 mt-4 text-center`}>
               {t("purchases.emptyCart")}
             </ThemedText>
@@ -161,7 +166,7 @@ export default function PurchaseCartPanel({
               label={t("purchases.noteOptional")}
               placeholder={t("purchases.notePlaceholder")}
               value={note}
-              onChangeText={setNote}
+              onChangeText={(text) => setNote(draftId, text)}
               maxLength={255}
             />
           </ThemedView>

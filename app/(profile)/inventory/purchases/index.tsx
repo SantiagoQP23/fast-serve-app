@@ -8,6 +8,7 @@ import Fab from "@/presentation/theme/components/fab";
 import InventoryScreenHeader from "@/presentation/inventory/components/screen-header";
 import InventoryPurchasesTab from "@/presentation/inventory/components/inventory-purchases-tab";
 import InventorySplitLayout from "@/presentation/inventory/components/inventory-split-layout";
+import { newPurchaseDraftId } from "@/presentation/inventory/store/purchaseCartStore";
 import InventoryPurchaseDetailView from "@/presentation/inventory/components/inventory-purchase-detail-view";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 
@@ -34,7 +35,10 @@ export default function MenuInventoryPurchasesScreen() {
         icon="shopping-cart"
         label={t("purchases.register")}
         onPress={() =>
-          router.push({ pathname: "/(profile)/inventory/purchases/items" })
+          router.push({
+            pathname: "/(profile)/inventory/purchases/items",
+            params: { draftId: newPurchaseDraftId() },
+          })
         }
       />
     </>

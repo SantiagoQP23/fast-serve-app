@@ -6,29 +6,36 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { formatTime } from "@/core/i18n/utils";
 import Card from "@/presentation/theme/components/card";
 import Label from "@/presentation/theme/components/label";
 import Button from "@/presentation/theme/components/button";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import InventoryCardLines from "./inventory-card-lines";
-import { usePurchaseCartStore } from "@/presentation/inventory/store/purchaseCartStore";
+import {
+  usePurchaseCartStore,
+  type PurchaseDraft,
+} from "@/presentation/inventory/store/purchaseCartStore";
 
 // Same number of lines the backend previews on a registered purchase.
 const PREVIEW_LINES = 3;
 
-/** The purchase still being built, shown like a history card so it can be picked back up. */
-export default function DraftPurchaseCard() {
+interface DraftPurchaseCardProps {
+  draft: PurchaseDraft;
+}
+
+/** A purchase still being built, shown like a history card so it can be picked back up. */
+export default function DraftPurchaseCard({ draft }: DraftPurchaseCardProps) {
   const { t } = useTranslation("inventory");
-  const lines = usePurchaseCartStore((state) => state.lines);
-  const note = usePurchaseCartStore((state) => state.note);
-  const reset = usePurchaseCartStore((state) => state.reset);
+  const { lines, note } = draft;
+  const discard = usePurchaseCartStore((state) => state.discard);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
 
   if (lines.length === 0) return null;
 
   const handleDiscard = () => {
     setConfirmDiscard(false);
-    reset();
+    discard(draft.id);
   };
 
   return (
@@ -36,7 +43,10 @@ export default function DraftPurchaseCard() {
       <Card
         variant="outline"
         onPress={() =>
-          router.push({ pathname: "/(profile)/inventory/purchases/items" })
+          router.push({
+            pathname: "/(profile)/inventory/purchases/items",
+            params: { draftId: draft.id },
+          })
         }
         accessibilityRole="button"
         style={tw`gap-3 p-4`}
@@ -56,14 +66,10 @@ export default function DraftPurchaseCard() {
               style={tw`text-gray-500`}
               numberOfLines={1}
             >
-              {t("purchases.draftHint")}
+              {t("purchases.draftHint")} · {formatTime(draft.createdAt)}
             </ThemedText>
           </ThemedView>
-          <Label
-            text={t("purchases.inProgress")}
-            color="info"
-            size="small"
-          />
+          <Label text={t("purchases.inProgress")} color="info" size="small" />
         </ThemedView>
 
         <InventoryCardLines

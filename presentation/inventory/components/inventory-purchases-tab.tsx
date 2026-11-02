@@ -13,6 +13,7 @@ import DaySectionHeader from "@/presentation/inventory/components/day-section-he
 import InventoryPurchaseCard from "@/presentation/inventory/components/inventory-purchase-card";
 import ShoppingListCard from "@/presentation/inventory/components/shopping-list-card";
 import { useInventoryPurchases } from "@/presentation/inventory/hooks/useInventoryPurchases";
+import { usePurchaseCartStore } from "@/presentation/inventory/store/purchaseCartStore";
 import { type InventoryPurchase } from "@/core/inventory/models/inventory-purchase.model";
 
 interface InventoryPurchasesTabProps {
@@ -38,6 +39,15 @@ export default function InventoryPurchasesTab({
     loadMore,
     refresh,
   } = useInventoryPurchases();
+  const storedDrafts = usePurchaseCartStore((state) => state.drafts);
+  // Newest first; a draft with no lines yet isn't worth picking back up
+  const drafts = useMemo(
+    () =>
+      storedDrafts
+        .filter((draft) => draft.lines.length > 0)
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    [storedDrafts],
+  );
   const days = useMemo(
     () => groupByDay(purchases, (purchase) => purchase.createdAt),
     [purchases],
@@ -71,7 +81,9 @@ export default function InventoryPurchasesTab({
         />
       )}
 
-      <DraftPurchaseCard />
+      {drafts.map((draft) => (
+        <DraftPurchaseCard key={draft.id} draft={draft} />
+      ))}
       <ShoppingListCard />
 
       {purchasesQuery.isLoading && !isLoadingMore && (
