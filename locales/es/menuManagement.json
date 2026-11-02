@@ -437,6 +437,21 @@
     "reorderHint": "Mantén presionado para cambiar el orden",
     "discardMessage": "Los cambios a la personalización no se guardarán.",
     "groupsEmpty": "Agrega grupos como Sabor o Extras para que el mesero elija al tomar el pedido.",
-    "groupsReorderHint": "Se muestran en este orden al tomar el pedido. Mantén presionado para moverlos."
+    "groupsReorderHint": "Se muestran en este orden al tomar el pedido. Mantén presionado para moverlos.",
+    "limits": {
+      "title": "Límites en este producto",
+      "own": "Usar límites propios",
+      "usesGroup": "Usa los del grupo: {{rule}}",
+      "ownTag": "Límites propios",
+      "exactly_one": "elige {{count}}",
+      "exactly_other": "elige {{count}}",
+      "range": "de {{min}} a {{max}}",
+      "atLeast_one": "al menos {{count}}",
+      "atLeast_other": "al menos {{count}}",
+      "upTo_one": "hasta {{count}}",
+      "upTo_other": "hasta {{count}}",
+      "maxRequired_one": "Escribe un máximo. El grupo permite hasta {{count}}.",
+      "maxRequired_other": "Escribe un máximo. El grupo permite hasta {{count}}."
+    }
   }
 }

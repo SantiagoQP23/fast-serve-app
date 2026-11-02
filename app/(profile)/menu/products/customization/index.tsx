@@ -37,6 +37,10 @@ import ProductComponentSheet, {
   type ProductComponentDraft,
   type ProductComponentSheetRef,
 } from "@/presentation/menu-management/components/product-component-sheet";
+import GroupLimitsSheet, {
+  describeLimits,
+  type GroupLimitsSheetRef,
+} from "@/presentation/menu-management/components/group-limits-sheet";
 import { useModifierGroups } from "@/presentation/menu-management/hooks/useModifierGroups";
 import { useGroupLinkHandoff } from "@/presentation/menu-management/store/useGroupLinkHandoff";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
@@ -152,6 +156,7 @@ function GroupRow({
   onPress,
   onMove,
   onUnlink,
+  onEditLimits,
 }: {
   link: GroupLinkDraft;
   group?: ModifierGroup;
@@ -161,6 +166,7 @@ function GroupRow({
   onPress: () => void;
   onMove: (delta: number) => void;
   onUnlink: () => void;
+  onEditLimits: () => void;
 }) {
   const { t } = useTranslation("menuManagement");
   const moveProps = useRowMove(isFirst, isLast, onMove);
@@ -169,10 +175,11 @@ function GroupRow({
   // The product may narrow the group's own rule; the order screen does the same.
   const min = link.minSelect ?? group?.minSelect ?? 0;
   const max = link.maxSelect ?? group?.maxSelect ?? null;
+  const hasOwnLimits = link.minSelect !== null || link.maxSelect !== null;
   const details = group
     ? [
-        max === 1 ? t("modifierGroups.pickOne") : t("modifierGroups.pickMany"),
-        min > 0 ? t("modifierGroups.required") : t("modifierGroups.optional"),
+        describeLimits(t, min, max),
+        hasOwnLimits && t("customization.limits.ownTag"),
         !group.isActive && t("modifierGroups.inactive"),
         group.modifiers.map((option) => option.name).join(", "),
       ]
@@ -209,6 +216,14 @@ function GroupRow({
           </ThemedText>
         )}
       </Pressable>
+      {group && (
+        <IconButton
+          icon="sliders-horizontal"
+          size={20}
+          onPress={onEditLimits}
+          accessibilityLabel={`${t("customization.limits.title")}: ${name}`}
+        />
+      )}
       <IconButton
         icon="x"
         size={20}
@@ -308,6 +323,7 @@ export default function ProductCustomizationScreen() {
   );
   const componentSheetRef = useRef<ProductComponentSheetRef>(null);
   const groupPickerRef = useRef<BottomSheetPickerRef>(null);
+  const limitsSheetRef = useRef<GroupLimitsSheetRef>(null);
 
   // What the screen opened with, to know whether leaving loses anything.
   const [initial] = useState(() => snapshot(components, links));
@@ -586,6 +602,10 @@ export default function ProductCustomizationScreen() {
                       onMove={(delta) =>
                         setLinks((current) => moveWithin(current, index, delta))
                       }
+                      onEditLimits={() => {
+                        const group = groupById.get(link.groupId);
+                        if (group) limitsSheetRef.current?.present(group, link);
+                      }}
                       onUnlink={() =>
                         removeWithUndo(
                           links,
@@ -626,6 +646,17 @@ export default function ProductCustomizationScreen() {
               setComponents,
               components.findIndex((entry) => entry.key === component.key),
               component.name,
+            )
+          }
+        />
+
+        <GroupLimitsSheet
+          ref={limitsSheetRef}
+          onSubmit={(groupId, limits) =>
+            setLinks((current) =>
+              current.map((link) =>
+                link.groupId === groupId ? { ...link, ...limits } : link,
+              ),
             )
           }
         />
