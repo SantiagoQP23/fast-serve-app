@@ -1,3 +1,4 @@
+import { useShakeToSync } from "@/presentation/sync/hooks/useShakeToSync";
 import { Redirect, Tabs, useNavigation, useRouter } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 
@@ -135,6 +136,7 @@ export default function TabLayout() {
   useSyncEventListener();
   useRevalidateOfflineSession();
   useOutboxRunner();
+  useShakeToSync();
 
   // const { printComanda } = usePrintComanda();
   // useNewTicketListener(printComanda);

@@ -60,6 +60,13 @@ export default {
         },
       ],
       "expo-secure-store",
+      [
+        "expo-sensors",
+        {
+          motionPermission:
+            "Teikio uses the phone's motion so you can shake it to sync.",
+        },
+      ],
       "expo-font",
       [
         "expo-notifications",
