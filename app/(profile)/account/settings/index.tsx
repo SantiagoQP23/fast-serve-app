@@ -23,6 +23,7 @@ import Label from "@/presentation/theme/components/label";
 import Card from "@/presentation/theme/components/card";
 import Switch from "@/presentation/theme/components/switch";
 import { useNotificationsStore } from "@/presentation/shared/store/useNotificationsStore";
+import { useShakeToSyncStore } from "@/presentation/sync/store/useShakeToSyncStore";
 import { useThemeStore } from "@/presentation/theme/store/useThemeStore";
 import {
   accents,
@@ -53,6 +54,8 @@ export default function SettingsScreen() {
   const font = useThemeStore((state) => state.font);
   const setFont = useThemeStore((state) => state.setFont);
   const fontPickerRef = useRef<BottomSheetPickerRef>(null);
+  const shakeToSync = useShakeToSyncStore((state) => state.enabled);
+  const setShakeToSync = useShakeToSyncStore((state) => state.setEnabled);
   const notificationsEnabled = useNotificationsStore((state) => state.enabled);
   const setNotificationsEnabled = useNotificationsStore(
     (state) => state.setEnabled,
@@ -335,6 +338,17 @@ export default function SettingsScreen() {
                 />
               </ThemedView>
             )}
+          </Card>
+
+          <Card style={tw`gap-2 p-4 rounded-3xl`}>
+            <Switch
+              label={t("settings.shakeToSyncTitle")}
+              value={shakeToSync}
+              onValueChange={setShakeToSync}
+            />
+            <ThemedText type="small">
+              {t("settings.shakeToSyncDescription")}
+            </ThemedText>
           </Card>
 
           <Card

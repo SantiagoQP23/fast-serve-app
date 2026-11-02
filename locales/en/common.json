@@ -225,5 +225,10 @@
   "numberPad": {
     "delete": "Delete",
     "confirm": "Confirm"
+  },
+  "sync": {
+    "shakeDone": "Data updated",
+    "shakeOffline": "No connection. It will sync when the connection is back",
+    "shakeError": "Couldn't sync"
   }
 }
