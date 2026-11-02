@@ -1,4 +1,5 @@
 import Icon from "@/presentation/theme/components/icon";
+import type { ReactNode } from "react";
 import { Pressable, View } from "react-native";
 import tw from "../lib/tailwind";
 import { ThemedText } from "./themed-text";
@@ -13,8 +14,12 @@ type CheckboxProps = {
   size?: "small" | "medium" | "large";
   // Tailwind color token (e.g. "green-500") overriding the primary border/fill.
   color?: string;
-  /** Spoken name when there's no visible `label`. */
+  /** Spoken name; defaults to the visible `label`. */
   accessibilityLabel?: string;
+  /** Right of the label, e.g. a price; the whole row stays one target. */
+  trailing?: ReactNode;
+  /** `body1` for a list of choices (matches RadioButton); defaults to `body2`. */
+  labelType?: "body1" | "body2";
 };
 
 // Grow the touch area (not the look) to Android's 48dp minimum.
@@ -29,6 +34,8 @@ export default function Checkbox({
   size = "medium",
   color,
   accessibilityLabel,
+  trailing,
+  labelType = "body2",
 }: CheckboxProps) {
   const sizeStyles = {
     small: { box: 18, icon: 14 },
@@ -38,7 +45,7 @@ export default function Checkbox({
 
   const checkboxSize = sizeStyles[size];
 
-  const CheckboxBox = () => (
+  const box = (
     <Pressable
       disabled={disabled}
       onPress={() => onValueChange(!value)}
@@ -81,7 +88,7 @@ export default function Checkbox({
   if (!label) {
     return (
       <View>
-        <CheckboxBox />
+        {box}
         {error && (
           <ThemedText style={tw`text-red-500 text-sm mt-1`}>{error}</ThemedText>
         )}
@@ -97,6 +104,7 @@ export default function Checkbox({
         onPress={() => onValueChange(!value)}
         accessibilityRole="checkbox"
         accessibilityState={{ checked: value, disabled }}
+        accessibilityLabel={accessibilityLabel}
         style={({ pressed }) => [
           tw.style(
             "flex-row items-center gap-3 min-h-12",
@@ -104,13 +112,27 @@ export default function Checkbox({
           ),
         ]}
       >
-        <CheckboxBox />
+        {box}
         <ThemedText
-          type="body2"
-          style={tw.style("font-semibold flex-1", disabled && "opacity-50")}
+          type={labelType}
+          style={tw.style(
+            labelType === "body2" && "font-semibold",
+            "flex-1",
+            disabled && "opacity-50",
+          )}
         >
           {label}
         </ThemedText>
+        {trailing && (
+          <View
+            style={tw.style(
+              "flex-row items-center gap-3",
+              disabled && "opacity-50",
+            )}
+          >
+            {trailing}
+          </View>
+        )}
       </Pressable>
       {error && (
         <ThemedText style={tw`text-red-500 text-sm mt-1 ml-9`}>

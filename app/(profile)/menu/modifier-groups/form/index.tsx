@@ -40,6 +40,8 @@ interface FormState {
   name: string;
   single: boolean;
   required: boolean;
+  /** Required and several: one exact amount instead of a min–max range. */
+  exact: boolean;
   minSelect: string;
   maxSelect: string;
   isActive: boolean;
@@ -50,6 +52,7 @@ const EMPTY_FORM: FormState = {
   name: "",
   single: true,
   required: false,
+  exact: false,
   minSelect: "1",
   maxSelect: "",
   isActive: true,
@@ -60,6 +63,11 @@ const formFromGroup = (group: ModifierGroup): FormState => ({
   name: group.name,
   single: group.maxSelect === 1,
   required: group.minSelect > 0,
+  exact:
+    group.minSelect > 0 &&
+    group.maxSelect !== null &&
+    group.maxSelect !== 1 &&
+    group.minSelect === group.maxSelect,
   minSelect: String(Math.max(group.minSelect, 1)),
   maxSelect:
     group.maxSelect !== null && group.maxSelect !== 1
@@ -184,6 +192,7 @@ export default function ModifierGroupFormScreen() {
   const [name, setName] = useState(EMPTY_FORM.name);
   const [single, setSingle] = useState(EMPTY_FORM.single);
   const [required, setRequired] = useState(EMPTY_FORM.required);
+  const [exact, setExact] = useState(EMPTY_FORM.exact);
   const [minSelect, setMinSelect] = useState(EMPTY_FORM.minSelect);
   const [maxSelect, setMaxSelect] = useState(EMPTY_FORM.maxSelect);
   const [isActive, setIsActive] = useState(EMPTY_FORM.isActive);
@@ -205,6 +214,7 @@ export default function ModifierGroupFormScreen() {
     setName(form.name);
     setSingle(form.single);
     setRequired(form.required);
+    setExact(form.exact);
     setMinSelect(form.minSelect);
     setMaxSelect(form.maxSelect);
     setIsActive(form.isActive);
@@ -218,6 +228,7 @@ export default function ModifierGroupFormScreen() {
       name,
       single,
       required,
+      exact,
       minSelect,
       maxSelect,
       isActive,
@@ -301,9 +312,11 @@ export default function ModifierGroupFormScreen() {
   const minValue = single ? 1 : Math.round(parseAmount(minSelect));
   const maxValue = single
     ? 1
-    : maxSelect.trim() === ""
-      ? null
-      : Math.round(parseAmount(maxSelect));
+    : required && exact
+      ? minValue
+      : maxSelect.trim() === ""
+        ? null
+        : Math.round(parseAmount(maxSelect));
   const problem =
     name.trim().length < 2
       ? t("modifierGroups.errors.name")
@@ -452,7 +465,28 @@ export default function ModifierGroupFormScreen() {
               onValueChange={setRequired}
               disabled={!canManage}
             />
-            {!single && (
+            {!single && required && (
+              <ThemedView style={tw`flex-row`}>
+                <ButtonGroup
+                  size="small"
+                  selected={exact ? "exact" : "range"}
+                  onChange={(value: string) => setExact(value === "exact")}
+                  options={[
+                    { label: t("modifierGroups.fields.exact"), value: "exact" },
+                    { label: t("modifierGroups.fields.range"), value: "range" },
+                  ]}
+                />
+              </ThemedView>
+            )}
+            {!single && required && exact && (
+              <TextInput
+                label={t("modifierGroups.fields.quantity")}
+                value={minSelect}
+                onChangeText={setMinSelect}
+                keyboardType="number-pad"
+              />
+            )}
+            {!single && !(required && exact) && (
               <ThemedView style={tw`flex-row gap-3`}>
                 {required && (
                   <ThemedView style={tw`flex-1`}>

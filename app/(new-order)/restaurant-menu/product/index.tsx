@@ -74,6 +74,18 @@ const STOCK_TEXT_COLOR: Record<ProductOptionStockLevel, string> = {
   out: "text-gray-700",
 };
 
+/**
+ * The value, or the last non-null one it had. The store clears the active
+ * product and line when this route unmounts; if that cleanup runs while the
+ * route stays mounted (Fast Refresh), the open sheet must keep its product
+ * rather than render nothing and strand the transparent route over the menu.
+ */
+function useLastNonNull<T>(value: T | null): T | null {
+  const [last, setLast] = useState(value);
+  if (value !== null && value !== last) setLast(value);
+  return value ?? last;
+}
+
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <ThemedView style={tw`gap-3`}>
@@ -101,7 +113,9 @@ export default function ProductScreen() {
   const exitsFlowRef = useRef(false);
   const customPriceSheetRef = useRef<BottomSheetMethods>(null);
   const noteSheetRef = useRef<BottomSheetMethods>(null);
-  const activeOrderDetail = useNewOrderStore((state) => state.activeDetail);
+  const activeOrderDetail = useLastNonNull(
+    useNewOrderStore((state) => state.activeDetail),
+  );
   const orderType = useNewOrderStore((state) => state.orderType);
 
   const cart = useMenuCart();
@@ -121,7 +135,9 @@ export default function ProductScreen() {
     MAX_QUANTITY,
     MIN_QUANTITY,
   );
-  const { activeProduct } = useMenuStore();
+  const activeProduct = useLastNonNull(
+    useMenuStore((state) => state.activeProduct),
+  );
   const [notes, setNotes] = useState(activeOrderDetail?.description || "");
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
     activeOrderDetail?.tagIds ?? [],
@@ -286,9 +302,13 @@ export default function ProductScreen() {
 
   // The route is just a host for the native sheet: open it on arrival, and
   // pop the route once it has closed, however it closed (button, scrim,
-  // swipe down, system back).
+  // swipe down, system back). Arriving with no product (a restored or
+  // stale route), leave at once: an empty transparent screen would sit
+  // invisibly over the menu and swallow every tap.
   useEffect(() => {
-    sheetRef.current?.present();
+    if (activeProduct) sheetRef.current?.present();
+    else router.back();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const goToMenu = () => sheetRef.current?.dismiss();

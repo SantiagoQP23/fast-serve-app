@@ -442,7 +442,8 @@
     "menu": "Menu",
     "inventory": "Supplies",
     "counts": "Counts",
-    "purchases": "Purchases"
+    "purchases": "Purchases",
+    "modifierGroups": "Options"
   },
   "hub": {
     "menuCount_one": "{{count}} product",
@@ -453,7 +454,9 @@
     "countsInProgress_other": "{{count}} in progress",
     "countsNone": "None in progress",
     "lastPurchase": "Last: {{date}}",
-    "noPurchases": "No purchases yet"
+    "noPurchases": "No purchases yet",
+    "groupsCount_one": "{{count}} group",
+    "groupsCount_other": "{{count}} groups"
   },
   "pane": {
     "selectItem": "Select a supply to see its stock and movements.",

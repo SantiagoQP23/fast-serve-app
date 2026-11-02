@@ -46,16 +46,7 @@ export default function ManageScreen() {
     //       },
     //     ]
     //   : []),
-    ...(isAdmin
-      ? [
-          {
-            key: "modifierGroups",
-            icon: "list-checks" as IconName,
-            label: t("manage.menu.modifierGroups"),
-            onPress: () => router.push("/(profile)/menu/modifier-groups"),
-          },
-        ]
-      : []),
+    // Groups of options live in the Productos tab (Opciones card).
     {
       key: "productionAreas",
       icon: "package",

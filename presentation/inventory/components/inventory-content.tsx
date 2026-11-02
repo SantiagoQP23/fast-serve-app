@@ -8,11 +8,15 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { getRelativeDate } from "@/core/i18n/utils";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { canManageInventory } from "@/core/auth/models/user.model";
+import {
+  canManageInventory,
+  isAdminLevelRole,
+} from "@/core/auth/models/user.model";
 import { useMenu } from "@/presentation/restaurant-menu/hooks/useMenu";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 import { useInventoryCounts } from "@/presentation/inventory/hooks/useInventoryCounts";
 import { useInventoryPurchases } from "@/presentation/inventory/hooks/useInventoryPurchases";
+import { useModifierGroups } from "@/presentation/menu-management/hooks/useModifierGroups";
 import InventoryNavCard from "@/presentation/inventory/components/inventory-nav-card";
 import ShoppingListPreview from "@/presentation/inventory/components/shopping-list-preview";
 import InventorySplitLayout from "@/presentation/inventory/components/inventory-split-layout";
@@ -26,13 +30,15 @@ interface InventoryContentProps {
 }
 
 /**
- * The Productos hub: cards that open the Menú, Insumos, Conteos and Compras
- * pages, then a glance at the shopping list.
+ * The Productos hub: cards that open the Menú, Opciones, Insumos, Conteos
+ * and Compras pages (per role), then a glance at the shopping list.
  */
 export default function InventoryContent({ onBack }: InventoryContentProps) {
   const { t } = useTranslation("inventory");
   const { user } = useAuthStore();
   const canManage = canManageInventory(user?.role?.name);
+  // Groups of options are part of the menu, which only admins edit.
+  const canManageMenu = isAdminLevelRole(user?.role?.name);
 
   const { products: menuProducts, menuQuery } = useMenu();
   const { items: allItems, itemsQuery } = useInventoryItems();
@@ -40,6 +46,9 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
     useInventoryCounts(InventoryCountStatus.IN_PROGRESS);
   const { purchases, refresh: refreshPurchases } = useInventoryPurchases({
     enabled: canManage,
+  });
+  const { groups, groupsQuery } = useModifierGroups({
+    enabled: canManageMenu,
   });
 
   const activeProductCount = useMemo(
@@ -64,7 +73,81 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
       itemsQuery.refetch(),
       refreshCounts(),
       ...(canManage ? [refreshPurchases()] : []),
+      ...(canManageMenu ? [groupsQuery.refetch()] : []),
     ]);
+
+  // Menu things first, then stock; two per row, as many rows as the role sees.
+  const cards = [
+    <InventoryNavCard
+      key="menu"
+      icon="hamburger"
+      title={t("tabs.menu")}
+      subtitle={
+        menuQuery.isLoading && menuProducts.length === 0
+          ? undefined
+          : t("hub.menuCount", { count: activeProductCount })
+      }
+      onPress={() => router.push({ pathname: "/(profile)/menu/overview" })}
+    />,
+    ...(canManageMenu
+      ? [
+          <InventoryNavCard
+            key="modifierGroups"
+            icon="list-checks"
+            title={t("tabs.modifierGroups")}
+            subtitle={
+              groupsQuery.isLoading
+                ? undefined
+                : t("hub.groupsCount", { count: groups.length })
+            }
+            onPress={() =>
+              router.push({ pathname: "/(profile)/menu/modifier-groups" })
+            }
+          />,
+        ]
+      : []),
+    <InventoryNavCard
+      key="inventory"
+      icon="package"
+      title={t("tabs.inventory")}
+      subtitle={t("hub.itemsCount", { count: itemCount })}
+      onPress={() => router.push({ pathname: "/(profile)/inventory/items" })}
+    />,
+    <InventoryNavCard
+      key="counts"
+      icon="clipboard"
+      title={t("tabs.counts")}
+      subtitle={
+        countsInProgress > 0
+          ? t("hub.countsInProgress", { count: countsInProgress })
+          : t("hub.countsNone")
+      }
+      onPress={() => router.push({ pathname: "/(profile)/inventory/counts" })}
+    />,
+    ...(canManage
+      ? [
+          <InventoryNavCard
+            key="purchases"
+            icon="receipt-text"
+            title={t("tabs.purchases")}
+            subtitle={
+              lastPurchase
+                ? t("hub.lastPurchase", {
+                    date: getRelativeDate(lastPurchase.createdAt),
+                  })
+                : t("hub.noPurchases")
+            }
+            onPress={() =>
+              router.push({ pathname: "/(profile)/inventory/purchases" })
+            }
+          />,
+        ]
+      : []),
+  ];
+  const cardRows = Array.from(
+    { length: Math.ceil(cards.length / 2) },
+    (_, row) => cards.slice(row * 2, row * 2 + 2),
+  );
 
   const list = (
     <>
@@ -104,61 +187,15 @@ export default function InventoryContent({ onBack }: InventoryContentProps) {
         }
       >
         <ThemedView style={tw`gap-3 bg-transparent`}>
-          <ThemedView style={tw`flex-row gap-3 bg-transparent`}>
-            <InventoryNavCard
-              icon="hamburger"
-              title={t("tabs.menu")}
-              subtitle={
-                menuQuery.isLoading && menuProducts.length === 0
-                  ? undefined
-                  : t("hub.menuCount", { count: activeProductCount })
-              }
-              onPress={() =>
-                router.push({ pathname: "/(profile)/menu/overview" })
-              }
-            />
-            <InventoryNavCard
-              icon="package"
-              title={t("tabs.inventory")}
-              subtitle={t("hub.itemsCount", { count: itemCount })}
-              onPress={() =>
-                router.push({ pathname: "/(profile)/inventory/items" })
-              }
-            />
-          </ThemedView>
-          <ThemedView style={tw`flex-row gap-3 bg-transparent`}>
-            <InventoryNavCard
-              icon="clipboard"
-              title={t("tabs.counts")}
-              subtitle={
-                countsInProgress > 0
-                  ? t("hub.countsInProgress", { count: countsInProgress })
-                  : t("hub.countsNone")
-              }
-              onPress={() =>
-                router.push({ pathname: "/(profile)/inventory/counts" })
-              }
-            />
-            {canManage ? (
-              <InventoryNavCard
-                icon="receipt-text"
-                title={t("tabs.purchases")}
-                subtitle={
-                  lastPurchase
-                    ? t("hub.lastPurchase", {
-                        date: getRelativeDate(lastPurchase.createdAt),
-                      })
-                    : t("hub.noPurchases")
-                }
-                onPress={() =>
-                  router.push({ pathname: "/(profile)/inventory/purchases" })
-                }
-              />
-            ) : (
-              // Keeps the counts card at half width
-              <ThemedView style={tw`flex-1 bg-transparent`} />
-            )}
-          </ThemedView>
+          {cardRows.map((row, index) => (
+            <ThemedView key={index} style={tw`flex-row gap-3 bg-transparent`}>
+              {row}
+              {row.length === 1 && (
+                // Keeps a lone last card at half width
+                <ThemedView style={tw`flex-1 bg-transparent`} />
+              )}
+            </ThemedView>
+          ))}
         </ThemedView>
 
         <ShoppingListPreview

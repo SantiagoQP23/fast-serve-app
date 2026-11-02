@@ -1,5 +1,3 @@
-import { Pressable } from "react-native";
-
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
@@ -14,9 +12,10 @@ import {
   type ModifierOption,
 } from "@/core/menu/models/customization.model";
 import type { Product } from "@/core/menu/models/product.model";
+import Checkbox from "@/presentation/theme/components/checkbox";
 import Chip from "@/presentation/theme/components/chip";
-import Icon from "@/presentation/theme/components/icon";
 import Label from "@/presentation/theme/components/label";
+import RadioButton from "@/presentation/theme/components/radio-button";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -61,45 +60,47 @@ function ModifierOptionRow({
   onPress: () => void;
 }) {
   const delta = Number(option.priceDelta);
-  return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled}
-      accessibilityRole={single ? "radio" : "checkbox"}
-      accessibilityState={{ checked: selected, disabled }}
-      accessibilityLabel={[
-        option.name,
-        delta ? signedCurrency(delta) : null,
-        soldOut ? soldOutLabel : null,
-      ]
-        .filter(Boolean)
-        .join(", ")}
-      style={({ pressed }) => [
-        tw`flex-row items-center gap-3 min-h-12`,
-        pressed && tw`opacity-60`,
-        disabled && tw`opacity-50`,
-      ]}
-    >
-      <Icon
-        name={
-          single
-            ? selected
-              ? "circle-dot"
-              : "circle"
-            : selected
-              ? "square-check"
-              : "square"
-        }
-        size={22}
-      />
-      <ThemedText style={tw`flex-1`}>{option.name}</ThemedText>
+  const accessibilityLabel = [
+    option.name,
+    delta ? signedCurrency(delta) : null,
+    soldOut ? soldOutLabel : null,
+  ]
+    .filter(Boolean)
+    .join(", ");
+  const trailing = (soldOut || delta !== 0) && (
+    <>
       {soldOut && <Label size="small" color="default" text={soldOutLabel} />}
       {delta !== 0 && (
         <ThemedText type="body2" style={tw`text-gray-600`}>
           {signedCurrency(delta)}
         </ThemedText>
       )}
-    </Pressable>
+    </>
+  );
+
+  if (single) {
+    return (
+      <RadioButton
+        selected={selected}
+        onPress={onPress}
+        disabled={disabled}
+        label={option.name}
+        trailing={trailing}
+        accessibilityLabel={accessibilityLabel}
+      />
+    );
+  }
+
+  return (
+    <Checkbox
+      value={selected}
+      onValueChange={onPress}
+      disabled={disabled}
+      label={option.name}
+      labelType="body1"
+      trailing={trailing}
+      accessibilityLabel={accessibilityLabel}
+    />
   );
 }
 

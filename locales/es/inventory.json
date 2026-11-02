@@ -442,7 +442,8 @@
     "menu": "Menú",
     "inventory": "Insumos",
     "counts": "Conteos",
-    "purchases": "Compras"
+    "purchases": "Compras",
+    "modifierGroups": "Opciones"
   },
   "hub": {
     "menuCount_one": "{{count}} producto",
@@ -453,7 +454,9 @@
     "countsInProgress_other": "{{count}} en curso",
     "countsNone": "Ninguno en curso",
     "lastPurchase": "Última: {{date}}",
-    "noPurchases": "Sin compras aún"
+    "noPurchases": "Sin compras aún",
+    "groupsCount_one": "{{count}} grupo",
+    "groupsCount_other": "{{count}} grupos"
   },
   "pane": {
     "selectItem": "Selecciona un insumo para ver su stock y movimientos.",
