@@ -57,9 +57,9 @@ export default function IconButton({
     destructive: tw.color("red-600") as string,
   };
 
-  // p-3 around the icon; grow the touch area (not the look) to Android's
+  // p-2 around the icon; grow the touch area (not the look) to Android's
   // 48dp minimum when the icon is small.
-  const slop = Math.max(0, (48 - (size + 24)) / 2);
+  const slop = Math.max(0, (48 - (size + 16)) / 2);
 
   return (
     <Pressable

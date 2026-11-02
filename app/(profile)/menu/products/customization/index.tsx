@@ -1,36 +1,51 @@
-import { useMemo, useRef, useState } from "react";
-import { KeyboardAvoidingView, Pressable, ScrollView } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { KeyboardAvoidingView, Pressable } from "react-native";
+import {
+  router,
+  useFocusEffect,
+  useLocalSearchParams,
+  useNavigation,
+} from "expo-router";
+import {
+  NestedReorderableList,
+  ScrollViewContainer,
+  reorderItems,
+  useReorderableDrag,
+} from "react-native-reorderable-list";
+import { toast } from "sonner-native";
 import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
-import Card from "@/presentation/theme/components/card";
+import {
+  DetailCard,
+  DetailSectionTitle,
+} from "@/presentation/theme/components/detail-card";
+import DetailHeader from "@/presentation/theme/components/detail-header";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
 import IconButton from "@/presentation/theme/components/icon-button";
-import Switch from "@/presentation/theme/components/switch";
-import TextInput from "@/presentation/theme/components/text-input";
 import BottomSheetPicker, {
   type BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
+import { parseAmount } from "@/presentation/menu-management/components/modifier-option-sheet";
+import ProductComponentSheet, {
+  type ProductComponentDraft,
+  type ProductComponentSheetRef,
+} from "@/presentation/menu-management/components/product-component-sheet";
 import { useModifierGroups } from "@/presentation/menu-management/hooks/useModifierGroups";
+import { useGroupLinkHandoff } from "@/presentation/menu-management/store/useGroupLinkHandoff";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
-import { getProductComponents } from "@/core/menu/models/customization.model";
-
-interface ComponentDraft {
-  key: string;
-  id?: string;
-  name: string;
-  removable: boolean;
-  /** Shown positive ("1.50"); saved as a negative change. */
-  discount: string;
-  inventoryItemId: string | null;
-  inventoryQuantity: string;
-}
+import {
+  getProductComponents,
+  type ModifierGroup,
+} from "@/core/menu/models/customization.model";
+import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
 
 interface GroupLinkDraft {
   groupId: string;
@@ -38,12 +53,218 @@ interface GroupLinkDraft {
   maxSelect: number | null;
 }
 
-let draftKey = 0;
+/** Compares drafts by content; component keys are only for React. */
+const snapshot = (
+  components: ProductComponentDraft[],
+  links: GroupLinkDraft[],
+) =>
+  JSON.stringify({
+    components: components.map(({ key, ...component }) => component),
+    links,
+  });
 
-const toNumber = (value: string) => {
-  const parsed = parseFloat(value.replace(",", "."));
-  return Number.isFinite(parsed) ? parsed : NaN;
-};
+/** Spreads a long-press drag and screen-reader move actions over a row. */
+function useRowMove(
+  isFirst: boolean,
+  isLast: boolean,
+  onMove: (delta: number) => void,
+) {
+  const { t } = useTranslation("menuManagement");
+  const drag = useReorderableDrag();
+  return {
+    onLongPress: drag,
+    delayLongPress: 200,
+    accessibilityActions: [
+      ...(isFirst ? [] : [{ name: "moveUp", label: t("modifierGroups.moveUp") }]),
+      ...(isLast
+        ? []
+        : [{ name: "moveDown", label: t("modifierGroups.moveDown") }]),
+    ],
+    onAccessibilityAction: (event: { nativeEvent: { actionName: string } }) =>
+      onMove(event.nativeEvent.actionName === "moveUp" ? -1 : 1),
+  };
+}
+
+/** One included item, tapped to edit and long-pressed to move. */
+function ComponentRow({
+  component,
+  item,
+  isFirst,
+  isLast,
+  onPress,
+  onMove,
+}: {
+  component: ProductComponentDraft;
+  item?: InventoryItem;
+  isFirst: boolean;
+  isLast: boolean;
+  onPress: () => void;
+  onMove: (delta: number) => void;
+}) {
+  const { t } = useTranslation("menuManagement");
+  const moveProps = useRowMove(isFirst, isLast, onMove);
+  const discount = parseAmount(component.discount);
+
+  const details = [
+    component.removable
+      ? t("customization.fields.removable")
+      : t("customization.alwaysIncluded"),
+    component.removable && discount > 0 && `−${formatCurrency(discount)}`,
+    item && `${item.name} · ${component.inventoryQuantity} ${item.unit}`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  return (
+    <Pressable
+      onPress={onPress}
+      {...moveProps}
+      accessibilityRole="button"
+      accessibilityLabel={`${component.name}, ${details}`}
+      style={({ pressed }) =>
+        tw.style(
+          "flex-row items-center gap-3 py-3 min-h-16",
+          !isLast && "border-b border-divider",
+          pressed && "opacity-70",
+        )
+      }
+    >
+      <ThemedView style={tw`flex-1 gap-0.5 bg-transparent`}>
+        <ThemedText style={{ fontFamily: typography.medium }} numberOfLines={2}>
+          {component.name}
+        </ThemedText>
+        <ThemedText type="small" style={tw`text-gray-500`} numberOfLines={2}>
+          {details}
+        </ThemedText>
+      </ThemedView>
+      <Icon name="grip-vertical" size={20} color={tw.color("gray-400")} />
+    </Pressable>
+  );
+}
+
+/** One linked group: tapped to edit the group, long-pressed to move. */
+function GroupRow({
+  link,
+  group,
+  fallbackName,
+  isFirst,
+  isLast,
+  onPress,
+  onMove,
+  onUnlink,
+}: {
+  link: GroupLinkDraft;
+  group?: ModifierGroup;
+  fallbackName: string;
+  isFirst: boolean;
+  isLast: boolean;
+  onPress: () => void;
+  onMove: (delta: number) => void;
+  onUnlink: () => void;
+}) {
+  const { t } = useTranslation("menuManagement");
+  const moveProps = useRowMove(isFirst, isLast, onMove);
+  const name = group?.name ?? fallbackName;
+
+  // The product may narrow the group's own rule; the order screen does the same.
+  const min = link.minSelect ?? group?.minSelect ?? 0;
+  const max = link.maxSelect ?? group?.maxSelect ?? null;
+  const details = group
+    ? [
+        max === 1 ? t("modifierGroups.pickOne") : t("modifierGroups.pickMany"),
+        min > 0 ? t("modifierGroups.required") : t("modifierGroups.optional"),
+        !group.isActive && t("modifierGroups.inactive"),
+        group.modifiers.map((option) => option.name).join(", "),
+      ]
+        .filter(Boolean)
+        .join(" · ")
+    : "";
+
+  return (
+    <ThemedView
+      style={tw.style(
+        "flex-row items-center gap-1 bg-transparent",
+        !isLast && "border-b border-divider",
+      )}
+    >
+      <Pressable
+        onPress={onPress}
+        {...moveProps}
+        accessibilityRole="button"
+        accessibilityLabel={details ? `${name}, ${details}` : name}
+        style={({ pressed }) =>
+          tw.style(
+            "flex-1 gap-0.5 py-3 min-h-16 justify-center",
+            group && !group.isActive && "opacity-50",
+            pressed && "opacity-70",
+          )
+        }
+      >
+        <ThemedText style={{ fontFamily: typography.medium }} numberOfLines={1}>
+          {name}
+        </ThemedText>
+        {!!details && (
+          <ThemedText type="small" style={tw`text-gray-500`} numberOfLines={2}>
+            {details}
+          </ThemedText>
+        )}
+      </Pressable>
+      <IconButton
+        icon="x"
+        size={20}
+        onPress={onUnlink}
+        accessibilityLabel={`${t("customization.unlinkGroup")}: ${name}`}
+      />
+    </ThemedView>
+  );
+}
+
+/** An empty section: what goes in it, and the button that adds the first. */
+function SectionEmpty({
+  message,
+  label,
+  onPress,
+}: {
+  message: string;
+  label: string;
+  onPress: () => void;
+}) {
+  return (
+    <ThemedView style={tw`items-center gap-3 py-4 bg-transparent`}>
+      <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
+        {message}
+      </ThemedText>
+      <Button
+        label={label}
+        leftIcon="plus"
+        variant="outline"
+        size="small"
+        onPress={onPress}
+      />
+    </ThemedView>
+  );
+}
+
+/** A section's add button beside its title, once it has something in it. */
+function SectionAddButton({
+  label,
+  onPress,
+}: {
+  label: string;
+  onPress: () => void;
+}) {
+  const { t } = useTranslation("common");
+  return (
+    <Button
+      label={t("actions.add")}
+      accessibilityLabel={label}
+      leftIcon="plus"
+      variant="outline"
+      size="extra-small"
+      onPress={onPress}
+    />
+  );
+}
 
 /**
  * A product's "Personalización": the items it includes (which the waiter
@@ -53,13 +274,14 @@ const toNumber = (value: string) => {
 export default function ProductCustomizationScreen() {
   const { t } = useTranslation(["menuManagement", "common"]);
   const { productId } = useLocalSearchParams<{ productId: string }>();
+  const navigation = useNavigation();
   const product = useMenuStore((state) =>
     state.products.find((item) => item.id === productId),
   );
   const { groups, saveProductCustomization } = useModifierGroups();
   const { items } = useInventoryItems();
 
-  const [components, setComponents] = useState<ComponentDraft[]>(() =>
+  const [components, setComponents] = useState<ProductComponentDraft[]>(() =>
     getProductComponents(product).map((component) => ({
       key: component.id,
       id: component.id,
@@ -84,71 +306,129 @@ export default function ProductCustomizationScreen() {
         maxSelect: link.maxSelect,
       })),
   );
-  const itemPickerRef = useRef<BottomSheetPickerRef>(null);
+  const componentSheetRef = useRef<ProductComponentSheetRef>(null);
   const groupPickerRef = useRef<BottomSheetPickerRef>(null);
-  const [pickingFor, setPickingFor] = useState<string | null>(null);
+
+  // What the screen opened with, to know whether leaving loses anything.
+  const [initial] = useState(() => snapshot(components, links));
+  const isDirty = snapshot(components, links) !== initial;
+
+  // Leaving with unsaved edits asks first. Saving leaves freely.
+  const [showDiscard, setShowDiscard] = useState(false);
+  const pendingAction = useRef<any>(null);
+  const leavingRef = useRef(false);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("beforeRemove", (e: any) => {
+      if (!isDirty || leavingRef.current) return;
+      e.preventDefault();
+      pendingAction.current = e.data.action;
+      setShowDiscard(true);
+    });
+    return unsubscribe;
+  }, [navigation, isDirty]);
+
+  // A group created from the picker's "Nuevo grupo" comes back linked.
+  const takeCreatedGroup = useGroupLinkHandoff((state) => state.take);
+  useFocusEffect(
+    useCallback(() => {
+      const createdId = takeCreatedGroup();
+      if (!createdId) return;
+      setLinks((current) =>
+        current.some((link) => link.groupId === createdId)
+          ? current
+          : [
+              ...current,
+              { groupId: createdId, minSelect: null, maxSelect: null },
+            ],
+      );
+    }, [takeCreatedGroup]),
+  );
 
   const groupById = useMemo(
     () => new Map(groups.map((group) => [group.id, group])),
     [groups],
   );
+  const itemById = useMemo(
+    () => new Map(items.map((item) => [item.id, item])),
+    [items],
+  );
   const linkedGroupName = (groupId: string) =>
-    groupById.get(groupId)?.name ??
     product?.modifierGroups?.find((link) => link.groupId === groupId)?.group
-      ?.name ??
-    "";
+      ?.name ?? "";
 
-  const updateComponent = (key: string, change: Partial<ComponentDraft>) =>
-    setComponents((current) =>
-      current.map((entry) => (entry.key === key ? { ...entry, ...change } : entry)),
-    );
-
-  const move = <T,>(list: T[], index: number, delta: number) => {
-    const next = [...list];
+  const moveWithin = <T,>(list: T[], index: number, delta: number) => {
     const target = index + delta;
-    if (target < 0 || target >= next.length) return list;
-    [next[index], next[target]] = [next[target], next[index]];
-    return next;
+    if (target < 0 || target >= list.length) return list;
+    return reorderItems(list, index, target);
   };
 
-  const itemName = (id: string | null) => {
-    const item = id ? items.find((entry) => entry.id === id) : undefined;
-    return item ? `${item.name} (${item.unit})` : null;
-  };
+  /** Takes an entry out of a list, offering to put it back where it was. */
+  const removeWithUndo = <T,>(
+    list: T[],
+    setList: (update: (current: T[]) => T[]) => void,
+    index: number,
+    name: string,
+  ) => {
+    if (index === -1) return;
+    const removed = list[index];
+    setList((current) => current.filter((entry) => entry !== removed));
 
-  const filled = components.filter((entry) => entry.name.trim() !== "");
-  const problem = filled.some(
-    (entry) =>
-      (entry.removable &&
-        entry.discount.trim() !== "" &&
-        !(toNumber(entry.discount) >= 0)) ||
-      (entry.inventoryItemId && !(toNumber(entry.inventoryQuantity) > 0)),
-  )
-    ? t("customization.errors.values")
-    : null;
-
-  const handleSave = async () => {
-    if (!product || problem) return;
-    await saveProductCustomization.mutateAsync({
-      productId: product.id,
-      input: {
-        components: filled.map((entry) => ({
-          ...(entry.id && { id: entry.id }),
-          name: entry.name.trim(),
-          removable: entry.removable,
-          removalPriceDelta:
-            entry.removable && entry.discount.trim() !== ""
-              ? -Math.abs(toNumber(entry.discount))
-              : 0,
-          inventoryItemId: entry.inventoryItemId,
-          inventoryQuantity: entry.inventoryItemId
-            ? toNumber(entry.inventoryQuantity)
-            : null,
-        })),
-        groups: links,
+    let undone = false;
+    const toastId = toast(t("modifierGroups.optionRemoved", { name }), {
+      duration: 8000,
+      action: {
+        label: t("common:actions.undo"),
+        onClick: () => {
+          if (undone) return;
+          undone = true;
+          toast.dismiss(toastId);
+          setList((current) => {
+            const next = [...current];
+            next.splice(Math.min(index, next.length), 0, removed);
+            return next;
+          });
+        },
       },
     });
-    router.back();
+  };
+
+  const handleComponentSubmit = (component: ProductComponentDraft) =>
+    setComponents((current) =>
+      current.some((entry) => entry.key === component.key)
+        ? current.map((entry) =>
+            entry.key === component.key ? component : entry,
+          )
+        : [...current, component],
+    );
+
+  const handleSave = async () => {
+    if (!product) return;
+    try {
+      await saveProductCustomization.mutateAsync({
+        productId: product.id,
+        input: {
+          components: components.map((entry) => ({
+            ...(entry.id && { id: entry.id }),
+            name: entry.name,
+            removable: entry.removable,
+            removalPriceDelta:
+              entry.removable && entry.discount !== ""
+                ? -Math.abs(parseAmount(entry.discount))
+                : 0,
+            inventoryItemId: entry.inventoryItemId,
+            inventoryQuantity: entry.inventoryItemId
+              ? parseAmount(entry.inventoryQuantity)
+              : null,
+          })),
+          groups: links,
+        },
+      });
+      leavingRef.current = true;
+      router.back();
+    } catch {
+      // The mutation already shows the error; the edits stay on screen.
+    }
   };
 
   if (!product) {
@@ -169,272 +449,185 @@ export default function ProductCustomizationScreen() {
 
   return (
     <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
-      <ScreenLayout style={tw`flex-1`}>
-        <ThemedView style={tw`px-4 pt-8 pb-2 flex-row items-center gap-3`}>
+      <ScreenLayout style={tw`flex-1 px-4 pt-8 bg-background`}>
+        <ThemedView style={tw`items-center flex-row mb-6`}>
           <Pressable
             onPress={() => router.back()}
             accessibilityRole="button"
             accessibilityLabel={t("common:actions.goBack")}
+            hitSlop={12}
             style={({ pressed }) => tw.style(pressed && "opacity-70")}
           >
             <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
           </Pressable>
-          <ThemedView style={tw`flex-1`}>
-            <ThemedText
-              type="h3"
-              style={{ fontFamily: typography.medium }}
-              numberOfLines={1}
-            >
-              {t("customization.title")}
-            </ThemedText>
-            <ThemedText type="body2" style={tw`text-gray-500`} numberOfLines={1}>
-              {product.name}
-            </ThemedText>
-          </ThemedView>
         </ThemedView>
 
-        <ScrollView
-          contentContainerStyle={tw`px-4 pt-4 pb-10 gap-8`}
+        <ScrollViewContainer
+          contentContainerStyle={tw`gap-4 pb-8`}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Included items */}
-          <ThemedView style={tw`gap-3`}>
-            <ThemedView style={tw`gap-1`}>
-              <ThemedText style={{ fontFamily: typography.bold }}>
-                {t("customization.includes")}
-              </ThemedText>
-              <ThemedText type="body2" style={tw`text-gray-500`}>
-                {t("customization.includesHint")}
-              </ThemedText>
-            </ThemedView>
-            {components.map((entry, index) => (
-              <Card key={entry.key} variant="outline" style={tw`p-4 gap-3`}>
-                <TextInput
-                  label={t("customization.fields.itemName")}
-                  placeholder={t("customization.fields.itemPlaceholder")}
-                  value={entry.name}
-                  onChangeText={(value) =>
-                    updateComponent(entry.key, { name: value })
-                  }
-                  maxLength={60}
-                />
-                <Switch
-                  label={t("customization.fields.removable")}
-                  value={entry.removable}
-                  onValueChange={(value) =>
-                    updateComponent(entry.key, { removable: value })
-                  }
-                />
-                {entry.removable && (
-                  <TextInput
-                    label={t("customization.fields.discount")}
-                    placeholder="0"
-                    value={entry.discount}
-                    onChangeText={(value) =>
-                      updateComponent(entry.key, { discount: value })
-                    }
-                    keyboardType="decimal-pad"
-                  />
-                )}
-                <Pressable
-                  onPress={() => {
-                    setPickingFor(entry.key);
-                    itemPickerRef.current?.present();
-                  }}
-                  accessibilityRole="button"
-                  style={({ pressed }) => [
-                    tw`flex-row items-center gap-3 min-h-12`,
-                    pressed && tw`opacity-60`,
-                  ]}
-                >
-                  <Icon name="package" size={18} color={tw.color("gray-500")} />
-                  <ThemedText type="body2" style={tw`flex-1`}>
-                    {itemName(entry.inventoryItemId) ??
-                      t("modifierGroups.fields.noInventoryItem")}
-                  </ThemedText>
-                  <Icon
-                    name="chevron-right"
-                    size={18}
-                    color={tw.color("gray-400")}
-                  />
-                </Pressable>
-                {entry.inventoryItemId && (
-                  <TextInput
-                    label={t("modifierGroups.fields.inventoryQuantity")}
-                    value={entry.inventoryQuantity}
-                    onChangeText={(value) =>
-                      updateComponent(entry.key, { inventoryQuantity: value })
-                    }
-                    keyboardType="decimal-pad"
-                  />
-                )}
-                <ThemedView style={tw`flex-row justify-end gap-1 bg-transparent`}>
-                  <IconButton
-                    icon="arrow-up"
-                    size={18}
-                    disabled={index === 0}
-                    onPress={() =>
-                      setComponents((current) => move(current, index, -1))
-                    }
-                    accessibilityLabel={t("modifierGroups.moveUp")}
-                  />
-                  <IconButton
-                    icon="arrow-down"
-                    size={18}
-                    disabled={index === components.length - 1}
-                    onPress={() =>
-                      setComponents((current) => move(current, index, 1))
-                    }
-                    accessibilityLabel={t("modifierGroups.moveDown")}
-                  />
-                  <IconButton
-                    icon="trash"
-                    size={18}
-                    onPress={() =>
-                      setComponents((current) =>
-                        current.filter((item) => item.key !== entry.key),
-                      )
-                    }
-                    accessibilityLabel={t("customization.removeItem")}
-                  />
-                </ThemedView>
-              </Card>
-            ))}
-            <Button
-              variant="outline"
-              leftIcon="plus"
-              label={t("customization.addItem")}
-              onPress={() =>
-                setComponents((current) => [
-                  ...current,
-                  {
-                    key: `new-${++draftKey}`,
-                    name: "",
-                    removable: true,
-                    discount: "",
-                    inventoryItemId: null,
-                    inventoryQuantity: "",
-                  },
-                ])
-              }
-            />
-          </ThemedView>
-
-          {/* Linked groups */}
-          <ThemedView style={tw`gap-3`}>
-            <ThemedView style={tw`gap-1`}>
-              <ThemedText style={{ fontFamily: typography.bold }}>
-                {t("customization.groups")}
-              </ThemedText>
-              <ThemedText type="body2" style={tw`text-gray-500`}>
-                {t("customization.groupsHint")}
-              </ThemedText>
-            </ThemedView>
-            {links.map((link, index) => {
-              const group = groupById.get(link.groupId);
-              return (
-                <Card
-                  key={link.groupId}
-                  variant="outline"
-                  style={tw`px-4 py-3 flex-row items-center gap-2`}
-                >
-                  <ThemedView style={tw`flex-1 bg-transparent`}>
-                    <ThemedText style={{ fontFamily: typography.medium }}>
-                      {linkedGroupName(link.groupId)}
-                    </ThemedText>
-                    {group && (
-                      <ThemedText
-                        type="small"
-                        style={tw`text-gray-500`}
-                        numberOfLines={1}
-                      >
-                        {group.modifiers.map((option) => option.name).join(", ")}
-                      </ThemedText>
-                    )}
-                  </ThemedView>
-                  <IconButton
-                    icon="arrow-up"
-                    size={18}
-                    disabled={index === 0}
-                    onPress={() => setLinks((current) => move(current, index, -1))}
-                    accessibilityLabel={t("modifierGroups.moveUp")}
-                  />
-                  <IconButton
-                    icon="arrow-down"
-                    size={18}
-                    disabled={index === links.length - 1}
-                    onPress={() => setLinks((current) => move(current, index, 1))}
-                    accessibilityLabel={t("modifierGroups.moveDown")}
-                  />
-                  <IconButton
-                    icon="x"
-                    size={18}
-                    onPress={() =>
-                      setLinks((current) =>
-                        current.filter((item) => item.groupId !== link.groupId),
-                      )
-                    }
-                    accessibilityLabel={t("customization.unlinkGroup")}
-                  />
-                </Card>
-              );
-            })}
-            <ThemedView style={tw`flex-row gap-2`}>
+          <DetailHeader
+            title={t("customization.title")}
+            subtitle={product.name}
+            icon="sliders-horizontal"
+          >
+            <ThemedView style={tw`flex-row flex-wrap gap-3`}>
               <Button
-                style={tw`flex-1`}
-                variant="outline"
-                leftIcon="plus"
-                label={t("customization.linkGroup")}
-                onPress={() => groupPickerRef.current?.present()}
-              />
-              <Button
-                variant="text"
                 label={t("customization.manageGroups")}
+                leftIcon="list-checks"
+                variant="surface"
+                shape="rounded"
+                size="small"
                 onPress={() => router.push("/(profile)/menu/modifier-groups")}
               />
             </ThemedView>
-          </ThemedView>
-        </ScrollView>
+          </DetailHeader>
 
-        <ThemedView style={tw`px-4 pt-2 pb-4 gap-2`}>
-          {problem && (
-            <ThemedText type="small" style={tw`text-gray-600 text-center`}>
-              {problem}
-            </ThemedText>
-          )}
+          {/* Included items */}
+          <ThemedView style={tw`gap-3 mt-4`}>
+            <DetailSectionTitle
+              title={t("customization.includes")}
+              action={
+                components.length > 0 && (
+                  <SectionAddButton
+                    label={t("customization.addItem")}
+                    onPress={() => componentSheetRef.current?.present()}
+                  />
+                )
+              }
+            />
+            <DetailCard style={tw`py-2`}>
+              {components.length === 0 ? (
+                <SectionEmpty
+                  message={t("customization.includesHint")}
+                  label={t("customization.addItem")}
+                  onPress={() => componentSheetRef.current?.present()}
+                />
+              ) : (
+                <NestedReorderableList
+                  data={components}
+                  keyExtractor={(component) => component.key}
+                  scrollEnabled={false}
+                  onReorder={({ from, to }) =>
+                    setComponents((current) => reorderItems(current, from, to))
+                  }
+                  renderItem={({ item: component, index }) => (
+                    <ComponentRow
+                      component={component}
+                      item={
+                        component.inventoryItemId
+                          ? itemById.get(component.inventoryItemId)
+                          : undefined
+                      }
+                      isFirst={index === 0}
+                      isLast={index === components.length - 1}
+                      onPress={() =>
+                        componentSheetRef.current?.present(component)
+                      }
+                      onMove={(delta) =>
+                        setComponents((current) =>
+                          moveWithin(current, index, delta),
+                        )
+                      }
+                    />
+                  )}
+                />
+              )}
+            </DetailCard>
+            {components.length > 1 && (
+              <ThemedText type="small" style={tw`text-gray-500`}>
+                {t("customization.reorderHint")}
+              </ThemedText>
+            )}
+          </ThemedView>
+
+          {/* Linked groups */}
+          <ThemedView style={tw`gap-3 mt-4`}>
+            <DetailSectionTitle
+              title={t("customization.groups")}
+              action={
+                links.length > 0 && (
+                  <SectionAddButton
+                    label={t("customization.linkGroup")}
+                    onPress={() => groupPickerRef.current?.present()}
+                  />
+                )
+              }
+            />
+            <DetailCard style={tw.style("py-2", links.length > 0 && "pr-2")}>
+              {links.length === 0 ? (
+                <SectionEmpty
+                  message={t("customization.groupsEmpty")}
+                  label={t("customization.linkGroup")}
+                  onPress={() => groupPickerRef.current?.present()}
+                />
+              ) : (
+                <NestedReorderableList
+                  data={links}
+                  keyExtractor={(link) => link.groupId}
+                  scrollEnabled={false}
+                  onReorder={({ from, to }) =>
+                    setLinks((current) => reorderItems(current, from, to))
+                  }
+                  renderItem={({ item: link, index }) => (
+                    <GroupRow
+                      link={link}
+                      group={groupById.get(link.groupId)}
+                      fallbackName={linkedGroupName(link.groupId)}
+                      isFirst={index === 0}
+                      isLast={index === links.length - 1}
+                      onPress={() =>
+                        router.push({
+                          pathname: "/(profile)/menu/modifier-groups/form",
+                          params: { groupId: link.groupId },
+                        })
+                      }
+                      onMove={(delta) =>
+                        setLinks((current) => moveWithin(current, index, delta))
+                      }
+                      onUnlink={() =>
+                        removeWithUndo(
+                          links,
+                          setLinks,
+                          index,
+                          groupById.get(link.groupId)?.name ??
+                            linkedGroupName(link.groupId),
+                        )
+                      }
+                    />
+                  )}
+                />
+              )}
+            </DetailCard>
+            {links.length > 1 && (
+              <ThemedText type="small" style={tw`text-gray-500`}>
+                {t("customization.groupsReorderHint")}
+              </ThemedText>
+            )}
+          </ThemedView>
+        </ScrollViewContainer>
+
+        <ThemedView style={tw`pt-2 pb-4`}>
           <Button
             label={t("customization.save")}
             onPress={handleSave}
             loading={saveProductCustomization.isPending}
-            disabled={!!problem || saveProductCustomization.isPending}
+            disabled={saveProductCustomization.isPending}
           />
         </ThemedView>
-
-        <BottomSheetPicker
-          ref={itemPickerRef}
-          title={t("modifierGroups.fields.inventoryItem")}
-          searchable
-          options={[
-            { label: t("modifierGroups.fields.noInventoryItem"), value: "" },
-            ...items
-              .filter((item) => item.isActive)
-              .map((item) => ({
-                label: item.name,
-                value: item.id,
-                description: item.unit,
-              })),
-          ]}
-          value={
-            components.find((entry) => entry.key === pickingFor)
-              ?.inventoryItemId ?? ""
+        <ProductComponentSheet
+          ref={componentSheetRef}
+          items={items}
+          onSubmit={handleComponentSubmit}
+          onRemove={(component) =>
+            removeWithUndo(
+              components,
+              setComponents,
+              components.findIndex((entry) => entry.key === component.key),
+              component.name,
+            )
           }
-          onChange={(value) => {
-            if (!pickingFor) return;
-            updateComponent(pickingFor, {
-              inventoryItemId: value ? String(value) : null,
-            });
-          }}
         />
 
         <BottomSheetPicker
@@ -458,8 +651,29 @@ export default function ProductCustomizationScreen() {
             label: t("modifierGroups.newGroup"),
             onPress: () => {
               groupPickerRef.current?.dismiss();
-              router.push("/(profile)/menu/modifier-groups/form");
+              router.push({
+                pathname: "/(profile)/menu/modifier-groups/form",
+                params: { linkToProduct: "1" },
+              });
             },
+          }}
+        />
+
+        <DialogModal
+          visible={showDiscard}
+          title={t("modifierGroups.discardTitle")}
+          message={t("customization.discardMessage")}
+          confirmLabel={t("modifierGroups.discard")}
+          cancelLabel={t("modifierGroups.keepEditing")}
+          confirmVariant="destructive"
+          onConfirm={() => {
+            setShowDiscard(false);
+            if (pendingAction.current)
+              navigation.dispatch(pendingAction.current);
+          }}
+          onCancel={() => {
+            pendingAction.current = null;
+            setShowDiscard(false);
           }}
         />
       </ScreenLayout>

@@ -331,8 +331,11 @@
   },
   "modifierGroups": {
     "title": "Grupos de opciones",
+    "subtitle": "Sabores, extras y más. Un cambio aquí llega a todos sus productos.",
     "newGroup": "Nuevo grupo",
     "searchPlaceholder": "Buscar grupo u opción...",
+    "noResults": "Ningún grupo coincide",
+    "noResultsDescription": "Busca por el nombre del grupo o de una opción.",
     "loadError": "No se pudieron cargar los grupos",
     "empty": "Aún no hay grupos de opciones",
     "emptyDescription": "Crea grupos como “Sabor” o “Extras” y agrégalos a tus productos.",
@@ -341,8 +344,6 @@
     "required": "Obligatorio",
     "optional": "Opcional",
     "inactive": "Inactivo",
-    "optionsCount_one": "{{count}} opción",
-    "optionsCount_other": "{{count}} opciones",
     "productsCount_one": "{{count}} producto",
     "productsCount_other": "{{count}} productos",
     "notFound": "No se encontró el grupo",
@@ -381,9 +382,23 @@
     "errors": {
       "name": "Escribe un nombre de al menos 2 letras",
       "noOptions": "Agrega al menos una opción",
-      "optionValues": "Revisa los precios y las cantidades de insumo",
-      "limits": "Revisa el mínimo y el máximo"
-    }
+      "limits": "Revisa el mínimo y el máximo",
+      "optionName": "Escribe el nombre de la opción",
+      "optionPrice": "Escribe un precio válido",
+      "optionQuantity": "Escribe una cantidad mayor a 0"
+    },
+    "newOption": "Nueva opción",
+    "editOption": "Editar opción",
+    "noExtraCost": "Sin costo extra",
+    "unavailable": "No disponible",
+    "reorderHint": "Mantén presionada una opción para moverla",
+    "optionRemoved": "Se quitó “{{name}}”",
+    "usedInCount_one": "Se usa en {{count}} producto. Los cambios se aplican a todos.",
+    "usedInCount_other": "Se usa en {{count}} productos. Los cambios se aplican a todos.",
+    "discardTitle": "¿Descartar cambios?",
+    "discardMessage": "Los cambios a este grupo no se guardarán.",
+    "discard": "Descartar",
+    "keepEditing": "Seguir editando"
   },
   "customization": {
     "title": "Personalización",
@@ -397,7 +412,7 @@
     "groupsHint": "Se muestran en este orden al tomar el pedido.",
     "linkGroup": "Agregar grupo",
     "unlinkGroup": "Quitar grupo",
-    "manageGroups": "Administrar",
+    "manageGroups": "Administrar grupos",
     "addItem": "Agregar ingrediente",
     "removeItem": "Quitar ingrediente",
     "save": "Guardar personalización",
@@ -410,7 +425,15 @@
       "discount": "Descuento al quitarlo"
     },
     "errors": {
-      "values": "Revisa los descuentos y las cantidades de insumo"
-    }
+      "itemName": "Escribe el nombre del ingrediente",
+      "discount": "Escribe un descuento válido"
+    },
+    "newItem": "Nuevo ingrediente",
+    "editItem": "Editar ingrediente",
+    "alwaysIncluded": "Siempre incluido",
+    "reorderHint": "Mantén presionado para cambiar el orden",
+    "discardMessage": "Los cambios a la personalización no se guardarán.",
+    "groupsEmpty": "Agrega grupos como Sabor o Extras para que el mesero elija al tomar el pedido.",
+    "groupsReorderHint": "Se muestran en este orden al tomar el pedido. Mantén presionado para moverlos."
   }
 }

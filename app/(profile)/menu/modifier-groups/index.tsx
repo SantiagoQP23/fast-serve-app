@@ -10,7 +10,8 @@ import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
-import Fab from "@/presentation/theme/components/fab";
+import Card from "@/presentation/theme/components/card";
+import DetailHeader from "@/presentation/theme/components/detail-header";
 import Label from "@/presentation/theme/components/label";
 import TextInput from "@/presentation/theme/components/text-input";
 import { useModifierGroups } from "@/presentation/menu-management/hooks/useModifierGroups";
@@ -39,6 +40,7 @@ export default function ModifierGroupsScreen() {
     [groups],
   );
   const filtered = useFuzzySearch(sorted, search, GROUP_SEARCH_OPTIONS);
+  const hasSearch = !!search.trim();
 
   const openGroup = (groupId?: string) =>
     router.push({
@@ -46,6 +48,7 @@ export default function ModifierGroupsScreen() {
       params: groupId ? { groupId } : {},
     });
 
+  // What the waiter is asked, then how far a change reaches.
   const describe = (group: ModifierGroup) =>
     [
       group.maxSelect === 1
@@ -54,46 +57,29 @@ export default function ModifierGroupsScreen() {
       group.minSelect > 0
         ? t("modifierGroups.required")
         : t("modifierGroups.optional"),
-      t("modifierGroups.optionsCount", { count: group.modifiers.length }),
       t("modifierGroups.productsCount", {
         count: group.productIds?.length ?? 0,
       }),
     ].join(" · ");
 
   return (
-    <ScreenLayout style={tw`flex-1`}>
-      <ThemedView style={tw`px-4 pt-8 gap-4 bg-transparent`}>
-        <ThemedView style={tw`items-center gap-3 flex-row bg-transparent`}>
-          <Pressable
-            onPress={() => router.back()}
-            accessibilityRole="button"
-            accessibilityLabel={t("common:actions.goBack")}
-            style={({ pressed }) => tw.style(pressed && "opacity-70")}
-          >
-            <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
-          </Pressable>
-          <ThemedText
-            type="h3"
-            style={{ fontFamily: typography.medium, flex: 1 }}
-            numberOfLines={1}
-          >
-            {t("modifierGroups.title")}
-          </ThemedText>
-        </ThemedView>
-        {groups.length > 0 && (
-          <TextInput
-            placeholder={t("modifierGroups.searchPlaceholder")}
-            icon="search"
-            value={search}
-            onChangeText={setSearch}
-            returnKeyType="search"
-          />
-        )}
+    <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
+      <ThemedView style={tw`items-center flex-row mb-6`}>
+        <Pressable
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel={t("common:actions.goBack")}
+          hitSlop={12}
+          style={({ pressed }) => tw.style(pressed && "opacity-70")}
+        >
+          <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
+        </Pressable>
       </ThemedView>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`px-4 pb-28 pt-4`}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={tw`gap-4 pb-8`}
         refreshControl={
           <RefreshControl
             refreshing={groupsQuery.isFetching && !groupsQuery.isLoading}
@@ -103,6 +89,33 @@ export default function ModifierGroupsScreen() {
           />
         }
       >
+        <DetailHeader
+          title={t("modifierGroups.title")}
+          subtitle={t("modifierGroups.subtitle")}
+        >
+          {canManage && (
+            <ThemedView style={tw`flex-row flex-wrap gap-3`}>
+              <Button
+                label={t("modifierGroups.newGroup")}
+                leftIcon="plus"
+                shape="rounded"
+                size="small"
+                onPress={() => openGroup()}
+              />
+            </ThemedView>
+          )}
+        </DetailHeader>
+
+        {groups.length > 0 && (
+          <TextInput
+            placeholder={t("modifierGroups.searchPlaceholder")}
+            icon="search"
+            value={search}
+            onChangeText={setSearch}
+            returnKeyType="search"
+          />
+        )}
+
         {groupsQuery.isLoading && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
             <ThemedText type="body1" style={tw`text-gray-500`}>
@@ -128,7 +141,7 @@ export default function ModifierGroupsScreen() {
         {!groupsQuery.isLoading && !groupsQuery.isError && groups.length === 0 && (
           <ThemedView style={tw`items-center py-8 gap-3`}>
             <Icon name="list-checks" size={48} color={tw.color("gray-400")} />
-            <ThemedText type="body1" style={tw`font-semibold`}>
+            <ThemedText type="body1" style={{ fontFamily: typography.bold }}>
               {t("modifierGroups.empty")}
             </ThemedText>
             <ThemedText type="body2" style={tw`text-center text-gray-500 px-4`}>
@@ -137,47 +150,56 @@ export default function ModifierGroupsScreen() {
           </ThemedView>
         )}
 
+        {hasSearch && groups.length > 0 && filtered.length === 0 && (
+          <ThemedView style={tw`items-center py-8 gap-3`}>
+            <Icon name="search" size={40} color={tw.color("gray-400")} />
+            <ThemedText type="body1" style={{ fontFamily: typography.bold }}>
+              {t("modifierGroups.noResults")}
+            </ThemedText>
+            <ThemedText type="body2" style={tw`text-center text-gray-500 px-4`}>
+              {t("modifierGroups.noResultsDescription")}
+            </ThemedText>
+          </ThemedView>
+        )}
+
         {filtered.map((group) => (
-          <Pressable
+          <Card
             key={group.id}
             onPress={() => openGroup(group.id)}
-            accessibilityRole="button"
-            style={({ pressed }) =>
-              tw.style("flex-row items-center gap-4 py-3", pressed && "opacity-70")
-            }
+            variant="outline"
+            style={!group.isActive && tw`opacity-50`}
           >
-            <ThemedView style={tw`flex-1 gap-0.5 bg-transparent`}>
-              <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}>
-                <ThemedText
-                  style={[tw`shrink`, { fontFamily: typography.medium }]}
-                  numberOfLines={1}
-                >
-                  {group.name}
+            <ThemedView style={tw`flex-row items-start gap-4`}>
+              <Icon
+                name="list-checks"
+                size={28}
+                color={tw.color("text-on-surface-variant")}
+              />
+              <ThemedView style={tw`flex-1 gap-1`}>
+                <ThemedText type="h4">{group.name}</ThemedText>
+                {group.modifiers.length > 0 && (
+                  <ThemedText
+                    type="body2"
+                    style={tw`text-gray-600`}
+                    numberOfLines={2}
+                  >
+                    {group.modifiers.map((option) => option.name).join(", ")}
+                  </ThemedText>
+                )}
+                <ThemedText type="small" style={tw`text-gray-500`}>
+                  {describe(group)}
                 </ThemedText>
                 {!group.isActive && (
-                  <Label
-                    size="small"
-                    color="default"
-                    text={t("modifierGroups.inactive")}
-                  />
+                  // A row, so the Label keeps its own width
+                  <ThemedView style={tw`flex-row mt-1`}>
+                    <Label text={t("modifierGroups.inactive")} />
+                  </ThemedView>
                 )}
               </ThemedView>
-              <ThemedText type="small" style={tw`text-gray-500`} numberOfLines={1}>
-                {describe(group)}
-              </ThemedText>
             </ThemedView>
-            <Icon name="chevron-right" size={20} color={tw.color("gray-400")} />
-          </Pressable>
+          </Card>
         ))}
       </ScrollView>
-
-      {canManage && (
-        <Fab
-          icon="plus"
-          label={t("modifierGroups.newGroup")}
-          onPress={() => openGroup()}
-        />
-      )}
     </ScreenLayout>
   );
 }

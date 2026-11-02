@@ -1,53 +1,163 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { KeyboardAvoidingView, Pressable, ScrollView } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
+import { KeyboardAvoidingView, Pressable } from "react-native";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import {
+  NestedReorderableList,
+  ScrollViewContainer,
+  reorderItems,
+  useReorderableDrag,
+} from "react-native-reorderable-list";
+import { toast } from "sonner-native";
 import Icon from "@/presentation/theme/components/icon";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
+import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import ButtonGroup from "@/presentation/theme/components/button-group";
-import Card from "@/presentation/theme/components/card";
+import { DetailCard } from "@/presentation/theme/components/detail-card";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
-import IconButton from "@/presentation/theme/components/icon-button";
 import Switch from "@/presentation/theme/components/switch";
 import TextInput from "@/presentation/theme/components/text-input";
-import BottomSheetPicker, {
-  type BottomSheetPickerRef,
-} from "@/presentation/theme/components/bottom-sheet-picker";
+import ModifierOptionSheet, {
+  parseAmount,
+  type ModifierOptionDraft,
+  type ModifierOptionSheetRef,
+} from "@/presentation/menu-management/components/modifier-option-sheet";
 import { useModifierGroups } from "@/presentation/menu-management/hooks/useModifierGroups";
+import { useGroupLinkHandoff } from "@/presentation/menu-management/store/useGroupLinkHandoff";
 import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
+import type { ModifierGroup } from "@/core/menu/models/customization.model";
+import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
 
-interface OptionDraft {
-  key: string;
-  id?: string;
+interface FormState {
   name: string;
-  priceDelta: string;
+  single: boolean;
+  required: boolean;
+  minSelect: string;
+  maxSelect: string;
   isActive: boolean;
-  inventoryItemId: string | null;
-  inventoryQuantity: string;
+  options: ModifierOptionDraft[];
 }
 
-let draftKey = 0;
-const newOption = (): OptionDraft => ({
-  key: `new-${++draftKey}`,
+const EMPTY_FORM: FormState = {
   name: "",
-  priceDelta: "0",
+  single: true,
+  required: false,
+  minSelect: "1",
+  maxSelect: "",
   isActive: true,
-  inventoryItemId: null,
-  inventoryQuantity: "",
+  options: [],
+};
+
+const formFromGroup = (group: ModifierGroup): FormState => ({
+  name: group.name,
+  single: group.maxSelect === 1,
+  required: group.minSelect > 0,
+  minSelect: String(Math.max(group.minSelect, 1)),
+  maxSelect:
+    group.maxSelect !== null && group.maxSelect !== 1
+      ? String(group.maxSelect)
+      : "",
+  isActive: group.isActive,
+  options: group.modifiers.map((option) => ({
+    key: option.id,
+    id: option.id,
+    name: option.name,
+    priceDelta: String(Number(option.priceDelta)),
+    isActive: option.isActive,
+    inventoryItemId: option.inventoryItemId,
+    inventoryQuantity:
+      option.inventoryQuantity !== null
+        ? String(Number(option.inventoryQuantity))
+        : "",
+  })),
 });
 
-const toNumber = (value: string) => {
-  const parsed = parseFloat(value.replace(",", "."));
-  return Number.isFinite(parsed) ? parsed : NaN;
-};
+/** Compares drafts by content; option keys are only for React. */
+const snapshot = (form: FormState) =>
+  JSON.stringify({
+    ...form,
+    options: form.options.map(({ key, ...option }) => option),
+  });
+
+/** One option, tapped to edit and long-pressed to move. */
+function OptionRow({
+  option,
+  item,
+  isFirst,
+  isLast,
+  onPress,
+  onMove,
+}: {
+  option: ModifierOptionDraft;
+  item?: InventoryItem;
+  isFirst: boolean;
+  isLast: boolean;
+  onPress: () => void;
+  onMove: (delta: number) => void;
+}) {
+  const { t } = useTranslation("menuManagement");
+  const drag = useReorderableDrag();
+  const price = parseAmount(option.priceDelta);
+
+  const details = [
+    price > 0 ? `+${formatCurrency(price)}` : t("modifierGroups.noExtraCost"),
+    item && `${item.name} · ${option.inventoryQuantity} ${item.unit}`,
+    !option.isActive && t("modifierGroups.unavailable"),
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  return (
+    <Pressable
+      onPress={onPress}
+      onLongPress={drag}
+      delayLongPress={200}
+      accessibilityRole="button"
+      accessibilityLabel={`${option.name}, ${details}`}
+      accessibilityActions={[
+        ...(isFirst
+          ? []
+          : [{ name: "moveUp", label: t("modifierGroups.moveUp") }]),
+        ...(isLast
+          ? []
+          : [{ name: "moveDown", label: t("modifierGroups.moveDown") }]),
+      ]}
+      onAccessibilityAction={(event) =>
+        onMove(event.nativeEvent.actionName === "moveUp" ? -1 : 1)
+      }
+      style={({ pressed }) =>
+        tw.style(
+          "flex-row items-center gap-3 py-3 min-h-16",
+          !isLast && "border-b border-divider",
+          pressed && "opacity-70",
+        )
+      }
+    >
+      <ThemedView
+        style={tw.style(
+          "flex-1 gap-0.5 bg-transparent",
+          !option.isActive && "opacity-50",
+        )}
+      >
+        <ThemedText style={{ fontFamily: typography.medium }} numberOfLines={2}>
+          {option.name}
+        </ThemedText>
+        <ThemedText type="small" style={tw`text-gray-500`} numberOfLines={2}>
+          {details}
+        </ThemedText>
+      </ThemedView>
+      <Icon name="grip-vertical" size={20} color={tw.color("gray-400")} />
+    </Pressable>
+  );
+}
 
 /**
  * Creates or edits a group of options: its name, whether the waiter picks
@@ -56,54 +166,78 @@ const toNumber = (value: string) => {
  */
 export default function ModifierGroupFormScreen() {
   const { t } = useTranslation(["menuManagement", "common"]);
-  const { groupId } = useLocalSearchParams<{ groupId?: string }>();
+  const { groupId, linkToProduct } = useLocalSearchParams<{
+    groupId?: string;
+    /** Opened from a product's customization: link the new group there. */
+    linkToProduct?: string;
+  }>();
+  const navigation = useNavigation();
   const { user } = useAuthStore();
   const canManage = isAdminLevelRole(user?.role?.name);
   const { groups, groupsQuery, saveGroup, deleteGroup } = useModifierGroups();
   const { items } = useInventoryItems();
   const products = useMenuStore((state) => state.products);
-  const group = groupId ? groups.find((item) => item.id === groupId) : undefined;
+  const group = groupId
+    ? groups.find((item) => item.id === groupId)
+    : undefined;
 
-  const [name, setName] = useState("");
-  const [single, setSingle] = useState(true);
-  const [required, setRequired] = useState(false);
-  const [minSelect, setMinSelect] = useState("1");
-  const [maxSelect, setMaxSelect] = useState("");
-  const [isActive, setIsActive] = useState(true);
-  const [options, setOptions] = useState<OptionDraft[]>([newOption()]);
+  const [name, setName] = useState(EMPTY_FORM.name);
+  const [single, setSingle] = useState(EMPTY_FORM.single);
+  const [required, setRequired] = useState(EMPTY_FORM.required);
+  const [minSelect, setMinSelect] = useState(EMPTY_FORM.minSelect);
+  const [maxSelect, setMaxSelect] = useState(EMPTY_FORM.maxSelect);
+  const [isActive, setIsActive] = useState(EMPTY_FORM.isActive);
+  const [options, setOptions] = useState<ModifierOptionDraft[]>([]);
   const [showDelete, setShowDelete] = useState(false);
-  const loadedRef = useRef(false);
-  const itemPickerRef = useRef<BottomSheetPickerRef>(null);
-  const [pickingFor, setPickingFor] = useState<string | null>(null);
+  const optionSheetRef = useRef<ModifierOptionSheetRef>(null);
+  const setCreatedGroupId = useGroupLinkHandoff(
+    (state) => state.setCreatedGroupId,
+  );
+
+  // What the form opened with, to know whether leaving loses anything.
+  const [initial, setInitial] = useState<string | null>(() =>
+    groupId ? null : snapshot(EMPTY_FORM),
+  );
+
+  // Fill the form once the group arrives (set during render, not in an effect).
+  if (group && initial === null) {
+    const form = formFromGroup(group);
+    setName(form.name);
+    setSingle(form.single);
+    setRequired(form.required);
+    setMinSelect(form.minSelect);
+    setMaxSelect(form.maxSelect);
+    setIsActive(form.isActive);
+    setOptions(form.options);
+    setInitial(snapshot(form));
+  }
+
+  const isDirty =
+    initial !== null &&
+    snapshot({
+      name,
+      single,
+      required,
+      minSelect,
+      maxSelect,
+      isActive,
+      options,
+    }) !== initial;
+
+  // Leaving with unsaved edits asks first. Saving or deleting leaves freely.
+  const [showDiscard, setShowDiscard] = useState(false);
+  const pendingAction = useRef<any>(null);
+  const leavingRef = useRef(false);
 
   useEffect(() => {
-    if (!group || loadedRef.current) return;
-    loadedRef.current = true;
-    setName(group.name);
-    setSingle(group.maxSelect === 1);
-    setRequired(group.minSelect > 0);
-    setMinSelect(String(Math.max(group.minSelect, 1)));
-    setMaxSelect(
-      group.maxSelect !== null && group.maxSelect !== 1
-        ? String(group.maxSelect)
-        : "",
-    );
-    setIsActive(group.isActive);
-    setOptions(
-      group.modifiers.map((option) => ({
-        key: option.id,
-        id: option.id,
-        name: option.name,
-        priceDelta: String(option.priceDelta),
-        isActive: option.isActive,
-        inventoryItemId: option.inventoryItemId,
-        inventoryQuantity:
-          option.inventoryQuantity !== null
-            ? String(option.inventoryQuantity)
-            : "",
-      })),
-    );
-  }, [group]);
+    const unsubscribe = navigation.addListener("beforeRemove", (e: any) => {
+      if (!isDirty || leavingRef.current) return;
+      e.preventDefault();
+      pendingAction.current = e.data.action;
+      setShowDiscard(true);
+    });
+    return unsubscribe;
+  }, [navigation, isDirty]);
 
   const usedIn = useMemo(
     () =>
@@ -113,84 +247,115 @@ export default function ModifierGroupFormScreen() {
         .sort((a, b) => a.localeCompare(b)),
     [products, group],
   );
+  const usedInCount = group?.productIds?.length ?? 0;
 
-  const updateOption = (key: string, change: Partial<OptionDraft>) =>
-    setOptions((current) =>
-      current.map((option) =>
-        option.key === key ? { ...option, ...change } : option,
-      ),
-    );
+  const itemById = useMemo(
+    () => new Map(items.map((item) => [item.id, item])),
+    [items],
+  );
 
   const moveOption = (index: number, delta: number) =>
     setOptions((current) => {
-      const next = [...current];
       const target = index + delta;
-      if (target < 0 || target >= next.length) return current;
-      [next[index], next[target]] = [next[target], next[index]];
-      return next;
+      if (target < 0 || target >= current.length) return current;
+      return reorderItems(current, index, target);
     });
 
-  const itemName = (id: string | null) => {
-    const item = id ? items.find((entry) => entry.id === id) : undefined;
-    return item ? `${item.name} (${item.unit})` : null;
+  const handleOptionSubmit = (option: ModifierOptionDraft) =>
+    setOptions((current) =>
+      current.some((entry) => entry.key === option.key)
+        ? current.map((entry) => (entry.key === option.key ? option : entry))
+        : [...current, option],
+    );
+
+  // Removing is instant and can be taken back: the group only changes on save.
+  const handleOptionRemove = ({ key }: ModifierOptionDraft) => {
+    const index = options.findIndex((entry) => entry.key === key);
+    if (index === -1) return;
+    const removed = options[index];
+    setOptions((current) => current.filter((entry) => entry.key !== key));
+
+    let undone = false;
+    const toastId = toast(
+      t("modifierGroups.optionRemoved", { name: removed.name }),
+      {
+        duration: 8000,
+        action: {
+          label: t("common:actions.undo"),
+          onClick: () => {
+            if (undone) return;
+            undone = true;
+            toast.dismiss(toastId);
+            setOptions((current) => {
+              const next = [...current];
+              next.splice(Math.min(index, next.length), 0, removed);
+              return next;
+            });
+          },
+        },
+      },
+    );
   };
 
   // Validation
-  const minValue = single ? 1 : Math.round(toNumber(minSelect));
+  const minValue = single ? 1 : Math.round(parseAmount(minSelect));
   const maxValue = single
     ? 1
     : maxSelect.trim() === ""
       ? null
-      : Math.round(toNumber(maxSelect));
-  const filledOptions = options.filter((option) => option.name.trim() !== "");
+      : Math.round(parseAmount(maxSelect));
   const problem =
     name.trim().length < 2
       ? t("modifierGroups.errors.name")
-      : filledOptions.length === 0
+      : options.length === 0
         ? t("modifierGroups.errors.noOptions")
-        : filledOptions.some(
-              (option) =>
-                !(toNumber(option.priceDelta) >= 0) ||
-                (option.inventoryItemId &&
-                  !(toNumber(option.inventoryQuantity) > 0)),
-            )
-          ? t("modifierGroups.errors.optionValues")
-          : !single &&
-              ((required && !(minValue >= 1)) ||
-                (maxValue !== null && !(maxValue >= 1)) ||
-                (required && maxValue !== null && minValue > maxValue))
-            ? t("modifierGroups.errors.limits")
-            : null;
+        : !single &&
+            ((required && !(minValue >= 1)) ||
+              (maxValue !== null && !(maxValue >= 1)) ||
+              (required && maxValue !== null && minValue > maxValue))
+          ? t("modifierGroups.errors.limits")
+          : null;
 
   const handleSave = async () => {
     if (problem) return;
-    await saveGroup.mutateAsync({
-      id: group?.id,
-      input: {
-        name: name.trim(),
-        minSelect: required ? minValue : 0,
-        maxSelect: maxValue,
-        isActive,
-        modifiers: filledOptions.map((option) => ({
-          ...(option.id && { id: option.id }),
-          name: option.name.trim(),
-          priceDelta: toNumber(option.priceDelta),
-          isActive: option.isActive,
-          inventoryItemId: option.inventoryItemId,
-          inventoryQuantity: option.inventoryItemId
-            ? toNumber(option.inventoryQuantity)
-            : null,
-        })),
-      },
-    });
-    router.back();
+    try {
+      const saved = await saveGroup.mutateAsync({
+        id: group?.id,
+        input: {
+          name: name.trim(),
+          minSelect: required ? minValue : 0,
+          maxSelect: maxValue,
+          isActive,
+          modifiers: options.map((option) => ({
+            ...(option.id && { id: option.id }),
+            name: option.name,
+            priceDelta: parseAmount(option.priceDelta) || 0,
+            isActive: option.isActive,
+            inventoryItemId: option.inventoryItemId,
+            inventoryQuantity: option.inventoryItemId
+              ? parseAmount(option.inventoryQuantity)
+              : null,
+          })),
+        },
+      });
+      if (!group && linkToProduct) setCreatedGroupId(saved.id);
+      leavingRef.current = true;
+      router.back();
+    } catch {
+      // The mutation already shows the error; the edits stay on screen.
+    }
   };
 
   const handleDelete = async () => {
     if (!group) return;
-    await deleteGroup.mutateAsync(group.id);
-    setShowDelete(false);
-    router.back();
+    try {
+      await deleteGroup.mutateAsync(group.id);
+      setShowDelete(false);
+      leavingRef.current = true;
+      router.back();
+    } catch {
+      // The mutation already shows the error.
+    }
   };
 
   if (groupId && !group) {
@@ -216,6 +381,7 @@ export default function ModifierGroupFormScreen() {
             onPress={() => router.back()}
             accessibilityRole="button"
             accessibilityLabel={t("common:actions.goBack")}
+            hitSlop={12}
             style={({ pressed }) => tw.style(pressed && "opacity-70")}
           >
             <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
@@ -227,21 +393,27 @@ export default function ModifierGroupFormScreen() {
           >
             {group ? group.name : t("modifierGroups.newGroup")}
           </ThemedText>
-          {group && canManage && (
-            <IconButton
-              icon="trash"
-              variant="destructive"
-              onPress={() => setShowDelete(true)}
-              accessibilityLabel={t("modifierGroups.delete")}
-            />
-          )}
         </ThemedView>
 
-        <ScrollView
+        <ScrollViewContainer
           contentContainerStyle={tw`px-4 pt-4 pb-10 gap-6`}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
+          {usedInCount > 0 && (
+            <ThemedView style={tw`flex-row items-start gap-2`}>
+              <Icon
+                name="link"
+                size={16}
+                color={tw.color("gray-500")}
+                style={tw`mt-0.5`}
+              />
+              <ThemedText type="body2" style={tw`flex-1 text-gray-600`}>
+                {t("modifierGroups.usedInCount", { count: usedInCount })}
+              </ThemedText>
+            </ThemedView>
+          )}
+
           <TextInput
             label={t("modifierGroups.fields.name")}
             placeholder={t("modifierGroups.fields.namePlaceholder")}
@@ -303,122 +475,50 @@ export default function ModifierGroupFormScreen() {
                 </ThemedView>
               </ThemedView>
             )}
-            <Switch
-              label={t("modifierGroups.fields.active")}
-              value={isActive}
-              onValueChange={setIsActive}
-              disabled={!canManage}
-            />
           </ThemedView>
 
           <ThemedView style={tw`gap-3`}>
-            <ThemedText style={{ fontFamily: typography.bold }}>
-              {t("modifierGroups.fields.options")}
-            </ThemedText>
-            {options.map((option, index) => (
-              <Card key={option.key} variant="outline" style={tw`p-4 gap-3`}>
-                <ThemedView style={tw`flex-row items-start gap-2 bg-transparent`}>
-                  <ThemedView style={tw`flex-1 bg-transparent`}>
-                    <TextInput
-                      label={t("modifierGroups.fields.optionName")}
-                      value={option.name}
-                      onChangeText={(value) =>
-                        updateOption(option.key, { name: value })
+            <ThemedView style={tw`gap-1`}>
+              <ThemedText style={{ fontFamily: typography.bold }}>
+                {t("modifierGroups.fields.options")}
+              </ThemedText>
+              {options.length > 1 && (
+                <ThemedText type="small" style={tw`text-gray-500`}>
+                  {t("modifierGroups.reorderHint")}
+                </ThemedText>
+              )}
+            </ThemedView>
+            {options.length > 0 && (
+              <DetailCard style={tw`py-1`}>
+                <NestedReorderableList
+                  data={options}
+                  keyExtractor={(option) => option.key}
+                  scrollEnabled={false}
+                  onReorder={({ from, to }) =>
+                    setOptions((current) => reorderItems(current, from, to))
+                  }
+                  renderItem={({ item: option, index }) => (
+                    <OptionRow
+                      option={option}
+                      item={
+                        option.inventoryItemId
+                          ? itemById.get(option.inventoryItemId)
+                          : undefined
                       }
-                      maxLength={60}
+                      isFirst={index === 0}
+                      isLast={index === options.length - 1}
+                      onPress={() => optionSheetRef.current?.present(option)}
+                      onMove={(delta) => moveOption(index, delta)}
                     />
-                  </ThemedView>
-                  <TextInput
-                    containerStyle={{ width: 110 }}
-                    label={t("modifierGroups.fields.priceDelta")}
-                    value={option.priceDelta}
-                    onChangeText={(value) =>
-                      updateOption(option.key, { priceDelta: value })
-                    }
-                    keyboardType="decimal-pad"
-                  />
-                </ThemedView>
-
-                <Pressable
-                  onPress={() => {
-                    setPickingFor(option.key);
-                    itemPickerRef.current?.present();
-                  }}
-                  accessibilityRole="button"
-                  style={({ pressed }) => [
-                    tw`flex-row items-center gap-3 min-h-12`,
-                    pressed && tw`opacity-60`,
-                  ]}
-                >
-                  <Icon name="package" size={18} color={tw.color("gray-500")} />
-                  <ThemedText type="body2" style={tw`flex-1`}>
-                    {itemName(option.inventoryItemId) ??
-                      t("modifierGroups.fields.noInventoryItem")}
-                  </ThemedText>
-                  <Icon
-                    name="chevron-right"
-                    size={18}
-                    color={tw.color("gray-400")}
-                  />
-                </Pressable>
-                {option.inventoryItemId && (
-                  <TextInput
-                    label={t("modifierGroups.fields.inventoryQuantity")}
-                    value={option.inventoryQuantity}
-                    onChangeText={(value) =>
-                      updateOption(option.key, { inventoryQuantity: value })
-                    }
-                    keyboardType="decimal-pad"
-                  />
-                )}
-
-                <ThemedView
-                  style={tw`flex-row items-center gap-3 bg-transparent`}
-                >
-                  {/* Labeled Switch is w-full; the wrapper leaves room for the actions */}
-                  <ThemedView style={tw`flex-1 bg-transparent`}>
-                    <Switch
-                      label={t("modifierGroups.fields.optionActive")}
-                      value={option.isActive}
-                      onValueChange={(value) =>
-                        updateOption(option.key, { isActive: value })
-                      }
-                    />
-                  </ThemedView>
-                  <ThemedView style={tw`flex-row gap-1 bg-transparent`}>
-                    <IconButton
-                      icon="arrow-up"
-                      size={18}
-                      disabled={index === 0}
-                      onPress={() => moveOption(index, -1)}
-                      accessibilityLabel={t("modifierGroups.moveUp")}
-                    />
-                    <IconButton
-                      icon="arrow-down"
-                      size={18}
-                      disabled={index === options.length - 1}
-                      onPress={() => moveOption(index, 1)}
-                      accessibilityLabel={t("modifierGroups.moveDown")}
-                    />
-                    <IconButton
-                      icon="trash"
-                      size={18}
-                      onPress={() =>
-                        setOptions((current) =>
-                          current.filter((entry) => entry.key !== option.key),
-                        )
-                      }
-                      accessibilityLabel={t("modifierGroups.removeOption")}
-                    />
-                  </ThemedView>
-                </ThemedView>
-              </Card>
-            ))}
+                  )}
+                />
+              </DetailCard>
+            )}
             <Button
               variant="outline"
               leftIcon="plus"
               label={t("modifierGroups.addOption")}
-              onPress={() => setOptions((current) => [...current, newOption()])}
+              onPress={() => optionSheetRef.current?.present()}
             />
           </ThemedView>
 
@@ -434,7 +534,28 @@ export default function ModifierGroupFormScreen() {
               </ThemedText>
             </ThemedView>
           )}
-        </ScrollView>
+
+          {group && (
+            <Switch
+              label={t("modifierGroups.fields.active")}
+              value={isActive}
+              onValueChange={setIsActive}
+              disabled={!canManage}
+            />
+          )}
+
+          {group && canManage && (
+            <ThemedView style={tw`items-center mt-12`}>
+              <Button
+                label={t("modifierGroups.delete")}
+                leftIcon="trash"
+                variant="text"
+                size="small"
+                onPress={() => setShowDelete(true)}
+              />
+            </ThemedView>
+          )}
+        </ScrollViewContainer>
 
         {canManage && (
           <ThemedView style={tw`px-4 pt-2 pb-4 gap-2`}>
@@ -452,37 +573,18 @@ export default function ModifierGroupFormScreen() {
           </ThemedView>
         )}
 
-        <BottomSheetPicker
-          ref={itemPickerRef}
-          title={t("modifierGroups.fields.inventoryItem")}
-          searchable
-          options={[
-            { label: t("modifierGroups.fields.noInventoryItem"), value: "" },
-            ...items
-              .filter((item) => item.isActive)
-              .map((item) => ({
-                label: item.name,
-                value: item.id,
-                description: item.unit,
-              })),
-          ]}
-          value={
-            options.find((option) => option.key === pickingFor)
-              ?.inventoryItemId ?? ""
-          }
-          onChange={(value) => {
-            if (!pickingFor) return;
-            updateOption(pickingFor, {
-              inventoryItemId: value ? String(value) : null,
-            });
-          }}
+        <ModifierOptionSheet
+          ref={optionSheetRef}
+          items={items}
+          onSubmit={handleOptionSubmit}
+          onRemove={handleOptionRemove}
         />
 
         <DialogModal
           visible={showDelete}
           title={t("modifierGroups.deleteTitle")}
           message={t("modifierGroups.deleteMessage", {
-            count: group?.productIds?.length ?? 0,
+            count: usedInCount,
           })}
           confirmLabel={t("modifierGroups.delete")}
           confirmVariant="destructive"
@@ -490,6 +592,24 @@ export default function ModifierGroupFormScreen() {
           onConfirm={handleDelete}
           onCancel={() => setShowDelete(false)}
           loading={deleteGroup.isPending}
+        />
+
+        <DialogModal
+          visible={showDiscard}
+          title={t("modifierGroups.discardTitle")}
+          message={t("modifierGroups.discardMessage")}
+          confirmLabel={t("modifierGroups.discard")}
+          cancelLabel={t("modifierGroups.keepEditing")}
+          confirmVariant="destructive"
+          onConfirm={() => {
+            setShowDiscard(false);
+            if (pendingAction.current)
+              navigation.dispatch(pendingAction.current);
+          }}
+          onCancel={() => {
+            pendingAction.current = null;
+            setShowDiscard(false);
+          }}
         />
       </ScreenLayout>
     </KeyboardAvoidingView>

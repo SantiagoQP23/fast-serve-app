@@ -48,6 +48,8 @@ export default function ButtonGroup({
           <Pressable
             key={option.label}
             onPress={() => onChange(option.value)}
+            // Segments draw 36dp tall; grow the touch area to 48dp.
+            hitSlop={{ top: 6, bottom: 6 }}
             accessibilityRole="button"
             accessibilityLabel={option.label}
             accessibilityState={{ selected: isActive }}

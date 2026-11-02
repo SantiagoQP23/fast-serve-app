@@ -9,7 +9,6 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import tw from "../lib/tailwind";
-import { ThemedView } from "./themed-view";
 import { ThemedText } from "./themed-text";
 import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
@@ -27,8 +26,8 @@ const TRACK_HEIGHT = 26;
 const THUMB_SIZE = 22;
 const THUMB_INSET = (TRACK_HEIGHT - THUMB_SIZE) / 2;
 const THUMB_TRAVEL = TRACK_WIDTH - THUMB_SIZE - THUMB_INSET * 2;
-// Grows the touch target to 44pt without changing how the track looks.
-const HIT_SLOP = (44 - TRACK_HEIGHT) / 2;
+// Grows the touch target to 48dp without changing how the track looks.
+const HIT_SLOP = (48 - TRACK_HEIGHT) / 2;
 
 /** Pill track with a round thumb, drawn the same on iOS and Android. */
 export default function Switch({
@@ -59,52 +58,57 @@ export default function Switch({
     transform: [{ translateX: progress.value * THUMB_TRAVEL }],
   }));
 
+  const track = (
+    <Animated.View
+      style={[
+        {
+          width: TRACK_WIDTH,
+          height: TRACK_HEIGHT,
+          borderRadius: TRACK_HEIGHT / 2,
+          padding: THUMB_INSET,
+        },
+        trackStyle,
+        disabled && tw`opacity-50`,
+      ]}
+    >
+      <Animated.View
+        style={[
+          {
+            width: THUMB_SIZE,
+            height: THUMB_SIZE,
+            borderRadius: THUMB_SIZE / 2,
+            backgroundColor: palette.onPrimary,
+          },
+          thumbStyle,
+        ]}
+      />
+    </Animated.View>
+  );
+
   return (
-    <ThemedView
+    <Pressable
+      onPress={() => onValueChange(!value)}
+      disabled={disabled}
+      // A labeled switch toggles from anywhere on its row.
+      hitSlop={label ? { top: HIT_SLOP, bottom: HIT_SLOP } : HIT_SLOP}
+      accessibilityRole="switch"
+      accessibilityState={{ checked: value, disabled }}
+      accessibilityLabel={accessibilityLabel ?? label}
       style={[
         tw`flex-row items-center`,
         // Unlabeled switches sit inline, e.g. at the end of an InfoRow.
-        !!label && tw`justify-between w-full`,
+        !!label && tw`justify-between gap-3 w-full`,
       ]}
     >
       {label && (
-        <ThemedText style={{ fontFamily: typography.medium }} type="body1">
+        <ThemedText
+          style={[tw`shrink`, { fontFamily: typography.medium }]}
+          type="body1"
+        >
           {label}
         </ThemedText>
       )}
-      <Pressable
-        onPress={() => onValueChange(!value)}
-        disabled={disabled}
-        hitSlop={HIT_SLOP}
-        accessibilityRole="switch"
-        accessibilityState={{ checked: value, disabled }}
-        accessibilityLabel={accessibilityLabel ?? label}
-        style={disabled && tw`opacity-50`}
-      >
-        <Animated.View
-          style={[
-            {
-              width: TRACK_WIDTH,
-              height: TRACK_HEIGHT,
-              borderRadius: TRACK_HEIGHT / 2,
-              padding: THUMB_INSET,
-            },
-            trackStyle,
-          ]}
-        >
-          <Animated.View
-            style={[
-              {
-                width: THUMB_SIZE,
-                height: THUMB_SIZE,
-                borderRadius: THUMB_SIZE / 2,
-                backgroundColor: palette.onPrimary,
-              },
-              thumbStyle,
-            ]}
-          />
-        </Animated.View>
-      </Pressable>
-    </ThemedView>
+      {track}
+    </Pressable>
   );
 }

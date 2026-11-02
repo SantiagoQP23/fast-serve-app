@@ -71,6 +71,14 @@ export const useModifierGroups = ({
         : ModifierGroupsService.create(input),
     onSuccess: (group) => {
       updateProductsGroup(group.id, group);
+      // Known right away, e.g. by the product that links a new group
+      queryClient.setQueryData<ModifierGroup[]>(
+        modifierGroupsQueryKey,
+        (current) =>
+          current && !current.some((entry) => entry.id === group.id)
+            ? [...current, group]
+            : current,
+      );
       toast.success(t("modifierGroups.saved"));
       invalidate();
     },

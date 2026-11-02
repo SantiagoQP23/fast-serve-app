@@ -331,8 +331,11 @@
   },
   "modifierGroups": {
     "title": "Option groups",
+    "subtitle": "Flavors, extras and more. A change here reaches every product using it.",
     "newGroup": "New group",
     "searchPlaceholder": "Search group or option...",
+    "noResults": "No groups match",
+    "noResultsDescription": "Search by the group's name or one of its options.",
     "loadError": "Couldn't load the groups",
     "empty": "No option groups yet",
     "emptyDescription": "Create groups like “Flavor” or “Extras” and add them to your products.",
@@ -341,8 +344,6 @@
     "required": "Required",
     "optional": "Optional",
     "inactive": "Inactive",
-    "optionsCount_one": "{{count}} option",
-    "optionsCount_other": "{{count}} options",
     "productsCount_one": "{{count}} product",
     "productsCount_other": "{{count}} products",
     "notFound": "Group not found",
@@ -381,9 +382,23 @@
     "errors": {
       "name": "Enter a name of at least 2 letters",
       "noOptions": "Add at least one option",
-      "optionValues": "Check the prices and inventory quantities",
-      "limits": "Check the minimum and maximum"
-    }
+      "limits": "Check the minimum and maximum",
+      "optionName": "Enter the option's name",
+      "optionPrice": "Enter a valid price",
+      "optionQuantity": "Enter a quantity above 0"
+    },
+    "newOption": "New option",
+    "editOption": "Edit option",
+    "noExtraCost": "No extra cost",
+    "unavailable": "Unavailable",
+    "reorderHint": "Press and hold an option to move it",
+    "optionRemoved": "Removed “{{name}}”",
+    "usedInCount_one": "Used in {{count}} product. Changes apply to all of them.",
+    "usedInCount_other": "Used in {{count}} products. Changes apply to all of them.",
+    "discardTitle": "Discard changes?",
+    "discardMessage": "Your changes to this group won't be saved.",
+    "discard": "Discard",
+    "keepEditing": "Keep editing"
   },
   "customization": {
     "title": "Customization",
@@ -397,7 +412,7 @@
     "groupsHint": "Shown in this order when taking the order.",
     "linkGroup": "Add group",
     "unlinkGroup": "Remove group",
-    "manageGroups": "Manage",
+    "manageGroups": "Manage groups",
     "addItem": "Add item",
     "removeItem": "Remove item",
     "save": "Save customization",
@@ -410,7 +425,15 @@
       "discount": "Discount when removed"
     },
     "errors": {
-      "values": "Check the discounts and inventory quantities"
-    }
+      "itemName": "Type the item's name",
+      "discount": "Type a valid discount"
+    },
+    "newItem": "New item",
+    "editItem": "Edit item",
+    "alwaysIncluded": "Always included",
+    "reorderHint": "Press and hold to reorder",
+    "discardMessage": "Your changes to this customization won't be saved.",
+    "groupsEmpty": "Add groups like Flavor or Extras so the waiter can choose when taking the order.",
+    "groupsReorderHint": "Shown in this order when taking the order. Press and hold to move them."
   }
 }
