@@ -283,22 +283,24 @@ export default function ModifierGroupFormScreen() {
             {!single && (
               <ThemedView style={tw`flex-row gap-3`}>
                 {required && (
+                  <ThemedView style={tw`flex-1`}>
+                    <TextInput
+                      label={t("modifierGroups.fields.min")}
+                      value={minSelect}
+                      onChangeText={setMinSelect}
+                      keyboardType="number-pad"
+                    />
+                  </ThemedView>
+                )}
+                <ThemedView style={tw`flex-1`}>
                   <TextInput
-                    containerStyle={tw`flex-1`}
-                    label={t("modifierGroups.fields.min")}
-                    value={minSelect}
-                    onChangeText={setMinSelect}
+                    label={t("modifierGroups.fields.max")}
+                    placeholder={t("modifierGroups.fields.noLimit")}
+                    value={maxSelect}
+                    onChangeText={setMaxSelect}
                     keyboardType="number-pad"
                   />
-                )}
-                <TextInput
-                  containerStyle={tw`flex-1`}
-                  label={t("modifierGroups.fields.max")}
-                  placeholder={t("modifierGroups.fields.noLimit")}
-                  value={maxSelect}
-                  onChangeText={setMaxSelect}
-                  keyboardType="number-pad"
-                />
+                </ThemedView>
               </ThemedView>
             )}
             <Switch
@@ -316,15 +318,16 @@ export default function ModifierGroupFormScreen() {
             {options.map((option, index) => (
               <Card key={option.key} variant="outline" style={tw`p-4 gap-3`}>
                 <ThemedView style={tw`flex-row items-start gap-2 bg-transparent`}>
-                  <TextInput
-                    containerStyle={tw`flex-1`}
-                    label={t("modifierGroups.fields.optionName")}
-                    value={option.name}
-                    onChangeText={(value) =>
-                      updateOption(option.key, { name: value })
-                    }
-                    maxLength={60}
-                  />
+                  <ThemedView style={tw`flex-1 bg-transparent`}>
+                    <TextInput
+                      label={t("modifierGroups.fields.optionName")}
+                      value={option.name}
+                      onChangeText={(value) =>
+                        updateOption(option.key, { name: value })
+                      }
+                      maxLength={60}
+                    />
+                  </ThemedView>
                   <TextInput
                     containerStyle={{ width: 110 }}
                     label={t("modifierGroups.fields.priceDelta")}
@@ -370,15 +373,18 @@ export default function ModifierGroupFormScreen() {
                 )}
 
                 <ThemedView
-                  style={tw`flex-row items-center justify-between bg-transparent`}
+                  style={tw`flex-row items-center gap-3 bg-transparent`}
                 >
-                  <Switch
-                    label={t("modifierGroups.fields.optionActive")}
-                    value={option.isActive}
-                    onValueChange={(value) =>
-                      updateOption(option.key, { isActive: value })
-                    }
-                  />
+                  {/* Labeled Switch is w-full; the wrapper leaves room for the actions */}
+                  <ThemedView style={tw`flex-1 bg-transparent`}>
+                    <Switch
+                      label={t("modifierGroups.fields.optionActive")}
+                      value={option.isActive}
+                      onValueChange={(value) =>
+                        updateOption(option.key, { isActive: value })
+                      }
+                    />
+                  </ThemedView>
                   <ThemedView style={tw`flex-row gap-1 bg-transparent`}>
                     <IconButton
                       icon="arrow-up"
