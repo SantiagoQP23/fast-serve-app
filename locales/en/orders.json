@@ -471,7 +471,10 @@
     "noCodesToday": "No codes generated today",
     "loadError": "Couldn't load the codes",
     "onlyAdmins": "Only the owner or an admin can generate codes",
-    "settingOff": "\"Require a code to remove items\" is off in Advanced settings, so nobody needs a code for now.",
+    "requireCode": {
+      "title": "Require a code to remove items",
+      "description": "Anyone who isn't the owner or an admin needs a code from an admin to delete items from an order, lower their quantity, replace them or delete the order. They can't change prices either."
+    },
     "codeTitle": "Code {{code}}",
     "codeShort": "code {{code}}",
     "createdAt": "Generated at {{time}}",

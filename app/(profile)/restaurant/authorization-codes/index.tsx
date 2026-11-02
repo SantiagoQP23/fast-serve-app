@@ -10,6 +10,8 @@ import tw from "@/presentation/theme/lib/tailwind";
 import Button from "@/presentation/theme/components/button";
 import Label from "@/presentation/theme/components/label";
 import Icon from "@/presentation/theme/components/icon";
+import Card from "@/presentation/theme/components/card";
+import Switch from "@/presentation/theme/components/switch";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
@@ -22,6 +24,7 @@ import {
   AuthorizationCode,
 } from "@/core/orders/authorization/authorization-code.model";
 import { useRestaurantSettings } from "@/presentation/restaurant/hooks/useRestaurantSettings";
+import { DEFAULT_REQUIRE_CODE_TO_REMOVE_ITEMS } from "@/core/restaurant/models/restaurant-settings.model";
 
 const QUERY_KEY = "authorization-codes";
 
@@ -47,8 +50,17 @@ export default function AuthorizationCodesScreen() {
   const { user, currentRestaurant } = useAuthStore();
   const restaurantId = currentRestaurant?.id;
   const isAdmin = isAdminLevelRole(user?.role?.name);
-  const { settings } = useRestaurantSettings();
-  const protectionOn = settings?.REQUIRE_CODE_TO_REMOVE_ITEMS === true;
+  const { settings, updateSettings } = useRestaurantSettings();
+
+  // While saving, show the new value so the switch doesn't jump back.
+  const pendingRequireCode = updateSettings.isPending
+    ? updateSettings.variables?.REQUIRE_CODE_TO_REMOVE_ITEMS
+    : undefined;
+  const requireCode =
+    typeof pendingRequireCode === "boolean"
+      ? pendingRequireCode
+      : (settings?.REQUIRE_CODE_TO_REMOVE_ITEMS ??
+        DEFAULT_REQUIRE_CODE_TO_REMOVE_ITEMS);
 
   // Today, in the phone's time zone.
   const [day] = useState(() => ({
@@ -173,14 +185,19 @@ export default function AuthorizationCodesScreen() {
           <RefreshControl refreshing={query.isRefetching} onRefresh={refresh} />
         }
       >
-        {!protectionOn && settings && (
-          <ThemedView style={tw`flex-row gap-2 p-3 rounded-md bg-surface`}>
-            <Icon name="info" size={18} />
-            <ThemedText type="small" style={tw`flex-1 text-gray-500`}>
-              {t("orders:authorization.settingOff")}
-            </ThemedText>
-          </ThemedView>
-        )}
+        <Card style={tw`gap-1 p-4 rounded-3xl`}>
+          <Switch
+            label={t("orders:authorization.requireCode.title")}
+            value={requireCode}
+            onValueChange={(value) =>
+              updateSettings.mutate({ REQUIRE_CODE_TO_REMOVE_ITEMS: value })
+            }
+            disabled={!settings || updateSettings.isPending}
+          />
+          <ThemedText type="small" style={tw`text-gray-500`}>
+            {t("orders:authorization.requireCode.description")}
+          </ThemedText>
+        </Card>
 
         <ThemedView
           style={tw`rounded-md border border-border px-4 py-6 items-center gap-1`}
