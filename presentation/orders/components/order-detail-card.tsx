@@ -79,7 +79,13 @@ export default function OrderDetailCard({
   readOnly = false,
 }: OrderDetailCardProps) {
   const { t } = useTranslation(["common", "orders", "errors"]);
-  const order = useOrdersStore((state) => state.activeOrder);
+  // The card also renders outside the active order (the orders list cards),
+  // so resolve the order it belongs to rather than the last one opened.
+  const order = useOrdersStore((state) =>
+    !orderId || state.activeOrder?.id === orderId
+      ? state.activeOrder
+      : state.orders.find((o) => o.id === orderId),
+  );
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
   const bottomSheetModalRef = useRef<BottomSheetMethods>(null);
   const deleteBlockedSheetRef = useRef<BottomSheetMethods>(null);
@@ -249,8 +255,10 @@ export default function OrderDetailCard({
     updateOrderDetail({
       id: detail.id,
       orderId: currentOrderId,
-      status: OrderDetailStatus.PENDING,
-      qtyDelivered: 0,
+      status: checked
+        ? OrderDetailStatus.DELIVERED
+        : OrderDetailStatus.PENDING,
+      qtyDelivered: checked ? detail.quantity : 0,
     });
   };
 
