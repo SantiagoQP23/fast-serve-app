@@ -27,6 +27,8 @@ import {
   DetailCard,
   DetailSectionTitle,
 } from "@/presentation/theme/components/detail-card";
+import { OnboardingStep } from "@/core/restaurant/models/onboarding.model";
+import { reportOnboardingStep } from "@/presentation/onboarding/report-onboarding-step";
 
 /** Order the role groups appear in, from most to least privileged. */
 const ROLE_ORDER = [
@@ -54,6 +56,7 @@ export default function StaffScreen() {
 
   const handlePresentInvite = () => {
     inviteBottomSheetRef.current?.present();
+    reportOnboardingStep(OnboardingStep.STAFF);
   };
 
   const closeInviteBottomSheet = () => {

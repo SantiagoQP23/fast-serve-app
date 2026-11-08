@@ -1,0 +1,55 @@
+{
+  "welcome": {
+    "title": "{{name}} is ready",
+    "body": "We set up the basics so you can take an order today. You can change everything later.",
+    "tables_one": "{{count}} table",
+    "tables_other": "{{count}} tables",
+    "areas": "Areas: {{names}}",
+    "paymentMethods": "Payments: {{names}}",
+    "trial_one": "{{count}} day of Premium trial",
+    "trial_other": "{{count}} days of Premium trial"
+  },
+  "menu": {
+    "title": "How do you want to start your menu?",
+    "empty": {
+      "title": "Empty menu",
+      "body": "I'll add my own products. Best if you already know what you sell."
+    },
+    "sample": {
+      "title": "With sample products",
+      "body": "4 products to try an order. Delete them whenever you want."
+    },
+    "offline": "We can't remove the sample products while offline. Connect or continue with the sample menu.",
+    "error": "We couldn't remove the sample products."
+  },
+  "steps": {
+    "title": "Your first steps",
+    "body": "This list stays in Manage. Do it at your own pace, in any order.",
+    "menu": { "title": "Add your products" },
+    "restaurant-info": { "title": "Receipt details and logo" },
+    "tables": { "title": "Check tables and zones" },
+    "payment-methods": { "title": "Check payment methods" },
+    "staff": { "title": "Invite your team" },
+    "printer": { "title": "Connect a printer" },
+    "first-order": { "title": "Take your first order" }
+  },
+  "card": {
+    "title": "First steps",
+    "progress": "{{done}} of {{total}}",
+    "optional": "Optional",
+    "optionalLeft_one": "+ {{count}} optional",
+    "optionalLeft_other": "+ {{count}} optional",
+    "options": "First steps options",
+    "hide": "Hide first steps",
+    "hideHint": "It won't show in Manage again",
+    "allDone": "All set",
+    "allDoneMessage": "Your restaurant is set up. You can change everything from Manage.",
+    "close": "Close"
+  },
+  "actions": {
+    "continue": "Continue",
+    "back": "Back",
+    "addFirstProduct": "Add my first product",
+    "goHome": "Go to Home"
+  }
+}

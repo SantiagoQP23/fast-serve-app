@@ -90,7 +90,13 @@ export default function CreateRestaurantScreen() {
           }
 
           // toast.success(t("createRestaurant.successMessage"));
-          router.replace("/(app)/(tabs)/(orders-module)/my-orders");
+          // Owners of a new restaurant start with the onboarding; an old
+          // backend doesn't send the flag, so they go straight to Inicio.
+          router.replace(
+            response.currentRestaurant?.onboardingCompleted === false
+              ? "/onboarding"
+              : "/(app)/(tabs)/(orders-module)/my-orders",
+          );
         } else {
           toast.error(t("createRestaurant.errorMessage"));
         }

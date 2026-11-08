@@ -40,6 +40,8 @@ import CopyVariantsSheet, {
   type VariantSetOption,
 } from "@/presentation/menu-management/components/copy-variants-sheet";
 import { useMenuFormStore } from "@/presentation/menu-management/store/useMenuFormStore";
+import { OnboardingStep } from "@/core/restaurant/models/onboarding.model";
+import { reportOnboardingStep } from "@/presentation/onboarding/report-onboarding-step";
 
 if (
   Platform.OS === "android" &&
@@ -394,6 +396,7 @@ export default function MenuProductFormScreen() {
     } else {
       await createProduct.mutateAsync(payload);
       setLastProductionAreaId(payload.productionAreaId);
+      reportOnboardingStep(OnboardingStep.MENU);
     }
 
     if (addAnother) {

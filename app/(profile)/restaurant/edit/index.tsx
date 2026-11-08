@@ -19,6 +19,8 @@ import TextInput from "@/presentation/theme/components/text-input";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
+import { OnboardingStep } from "@/core/restaurant/models/onboarding.model";
+import { reportOnboardingStep } from "@/presentation/onboarding/report-onboarding-step";
 
 type EditRestaurantFormData = {
   name: string;
@@ -101,6 +103,7 @@ export default function EditRestaurantScreen() {
 
     try {
       await updateMutation.mutateAsync(payload);
+      reportOnboardingStep(OnboardingStep.RESTAURANT_INFO);
       // No success toast: the info screen already shows the new info.
       updateCurrentRestaurantInfo({
         ...payload,

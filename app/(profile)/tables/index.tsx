@@ -24,6 +24,8 @@ import { useTableAreasManagement } from "@/presentation/tables/hooks/useTableAre
 import BottomSheetPicker, {
   type BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
+import { OnboardingStep } from "@/core/restaurant/models/onboarding.model";
+import { useReportOnboardingStepOnOpen } from "@/presentation/onboarding/report-onboarding-step";
 
 const NO_AREA = "no-area";
 const COLUMNS = 3;
@@ -42,6 +44,9 @@ export default function TablesSettingsScreen() {
   const { isLoading, isError, refetch, isRefetching } = tablesQuery;
   const { user } = useAuthStore();
   const canManage = isValidRole(user?.role?.name, [Roles.ADMIN, Roles.OWNER]);
+
+  // Opening the tables screen is the "check tables" onboarding step.
+  useReportOnboardingStepOnOpen(OnboardingStep.TABLES);
   const { groups, hasAreas, areas } = useTableGroups(tables, {
     includeHidden: true,
     includeEmpty: true,
