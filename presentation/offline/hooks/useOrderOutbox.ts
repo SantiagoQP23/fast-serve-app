@@ -32,6 +32,7 @@ import {
   hasPendingOperations,
   useOutboxStore,
 } from "../store/useOutboxStore";
+import { finishCreatingOrder, startCreatingOrder } from "../pending-orders";
 import {
   addLocalDetails,
   applyLocalDetailRemoval,
@@ -209,6 +210,36 @@ export const useOrderOutbox = () => {
       return;
     }
 
+    // Same cart sent again (double tap, or a tap while the comanda prints):
+    // the first one is already creating this order.
+    if (!startCreatingOrder(operationId, orderId)) return;
+    try {
+      await queueNewOrder(dto, options, {
+        operationId,
+        orderId,
+        detailIds,
+        details,
+      });
+    } finally {
+      finishCreatingOrder(operationId);
+    }
+  };
+
+  const queueNewOrder = async (
+    dto: CreateOrderDto,
+    options: QueueOptions<Order>,
+    {
+      operationId,
+      orderId,
+      detailIds,
+      details,
+    }: {
+      operationId: string;
+      orderId: string;
+      detailIds: string[];
+      details: (OrderDetail | null)[];
+    },
+  ) => {
     const order = buildLocalOrder({
       id: orderId,
       type: dto.typeOrder,
@@ -437,7 +468,10 @@ export const useOrderOutbox = () => {
     options.onSuccess?.({ ok: true, msg: "", data: { order: updated } });
   };
 
-  const updateOrder = (dto: UpdateOrderDto, options: QueueOptions<Order> = {}) => {
+  const updateOrder = (
+    dto: UpdateOrderDto,
+    options: QueueOptions<Order> = {},
+  ) => {
     const order = findOrder(dto.id);
     if (!order) return;
 

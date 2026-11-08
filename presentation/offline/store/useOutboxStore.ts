@@ -48,6 +48,11 @@ interface OutboxState {
   remove: (id: string) => void;
   /** Drops every queued operation of one order. */
   removeOrder: (orderId: string) => void;
+  /**
+   * Points the queued operations of a local order at the server's order,
+   * when the server answered a create with an order it already had.
+   */
+  remapOrder: (fromOrderId: string, toOrderId: string) => void;
   /** Drops every queued operation (logout). */
   clear: () => void;
 }
@@ -59,15 +64,19 @@ export const useOutboxStore = create<OutboxState>()(
 
       enqueue: (operation) =>
         set((state) => ({
-          operations: [
-            ...state.operations,
-            {
-              ...operation,
-              status: "pending",
-              attempts: 0,
-              createdAt: Date.now(),
-            },
-          ],
+          // The same operation twice (e.g. a double tap) would be sent once
+          // but leave a second local copy behind.
+          operations: state.operations.some((op) => op.id === operation.id)
+            ? state.operations
+            : [
+                ...state.operations,
+                {
+                  ...operation,
+                  status: "pending",
+                  attempts: 0,
+                  createdAt: Date.now(),
+                },
+              ],
         })),
 
       setStatus: (id, status, error) =>
@@ -93,6 +102,21 @@ export const useOutboxStore = create<OutboxState>()(
       removeOrder: (orderId) =>
         set((state) => ({
           operations: state.operations.filter((op) => op.orderId !== orderId),
+        })),
+
+      remapOrder: (fromOrderId, toOrderId) =>
+        set((state) => ({
+          operations: state.operations.map((op) => {
+            if (op.orderId !== fromOrderId) return op;
+            const payload = { ...op.payload };
+            if (payload.orderId === fromOrderId) payload.orderId = toOrderId;
+            if (
+              op.event === OrderSocketEvent.updateOrder &&
+              payload.id === fromOrderId
+            )
+              payload.id = toOrderId;
+            return { ...op, orderId: toOrderId, payload };
+          }),
         })),
 
       clear: () => set({ operations: [] }),

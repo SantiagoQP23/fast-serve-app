@@ -18,7 +18,10 @@ const SEND_TIMEOUT_MS = 15000;
 const RETRY_DELAYS_MS = [5000, 15000, 30000, 60000];
 
 /** The server already has this change (e.g. the first send's ack was lost). */
-const ALREADY_APPLIED_CODES = ["ORDER_ALREADY_EXISTS", "ORDER_DETAIL_ALREADY_EXISTS"];
+const ALREADY_APPLIED_CODES = [
+  "ORDER_ALREADY_EXISTS",
+  "ORDER_DETAIL_ALREADY_EXISTS",
+];
 /** The server is still processing the same operation; ask again later. */
 const IN_PROGRESS_CODE = "ORDER_OPERATION_IN_PROGRESS";
 
@@ -74,14 +77,24 @@ export const useOutboxRunner = () => {
   const applyServerOrder = useCallback((op: OutboxOperation, order?: Order) => {
     if (!order?.id) return;
 
+    // The server answered a create with an order it already had under
+    // another id (same idempotencyKey sent twice): this local copy is a
+    // duplicate. Drop it and move anything queued for it to the real order.
+    if (order.id !== op.orderId) {
+      useOutboxStore.getState().remapOrder(op.orderId, order.id);
+      const store = useOrdersStore.getState();
+      store.deleteOrder(op.orderId);
+      if (store.activeOrder?.id === op.orderId) store.setActiveOrder(order);
+    }
+
+    const store = useOrdersStore.getState();
     // More actions for this order are still waiting: keep the local copy,
     // which already shows them. The sync after the queue drains fixes it.
     const stillQueued = useOutboxStore
       .getState()
-      .operations.some((o) => o.orderId === op.orderId);
-    if (stillQueued) return;
+      .operations.some((o) => o.orderId === order.id);
+    if (stillQueued && store.orders.some((o) => o.id === order.id)) return;
 
-    const store = useOrdersStore.getState();
     if (order.isClosed) {
       store.deleteOrder(order.id);
     } else if (store.orders.some((o) => o.id === order.id)) {
@@ -114,7 +127,10 @@ export const useOutboxRunner = () => {
         return "retry";
       }
 
-      if (resp?.ok || (resp?.code && ALREADY_APPLIED_CODES.includes(resp.code))) {
+      if (
+        resp?.ok ||
+        (resp?.code && ALREADY_APPLIED_CODES.includes(resp.code))
+      ) {
         outbox.remove(op.id);
 
         const { order, tickets } = orderFromResponse(resp.data);

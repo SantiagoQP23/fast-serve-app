@@ -29,6 +29,7 @@ import { useSyncStore } from "../store/useSyncStore";
 import { queryClient } from "@/app/_layout";
 import { RESTAURANT_SETTINGS_QUERY_KEY } from "@/presentation/restaurant/hooks/useRestaurantSettings";
 import {
+  dropOrphanLocalOrders,
   keepLocalPendingOrders,
   shouldSkipOrderSyncEvent,
 } from "@/presentation/offline/pending-orders";
@@ -83,7 +84,10 @@ function applySnapshot(
   if (snapshot.paymentMethods) {
     usePaymentMethodsStore
       .getState()
-      .setPaymentMethods(snapshot.paymentMethods as PaymentMethod[], restaurantId);
+      .setPaymentMethods(
+        snapshot.paymentMethods as PaymentMethod[],
+        restaurantId,
+      );
   }
   if (snapshot.accounts) {
     useAccountsStore
@@ -371,6 +375,9 @@ export const useSync = () => {
         );
         setSynced(finalSequence);
         onSyncApplied(finalSequence);
+        // Synced with the server: a local order with no number and nothing
+        // queued for it never reached the server and never will.
+        dropOrphanLocalOrders();
         return finalSequence;
       } catch (error) {
         setError();
