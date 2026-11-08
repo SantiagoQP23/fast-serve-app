@@ -118,6 +118,7 @@ export const buildLocalOrder = (input: {
       notes: input.notes ?? "",
       deliveryTime:
         input.deliveryTime ?? new Date(now.getTime() + 15 * 60 * 1000),
+      isScheduled: !!input.deliveryTime,
       createdAt: now,
       updatedAt: now,
       details: [],

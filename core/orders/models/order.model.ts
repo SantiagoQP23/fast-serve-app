@@ -10,6 +10,8 @@ import { Ticket } from "@/core/tickets/models/ticket.model";
 export interface Order {
   notes: string;
   deliveryTime: Date;
+  /** The waiter picked the delivery time instead of the standard prep time. */
+  isScheduled?: boolean;
   createdAt: Date;
   details: OrderDetail[];
   id: string;

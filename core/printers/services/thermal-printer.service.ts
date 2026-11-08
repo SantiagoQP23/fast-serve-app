@@ -282,6 +282,9 @@ export class ThermalPrinterService {
     const isCancel = ticketType === TicketType.CANCEL;
     const isUpdate = ticketType === TicketType.UPDATE;
     const qtyPrefix = isCancel ? "-" : "";
+    // A time the waiter picked goes big under the table, so the kitchen
+    // doesn't start it early; the standard time stays a small line.
+    const isScheduled = !!order.isScheduled && !!order.deliveryTime;
 
     const detailsText = areaItems
       .map((item) => {
@@ -325,11 +328,12 @@ export class ThermalPrinterService {
       `[C]\n` +
       `[C]${translations.order}\n` +
       `[C]<font size='big'>${order.table ? translations.table(order.table.name) : translations.takeAway}</font>\n` +
+      `${isScheduled ? `[C]\n[C]<font size='big'><b>${translations.deliveryTime}</b></font>\n[C]<font size='big'><b>${formatTime(order.deliveryTime)}</b></font>\n` : ""}` +
       `[C]\n` +
       `[L]${translations.waiter}: ${order.user?.person.firstName ?? translations.deletedUser} ${order.user?.person.lastName ?? ""}\n` +
       `[L]${translations.date}: ${formatDateTime(order.createdAt)}\n` +
       `[L]${translations.people}: ${order.people}\n` +
-      `${order.deliveryTime ? `[L]<b>${translations.deliveryTime}: ${formatTime(order.deliveryTime)}</b>\n` : ""}` +
+      `${order.deliveryTime && !isScheduled ? `[L]<b>${translations.deliveryTime}: ${formatTime(order.deliveryTime)}</b>\n` : ""}` +
       `${order.notes ? `[C]-------------------------------------\n[L]${translations.notes}: ${order.notes}\n` : ""}` +
       `[C]\n` +
       `[C]----------------------------------------------\n` +
