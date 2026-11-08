@@ -1,0 +1,55 @@
+{
+  "welcome": {
+    "title": "{{name}} está lista",
+    "body": "Ya preparamos lo básico para que puedas tomar un pedido hoy mismo. Puedes cambiar todo después.",
+    "tables_one": "{{count}} mesa",
+    "tables_other": "{{count}} mesas",
+    "areas": "Áreas: {{names}}",
+    "paymentMethods": "Pagos: {{names}}",
+    "trial_one": "{{count}} día de prueba Premium",
+    "trial_other": "{{count}} días de prueba Premium"
+  },
+  "menu": {
+    "title": "¿Cómo empiezas tu menú?",
+    "empty": {
+      "title": "Menú vacío",
+      "body": "Agrego mis propios productos. Recomendado si ya sabes qué vendes."
+    },
+    "sample": {
+      "title": "Con productos de ejemplo",
+      "body": "4 productos para probar un pedido. Los borras cuando quieras."
+    },
+    "offline": "Sin conexión no podemos quitar los productos de ejemplo. Conéctate o sigue con el menú de ejemplo.",
+    "error": "No pudimos quitar los productos de ejemplo."
+  },
+  "steps": {
+    "title": "Tus primeros pasos",
+    "body": "Te dejamos esta lista en Inicio. Hazla a tu ritmo, en el orden que quieras.",
+    "menu": { "title": "Agrega tus productos" },
+    "restaurant-info": { "title": "Datos del ticket y logo" },
+    "tables": { "title": "Revisa mesas y zonas" },
+    "payment-methods": { "title": "Revisa métodos de pago" },
+    "staff": { "title": "Invita a tu equipo" },
+    "printer": { "title": "Conecta una impresora" },
+    "first-order": { "title": "Haz tu primer pedido" }
+  },
+  "card": {
+    "title": "Primeros pasos",
+    "progress": "{{done}} de {{total}}",
+    "optional": "Opcional",
+    "optionalLeft_one": "+ {{count}} opcional",
+    "optionalLeft_other": "+ {{count}} opcionales",
+    "options": "Opciones de primeros pasos",
+    "hide": "Ocultar primeros pasos",
+    "hideHint": "No volverá a aparecer en Inicio",
+    "allDone": "Todo listo",
+    "allDoneMessage": "Tu restaurante está configurado. Puedes cambiar todo desde Gestionar.",
+    "close": "Cerrar"
+  },
+  "actions": {
+    "continue": "Continuar",
+    "back": "Atrás",
+    "addFirstProduct": "Agregar mi primer producto",
+    "goHome": "Ir al inicio"
+  }
+}

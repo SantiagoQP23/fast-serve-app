@@ -19,6 +19,7 @@ import { applyTicketEvent } from "../apply-ticket-event";
 import { applyProductEvents } from "../apply-product-event";
 import { applyStockEvents } from "../apply-stock-event";
 import { applyTableAreaEvent } from "../apply-table-area-event";
+import { applyRestaurantSyncEvent } from "@/presentation/onboarding/report-onboarding-step";
 
 function applyOrderEvent(event: SyncEventDto) {
   const order = event.data as Order;
@@ -187,8 +188,10 @@ export const useSyncEventListener = () => {
         case SyncResourceType.INVENTORY_STOCK:
           applyStockEvents([event]);
           break;
-        case SyncResourceType.BILL:
         case SyncResourceType.RESTAURANT:
+          applyRestaurantSyncEvent(event.data);
+          break;
+        case SyncResourceType.BILL:
         case SyncResourceType.SETTINGS:
           // Intentionally ignored for now.
           break;

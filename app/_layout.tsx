@@ -171,6 +171,13 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen
+              name="onboarding/index"
+              options={{
+                headerShown: false,
+                gestureEnabled: false,
+              }}
+            />
+            <Stack.Screen
               name="join-restaurant/index"
               options={{
                 headerShown: false,

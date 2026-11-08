@@ -27,6 +27,7 @@ import { Account } from "@/core/restaurant/models/account.model";
 import { Printer } from "@/core/common/models/printer.model";
 import { useSyncStore } from "../store/useSyncStore";
 import { queryClient } from "@/app/_layout";
+import { applyRestaurantSyncEvent } from "@/presentation/onboarding/report-onboarding-step";
 import { RESTAURANT_SETTINGS_QUERY_KEY } from "@/presentation/restaurant/hooks/useRestaurantSettings";
 import {
   keepLocalPendingOrders,
@@ -169,7 +170,7 @@ function applyEvent(event: SyncEventDto) {
       });
       break;
     case SyncResourceType.RESTAURANT:
-      // Intentionally ignored for now.
+      applyRestaurantSyncEvent(event.data);
       break;
     default:
       console.warn("[useSync] Unknown sync resource type", event.resourceType);

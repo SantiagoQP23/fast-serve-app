@@ -22,6 +22,8 @@ import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.m
 import type { Account } from "@/core/restaurant/models/account.model";
 import type { PaymentMethod } from "@/core/restaurant/models/payment-method.model";
 import Chip from "@/presentation/theme/components/chip";
+import { OnboardingStep } from "@/core/restaurant/models/onboarding.model";
+import { useReportOnboardingStepOnOpen } from "@/presentation/onboarding/report-onboarding-step";
 
 const paymentMethodIcons: Record<PaymentMethodCategory, IconName> = {
   [PaymentMethodCategory.CASH]: "banknote",
@@ -44,6 +46,9 @@ export default function PaymentMethodsSettingsScreen() {
     account: Account;
   } | null>(null);
   const accountActionsSheetRef = useRef<BottomSheetMethods>(null);
+
+  // Opening this screen is the "check payment methods" onboarding step.
+  useReportOnboardingStepOnOpen(OnboardingStep.PAYMENT_METHODS);
 
   useEffect(() => {
     if (paymentMethods.length === 0) paymentMethodsQuery.refetch();

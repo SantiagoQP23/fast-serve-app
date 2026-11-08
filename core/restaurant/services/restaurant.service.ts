@@ -12,6 +12,11 @@ import {
   ValidateQrTokenResponseDto,
   AcceptQrInviteDto,
 } from "@/core/restaurant/dto/qr-token.dto";
+import {
+  ClearSampleMenuResponse,
+  OnboardingStatus,
+  UpdateOnboardingDto,
+} from "@/core/restaurant/models/onboarding.model";
 
 export class RestaurantService {
   static async create(data: CreateRestaurantDto) {
@@ -23,6 +28,29 @@ export class RestaurantService {
     const resp = await restaurantApi.patch<Restaurant>(
       `restaurant/${restaurantId}`,
       data,
+    );
+    return resp.data;
+  }
+
+  static async getOnboarding() {
+    const resp = await restaurantApi.get<OnboardingStatus>(
+      "restaurant/onboarding",
+    );
+    return resp.data;
+  }
+
+  static async updateOnboarding(data: UpdateOnboardingDto) {
+    const resp = await restaurantApi.patch<OnboardingStatus>(
+      "restaurant/onboarding",
+      data,
+    );
+    return resp.data;
+  }
+
+  /** Removes the sample menu seeded with the restaurant (before any order). */
+  static async clearSampleMenu() {
+    const resp = await restaurantApi.post<ClearSampleMenuResponse>(
+      "restaurant/onboarding/clear-sample-menu",
     );
     return resp.data;
   }

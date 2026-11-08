@@ -1,3 +1,4 @@
+import type { OnboardingStep } from "@/core/restaurant/models/onboarding.model";
 export enum PlanLimitResource {
   TABLES = "TABLES",
   PRODUCTS = "PRODUCTS",
@@ -56,6 +57,13 @@ export interface Restaurant {
   parentRestaurant?: Pick<Restaurant, "id" | "name"> | null;
   /** Número de la sucursal (la primera es 2). */
   branchNumber?: number | null;
+  /**
+   * The owner's "Primeros pasos" checklist is done or hidden. Missing on old
+   * backends, which means there is no checklist to show.
+   */
+  onboardingCompleted?: boolean;
+  /** Checklist steps the app reported as done. */
+  onboardingSteps?: OnboardingStep[] | null;
 }
 
 const INACTIVE_SUBSCRIPTION_STATUSES: Subscription["status"][] = [
