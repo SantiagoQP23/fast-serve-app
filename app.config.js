@@ -34,6 +34,10 @@ export default {
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
       package: "com.teikio.app",
+      // expo-sensors adds this for its step counter (Pedometer), which the
+      // app doesn't use. Shake to sync only reads the accelerometer, which
+      // needs no permission.
+      blockedPermissions: ["android.permission.ACTIVITY_RECOGNITION"],
     },
 
     web: {
