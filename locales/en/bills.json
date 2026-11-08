@@ -68,7 +68,8 @@
     "plusCommission": "+ {{percentage}}% commission",
     "service": "Service",
     "products": "Products",
-    "remaining": "Remaining"
+    "remaining": "Remaining",
+    "rename": "Change name"
   },
   "paymentMethods": {
     "cash": "Cash",
@@ -232,5 +233,30 @@
     "paidWithChange": "Charged {{amount}} · Change {{change}}",
     "printReceipt": "Print receipt",
     "transferRegistered": "Transfer of {{amount}} registered · waiting for approval"
+  },
+  "split": {
+    "title": "Split bill",
+    "subtitle": "Order #{{number}} · one bill per person",
+    "personDefault": "Person {{number}}",
+    "addPerson": "Add",
+    "assigningTo": "Adding items to {{name}}",
+    "rename": "Name",
+    "renameHint": "Tap again to change the name",
+    "removePerson": "Remove person",
+    "namePlaceholder": "Name (optional), e.g. Ana",
+    "unassigned": "{{quantity}} not assigned",
+    "allAssigned": "all assigned",
+    "share": "Share",
+    "unshare": "Stop sharing",
+    "sharedBetween": "{{quantity}} shared by {{names}}",
+    "shareTitle": "Share {{name}}",
+    "shareDescription": "Split equally between the people you pick.",
+    "shareConfirm_one": "Share between {{count}} person",
+    "shareConfirm_other": "Share between {{count}} people",
+    "unassignedItems_one": "{{count}} item not assigned, it stays on the order",
+    "unassignedItems_other": "{{count}} items not assigned, they stay on the order",
+    "create_one": "Create {{count}} bill · {{amount}}",
+    "create_other": "Create {{count}} bills · {{amount}}",
+    "splitLink": "Split into several bills"
   }
 }

@@ -224,6 +224,7 @@
     "MENU_INVENTORY_ITEM_NOT_FOUND": "No se encontró el insumo",
     "ORDER_CUSTOMIZATION_REQUIRED": "Elige al menos {{min}} en {{groupName}}",
     "ORDER_CUSTOMIZATION_TOO_MANY": "Elige como máximo {{max}} en {{groupName}}",
-    "ORDER_CUSTOMIZATION_UNAVAILABLE": "Una de las opciones elegidas ya no está disponible"
+    "ORDER_CUSTOMIZATION_UNAVAILABLE": "Una de las opciones elegidas ya no está disponible",
+    "ORDER_BILL_OVER_QUANTITY": "No quedan suficientes unidades de {{productName}} por cobrar (quedan {{available}})"
   }
 }

@@ -176,7 +176,8 @@
     "order-bill:edit": "Actualizando cuenta...",
     "payBillTransaction": "Creando transacción...",
     "removeTransaction": "Eliminando transacción...",
-    "direct-bill:edit": "Guardando venta..."
+    "direct-bill:edit": "Guardando venta...",
+    "order-bills:split": "Creando cuentas..."
   },
   "transactions": {
     "seeAll": "Ver todas ({{count}})",

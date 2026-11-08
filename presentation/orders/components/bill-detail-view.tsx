@@ -55,6 +55,10 @@ import {
   parseAmount,
 } from "@/core/orders/utils/bill-payment.util";
 import BillLoadState from "@/presentation/orders/components/bill-load-state";
+import TextFieldBottomSheet, {
+  type TextFieldBottomSheetRef,
+} from "@/presentation/theme/components/text-field-bottom-sheet";
+import { formatQuantity } from "@/core/orders/utils/bill-split.util";
 
 dayjs.extend(relativeTime);
 
@@ -110,6 +114,7 @@ export default function BillDetailView({
   const [visible, setVisible] = useState(false);
   const bottomSheetRef = useRef<BottomSheetMethods>(null);
   const moreOptionsSheetRef = useRef<BottomSheetMethods>(null);
+  const renameSheetRef = useRef<TextFieldBottomSheetRef>(null);
 
   const primaryColor = useThemeColor({}, "primary");
   const { mutate: removeBill, isLoading: isRemovingBill } =
@@ -236,6 +241,26 @@ export default function BillDetailView({
     handleShareBill();
   };
 
+  const handleRenameFromMenu = () => {
+    moreOptionsSheetRef.current?.dismiss();
+    renameSheetRef.current?.present();
+  };
+
+  // An empty name clears it; the bill shows its number again.
+  const handleRename = (value: string) =>
+    new Promise<void>((resolve, reject) =>
+      updateBill(
+        { id: bill.id, label: value },
+        {
+          onSuccess: () => {
+            refetch();
+            resolve();
+          },
+          onError: () => reject(),
+        },
+      ),
+    );
+
   const handleDeleteFromMenu = () => {
     moreOptionsSheetRef.current?.dismiss();
     setVisible(true);
@@ -262,6 +287,15 @@ export default function BillDetailView({
   };
 
   const moreOptionsItems: ActionsBottomSheetItem[] = [
+    ...(bill.order
+      ? [
+          {
+            icon: "pencil" as const,
+            label: t("bills:details.rename"),
+            onPress: handleRenameFromMenu,
+          },
+        ]
+      : []),
     ...(!isPaid
       ? [
           {
@@ -289,6 +323,7 @@ export default function BillDetailView({
   ];
 
   const sourceLabel = [
+    bill.label,
     t(`bills:list.${bill.source}`, { number: bill.num }),
     bill.order && t("orders:details.orderNumber", { num: bill.order.num }),
   ]
@@ -457,7 +492,7 @@ export default function BillDetailView({
                       style={tw`w-10 h-10 rounded-full items-center justify-center bg-surface`}
                     >
                       <ThemedText style={{ fontFamily: typography.semibold }}>
-                        {detail.quantity}
+                        {formatQuantity(detail.quantity)}
                       </ThemedText>
                     </ThemedView>
                     <ThemedView style={tw`flex-1 bg-transparent`}>
@@ -471,7 +506,8 @@ export default function BillDetailView({
                     <ThemedView style={tw`items-end`}>
                       <ThemedText>{formatCurrency(detail.total)}</ThemedText>
                       <ThemedText type="small" style={tw`text-gray-500`}>
-                        {detail.quantity} × {formatCurrency(detail.price)}
+                        {formatQuantity(detail.quantity)} ×{" "}
+                        {formatCurrency(detail.price)}
                       </ThemedText>
                     </ThemedView>
                   </ThemedView>
@@ -638,6 +674,17 @@ export default function BillDetailView({
           />
         </BottomSheetView>
       </ThemedBottomSheetModal>
+
+      <TextFieldBottomSheet
+        ref={renameSheetRef}
+        title={t("bills:details.rename")}
+        value={bill.label ?? ""}
+        placeholder={t("bills:split.namePlaceholder")}
+        maxLength={40}
+        submitLabel={t("common:actions.save")}
+        loading={isSavingDiscount}
+        onSubmit={handleRename}
+      />
 
       {/* More Options Bottom Sheet */}
       <ThemedBottomSheetModal ref={moreOptionsSheetRef} enablePanDownToClose>

@@ -44,15 +44,9 @@ export default function DashboardBillCard({
             } items-center justify-center`}
           >
             <Icon
-              name={
-                isPaid
-                  ? getPaymentMethodIcon(bill.paymentMethod)
-                  : "clock"
-              }
+              name={isPaid ? getPaymentMethodIcon(bill.paymentMethod) : "clock"}
               size={20}
-              color={
-                isPaid ? tw.color("green-600") : tw.color("orange-600")
-              }
+              color={isPaid ? tw.color("green-600") : tw.color("orange-600")}
             />
           </ThemedView>
 
@@ -60,7 +54,7 @@ export default function DashboardBillCard({
           <ThemedView style={tw`flex-1 gap-1`}>
             <ThemedView style={tw`flex-row items-center gap-2`}>
               <ThemedText type="body1" style={tw`font-semibold`}>
-                {t("bills:list.billNumber", { number: bill.num })}
+                {bill.label || t("bills:list.billNumber", { number: bill.num })}
               </ThemedText>
               {bill.discount > 0 && (
                 <ThemedView style={tw`bg-blue-50 px-1.5 py-0.5 rounded`}>

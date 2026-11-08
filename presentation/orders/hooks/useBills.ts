@@ -7,6 +7,7 @@ import { translateErrorCode } from "@/core/api/get-error-message";
 import { PayBillTransactionRespDto } from "@/core/orders/dto/pay-bill-transaction-resp.dto";
 import { PayBillTransactionDto } from "@/core/orders/dto/pay-bill-transaction.dto";
 import { RemoveBillDto } from "@/core/orders/dto/remove-bill.dto";
+import { SplitBillsDto } from "@/core/orders/dto/split-bills.dto";
 import { UpdateBillDto } from "@/core/orders/dto/update-bill.dto";
 import { OrderSocketEvent } from "@/core/orders/enums/socket-events.enum";
 import { Bill } from "@/core/orders/models/bill.model";
@@ -34,6 +35,22 @@ export const useBills = () => {
     },
   );
 
+  const splitBillsEmitter = useWebsocketEventEmitter<
+    { order: Order; bills: Bill[] },
+    SplitBillsDto
+  >(OrderSocketEvent.splitBills, {
+    onSuccess: (resp) => {
+      if (resp.data?.order)
+        queryClient.invalidateQueries({
+          queryKey: ["bills", resp.data.order.id],
+        });
+      queryClient.invalidateQueries({ queryKey: ["billsList"] });
+    },
+    onError: (resp) => {
+      toast.error(resp.msg);
+    },
+  });
+
   const createSaleEmitter = useWebsocketEventEmitter<Bill, CreateSaleDto>(
     OrderSocketEvent.createSale,
     {
@@ -60,6 +77,7 @@ export const useBills = () => {
           queryClient.invalidateQueries({
             queryKey: ["bills", resp.data.id],
           });
+        queryClient.invalidateQueries({ queryKey: ["billsList"] });
       },
       onError: (resp) => {
         toast.error(resp.msg);
@@ -167,6 +185,7 @@ export const useBills = () => {
     billsByOrderQuery,
     billByIdQuery,
     createBill: createBillEmitter,
+    splitBills: splitBillsEmitter,
     createSale: createSaleEmitter,
     updateBill: updateBillEmitter,
     editBill: editBillEmitter,

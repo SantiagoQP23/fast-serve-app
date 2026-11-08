@@ -23,6 +23,8 @@ export interface BillOrderDto {
 export interface BillListItemDto {
   id: number;
   num: number;
+  /** Who the bill is for, when it was named (split bills). */
+  label?: string | null;
   total: number;
   comments: string;
   subtotal: number;

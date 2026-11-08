@@ -1,3 +1,4 @@
+import { roundQty } from "@/core/orders/utils/bill-split.util";
 import { ScrollView } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -139,7 +140,7 @@ export default function EditBillScreen() {
 
   const getMaxQuantityForDetail = (detail: OrderDetail) => {
     const billQty = billQtyByOrderDetailId[detail.id] || 0;
-    return detail.quantity - detail.qtyPaid + billQty;
+    return roundQty(detail.quantity - detail.qtyPaid + billQty);
   };
 
   const handleUpdateDetail = (orderDetail: OrderDetail, quantity: number) => {

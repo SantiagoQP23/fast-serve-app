@@ -117,7 +117,7 @@ interface OrderDetailViewProps {
 export default function OrderDetailView({
   embedded = false,
 }: OrderDetailViewProps) {
-  const { t } = useTranslation(["common", "orders", "errors"]);
+  const { t } = useTranslation(["common", "orders", "errors", "bills"]);
   const order = useOrdersStore((state) => state.activeOrder);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const setActiveOrderDetail = useOrdersStore(
@@ -503,6 +503,14 @@ export default function OrderDetailView({
     });
   };
 
+  const handleSplitFromMenu = () => {
+    moreOptionsSheetRef.current?.dismiss();
+    router.push({
+      pathname: "/(order)/[id]/bills/split",
+      params: { id: order.id },
+    });
+  };
+
   // Everything is on a bill already: go straight to the one left to charge.
   const handleChargeBills = () => {
     if (unpaidBills.length === 1) {
@@ -705,6 +713,16 @@ export default function OrderDetailView({
                 icon: "git-merge" as const,
                 label: t("orders:options.mergeOrder"),
                 onPress: handleMergeFromMenu,
+              },
+            ]
+          : []),
+        // Several bills at once, one per diner, from what isn't billed yet.
+        ...(remainingAmount > 0
+          ? [
+              {
+                icon: "split" as const,
+                label: t("bills:split.title"),
+                onPress: handleSplitFromMenu,
               },
             ]
           : []),
