@@ -172,14 +172,14 @@ export default function SalesContent({
 
   const statusChips = [
     {
-      label: t("bills:filters.paidCount"),
-      value: BillStatusFilter.PAID,
-      count: data?.countPaid ?? 0,
-    },
-    {
       label: t("bills:filters.unpaidCount"),
       value: BillStatusFilter.UNPAID,
       count: data?.countUnpaid ?? 0,
+    },
+    {
+      label: t("bills:filters.paidCount"),
+      value: BillStatusFilter.PAID,
+      count: data?.countPaid ?? 0,
     },
   ];
 
