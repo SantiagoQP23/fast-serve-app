@@ -26,6 +26,11 @@ import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { generateIdempotencyKey } from "@/helpers/idempotency";
 import { BillsService } from "@/core/orders/services/bills.service";
+import TextInput from "@/presentation/theme/components/text-input";
+import {
+  formatQuantity,
+  getUnbilledQty,
+} from "@/core/orders/utils/bill-split.util";
 
 interface SelectedDetails {
   [id: string]: {
@@ -37,7 +42,7 @@ interface SelectedDetails {
 const getDetailsToPay = (details: OrderDetail[]) =>
   details.filter(
     (detail) =>
-      detail.quantity !== detail.qtyPaid &&
+      getUnbilledQty(detail) > 0 &&
       detail.status !== OrderDetailStatus.CANCELLED,
   );
 
@@ -45,7 +50,7 @@ const selectAllDetails = (details: OrderDetail[]): SelectedDetails =>
   Object.fromEntries(
     details.map((detail) => [
       detail.id,
-      { detail, quantity: detail.quantity - detail.qtyPaid },
+      { detail, quantity: getUnbilledQty(detail) },
     ]),
   );
 
@@ -63,6 +68,7 @@ export default function NewBillScreen() {
       : {},
   );
   const [idempotencyKey] = useState(() => generateIdempotencyKey());
+  const [label, setLabel] = useState("");
   const { mutate: createBill, isLoading: isCreating } = useBills().createBill;
 
   const getTotalSelectedDetails = () => {
@@ -93,10 +99,10 @@ export default function NewBillScreen() {
   const detailsToPay = getDetailsToPay(order.details);
 
   const totalToPay = detailsToPay.reduce((acc, detail) => {
-    return acc + (detail.quantity - detail.qtyPaid) * detail.price;
+    return acc + getUnbilledQty(detail) * detail.price;
   }, 0);
 
-  const paidDetails = order.details.filter((detail) => detail.qtyPaid >= 1);
+  const paidDetails = order.details.filter((detail) => detail.qtyPaid > 0);
 
   const handleUpdateDetail = (orderDetail: OrderDetail, quantity: number) => {
     setSelectedDetails((prev) => {
@@ -157,6 +163,7 @@ export default function NewBillScreen() {
       idempotencyKey,
       orderId: order.id,
       details,
+      ...(label.trim() ? { label: label.trim() } : {}),
     };
 
     createBill(createBillDto, {
@@ -207,6 +214,32 @@ export default function NewBillScreen() {
                 {formatCurrency(totalToPay)}
               </ThemedText>
             </ThemedView>
+          </ThemedView>
+        )}
+
+        {/* Optional name, e.g. who pays this bill */}
+        {detailsToPay.length > 0 && (
+          <ThemedView style={tw`mb-4 gap-2`}>
+            <TextInput
+              value={label}
+              onChangeText={setLabel}
+              placeholder={t("bills:split.namePlaceholder")}
+              maxLength={40}
+              icon="user"
+            />
+            <Button
+              label={t("bills:split.splitLink")}
+              leftIcon="split"
+              variant="text"
+              size="small"
+              style={tw`self-start`}
+              onPress={() =>
+                router.replace({
+                  pathname: "/(order)/[id]/bills/split",
+                  params: { id: order.id },
+                })
+              }
+            />
           </ThemedView>
         )}
 
@@ -276,7 +309,7 @@ export default function NewBillScreen() {
                       </ThemedText>
                     </ThemedView>
                     <ThemedText type="body2" style={tw`text-gray-500`}>
-                      × {detail.qtyPaid}
+                      × {formatQuantity(detail.qtyPaid)}
                     </ThemedText>
                   </ThemedView>
                   {index < paidDetails.length - 1 && (

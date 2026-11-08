@@ -7,6 +7,8 @@ export interface CreateBillDto {
   idempotencyKey: string;
   orderId: string;
   clientId?: string;
+  /** Who the bill is for ("Ana"). */
+  label?: string;
   details: CreateBillDetailDto[];
   receivedAmount?: number;
   discount?: number;

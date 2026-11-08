@@ -11,6 +11,10 @@ import { formatCurrency } from "@/core/i18n/utils";
 import Checkbox from "@/presentation/theme/components/checkbox";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import Card from "@/presentation/theme/components/card";
+import {
+  formatQuantity,
+  getUnbilledQty,
+} from "@/core/orders/utils/bill-split.util";
 
 interface NewBillDetailCardProps extends PressableProps {
   detail: OrderDetail;
@@ -27,7 +31,7 @@ export default function NewBillDetailCard({
   detail,
 }: NewBillDetailCardProps) {
   const { t } = useTranslation(["bills", "common"]);
-  const availableQty = maxQuantity ?? detail.quantity - detail.qtyPaid;
+  const availableQty = maxQuantity ?? getUnbilledQty(detail);
 
   const { counter, increment, decrement, setCounter } = useCounter(
     quantity,
@@ -76,7 +80,7 @@ export default function NewBillDetailCard({
             {detail.product.name}
             {showProductOptionName ? ` ${detail.productOption?.name}` : ""}
             <ThemedText type="body1" style={tw`text-gray-500`}>
-              {` ×${availableQty}`}
+              {` ×${formatQuantity(availableQty)}`}
             </ThemedText>
           </ThemedText>
           <ModifierLines modifiers={detail.modifiers} />
@@ -87,10 +91,13 @@ export default function NewBillDetailCard({
 
         {/* Counter Controls */}
         <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}>
-          {availableQty === 1 ? (
+          {/* One unit, or the share left after splitting: all or nothing */}
+          {availableQty <= 1 ? (
             <Checkbox
               value={isSelected}
-              onValueChange={(checked) => handleQuantityChange(checked ? 1 : 0)}
+              onValueChange={(checked) =>
+                handleQuantityChange(checked ? availableQty : 0)
+              }
               accessibilityLabel={detail.product.name}
             />
           ) : (

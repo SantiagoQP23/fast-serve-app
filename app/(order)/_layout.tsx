@@ -59,6 +59,14 @@ export default function OrdersLayout() {
         }}
       />
       <Stack.Screen
+        name="[id]/bills/split/index"
+        options={{
+          headerShown: true,
+          title: "",
+          headerShadowVisible: false,
+        }}
+      />
+      <Stack.Screen
         name="[id]/tickets/index"
         options={{
           headerShown: true,

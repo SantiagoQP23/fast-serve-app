@@ -18,6 +18,8 @@ export enum BillSource {
 export interface Bill {
   id: number;
   num: number;
+  /** Who the bill is for ("Ana"); null shows as "Bill #num". */
+  label?: string | null;
   comments: string;
   paymentMethod: PaymentMethod;
   receivedAmount: number;

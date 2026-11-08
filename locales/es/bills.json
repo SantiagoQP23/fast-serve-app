@@ -68,7 +68,8 @@
     "plusCommission": "+ {{percentage}}% de comisión",
     "service": "Servicio",
     "products": "Productos",
-    "remaining": "Por cobrar"
+    "remaining": "Por cobrar",
+    "rename": "Cambiar nombre"
   },
   "paymentMethods": {
     "cash": "Efectivo",
@@ -232,5 +233,30 @@
     "paidWithChange": "Cobrado {{amount}} · Cambio {{change}}",
     "printReceipt": "Imprimir recibo",
     "transferRegistered": "Transferencia de {{amount}} registrada · pendiente de aprobación"
+  },
+  "split": {
+    "title": "Dividir cuenta",
+    "subtitle": "Pedido #{{number}} · una cuenta por persona",
+    "personDefault": "Persona {{number}}",
+    "addPerson": "Agregar",
+    "assigningTo": "Agregando productos a {{name}}",
+    "rename": "Nombre",
+    "renameHint": "Toca otra vez para cambiar el nombre",
+    "removePerson": "Quitar persona",
+    "namePlaceholder": "Nombre (opcional), ej. Ana",
+    "unassigned": "{{quantity}} sin asignar",
+    "allAssigned": "todo asignado",
+    "share": "Compartir",
+    "unshare": "Dejar de compartir",
+    "sharedBetween": "{{quantity}} compartido entre {{names}}",
+    "shareTitle": "Compartir {{name}}",
+    "shareDescription": "Se divide en partes iguales entre las personas que elijas.",
+    "shareConfirm_one": "Compartir entre {{count}} persona",
+    "shareConfirm_other": "Compartir entre {{count}} personas",
+    "unassignedItems_one": "{{count}} producto sin asignar, queda en el pedido",
+    "unassignedItems_other": "{{count}} productos sin asignar, quedan en el pedido",
+    "create_one": "Crear {{count}} cuenta · {{amount}}",
+    "create_other": "Crear {{count}} cuentas · {{amount}}",
+    "splitLink": "Dividir en varias cuentas"
   }
 }

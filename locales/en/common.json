@@ -176,7 +176,8 @@
     "order-bill:edit": "Updating bill...",
     "payBillTransaction": "Creating transaction...",
     "removeTransaction": "Removing transaction...",
-    "direct-bill:edit": "Saving sale..."
+    "direct-bill:edit": "Saving sale...",
+    "order-bills:split": "Creating bills..."
   },
   "transactions": {
     "seeAll": "See all ({{count}})",

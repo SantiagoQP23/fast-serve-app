@@ -1,3 +1,4 @@
+import { formatQuantity } from "@/core/orders/utils/bill-split.util";
 import { useEffect, useState } from "react";
 import { ScrollView } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
@@ -90,6 +91,14 @@ export default function BillPrintScreen() {
               <ThemedText type="h4" style={{ fontFamily: "monospace" }}>
                 {t(`bills:list.${bill.source}`, { number: bill.num })}
               </ThemedText>
+              {!!bill.label && (
+                <ThemedText
+                  type="body1"
+                  style={{ fontFamily: "monospace", fontWeight: "bold" }}
+                >
+                  {bill.label}
+                </ThemedText>
+              )}
               <ThemedText style={{ fontFamily: "monospace" }}>
                 {formatDateTime(bill.createdAt)}
               </ThemedText>
@@ -128,7 +137,7 @@ export default function BillPrintScreen() {
                     style={tw`flex-row justify-between items-start gap-2`}
                   >
                     <ThemedText style={{ fontFamily: "monospace", flex: 1 }}>
-                      {detail.quantity}x {productName}
+                      {formatQuantity(detail.quantity)}x {productName}
                       {optionName ? ` (${optionName})` : ""}
                     </ThemedText>
                     <ThemedText style={{ fontFamily: "monospace" }}>

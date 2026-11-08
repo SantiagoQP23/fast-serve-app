@@ -89,7 +89,14 @@ export default function BillCard({ onPress, bill, active }: BillCardProps) {
               />
             </ThemedView>
             <ThemedView style={tw`bg-transparent gap-2`}>
-              {bill.order ? (
+              {bill.label ? (
+                <ThemedText
+                  type="body1"
+                  style={{ fontFamily: typography.bold }}
+                >
+                  {bill.label}
+                </ThemedText>
+              ) : bill.order ? (
                 <ThemedText
                   type="body1"
                   style={{ fontFamily: typography.bold }}

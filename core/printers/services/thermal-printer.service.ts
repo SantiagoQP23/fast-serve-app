@@ -1,3 +1,4 @@
+import { formatQuantity } from "@/core/orders/utils/bill-split.util";
 import ThermalPrinterModule from "react-native-thermal-printer";
 import { Printer } from "@/core/common/models/printer.model";
 import { Order } from "@/core/orders/models/order.model";
@@ -392,7 +393,7 @@ export class ThermalPrinterService {
         const modifiers = detail.orderDetail?.modifiers ?? detail.modifiers;
 
         return (
-          `[L]${detail.quantity}x ${productName}${optionName ? ` (${optionName})` : ""}[R]$${detail.total.toFixed(2)}\n` +
+          `[L]${formatQuantity(detail.quantity)}x ${productName}${optionName ? ` (${optionName})` : ""}[R]$${detail.total.toFixed(2)}\n` +
           receiptModifierText(modifiers, translations.without)
         );
       })
@@ -414,6 +415,8 @@ export class ThermalPrinterService {
 
     const payload =
       `[C]<font size='big'><b>${translations.title} #${bill.num}</b></font>\n` +
+      // Split bills: who this one is for.
+      `${bill.label ? `[C]<font size='tall'><b>${bill.label}</b></font>\n` : ""}` +
       `[C]${new Date(bill.createdAt).toLocaleString()}\n` +
       `[C]--------------------------------\n` +
       `${orderInfoText}` +

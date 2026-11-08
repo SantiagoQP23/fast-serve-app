@@ -1,3 +1,4 @@
+import { formatQuantity } from "@/core/orders/utils/bill-split.util";
 import { useCallback } from "react";
 import { Bill, BillSource } from "@/core/orders/models/bill.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -5,6 +6,14 @@ import { formatCurrency } from "@/core/i18n/utils";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
+
+/** The name is typed by staff and goes into the receipt's HTML. */
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 
 export const useBillPrint = (bill: Bill | null | undefined) => {
   const { t, language } = useTranslation(["common", "bills", "orders"]);
@@ -23,7 +32,7 @@ export const useBillPrint = (bill: Bill | null | undefined) => {
         return `
         <div style="margin-bottom:6px;">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-            <span>${detail.quantity}x ${productName} ${optionName ? `(${optionName})` : ""}</span>
+            <span>${formatQuantity(detail.quantity)}x ${productName} ${optionName ? `(${optionName})` : ""}</span>
             <span style="white-space:nowrap;margin-left:8px;">${formatCurrency(detail.total)}</span>
           </div>
         </div>
@@ -116,6 +125,7 @@ export const useBillPrint = (bill: Bill | null | undefined) => {
           <div class="center" style="font-size:16px;margin-bottom:2px;">
             ${t("bills:list.title")} #${bill.num}
           </div>
+          ${bill.label ? `<div class="center" style="font-size:14px;font-weight:bold;">${escapeHtml(bill.label)}</div>` : ""}
           <div class="center" style="margin-bottom:4px;">
             ${new Date(bill.createdAt).toLocaleString(language)}
           </div>
