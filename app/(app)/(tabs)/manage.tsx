@@ -18,6 +18,7 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import { GroupedList } from "@/presentation/theme/components/grouped-list";
 import Avatar from "@/presentation/theme/components/avatar";
 import UserInfoBottomSheet from "@/presentation/auth/components/user-info-bottom-sheet";
+import OnboardingChecklistCard from "@/presentation/onboarding/components/onboarding-checklist-card";
 
 interface ManageOption {
   key: string;
@@ -189,6 +190,8 @@ export default function ManageScreen() {
             style={tw`mt-4`}
           />
         </ThemedView>
+
+        <OnboardingChecklistCard />
 
         <ThemedView style={tw`my-6 gap-6`}>
           {/* Menu */}

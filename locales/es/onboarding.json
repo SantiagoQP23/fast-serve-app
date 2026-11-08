@@ -24,7 +24,7 @@
   },
   "steps": {
     "title": "Tus primeros pasos",
-    "body": "Te dejamos esta lista en Inicio. Hazla a tu ritmo, en el orden que quieras.",
+    "body": "Te dejamos esta lista en Gestionar. Hazla a tu ritmo, en el orden que quieras.",
     "menu": { "title": "Agrega tus productos" },
     "restaurant-info": { "title": "Datos del ticket y logo" },
     "tables": { "title": "Revisa mesas y zonas" },
@@ -41,7 +41,7 @@
     "optionalLeft_other": "+ {{count}} opcionales",
     "options": "Opciones de primeros pasos",
     "hide": "Ocultar primeros pasos",
-    "hideHint": "No volverá a aparecer en Inicio",
+    "hideHint": "No volverá a aparecer en Gestionar",
     "allDone": "Todo listo",
     "allDoneMessage": "Tu restaurante está configurado. Puedes cambiar todo desde Gestionar.",
     "close": "Cerrar"

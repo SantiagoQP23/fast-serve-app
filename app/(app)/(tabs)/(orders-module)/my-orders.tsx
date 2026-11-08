@@ -52,7 +52,6 @@ import { OrderPaneContext } from "@/presentation/orders/context/order-pane.conte
 import OrderDetailView from "@/presentation/orders/components/order-detail-view";
 import BillDetailView from "@/presentation/orders/components/bill-detail-view";
 import ClosePaidOrdersButton from "@/presentation/orders/components/close-paid-orders-button";
-import OnboardingChecklistCard from "@/presentation/onboarding/components/onboarding-checklist-card";
 
 const ORDERS_LIST_PANE_WIDTH = 440;
 
@@ -327,7 +326,6 @@ export default function MyOrdersScreen() {
             />
           ) : (
             <ThemedView style={tw`flex-1`}>
-              <OnboardingChecklistCard onStartOrder={handlePresentModalPress} />
               {activeView !== "tables" && (
                 <ScrollView
                   contentContainerStyle={tw`grow pb-20 gap-4 pt-4`}

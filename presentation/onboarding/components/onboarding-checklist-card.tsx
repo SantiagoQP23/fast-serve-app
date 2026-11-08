@@ -1,8 +1,9 @@
 import { useCallback, useRef, useState } from "react";
-import { Pressable } from "react-native";
+import { Pressable, type StyleProp, type ViewStyle } from "react-native";
 import { router, useFocusEffect } from "expo-router";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 
+import { ROUTES } from "@/constants/routes";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { typography } from "@/constants/theme";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -20,25 +21,24 @@ import { useOnboarding } from "@/presentation/onboarding/hooks/useOnboarding";
 import type { OnboardingStepDefinition } from "@/presentation/onboarding/onboarding-steps";
 
 interface OnboardingChecklistCardProps {
-  /** Opens the new-order sheet for the "first order" step. */
-  onStartOrder: () => void;
+  style?: StyleProp<ViewStyle>;
 }
 
 /**
- * "Primeros pasos" card at the top of Inicio, only for the owner of a
- * restaurant that hasn't finished or hidden it. Collapsed it shows the next
- * step; open it lists them all, done ones first.
+ * "Primeros pasos" card on the Gestionar tab, only for the owner of a
+ * restaurant that hasn't finished or hidden it. Open it lists every step,
+ * done ones first; collapsed it shows only the next one.
  */
 export default function OnboardingChecklistCard({
-  onStartOrder,
+  style,
 }: OnboardingChecklistCardProps) {
   const { t } = useTranslation("onboarding");
   const onboarding = useOnboarding();
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const optionsRef = useRef<BottomSheetMethods>(null);
   const { visible, refetch } = onboarding;
 
-  // Back on Inicio: steps the server works out (printer, team, first order)
+  // Back on this tab: steps the server works out (printer, team, first order)
   // may have changed.
   useFocusEffect(
     useCallback(() => {
@@ -61,7 +61,8 @@ export default function OnboardingChecklistCard({
 
   const openStep = (step: OnboardingStepDefinition) => {
     if (step.href) router.push(step.href);
-    else onStartOrder();
+    // The first order is taken from Inicio.
+    else router.navigate(ROUTES.APP.MY_ORDERS);
   };
 
   const hide = () => {
@@ -70,7 +71,7 @@ export default function OnboardingChecklistCard({
   };
 
   return (
-    <ThemedView style={tw`px-4 pt-3`}>
+    <ThemedView style={style}>
       <Card variant="default" style={tw`p-4 gap-3`}>
         <ThemedView style={tw`flex-row items-center gap-2`}>
           <Pressable

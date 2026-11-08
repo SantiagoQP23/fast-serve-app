@@ -24,7 +24,7 @@
   },
   "steps": {
     "title": "Your first steps",
-    "body": "This list stays on Home. Do it at your own pace, in any order.",
+    "body": "This list stays in Manage. Do it at your own pace, in any order.",
     "menu": { "title": "Add your products" },
     "restaurant-info": { "title": "Receipt details and logo" },
     "tables": { "title": "Check tables and zones" },
@@ -41,7 +41,7 @@
     "optionalLeft_other": "+ {{count}} optional",
     "options": "First steps options",
     "hide": "Hide first steps",
-    "hideHint": "It won't show on Home again",
+    "hideHint": "It won't show in Manage again",
     "allDone": "All set",
     "allDoneMessage": "Your restaurant is set up. You can change everything from Manage.",
     "close": "Close"
