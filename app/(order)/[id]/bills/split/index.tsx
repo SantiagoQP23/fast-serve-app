@@ -1,7 +1,7 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import {
   BottomSheetView,
   type BottomSheetMethods,
@@ -13,13 +13,17 @@ import tw from "@/presentation/theme/lib/tailwind";
 import Button from "@/presentation/theme/components/button";
 import IconButton from "@/presentation/theme/components/icon-button";
 import Chip from "@/presentation/theme/components/chip";
-import Card from "@/presentation/theme/components/card";
 import Checkbox from "@/presentation/theme/components/checkbox";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import TextFieldBottomSheet, {
   type TextFieldBottomSheetRef,
 } from "@/presentation/theme/components/text-field-bottom-sheet";
-import ModifierLines from "@/presentation/orders/components/modifier-lines";
+import ActionsBottomSheet, {
+  type ActionsBottomSheetItem,
+} from "@/presentation/theme/components/actions-bottom-sheet";
+import SplitItemRow from "@/presentation/orders/components/split-item-row";
+import { typography } from "@/constants/theme";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { useBills } from "@/presentation/orders/hooks/useBills";
@@ -32,7 +36,6 @@ import {
 } from "@/core/orders/models/order-detail.model";
 import { SplitBillItemDto } from "@/core/orders/dto/split-bills.dto";
 import {
-  formatQuantity,
   getUnbilledQty,
   roundQty,
   shareQuantity,
@@ -54,12 +57,13 @@ interface Share {
 
 /**
  * Splits an order into several bills at once: one per person (or seat), each
- * with its own name. Items go to the selected person with the stepper, or are
- * shared equally between several people.
+ * with its own name. Tapping an item gives one unit to the selected person;
+ * long-press shares it equally between several people.
  */
 export default function SplitBillScreen() {
   const { t } = useTranslation(["common", "bills", "orders"]);
   const router = useRouter();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const order = useOrdersStore((state) => state.activeOrder);
   const { mutate: splitBills, isLoading: isSplitting } = useBills().splitBills;
@@ -85,8 +89,17 @@ export default function SplitBillScreen() {
   // order detail id -> units shared equally
   const [shared, setShared] = useState<Record<string, Share>>({});
 
+  // Adding, removing or renaming people counts as a change worth keeping.
+  const [peopleEdited, setPeopleEdited] = useState(false);
+  const [showDiscard, setShowDiscard] = useState(false);
+  const pendingAction = useRef<any>(null);
+  const leavingRef = useRef(false);
+
   const renameSheetRef = useRef<TextFieldBottomSheetRef>(null);
   const shareSheetRef = useRef<BottomSheetMethods>(null);
+  const personSheetRef = useRef<BottomSheetMethods>(null);
+  const itemSheetRef = useRef<BottomSheetMethods>(null);
+  const [actionsDetail, setActionsDetail] = useState<OrderDetail | null>(null);
   const [shareDetail, setShareDetail] = useState<OrderDetail | null>(null);
   const [sharePeople, setSharePeople] = useState<number[]>([]);
 
@@ -162,6 +175,7 @@ export default function SplitBillScreen() {
     if (people.length >= MAX_PEOPLE) return;
     const key = nextKey.current++;
     setPeople((prev) => [...prev, { key, label: defaultLabel(prev.length) }]);
+    setPeopleEdited(true);
     setSelectedKey(key);
   };
 
@@ -170,6 +184,7 @@ export default function SplitBillScreen() {
     const key = selectedKey;
     const remaining = people.filter((p) => p.key !== key);
     setPeople(remaining);
+    setPeopleEdited(true);
     setOwn(({ [key]: _removed, ...rest }) => rest);
     // A share needs two people; with fewer its units go back to unassigned.
     setShared((prev) =>
@@ -189,6 +204,7 @@ export default function SplitBillScreen() {
   };
 
   const rename = async (value: string) => {
+    setPeopleEdited(true);
     setPeople((prev) =>
       prev.map((p, i) =>
         p.key === selectedKey ? { ...p, label: value || defaultLabel(i) } : p,
@@ -226,6 +242,17 @@ export default function SplitBillScreen() {
   const unshare = (detailId: string) =>
     setShared(({ [detailId]: _removed, ...rest }) => rest);
 
+  const openItemActions = (detail: OrderDetail) => {
+    setActionsDetail(detail);
+    itemSheetRef.current?.present();
+  };
+
+  // Run an item action once its sheet is out of the way.
+  const fromItemSheet = (action: () => void) => {
+    itemSheetRef.current?.dismiss();
+    action();
+  };
+
   const bills: SplitBillItemDto[] = people
     .map((person) => ({
       label: person.label.trim(),
@@ -241,6 +268,24 @@ export default function SplitBillScreen() {
   const unassignedCount = details.filter((d) => unassignedFor(d) > 0).length;
   const assignedTotal = people.reduce((acc, p) => acc + totalFor(p.key), 0);
 
+  const isDirty =
+    peopleEdited ||
+    Object.keys(shared).length > 0 ||
+    Object.values(own).some((items) =>
+      Object.values(items).some((qty) => qty > 0),
+    );
+
+  // Back, swipe or header back: ask before throwing the split away.
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("beforeRemove", (e: any) => {
+      if (!isDirty || leavingRef.current) return;
+      e.preventDefault();
+      pendingAction.current = e.data.action;
+      setShowDiscard(true);
+    });
+    return unsubscribe;
+  }, [navigation, isDirty]);
+
   if (!order) {
     return (
       <ThemedView style={tw`flex-1 justify-center items-center`}>
@@ -255,6 +300,7 @@ export default function SplitBillScreen() {
       { idempotencyKey, orderId: order.id, bills },
       {
         onSuccess: () => {
+          leavingRef.current = true;
           router.replace({
             pathname: "/(order)/[id]/bills",
             params: { id: order.id },
@@ -267,14 +313,65 @@ export default function SplitBillScreen() {
   const personName = (key: number) =>
     people.find((p) => p.key === key)?.label ?? "";
 
+  const actionsDetailName = actionsDetail
+    ? [
+        actionsDetail.product.name,
+        actionsDetail.product.options.length > 1
+          ? actionsDetail.productOption?.name
+          : null,
+      ]
+        .filter(Boolean)
+        .join(" ")
+    : "";
+
+  const actionsShare = actionsDetail ? shared[actionsDetail.id] : undefined;
+  const canShare =
+    !!actionsShare || (!!actionsDetail && unassignedFor(actionsDetail) > 0);
+  const selectedHasActionsDetail =
+    !!actionsDetail && (own[selectedKey]?.[actionsDetail.id] ?? 0) > 0;
+
+  const itemActions: ActionsBottomSheetItem[] = actionsDetail
+    ? [
+        {
+          icon: "split",
+          label: t(
+            actionsShare ? "bills:split.editShare" : "bills:split.share",
+          ),
+          disabled: !canShare,
+          hint: canShare ? undefined : t("bills:split.shareBlocked"),
+          onPress: () => fromItemSheet(() => openShare(actionsDetail)),
+        },
+        ...(selectedHasActionsDetail && selected
+          ? [
+              {
+                icon: "minus" as const,
+                label: t("bills:split.removeFrom", { name: selected.label }),
+                onPress: () =>
+                  fromItemSheet(() => setOwnQty(actionsDetail.id, 0)),
+              },
+            ]
+          : []),
+        ...(actionsShare
+          ? [
+              {
+                icon: "x" as const,
+                label: t("bills:split.unshare"),
+                onPress: () => fromItemSheet(() => unshare(actionsDetail.id)),
+              },
+            ]
+          : []),
+      ]
+    : [];
+
   return (
     <ScreenLayout style={tw`flex-1`}>
       <ScrollView
         style={tw`flex-1`}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={tw`pt-6 pb-40`}
+        contentContainerStyle={tw`pt-6 pb-32`}
+        stickyHeaderIndices={[1]}
       >
-        <ThemedView style={tw`px-4 mb-4`}>
+        <ThemedView style={tw`px-4 mb-2`}>
           <ThemedText type="h2" style={tw`mb-1`}>
             {t("bills:split.title")}
           </ThemedText>
@@ -283,61 +380,77 @@ export default function SplitBillScreen() {
           </ThemedText>
         </ThemedView>
 
-        {/* People: tap to pick who gets the items below */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={tw`px-4 gap-2`}
-        >
-          {people.map((person) => (
-            <Chip
-              key={person.key}
-              label={`${person.label} · ${formatCurrency(totalFor(person.key))}`}
-              selected={person.key === selectedKey}
-              showSelectedCheck={false}
-              onPress={() =>
-                person.key === selectedKey
-                  ? renameSheetRef.current?.present()
-                  : setSelectedKey(person.key)
-              }
-              onLongPress={() => {
-                setSelectedKey(person.key);
-                renameSheetRef.current?.present();
-              }}
-              accessibilityHint={t("bills:split.renameHint")}
-            />
-          ))}
-          {people.length < MAX_PEOPLE && (
-            <Chip
-              variant="assist"
-              icon="user-plus"
-              label={t("bills:split.addPerson")}
-              onPress={addPerson}
-            />
-          )}
-        </ScrollView>
-
-        {selected && (
-          <ThemedView
-            style={tw`mx-4 mt-3 mb-4 flex-row items-center justify-between`}
+        {/* People stay pinned: pick who the tapped items go to */}
+        <ThemedView style={tw`pt-2 border-b border-divider`}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={tw`px-4 gap-2`}
           >
-            <ThemedText type="body2" style={tw`text-gray-500 flex-1`}>
-              {t("bills:split.assigningTo", { name: selected.label })}
-            </ThemedText>
-            <IconButton
-              icon="pencil"
-              accessibilityLabel={t("bills:split.rename")}
-              onPress={() => renameSheetRef.current?.present()}
-            />
-            {people.length > MIN_PEOPLE && (
-              <IconButton
-                icon="trash"
-                accessibilityLabel={t("bills:split.removePerson")}
-                onPress={removeSelected}
+            {people.map((person) => (
+              <Chip
+                key={person.key}
+                // No "$0.00" before anything is theirs, so more people fit.
+                label={
+                  totalFor(person.key) > 0
+                    ? `${person.label} · ${formatCurrency(totalFor(person.key))}`
+                    : person.label
+                }
+                selected={person.key === selectedKey}
+                showSelectedCheck={false}
+                onPress={() => setSelectedKey(person.key)}
+                onLongPress={() => {
+                  setSelectedKey(person.key);
+                  renameSheetRef.current?.present();
+                }}
+                accessibilityHint={t("bills:split.renameHint")}
+              />
+            ))}
+            {people.length < MAX_PEOPLE && (
+              <Chip
+                variant="assist"
+                icon="user-plus"
+                label={t("bills:split.addPerson")}
+                onPress={addPerson}
               />
             )}
-          </ThemedView>
-        )}
+          </ScrollView>
+
+          {selected && (
+            <ThemedView style={tw`pl-4 pr-2 pt-1 pb-2`}>
+              <ThemedView style={tw`flex-row items-center`}>
+                <ThemedText
+                  type="body1"
+                  numberOfLines={1}
+                  style={[tw`flex-1`, { fontFamily: typography.bold }]}
+                >
+                  {t("bills:split.assigningTo", { name: selected.label })}
+                </ThemedText>
+                <IconButton
+                  icon="pencil"
+                  accessibilityLabel={t("bills:split.rename")}
+                  onPress={() => renameSheetRef.current?.present()}
+                />
+                <IconButton
+                  icon="ellipsis-vertical"
+                  accessibilityLabel={t("bills:split.personOptions", {
+                    name: selected.label,
+                  })}
+                  onPress={() => personSheetRef.current?.present()}
+                />
+              </ThemedView>
+              {details.length > 0 && (
+                <ThemedText type="body2" style={tw`text-gray-500`}>
+                  {unassignedCount > 0
+                    ? t("bills:split.unassignedItems", {
+                        count: unassignedCount,
+                      })
+                    : t("bills:split.allItemsAssigned")}
+                </ThemedText>
+              )}
+            </ThemedView>
+          )}
+        </ThemedView>
 
         {details.length === 0 ? (
           <ThemedText
@@ -347,97 +460,42 @@ export default function SplitBillScreen() {
             {t("bills:newBill.allItemsBilled")}
           </ThemedText>
         ) : (
-          <ThemedView style={tw`px-4 gap-3`}>
+          <ThemedView style={tw`px-4 pt-4 gap-3`}>
             {details.map((detail) => {
               const mine = own[selectedKey]?.[detail.id] ?? 0;
               const unassigned = unassignedFor(detail);
               const share = shared[detail.id];
-              const showOption =
-                detail.product.options.length > 1 && detail.productOption;
+              const others = people
+                .filter((p) => p.key !== selectedKey)
+                .map((p) => ({
+                  name: p.label,
+                  quantity: own[p.key]?.[detail.id] ?? 0,
+                }))
+                .filter((other) => other.quantity > 0);
               return (
-                <Card
+                <SplitItemRow
                   key={detail.id}
-                  variant="outline"
-                  style={tw.style("p-4 gap-3", mine > 0 && "bg-secondary")}
-                >
-                  <ThemedView
-                    style={tw`flex-row items-center gap-3 bg-transparent`}
-                  >
-                    <ThemedView style={tw`flex-1 bg-transparent`}>
-                      <ThemedText type="body1" style={tw`font-semibold`}>
-                        {detail.product.name}
-                        {showOption ? ` ${detail.productOption?.name}` : ""}
-                      </ThemedText>
-                      <ModifierLines modifiers={detail.modifiers} />
-                      <ThemedText type="body2" style={tw`text-gray-500`}>
-                        {formatCurrency(detail.price)}
-                        {" · "}
-                        {unassigned > 0
-                          ? t("bills:split.unassigned", {
-                              quantity: formatQuantity(unassigned),
-                            })
-                          : t("bills:split.allAssigned")}
-                      </ThemedText>
-                    </ThemedView>
-                    <IconButton
-                      icon="minus"
-                      variant="outlined"
-                      onPress={() => decrease(detail)}
-                      disabled={mine === 0}
-                      accessibilityLabel={t("common:actions.decrease")}
-                    />
-                    <ThemedText
-                      type="h4"
-                      style={tw`min-w-8 text-center`}
-                      accessibilityLiveRegion="polite"
-                    >
-                      {formatQuantity(mine)}
-                    </ThemedText>
-                    <IconButton
-                      icon="plus"
-                      variant="outlined"
-                      onPress={() => increase(detail)}
-                      disabled={unassigned === 0}
-                      accessibilityLabel={t("common:actions.increase")}
-                    />
-                  </ThemedView>
-
-                  {share ? (
-                    <ThemedView
-                      style={tw`flex-row items-center gap-2 bg-transparent`}
-                    >
-                      <ThemedText type="body2" style={tw`flex-1`}>
-                        {t("bills:split.sharedBetween", {
-                          quantity: formatQuantity(share.units),
-                          names: share.people.map(personName).join(", "),
-                        })}
-                      </ThemedText>
-                      <Button
-                        label={t("common:actions.edit")}
-                        variant="text"
-                        size="small"
-                        onPress={() => openShare(detail)}
-                      />
-                      <IconButton
-                        icon="x"
-                        accessibilityLabel={t("bills:split.unshare")}
-                        onPress={() => unshare(detail.id)}
-                      />
-                    </ThemedView>
-                  ) : (
-                    unassigned > 0 && (
-                      <Button
-                        label={t("bills:split.share")}
-                        leftIcon="split"
-                        variant="surface"
-                        shape="rounded"
-                        size="small"
-                        style={tw`self-start`}
-                        onPress={() => openShare(detail)}
-                      />
-                    )
-                  )}
-                </Card>
+                  detail={detail}
+                  personName={selected?.label ?? ""}
+                  mine={mine}
+                  unassigned={unassigned}
+                  others={others}
+                  share={
+                    share && {
+                      quantity: share.units,
+                      names: share.people.map(personName),
+                    }
+                  }
+                  onPress={
+                    unassigned > 0
+                      ? () => increase(detail)
+                      : share
+                        ? () => openItemActions(detail)
+                        : undefined
+                  }
+                  onLongPress={() => openItemActions(detail)}
+                  onDecrease={() => decrease(detail)}
+                />
               );
             })}
           </ThemedView>
@@ -447,15 +505,10 @@ export default function SplitBillScreen() {
       {/* Fixed bottom bar */}
       <ThemedView
         style={[
-          tw`absolute bottom-0 left-0 right-0 bg-background border-t border-divider px-4 pt-3 gap-2`,
+          tw`absolute bottom-0 left-0 right-0 bg-background border-t border-divider px-4 pt-3`,
           { paddingBottom: Math.max(insets.bottom, 16) },
         ]}
       >
-        {unassignedCount > 0 && (
-          <ThemedText type="small" style={tw`text-gray-500 text-center`}>
-            {t("bills:split.unassignedItems", { count: unassignedCount })}
-          </ThemedText>
-        )}
         <Button
           label={t("bills:split.create", {
             count: bills.length,
@@ -476,6 +529,34 @@ export default function SplitBillScreen() {
         submitLabel={t("common:actions.save")}
         onSubmit={rename}
       />
+
+      {/* The selected person's options */}
+      <ThemedBottomSheetModal ref={personSheetRef} enablePanDownToClose>
+        <ActionsBottomSheet
+          title={selected?.label}
+          items={[
+            {
+              icon: "user-minus",
+              label: t("bills:split.removePerson"),
+              color: "text-red-500",
+              disabled: people.length <= MIN_PEOPLE,
+              hint:
+                people.length <= MIN_PEOPLE
+                  ? t("bills:split.removePersonBlocked")
+                  : t("bills:split.removePersonHint"),
+              onPress: () => {
+                personSheetRef.current?.dismiss();
+                removeSelected();
+              },
+            },
+          ]}
+        />
+      </ThemedBottomSheetModal>
+
+      {/* One item's options: share it, take it off the selected person */}
+      <ThemedBottomSheetModal ref={itemSheetRef} enablePanDownToClose>
+        <ActionsBottomSheet title={actionsDetailName} items={itemActions} />
+      </ThemedBottomSheetModal>
 
       {/* Who shares this item */}
       <ThemedBottomSheetModal ref={shareSheetRef} enablePanDownToClose>
@@ -509,6 +590,24 @@ export default function SplitBillScreen() {
           />
         </BottomSheetView>
       </ThemedBottomSheetModal>
+
+      <DialogModal
+        visible={showDiscard}
+        title={t("bills:split.discardTitle")}
+        message={t("bills:split.discardMessage")}
+        confirmLabel={t("bills:split.discard")}
+        cancelLabel={t("bills:split.keepSplitting")}
+        confirmVariant="destructive"
+        onConfirm={() => {
+          setShowDiscard(false);
+          leavingRef.current = true;
+          if (pendingAction.current) navigation.dispatch(pendingAction.current);
+        }}
+        onCancel={() => {
+          pendingAction.current = null;
+          setShowDiscard(false);
+        }}
+      />
     </ScreenLayout>
   );
 }

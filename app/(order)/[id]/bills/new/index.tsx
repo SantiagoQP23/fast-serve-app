@@ -80,14 +80,6 @@ export default function NewBillScreen() {
     return total;
   };
 
-  const getSelectedItemsCount = () => {
-    let count = 0;
-    Object.keys(selectedDetails).forEach((id) => {
-      count += selectedDetails[id].quantity;
-    });
-    return count;
-  };
-
   if (!order) {
     return (
       <ThemedView style={tw`flex-1 justify-center items-center`}>
@@ -174,7 +166,6 @@ export default function NewBillScreen() {
   };
 
   const selectedTotal = getTotalSelectedDetails();
-  const selectedCount = getSelectedItemsCount();
 
   return (
     <ScreenLayout style={tw`flex-1`}>
@@ -184,13 +175,30 @@ export default function NewBillScreen() {
         contentContainerStyle={tw`px-4 pt-6 pb-32`}
       >
         {/* Header Section */}
-        <ThemedView style={tw`mb-6`}>
-          <ThemedText type="h2" style={tw` mb-1`}>
-            {t("bills:newBill.title")}
-          </ThemedText>
-          <ThemedText type="body2" style={tw`text-gray-500`}>
-            {t("bills:newBill.orderNumber", { number: order.num })}
-          </ThemedText>
+        <ThemedView style={tw`mb-6 gap-3`}>
+          <ThemedView>
+            <ThemedText type="h2" style={tw` mb-1`}>
+              {t("bills:newBill.title")}
+            </ThemedText>
+            <ThemedText type="body2" style={tw`text-gray-500`}>
+              {t("bills:newBill.orderNumber", { number: order.num })}
+            </ThemedText>
+          </ThemedView>
+          {detailsToPay.length > 0 && (
+            <Button
+              label={t("bills:split.splitLink")}
+              leftIcon="split"
+              variant="surface"
+              size="small"
+              style={tw`self-start`}
+              onPress={() =>
+                router.replace({
+                  pathname: "/(order)/[id]/bills/split",
+                  params: { id: order.id },
+                })
+              }
+            />
+          )}
         </ThemedView>
 
         {/* Order Summary */}
@@ -219,26 +227,13 @@ export default function NewBillScreen() {
 
         {/* Optional name, e.g. who pays this bill */}
         {detailsToPay.length > 0 && (
-          <ThemedView style={tw`mb-4 gap-2`}>
+          <ThemedView style={tw`mb-4`}>
             <TextInput
               value={label}
               onChangeText={setLabel}
               placeholder={t("bills:split.namePlaceholder")}
               maxLength={40}
               icon="user"
-            />
-            <Button
-              label={t("bills:split.splitLink")}
-              leftIcon="split"
-              variant="text"
-              size="small"
-              style={tw`self-start`}
-              onPress={() =>
-                router.replace({
-                  pathname: "/(order)/[id]/bills/split",
-                  params: { id: order.id },
-                })
-              }
             />
           </ThemedView>
         )}
@@ -329,14 +324,6 @@ export default function NewBillScreen() {
           { paddingBottom: Math.max(insets.bottom, 16) },
         ]}
       >
-        {selectedTotal > 0 && (
-          <ThemedView style={tw`flex-row justify-between items-center mb-3`}>
-            <ThemedText type="body2" style={tw`text-gray-600`}>
-              {t("bills:newBill.itemsCount", { count: selectedCount })}
-            </ThemedText>
-            <ThemedText type="h3">{formatCurrency(selectedTotal)}</ThemedText>
-          </ThemedView>
-        )}
         <Button
           label={t("bills:newBill.createBill", {
             amount: formatCurrency(selectedTotal),
