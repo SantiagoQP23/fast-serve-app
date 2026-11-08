@@ -238,10 +238,7 @@
     "title": "Dividir cuenta",
     "subtitle": "Pedido #{{number}} · una cuenta por persona",
     "personDefault": "Persona {{number}}",
-    "addPerson": "Agregar",
-    "assigningTo": "Para {{name}}",
     "rename": "Nombre",
-    "renameHint": "Mantén presionado para cambiar el nombre",
     "removePerson": "Quitar persona",
     "namePlaceholder": "Nombre (opcional), ej. Ana",
     "unassigned": "{{quantity}} sin asignar",
@@ -269,6 +266,14 @@
     "discardTitle": "¿Descartar la división?",
     "discardMessage": "Se perderán las personas y los productos que asignaste.",
     "discard": "Descartar",
-    "keepSplitting": "Seguir dividiendo"
+    "keepSplitting": "Seguir dividiendo",
+    "editBill": "Editar cuenta",
+    "noItems": "Sin productos todavía",
+    "sharedTag": "Compartido",
+    "addPersonFull": "Agregar persona",
+    "renameAction": "Cambiar nombre",
+    "unassignedTitle": "Sin asignar",
+    "unassignedNote": "Se quedan en el pedido para cobrarlos después",
+    "done": "Listo · {{amount}}"
   }
 }

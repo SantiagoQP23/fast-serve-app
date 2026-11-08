@@ -238,10 +238,7 @@
     "title": "Split bill",
     "subtitle": "Order #{{number}} · one bill per person",
     "personDefault": "Person {{number}}",
-    "addPerson": "Add",
-    "assigningTo": "For {{name}}",
     "rename": "Name",
-    "renameHint": "Long-press to change the name",
     "removePerson": "Remove person",
     "namePlaceholder": "Name (optional), e.g. Ana",
     "unassigned": "{{quantity}} not assigned",
@@ -269,6 +266,14 @@
     "discardTitle": "Discard this split?",
     "discardMessage": "The people and items you assigned will be lost.",
     "discard": "Discard",
-    "keepSplitting": "Keep splitting"
+    "keepSplitting": "Keep splitting",
+    "editBill": "Edit bill",
+    "noItems": "No items yet",
+    "sharedTag": "Shared",
+    "addPersonFull": "Add person",
+    "renameAction": "Change name",
+    "unassignedTitle": "Not assigned",
+    "unassignedNote": "They stay on the order to charge later",
+    "done": "Done · {{amount}}"
   }
 }
