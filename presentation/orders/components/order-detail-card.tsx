@@ -454,7 +454,9 @@ export default function OrderDetailCard({
                       detail.quantity > 1 &&
                       detail.status !== OrderDetailStatus.DELIVERED && (
                         <ProgressBar
-                          variant="segmented"
+                          variant={
+                            detail.quantity > 8 ? "default" : "segmented"
+                          }
                           progress={detail.qtyDelivered / detail.quantity}
                           segments={detail.quantity}
                           height={1.5}
