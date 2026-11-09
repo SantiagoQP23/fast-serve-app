@@ -47,14 +47,18 @@ import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryIt
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import {
   getProductComponents,
+  hasVariantRules,
   type ModifierGroup,
+  type VariantGroupRule,
 } from "@/core/menu/models/customization.model";
+import { getProductActiveOptions } from "@/core/menu/models/product.model";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
 
 interface GroupLinkDraft {
   groupId: string;
   minSelect: number | null;
   maxSelect: number | null;
+  variants: VariantGroupRule[];
 }
 
 /** Compares drafts by content; component keys are only for React. */
@@ -180,6 +184,7 @@ function GroupRow({
     ? [
         describeLimits(t, min, max),
         hasOwnLimits && t("customization.limits.ownTag"),
+        hasVariantRules(link) && t("customization.limits.variesByVariant"),
         !group.isActive && t("modifierGroups.inactive"),
         group.modifiers.map((option) => option.name).join(", "),
       ]
@@ -319,11 +324,21 @@ export default function ProductCustomizationScreen() {
         groupId: link.groupId,
         minSelect: link.minSelect,
         maxSelect: link.maxSelect,
+        variants: [...(link.variants ?? [])].sort(
+          (a, b) => a.productOptionId - b.productOptionId,
+        ),
       })),
   );
   const componentSheetRef = useRef<ProductComponentSheetRef>(null);
   const groupPickerRef = useRef<BottomSheetPickerRef>(null);
   const limitsSheetRef = useRef<GroupLimitsSheetRef>(null);
+  // The limits sheet lists these for per-variant rules.
+  const sheetVariants = product
+    ? getProductActiveOptions(product).map((option) => ({
+        id: option.id,
+        name: option.name,
+      }))
+    : [];
 
   // What the screen opened with, to know whether leaving loses anything.
   const [initial] = useState(() => snapshot(components, links));
@@ -355,7 +370,7 @@ export default function ProductCustomizationScreen() {
           ? current
           : [
               ...current,
-              { groupId: createdId, minSelect: null, maxSelect: null },
+              { groupId: createdId, minSelect: null, maxSelect: null, variants: [] },
             ],
       );
     }, [takeCreatedGroup]),
@@ -604,7 +619,12 @@ export default function ProductCustomizationScreen() {
                       }
                       onEditLimits={() => {
                         const group = groupById.get(link.groupId);
-                        if (group) limitsSheetRef.current?.present(group, link);
+                        if (group)
+                          limitsSheetRef.current?.present(
+                            group,
+                            link,
+                            sheetVariants,
+                          );
                       }}
                       onUnlink={() =>
                         removeWithUndo(
@@ -655,7 +675,15 @@ export default function ProductCustomizationScreen() {
           onSubmit={(groupId, limits) =>
             setLinks((current) =>
               current.map((link) =>
-                link.groupId === groupId ? { ...link, ...limits } : link,
+                link.groupId === groupId
+                  ? {
+                      ...link,
+                      ...limits,
+                      variants: [...limits.variants].sort(
+                        (a, b) => a.productOptionId - b.productOptionId,
+                      ),
+                    }
+                  : link,
               ),
             )
           }
@@ -675,7 +703,7 @@ export default function ProductCustomizationScreen() {
           onChange={(value) =>
             setLinks((current) => [
               ...current,
-              { groupId: String(value), minSelect: null, maxSelect: null },
+              { groupId: String(value), minSelect: null, maxSelect: null, variants: [] },
             ])
           }
           headerAction={{

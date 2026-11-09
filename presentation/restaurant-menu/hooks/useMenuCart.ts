@@ -192,12 +192,11 @@ export function useMenuCart() {
   const getQuickAddOption = (product: Product) => {
     if (mode !== "cart" && mode !== "edit" && mode !== "sale") return null;
     if (product.status !== ProductStatus.AVAILABLE) return null;
-    // A group that must be answered needs the product sheet.
-    if (hasRequiredGroups(product)) return null;
-
     const activeOptions = product.options.filter((option) => option.isActive);
     if (activeOptions.length !== 1) return null;
     const option = activeOptions[0];
+    // A group that must be answered (on this variant) needs the product sheet.
+    if (hasRequiredGroups(product, option.id)) return null;
 
     const available = getProductOptionAvailableQuantity(option);
     const inCart = summary.countByOption.get(option.id) ?? 0;

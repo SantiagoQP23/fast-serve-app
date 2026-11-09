@@ -451,7 +451,16 @@
       "upTo_one": "hasta {{count}}",
       "upTo_other": "hasta {{count}}",
       "maxRequired_one": "Escribe un máximo. El grupo permite hasta {{count}}.",
-      "maxRequired_other": "Escribe un máximo. El grupo permite hasta {{count}}."
+      "maxRequired_other": "Escribe un máximo. El grupo permite hasta {{count}}.",
+      "maxRequiredProduct_one": "Escribe un máximo. El producto permite hasta {{count}}.",
+      "maxRequiredProduct_other": "Escribe un máximo. El producto permite hasta {{count}}.",
+      "byVariant": "Por variante",
+      "sameAsProduct": "Igual que el producto",
+      "notOffered": "No se ofrece",
+      "offered": "Ofrecer en esta variante",
+      "variesByVariant": "Varía por variante",
+      "variantTitle": "Límites en {{name}}",
+      "usesProduct": "Usa los del producto: {{rule}}"
     }
   }
 }

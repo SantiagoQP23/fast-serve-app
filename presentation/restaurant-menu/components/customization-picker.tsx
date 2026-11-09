@@ -111,11 +111,14 @@ function ModifierOptionRow({
  */
 export default function CustomizationPicker({
   product,
+  variantId,
   selection,
   onChange,
   blocksWithoutStock,
 }: {
   product: Product;
+  /** The line's variant: its own group rules apply. */
+  variantId?: number | null;
   selection: CustomizationSelection;
   onChange: (
     update: (current: CustomizationSelection) => CustomizationSelection,
@@ -124,7 +127,7 @@ export default function CustomizationPicker({
   blocksWithoutStock: boolean;
 }) {
   const { t } = useTranslation("menu");
-  const groups = getActiveGroups(product);
+  const groups = getActiveGroups(product, variantId);
   const components = getProductComponents(product);
 
   const groupSubtitle = (group: ActiveGroup) => {
