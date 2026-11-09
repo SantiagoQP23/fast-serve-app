@@ -234,6 +234,7 @@
     }
   },
   "variantChange": {
+    "blockedTitle": "No se puede cambiar la variante",
     "blocked": "Este producto ya ha sido entregado y su variante no se puede cambiar."
   },
   "detailActions": {
@@ -248,6 +249,7 @@
     "readyCount_other": "{{count}} listos",
     "change": "Cambiar",
     "customPrice": "Precio personalizado",
+    "changeVariant": "Cambiar variante",
     "replace": "Reemplazar"
   },
   "waiterSummary": {

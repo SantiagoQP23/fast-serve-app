@@ -36,6 +36,7 @@ import { useOrderDetailStatus } from "@/presentation/orders/hooks/useOrderDetail
 import {
   OrderDetailStatus,
   getReplaceBlockReason,
+  canChangeVariant,
 } from "@/core/orders/models/order-detail.model";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
 import {
@@ -87,6 +88,7 @@ export default function EditOrderDetailScreen() {
   const activitySheetRef = useRef<BottomSheetMethods>(null);
   const variantSheetRef = useRef<BottomSheetMethods>(null);
   const replaceBlockedSheetRef = useRef<BottomSheetMethods>(null);
+  const variantBlockedSheetRef = useRef<BottomSheetMethods>(null);
   const orderDetail = useOrdersStore((state) => state.activeOrderDetail);
   const order = useOrdersStore((state) => state.activeOrder);
   const product = useMenuStore((state) =>
@@ -243,6 +245,9 @@ export default function EditOrderDetailScreen() {
   const replaceBlockReason = orderDetail
     ? getReplaceBlockReason(orderDetail)
     : null;
+  const variantChangeAllowed = orderDetail
+    ? canChangeVariant(orderDetail)
+    : false;
 
   useEffect(() => {
     navigation.setOptions({
@@ -394,12 +399,12 @@ export default function EditOrderDetailScreen() {
             <ThemedView style={tw`gap-3`}>
               <ThemedView style={tw`gap-1`}>
                 <ThemedText type="h3" accessibilityRole="header">
-                  {product.name}
+                  {hasVariants && selectedOption
+                    ? `${product.name} ${selectedOption.name}`
+                    : product.name}
                 </ThemedText>
                 <ThemedText type="body2" style={tw`text-gray-500`}>
-                  {hasVariants && selectedOption
-                    ? `${selectedOption.name} · ${formatCurrency(effectivePrice)}`
-                    : formatCurrency(effectivePrice)}
+                  {formatCurrency(effectivePrice)}
                 </ThemedText>
               </ThemedView>
 
@@ -527,17 +532,6 @@ export default function EditOrderDetailScreen() {
                 ))}
               </ThemedView>
             )}
-
-            {hasVariants && selectedOption && (
-              <View style={tw`flex-row`}>
-                <Chip
-                  variant="assist"
-                  icon="layers"
-                  label={selectedOption.name}
-                  onPress={() => variantSheetRef.current?.present()}
-                />
-              </View>
-            )}
           </ScrollView>
 
           <ThemedView style={tw`px-4 pt-2 pb-4 gap-3`}>
@@ -627,6 +621,23 @@ export default function EditOrderDetailScreen() {
         <ThemedBottomSheetModal ref={moreSheetRef} enablePanDownToClose>
           <ActionsBottomSheet
             items={[
+              ...(hasVariants
+                ? [
+                    {
+                      icon: "layers" as const,
+                      label: t("orders:detailActions.changeVariant"),
+                      onPress: () => {
+                        moreSheetRef.current?.dismiss();
+                        // Always offered; once delivered, it explains why not.
+                        if (!variantChangeAllowed) {
+                          variantBlockedSheetRef.current?.present();
+                          return;
+                        }
+                        variantSheetRef.current?.present();
+                      },
+                    },
+                  ]
+                : []),
               {
                 icon: "arrow-left-right",
                 label: t("orders:detailActions.replaceItem"),
@@ -637,7 +648,6 @@ export default function EditOrderDetailScreen() {
                     {
                       icon: "circle-dollar-sign" as const,
                       label: t("orders:detailActions.customPrice"),
-                      hint: formatCurrency(effectivePrice),
                       onPress: () => {
                         moreSheetRef.current?.dismiss();
                         customPriceSheetRef.current?.present();
@@ -673,6 +683,14 @@ export default function EditOrderDetailScreen() {
             onClose={() => variantSheetRef.current?.dismiss()}
           />
         </ThemedBottomSheetModal>
+
+        {!variantChangeAllowed && (
+          <InfoBottomSheet
+            ref={variantBlockedSheetRef}
+            title={t("orders:variantChange.blockedTitle")}
+            message={t("orders:variantChange.blocked")}
+          />
+        )}
 
         {replaceBlockReason && (
           <InfoBottomSheet
