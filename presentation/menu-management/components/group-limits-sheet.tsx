@@ -1,4 +1,5 @@
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { Pressable } from "react-native";
 import {
   BottomSheetView,
   type BottomSheetMethods,
@@ -13,18 +14,41 @@ import Button from "@/presentation/theme/components/button";
 import ButtonGroup from "@/presentation/theme/components/button-group";
 import Switch from "@/presentation/theme/components/switch";
 import { parseAmount } from "@/presentation/menu-management/components/modifier-option-sheet";
-import type { ModifierGroup } from "@/core/menu/models/customization.model";
+import Icon from "@/presentation/theme/components/icon";
+import {
+  getLinkLimits,
+  type ModifierGroup,
+  type VariantGroupRule,
+} from "@/core/menu/models/customization.model";
 
 /** A product's own limits for a linked group; null keeps the group's. */
 export interface GroupLimits {
   minSelect: number | null;
   maxSelect: number | null;
+  /** Variants with their own rule (plans/limites-por-variante.md). */
+  variants: VariantGroupRule[];
+}
+
+/** An active variant of the product, as the sheet lists it. */
+export interface SheetVariant {
+  id: number;
+  name: string;
 }
 
 export type GroupLimitsSheetRef = {
-  present: (group: ModifierGroup, limits: GroupLimits) => void;
+  present: (
+    group: ModifierGroup,
+    limits: GroupLimits,
+    variants: SheetVariant[],
+  ) => void;
   dismiss: () => void;
 };
+
+type Limits = { minSelect: number | null; maxSelect: number | null };
+
+/** A rule that changes nothing isn't kept. */
+const isNoOp = (rule: VariantGroupRule) =>
+  rule.minSelect === null && rule.maxSelect === null && rule.isOffered;
 
 /** Short rule for a min/max pair: "Elige 1 · Obligatorio", "Varios · 2–3". */
 export function describeLimits(
@@ -57,9 +81,10 @@ export function describeLimits(
 }
 
 /**
- * How many options of a shared group this product asks for. The group keeps
- * its own rule for every other product; e.g. "Salsas" can be required with
- * 2 picks here and optional elsewhere.
+ * How many options of a shared group this product asks for, and, for a
+ * product with variants, each variant's own rule (or that it isn't offered
+ * there). The group keeps its own rule for every other product; e.g.
+ * "Salsas" can be required with 2 picks here and optional elsewhere.
  */
 const GroupLimitsSheet = forwardRef<
   GroupLimitsSheetRef,
@@ -68,7 +93,18 @@ const GroupLimitsSheet = forwardRef<
   const { t } = useTranslation(["menuManagement", "common"]);
   const sheetRef = useRef<BottomSheetMethods>(null);
   const [group, setGroup] = useState<ModifierGroup | null>(null);
+  const [variants, setVariants] = useState<SheetVariant[]>([]);
+  const [productLimits, setProductLimits] = useState<Limits>({
+    minSelect: null,
+    maxSelect: null,
+  });
+  const [rules, setRules] = useState<VariantGroupRule[]>([]);
+  // Null: the product's rule; otherwise the variant being edited.
+  const [editing, setEditing] = useState<SheetVariant | null>(null);
+
+  // The controls, shared by the product and variant views.
   const [own, setOwn] = useState(false);
+  const [offered, setOffered] = useState(true);
   const [single, setSingle] = useState(true);
   const [required, setRequired] = useState(false);
   const [exact, setExact] = useState(false);
@@ -76,18 +112,51 @@ const GroupLimitsSheet = forwardRef<
   const [maxSelect, setMaxSelect] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  /** Rule the view falls back to: the group's, or the product's for a variant. */
+  const baseFor = (
+    nextGroup: ModifierGroup,
+    limits: Limits,
+    variant: SheetVariant | null,
+  ) => {
+    if (!variant)
+      return { min: nextGroup.minSelect, max: nextGroup.maxSelect };
+    const { min, max } = getLinkLimits(limits, nextGroup);
+    return { min, max };
+  };
+
+  const loadControls = (
+    nextGroup: ModifierGroup,
+    limits: Limits,
+    variant: SheetVariant | null,
+    rule?: VariantGroupRule,
+  ) => {
+    const base = baseFor(nextGroup, limits, variant);
+    const ownMin = variant ? (rule?.minSelect ?? null) : limits.minSelect;
+    const ownMax = variant ? (rule?.maxSelect ?? null) : limits.maxSelect;
+    const min = ownMin ?? base.min;
+    const max = ownMax ?? base.max;
+    setOwn(ownMin !== null || ownMax !== null);
+    setOffered(rule?.isOffered ?? true);
+    setSingle(max === 1);
+    setRequired(min > 0);
+    setExact(min > 0 && max !== null && max !== 1 && min === max);
+    setMinSelect(String(Math.max(min, 1)));
+    setMaxSelect(max !== null && max !== 1 ? String(max) : "");
+    setError(null);
+  };
+
   useImperativeHandle(ref, () => ({
-    present: (nextGroup, limits) => {
-      const min = limits.minSelect ?? nextGroup.minSelect;
-      const max = limits.maxSelect ?? nextGroup.maxSelect;
+    present: (nextGroup, limits, nextVariants) => {
+      const product = {
+        minSelect: limits.minSelect,
+        maxSelect: limits.maxSelect,
+      };
       setGroup(nextGroup);
-      setOwn(limits.minSelect !== null || limits.maxSelect !== null);
-      setSingle(max === 1);
-      setRequired(min > 0);
-      setExact(min > 0 && max !== null && max !== 1 && min === max);
-      setMinSelect(String(Math.max(min, 1)));
-      setMaxSelect(max !== null && max !== 1 ? String(max) : "");
-      setError(null);
+      setVariants(nextVariants);
+      setProductLimits(product);
+      setRules(limits.variants);
+      setEditing(null);
+      loadControls(nextGroup, product, null);
       sheetRef.current?.present();
     },
     dismiss: () => sheetRef.current?.dismiss(),
@@ -95,12 +164,11 @@ const GroupLimitsSheet = forwardRef<
 
   if (!group) return null;
 
-  const handleDone = () => {
-    if (!own) {
-      onSubmit(group.id, { minSelect: null, maxSelect: null });
-      sheetRef.current?.dismiss();
-      return;
-    }
+  const base = baseFor(group, productLimits, editing);
+
+  /** The controls as limits, or null after showing what's wrong. */
+  const readControls = (): Limits | null => {
+    if (!own) return { minSelect: null, maxSelect: null };
     const min = single ? 1 : Math.round(parseAmount(minSelect));
     const max = single
       ? 1
@@ -116,47 +184,120 @@ const GroupLimitsSheet = forwardRef<
         (required && max !== null && min > max))
     ) {
       setError(t("modifierGroups.errors.limits"));
-      return;
+      return null;
     }
-    // A product's empty maximum falls back to the group's, so "no limit"
-    // only exists when the group has none.
-    if (max === null && group.maxSelect !== null) {
+    // An empty maximum falls back to the one above, so "no limit" only
+    // exists when there is none above.
+    if (max === null && base.max !== null) {
       setError(
-        t("customization.limits.maxRequired", { count: group.maxSelect }),
+        t(
+          editing
+            ? "customization.limits.maxRequiredProduct"
+            : "customization.limits.maxRequired",
+          { count: base.max },
+        ),
       );
+      return null;
+    }
+    return { minSelect: required ? min : 0, maxSelect: max };
+  };
+
+  const ruleFor = (variantId: number) =>
+    rules.find((rule) => rule.productOptionId === variantId);
+
+  const openVariant = (variant: SheetVariant) => {
+    const limits = readControls();
+    if (!limits) return;
+    setProductLimits(limits);
+    setEditing(variant);
+    loadControls(group, limits, variant, ruleFor(variant.id));
+  };
+
+  const handleDone = () => {
+    if (editing) {
+      const limits = offered
+        ? readControls()
+        : { minSelect: null, maxSelect: null };
+      if (!limits) return;
+      const rule: VariantGroupRule = {
+        productOptionId: editing.id,
+        ...limits,
+        isOffered: offered,
+      };
+      setRules((current) => [
+        ...current.filter((entry) => entry.productOptionId !== editing.id),
+        ...(isNoOp(rule) ? [] : [rule]),
+      ]);
+      setEditing(null);
+      loadControls(group, productLimits, null);
       return;
     }
-    onSubmit(group.id, { minSelect: required ? min : 0, maxSelect: max });
+    const limits = readControls();
+    if (!limits) return;
+    onSubmit(group.id, { ...limits, variants: rules });
     sheetRef.current?.dismiss();
+  };
+
+  /** What a variant asks for, as its row shows it. */
+  const variantSummary = (variant: SheetVariant) => {
+    const rule = ruleFor(variant.id);
+    if (rule && !rule.isOffered) return t("customization.limits.notOffered");
+    const { min, max } = getLinkLimits(
+      { ...productLimits, variants: rule ? [rule] : [] },
+      group,
+      variant.id,
+    );
+    const text = describeLimits(t, min, max);
+    return rule ? text : `${text} · ${t("customization.limits.sameAsProduct")}`;
   };
 
   return (
     <ThemedBottomSheetModal ref={sheetRef} enablePanDownToClose>
       <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
         <ThemedView style={tw`gap-1 bg-transparent`}>
-          <ThemedText type="h3">{t("customization.limits.title")}</ThemedText>
+          <ThemedText type="h3">
+            {editing
+              ? t("customization.limits.variantTitle", { name: editing.name })
+              : t("customization.limits.title")}
+          </ThemedText>
           <ThemedText type="body2" style={tw`text-gray-500`}>
             {group.name}
           </ThemedText>
         </ThemedView>
 
-        <Switch
-          label={t("customization.limits.own")}
-          value={own}
-          onValueChange={(value) => {
-            setOwn(value);
-            setError(null);
-          }}
-        />
-        {!own && (
+        {editing && (
+          <Switch
+            label={t("customization.limits.offered")}
+            value={offered}
+            onValueChange={(value) => {
+              setOffered(value);
+              setError(null);
+            }}
+          />
+        )}
+
+        {(!editing || offered) && (
+          <Switch
+            label={t("customization.limits.own")}
+            value={own}
+            onValueChange={(value) => {
+              setOwn(value);
+              setError(null);
+            }}
+          />
+        )}
+        {(!editing || offered) && !own && (
           <ThemedText type="body2" style={tw`text-gray-500`}>
-            {t("customization.limits.usesGroup", {
-              rule: describeLimits(t, group.minSelect, group.maxSelect),
-            })}
+            {t(
+              editing
+                ? "customization.limits.usesProduct"
+                : "customization.limits.usesGroup",
+              { rule: describeLimits(t, base.min, base.max) },
+            )}
           </ThemedText>
         )}
 
-        {own && (
+        {(!editing || offered) && own && (
           <>
             <ThemedView style={tw`flex-row bg-transparent`}>
               <ButtonGroup
@@ -222,7 +363,7 @@ const GroupLimitsSheet = forwardRef<
                     bottomSheet
                     label={t("modifierGroups.fields.max")}
                     placeholder={
-                      group.maxSelect === null
+                      base.max === null
                         ? t("modifierGroups.fields.noLimit")
                         : undefined
                     }
@@ -234,6 +375,43 @@ const GroupLimitsSheet = forwardRef<
               </ThemedView>
             )}
           </>
+        )}
+
+        {!editing && variants.length > 1 && (
+          <ThemedView style={tw`gap-1 bg-transparent`}>
+            <ThemedText type="body2" style={tw`text-gray-500`}>
+              {t("customization.limits.byVariant")}
+            </ThemedText>
+            {variants.map((variant) => {
+              const summary = variantSummary(variant);
+              return (
+                <Pressable
+                  key={variant.id}
+                  onPress={() => openVariant(variant)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${variant.name}, ${summary}`}
+                  style={({ pressed }) =>
+                    tw.style(
+                      "flex-row items-center gap-3 min-h-12 py-2",
+                      pressed && "opacity-60",
+                    )
+                  }
+                >
+                  <ThemedView style={tw`flex-1 bg-transparent`}>
+                    <ThemedText>{variant.name}</ThemedText>
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {summary}
+                    </ThemedText>
+                  </ThemedView>
+                  <Icon
+                    name="chevron-right"
+                    size={18}
+                    color={tw.color("gray-400")}
+                  />
+                </Pressable>
+              );
+            })}
+          </ThemedView>
         )}
 
         {error && (

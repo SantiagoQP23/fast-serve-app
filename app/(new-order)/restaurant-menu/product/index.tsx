@@ -1,4 +1,5 @@
 import { ThemedText } from "@/presentation/theme/components/themed-text";
+import { toast } from "sonner-native";
 import { getSelectableTags } from "@/core/menu/models/tag.model";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -54,7 +55,7 @@ import { typography } from "@/constants/theme";
 import {
   buildModifierRows,
   calculateUnitPrice,
-  cleanSelection,
+  fitSelectionToVariant,
   EMPTY_SELECTION,
   getActiveGroups,
   getProductComponents,
@@ -338,11 +339,13 @@ export default function ProductScreen() {
   // Products with groups or included items always send their selection, so
   // the server prices it and spends the right insumos.
   const isCustomizable = groups.length > 0 || components.length > 0;
+  // The selected variant's own rules apply (plans/limites-por-variante.md).
+  const variantId = selectedOption?.id;
   const modifierRows = isCustomizable
-    ? buildModifierRows(activeProduct, selection)
+    ? buildModifierRows(activeProduct, selection, variantId)
     : [];
   const selectionProblem = isCustomizable
-    ? getSelectionProblem(activeProduct, selection)
+    ? getSelectionProblem(activeProduct, selection, variantId)
     : null;
 
   const basePrice =
@@ -460,8 +463,16 @@ export default function ProductScreen() {
     setSelectedOption(option);
     setPrice(String(option.price));
     setPriceTyped(false);
-    // Groups belong to the product, so the picks carry over.
-    setSelection((current) => cleanSelection(activeProduct, current));
+    // Picks carry over as far as the new variant's rules allow.
+    const fitted = fitSelectionToVariant(activeProduct, selection, option.id);
+    setSelection(fitted.selection);
+    if (fitted.dropped.length)
+      toast(
+        t("menu:customization.droppedForVariant", {
+          names: fitted.dropped.join(", "),
+          variant: option.name,
+        }),
+      );
   };
 
   const addLabel = isReplaceMode
@@ -672,6 +683,7 @@ export default function ProductScreen() {
             {isCustomizable && (
               <CustomizationPicker
                 product={activeProduct}
+                variantId={variantId}
                 selection={selection}
                 onChange={setSelection}
                 blocksWithoutStock={blocksWithoutStock}

@@ -89,6 +89,7 @@
     "optionalUpTo_other": "Optional · up to {{count}}",
     "soldOut": "Sold out",
     "pickToContinue_one": "Pick one option in {{group}} to continue",
-    "pickToContinue_other": "Pick {{count}} options in {{group}} to continue"
+    "pickToContinue_other": "Pick {{count}} options in {{group}} to continue",
+    "droppedForVariant": "Removed {{names}}: not allowed on {{variant}}"
   }
 }

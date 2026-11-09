@@ -10,6 +10,7 @@ import type { Product } from "@/core/menu/models/product.model";
 import {
   getActiveGroups,
   getProductComponents,
+  hasVariantRules,
 } from "@/core/menu/models/customization.model";
 import {
   DetailCard,
@@ -117,6 +118,9 @@ export default function ProductCustomizationSection({
                   {link.group!.name}
                   {!activeGroupIds.has(link.groupId)
                     ? ` · ${t("modifierGroups.inactive")}`
+                    : ""}
+                  {hasVariantRules(link)
+                    ? ` · ${t("customization.limits.variesByVariant")}`
                     : ""}
                 </ThemedText>
                 <ThemedText

@@ -451,7 +451,16 @@
       "upTo_one": "up to {{count}}",
       "upTo_other": "up to {{count}}",
       "maxRequired_one": "Enter a maximum. The group allows up to {{count}}.",
-      "maxRequired_other": "Enter a maximum. The group allows up to {{count}}."
+      "maxRequired_other": "Enter a maximum. The group allows up to {{count}}.",
+      "maxRequiredProduct_one": "Enter a maximum. The product allows up to {{count}}.",
+      "maxRequiredProduct_other": "Enter a maximum. The product allows up to {{count}}.",
+      "byVariant": "By variant",
+      "sameAsProduct": "Same as the product",
+      "notOffered": "Not offered",
+      "offered": "Offer on this variant",
+      "variesByVariant": "Varies by variant",
+      "variantTitle": "Limits on {{name}}",
+      "usesProduct": "Uses the product's: {{rule}}"
     }
   }
 }

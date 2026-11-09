@@ -40,6 +40,18 @@ export interface ModifierGroup {
   productIds?: string[];
 }
 
+/**
+ * A variant's own rule for a group on its product
+ * (plans/limites-por-variante.md). Null limits keep the product's.
+ */
+export interface VariantGroupRule {
+  productOptionId: number;
+  minSelect: number | null;
+  maxSelect: number | null;
+  /** False: the group isn't offered on this variant. */
+  isOffered: boolean;
+}
+
 /** A group on a product. Null limits keep the group's own. */
 export interface ProductModifierGroup {
   id: string;
@@ -47,7 +59,34 @@ export interface ProductModifierGroup {
   order: number;
   minSelect: number | null;
   maxSelect: number | null;
+  /** Variants with their own rule; absent from older servers. */
+  variants?: VariantGroupRule[];
   group: ModifierGroup | null;
+}
+
+type VariantId = number | null | undefined;
+
+const firstSet = (...values: (number | null | undefined)[]) =>
+  values.find((value) => value !== null && value !== undefined) ?? null;
+
+/**
+ * Effective rule of a linked group: the variant's own, else the product's,
+ * else the group's, each limit on its own (the server's groupLimits).
+ */
+export function getLinkLimits(
+  link: Pick<ProductModifierGroup, "minSelect" | "maxSelect" | "variants">,
+  group: Pick<ModifierGroup, "minSelect" | "maxSelect">,
+  variantId?: VariantId,
+): { min: number; max: number | null; offered: boolean } {
+  const rule =
+    variantId !== null && variantId !== undefined
+      ? link.variants?.find((entry) => entry.productOptionId === variantId)
+      : undefined;
+  return {
+    min: firstSet(rule?.minSelect, link.minSelect, group.minSelect) ?? 0,
+    max: firstSet(rule?.maxSelect, link.maxSelect, group.maxSelect),
+    offered: rule?.isOffered ?? true,
+  };
 }
 
 export interface ProductComponent {
@@ -101,24 +140,33 @@ export interface ActiveGroup {
 
 const byOrder = <T extends { order: number }>(a: T, b: T) => a.order - b.order;
 
-/** Active groups of the product, in order, with their effective limits. */
-export function getActiveGroups(product: Product | null | undefined): ActiveGroup[] {
+/**
+ * Active groups of the product, in order, with their effective limits. With
+ * a variant, its own rules apply and groups it doesn't offer are left out.
+ */
+export function getActiveGroups(
+  product: Product | null | undefined,
+  variantId?: VariantId,
+): ActiveGroup[] {
   return [...(product?.modifierGroups ?? [])]
     .filter((link) => link.group?.isActive)
     .sort(byOrder)
     .map((link) => {
       const group = link.group as ModifierGroup;
+      const { min, max, offered } = getLinkLimits(link, group, variantId);
       return {
         linkId: link.id,
         group,
-        min: link.minSelect ?? group.minSelect ?? 0,
-        max: link.maxSelect ?? group.maxSelect ?? null,
+        min,
+        max,
+        offered,
         options: [...(group.modifiers ?? [])]
           .filter((option) => option.isActive)
           .sort(byOrder),
       };
     })
-    .filter((group) => group.options.length > 0);
+    .filter((group) => group.offered && group.options.length > 0)
+    .map(({ offered: _offered, ...group }) => group);
 }
 
 export function getProductComponents(
@@ -136,8 +184,11 @@ export function hasCustomization(product: Product | null | undefined): boolean {
 }
 
 /** True when a one-tap add isn't enough: some group must be answered. */
-export function hasRequiredGroups(product: Product | null | undefined): boolean {
-  return getActiveGroups(product).some((group) => group.min > 0);
+export function hasRequiredGroups(
+  product: Product | null | undefined,
+  variantId?: VariantId,
+): boolean {
+  return getActiveGroups(product, variantId).some((group) => group.min > 0);
 }
 
 /** An option whose insumo can't cover one more unit. */
@@ -191,9 +242,12 @@ export function toggleComponent(
 export function cleanSelection(
   product: Product | null | undefined,
   selection: CustomizationSelection,
+  variantId?: VariantId,
 ): CustomizationSelection {
   const optionIds = new Set(
-    getActiveGroups(product).flatMap((group) => group.options.map((o) => o.id)),
+    getActiveGroups(product, variantId).flatMap((group) =>
+      group.options.map((o) => o.id),
+    ),
   );
   const componentIds = new Set(
     getProductComponents(product)
@@ -208,15 +262,60 @@ export function cleanSelection(
   };
 }
 
+/**
+ * Fits the picks to another variant's rules: picks in groups it doesn't
+ * offer go, and a group over its new maximum keeps the earliest picks.
+ * Returns the names of the options dropped, for a short notice.
+ */
+export function fitSelectionToVariant(
+  product: Product | null | undefined,
+  selection: CustomizationSelection,
+  variantId: VariantId,
+): { selection: CustomizationSelection; dropped: string[] } {
+  const keep = new Set<string>();
+  for (const group of getActiveGroups(product, variantId)) {
+    const ids = new Set(group.options.map((option) => option.id));
+    const inGroup = selection.modifierIds.filter((id) => ids.has(id));
+    const allowed = group.max === null ? inGroup : inGroup.slice(0, group.max);
+    allowed.forEach((id) => keep.add(id));
+  }
+  // Only options the product still offers count as dropped by the variant;
+  // gone or paused ones leave quietly, as before.
+  const names = new Map(
+    getActiveGroups(product).flatMap((group) =>
+      group.options.map((option) => [option.id, option.name]),
+    ),
+  );
+  const dropped = selection.modifierIds
+    .filter((id) => !keep.has(id) && names.has(id))
+    .map((id) => names.get(id) as string);
+  const cleaned = cleanSelection(product, selection, variantId);
+  return {
+    selection: {
+      ...cleaned,
+      modifierIds: cleaned.modifierIds.filter((id) => keep.has(id)),
+    },
+    dropped,
+  };
+}
+
+/** True when some linked group has a rule of its own on a variant. */
+export function hasVariantRules(link: {
+  variants?: VariantGroupRule[];
+}): boolean {
+  return (link.variants ?? []).length > 0;
+}
+
 /** Frozen rows for the selection, in print order (like the server's). */
 export function buildModifierRows(
   product: Product | null | undefined,
   selection: CustomizationSelection,
+  variantId?: VariantId,
 ): OrderDetailModifier[] {
   const picked = new Set(selection.modifierIds);
   const removed = new Set(selection.removedComponentIds);
   const rows: OrderDetailModifier[] = [];
-  for (const group of getActiveGroups(product)) {
+  for (const group of getActiveGroups(product, variantId)) {
     for (const option of group.options) {
       if (!picked.has(option.id)) continue;
       rows.push({
@@ -273,9 +372,10 @@ export interface SelectionProblem {
 export function getSelectionProblem(
   product: Product | null | undefined,
   selection: CustomizationSelection,
+  variantId?: VariantId,
 ): SelectionProblem | null {
   const picked = new Set(selection.modifierIds);
-  for (const group of getActiveGroups(product)) {
+  for (const group of getActiveGroups(product, variantId)) {
     const count = group.options.filter((option) => picked.has(option.id)).length;
     if (count < group.min) return { groupName: group.group.name, min: group.min };
   }

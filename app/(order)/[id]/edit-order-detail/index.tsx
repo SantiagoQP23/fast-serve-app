@@ -62,7 +62,7 @@ import { typography } from "@/constants/theme";
 import {
   buildModifierRows,
   calculateUnitPrice,
-  cleanSelection,
+  fitSelectionToVariant,
   customizationKey,
   getActiveGroups,
   getProductComponents,
@@ -188,14 +188,16 @@ export default function EditOrderDetailScreen() {
     (orderDetail.qtyPaid ?? 0) === 0 &&
     (getActiveGroups(product).length > 0 ||
       getProductComponents(product).length > 0);
+  // The selected variant's own rules apply (plans/limites-por-variante.md).
+  const variantId = selectedOption?.id;
   const modifierRows = canCustomize
-    ? buildModifierRows(product, selection)
+    ? buildModifierRows(product, selection, variantId)
     : (orderDetail?.modifiers ?? []);
   const customizationChanged =
     canCustomize &&
     customizationKey(modifierRows) !== customizationKey(orderDetail?.modifiers);
   const selectionProblem = canCustomize
-    ? getSelectionProblem(product, selection)
+    ? getSelectionProblem(product, selection, variantId)
     : null;
 
   const parsedPrice = parseFloat(price);
@@ -302,8 +304,18 @@ export default function EditOrderDetailScreen() {
       setPrice(String(option.price));
     }
     setSelectedOption(option);
-    if (canCustomize)
-      setSelection((current) => cleanSelection(product, current));
+    if (canCustomize) {
+      // Picks carry over as far as the new variant's rules allow.
+      const fitted = fitSelectionToVariant(product, selection, option.id);
+      setSelection(fitted.selection);
+      if (fitted.dropped.length)
+        toast(
+          t("menu:customization.droppedForVariant", {
+            names: fitted.dropped.join(", "),
+            variant: option.name,
+          }),
+        );
+    }
   };
 
   const onUpdateOrderDetail = () => {
@@ -507,6 +519,7 @@ export default function EditOrderDetailScreen() {
             {canCustomize ? (
               <CustomizationPicker
                 product={product}
+                variantId={variantId}
                 selection={selection}
                 onChange={setSelection}
                 blocksWithoutStock={blocksWithoutStock}
