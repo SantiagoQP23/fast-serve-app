@@ -8,6 +8,7 @@ export interface SaveModifierInput {
   name: string;
   priceDelta: number;
   isActive?: boolean;
+  isDefault?: boolean;
   inventoryItemId?: string | null;
   inventoryQuantity?: number | null;
 }
@@ -21,6 +22,8 @@ export interface SaveModifierGroupInput {
   maxSelect: number | null;
   isActive?: boolean;
   modifiers: SaveModifierInput[];
+  /** Every product that uses the group; left out keeps the links. */
+  productIds?: string[];
 }
 
 export interface SaveProductComponentInput {

@@ -33,7 +33,16 @@ import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryIt
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
-import type { ModifierGroup } from "@/core/menu/models/customization.model";
+import {
+  hasVariantRules,
+  type ModifierGroup,
+  type ProductModifierGroup,
+} from "@/core/menu/models/customization.model";
+import type { Product } from "@/core/menu/models/product.model";
+import IconButton from "@/presentation/theme/components/icon-button";
+import GroupProductsSheet, {
+  type GroupProductsSheetRef,
+} from "@/presentation/menu-management/components/group-products-sheet";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
 
 interface FormState {
@@ -46,6 +55,8 @@ interface FormState {
   maxSelect: string;
   isActive: boolean;
   options: ModifierOptionDraft[];
+  /** Products that use the group (plans/vincular-desde-grupo.md). */
+  productIds: string[];
 }
 
 const EMPTY_FORM: FormState = {
@@ -57,6 +68,7 @@ const EMPTY_FORM: FormState = {
   maxSelect: "",
   isActive: true,
   options: [],
+  productIds: [],
 };
 
 const formFromGroup = (group: ModifierGroup): FormState => ({
@@ -80,12 +92,14 @@ const formFromGroup = (group: ModifierGroup): FormState => ({
     name: option.name,
     priceDelta: String(Number(option.priceDelta)),
     isActive: option.isActive,
+    isDefault: !!option.isDefault,
     inventoryItemId: option.inventoryItemId,
     inventoryQuantity:
       option.inventoryQuantity !== null
         ? String(Number(option.inventoryQuantity))
         : "",
   })),
+  productIds: group.productIds ?? [],
 });
 
 /** Compares drafts by content; option keys are only for React. */
@@ -93,6 +107,7 @@ const snapshot = (form: FormState) =>
   JSON.stringify({
     ...form,
     options: form.options.map(({ key, ...option }) => option),
+    productIds: [...form.productIds].sort(),
   });
 
 /** One option, tapped to edit and long-pressed to move. */
@@ -116,6 +131,7 @@ function OptionRow({
   const price = parseAmount(option.priceDelta);
 
   const details = [
+    option.isDefault && t("modifierGroups.defaultTag"),
     price > 0 ? `+${formatCurrency(price)}` : t("modifierGroups.noExtraCost"),
     item && `${item.name} · ${option.inventoryQuantity} ${item.unit}`,
     !option.isActive && t("modifierGroups.unavailable"),
@@ -167,6 +183,74 @@ function OptionRow({
   );
 }
 
+/** A product that uses the group: tapped to open its customization. */
+function LinkedProductRow({
+  product,
+  link,
+  isLast,
+  onPress,
+  onUnlink,
+}: {
+  product: Product;
+  /** The saved link; absent until the group saves. */
+  link?: ProductModifierGroup;
+  isLast: boolean;
+  onPress: () => void;
+  onUnlink: () => void;
+}) {
+  const { t } = useTranslation("menuManagement");
+  const details = [
+    product.category?.name,
+    link &&
+      (link.minSelect !== null || link.maxSelect !== null) &&
+      t("customization.limits.ownTag"),
+    link && hasVariantRules(link) && t("customization.limits.variesByVariant"),
+    !product.isActive && t("modifierGroups.inactive"),
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  return (
+    <ThemedView
+      style={tw.style(
+        "flex-row items-center gap-1 bg-transparent",
+        !isLast && "border-b border-divider",
+      )}
+    >
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={
+          details ? `${product.name}, ${details}` : product.name
+        }
+        style={({ pressed }) =>
+          tw.style(
+            "flex-1 py-3 min-h-14 justify-center",
+            pressed && "opacity-70",
+          )
+        }
+      >
+        <ThemedText style={{ fontFamily: typography.medium }} numberOfLines={2}>
+          {product.name}
+        </ThemedText>
+        {!!details && (
+          <ThemedText type="small" style={tw`text-gray-500`} numberOfLines={2}>
+            {details}
+          </ThemedText>
+        )}
+      </Pressable>
+      <IconButton
+        icon="x"
+        size={18}
+        accessibilityLabel={t("modifierGroups.products.unlink", {
+          name: product.name,
+        })}
+        onPress={onUnlink}
+      />
+    </ThemedView>
+  );
+}
+
 /**
  * Creates or edits a group of options: its name, whether the waiter picks
  * one or several, whether it's required, and its options in order (each
@@ -197,6 +281,9 @@ export default function ModifierGroupFormScreen() {
   const [maxSelect, setMaxSelect] = useState(EMPTY_FORM.maxSelect);
   const [isActive, setIsActive] = useState(EMPTY_FORM.isActive);
   const [options, setOptions] = useState<ModifierOptionDraft[]>([]);
+  const [productIds, setProductIds] = useState<string[]>([]);
+  const [showUnlinkConfirm, setShowUnlinkConfirm] = useState(false);
+  const productsSheetRef = useRef<GroupProductsSheetRef>(null);
   const [showDelete, setShowDelete] = useState(false);
   const optionSheetRef = useRef<ModifierOptionSheetRef>(null);
   const setCreatedGroupId = useGroupLinkHandoff(
@@ -219,6 +306,7 @@ export default function ModifierGroupFormScreen() {
     setMaxSelect(form.maxSelect);
     setIsActive(form.isActive);
     setOptions(form.options);
+    setProductIds(form.productIds);
     setInitial(snapshot(form));
   }
 
@@ -233,6 +321,7 @@ export default function ModifierGroupFormScreen() {
       maxSelect,
       isActive,
       options,
+      productIds,
     }) !== initial;
 
   // Leaving with unsaved edits asks first. Saving or deleting leaves freely.
@@ -250,15 +339,59 @@ export default function ModifierGroupFormScreen() {
     return unsubscribe;
   }, [navigation, isDirty]);
 
-  const usedIn = useMemo(
+  const usedInCount = group?.productIds?.length ?? 0;
+  // Opened from a product's customization, which links the new group itself.
+  const editsProducts = !linkToProduct;
+
+  const linkedProducts = useMemo(
     () =>
       products
-        .filter((product) => group?.productIds?.includes(product.id))
-        .map((product) => product.name)
-        .sort((a, b) => a.localeCompare(b)),
-    [products, group],
+        .filter((product) => productIds.includes(product.id))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    [products, productIds],
   );
-  const usedInCount = group?.productIds?.length ?? 0;
+
+  /** The product's own rule for this group, as the saved link has it. */
+  const savedLink = (product: Product) =>
+    product.modifierGroups?.find((link) => link.groupId === group?.id);
+  const hasOwnRules = (product: Product) => {
+    const link = savedLink(product);
+    return (
+      !!link &&
+      (link.minSelect !== null ||
+        link.maxSelect !== null ||
+        hasVariantRules(link))
+    );
+  };
+  // Unlinking these loses their own limits; saving asks first.
+  const unlinkedWithRules = products.filter(
+    (product) =>
+      group?.productIds?.includes(product.id) &&
+      !productIds.includes(product.id) &&
+      hasOwnRules(product),
+  );
+
+  const unlinkProduct = (product: Product) => {
+    setProductIds((current) => current.filter((id) => id !== product.id));
+    let undone = false;
+    const toastId = toast(
+      t("modifierGroups.products.removed", { name: product.name }),
+      {
+        duration: 8000,
+        action: {
+          label: t("common:actions.undo"),
+          onClick: () => {
+            if (undone) return;
+            undone = true;
+            toast.dismiss(toastId);
+            setProductIds((current) =>
+              current.includes(product.id) ? current : [...current, product.id],
+            );
+          },
+        },
+      },
+    );
+  };
 
   const itemById = useMemo(
     () => new Map(items.map((item) => [item.id, item])),
@@ -273,11 +406,18 @@ export default function ModifierGroupFormScreen() {
     });
 
   const handleOptionSubmit = (option: ModifierOptionDraft) =>
-    setOptions((current) =>
-      current.some((entry) => entry.key === option.key)
-        ? current.map((entry) => (entry.key === option.key ? option : entry))
-        : [...current, option],
-    );
+    setOptions((current) => {
+      // "Elige 1" has one default: marking another one moves it.
+      const others =
+        single && option.isDefault
+          ? current.map((entry) =>
+              entry.isDefault ? { ...entry, isDefault: false } : entry,
+            )
+          : current;
+      return others.some((entry) => entry.key === option.key)
+        ? others.map((entry) => (entry.key === option.key ? option : entry))
+        : [...others, option];
+    });
 
   // Removing is instant and can be taken back: the group only changes on save.
   const handleOptionRemove = ({ key }: ModifierOptionDraft) => {
@@ -309,6 +449,7 @@ export default function ModifierGroupFormScreen() {
   };
 
   // Validation
+  const defaultCount = options.filter((option) => option.isDefault).length;
   const minValue = single ? 1 : Math.round(parseAmount(minSelect));
   const maxValue = single
     ? 1
@@ -327,10 +468,17 @@ export default function ModifierGroupFormScreen() {
               (maxValue !== null && !(maxValue >= 1)) ||
               (required && maxValue !== null && minValue > maxValue))
           ? t("modifierGroups.errors.limits")
-          : null;
+          : maxValue !== null && defaultCount > maxValue
+            ? t("modifierGroups.errors.tooManyDefaults", { count: maxValue })
+            : null;
 
-  const handleSave = async () => {
+  const handleSave = async (confirmed = false) => {
     if (problem) return;
+    if (editsProducts && unlinkedWithRules.length && !confirmed) {
+      setShowUnlinkConfirm(true);
+      return;
+    }
+    setShowUnlinkConfirm(false);
     try {
       const saved = await saveGroup.mutateAsync({
         id: group?.id,
@@ -344,11 +492,13 @@ export default function ModifierGroupFormScreen() {
             name: option.name,
             priceDelta: parseAmount(option.priceDelta) || 0,
             isActive: option.isActive,
+            isDefault: option.isDefault,
             inventoryItemId: option.inventoryItemId,
             inventoryQuantity: option.inventoryItemId
               ? parseAmount(option.inventoryQuantity)
               : null,
           })),
+          ...(editsProducts && { productIds }),
         },
       });
       if (!group && linkToProduct) setCreatedGroupId(saved.id);
@@ -556,16 +706,40 @@ export default function ModifierGroupFormScreen() {
             />
           </ThemedView>
 
-          {group && (
-            <ThemedView style={tw`gap-2`}>
+          {editsProducts && (
+            <ThemedView style={tw`gap-3`}>
               <ThemedText style={{ fontFamily: typography.bold }}>
-                {t("modifierGroups.usedIn")}
+                {t("modifierGroups.products.title")}
               </ThemedText>
-              <ThemedText type="body2" style={tw`text-gray-600`}>
-                {usedIn.length
-                  ? usedIn.join(", ")
-                  : t("modifierGroups.notUsed")}
-              </ThemedText>
+              {linkedProducts.length > 0 ? (
+                <DetailCard style={tw`py-1 pr-2`}>
+                  {linkedProducts.map((product, index) => (
+                    <LinkedProductRow
+                      key={product.id}
+                      product={product}
+                      link={savedLink(product)}
+                      isLast={index === linkedProducts.length - 1}
+                      onPress={() =>
+                        router.push({
+                          pathname: "/(profile)/menu/products/customization",
+                          params: { productId: product.id },
+                        })
+                      }
+                      onUnlink={() => unlinkProduct(product)}
+                    />
+                  ))}
+                </DetailCard>
+              ) : (
+                <ThemedText type="body2" style={tw`text-gray-600`}>
+                  {t("modifierGroups.notUsed")}
+                </ThemedText>
+              )}
+              <Button
+                variant="outline"
+                leftIcon="link"
+                label={t("modifierGroups.products.link")}
+                onPress={() => productsSheetRef.current?.present(productIds)}
+              />
             </ThemedView>
           )}
 
@@ -600,7 +774,7 @@ export default function ModifierGroupFormScreen() {
             )}
             <Button
               label={t("modifierGroups.save")}
-              onPress={handleSave}
+              onPress={() => handleSave()}
               loading={saveGroup.isPending}
               disabled={!!problem || saveGroup.isPending}
             />
@@ -626,6 +800,26 @@ export default function ModifierGroupFormScreen() {
           onConfirm={handleDelete}
           onCancel={() => setShowDelete(false)}
           loading={deleteGroup.isPending}
+        />
+
+        <GroupProductsSheet
+          ref={productsSheetRef}
+          products={products}
+          onSubmit={setProductIds}
+        />
+
+        <DialogModal
+          visible={showUnlinkConfirm}
+          title={t("modifierGroups.products.unlinkTitle")}
+          message={t("modifierGroups.products.unlinkMessage", {
+            count: unlinkedWithRules.length,
+            names: unlinkedWithRules.map((product) => product.name).join(", "),
+          })}
+          confirmLabel={t("modifierGroups.save")}
+          cancelLabel={t("modifierGroups.keepEditing")}
+          onConfirm={() => handleSave(true)}
+          onCancel={() => setShowUnlinkConfirm(false)}
+          loading={saveGroup.isPending}
         />
 
         <DialogModal

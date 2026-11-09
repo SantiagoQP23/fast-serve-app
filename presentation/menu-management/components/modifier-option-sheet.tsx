@@ -24,6 +24,8 @@ export interface ModifierOptionDraft {
   name: string;
   priceDelta: string;
   isActive: boolean;
+  /** Comes already picked on a new line. */
+  isDefault: boolean;
   inventoryItemId: string | null;
   inventoryQuantity: string;
 }
@@ -46,6 +48,7 @@ const emptyOption = (): ModifierOptionDraft => ({
   name: "",
   priceDelta: "",
   isActive: true,
+  isDefault: false,
   inventoryItemId: null,
   inventoryQuantity: "",
 });
@@ -174,6 +177,17 @@ const ModifierOptionSheet = forwardRef<
               error={errors.quantity}
               keyboardType="decimal-pad"
             />
+          )}
+
+          <Switch
+            label={t("modifierGroups.fields.optionDefault")}
+            value={draft.isDefault}
+            onValueChange={(isDefault) => update({ isDefault })}
+          />
+          {draft.isDefault && (
+            <ThemedText type="small" style={tw`text-gray-500 -mt-2`}>
+              {t("modifierGroups.optionDefaultHint")}
+            </ThemedText>
           )}
 
           {!isNew && (

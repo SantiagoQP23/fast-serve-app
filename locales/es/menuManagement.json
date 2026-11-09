@@ -380,7 +380,8 @@
       "optionActive": "Disponible",
       "inventoryItem": "Insumo",
       "noInventoryItem": "Sin insumo",
-      "inventoryQuantity": "Cantidad por unidad"
+      "inventoryQuantity": "Cantidad por unidad",
+      "optionDefault": "Viene seleccionada"
     },
     "errors": {
       "name": "Escribe un nombre de al menos 2 letras",
@@ -388,7 +389,9 @@
       "limits": "Revisa el mínimo y el máximo",
       "optionName": "Escribe el nombre de la opción",
       "optionPrice": "Escribe un precio válido",
-      "optionQuantity": "Escribe una cantidad mayor a 0"
+      "optionQuantity": "Escribe una cantidad mayor a 0",
+      "tooManyDefaults_one": "Solo puede haber {{count}} opción predeterminada",
+      "tooManyDefaults_other": "Solo puede haber {{count}} opciones predeterminadas"
     },
     "newOption": "Nueva opción",
     "editOption": "Editar opción",
@@ -401,7 +404,26 @@
     "discardTitle": "¿Descartar cambios?",
     "discardMessage": "Los cambios a este grupo no se guardarán.",
     "discard": "Descartar",
-    "keepEditing": "Seguir editando"
+    "keepEditing": "Seguir editando",
+    "optionDefaultHint": "Los pedidos nuevos la traen elegida. El mesero puede cambiarla.",
+    "defaultTag": "Predeterminada",
+    "products": {
+      "title": "Productos",
+      "link": "Vincular productos",
+      "pick": "Productos que usan el grupo",
+      "search": "Buscar producto",
+      "noResults": "No hay productos con ese nombre",
+      "noCategory": "Sin categoría",
+      "selectAll": "Seleccionar todos",
+      "unselectAll": "Quitar todos",
+      "done_one": "Listo ({{count}})",
+      "done_other": "Listo ({{count}})",
+      "removed": "Se quitó {{name}}",
+      "unlink": "Quitar {{name}}",
+      "unlinkTitle": "¿Quitar el grupo?",
+      "unlinkMessage_one": "{{names}} tiene límites propios para este grupo. Se perderán al guardar.",
+      "unlinkMessage_other": "{{names}} tienen límites propios para este grupo. Se perderán al guardar."
+    }
   },
   "customization": {
     "title": "Personalización",

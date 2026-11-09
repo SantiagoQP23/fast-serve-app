@@ -4,10 +4,12 @@ import * as Haptics from "expo-haptics";
 import { Product, ProductStatus } from "@/core/menu/models/product.model";
 import { getProductOptionAvailableQuantity } from "@/core/menu/models/product-optionl.model";
 import {
+  buildModifierRows,
+  calculateUnitPrice,
   customizationKey,
-  EMPTY_SELECTION,
+  getDefaultSelection,
+  getSelectionProblem,
   hasCustomization,
-  hasRequiredGroups,
 } from "@/core/menu/models/customization.model";
 import { NewOrderDetail } from "@/core/orders/dto/new-order-detail.dto";
 import { DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK } from "@/core/restaurant/models/restaurant-settings.model";
@@ -195,8 +197,16 @@ export function useMenuCart() {
     const activeOptions = product.options.filter((option) => option.isActive);
     if (activeOptions.length !== 1) return null;
     const option = activeOptions[0];
-    // A group that must be answered (on this variant) needs the product sheet.
-    if (hasRequiredGroups(product, option.id)) return null;
+    // A group that must be answered (on this variant) needs the product
+    // sheet, unless its default options already answer it.
+    if (
+      getSelectionProblem(
+        product,
+        getDefaultSelection(product, option.id, blocksWithoutStock),
+        option.id,
+      )
+    )
+      return null;
 
     const available = getProductOptionAvailableQuantity(option);
     const inCart = summary.countByOption.get(option.id) ?? 0;
@@ -212,18 +222,28 @@ export function useMenuCart() {
     const option = getQuickAddOption(product);
     if (!option) return false;
 
+    // The groups' default options come picked, priced like any pick.
+    const customizable =
+      hasCustomization(product) || !!product.components?.length;
+    const selection = getDefaultSelection(
+      product,
+      option.id,
+      blocksWithoutStock,
+    );
+    const modifiers = customizable
+      ? buildModifierRows(product, selection, option.id)
+      : [];
+
     return addLine({
       product,
       productOption: option,
       quantity: 1,
-      price: option.price,
+      price: calculateUnitPrice(option.price, modifiers),
       description: "",
       tagIds: [],
       typeOrderDetail: defaultOrderType,
-      // Nothing picked: the server prices it and spends the included items.
-      ...(hasCustomization(product) || product.components?.length
-        ? { customization: EMPTY_SELECTION, modifiers: [] }
-        : {}),
+      // The server prices it and spends the included items.
+      ...(customizable ? { customization: selection, modifiers } : {}),
     });
   };
 
