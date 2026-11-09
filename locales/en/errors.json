@@ -225,6 +225,7 @@
     "ORDER_CUSTOMIZATION_REQUIRED": "Pick at least {{min}} in {{groupName}}",
     "ORDER_CUSTOMIZATION_TOO_MANY": "Pick at most {{max}} in {{groupName}}",
     "ORDER_CUSTOMIZATION_UNAVAILABLE": "One of the picked options is no longer available",
-    "ORDER_BILL_OVER_QUANTITY": "Not enough units of {{productName}} left to bill (left: {{available}})"
+    "ORDER_BILL_OVER_QUANTITY": "Not enough units of {{productName}} left to bill (left: {{available}})",
+    "MENU_MODIFIER_GROUP_TOO_MANY_DEFAULTS": "There are more default options than the group lets you pick"
   }
 }

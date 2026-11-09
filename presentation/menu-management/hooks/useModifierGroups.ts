@@ -24,18 +24,40 @@ const updateProductsGroup = (
 ): void => {
   const { products, upsertProducts } = useMenuStore.getState();
   const changed: Product[] = [];
+  // The saved group lists every product using it, so links made or dropped
+  // from the group screen show up here too.
+  const usedBy = group?.productIds ? new Set(group.productIds) : null;
   for (const product of products) {
-    if (!product.modifierGroups?.some((link) => link.groupId === groupId))
-      continue;
+    const links = product.modifierGroups ?? [];
+    const linked = links.some((link) => link.groupId === groupId);
+    const shouldLink = group
+      ? usedBy
+        ? usedBy.has(product.id)
+        : linked
+      : false;
+    if (!linked && !shouldLink) continue;
+    const shared = group ? { ...group, productIds: undefined } : null;
     changed.push({
       ...product,
-      modifierGroups: group
-        ? product.modifierGroups.map((link) =>
-            link.groupId === groupId
-              ? { ...link, group: { ...group, productIds: undefined } }
-              : link,
-          )
-        : product.modifierGroups.filter((link) => link.groupId !== groupId),
+      modifierGroups: !shouldLink
+        ? links.filter((link) => link.groupId !== groupId)
+        : linked
+          ? links.map((link) =>
+              link.groupId === groupId ? { ...link, group: shared } : link,
+            )
+          : [
+              ...links,
+              {
+                // Replaced by the server's link when the product syncs.
+                id: `${product.id}:${groupId}`,
+                groupId,
+                order: Math.max(-1, ...links.map((link) => link.order)) + 1,
+                minSelect: null,
+                maxSelect: null,
+                variants: [],
+                group: shared,
+              },
+            ],
     });
   }
   upsertProducts(changed);

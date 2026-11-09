@@ -56,7 +56,8 @@ import {
   buildModifierRows,
   calculateUnitPrice,
   fitSelectionToVariant,
-  EMPTY_SELECTION,
+  addMissingDefaults,
+  getDefaultSelection,
   getActiveGroups,
   getProductComponents,
   getSelectionProblem,
@@ -230,14 +231,26 @@ export default function ProductScreen() {
     },
   );
 
+  const { settings } = useRestaurantSettings();
+  // With the setting off, the server rejects anything beyond the stock left,
+  // so don't let the waiter ask for it.
+  const blocksWithoutStock =
+    (settings?.ALLOW_ORDERS_WITHOUT_STOCK ??
+      DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK) === false;
+
   // What the waiter picked: options of the product's groups and the
-  // included items taken off. Editing a cart line starts from its picks.
+  // included items taken off. Editing a cart line starts from its picks; a
+  // new line starts with the groups' default options.
   const [selection, setSelection] = useState<CustomizationSelection>(
     () =>
       activeOrderDetail?.customization ??
       (activeOrderDetail?.modifiers
         ? selectionFromRows(activeOrderDetail.modifiers)
-        : EMPTY_SELECTION),
+        : getDefaultSelection(
+            activeProduct,
+            selectedOption?.id,
+            blocksWithoutStock,
+          )),
   );
 
   const [price, setPrice] = useState(
@@ -278,13 +291,6 @@ export default function ProductScreen() {
       prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
     );
   };
-
-  const { settings } = useRestaurantSettings();
-  // With the setting off, the server rejects anything beyond the stock left,
-  // so don't let the waiter ask for it.
-  const blocksWithoutStock =
-    (settings?.ALLOW_ORDERS_WITHOUT_STOCK ??
-      DEFAULT_ALLOW_ORDERS_WITHOUT_STOCK) === false;
 
   const { mutate: addOrderDetailToOrder } = useOrders().addOrderDetailToOrder;
   const { isLoading: isReplacing, mutate: replaceOrderDetail } =
@@ -465,7 +471,21 @@ export default function ProductScreen() {
     setPriceTyped(false);
     // Picks carry over as far as the new variant's rules allow.
     const fitted = fitSelectionToVariant(activeProduct, selection, option.id);
-    setSelection(fitted.selection);
+    // Groups the previous variant didn't offer start with their defaults.
+    const seen = new Set(
+      getActiveGroups(activeProduct, selectedOption?.id).map(
+        (group) => group.group.id,
+      ),
+    );
+    setSelection(
+      addMissingDefaults(
+        activeProduct,
+        fitted.selection,
+        option.id,
+        blocksWithoutStock,
+        seen,
+      ),
+    );
     if (fitted.dropped.length)
       toast(
         t("menu:customization.droppedForVariant", {

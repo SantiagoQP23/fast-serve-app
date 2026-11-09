@@ -21,6 +21,8 @@ export interface ModifierOption {
   priceDelta: number;
   order: number;
   isActive: boolean;
+  /** Comes already picked on a new line; absent from older servers. */
+  isDefault?: boolean;
   inventoryItemId: string | null;
   /** Amount of the insumo spent per unit of the line. */
   inventoryQuantity: number | null;
@@ -195,6 +197,53 @@ export function hasRequiredGroups(
 export function isModifierOutOfStock(option: ModifierOption): boolean {
   if (!option.inventoryItem || !option.inventoryQuantity) return false;
   return Number(option.inventoryItem.quantity) < Number(option.inventoryQuantity);
+}
+
+/**
+ * Adds each offered group's default options to the groups where nothing is
+ * picked yet (plans/vincular-desde-grupo.md). Defaults that are paused, sold
+ * out when the restaurant blocks it, or beyond the group's maximum are left
+ * out. Picks already made are never replaced, and groups in `skipGroupIds`
+ * (e.g. ones the waiter already saw on the previous variant) are left alone.
+ */
+export function addMissingDefaults(
+  product: Product | null | undefined,
+  selection: CustomizationSelection,
+  variantId: VariantId,
+  blocksWithoutStock: boolean,
+  skipGroupIds?: Set<string>,
+): CustomizationSelection {
+  const picked = new Set(selection.modifierIds);
+  const added: string[] = [];
+  for (const group of getActiveGroups(product, variantId)) {
+    if (skipGroupIds?.has(group.group.id)) continue;
+    if (group.options.some((option) => picked.has(option.id))) continue;
+    const defaults = group.options.filter(
+      (option) =>
+        option.isDefault &&
+        !(blocksWithoutStock && isModifierOutOfStock(option)),
+    );
+    const fitting =
+      group.max === null ? defaults : defaults.slice(0, group.max);
+    added.push(...fitting.map((option) => option.id));
+  }
+  return added.length
+    ? { ...selection, modifierIds: [...selection.modifierIds, ...added] }
+    : selection;
+}
+
+/** Picks a new line starts with: the defaults that apply. */
+export function getDefaultSelection(
+  product: Product | null | undefined,
+  variantId: VariantId,
+  blocksWithoutStock: boolean,
+): CustomizationSelection {
+  return addMissingDefaults(
+    product,
+    EMPTY_SELECTION,
+    variantId,
+    blocksWithoutStock,
+  );
 }
 
 /**

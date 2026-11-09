@@ -64,6 +64,7 @@ import {
   buildModifierRows,
   calculateUnitPrice,
   fitSelectionToVariant,
+  addMissingDefaults,
   customizationKey,
   getActiveGroups,
   getProductComponents,
@@ -312,7 +313,21 @@ export default function EditOrderDetailScreen() {
     if (canCustomize) {
       // Picks carry over as far as the new variant's rules allow.
       const fitted = fitSelectionToVariant(product, selection, option.id);
-      setSelection(fitted.selection);
+      // Groups the previous variant didn't offer start with their defaults.
+      const seen = new Set(
+        getActiveGroups(product, selectedOption?.id).map(
+          (group) => group.group.id,
+        ),
+      );
+      setSelection(
+        addMissingDefaults(
+          product,
+          fitted.selection,
+          option.id,
+          blocksWithoutStock,
+          seen,
+        ),
+      );
       if (fitted.dropped.length)
         toast(
           t("menu:customization.droppedForVariant", {

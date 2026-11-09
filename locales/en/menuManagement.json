@@ -380,7 +380,8 @@
       "optionActive": "Available",
       "inventoryItem": "Inventory item",
       "noInventoryItem": "No inventory item",
-      "inventoryQuantity": "Quantity per unit"
+      "inventoryQuantity": "Quantity per unit",
+      "optionDefault": "Comes selected"
     },
     "errors": {
       "name": "Enter a name of at least 2 letters",
@@ -388,7 +389,9 @@
       "limits": "Check the minimum and maximum",
       "optionName": "Enter the option's name",
       "optionPrice": "Enter a valid price",
-      "optionQuantity": "Enter a quantity above 0"
+      "optionQuantity": "Enter a quantity above 0",
+      "tooManyDefaults_one": "There can only be {{count}} default option",
+      "tooManyDefaults_other": "There can only be {{count}} default options"
     },
     "newOption": "New option",
     "editOption": "Edit option",
@@ -401,7 +404,26 @@
     "discardTitle": "Discard changes?",
     "discardMessage": "Your changes to this group won't be saved.",
     "discard": "Discard",
-    "keepEditing": "Keep editing"
+    "keepEditing": "Keep editing",
+    "optionDefaultHint": "New orders start with it picked. The waiter can change it.",
+    "defaultTag": "Default",
+    "products": {
+      "title": "Products",
+      "link": "Link products",
+      "pick": "Products using the group",
+      "search": "Search product",
+      "noResults": "No products with that name",
+      "noCategory": "No category",
+      "selectAll": "Select all",
+      "unselectAll": "Clear all",
+      "done_one": "Done ({{count}})",
+      "done_other": "Done ({{count}})",
+      "removed": "Removed {{name}}",
+      "unlink": "Remove {{name}}",
+      "unlinkTitle": "Remove the group?",
+      "unlinkMessage_one": "{{names}} has its own limits for this group. They'll be lost when you save.",
+      "unlinkMessage_other": "{{names}} have their own limits for this group. They'll be lost when you save."
+    }
   },
   "customization": {
     "title": "Customization",
