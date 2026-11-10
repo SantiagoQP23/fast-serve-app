@@ -37,7 +37,6 @@ import {
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { formatCurrency } from "@/core/i18n/utils";
 import type { ProductOption } from "@/core/menu/models/product-optionl.model";
-import ProductTagsSection from "@/presentation/menu-management/components/product-tags-section";
 import ProductCustomizationSection from "@/presentation/menu-management/components/product-customization-section";
 import { VariantRow } from "@/presentation/menu-management/components/product-variant-list";
 import EditVariantSheet, {
@@ -704,7 +703,6 @@ export default function MenuProductDetailView({
             product={product}
             canManage={canManage}
           />
-          <ProductTagsSection product={product} canManage={canManage} />
           {/* The history is the longest, so it goes last */}
           {singleOption && <VariantStockMovements section={stock} />}
         </ScrollView>

@@ -1,5 +1,4 @@
 import { ThemedText } from "@/presentation/theme/components/themed-text";
-import { getSelectableTags } from "@/core/menu/models/tag.model";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useEffect, useRef, useState } from "react";
@@ -50,7 +49,6 @@ import OrderDetailActivityBottomSheet from "@/presentation/orders/components/ord
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
 import QuantityStepper from "@/presentation/orders/components/quantity-stepper";
-import Chip from "@/presentation/theme/components/chip";
 import Label from "@/presentation/theme/components/label";
 import ButtonGroup from "@/presentation/theme/components/button-group";
 import Card from "@/presentation/theme/components/card";
@@ -154,15 +152,9 @@ export default function EditOrderDetailScreen() {
         orderDetail.modifiers,
       ) !== Number(orderDetail.price),
   );
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
+  const [selectedTagIds] = useState<string[]>(
     orderDetail?.tags?.map((t) => t.id) ?? [],
   );
-
-  const toggleTag = (id: string) => {
-    setSelectedTagIds((prev) =>
-      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
-    );
-  };
 
   const setActiveOrderDetail = useOrdersStore(
     (state) => state.setActiveOrderDetail,
@@ -403,7 +395,6 @@ export default function EditOrderDetailScreen() {
 
   const hasNote = notes.trim() !== "";
   const hasVariants = product.options.length > 1;
-  const selectableTags = getSelectableTags(product.tags);
   const lineTotal = counter * effectivePrice;
   const floorReason =
     counter === minQuantity && minQuantity > 1
@@ -548,18 +539,6 @@ export default function EditOrderDetailScreen() {
               <ModifierLines modifiers={orderDetail.modifiers} />
             )}
 
-            {selectableTags.length > 0 && (
-              <ThemedView style={tw`flex-row flex-wrap gap-2`}>
-                {selectableTags.map((tag) => (
-                  <Chip
-                    key={tag.id}
-                    label={tag.name}
-                    selected={selectedTagIds.includes(tag.id)}
-                    onPress={() => toggleTag(tag.id)}
-                  />
-                ))}
-              </ThemedView>
-            )}
           </ScrollView>
 
           <ThemedView style={tw`px-4 pt-2 pb-4 gap-3`}>

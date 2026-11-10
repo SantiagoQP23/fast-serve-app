@@ -1,6 +1,5 @@
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { toast } from "sonner-native";
-import { getSelectableTags } from "@/core/menu/models/tag.model";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -49,7 +48,6 @@ import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-b
 import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
 import QuantityStepper from "@/presentation/orders/components/quantity-stepper";
 import ButtonGroup from "@/presentation/theme/components/button-group";
-import Chip from "@/presentation/theme/components/chip";
 import Card from "@/presentation/theme/components/card";
 import { typography } from "@/constants/theme";
 import {
@@ -141,7 +139,7 @@ export default function ProductScreen() {
     useMenuStore((state) => state.activeProduct),
   );
   const [notes, setNotes] = useState(activeOrderDetail?.description || "");
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
+  const [selectedTagIds] = useState<string[]>(
     activeOrderDetail?.tagIds ?? [],
   );
 
@@ -286,12 +284,6 @@ export default function ProductScreen() {
           : orderType,
   );
 
-  const toggleTag = (id: string) => {
-    setSelectedTagIds((prev) =>
-      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
-    );
-  };
-
   const { mutate: addOrderDetailToOrder } = useOrders().addOrderDetailToOrder;
   const { isLoading: isReplacing, mutate: replaceOrderDetail } =
     useOrders().replaceOrderDetail;
@@ -376,7 +368,6 @@ export default function ProductScreen() {
 
 
 
-  const selectableTags = getSelectableTags(activeProduct.tags);
 
   const newLine = () => ({
     quantity: counter,
@@ -710,20 +701,6 @@ export default function ProductScreen() {
               />
             )}
 
-            {selectableTags.length > 0 && (
-              <Section title={t("menu:product.customize")}>
-                <ThemedView style={tw`flex-row flex-wrap gap-2`}>
-                  {selectableTags.map((tag) => (
-                    <Chip
-                      key={tag.id}
-                      label={tag.name}
-                      selected={selectedTagIds.includes(tag.id)}
-                      onPress={() => toggleTag(tag.id)}
-                    />
-                  ))}
-                </ThemedView>
-              </Section>
-            )}
           </BottomSheetScrollView>
 
           <ThemedView style={tw`px-4 pt-3 gap-3`}>
