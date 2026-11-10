@@ -33,7 +33,6 @@ import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryIt
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import type { ModifierGroup } from "@/core/menu/models/customization.model";
-import { describeRule } from "@/presentation/menu-management/components/group-limits-sheet";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
 
 interface FormState {
@@ -244,7 +243,6 @@ export default function ModifierGroupFormScreen() {
     return unsubscribe;
   }, [navigation, isDirty]);
 
-  const usedInCount = group?.productIds?.length ?? 0;
   const itemById = useMemo(
     () => new Map(items.map((item) => [item.id, item])),
     [items],
@@ -332,8 +330,6 @@ export default function ModifierGroupFormScreen() {
             : maxValue !== null && defaultCount > maxValue
               ? t("modifierGroups.errors.tooManyDefaults", { count: maxValue })
               : null;
-  // What the waiter will be asked, once the numbers make sense.
-  const rule = limitsInvalid ? null : describeRule(t, requiredCount, maxValue);
   // Enough options, but not enough available right now: saving is still
   // allowed, since that's how an option runs out during service.
   const shortOfAvailable =
@@ -427,20 +423,6 @@ export default function ModifierGroupFormScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {usedInCount > 0 && (
-            <ThemedView style={tw`flex-row items-start gap-2`}>
-              <Icon
-                name="link"
-                size={16}
-                color={tw.color("gray-500")}
-                style={tw`mt-0.5`}
-              />
-              <ThemedText type="body2" style={tw`flex-1 text-gray-600`}>
-                {t("modifierGroups.usedInCount", { count: usedInCount })}
-              </ThemedText>
-            </ThemedView>
-          )}
-
           <TextInput
             label={t("modifierGroups.fields.name")}
             placeholder={t("modifierGroups.fields.namePlaceholder")}
@@ -523,35 +505,12 @@ export default function ModifierGroupFormScreen() {
                 </ThemedView>
               </ThemedView>
             )}
-            {rule && (
-              <ThemedView
-                style={tw`flex-row items-start gap-2`}
-                accessibilityLiveRegion="polite"
-              >
-                <Icon
-                  name="hand-platter"
-                  size={16}
-                  color={tw.color("gray-500")}
-                  style={tw`mt-0.5`}
-                />
-                <ThemedText type="body2" style={tw`flex-1 text-gray-600`}>
-                  {rule}
-                </ThemedText>
-              </ThemedView>
-            )}
           </ThemedView>
 
           <ThemedView style={tw`gap-3`}>
-            <ThemedView style={tw`gap-1`}>
-              <ThemedText style={{ fontFamily: typography.bold }}>
-                {t("modifierGroups.fields.options")}
-              </ThemedText>
-              {options.length > 1 && (
-                <ThemedText type="small" style={tw`text-gray-500`}>
-                  {t("modifierGroups.reorderHint")}
-                </ThemedText>
-              )}
-            </ThemedView>
+            <ThemedText style={{ fontFamily: typography.bold }}>
+              {t("modifierGroups.fields.options")}
+            </ThemedText>
             {shortOfAvailable && (
               <ThemedView
                 style={tw`flex-row items-start gap-2 rounded-md bg-orange-100 p-3`}

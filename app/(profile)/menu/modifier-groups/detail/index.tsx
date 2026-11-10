@@ -281,7 +281,6 @@ export default function ModifierGroupDetailScreen() {
           status={
             !group.isActive && <Label text={t("modifierGroups.inactive")} />
           }
-          icon="list-checks"
         >
           {canManage && (
             <ThemedView style={tw`flex-row flex-wrap gap-3`}>

@@ -15,6 +15,8 @@ import ButtonGroup from "@/presentation/theme/components/button-group";
 import Switch from "@/presentation/theme/components/switch";
 import { parseAmount } from "@/presentation/menu-management/components/modifier-option-sheet";
 import Icon from "@/presentation/theme/components/icon";
+import IconButton from "@/presentation/theme/components/icon-button";
+import { typography } from "@/constants/theme";
 import {
   getLinkLimits,
   type ModifierGroup,
@@ -129,7 +131,8 @@ const GroupLimitsSheet = forwardRef<
   const [exact, setExact] = useState(false);
   const [minSelect, setMinSelect] = useState("1");
   const [maxSelect, setMaxSelect] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  // Errors show once Done was tried, then follow the fields as they change.
+  const [showError, setShowError] = useState(false);
 
   /** Rule the view falls back to: the group's, or the product's for a variant. */
   const baseFor = (
@@ -137,8 +140,7 @@ const GroupLimitsSheet = forwardRef<
     limits: Limits,
     variant: SheetVariant | null,
   ) => {
-    if (!variant)
-      return { min: nextGroup.minSelect, max: nextGroup.maxSelect };
+    if (!variant) return { min: nextGroup.minSelect, max: nextGroup.maxSelect };
     const { min, max } = getLinkLimits(limits, nextGroup);
     return { min, max };
   };
@@ -161,7 +163,7 @@ const GroupLimitsSheet = forwardRef<
     setExact(min > 0 && max !== null && max !== 1 && min === max);
     setMinSelect(String(Math.max(min, 1)));
     setMaxSelect(max !== null && max !== 1 ? String(max) : "");
-    setError(null);
+    setShowError(false);
   };
 
   useImperativeHandle(ref, () => ({
@@ -185,9 +187,11 @@ const GroupLimitsSheet = forwardRef<
 
   const base = baseFor(group, productLimits, editing);
 
-  /** The controls as limits, or null after showing what's wrong. */
-  const readControls = (): Limits | null => {
-    if (!own) return { minSelect: null, maxSelect: null };
+  /** The controls as limits, or what's wrong with them. */
+  const parseControls = ():
+    { limits: Limits; error: null } | { limits: null; error: string } => {
+    if (!own)
+      return { limits: { minSelect: null, maxSelect: null }, error: null };
     const min = single ? 1 : Math.round(parseAmount(minSelect));
     const max = single
       ? 1
@@ -201,24 +205,32 @@ const GroupLimitsSheet = forwardRef<
       ((required && !(min >= 1)) ||
         (max !== null && !(max >= 1)) ||
         (required && max !== null && min > max))
-    ) {
-      setError(t("modifierGroups.errors.limits"));
-      return null;
-    }
+    )
+      return { limits: null, error: t("modifierGroups.errors.limits") };
     // An empty maximum falls back to the one above, so "no limit" only
     // exists when there is none above.
-    if (max === null && base.max !== null) {
-      setError(
-        t(
+    if (max === null && base.max !== null)
+      return {
+        limits: null,
+        error: t(
           editing
             ? "customization.limits.maxRequiredProduct"
             : "customization.limits.maxRequired",
           { count: base.max },
         ),
-      );
-      return null;
-    }
-    return { minSelect: required ? min : 0, maxSelect: max };
+      };
+    return {
+      limits: { minSelect: required ? min : 0, maxSelect: max },
+      error: null,
+    };
+  };
+
+  const parsed = parseControls();
+
+  /** The controls as limits, or null after showing what's wrong. */
+  const readControls = (): Limits | null => {
+    if (parsed.error) setShowError(true);
+    return parsed.limits;
   };
 
   const ruleFor = (variantId: number) =>
@@ -230,6 +242,12 @@ const GroupLimitsSheet = forwardRef<
     setProductLimits(limits);
     setEditing(variant);
     loadControls(group, limits, variant, ruleFor(variant.id));
+  };
+
+  /** Back to the product's rule; a variant's edits keep only through Done. */
+  const closeVariant = () => {
+    setEditing(null);
+    loadControls(group, productLimits, null);
   };
 
   const handleDone = () => {
@@ -247,8 +265,7 @@ const GroupLimitsSheet = forwardRef<
         ...current.filter((entry) => entry.productOptionId !== editing.id),
         ...(isNoOp(rule) ? [] : [rule]),
       ]);
-      setEditing(null);
-      loadControls(group, productLimits, null);
+      closeVariant();
       return;
     }
     const limits = readControls();
@@ -270,173 +287,235 @@ const GroupLimitsSheet = forwardRef<
     return rule ? text : `${text} · ${t("customization.limits.sameAsProduct")}`;
   };
 
+  const visible = !editing || offered;
+  // What the waiter will face, as the owner would say it.
+  const rule = !visible
+    ? null
+    : !own
+      ? describeRule(t, base.min, base.max)
+      : parsed.limits
+        ? describeRule(t, parsed.limits.minSelect ?? 0, parsed.limits.maxSelect)
+        : null;
+  const error = showError ? parsed.error : null;
+
   return (
     <ThemedBottomSheetModal ref={sheetRef} enablePanDownToClose>
-      <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
-        <ThemedView style={tw`gap-1 bg-transparent`}>
-          <ThemedText type="h3">
-            {editing
-              ? t("customization.limits.variantTitle", { name: editing.name })
-              : t("customization.limits.title")}
-          </ThemedText>
-          <ThemedText type="body2" style={tw`text-gray-500`}>
-            {group.name}
-          </ThemedText>
+      <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-6`}>
+        <ThemedView style={tw`flex-row items-center gap-1 bg-transparent`}>
+          {editing && (
+            <IconButton
+              icon="arrow-left"
+              size={24}
+              onPress={closeVariant}
+              accessibilityLabel={t("common:actions.goBack")}
+              style={tw`-ml-3`}
+            />
+          )}
+          <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
+            <ThemedText type="h3">
+              {editing
+                ? t("customization.limits.variantTitle", { name: editing.name })
+                : t("customization.limits.title")}
+            </ThemedText>
+            <ThemedText type="body2" style={tw`text-gray-500`}>
+              {group.name}
+            </ThemedText>
+          </ThemedView>
         </ThemedView>
 
-        {editing && (
-          <Switch
-            label={t("customization.limits.offered")}
-            value={offered}
-            onValueChange={(value) => {
-              setOffered(value);
-              setError(null);
-            }}
-          />
-        )}
-
-        {(!editing || offered) && (
-          <Switch
-            label={t("customization.limits.own")}
-            value={own}
-            onValueChange={(value) => {
-              setOwn(value);
-              setError(null);
-            }}
-          />
-        )}
-        {(!editing || offered) && !own && (
-          <ThemedText type="body2" style={tw`text-gray-500`}>
-            {t(
-              editing
-                ? "customization.limits.usesProduct"
-                : "customization.limits.usesGroup",
-              { rule: describeLimits(t, base.min, base.max) },
-            )}
-          </ThemedText>
-        )}
-
-        {(!editing || offered) && own && (
-          <>
-            <ThemedView style={tw`flex-row bg-transparent`}>
-              <ButtonGroup
-                size="small"
-                selected={single ? "one" : "many"}
-                onChange={(value: string) => setSingle(value === "one")}
-                options={[
-                  {
-                    label: t("modifierGroups.pickOne"),
-                    value: "one",
-                    icon: "circle-dot",
-                  },
-                  {
-                    label: t("modifierGroups.pickMany"),
-                    value: "many",
-                    icon: "square-check",
-                  },
-                ]}
-              />
-            </ThemedView>
+        <ThemedView style={tw`gap-3 bg-transparent`}>
+          {editing && (
             <Switch
-              label={t("modifierGroups.fields.required")}
-              value={required}
-              onValueChange={setRequired}
+              label={t("customization.limits.offered")}
+              value={offered}
+              onValueChange={setOffered}
             />
-            {!single && required && (
+          )}
+          {visible && (
+            <Switch
+              label={t("customization.limits.own")}
+              value={own}
+              onValueChange={setOwn}
+            />
+          )}
+
+          {visible && own && (
+            <ThemedView style={tw`gap-3 pt-3 bg-transparent`}>
+              <ThemedText style={{ fontFamily: typography.bold }}>
+                {t("modifierGroups.fields.howMany")}
+              </ThemedText>
               <ThemedView style={tw`flex-row bg-transparent`}>
                 <ButtonGroup
                   size="small"
-                  selected={exact ? "exact" : "range"}
-                  onChange={(value: string) => setExact(value === "exact")}
+                  selected={single ? "one" : "many"}
+                  onChange={(value: string) => setSingle(value === "one")}
                   options={[
-                    { label: t("modifierGroups.fields.exact"), value: "exact" },
-                    { label: t("modifierGroups.fields.range"), value: "range" },
+                    {
+                      label: t("modifierGroups.pickOne"),
+                      value: "one",
+                      icon: "circle-dot",
+                    },
+                    {
+                      label: t("modifierGroups.pickMany"),
+                      value: "many",
+                      icon: "square-check",
+                    },
                   ]}
                 />
               </ThemedView>
-            )}
-            {!single && required && exact && (
-              <TextInput
-                bottomSheet
-                label={t("modifierGroups.fields.quantity")}
-                value={minSelect}
-                onChangeText={setMinSelect}
-                keyboardType="number-pad"
+              <Switch
+                label={t("modifierGroups.fields.required")}
+                value={required}
+                onValueChange={setRequired}
               />
-            )}
-            {!single && !(required && exact) && (
-              <ThemedView style={tw`flex-row gap-3 bg-transparent`}>
-                {required && (
+              {!single && required && (
+                <ThemedView style={tw`flex-row bg-transparent`}>
+                  <ButtonGroup
+                    size="small"
+                    selected={exact ? "exact" : "range"}
+                    onChange={(value: string) => setExact(value === "exact")}
+                    options={[
+                      {
+                        label: t("modifierGroups.fields.exact"),
+                        value: "exact",
+                      },
+                      {
+                        label: t("modifierGroups.fields.range"),
+                        value: "range",
+                      },
+                    ]}
+                  />
+                </ThemedView>
+              )}
+              {!single && required && exact && (
+                <TextInput
+                  bottomSheet
+                  label={t("modifierGroups.fields.quantity")}
+                  value={minSelect}
+                  onChangeText={setMinSelect}
+                  keyboardType="number-pad"
+                />
+              )}
+              {!single && !(required && exact) && (
+                <ThemedView style={tw`flex-row gap-3 bg-transparent`}>
+                  {required && (
+                    <ThemedView style={tw`flex-1 bg-transparent`}>
+                      <TextInput
+                        bottomSheet
+                        label={t("modifierGroups.fields.min")}
+                        value={minSelect}
+                        onChangeText={setMinSelect}
+                        keyboardType="number-pad"
+                      />
+                    </ThemedView>
+                  )}
                   <ThemedView style={tw`flex-1 bg-transparent`}>
                     <TextInput
                       bottomSheet
-                      label={t("modifierGroups.fields.min")}
-                      value={minSelect}
-                      onChangeText={setMinSelect}
+                      label={t("modifierGroups.fields.max")}
+                      placeholder={
+                        base.max === null
+                          ? t("modifierGroups.fields.noLimit")
+                          : t("customization.limits.upToHint", {
+                              count: base.max,
+                            })
+                      }
+                      value={maxSelect}
+                      onChangeText={setMaxSelect}
                       keyboardType="number-pad"
                     />
                   </ThemedView>
-                )}
-                <ThemedView style={tw`flex-1 bg-transparent`}>
-                  <TextInput
-                    bottomSheet
-                    label={t("modifierGroups.fields.max")}
-                    placeholder={
-                      base.max === null
-                        ? t("modifierGroups.fields.noLimit")
-                        : undefined
-                    }
-                    value={maxSelect}
-                    onChangeText={setMaxSelect}
-                    keyboardType="number-pad"
-                  />
                 </ThemedView>
+              )}
+            </ThemedView>
+          )}
+
+          {error ? (
+            <ThemedView
+              style={tw`flex-row items-start gap-2 bg-transparent`}
+              accessibilityLiveRegion="polite"
+            >
+              <Icon
+                name="circle-alert"
+                size={16}
+                color={tw.color("red-700")}
+                style={tw`mt-0.5`}
+              />
+              <ThemedText type="body2" style={tw`flex-1 text-red-700`}>
+                {error}
+              </ThemedText>
+            </ThemedView>
+          ) : (
+            rule && (
+              <ThemedView
+                style={tw`flex-row items-start gap-2 bg-transparent`}
+                accessibilityLiveRegion="polite"
+              >
+                <Icon
+                  name="hand-platter"
+                  size={16}
+                  color={tw.color("gray-500")}
+                  style={tw`mt-0.5`}
+                />
+                <ThemedText type="body2" style={tw`flex-1 text-gray-600`}>
+                  {rule}
+                </ThemedText>
               </ThemedView>
-            )}
-          </>
-        )}
+            )
+          )}
+        </ThemedView>
 
         {!editing && variants.length > 1 && (
           <ThemedView style={tw`gap-1 bg-transparent`}>
-            <ThemedText type="body2" style={tw`text-gray-500`}>
+            <ThemedText style={{ fontFamily: typography.bold }}>
               {t("customization.limits.byVariant")}
             </ThemedText>
-            {variants.map((variant) => {
-              const summary = variantSummary(variant);
-              return (
-                <Pressable
-                  key={variant.id}
-                  onPress={() => openVariant(variant)}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${variant.name}, ${summary}`}
-                  style={({ pressed }) =>
-                    tw.style(
-                      "flex-row items-center gap-3 min-h-12 py-2",
-                      pressed && "opacity-60",
-                    )
-                  }
-                >
-                  <ThemedView style={tw`flex-1 bg-transparent`}>
-                    <ThemedText>{variant.name}</ThemedText>
-                    <ThemedText type="small" style={tw`text-gray-500`}>
-                      {summary}
-                    </ThemedText>
-                  </ThemedView>
-                  <Icon
-                    name="chevron-right"
-                    size={18}
-                    color={tw.color("gray-400")}
-                  />
-                </Pressable>
-              );
-            })}
+            <ThemedView style={tw`bg-transparent`}>
+              {variants.map((variant, index) => {
+                const summary = variantSummary(variant);
+                const hasRule = !!ruleFor(variant.id);
+                return (
+                  <Pressable
+                    key={variant.id}
+                    onPress={() => openVariant(variant)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${variant.name}, ${summary}`}
+                    style={({ pressed }) =>
+                      tw.style(
+                        "flex-row items-center gap-3 min-h-14 py-2",
+                        index < variants.length - 1 &&
+                          "border-b border-divider",
+                        pressed && "opacity-70",
+                      )
+                    }
+                  >
+                    <ThemedView style={tw`flex-1 gap-0.5 bg-transparent`}>
+                      <ThemedText
+                        style={{ fontFamily: typography.medium }}
+                        numberOfLines={1}
+                      >
+                        {variant.name}
+                      </ThemedText>
+                      <ThemedText
+                        type="small"
+                        style={tw.style(
+                          hasRule ? "text-on-surface-variant" : "text-gray-500",
+                        )}
+                        numberOfLines={2}
+                      >
+                        {summary}
+                      </ThemedText>
+                    </ThemedView>
+                    <Icon
+                      name="chevron-right"
+                      size={18}
+                      color={tw.color("gray-400")}
+                    />
+                  </Pressable>
+                );
+              })}
+            </ThemedView>
           </ThemedView>
-        )}
-
-        {error && (
-          <ThemedText type="small" style={tw`text-red-700`}>
-            {error}
-          </ThemedText>
         )}
 
         <Button label={t("common:actions.done")} onPress={handleDone} />

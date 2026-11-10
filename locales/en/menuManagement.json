@@ -331,7 +331,6 @@
   },
   "modifierGroups": {
     "title": "Option groups",
-    "subtitle": "Flavors, extras and more. A change here reaches every product using it.",
     "newGroup": "New group",
     "searchPlaceholder": "Search group or option...",
     "noResults": "No groups match",
@@ -399,15 +398,11 @@
     "editOption": "Edit option",
     "noExtraCost": "No extra cost",
     "unavailable": "Unavailable",
-    "reorderHint": "Press and hold an option to move it",
     "optionRemoved": "Removed “{{name}}”",
-    "usedInCount_one": "Used in {{count}} product. Changes apply to all of them.",
-    "usedInCount_other": "Used in {{count}} products. Changes apply to all of them.",
     "discardTitle": "Discard changes?",
     "discardMessage": "Your changes to this group won't be saved.",
     "discard": "Discard",
     "keepEditing": "Keep editing",
-    "optionDefaultHint": "New orders start with it picked. The waiter can change it.",
     "defaultTag": "Default",
     "products": {
       "title": "Products",
@@ -458,11 +453,8 @@
     "groupsHint": "Shown in this order when taking the order.",
     "linkGroup": "Add group",
     "unlinkGroup": "Remove group",
-    "manageGroups": "Manage groups",
     "addItem": "Add item",
     "removeItem": "Remove item",
-    "save": "Save customization",
-    "saved": "Customization saved",
     "saveError": "Couldn't save the customization",
     "fields": {
       "itemName": "Item",
@@ -477,14 +469,10 @@
     "newItem": "New item",
     "editItem": "Edit item",
     "alwaysIncluded": "Always included",
-    "reorderHint": "Press and hold to reorder",
-    "discardMessage": "Your changes to this customization won't be saved.",
     "groupsEmpty": "Add groups like Flavor or Extras so the waiter can choose when taking the order.",
-    "groupsReorderHint": "Shown in this order when taking the order. Press and hold to move them.",
     "limits": {
       "title": "Limits on this product",
       "own": "Use own limits",
-      "usesGroup": "Uses the group's: {{rule}}",
       "ownTag": "Own limits",
       "exactly_one": "pick {{count}}",
       "exactly_other": "pick {{count}}",
@@ -503,7 +491,7 @@
       "offered": "Offer on this variant",
       "variesByVariant": "Varies by variant",
       "variantTitle": "Limits on {{name}}",
-      "usesProduct": "Uses the product's: {{rule}}"
+      "upToHint": "Up to {{count}}"
     }
   }
 }

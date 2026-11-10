@@ -96,7 +96,6 @@ export default function ModifierGroupsScreen() {
       >
         <DetailHeader
           title={t("modifierGroups.title")}
-          subtitle={t("modifierGroups.subtitle")}
         >
           {canManage && (
             <ThemedView style={tw`flex-row flex-wrap gap-3`}>

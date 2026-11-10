@@ -184,11 +184,6 @@ const ModifierOptionSheet = forwardRef<
             value={draft.isDefault}
             onValueChange={(isDefault) => update({ isDefault })}
           />
-          {draft.isDefault && (
-            <ThemedText type="small" style={tw`text-gray-500 -mt-2`}>
-              {t("modifierGroups.optionDefaultHint")}
-            </ThemedText>
-          )}
 
           {!isNew && (
             <Switch

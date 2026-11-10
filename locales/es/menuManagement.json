@@ -331,7 +331,6 @@
   },
   "modifierGroups": {
     "title": "Grupos de opciones",
-    "subtitle": "Sabores, extras y más. Un cambio aquí llega a todos sus productos.",
     "newGroup": "Nuevo grupo",
     "searchPlaceholder": "Buscar grupo u opción...",
     "noResults": "Ningún grupo coincide",
@@ -399,15 +398,11 @@
     "editOption": "Editar opción",
     "noExtraCost": "Sin costo extra",
     "unavailable": "No disponible",
-    "reorderHint": "Mantén presionada una opción para moverla",
     "optionRemoved": "Se quitó “{{name}}”",
-    "usedInCount_one": "Se usa en {{count}} producto. Los cambios se aplican a todos.",
-    "usedInCount_other": "Se usa en {{count}} productos. Los cambios se aplican a todos.",
     "discardTitle": "¿Descartar cambios?",
     "discardMessage": "Los cambios a este grupo no se guardarán.",
     "discard": "Descartar",
     "keepEditing": "Seguir editando",
-    "optionDefaultHint": "Los pedidos nuevos la traen elegida. El mesero puede cambiarla.",
     "defaultTag": "Predeterminada",
     "products": {
       "title": "Productos",
@@ -458,11 +453,8 @@
     "groupsHint": "Se muestran en este orden al tomar el pedido.",
     "linkGroup": "Agregar grupo",
     "unlinkGroup": "Quitar grupo",
-    "manageGroups": "Administrar grupos",
     "addItem": "Agregar ingrediente",
     "removeItem": "Quitar ingrediente",
-    "save": "Guardar personalización",
-    "saved": "Personalización guardada",
     "saveError": "No se pudo guardar la personalización",
     "fields": {
       "itemName": "Ingrediente",
@@ -477,14 +469,10 @@
     "newItem": "Nuevo ingrediente",
     "editItem": "Editar ingrediente",
     "alwaysIncluded": "Siempre incluido",
-    "reorderHint": "Mantén presionado para cambiar el orden",
-    "discardMessage": "Los cambios a la personalización no se guardarán.",
     "groupsEmpty": "Agrega grupos como Sabor o Extras para que el mesero elija al tomar el pedido.",
-    "groupsReorderHint": "Se muestran en este orden al tomar el pedido. Mantén presionado para moverlos.",
     "limits": {
       "title": "Límites en este producto",
       "own": "Usar límites propios",
-      "usesGroup": "Usa los del grupo: {{rule}}",
       "ownTag": "Límites propios",
       "exactly_one": "elige {{count}}",
       "exactly_other": "elige {{count}}",
@@ -503,7 +491,7 @@
       "offered": "Ofrecer en esta variante",
       "variesByVariant": "Varía por variante",
       "variantTitle": "Límites en {{name}}",
-      "usesProduct": "Usa los del producto: {{rule}}"
+      "upToHint": "Hasta {{count}}"
     }
   }
 }

@@ -156,7 +156,6 @@ export const useModifierGroups = ({
             }
           : product,
       ]);
-      toast.success(t("customization.saved"));
       invalidate();
     },
     onError: showError(t("customization.saveError")),

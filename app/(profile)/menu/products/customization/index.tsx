@@ -1,11 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { KeyboardAvoidingView, Pressable } from "react-native";
-import {
-  router,
-  useFocusEffect,
-  useLocalSearchParams,
-  useNavigation,
-} from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import {
   NestedReorderableList,
   ScrollViewContainer,
@@ -27,7 +22,6 @@ import {
   DetailSectionTitle,
 } from "@/presentation/theme/components/detail-card";
 import DetailHeader from "@/presentation/theme/components/detail-header";
-import DialogModal from "@/presentation/theme/components/dialog-modal";
 import IconButton from "@/presentation/theme/components/icon-button";
 import BottomSheetPicker, {
   type BottomSheetPickerRef,
@@ -312,7 +306,6 @@ function SectionAddButton({
 export default function ProductCustomizationScreen() {
   const { t } = useTranslation(["menuManagement", "common"]);
   const { productId } = useLocalSearchParams<{ productId: string }>();
-  const navigation = useNavigation();
   const product = useMenuStore((state) =>
     state.products.find((item) => item.id === productId),
   );
@@ -349,11 +342,8 @@ export default function ProductCustomizationScreen() {
       }))
     : [];
 
-  // What the screen opened with, to know whether leaving loses anything.
-  const [initialComponents] = useState(components);
+  // The links as last saved, to tell edits made here from ones made elsewhere.
   const [initialLinks, setInitialLinks] = useState(links);
-  const isDirty =
-    snapshot(components, links) !== snapshot(initialComponents, initialLinks);
 
   // Groups linked or unlinked elsewhere meanwhile (e.g. from a group's
   // screen) reach the draft, so saving here doesn't undo them. Untouched
@@ -386,20 +376,75 @@ export default function ProductCustomizationScreen() {
     setInitialLinks(savedLinks);
   }
 
-  // Leaving with unsaved edits asks first. Saving leaves freely.
-  const [showDiscard, setShowDiscard] = useState(false);
-  const pendingAction = useRef<any>(null);
-  const leavingRef = useRef(false);
+  // Every edit saves on its own, one save at a time; edits made while one
+  // is on its way go out right after it. A draft that failed to save waits
+  // for the next edit instead of retrying in a loop.
+  const draft = snapshot(components, links);
+  const [savedDraft, setSavedDraft] = useState(draft);
+  const [failedDraft, setFailedDraft] = useState<string | null>(null);
+  const savingRef = useRef(false);
+  const { mutateAsync: saveCustomization } = saveProductCustomization;
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener("beforeRemove", (e: any) => {
-      if (!isDirty || leavingRef.current) return;
-      e.preventDefault();
-      pendingAction.current = e.data.action;
-      setShowDiscard(true);
-    });
-    return unsubscribe;
-  }, [navigation, isDirty]);
+    if (!productId || savingRef.current) return;
+    if (draft === savedDraft || draft === failedDraft) return;
+
+    savingRef.current = true;
+    saveCustomization({
+      productId,
+      input: {
+        components: components.map((entry) => ({
+          ...(entry.id && { id: entry.id }),
+          name: entry.name,
+          removable: entry.removable,
+          removalPriceDelta:
+            entry.removable && entry.discount !== ""
+              ? -Math.abs(parseAmount(entry.discount))
+              : 0,
+          inventoryItemId: entry.inventoryItemId,
+          inventoryQuantity: entry.inventoryItemId
+            ? parseAmount(entry.inventoryQuantity)
+            : null,
+        })),
+        groups: links,
+      },
+    })
+      .then((saved) => {
+        // New items come back with ids, in the order they were sent; the
+        // next save must update them instead of adding them again.
+        const savedComponents = getProductComponents(saved);
+        const newIds = new Map(
+          components.flatMap((entry, index) =>
+            !entry.id && savedComponents[index]
+              ? [[entry.key, savedComponents[index].id] as const]
+              : [],
+          ),
+        );
+        const withIds = (list: ProductComponentDraft[]) =>
+          list.map((entry) =>
+            newIds.has(entry.key)
+              ? { ...entry, id: newIds.get(entry.key) }
+              : entry,
+          );
+        if (newIds.size > 0) setComponents(withIds);
+        savingRef.current = false;
+        setInitialLinks(links);
+        setSavedDraft(snapshot(withIds(components), links));
+      })
+      .catch(() => {
+        // The mutation already shows the error.
+        savingRef.current = false;
+        setFailedDraft(draft);
+      });
+  }, [
+    draft,
+    savedDraft,
+    failedDraft,
+    productId,
+    components,
+    links,
+    saveCustomization,
+  ]);
 
   // A group created from the picker's "Nuevo grupo" comes back linked.
   const takeCreatedGroup = useGroupLinkHandoff((state) => state.take);
@@ -480,35 +525,6 @@ export default function ProductCustomizationScreen() {
         : [...current, component],
     );
 
-  const handleSave = async () => {
-    if (!product) return;
-    try {
-      await saveProductCustomization.mutateAsync({
-        productId: product.id,
-        input: {
-          components: components.map((entry) => ({
-            ...(entry.id && { id: entry.id }),
-            name: entry.name,
-            removable: entry.removable,
-            removalPriceDelta:
-              entry.removable && entry.discount !== ""
-                ? -Math.abs(parseAmount(entry.discount))
-                : 0,
-            inventoryItemId: entry.inventoryItemId,
-            inventoryQuantity: entry.inventoryItemId
-              ? parseAmount(entry.inventoryQuantity)
-              : null,
-          })),
-          groups: links,
-        },
-      });
-      leavingRef.current = true;
-      router.back();
-    } catch {
-      // The mutation already shows the error; the edits stay on screen.
-    }
-  };
-
   if (!product) {
     return (
       <ScreenLayout style={tw`flex-1 items-center justify-center px-8 gap-4`}>
@@ -548,19 +564,7 @@ export default function ProductCustomizationScreen() {
           <DetailHeader
             title={t("customization.title")}
             subtitle={product.name}
-            icon="sliders-horizontal"
-          >
-            <ThemedView style={tw`flex-row flex-wrap gap-3`}>
-              <Button
-                label={t("customization.manageGroups")}
-                leftIcon="list-checks"
-                variant="surface"
-                shape="rounded"
-                size="small"
-                onPress={() => router.push("/(profile)/menu/modifier-groups")}
-              />
-            </ThemedView>
-          </DetailHeader>
+          />
 
           {/* Included items */}
           <ThemedView style={tw`gap-3 mt-4`}>
@@ -613,11 +617,6 @@ export default function ProductCustomizationScreen() {
                 />
               )}
             </DetailCard>
-            {components.length > 1 && (
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {t("customization.reorderHint")}
-              </ThemedText>
-            )}
           </ThemedView>
 
           {/* Linked groups */}
@@ -687,22 +686,9 @@ export default function ProductCustomizationScreen() {
                 />
               )}
             </DetailCard>
-            {links.length > 1 && (
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {t("customization.groupsReorderHint")}
-              </ThemedText>
-            )}
           </ThemedView>
         </ScrollViewContainer>
 
-        <ThemedView style={tw`pt-2 pb-4`}>
-          <Button
-            label={t("customization.save")}
-            onPress={handleSave}
-            loading={saveProductCustomization.isPending}
-            disabled={saveProductCustomization.isPending}
-          />
-        </ThemedView>
         <ProductComponentSheet
           ref={componentSheetRef}
           items={items}
@@ -767,24 +753,6 @@ export default function ProductCustomizationScreen() {
                 params: { linkToProduct: "1" },
               });
             },
-          }}
-        />
-
-        <DialogModal
-          visible={showDiscard}
-          title={t("modifierGroups.discardTitle")}
-          message={t("customization.discardMessage")}
-          confirmLabel={t("modifierGroups.discard")}
-          cancelLabel={t("modifierGroups.keepEditing")}
-          confirmVariant="destructive"
-          onConfirm={() => {
-            setShowDiscard(false);
-            if (pendingAction.current)
-              navigation.dispatch(pendingAction.current);
-          }}
-          onCancel={() => {
-            pendingAction.current = null;
-            setShowDiscard(false);
           }}
         />
       </ScreenLayout>
