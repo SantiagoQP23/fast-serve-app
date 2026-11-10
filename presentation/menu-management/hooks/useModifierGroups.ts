@@ -85,23 +85,37 @@ export const useModifierGroups = ({
   const saveGroup = useMutation<
     ModifierGroup,
     Error,
-    { id?: string; input: SaveModifierGroupInput }
+    {
+      id?: string;
+      input: SaveModifierGroupInput;
+      /** No "saved" toast: the screen confirms the change itself. */
+      quiet?: boolean;
+    }
   >({
     mutationFn: ({ id, input }) =>
       id
         ? ModifierGroupsService.update(id, input)
         : ModifierGroupsService.create(input),
-    onSuccess: (group) => {
+    onSuccess: (group, { quiet }) => {
       updateProductsGroup(group.id, group);
-      // Known right away, e.g. by the product that links a new group
+      // Known right away, e.g. by the product that links a new group or the
+      // detail screen showing its products
       queryClient.setQueryData<ModifierGroup[]>(
         modifierGroupsQueryKey,
         (current) =>
-          current && !current.some((entry) => entry.id === group.id)
-            ? [...current, group]
-            : current,
+          current &&
+          (current.some((entry) => entry.id === group.id)
+            ? current.map((entry) =>
+                entry.id === group.id
+                  ? {
+                      ...group,
+                      productIds: group.productIds ?? entry.productIds,
+                    }
+                  : entry,
+              )
+            : [...current, group]),
       );
-      toast.success(t("modifierGroups.saved"));
+      if (!quiet) toast.success(t("modifierGroups.saved"));
       invalidate();
     },
     onError: showError(t("modifierGroups.saveError")),
@@ -111,6 +125,11 @@ export const useModifierGroups = ({
     mutationFn: (id) => ModifierGroupsService.remove(id),
     onSuccess: (_, id) => {
       updateProductsGroup(id, null);
+      // Gone right away, so screens showing it can leave
+      queryClient.setQueryData<ModifierGroup[]>(
+        modifierGroupsQueryKey,
+        (current) => current?.filter((entry) => entry.id !== id),
+      );
       toast.success(t("modifierGroups.deleted"));
       invalidate();
     },

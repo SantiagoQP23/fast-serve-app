@@ -51,7 +51,10 @@ import {
   type ModifierGroup,
   type VariantGroupRule,
 } from "@/core/menu/models/customization.model";
-import { getProductActiveOptions } from "@/core/menu/models/product.model";
+import {
+  getProductActiveOptions,
+  type Product,
+} from "@/core/menu/models/product.model";
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
 
 interface GroupLinkDraft {
@@ -60,6 +63,19 @@ interface GroupLinkDraft {
   maxSelect: number | null;
   variants: VariantGroupRule[];
 }
+
+/** The product's saved links, in the order the order screen shows them. */
+const linksFromProduct = (product?: Product): GroupLinkDraft[] =>
+  [...(product?.modifierGroups ?? [])]
+    .sort((a, b) => a.order - b.order)
+    .map((link) => ({
+      groupId: link.groupId,
+      minSelect: link.minSelect,
+      maxSelect: link.maxSelect,
+      variants: [...(link.variants ?? [])].sort(
+        (a, b) => a.productOptionId - b.productOptionId,
+      ),
+    }));
 
 /** Compares drafts by content; component keys are only for React. */
 const snapshot = (
@@ -83,7 +99,9 @@ function useRowMove(
     onLongPress: drag,
     delayLongPress: 200,
     accessibilityActions: [
-      ...(isFirst ? [] : [{ name: "moveUp", label: t("modifierGroups.moveUp") }]),
+      ...(isFirst
+        ? []
+        : [{ name: "moveUp", label: t("modifierGroups.moveUp") }]),
       ...(isLast
         ? []
         : [{ name: "moveDown", label: t("modifierGroups.moveDown") }]),
@@ -318,16 +336,7 @@ export default function ProductCustomizationScreen() {
     })),
   );
   const [links, setLinks] = useState<GroupLinkDraft[]>(() =>
-    [...(product?.modifierGroups ?? [])]
-      .sort((a, b) => a.order - b.order)
-      .map((link) => ({
-        groupId: link.groupId,
-        minSelect: link.minSelect,
-        maxSelect: link.maxSelect,
-        variants: [...(link.variants ?? [])].sort(
-          (a, b) => a.productOptionId - b.productOptionId,
-        ),
-      })),
+    linksFromProduct(product),
   );
   const componentSheetRef = useRef<ProductComponentSheetRef>(null);
   const groupPickerRef = useRef<BottomSheetPickerRef>(null);
@@ -341,8 +350,41 @@ export default function ProductCustomizationScreen() {
     : [];
 
   // What the screen opened with, to know whether leaving loses anything.
-  const [initial] = useState(() => snapshot(components, links));
-  const isDirty = snapshot(components, links) !== initial;
+  const [initialComponents] = useState(components);
+  const [initialLinks, setInitialLinks] = useState(links);
+  const isDirty =
+    snapshot(components, links) !== snapshot(initialComponents, initialLinks);
+
+  // Groups linked or unlinked elsewhere meanwhile (e.g. from a group's
+  // screen) reach the draft, so saving here doesn't undo them. Untouched
+  // links simply follow; the owner's own adds and removals stay.
+  const savedLinks = linksFromProduct(product);
+  const savedIds = savedLinks.map((link) => link.groupId);
+  const initialIds = initialLinks.map((link) => link.groupId);
+  if (
+    product &&
+    [...savedIds].sort().join() !== [...initialIds].sort().join()
+  ) {
+    const linksUntouched =
+      JSON.stringify(links) === JSON.stringify(initialLinks);
+    setLinks((current) =>
+      linksUntouched
+        ? savedLinks
+        : [
+            ...current.filter(
+              (link) =>
+                savedIds.includes(link.groupId) ||
+                !initialIds.includes(link.groupId),
+            ),
+            ...savedLinks.filter(
+              (link) =>
+                !initialIds.includes(link.groupId) &&
+                !current.some((entry) => entry.groupId === link.groupId),
+            ),
+          ],
+    );
+    setInitialLinks(savedLinks);
+  }
 
   // Leaving with unsaved edits asks first. Saving leaves freely.
   const [showDiscard, setShowDiscard] = useState(false);
@@ -370,7 +412,12 @@ export default function ProductCustomizationScreen() {
           ? current
           : [
               ...current,
-              { groupId: createdId, minSelect: null, maxSelect: null, variants: [] },
+              {
+                groupId: createdId,
+                minSelect: null,
+                maxSelect: null,
+                variants: [],
+              },
             ],
       );
     }, [takeCreatedGroup]),
@@ -703,7 +750,12 @@ export default function ProductCustomizationScreen() {
           onChange={(value) =>
             setLinks((current) => [
               ...current,
-              { groupId: String(value), minSelect: null, maxSelect: null, variants: [] },
+              {
+                groupId: String(value),
+                minSelect: null,
+                maxSelect: null,
+                variants: [],
+              },
             ])
           }
           headerAction={{

@@ -391,7 +391,9 @@
       "optionPrice": "Enter a valid price",
       "optionQuantity": "Enter a quantity above 0",
       "tooManyDefaults_one": "There can only be {{count}} default option",
-      "tooManyDefaults_other": "There can only be {{count}} default options"
+      "tooManyDefaults_other": "There can only be {{count}} default options",
+      "notEnoughOptions_one": "The group asks for {{min}} but only has {{count}} option. Add more or lower the amount.",
+      "notEnoughOptions_other": "The group asks for {{min}} but only has {{count}} options. Add more or lower the amount."
     },
     "newOption": "New option",
     "editOption": "Edit option",
@@ -421,9 +423,28 @@
       "removed": "Removed {{name}}",
       "unlink": "Remove {{name}}",
       "unlinkTitle": "Remove the group?",
-      "unlinkMessage_one": "{{names}} has its own limits for this group. They'll be lost when you save.",
-      "unlinkMessage_other": "{{names}} have their own limits for this group. They'll be lost when you save."
-    }
+      "unlinkMessage_one": "{{names}} has its own limits for this group. They'll be lost when it's removed.",
+      "unlinkMessage_other": "{{names}} have their own limits for this group. They'll be lost when it's removed.",
+      "linkShort": "Link",
+      "updated": "Products updated",
+      "unlinkConfirm": "Remove"
+    },
+    "rule": {
+      "pickOneRequired": "The waiter must pick one option.",
+      "pickOneOptional": "The waiter can pick one option, or none.",
+      "exactly_one": "The waiter must pick exactly {{count}}.",
+      "exactly_other": "The waiter must pick exactly {{count}}.",
+      "range": "The waiter must pick {{min}} to {{max}}.",
+      "atLeast_one": "The waiter must pick at least {{count}}.",
+      "atLeast_other": "The waiter must pick at least {{count}}.",
+      "upTo_one": "The waiter can pick up to {{count}}, or none.",
+      "upTo_other": "The waiter can pick up to {{count}}, or none.",
+      "any": "The waiter can pick as many as they like, or none."
+    },
+    "fewAvailable_zero": "No option is available and the group asks for {{min}}. The waiter can't complete it until more are available.",
+    "fewAvailable_one": "Only {{count}} option is available and the group asks for {{min}}. The waiter can't complete it until more are available.",
+    "fewAvailable_other": "Only {{count}} options are available and the group asks for {{min}}. The waiter can't complete it until more are available.",
+    "fewAvailableTag": "Not enough available"
   },
   "customization": {
     "title": "Customization",

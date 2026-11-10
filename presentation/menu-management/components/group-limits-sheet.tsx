@@ -80,6 +80,25 @@ export function describeLimits(
     .join(" · ");
 }
 
+/** The rule as the owner would say it: "El mesero debe elegir exactamente 3." */
+export function describeRule(
+  t: (key: string, options?: Record<string, unknown>) => string,
+  min: number,
+  max: number | null,
+): string {
+  if (max === 1)
+    return min > 0
+      ? t("modifierGroups.rule.pickOneRequired")
+      : t("modifierGroups.rule.pickOneOptional");
+  if (min > 0 && max !== null)
+    return min === max
+      ? t("modifierGroups.rule.exactly", { count: min })
+      : t("modifierGroups.rule.range", { min, max });
+  if (min > 0) return t("modifierGroups.rule.atLeast", { count: min });
+  if (max !== null) return t("modifierGroups.rule.upTo", { count: max });
+  return t("modifierGroups.rule.any");
+}
+
 /**
  * How many options of a shared group this product asks for, and, for a
  * product with variants, each variant's own rule (or that it isn't offered

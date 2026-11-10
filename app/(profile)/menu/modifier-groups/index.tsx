@@ -19,6 +19,7 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useFuzzySearch } from "@/presentation/shared/hooks/useFuzzySearch";
 import type { ModifierGroup } from "@/core/menu/models/customization.model";
+import { describeLimits } from "@/presentation/menu-management/components/group-limits-sheet";
 
 const GROUP_SEARCH_OPTIONS: IFuseOptions<ModifierGroup> = {
   keys: ["name", "modifiers.name"],
@@ -42,25 +43,29 @@ export default function ModifierGroupsScreen() {
   const filtered = useFuzzySearch(sorted, search, GROUP_SEARCH_OPTIONS);
   const hasSearch = !!search.trim();
 
+  // A group opens its detail; a new one goes straight to the form.
   const openGroup = (groupId?: string) =>
-    router.push({
-      pathname: "/(profile)/menu/modifier-groups/form",
-      params: groupId ? { groupId } : {},
-    });
+    groupId
+      ? router.push({
+          pathname: "/(profile)/menu/modifier-groups/detail",
+          params: { groupId },
+        })
+      : router.push("/(profile)/menu/modifier-groups/form");
 
   // What the waiter is asked, then how far a change reaches.
   const describe = (group: ModifierGroup) =>
     [
-      group.maxSelect === 1
-        ? t("modifierGroups.pickOne")
-        : t("modifierGroups.pickMany"),
-      group.minSelect > 0
-        ? t("modifierGroups.required")
-        : t("modifierGroups.optional"),
+      describeLimits(t, group.minSelect, group.maxSelect),
       t("modifierGroups.productsCount", {
         count: group.productIds?.length ?? 0,
       }),
     ].join(" · ");
+
+  // Asks for more than are available now, so the waiter can't complete it.
+  const isShortOfAvailable = (group: ModifierGroup) =>
+    group.isActive &&
+    group.minSelect >
+      group.modifiers.filter((option) => option.isActive).length;
 
   return (
     <ScreenLayout style={tw`flex-1 px-4 pt-8`}>
@@ -193,6 +198,15 @@ export default function ModifierGroupsScreen() {
                   // A row, so the Label keeps its own width
                   <ThemedView style={tw`flex-row mt-1`}>
                     <Label text={t("modifierGroups.inactive")} />
+                  </ThemedView>
+                )}
+                {isShortOfAvailable(group) && (
+                  <ThemedView style={tw`flex-row mt-1`}>
+                    <Label
+                      text={t("modifierGroups.fewAvailableTag")}
+                      color="warning"
+                      leftIcon="triangle-alert"
+                    />
                   </ThemedView>
                 )}
               </ThemedView>

@@ -391,7 +391,9 @@
       "optionPrice": "Escribe un precio válido",
       "optionQuantity": "Escribe una cantidad mayor a 0",
       "tooManyDefaults_one": "Solo puede haber {{count}} opción predeterminada",
-      "tooManyDefaults_other": "Solo puede haber {{count}} opciones predeterminadas"
+      "tooManyDefaults_other": "Solo puede haber {{count}} opciones predeterminadas",
+      "notEnoughOptions_one": "El grupo pide {{min}}, pero solo tiene {{count}} opción. Agrega más o baja la cantidad.",
+      "notEnoughOptions_other": "El grupo pide {{min}}, pero solo tiene {{count}} opciones. Agrega más o baja la cantidad."
     },
     "newOption": "Nueva opción",
     "editOption": "Editar opción",
@@ -421,9 +423,28 @@
       "removed": "Se quitó {{name}}",
       "unlink": "Quitar {{name}}",
       "unlinkTitle": "¿Quitar el grupo?",
-      "unlinkMessage_one": "{{names}} tiene límites propios para este grupo. Se perderán al guardar.",
-      "unlinkMessage_other": "{{names}} tienen límites propios para este grupo. Se perderán al guardar."
-    }
+      "unlinkMessage_one": "{{names}} tiene límites propios para este grupo. Se perderán al quitarlo.",
+      "unlinkMessage_other": "{{names}} tienen límites propios para este grupo. Se perderán al quitarlo.",
+      "linkShort": "Vincular",
+      "updated": "Productos actualizados",
+      "unlinkConfirm": "Quitar"
+    },
+    "rule": {
+      "pickOneRequired": "El mesero debe elegir una opción.",
+      "pickOneOptional": "El mesero puede elegir una opción, o ninguna.",
+      "exactly_one": "El mesero debe elegir exactamente {{count}}.",
+      "exactly_other": "El mesero debe elegir exactamente {{count}}.",
+      "range": "El mesero debe elegir de {{min}} a {{max}}.",
+      "atLeast_one": "El mesero debe elegir al menos {{count}}.",
+      "atLeast_other": "El mesero debe elegir al menos {{count}}.",
+      "upTo_one": "El mesero puede elegir hasta {{count}}, o ninguna.",
+      "upTo_other": "El mesero puede elegir hasta {{count}}, o ninguna.",
+      "any": "El mesero puede elegir las que quiera, o ninguna."
+    },
+    "fewAvailable_zero": "Ninguna opción está disponible y el grupo pide {{min}}. El mesero no podrá completarlo hasta que haya más.",
+    "fewAvailable_one": "Solo hay {{count}} opción disponible y el grupo pide {{min}}. El mesero no podrá completarlo hasta que haya más.",
+    "fewAvailable_other": "Solo hay {{count}} opciones disponibles y el grupo pide {{min}}. El mesero no podrá completarlo hasta que haya más.",
+    "fewAvailableTag": "Faltan opciones disponibles"
   },
   "customization": {
     "title": "Personalización",
