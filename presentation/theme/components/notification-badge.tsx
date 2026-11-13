@@ -1,33 +1,3 @@
-import { Text, View } from "react-native";
-import tw from "../lib/tailwind";
-
-export interface NotificationBadgeProps {
-  value: number;
-  style?: string;
-}
-
-export default function NotificationBadge({
-  value,
-  style = "",
-}: NotificationBadgeProps) {
-  if (!value || value <= 0) return null;
-
-  return (
-    // The badge overlaps its icon button; let taps pass through to it.
-    <View
-      pointerEvents="none"
-      style={tw`
-        absolute top-1 right-1
-        bg-primary 
-        rounded-full 
-        h-4 w-4 
-        items-center justify-center
-        ${style}
-      `}
-    >
-      <Text style={tw`text-on-primary text-xs font-bold`}>
-        {value > 99 ? "99+" : value}
-      </Text>
-    </View>
-  );
-}
+// Moved to @intenli/ui. This file only keeps the old import path working.
+export { NotificationBadge as default } from "@intenli/ui";
+export type { NotificationBadgeProps } from "@intenli/ui";

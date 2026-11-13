@@ -1,19 +1,3 @@
-import { View, type ViewProps } from "react-native";
-import { useThemeColor } from "../hooks/use-theme-color";
-
-import tw from "../lib/tailwind";
-
-export type ThemedViewProps = ViewProps & {};
-
-export function ThemedView({
-  style,
-  className,
-  children,
-  ...otherProps
-}: ThemedViewProps) {
-  return (
-    <View style={[tw`bg-transparent `, style]} {...otherProps}>
-      {children}
-    </View>
-  );
-}
+// Moved to @intenli/ui. This file only keeps the old import path working.
+export { ThemedView } from "@intenli/ui";
+export type { ThemedViewProps } from "@intenli/ui";
