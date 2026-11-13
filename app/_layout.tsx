@@ -6,7 +6,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@expo/ui/community/bottom-sheet";
 
 import tw from "@/presentation/theme/lib/tailwind";
-import { useDeviceContext } from "twrnc";
+import { UiProvider, uiFonts, useDeviceContext } from "@intenli/ui";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -24,18 +24,6 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import * as Device from "expo-device";
 import * as ScreenOrientation from "expo-screen-orientation";
 import { useFonts } from "expo-font";
-import {
-  PlusJakartaSans_400Regular,
-  PlusJakartaSans_500Medium,
-  PlusJakartaSans_600SemiBold,
-  PlusJakartaSans_700Bold,
-} from "@expo-google-fonts/plus-jakarta-sans";
-import {
-  Nunito_400Regular,
-  Nunito_500Medium,
-  Nunito_600SemiBold,
-  Nunito_700Bold,
-} from "@expo-google-fonts/nunito";
 
 // Initialize i18n
 import "@/core/i18n/i18n.config";
@@ -65,16 +53,8 @@ export default function RootLayout() {
   usePushNotifications();
 
   // Both fonts load up front so switching in Settings is instant and works offline
-  const [fontsLoaded] = useFonts({
-    PlusJakartaSans_400Regular,
-    PlusJakartaSans_500Medium,
-    PlusJakartaSans_600SemiBold,
-    PlusJakartaSans_700Bold,
-    Nunito_400Regular,
-    Nunito_500Medium,
-    Nunito_600SemiBold,
-    Nunito_700Bold,
-  });
+  // (plus the Lucide icon font, which web needs)
+  const [fontsLoaded] = useFonts(uiFonts);
 
   // Detect if user is on auth pages
   const segments = useSegments();
@@ -254,13 +234,17 @@ export default function RootLayout() {
   };
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView style={tw`flex-1`}>
-        <SafeAreaView style={tw`flex-1 bg-background `}>
-          {renderContent()}
-        </SafeAreaView>
-        <RootToaster />
-      </GestureHandlerRootView>
-    </QueryClientProvider>
+    // Gives the shared components their texts (Done, Cancel, Today...) in
+    // the app's language.
+    <UiProvider locale={language}>
+      <QueryClientProvider client={queryClient}>
+        <GestureHandlerRootView style={tw`flex-1`}>
+          <SafeAreaView style={tw`flex-1 bg-background `}>
+            {renderContent()}
+          </SafeAreaView>
+          <RootToaster />
+        </GestureHandlerRootView>
+      </QueryClientProvider>
+    </UiProvider>
   );
 }
