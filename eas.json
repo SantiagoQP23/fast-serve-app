@@ -6,7 +6,10 @@
   "build": {
     "base": {
       "node": "24.9.0",
-      "pnpm": "12.10.1"
+      "pnpm": "12.10.1",
+      "env": {
+        "pnpm_config_verify_deps_before_run": "false"
+      }
     },
     "development": {
       "extends": "base",
