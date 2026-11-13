@@ -409,7 +409,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
 
             if (row.kind === "note") {
               return (
-                <ThemedView style={tw`pb-2`}>
+                <ThemedView style={tw`pb-8`}>
                   <CartNote />
                 </ThemedView>
               );
@@ -417,7 +417,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
 
             if (row.kind === "productsHeader") {
               return (
-                <ThemedView style={tw`pb-1`}>
+                <ThemedView style={tw`pb-2`}>
                   <SectionTitle
                     title={t("menu:cart.sections.products")}
                     count={details.length}
@@ -442,7 +442,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
             isOrderCart ? (
               <ThemedView style={tw`gap-4 pt-2`}>
                 {productsFooter}
-                <ThemedView style={tw`gap-3 pt-4`}>
+                <ThemedView style={tw`gap-3 pt-8`}>
                   <SectionTitle title={t("menu:cart.sections.place")} />
                   <CartInformation />
                 </ThemedView>

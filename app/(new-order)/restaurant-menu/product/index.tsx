@@ -38,12 +38,12 @@ import {
 } from "@/core/menu/models/product-optionl.model";
 import Icon from "@/presentation/theme/components/icon";
 import {
-  BottomSheetScrollView,
   BottomSheetView,
   type BottomSheetMethods,
 } from "@expo/ui/community/bottom-sheet";
 import { OrderType } from "@/core/orders/enums/order-type.enum";
-import { Pressable, useWindowDimensions } from "react-native";
+import { KeyboardAvoidingView, Pressable, ScrollView } from "react-native";
+import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import NoteBottomSheet from "@/presentation/orders/components/note-bottom-sheet";
 import QuantityStepper from "@/presentation/orders/components/quantity-stepper";
@@ -77,8 +77,8 @@ const STOCK_TEXT_COLOR: Record<ProductOptionStockLevel, string> = {
 /**
  * The value, or the last non-null one it had. The store clears the active
  * product and line when this route unmounts; if that cleanup runs while the
- * route stays mounted (Fast Refresh), the open sheet must keep its product
- * rather than render nothing and strand the transparent route over the menu.
+ * route stays mounted (Fast Refresh), the screen keeps its product rather
+ * than going blank.
  */
 function useLastNonNull<T>(value: T | null): T | null {
   const [last, setLast] = useState(value);
@@ -101,16 +101,12 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 /**
- * Product picked from the menu, shown as a sheet over it: choose the variant,
+ * Product picked from the menu, on its own screen: choose the variant,
  * extras, quantity and note, then add it. Also edits a line already in the
  * cart, and confirms the new product when replacing an order line.
  */
 export default function ProductScreen() {
   const { t } = useTranslation(["menu", "orders", "common", "bills"]);
-  const { height: windowHeight } = useWindowDimensions();
-  const sheetRef = useRef<BottomSheetMethods>(null);
-  // Set when the sheet should take the whole menu flow with it on close.
-  const exitsFlowRef = useRef(false);
   const customPriceSheetRef = useRef<BottomSheetMethods>(null);
   const noteSheetRef = useRef<BottomSheetMethods>(null);
   const activeOrderDetail = useLastNonNull(
@@ -139,9 +135,7 @@ export default function ProductScreen() {
     useMenuStore((state) => state.activeProduct),
   );
   const [notes, setNotes] = useState(activeOrderDetail?.description || "");
-  const [selectedTagIds] = useState<string[]>(
-    activeOrderDetail?.tagIds ?? [],
-  );
+  const [selectedTagIds] = useState<string[]>(activeOrderDetail?.tagIds ?? []);
 
   const activeOptions = useMemo(
     () => activeProduct?.options.filter((option) => option.isActive) ?? [],
@@ -289,8 +283,8 @@ export default function ProductScreen() {
     useOrders().replaceOrderDetail;
   const { authorize } = useRemovalAuthorization();
 
-  // However the sheet closes (button, scrim, system back), the product and
-  // the line being edited stop being active.
+  // However the screen closes (button, header back, system back), the
+  // product and the line being edited stop being active.
   useEffect(
     () => () => {
       setActiveProduct(null);
@@ -299,23 +293,13 @@ export default function ProductScreen() {
     [setActiveProduct, setActiveDetail],
   );
 
-  // The route is just a host for the native sheet: open it on arrival, and
-  // pop the route once it has closed, however it closed (button, scrim,
-  // swipe down, system back). Arriving with no product (a restored or
-  // stale route), leave at once: an empty transparent screen would sit
-  // invisibly over the menu and swallow every tap.
+  // Arriving with no product (a restored or stale route), leave at once.
   useEffect(() => {
-    if (activeProduct) sheetRef.current?.present();
-    else router.back();
+    if (!activeProduct) router.back();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const goToMenu = () => sheetRef.current?.dismiss();
-
-  const handleSheetDismissed = () => {
-    if (exitsFlowRef.current) navigation.getParent()?.goBack();
-    else router.back();
-  };
+  const goToMenu = () => router.back();
 
   if (!activeProduct) {
     return null;
@@ -365,9 +349,6 @@ export default function ProductScreen() {
   const customizationPayload = isCustomizable
     ? toCustomizationPayload(selection, modifierRows, customPrice)
     : undefined;
-
-
-
 
   const newLine = () => ({
     quantity: counter,
@@ -431,8 +412,7 @@ export default function ProductScreen() {
         () => {
           resetReplace();
           // Close the whole menu flow and land back on the order.
-          exitsFlowRef.current = true;
-          sheetRef.current?.dismiss();
+          navigation.getParent()?.goBack();
         },
       ),
     );
@@ -496,13 +476,13 @@ export default function ProductScreen() {
 
   return (
     <>
-      <ThemedBottomSheetModal
-        ref={sheetRef}
-        enablePanDownToClose
-        onDismiss={handleSheetDismissed}
-      >
-        <BottomSheetView style={tw`pb-6`}>
-          <ThemedView style={tw`px-4 pt-2 pb-2 bg-transparent`}>
+      <KeyboardAvoidingView style={tw`flex-1`} behavior="padding">
+        <ScreenLayout>
+          <ScrollView
+            contentContainerStyle={tw`px-4 pt-2 pb-4 gap-6`}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
             <ThemedView style={tw`gap-1 pt-1 bg-transparent`}>
               <ThemedView style={tw`flex-row items-start gap-2 bg-transparent`}>
                 <ThemedView style={tw`flex-1 gap-1 bg-transparent`}>
@@ -590,13 +570,7 @@ export default function ProductScreen() {
                 </ThemedView>
               )}
             </ThemedView>
-          </ThemedView>
 
-          <BottomSheetScrollView
-            style={{ maxHeight: windowHeight * 0.6 }}
-            contentContainerStyle={tw`px-4 pt-3 pb-2 gap-6`}
-            showsVerticalScrollIndicator={false}
-          >
             {activeProduct.description ? (
               <ThemedText type="body2" style={tw`text-gray-600`}>
                 {activeProduct.description}
@@ -700,17 +674,15 @@ export default function ProductScreen() {
                 blocksWithoutStock={blocksWithoutStock}
               />
             )}
+          </ScrollView>
 
-          </BottomSheetScrollView>
-
-          <ThemedView style={tw`px-4 pt-3 gap-3`}>
+          <ThemedView style={tw`px-4 pt-2 pb-4 gap-3`}>
             <QuantityStepper
               value={counter}
               onChange={setCounter}
               min={MIN_QUANTITY}
               max={MAX_QUANTITY}
               incrementDisabled={atStockLimit}
-              bottomSheet
             />
 
             <Button
@@ -753,8 +725,8 @@ export default function ProductScreen() {
               </ThemedView>
             )}
           </ThemedView>
-        </BottomSheetView>
-      </ThemedBottomSheetModal>
+        </ScreenLayout>
+      </KeyboardAvoidingView>
 
       <ThemedBottomSheetModal ref={customPriceSheetRef} enablePanDownToClose>
         <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
