@@ -41,6 +41,7 @@ import {
   type PaymentProof,
 } from "@/core/transactions/models/payment-proof.model";
 import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
+import { isCashWithdrawal } from "@/core/transactions/models/transaction.model";
 import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.model";
 import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
 import * as ImagePicker from "expo-image-picker";
@@ -183,23 +184,32 @@ export default function TransactionDetailView({
   const isTransfer =
     transaction?.paymentMethod?.type === PaymentMethodCategory.TRANSFER;
 
+  // Cash out of a register: only owner/admin decide it, and it never moves.
+  const isWithdrawal = isCashWithdrawal(transaction ?? undefined);
+  const isPendingWithdrawal =
+    isWithdrawal &&
+    isAdmin &&
+    transaction?.status === TransactionStatus.PENDING_APPROVAL;
+
   const canUploadProof =
     isTransfer &&
     (transaction?.status === TransactionStatus.PENDING_PROOF ||
       transaction?.status === TransactionStatus.REJECTED);
 
   const canApproveTransaction =
-    canManage &&
-    isTransfer &&
-    (transaction?.status === TransactionStatus.PENDING_PROOF ||
-      transaction?.status === TransactionStatus.PENDING_APPROVAL ||
-      transaction?.status === TransactionStatus.REJECTED);
+    isPendingWithdrawal ||
+    (canManage &&
+      isTransfer &&
+      (transaction?.status === TransactionStatus.PENDING_PROOF ||
+        transaction?.status === TransactionStatus.PENDING_APPROVAL ||
+        transaction?.status === TransactionStatus.REJECTED));
 
   const canRejectTransaction =
-    canManage &&
-    isTransfer &&
-    (transaction?.status === TransactionStatus.PENDING_PROOF ||
-      transaction?.status === TransactionStatus.PENDING_APPROVAL);
+    isPendingWithdrawal ||
+    (canManage &&
+      isTransfer &&
+      (transaction?.status === TransactionStatus.PENDING_PROOF ||
+        transaction?.status === TransactionStatus.PENDING_APPROVAL));
 
   const hasActionBar = canApproveTransaction || canRejectTransaction;
 
@@ -215,7 +225,11 @@ export default function TransactionDetailView({
         : null;
 
   const canChangeAccount =
-    canManage && allowedAccounts.length > 0 && !accountLockReason;
+    canManage &&
+    !isWithdrawal &&
+    transaction?.cashSession?.status !== "CLOSED" &&
+    allowedAccounts.length > 0 &&
+    !accountLockReason;
 
   const pickImage = async (source: "camera" | "gallery") => {
     const permissionResult =
@@ -526,14 +540,22 @@ export default function TransactionDetailView({
       >
         {/* Header: amount, what it was for, and when */}
         <DetailHeader
-          amount={formatCurrency(transaction.amount)}
+          amount={
+            isWithdrawal
+              ? `−${formatCurrency(transaction.amount)}`
+              : formatCurrency(transaction.amount)
+          }
           title={transaction.name}
           subtitle={dayjs(transaction.createdAt).format(DATE_FORMAT)}
           icon={paymentMethodIcon[transaction.paymentMethod.type] ?? "wallet"}
           badge={{
             color: status.color ?? "default",
             icon: status.icon,
-            label: `${transaction.paymentMethod.name}, ${statusText}`,
+            label: `${
+              isWithdrawal
+                ? t("common:cashRegister.withdrawalLabel")
+                : transaction.paymentMethod.name
+            }, ${statusText}`,
           }}
         >
           {(mainAction || canChangeAccount || hasMoreActions) && (

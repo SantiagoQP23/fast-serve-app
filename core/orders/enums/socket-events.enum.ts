@@ -38,4 +38,5 @@ export enum OrderSocketEvent {
   transactionStatusUpdated = "transaction-status-updated",
   newTicket = "new-ticket",
   syncEvent = "sync:event",
+  cashSessionUpdated = "cash-session:updated",
 }

@@ -98,6 +98,9 @@ async function getPushTokenAsync() {
 export const usePushNotifications = () => {
   const [pendingChatId, setPendingChatId] = useState<string | null>("");
   const [pendingPaymentId, setPendingPaymentId] = useState<string | null>("");
+  const [pendingCashSessionId, setPendingCashSessionId] = useState<
+    string | null
+  >(null);
   const [pendingInventoryItemId, setPendingInventoryItemId] = useState<
     string | null
   >("");
@@ -219,8 +222,15 @@ export const usePushNotifications = () => {
         if (notification) {
           switch (notification.type) {
             case PushNotificationType.NEW_PAYMENT:
+            case PushNotificationType.CASH_WITHDRAWAL_PENDING:
+            case PushNotificationType.CASH_WITHDRAWAL_DECIDED:
               // router.push(`/payments/${notification.payload.paymentId}`);
-              setPendingPaymentId(notification.payload.paymentId as string);
+              setPendingPaymentId(String(notification.payload.paymentId));
+              break;
+            case PushNotificationType.CASH_SESSION_CLOSED:
+              setPendingCashSessionId(
+                String(notification.payload.cashSessionId),
+              );
               break;
             case PushNotificationType.LOW_STOCK:
               setPendingInventoryItemId(
@@ -247,8 +257,13 @@ export const usePushNotifications = () => {
       if (notification) {
         switch (notification.type) {
           case PushNotificationType.NEW_PAYMENT:
+          case PushNotificationType.CASH_WITHDRAWAL_PENDING:
+          case PushNotificationType.CASH_WITHDRAWAL_DECIDED:
             // router.push(`/payments/${notification.payload.paymentId}`);
-            setPendingPaymentId(notification.payload.paymentId as string);
+            setPendingPaymentId(String(notification.payload.paymentId));
+            break;
+          case PushNotificationType.CASH_SESSION_CLOSED:
+            setPendingCashSessionId(String(notification.payload.cashSessionId));
             break;
           case PushNotificationType.LOW_STOCK:
             setPendingInventoryItemId(
@@ -289,6 +304,14 @@ export const usePushNotifications = () => {
     router.push(`/transaction/${pendingPaymentId}`);
     setPendingPaymentId(null);
   }, [pendingPaymentId, rootNavigationState?.key]);
+
+  useEffect(() => {
+    if (!rootNavigationState.key) return;
+    if (!pendingCashSessionId) return;
+
+    router.push(`/cash-session/${pendingCashSessionId}`);
+    setPendingCashSessionId(null);
+  }, [pendingCashSessionId, rootNavigationState?.key]);
 
   useEffect(() => {
     if (!rootNavigationState.key) return;

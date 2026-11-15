@@ -226,6 +226,16 @@
     "ORDER_CUSTOMIZATION_TOO_MANY": "Elige como máximo {{max}} en {{groupName}}",
     "ORDER_CUSTOMIZATION_UNAVAILABLE": "Una de las opciones elegidas ya no está disponible",
     "ORDER_BILL_OVER_QUANTITY": "No quedan suficientes unidades de {{productName}} por cobrar (quedan {{available}})",
-    "MENU_MODIFIER_GROUP_TOO_MANY_DEFAULTS": "Hay más opciones predeterminadas de las que el grupo permite elegir"
+    "MENU_MODIFIER_GROUP_TOO_MANY_DEFAULTS": "Hay más opciones predeterminadas de las que el grupo permite elegir",
+    "FINANCIAL_CASH_REGISTER_NOT_ALLOWED": "Esta caja está cerrada o no la abriste tú",
+    "FINANCIAL_CASH_SESSION_ALREADY_OPEN": "La caja ya está abierta",
+    "FINANCIAL_CASH_SESSION_CLOSED": "La caja de este movimiento ya se cerró",
+    "FINANCIAL_CASH_SESSION_COUNT_REQUIRED": "Ingresa el efectivo contado",
+    "FINANCIAL_CASH_SESSION_FORBIDDEN": "No tienes permiso para esta caja",
+    "FINANCIAL_CASH_SESSION_NOT_FOUND": "No se encontró la caja",
+    "FINANCIAL_CASH_SESSION_NOT_OPEN": "La caja ya está cerrada",
+    "FINANCIAL_CASH_SESSION_NOTE_REQUIRED": "Agrega una nota que explique la diferencia",
+    "FINANCIAL_CASH_WITHDRAWAL_FORBIDDEN": "No tienes permiso para este retiro",
+    "FINANCIAL_TRANSACTION_CATEGORY_BUILT_IN": "Las categorías predeterminadas no se pueden modificar"
   }
 }

@@ -226,6 +226,16 @@
     "ORDER_CUSTOMIZATION_TOO_MANY": "Pick at most {{max}} in {{groupName}}",
     "ORDER_CUSTOMIZATION_UNAVAILABLE": "One of the picked options is no longer available",
     "ORDER_BILL_OVER_QUANTITY": "Not enough units of {{productName}} left to bill (left: {{available}})",
-    "MENU_MODIFIER_GROUP_TOO_MANY_DEFAULTS": "There are more default options than the group lets you pick"
+    "MENU_MODIFIER_GROUP_TOO_MANY_DEFAULTS": "There are more default options than the group lets you pick",
+    "FINANCIAL_CASH_REGISTER_NOT_ALLOWED": "This register is closed or you didn't open it",
+    "FINANCIAL_CASH_SESSION_ALREADY_OPEN": "The register is already open",
+    "FINANCIAL_CASH_SESSION_CLOSED": "This movement's register is already closed",
+    "FINANCIAL_CASH_SESSION_COUNT_REQUIRED": "Type the counted cash",
+    "FINANCIAL_CASH_SESSION_FORBIDDEN": "You don't have permission for this register",
+    "FINANCIAL_CASH_SESSION_NOT_FOUND": "Register not found",
+    "FINANCIAL_CASH_SESSION_NOT_OPEN": "The register is already closed",
+    "FINANCIAL_CASH_SESSION_NOTE_REQUIRED": "Add a note explaining the difference",
+    "FINANCIAL_CASH_WITHDRAWAL_FORBIDDEN": "You don't have permission for this withdrawal",
+    "FINANCIAL_TRANSACTION_CATEGORY_BUILT_IN": "Built-in categories can't be changed"
   }
 }
