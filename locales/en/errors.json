@@ -227,6 +227,7 @@
     "ORDER_CUSTOMIZATION_UNAVAILABLE": "One of the picked options is no longer available",
     "ORDER_BILL_OVER_QUANTITY": "Not enough units of {{productName}} left to bill (left: {{available}})",
     "MENU_MODIFIER_GROUP_TOO_MANY_DEFAULTS": "There are more default options than the group lets you pick",
+    "FINANCIAL_CASH_COUNT_MISMATCH": "The bills and coins counted don't add up to the total",
     "FINANCIAL_CASH_REGISTER_NOT_ALLOWED": "This register is closed or you didn't open it",
     "FINANCIAL_CASH_SESSION_ALREADY_OPEN": "The register is already open",
     "FINANCIAL_CASH_SESSION_CLOSED": "This movement's register is already closed",

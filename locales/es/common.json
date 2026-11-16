@@ -274,7 +274,7 @@
     },
     "close": {
       "countTitle": "Cuenta el efectivo",
-      "countHint": "Escribe cuánto efectivo hay en la caja ahora.",
+      "countHint": "Cuenta los billetes y monedas de la caja.",
       "confirmCount": "Confirmar conteo",
       "noteTitle": "El conteo no cuadra",
       "noteHint": "Explica la diferencia para cerrar la caja.",
@@ -313,6 +313,13 @@
       "onlyYours": "Solo puedes cobrar en las cajas que abriste.",
       "onlyOpen": "Solo se muestran las cajas abiertas."
     },
-    "withdrawalLabel": "Retiro de efectivo"
+    "withdrawalLabel": "Retiro de efectivo",
+    "count": {
+      "modeCount": "Contar",
+      "modeAmount": "Monto",
+      "total": "Total",
+      "openingTitle": "Conteo de apertura",
+      "closingTitle": "Conteo de cierre"
+    }
   }
 }

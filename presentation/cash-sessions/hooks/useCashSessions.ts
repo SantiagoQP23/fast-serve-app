@@ -4,7 +4,10 @@ import {
   CashSessionsFilter,
   CashSessionsService,
 } from "@/core/cash-sessions/services/cash-sessions.service";
-import { CashRegister } from "@/core/cash-sessions/models/cash-session.model";
+import {
+  CashCountLine,
+  CashRegister,
+} from "@/core/cash-sessions/models/cash-session.model";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles, isAdminLevelRole } from "@/core/auth/models/user.model";
 import { OrderSocketEvent } from "@/core/orders/enums/socket-events.enum";
@@ -129,6 +132,7 @@ export const useCloseCashSession = () => {
     }: {
       id: number;
       countedAmount?: number;
+      countedBreakdown?: CashCountLine[];
       note?: string;
     }) => CashSessionsService.close(id, data),
     onSettled: () => invalidateCash(client),

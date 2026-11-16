@@ -227,6 +227,7 @@
     "ORDER_CUSTOMIZATION_UNAVAILABLE": "Una de las opciones elegidas ya no está disponible",
     "ORDER_BILL_OVER_QUANTITY": "No quedan suficientes unidades de {{productName}} por cobrar (quedan {{available}})",
     "MENU_MODIFIER_GROUP_TOO_MANY_DEFAULTS": "Hay más opciones predeterminadas de las que el grupo permite elegir",
+    "FINANCIAL_CASH_COUNT_MISMATCH": "El conteo de billetes y monedas no coincide con el total",
     "FINANCIAL_CASH_REGISTER_NOT_ALLOWED": "Esta caja está cerrada o no la abriste tú",
     "FINANCIAL_CASH_SESSION_ALREADY_OPEN": "La caja ya está abierta",
     "FINANCIAL_CASH_SESSION_CLOSED": "La caja de este movimiento ya se cerró",

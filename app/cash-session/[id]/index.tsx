@@ -25,6 +25,7 @@ import WithdrawCashSheet, {
   WithdrawCashSheetRef,
 } from "@/presentation/cash-sessions/components/withdraw-cash-sheet";
 import DifferenceLabel from "@/presentation/cash-sessions/components/difference-label";
+import CashBreakdownCard from "@/presentation/cash-sessions/components/cash-breakdown-card";
 import {
   useCashRoles,
   useCashSession,
@@ -186,6 +187,15 @@ export default function CashSessionScreen() {
             </>
           )}
         </DetailCard>
+
+        <CashBreakdownCard
+          title={t("common:cashRegister.count.openingTitle")}
+          lines={session.openingBreakdown}
+        />
+        <CashBreakdownCard
+          title={t("common:cashRegister.count.closingTitle")}
+          lines={session.countedBreakdown}
+        />
 
         {/* Who and notes */}
         <DetailCard style={tw`py-2`}>

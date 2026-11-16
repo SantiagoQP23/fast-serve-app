@@ -274,7 +274,7 @@
     },
     "close": {
       "countTitle": "Count the cash",
-      "countHint": "Type how much cash is in the drawer now.",
+      "countHint": "Count the bills and coins in the drawer.",
       "confirmCount": "Confirm count",
       "noteTitle": "The count doesn't match",
       "noteHint": "Explain the difference to close the register.",
@@ -313,6 +313,13 @@
       "onlyYours": "You can only charge into registers you opened.",
       "onlyOpen": "Only open registers are shown."
     },
-    "withdrawalLabel": "Cash withdrawal"
+    "withdrawalLabel": "Cash withdrawal",
+    "count": {
+      "modeCount": "Count",
+      "modeAmount": "Amount",
+      "total": "Total",
+      "openingTitle": "Opening count",
+      "closingTitle": "Closing count"
+    }
   }
 }

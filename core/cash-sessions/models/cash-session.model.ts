@@ -7,6 +7,12 @@ export enum CashSessionStatus {
   CLOSED = "CLOSED",
 }
 
+/** How many of one bill or coin were counted. */
+export interface CashCountLine {
+  value: number;
+  quantity: number;
+}
+
 /**
  * One opening and closing of a register. A register is a CASH account linked
  * to a cash payment method (plans/apertura-cierre-caja.md).
@@ -18,12 +24,16 @@ export interface CashSession {
   openedBy: User | null;
   openedAt: string;
   openingAmount: number;
+  /** Bills and coins counted at opening; null when only the total was typed. */
+  openingBreakdown: CashCountLine[] | null;
   /** Counted at the previous close of this register, if any. */
   lastCountedAmount: number | null;
   closedBy: User | null;
   closedAt: string | null;
   /** Null when an owner/admin closed it without counting. */
   countedAmount: number | null;
+  /** Bills and coins counted at closing; null when only the total was typed. */
+  countedBreakdown: CashCountLine[] | null;
   expectedAmount: number | null;
   /** counted − expected: positive is over, negative is short. */
   difference: number | null;
@@ -55,5 +65,7 @@ export interface CashRegister {
   paymentMethodIds: number[];
   /** Counted at the last close, to prefill the next opening. */
   lastCountedAmount: number | null;
+  /** Bills and coins of that count, when they were counted one by one. */
+  lastCountedBreakdown: CashCountLine[] | null;
   session: CashSession | null;
 }

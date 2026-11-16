@@ -132,6 +132,7 @@ export default function CashSessionsHistoryScreen() {
       </ThemedView>
       <ScrollView
         contentContainerStyle={tw`px-4 pb-10 gap-3`}
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }

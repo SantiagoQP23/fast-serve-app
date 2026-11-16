@@ -9,16 +9,16 @@ import * as Haptics from "expo-haptics";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { getErrorMessage } from "@/core/api/get-error-message";
 import { formatCurrency } from "@/core/i18n/utils";
-import { parseAmount } from "@/core/orders/utils/bill-payment.util";
 import { CashRegister } from "@/core/cash-sessions/models/cash-session.model";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
-import TextInput from "@/presentation/theme/components/text-input";
 import Button from "@/presentation/theme/components/button";
 import Chip from "@/presentation/theme/components/chip";
 import { useOpenCashSession } from "../hooks/useCashSessions";
+import { useCashCount } from "../hooks/useCashCount";
+import CashCountField from "./cash-count-field";
 
 export type OpenRegisterSheetRef = {
   /**
@@ -46,11 +46,14 @@ const OpenRegisterSheet = forwardRef<
   const openSession = useOpenCashSession();
   const [choices, setChoices] = useState<CashRegister[]>([]);
   const [register, setRegister] = useState<CashRegister | null>(null);
-  const [amount, setAmount] = useState("");
+  const count = useCashCount();
 
   const pick = (next: CashRegister) => {
     setRegister(next);
-    setAmount(amountText(next.lastCountedAmount));
+    count.reset({
+      breakdown: next.lastCountedBreakdown,
+      amount: amountText(next.lastCountedAmount),
+    });
   };
 
   useImperativeHandle(ref, () => ({
@@ -60,21 +63,25 @@ const OpenRegisterSheet = forwardRef<
       if (list[0]) pick(list[0]);
       else {
         setRegister(null);
-        setAmount("");
+        count.reset();
       }
       sheetRef.current?.present();
     },
     dismiss: () => sheetRef.current?.dismiss(),
   }));
 
-  const value = parseAmount(amount);
+  const value = count.value;
   const last = register?.lastCountedAmount ?? null;
-  const delta = last != null && amount !== "" ? value - last : 0;
+  const delta = last != null && !count.isEmpty ? value - last : 0;
 
   const handleOpen = () => {
     if (!register) return;
     openSession.mutate(
-      { accountId: register.account.id, openingAmount: value },
+      {
+        accountId: register.account.id,
+        openingAmount: value,
+        openingBreakdown: count.breakdown,
+      },
       {
         onSuccess: () => {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -119,16 +126,11 @@ const OpenRegisterSheet = forwardRef<
           </ThemedView>
         )}
 
-        <ThemedView style={tw`gap-1`}>
-          <TextInput
+        <ThemedView style={tw`gap-2`}>
+          <CashCountField
+            count={count}
+            amountLabel={t("common:cashRegister.openAmount")}
             bottomSheet
-            variant="outlined"
-            label={t("common:cashRegister.openAmount")}
-            value={amount}
-            onChangeText={setAmount}
-            inputMode="decimal"
-            placeholder="0.00"
-            icon="banknote"
           />
           <ThemedText type="small" style={tw`text-gray-500`}>
             {last != null

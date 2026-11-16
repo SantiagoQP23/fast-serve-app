@@ -8,7 +8,7 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { getErrorMessage } from "@/core/api/get-error-message";
 import { getApiError } from "@/core/api/api-response";
-import { parseAmount } from "@/core/orders/utils/bill-payment.util";
+import { CashCountLine } from "@/core/cash-sessions/models/cash-session.model";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -21,6 +21,8 @@ import {
   DetailCardRow,
 } from "@/presentation/theme/components/detail-card";
 import DifferenceLabel from "@/presentation/cash-sessions/components/difference-label";
+import CashCountField from "@/presentation/cash-sessions/components/cash-count-field";
+import { useCashCount } from "@/presentation/cash-sessions/hooks/useCashCount";
 import {
   useCashRoles,
   useCashSession,
@@ -48,12 +50,12 @@ export default function CloseCashSessionScreen() {
   const closeSession = useCloseCashSession();
 
   const [step, setStep] = useState<"count" | "note" | "done">("count");
-  const [counted, setCounted] = useState("");
+  const count = useCashCount();
   const [note, setNote] = useState("");
   const [result, setResult] = useState<Result | null>(null);
   const [confirmNoCount, setConfirmNoCount] = useState(false);
 
-  const countedValue = parseAmount(counted);
+  const countedValue = count.value;
   const pendingCount = session?.summary.pendingCount ?? 0;
   // Owner/admin already see it live; a cashier only after counting.
   const liveExpected = isManager ? session?.summary.expectedAmount : null;
@@ -65,7 +67,11 @@ export default function CloseCashSessionScreen() {
     setStep("done");
   };
 
-  const submit = (data: { countedAmount?: number; note?: string }) => {
+  const submit = (data: {
+    countedAmount?: number;
+    countedBreakdown?: CashCountLine[];
+    note?: string;
+  }) => {
     closeSession.mutate(
       { id: sessionId, ...data },
       {
@@ -120,6 +126,7 @@ export default function CloseCashSessionScreen() {
       <ScrollView
         contentContainerStyle={tw`px-4 pt-2 pb-10 gap-5`}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
         <ThemedText type="body2" style={tw`text-gray-500`}>
           {session?.account.name ?? ""}
@@ -136,14 +143,9 @@ export default function CloseCashSessionScreen() {
               </ThemedText>
             </ThemedView>
 
-            <TextInput
-              variant="outlined"
-              label={t("common:cashRegister.summary.counted")}
-              value={counted}
-              onChangeText={setCounted}
-              inputMode="decimal"
-              placeholder="0.00"
-              icon="banknote"
+            <CashCountField
+              count={count}
+              amountLabel={t("common:cashRegister.summary.counted")}
               autoFocus
             />
 
@@ -165,7 +167,12 @@ export default function CloseCashSessionScreen() {
             <Button
               label={t("common:cashRegister.close.confirmCount")}
               leftIcon="lock"
-              onPress={() => submit({ countedAmount: countedValue })}
+              onPress={() =>
+                submit({
+                  countedAmount: countedValue,
+                  countedBreakdown: count.breakdown,
+                })
+              }
               loading={closeSession.isPending}
               disabled={!(countedValue >= 0) || closeSession.isPending}
             />
@@ -206,6 +213,7 @@ export default function CloseCashSessionScreen() {
               onPress={() =>
                 submit({
                   countedAmount: result?.countedAmount ?? countedValue,
+                  countedBreakdown: count.breakdown,
                   note: note.trim(),
                 })
               }

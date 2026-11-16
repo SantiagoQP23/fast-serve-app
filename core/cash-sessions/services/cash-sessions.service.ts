@@ -1,6 +1,7 @@
 import { restaurantApi } from "@/core/api/restaurantApi";
 import { Transaction } from "@/core/transactions/models/transaction.model";
 import {
+  CashCountLine,
   CashRegister,
   CashSession,
   CashSessionDetail,
@@ -43,6 +44,7 @@ export class CashSessionsService {
   static async open(data: {
     accountId: number;
     openingAmount: number;
+    openingBreakdown?: CashCountLine[];
   }): Promise<CashSession> {
     const resp = await restaurantApi.post<CashSession>("/cash-sessions", data);
     return resp.data;
@@ -51,7 +53,11 @@ export class CashSessionsService {
   /** Leave `countedAmount` out to close without counting (owner/admin). */
   static async close(
     id: number,
-    data: { countedAmount?: number; note?: string },
+    data: {
+      countedAmount?: number;
+      countedBreakdown?: CashCountLine[];
+      note?: string;
+    },
   ): Promise<CashSession & { summary: CashSessionSummary }> {
     const resp = await restaurantApi.post<
       CashSession & { summary: CashSessionSummary }
