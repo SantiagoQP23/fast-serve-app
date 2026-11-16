@@ -24,8 +24,8 @@ importers:
         specifier: ^5.2.2
         version: 5.9.1(@sinclair/typebox@0.27.12)(react-hook-form@7.90.0(@types/react@19.2.18)(react@19.2.3))(zod@4.6.7)
       '@intenli/ui':
-        specifier: ^0.1.0
-        version: 0.1.0(1168ff0a1b550fffc55d86b270798ae0)
+        specifier: ^0.2.0
+        version: 0.2.0(1168ff0a1b550fffc55d86b270798ae0)
       '@react-native-async-storage/async-storage':
         specifier: 2.2.0
         version: 2.2.0(react-native@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.2.18)(react@19.2.3)(supports-color@8.1.1))
@@ -967,8 +967,8 @@ packages:
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
 
-  '@intenli/ui@0.1.0':
-    resolution: {integrity: sha512-cT0DckeoJbbyIq4kgwOi4YakcclnktXiKGaUsArvpJcq5nodMq5dgOX9Ay1wYmJ7d1MBuuuapL68mrFTdryySw==, tarball: https://npm.pkg.github.com/download/@intenli/ui/0.1.0/711f23e5aacd260cdbc30eb6c304ff4c3adb01a9}
+  '@intenli/ui@0.2.0':
+    resolution: {integrity: sha512-6rf+MORx3DyZwec0qQFI/amIwNXz1HGRj4XKPTYkxXeKr3YXpY1+5cEwrgeJmYZw90K5/PAeGDpajxXi5PP/hQ==, tarball: https://npm.pkg.github.com/download/@intenli/ui/0.2.0/2c5a65641b82c1d19aabb4e889e896b1135a0044}
     peerDependencies:
       '@expo/ui': ~57.0.0
       '@react-native-async-storage/async-storage': ^2.2.0
@@ -5972,7 +5972,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@intenli/ui@0.1.0(1168ff0a1b550fffc55d86b270798ae0)':
+  '@intenli/ui@0.2.0(1168ff0a1b550fffc55d86b270798ae0)':
     dependencies:
       '@expo-google-fonts/nunito': 0.4.2
       '@expo-google-fonts/plus-jakarta-sans': 0.4.2

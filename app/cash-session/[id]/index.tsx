@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { RefreshControl, ScrollView } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import dayjs from "dayjs";
+import { ActionGrid } from "@intenli/ui";
 
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency, formatDateTime } from "@/core/i18n/utils";
@@ -111,46 +112,34 @@ export default function CashSessionScreen() {
                     : ""
                 }`}
           </ThemedText>
-          {(canClose || isOpen) && (
-            <ThemedView style={tw`flex-row flex-wrap gap-3 mt-1`}>
-              {canClose && (
-                <Button
-                  label={t("common:cashRegister.closeRegister")}
-                  leftIcon="lock"
-                  shape="rounded"
-                  size="small"
-                  onPress={() =>
-                    router.push(`/cash-session/${session.id}/close`)
-                  }
-                />
-              )}
-              {isOpen && (isManager || isOpener) && (
-                <Button
-                  label={t("common:cashRegister.deposit.action")}
-                  leftIcon="arrow-down-to-line"
-                  variant="surface"
-                  shape="rounded"
-                  size="small"
-                  onPress={() =>
-                    movementSheetRef.current?.present("in", session.account.id)
-                  }
-                />
-              )}
-              {(isManager || isOpener) && (
-                <Button
-                  label={t("common:cashRegister.withdraw.action")}
-                  leftIcon="arrow-up-from-line"
-                  variant="surface"
-                  shape="rounded"
-                  size="small"
-                  onPress={() =>
-                    movementSheetRef.current?.present("out", session.account.id)
-                  }
-                />
-              )}
-            </ThemedView>
-          )}
         </ThemedView>
+
+        {canClose && (
+          <ActionGrid
+            columns={3}
+            items={[
+              {
+                icon: "lock",
+                label: t("common:cashRegister.closeRegister"),
+                onPress: () => router.push(`/cash-session/${session.id}/close`),
+              },
+              {
+                icon: "arrow-down-to-line",
+                label: t("common:cashRegister.deposit.action"),
+                variant: "outline",
+                onPress: () =>
+                  movementSheetRef.current?.present("in", session.account.id),
+              },
+              {
+                icon: "arrow-up-from-line",
+                label: t("common:cashRegister.withdraw.action"),
+                variant: "outline",
+                onPress: () =>
+                  movementSheetRef.current?.present("out", session.account.id),
+              },
+            ]}
+          />
+        )}
 
         {/* Totals */}
         <DetailCard style={tw`py-2`}>
