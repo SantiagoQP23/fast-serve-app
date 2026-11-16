@@ -237,6 +237,7 @@
     "title": "Registers",
     "register": "Register",
     "history": "Register closings",
+    "historyAction": "History",
     "open": "Open",
     "closed": "Closed",
     "openSince": "Open {{time}} · {{name}}",

@@ -17,7 +17,6 @@ import {
 } from "@/presentation/theme/components/detail-card";
 import Label from "@/presentation/theme/components/label";
 import Button from "@/presentation/theme/components/button";
-import Card from "@/presentation/theme/components/card";
 import Icon from "@/presentation/theme/components/icon";
 import { GroupedList } from "@/presentation/theme/components/grouped-list";
 import TransactionCard from "@/presentation/transactions/components/transaction-card";
@@ -229,8 +228,8 @@ export default function CashSessionScreen() {
         </DetailCard>
 
         {/* Movements */}
-        <Card>
-          <ThemedText type="h4" style={tw`mb-3`}>
+        <ThemedView style={tw`gap-3`}>
+          <ThemedText type="h4">
             {t("common:cashRegister.summary.movements")}
           </ThemedText>
           {session.transactions.length === 0 ? (
@@ -249,7 +248,7 @@ export default function CashSessionScreen() {
               )}
             />
           )}
-        </Card>
+        </ThemedView>
       </ScrollView>
 
       <WithdrawCashSheet ref={withdrawSheetRef} />

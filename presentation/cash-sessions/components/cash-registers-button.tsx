@@ -17,8 +17,6 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Label from "@/presentation/theme/components/label";
 import Button from "@/presentation/theme/components/button";
-import IconButton from "@/presentation/theme/components/icon-button";
-import OpenRegisterSheet, { OpenRegisterSheetRef } from "./open-register-sheet";
 import { useCashRegisters, useCashRoles } from "../hooks/useCashSessions";
 
 /** Forgotten registers: open over 18 hours reads "since yesterday". */
@@ -42,7 +40,7 @@ export const registerOpenText = (
 /**
  * Home header "Caja" button for the registers (owner, admin, cashier). A dot marks
  * an open register; tapping opens the "Cajas" sheet: each register with its
- * state (tap to open it or see its summary, where cash is withdrawn) and the
+ * state (tap to open it on its own screen or see its summary, where cash is withdrawn) and the
  * closings history.
  */
 export default function CashRegistersButton() {
@@ -51,7 +49,6 @@ export default function CashRegistersButton() {
   const { canRunRegisters, userId, isManager } = useCashRoles();
   const { registers } = useCashRegisters(canRunRegisters);
   const sheetRef = useRef<BottomSheetMethods>(null);
-  const openSheetRef = useRef<OpenRegisterSheetRef>(null);
 
   const anyOpen = registers.some((register) => !!register.session);
 
@@ -65,7 +62,10 @@ export default function CashRegistersButton() {
   const onPressRegister = (register: CashRegister) => {
     const session = register.session;
     if (!session) {
-      openSheetRef.current?.present(register);
+      goTo({
+        pathname: "/cash-session/open",
+        params: { accountIds: String(register.account.id) },
+      });
       return;
     }
     if (isManager || session.openedBy?.id === userId) {
@@ -98,10 +98,10 @@ export default function CashRegistersButton() {
         <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
           <ThemedView style={tw`flex-row items-center justify-between`}>
             <ThemedText type="h3">{t("common:cashRegister.title")}</ThemedText>
-            <IconButton
-              icon="history"
-              size={20}
-              accessibilityLabel={t("common:cashRegister.history")}
+            <Button
+              variant="text"
+              size="small"
+              label={t("common:cashRegister.historyAction")}
               onPress={() => goTo("/cash-session")}
             />
           </ThemedView>
@@ -157,12 +157,8 @@ export default function CashRegistersButton() {
               </ScrollView>
             </BottomSheetView>
           )}
-
         </BottomSheetView>
       </ThemedBottomSheetModal>
-
-      {/* Stacked over the Cajas sheet, as a sibling */}
-      <OpenRegisterSheet ref={openSheetRef} />
     </>
   );
 }

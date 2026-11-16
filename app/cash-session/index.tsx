@@ -4,7 +4,12 @@ import { useRouter } from "expo-router";
 import dayjs from "dayjs";
 
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatCurrency, formatDate, formatTime } from "@/core/i18n/utils";
+import {
+  formatCurrency,
+  formatDate,
+  formatTime,
+  groupByDay,
+} from "@/core/i18n/utils";
 import {
   CashSession,
   CashSessionStatus,
@@ -21,6 +26,7 @@ import Chip from "@/presentation/theme/components/chip";
 import Card from "@/presentation/theme/components/card";
 import Label from "@/presentation/theme/components/label";
 import Icon from "@/presentation/theme/components/icon";
+import DaySectionHeader from "@/presentation/inventory/components/day-section-header";
 import DifferenceLabel from "@/presentation/cash-sessions/components/difference-label";
 import { useCashSessionsHistory } from "@/presentation/cash-sessions/hooks/useCashSessions";
 
@@ -30,7 +36,16 @@ const RANGES = [
   DateRangeFilter.MONTH_TO_DATE,
 ] as const;
 
-/** "Cierres de caja": owner/admin see every register, cashiers their own. */
+/** Closing time; carries its date when the register closed on a later day. */
+const closedAtText = (session: CashSession) =>
+  dayjs(session.closedAt).isSame(session.openedAt, "day")
+    ? formatTime(session.closedAt!)
+    : `${formatDate(session.closedAt!)} ${formatTime(session.closedAt!)}`;
+
+/**
+ * "Cierres de caja", grouped by the day each register opened: owner/admin see
+ * every register, cashiers their own.
+ */
 export default function CashSessionsHistoryScreen() {
   const { t } = useTranslation(["common"]);
   const router = useRouter();
@@ -47,6 +62,10 @@ export default function CashSessionsHistoryScreen() {
   }, [range]);
 
   const { sessions, isLoading, refetch } = useCashSessionsHistory(filter);
+  const days = useMemo(
+    () => groupByDay(sessions, (session) => session.openedAt),
+    [sessions],
+  );
 
   const labels: Record<string, string> = {
     [DateRangeFilter.TODAY]: t("common:stats.dateRange.today"),
@@ -89,8 +108,8 @@ export default function CashSessionsHistoryScreen() {
           )}
         </ThemedView>
         <ThemedText type="small" style={tw`text-gray-500`}>
-          {`${formatDate(session.openedAt)} ${formatTime(session.openedAt)}${
-            session.closedAt ? ` – ${formatTime(session.closedAt)}` : ""
+          {`${formatTime(session.openedAt)}${
+            session.closedAt ? ` – ${closedAtText(session)}` : ""
           }${who ? ` · ${who}` : ""}`}
         </ThemedText>
         {!isOpen && (
@@ -131,7 +150,7 @@ export default function CashSessionsHistoryScreen() {
         </ThemedView>
       </ThemedView>
       <ScrollView
-        contentContainerStyle={tw`px-4 pb-10 gap-3`}
+        contentContainerStyle={tw`px-4 pb-10 gap-6`}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -147,7 +166,12 @@ export default function CashSessionsHistoryScreen() {
             </ThemedText>
           </ThemedView>
         ) : (
-          sessions.map(renderSession)
+          days.map(({ day, items }) => (
+            <ThemedView key={day} style={tw`gap-3 bg-transparent`}>
+              <DaySectionHeader day={day} />
+              {items.map(renderSession)}
+            </ThemedView>
+          ))
         )}
       </ScrollView>
     </ScreenLayout>

@@ -5,7 +5,7 @@ import * as Haptics from "expo-haptics";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import Button from "@/presentation/theme/components/button";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
@@ -39,9 +39,6 @@ import {
   useAllowedRegisters,
   useCashRoles,
 } from "@/presentation/cash-sessions/hooks/useCashSessions";
-import OpenRegisterSheet, {
-  OpenRegisterSheetRef,
-} from "@/presentation/cash-sessions/components/open-register-sheet";
 
 export default function AccountScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
@@ -140,7 +137,6 @@ export default function AccountScreen() {
     isCashMethod ? selectedPaymentMethod?.id : undefined,
   );
   const { isCashier } = useCashRoles();
-  const openRegisterSheetRef = useRef<OpenRegisterSheetRef>(null);
   const accounts: Account[] = useMemo(() => {
     if (!registerRule?.anyOpen) return methodAccounts;
     const registerIds = new Set(registerRule.linked.map((r) => r.account.id));
@@ -392,10 +388,14 @@ export default function AccountScreen() {
           <Card
             variant="outline"
             onPress={() =>
-              openRegisterSheetRef.current?.present(
-                closedRegisters.length === 1 ? closedRegisters[0] : undefined,
-                closedRegisters,
-              )
+              router.push({
+                pathname: "/cash-session/open",
+                params: {
+                  accountIds: closedRegisters
+                    .map((r) => r.account.id)
+                    .join(","),
+                },
+              })
             }
             style={tw`flex-row items-center gap-3`}
             accessibilityRole="button"
@@ -495,8 +495,6 @@ export default function AccountScreen() {
           loading={isLoading || isUploadingProof}
         />
       </ThemedView>
-
-      <OpenRegisterSheet ref={openRegisterSheetRef} />
 
       {/* Full-screen upload overlay */}
       {isUploadingProof && (

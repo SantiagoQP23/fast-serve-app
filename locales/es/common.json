@@ -237,6 +237,7 @@
     "title": "Cajas",
     "register": "Caja",
     "history": "Cierres de caja",
+    "historyAction": "Historial",
     "open": "Abierta",
     "closed": "Cerrada",
     "openSince": "Abierta {{time}} · {{name}}",

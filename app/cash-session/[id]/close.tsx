@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { ScrollView } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { toast } from "sonner-native";
 import * as Haptics from "expo-haptics";
 
@@ -22,6 +22,7 @@ import {
 } from "@/presentation/theme/components/detail-card";
 import DifferenceLabel from "@/presentation/cash-sessions/components/difference-label";
 import CashCountField from "@/presentation/cash-sessions/components/cash-count-field";
+import CashCountFooter from "@/presentation/cash-sessions/components/cash-count-footer";
 import { useCashCount } from "@/presentation/cash-sessions/hooks/useCashCount";
 import {
   useCashRoles,
@@ -43,6 +44,7 @@ type Result = {
 export default function CloseCashSessionScreen() {
   const { t } = useTranslation(["common", "errors"]);
   const router = useRouter();
+  const navigation = useNavigation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const sessionId = Number(id);
   const { session } = useCashSession(sessionId);
@@ -59,6 +61,24 @@ export default function CloseCashSessionScreen() {
   const pendingCount = session?.summary.pendingCount ?? 0;
   // Owner/admin already see it live; a cashier only after counting.
   const liveExpected = isManager ? session?.summary.expectedAmount : null;
+
+  // Owner/admin can skip the count, from the header while counting.
+  const canSkipCount = isManager && step === "count";
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: canSkipCount
+        ? () => (
+            <Button
+              label={t("common:cashRegister.close.closeWithoutCount")}
+              variant="text"
+              size="small"
+              onPress={() => setConfirmNoCount(true)}
+              disabled={closeSession.isPending}
+            />
+          )
+        : undefined,
+    });
+  }, [navigation, canSkipCount, closeSession.isPending, t]);
 
   const finish = (closed: Result) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -122,48 +142,107 @@ export default function CloseCashSessionScreen() {
   );
 
   return (
-    <ScreenLayout style={tw`flex-1`}>
-      <ScrollView
-        contentContainerStyle={tw`px-4 pt-2 pb-10 gap-5`}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <ThemedText type="body2" style={tw`text-gray-500`}>
-          {session?.account.name ?? ""}
-        </ThemedText>
+    <KeyboardAvoidingView
+      style={tw`flex-1`}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <ScreenLayout style={tw`flex-1`}>
+        <ScrollView
+          style={tw`flex-1`}
+          contentContainerStyle={tw`px-4 pt-2 pb-6 gap-5`}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <ThemedText type="body2" style={tw`text-gray-500`}>
+            {session?.account.name ?? ""}
+          </ThemedText>
+
+          {step === "count" && (
+            <>
+              <ThemedView style={tw`gap-1`}>
+                <ThemedText type="h2">
+                  {t("common:cashRegister.close.countTitle")}
+                </ThemedText>
+                <ThemedText type="body2" style={tw`text-gray-500`}>
+                  {t("common:cashRegister.close.countHint")}
+                </ThemedText>
+              </ThemedView>
+
+              <CashCountField
+                count={count}
+                amountLabel={t("common:cashRegister.summary.counted")}
+                autoFocus
+              />
+
+              {liveExpected != null && (
+                <ThemedText type="body2" style={tw`text-gray-500`}>
+                  {t("common:cashRegister.summary.expected")}:{" "}
+                  {formatCurrency(liveExpected)}
+                </ThemedText>
+              )}
+
+              {pendingCount > 0 && (
+                <ThemedText type="body2" style={tw`text-gray-500`}>
+                  {t("common:cashRegister.close.pendingWarning", {
+                    count: pendingCount,
+                  })}
+                </ThemedText>
+              )}
+            </>
+          )}
+
+          {step === "note" && (
+            <>
+              <ThemedView style={tw`gap-1`}>
+                <ThemedText type="h2">
+                  {t("common:cashRegister.close.noteTitle")}
+                </ThemedText>
+                <ThemedText type="body2" style={tw`text-gray-500`}>
+                  {t("common:cashRegister.close.noteHint")}
+                </ThemedText>
+              </ThemedView>
+              {resultCard}
+              <TextInput
+                variant="outlined"
+                label={t("common:cashRegister.summary.note")}
+                placeholder={t("common:cashRegister.close.notePlaceholder")}
+                value={note}
+                onChangeText={setNote}
+                maxLength={500}
+                multiline
+              />
+              <Button
+                label={t("common:cashRegister.close.closeWithNote")}
+                leftIcon="lock"
+                onPress={() =>
+                  submit({
+                    countedAmount: result?.countedAmount ?? countedValue,
+                    countedBreakdown: count.breakdown,
+                    note: note.trim(),
+                  })
+                }
+                loading={closeSession.isPending}
+                disabled={!note.trim() || closeSession.isPending}
+              />
+            </>
+          )}
+
+          {step === "done" && (
+            <>
+              <ThemedText type="h2">
+                {t("common:cashRegister.close.done")}
+              </ThemedText>
+              {resultCard}
+              <Button
+                label={t("common:actions.done")}
+                onPress={() => router.back()}
+              />
+            </>
+          )}
+        </ScrollView>
 
         {step === "count" && (
-          <>
-            <ThemedView style={tw`gap-1`}>
-              <ThemedText type="h2">
-                {t("common:cashRegister.close.countTitle")}
-              </ThemedText>
-              <ThemedText type="body2" style={tw`text-gray-500`}>
-                {t("common:cashRegister.close.countHint")}
-              </ThemedText>
-            </ThemedView>
-
-            <CashCountField
-              count={count}
-              amountLabel={t("common:cashRegister.summary.counted")}
-              autoFocus
-            />
-
-            {liveExpected != null && (
-              <ThemedText type="body2" style={tw`text-gray-500`}>
-                {t("common:cashRegister.summary.expected")}:{" "}
-                {formatCurrency(liveExpected)}
-              </ThemedText>
-            )}
-
-            {pendingCount > 0 && (
-              <ThemedText type="body2" style={tw`text-gray-500`}>
-                {t("common:cashRegister.close.pendingWarning", {
-                  count: pendingCount,
-                })}
-              </ThemedText>
-            )}
-
+          <CashCountFooter count={count}>
             <Button
               label={t("common:cashRegister.close.confirmCount")}
               leftIcon="lock"
@@ -176,66 +255,9 @@ export default function CloseCashSessionScreen() {
               loading={closeSession.isPending}
               disabled={!(countedValue >= 0) || closeSession.isPending}
             />
-            {isManager && (
-              <Button
-                label={t("common:cashRegister.close.closeWithoutCount")}
-                variant="text"
-                onPress={() => setConfirmNoCount(true)}
-                disabled={closeSession.isPending}
-              />
-            )}
-          </>
+          </CashCountFooter>
         )}
-
-        {step === "note" && (
-          <>
-            <ThemedView style={tw`gap-1`}>
-              <ThemedText type="h2">
-                {t("common:cashRegister.close.noteTitle")}
-              </ThemedText>
-              <ThemedText type="body2" style={tw`text-gray-500`}>
-                {t("common:cashRegister.close.noteHint")}
-              </ThemedText>
-            </ThemedView>
-            {resultCard}
-            <TextInput
-              variant="outlined"
-              label={t("common:cashRegister.summary.note")}
-              placeholder={t("common:cashRegister.close.notePlaceholder")}
-              value={note}
-              onChangeText={setNote}
-              maxLength={500}
-              multiline
-            />
-            <Button
-              label={t("common:cashRegister.close.closeWithNote")}
-              leftIcon="lock"
-              onPress={() =>
-                submit({
-                  countedAmount: result?.countedAmount ?? countedValue,
-                  countedBreakdown: count.breakdown,
-                  note: note.trim(),
-                })
-              }
-              loading={closeSession.isPending}
-              disabled={!note.trim() || closeSession.isPending}
-            />
-          </>
-        )}
-
-        {step === "done" && (
-          <>
-            <ThemedText type="h2">
-              {t("common:cashRegister.close.done")}
-            </ThemedText>
-            {resultCard}
-            <Button
-              label={t("common:actions.done")}
-              onPress={() => router.back()}
-            />
-          </>
-        )}
-      </ScrollView>
+      </ScreenLayout>
 
       <DialogModal
         visible={confirmNoCount}
@@ -248,6 +270,6 @@ export default function CloseCashSessionScreen() {
         }}
         onCancel={() => setConfirmNoCount(false)}
       />
-    </ScreenLayout>
+    </KeyboardAvoidingView>
   );
 }

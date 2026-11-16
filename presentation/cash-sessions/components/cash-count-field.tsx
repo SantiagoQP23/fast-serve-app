@@ -10,7 +10,6 @@ interface CashCountFieldProps {
   count: CashCountState;
   /** Label of the single total field. */
   amountLabel: string;
-  bottomSheet?: boolean;
   autoFocus?: boolean;
 }
 
@@ -18,7 +17,6 @@ interface CashCountFieldProps {
 export default function CashCountField({
   count,
   amountLabel,
-  bottomSheet,
   autoFocus,
 }: CashCountFieldProps) {
   const { t } = useTranslation(["common"]);
@@ -38,13 +36,10 @@ export default function CashCountField({
         <CashCounter
           quantities={count.quantities}
           onChangeQuantity={count.setQuantity}
-          total={count.total}
-          bottomSheet={bottomSheet}
           autoFocus={autoFocus}
         />
       ) : (
         <TextInput
-          bottomSheet={bottomSheet}
           variant="outlined"
           label={amountLabel}
           value={count.amount}

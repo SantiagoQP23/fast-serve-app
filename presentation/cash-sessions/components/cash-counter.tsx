@@ -1,9 +1,5 @@
 import { useState } from "react";
 import { TextInput, type TextInputProps } from "react-native";
-import {
-  BottomSheetScrollView,
-  BottomSheetTextInput,
-} from "@expo/ui/community/bottom-sheet";
 
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -21,22 +17,15 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 interface CashCounterProps {
   quantities: CashCountQuantities;
   onChangeQuantity: (value: number, text: string) => void;
-  total: number;
-  /** Inside a bottom sheet, so inputs stay above the keyboard. */
-  bottomSheet?: boolean;
   autoFocus?: boolean;
 }
 
 /** Quantity field with only a bottom line, thicker while focused. */
-function QuantityInput({
-  bottomSheet,
-  ...props
-}: TextInputProps & { bottomSheet?: boolean }) {
+function QuantityInput(props: TextInputProps) {
   const [isFocused, setIsFocused] = useState(false);
-  const Input = bottomSheet ? BottomSheetTextInput : TextInput;
 
   return (
-    <Input
+    <TextInput
       {...props}
       onFocus={(e: any) => {
         setIsFocused(true);
@@ -68,16 +57,31 @@ function QuantityInput({
   );
 }
 
-/** One row per bill or coin: value × quantity = subtotal, total below. */
+/** Bold "Total" row of a count, docked in the screen's footer. */
+export function CashCountTotal({ total }: { total: number }) {
+  const { t } = useTranslation(["common"]);
+
+  return (
+    <ThemedView style={tw`flex-row items-center justify-between`}>
+      <ThemedText type="body1" style={{ fontFamily: typography.bold }}>
+        {t("common:cashRegister.count.total")}
+      </ThemedText>
+      <ThemedText type="h3" style={{ fontFamily: typography.bold }}>
+        {formatCurrency(total)}
+      </ThemedText>
+    </ThemedView>
+  );
+}
+
+/**
+ * One row per bill or coin: value × quantity = subtotal. The total lives
+ * outside, in `CashCountTotal`.
+ */
 export default function CashCounter({
   quantities,
   onChangeQuantity,
-  total,
-  bottomSheet,
   autoFocus,
 }: CashCounterProps) {
-  const { t } = useTranslation(["common"]);
-
   const rows = CASH_DENOMINATIONS.map((value, index) => {
     const subtotal = getCashCountSubtotal(value, quantities[value]);
     return (
@@ -90,7 +94,6 @@ export default function CashCounter({
         </ThemedText>
         <ThemedView style={tw`w-20`}>
           <QuantityInput
-            bottomSheet={bottomSheet}
             value={quantities[value] ?? ""}
             onChangeText={(text) => onChangeQuantity(value, text)}
             inputMode="numeric"
@@ -119,34 +122,5 @@ export default function CashCounter({
     );
   });
 
-  return (
-    <ThemedView style={tw`gap-2`}>
-      {bottomSheet ? (
-        // The sheet sizes to its content: cap the rows so Total and the
-        // sheet's button stay on screen.
-        <ThemedView style={tw`max-h-[45vh]`}>
-          <BottomSheetScrollView
-            contentContainerStyle={tw`gap-2`}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
-            {rows}
-          </BottomSheetScrollView>
-        </ThemedView>
-      ) : (
-        rows
-      )}
-
-      <ThemedView
-        style={tw`flex-row items-center justify-between border-t border-divider pt-3 mt-1`}
-      >
-        <ThemedText type="body1" style={{ fontFamily: typography.bold }}>
-          {t("common:cashRegister.count.total")}
-        </ThemedText>
-        <ThemedText type="h3" style={{ fontFamily: typography.bold }}>
-          {formatCurrency(total)}
-        </ThemedText>
-      </ThemedView>
-    </ThemedView>
-  );
+  return <ThemedView style={tw`gap-2`}>{rows}</ThemedView>;
 }
