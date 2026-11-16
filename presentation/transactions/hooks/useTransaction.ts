@@ -54,6 +54,9 @@ export const useApproveTransaction = () => {
       // Approving also settles the proof under review.
       queryClient.invalidateQueries({ queryKey: ["paymentProofs", id] });
       queryClient.invalidateQueries({ queryKey: ["pendingProofs"] });
+      // Withdrawals change their register's expected cash.
+      queryClient.invalidateQueries({ queryKey: ["cashSession"] });
+      queryClient.invalidateQueries({ queryKey: ["cashSessions"] });
     },
   });
 
@@ -77,6 +80,9 @@ export const useRejectTransaction = () => {
         queryKey: ["paymentProofs", variables.id],
       });
       queryClient.invalidateQueries({ queryKey: ["pendingProofs"] });
+      // Withdrawals change their register's expected cash.
+      queryClient.invalidateQueries({ queryKey: ["cashSession"] });
+      queryClient.invalidateQueries({ queryKey: ["cashSessions"] });
     },
   });
 

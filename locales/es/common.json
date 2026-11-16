@@ -50,7 +50,8 @@
     "increase": "Aumentar",
     "decrease": "Disminuir",
     "gotIt": "Entendido",
-    "more": "Más"
+    "more": "Más",
+    "retry": "Reintentar"
   },
   "status": {
     "pending": "Pendiente",
@@ -231,5 +232,87 @@
     "shakeDone": "Datos actualizados",
     "shakeOffline": "Sin conexión. Se sincronizará al volver la conexión",
     "shakeError": "No se pudo sincronizar"
+  },
+  "cashRegister": {
+    "title": "Cajas",
+    "register": "Caja",
+    "history": "Cierres de caja",
+    "open": "Abierta",
+    "closed": "Cerrada",
+    "openSince": "Abierta {{time}} · {{name}}",
+    "openSinceYesterday": "Abierta desde ayer · {{name}}",
+    "openRegister": "Abrir caja",
+    "closeRegister": "Cerrar caja",
+    "openAmount": "Efectivo inicial",
+    "openAmountHint": "Lo que hay en la caja al empezar.",
+    "lastCount": "Último cierre: {{amount}}",
+    "openedLess": "Abrió con {{amount}} menos que el último cierre",
+    "openedMore": "Abrió con {{amount}} más que el último cierre",
+    "pickRegister": "Elige la caja",
+    "opened": "{{register}} abierta",
+    "noRegisters": "No hay cajas. Vincula una cuenta de efectivo a un método de pago en efectivo.",
+    "notYours": "Esta caja la abrió otra persona",
+    "summary": {
+      "opening": "Efectivo inicial",
+      "income": "Cobros en efectivo",
+      "out": "Retiros",
+      "pending": "Retiros por aprobar",
+      "expected": "Efectivo esperado",
+      "expectedHidden": "Se muestra al cerrar",
+      "counted": "Efectivo contado",
+      "difference": "Diferencia",
+      "balanced": "Cuadrada",
+      "over": "Sobrante {{amount}}",
+      "short": "Faltante {{amount}}",
+      "notCounted": "Sin contar",
+      "adjusted": "Ajustada después del cierre",
+      "note": "Nota",
+      "openedBy": "Abrió",
+      "closedBy": "Cerró",
+      "movements": "Movimientos",
+      "noMovements": "Aún no hay movimientos en esta caja."
+    },
+    "close": {
+      "countTitle": "Cuenta el efectivo",
+      "countHint": "Escribe cuánto efectivo hay en la caja ahora.",
+      "confirmCount": "Confirmar conteo",
+      "noteTitle": "El conteo no cuadra",
+      "noteHint": "Explica la diferencia para cerrar la caja.",
+      "notePlaceholder": "Ej.: se dio cambio de más",
+      "closeWithNote": "Cerrar con nota",
+      "closeWithoutCount": "Cerrar sin contar",
+      "closeWithoutCountMessage": "La caja se cerrará sin registrar el efectivo contado.",
+      "done": "Caja cerrada",
+      "pendingWarning": "{{count}} retiro por aprobar: ya cuenta como efectivo que salió.",
+      "pendingWarning_other": "{{count}} retiros por aprobar: ya cuentan como efectivo que salió."
+    },
+    "withdraw": {
+      "action": "Retirar efectivo",
+      "title": "Retirar efectivo",
+      "amount": "Monto",
+      "reason": "Motivo",
+      "reasonPlaceholder": "¿A dónde va el efectivo?",
+      "reasons": {
+        "safe": "A caja fuerte",
+        "bank": "Depósito al banco",
+        "owner": "Entregado al dueño"
+      },
+      "needsApproval": "Un administrador debe aprobar este retiro.",
+      "submit": "Retirar {{amount}}",
+      "requested": "Retiro enviado para aprobación",
+      "done": "Retiro registrado",
+      "reasonRequired": "Escribe el motivo",
+      "amountRequired": "Escribe un monto mayor que 0",
+      "approveTitle": "Aprobar retiro",
+      "approveMessage": "Confirma que se retiraron {{amount}} de {{account}}: {{reason}}.",
+      "approved": "Retiro aprobado"
+    },
+    "pay": {
+      "noneOpen": "Ninguna caja abierta: este cobro no entra en ningún cierre.",
+      "openToCharge": "Abrir una caja para cobrar en efectivo",
+      "onlyYours": "Solo puedes cobrar en las cajas que abriste.",
+      "onlyOpen": "Solo se muestran las cajas abiertas."
+    },
+    "withdrawalLabel": "Retiro de efectivo"
   }
 }

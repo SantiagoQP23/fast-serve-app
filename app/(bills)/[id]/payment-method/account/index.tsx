@@ -5,7 +5,7 @@ import * as Haptics from "expo-haptics";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import Button from "@/presentation/theme/components/button";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
@@ -35,6 +35,13 @@ import {
 } from "@/core/orders/utils/bill-payment.util";
 import BillLoadState from "@/presentation/orders/components/bill-load-state";
 import { getPaymentMethodIcon } from "@/presentation/orders/components/payment-method-card";
+import {
+  useAllowedRegisters,
+  useCashRoles,
+} from "@/presentation/cash-sessions/hooks/useCashSessions";
+import OpenRegisterSheet, {
+  OpenRegisterSheetRef,
+} from "@/presentation/cash-sessions/components/open-register-sheet";
 
 export default function AccountScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
@@ -118,8 +125,39 @@ export default function AccountScreen() {
   const liveMethod = usePaymentMethodsStore((state) =>
     state.paymentMethods.find((m) => m.id === selectedPaymentMethod?.id),
   );
-  const accounts: Account[] =
-    (liveMethod ?? selectedPaymentMethod)?.allowedDestinationAccounts ?? [];
+  const methodAccounts: Account[] = useMemo(
+    () =>
+      (liveMethod ?? selectedPaymentMethod)?.allowedDestinationAccounts ?? [],
+    [liveMethod, selectedPaymentMethod],
+  );
+
+  // Register rule (plans/apertura-cierre-caja.md, 7–9): while any of this
+  // cash method's registers is open, only open ones are offered, and a
+  // cashier only gets the ones they opened. The server checks it too.
+  const isCashMethod =
+    selectedPaymentMethod?.type === PaymentMethodCategory.CASH;
+  const { rule: registerRule, refetch: refetchRegisters } = useAllowedRegisters(
+    isCashMethod ? selectedPaymentMethod?.id : undefined,
+  );
+  const { isCashier } = useCashRoles();
+  const openRegisterSheetRef = useRef<OpenRegisterSheetRef>(null);
+  const accounts: Account[] = useMemo(() => {
+    if (!registerRule?.anyOpen) return methodAccounts;
+    const registerIds = new Set(registerRule.linked.map((r) => r.account.id));
+    const allowedIds = new Set(registerRule.allowed.map((r) => r.account.id));
+    return methodAccounts.filter(
+      (a) => !registerIds.has(a.id) || allowedIds.has(a.id),
+    );
+  }, [methodAccounts, registerRule]);
+  const closedRegisters = registerRule?.linked.filter((r) => !r.session) ?? [];
+  const needsOwnRegister =
+    !!registerRule?.anyOpen && registerRule.allowed.length === 0;
+
+  useFocusEffect(
+    useCallback(() => {
+      if (isCashMethod) refetchRegisters();
+    }, [isCashMethod, refetchRegisters]),
+  );
 
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
     null,
@@ -133,6 +171,19 @@ export default function AccountScreen() {
       setSelectedAccountId(accounts[0].id);
     }
   }, []);
+
+  // A register that just closed (or isn't the cashier's) drops out of the
+  // list: move the selection to one that's still offered.
+  useEffect(() => {
+    if (!registerRule) return;
+    if (selectedAccountId && accounts.some((a) => a.id === selectedAccountId))
+      return;
+    const preferred =
+      accounts.find(
+        (a) => a.id === selectedPaymentMethod?.defaultDestinationAccount?.id,
+      ) ?? accounts[0];
+    setSelectedAccountId(preferred?.id ?? null);
+  }, [accounts, registerRule]);
 
   if (!bill || !selectedPaymentMethod) {
     return (
@@ -268,6 +319,8 @@ export default function AccountScreen() {
         },
         onError: (resp) => {
           toast.error(resp.msg || t("errors:general.error"));
+          // A register may have closed meanwhile.
+          if (isCashMethod) refetchRegisters();
         },
       },
     );
@@ -319,6 +372,15 @@ export default function AccountScreen() {
         <ThemedText type="body2" style={tw`text-gray-500 mb-3`}>
           {t("bills:account.destinationAccount")}
         </ThemedText>
+        {registerRule && (
+          <ThemedText type="small" style={tw`text-gray-500 mb-3`}>
+            {!registerRule.anyOpen
+              ? t("common:cashRegister.pay.noneOpen")
+              : isCashier
+                ? t("common:cashRegister.pay.onlyYours")
+                : t("common:cashRegister.pay.onlyOpen")}
+          </ThemedText>
+        )}
       </ThemedView>
 
       <ScrollView
@@ -326,6 +388,25 @@ export default function AccountScreen() {
         contentContainerStyle={tw`px-4 pb-4 gap-3`}
         showsVerticalScrollIndicator={false}
       >
+        {needsOwnRegister && closedRegisters.length > 0 && (
+          <Card
+            variant="outline"
+            onPress={() =>
+              openRegisterSheetRef.current?.present(
+                closedRegisters.length === 1 ? closedRegisters[0] : undefined,
+                closedRegisters,
+              )
+            }
+            style={tw`flex-row items-center gap-3`}
+            accessibilityRole="button"
+          >
+            <Icon name="lock-open" size={20} color={tw.color("gray-700")} />
+            <ThemedText type="body1" style={tw`flex-1`}>
+              {t("common:cashRegister.pay.openToCharge")}
+            </ThemedText>
+            <Icon name="chevron-right" size={20} color={tw.color("gray-400")} />
+          </Card>
+        )}
         {accounts.length === 0 ? (
           <ThemedView style={tw`items-center py-8 gap-2`}>
             <Icon name="wallet" size={40} color={tw.color("gray-400")} />
@@ -414,6 +495,8 @@ export default function AccountScreen() {
           loading={isLoading || isUploadingProof}
         />
       </ThemedView>
+
+      <OpenRegisterSheet ref={openRegisterSheetRef} />
 
       {/* Full-screen upload overlay */}
       {isUploadingProof && (

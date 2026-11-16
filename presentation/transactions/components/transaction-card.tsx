@@ -4,7 +4,10 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import Icon from "@/presentation/theme/components/icon";
-import { Transaction } from "@/core/transactions/models/transaction.model";
+import {
+  Transaction,
+  isCashWithdrawal,
+} from "@/core/transactions/models/transaction.model";
 import { formatCurrency, getRelativeTime } from "@/core/i18n/utils";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import IconButton from "@/presentation/theme/components/icon-button";
@@ -58,9 +61,14 @@ export default function TransactionCard({
     new Date().getTime() - new Date(transaction.createdAt).getTime() <
       60 * 60 * 1000;
 
+  // Cash out of a register: shown with a minus, never as income.
+  const isWithdrawal = isCashWithdrawal(transaction);
+
   const amountLabelColor: LabelProps["color"] =
     transaction.status === TransactionStatus.COMPLETED
-      ? "success"
+      ? isWithdrawal
+        ? "default"
+        : "success"
       : transaction.status === TransactionStatus.PENDING_PROOF ||
           transaction.status === TransactionStatus.PENDING_APPROVAL
         ? "warning"
@@ -79,7 +87,10 @@ export default function TransactionCard({
           ? t("common:status.cancelled")
           : null;
 
-  const methodAndAccount = [transaction.account?.name]
+  const methodAndAccount = [
+    isWithdrawal ? t("common:cashRegister.withdrawalLabel") : null,
+    transaction.account?.name,
+  ]
     .filter(Boolean)
     .join(" · ");
 
@@ -113,9 +124,11 @@ export default function TransactionCard({
               <ThemedView style={tw`w-10 h-10 items-center justify-center`}>
                 <Icon
                   name={
-                    transaction.paymentMethod
-                      ? getPaymentMethodIcon(transaction.paymentMethod.type)
-                      : "circle-dollar-sign"
+                    isWithdrawal
+                      ? "arrow-up-from-line"
+                      : transaction.paymentMethod
+                        ? getPaymentMethodIcon(transaction.paymentMethod.type)
+                        : "circle-dollar-sign"
                   }
                   size={24}
                   color={tw.color("gray-600")}
@@ -142,7 +155,11 @@ export default function TransactionCard({
               </ThemedView>
               <Label
                 color={amountLabelColor}
-                text={formatCurrency(transaction.amount)}
+                text={
+                  isWithdrawal
+                    ? `−${formatCurrency(transaction.amount)}`
+                    : formatCurrency(transaction.amount)
+                }
               />
             </ThemedView>
           </ThemedView>

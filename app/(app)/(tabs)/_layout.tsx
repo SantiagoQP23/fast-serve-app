@@ -1,4 +1,5 @@
 import { useShakeToSync } from "@/presentation/sync/hooks/useShakeToSync";
+import { useCashSessionsRealtime } from "@/presentation/cash-sessions/hooks/useCashSessions";
 import { Redirect, Tabs, useNavigation, useRouter } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 
@@ -134,6 +135,8 @@ export default function TabLayout() {
   // useOrderDeletedListener();
   useSync();
   useSyncEventListener();
+  // Registers open/close on other devices (pay flow, Ingresos).
+  useCashSessionsRealtime();
   useRevalidateOfflineSession();
   useOutboxRunner();
   useShakeToSync();

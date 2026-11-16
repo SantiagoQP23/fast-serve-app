@@ -188,6 +188,12 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen
+              name="cash-session"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
               name="(bills)"
               options={{
                 headerShown: false,

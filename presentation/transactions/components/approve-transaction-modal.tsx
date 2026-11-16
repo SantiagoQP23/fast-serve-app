@@ -1,7 +1,10 @@
 import { toast } from "sonner-native";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { useTranslation } from "react-i18next";
-import { Transaction } from "@/core/transactions/models/transaction.model";
+import {
+  Transaction,
+  isCashWithdrawal,
+} from "@/core/transactions/models/transaction.model";
 import { formatCurrency } from "@/core/i18n/utils";
 import { getErrorMessage } from "@/core/api/get-error-message";
 import { useApproveTransaction } from "../hooks/useTransaction";
@@ -21,6 +24,7 @@ export default function ApproveTransactionModal({
 }: ApproveTransactionModalProps) {
   const { t } = useTranslation(["common", "bills"]);
   const { approveTransaction, isLoading } = useApproveTransaction();
+  const isWithdrawal = isCashWithdrawal(transaction ?? undefined);
 
   const handleConfirm = () => {
     if (!transaction) return;
@@ -28,7 +32,11 @@ export default function ApproveTransactionModal({
     approveTransaction(transaction.id, {
       onSuccess: () => {
         onClose();
-        toast.success(t("bills:proofUpload.autoApproved"));
+        toast.success(
+          isWithdrawal
+            ? t("common:cashRegister.withdraw.approved")
+            : t("bills:proofUpload.autoApproved"),
+        );
         onApproved?.();
       },
       onError: (error) => {
@@ -48,11 +56,23 @@ export default function ApproveTransactionModal({
   return (
     <DialogModal
       visible={visible}
-      title={t("bills:proofUpload.approveTitle")}
-      message={t("bills:proofUpload.approveMessage", {
-        amount: transaction ? formatCurrency(transaction.amount) : "",
-        account,
-      })}
+      title={
+        isWithdrawal
+          ? t("common:cashRegister.withdraw.approveTitle")
+          : t("bills:proofUpload.approveTitle")
+      }
+      message={
+        isWithdrawal
+          ? t("common:cashRegister.withdraw.approveMessage", {
+              amount: transaction ? formatCurrency(transaction.amount) : "",
+              account,
+              reason: transaction?.name ?? "",
+            })
+          : t("bills:proofUpload.approveMessage", {
+              amount: transaction ? formatCurrency(transaction.amount) : "",
+              account,
+            })
+      }
       confirmLabel={t("common:actions.approve")}
       onConfirm={handleConfirm}
       onCancel={onClose}

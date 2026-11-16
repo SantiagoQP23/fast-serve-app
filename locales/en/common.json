@@ -50,7 +50,8 @@
     "increase": "Increase",
     "decrease": "Decrease",
     "gotIt": "Got it",
-    "more": "More"
+    "more": "More",
+    "retry": "Retry"
   },
   "status": {
     "pending": "Pending",
@@ -231,5 +232,87 @@
     "shakeDone": "Data updated",
     "shakeOffline": "No connection. It will sync when the connection is back",
     "shakeError": "Couldn't sync"
+  },
+  "cashRegister": {
+    "title": "Registers",
+    "register": "Register",
+    "history": "Register closings",
+    "open": "Open",
+    "closed": "Closed",
+    "openSince": "Open {{time}} · {{name}}",
+    "openSinceYesterday": "Open since yesterday · {{name}}",
+    "openRegister": "Open register",
+    "closeRegister": "Close register",
+    "openAmount": "Starting cash",
+    "openAmountHint": "What's in the drawer when you start.",
+    "lastCount": "Last close: {{amount}}",
+    "openedLess": "Opened with {{amount}} less than the last close",
+    "openedMore": "Opened with {{amount}} more than the last close",
+    "pickRegister": "Pick the register",
+    "opened": "{{register}} open",
+    "noRegisters": "No registers yet. Link a cash account to a cash payment method.",
+    "notYours": "Someone else opened this register",
+    "summary": {
+      "opening": "Starting cash",
+      "income": "Cash payments",
+      "out": "Withdrawals",
+      "pending": "Withdrawals to approve",
+      "expected": "Expected cash",
+      "expectedHidden": "Shown when you close",
+      "counted": "Counted cash",
+      "difference": "Difference",
+      "balanced": "Balanced",
+      "over": "Over {{amount}}",
+      "short": "Short {{amount}}",
+      "notCounted": "Not counted",
+      "adjusted": "Adjusted after closing",
+      "note": "Note",
+      "openedBy": "Opened by",
+      "closedBy": "Closed by",
+      "movements": "Movements",
+      "noMovements": "No movements in this register yet."
+    },
+    "close": {
+      "countTitle": "Count the cash",
+      "countHint": "Type how much cash is in the drawer now.",
+      "confirmCount": "Confirm count",
+      "noteTitle": "The count doesn't match",
+      "noteHint": "Explain the difference to close the register.",
+      "notePlaceholder": "E.g. gave too much change",
+      "closeWithNote": "Close with note",
+      "closeWithoutCount": "Close without counting",
+      "closeWithoutCountMessage": "The register will close without recording the counted cash.",
+      "done": "Register closed",
+      "pendingWarning": "{{count}} withdrawal to approve: it already counts as cash that left.",
+      "pendingWarning_other": "{{count}} withdrawals to approve: they already count as cash that left."
+    },
+    "withdraw": {
+      "action": "Withdraw cash",
+      "title": "Withdraw cash",
+      "amount": "Amount",
+      "reason": "Reason",
+      "reasonPlaceholder": "Where is the cash going?",
+      "reasons": {
+        "safe": "To the safe",
+        "bank": "Bank deposit",
+        "owner": "Handed to the owner"
+      },
+      "needsApproval": "An admin has to approve this withdrawal.",
+      "submit": "Withdraw {{amount}}",
+      "requested": "Withdrawal sent for approval",
+      "done": "Withdrawal recorded",
+      "reasonRequired": "Type a reason",
+      "amountRequired": "Type an amount above 0",
+      "approveTitle": "Approve withdrawal",
+      "approveMessage": "Confirm that {{amount}} left {{account}}: {{reason}}.",
+      "approved": "Withdrawal approved"
+    },
+    "pay": {
+      "noneOpen": "No register is open: this payment won't be in any closing.",
+      "openToCharge": "Open a register to charge cash",
+      "onlyYours": "You can only charge into registers you opened.",
+      "onlyOpen": "Only open registers are shown."
+    },
+    "withdrawalLabel": "Cash withdrawal"
   }
 }
