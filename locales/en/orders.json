@@ -307,6 +307,14 @@
     "notPrinted": "Not printed",
     "typeCancel": "CANCEL"
   },
+  "pendingStatus": {
+    "unprinted_one": "{{count}} to print",
+    "unprinted_other": "{{count}} to print",
+    "unsynced_one": "{{count}} not synced",
+    "unsynced_other": "{{count}} not synced",
+    "failed_one": "{{count}} failed to sync",
+    "failed_other": "{{count}} failed to sync"
+  },
   "unprintedTickets": {
     "title": "Tickets to print",
     "empty": "No tickets waiting to be printed",

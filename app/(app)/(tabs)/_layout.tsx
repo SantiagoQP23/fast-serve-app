@@ -1,16 +1,15 @@
 import { useShakeToSync } from "@/presentation/sync/hooks/useShakeToSync";
 import { useCashSessionsRealtime } from "@/presentation/cash-sessions/hooks/useCashSessions";
-import { Redirect, Tabs, useNavigation, useRouter } from "expo-router";
+import { Redirect, Tabs, useNavigation } from "expo-router";
 import Icon from "@/presentation/theme/components/icon";
 
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import {
   ActivityIndicator,
   ColorValue,
   Pressable,
-  View,
   useWindowDimensions,
 } from "react-native";
 import {
@@ -23,63 +22,19 @@ import { useSync } from "@/presentation/sync/hooks/useSync";
 import { useSyncEventListener } from "@/presentation/sync/hooks/useSyncEventListener";
 import { useRevalidateOfflineSession } from "@/presentation/auth/hooks/useRevalidateOfflineSession";
 import { useOutboxRunner } from "@/presentation/offline/hooks/useOutboxRunner";
-import { useOutboxCounts } from "@/presentation/offline/hooks/useOrderSyncState";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import IconButton from "@/presentation/theme/components/icon-button";
 import tw from "@/presentation/theme/lib/tailwind";
-import useOrdersModuleContext from "./(orders-module)/orders-module.context";
-import NotificationBadge from "@/presentation/theme/components/notification-badge";
 import { ROUTES } from "@/constants/routes";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
-import { useUnprintedTickets } from "@/presentation/orders/hooks/useUnprintedTickets";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 import { usePalette } from "@/presentation/theme/store/useThemeStore";
 import CashRegistersButton from "@/presentation/cash-sessions/components/cash-registers-button";
 
-// The draft order/sale shows as a section on Home (DraftOrderSection)
+// The draft order/sale shows as a section on Home (DraftOrderSection);
+// unprinted tickets and unsynced changes as pills under the tabs
+// (PendingStatusRow)
 export function MyOrdersHeaderRight() {
-  const router = useRouter();
-  const unprintedTicketsCount = useUnprintedTickets().length;
-  const restaurantId = useAuthStore((state) => state.currentRestaurant?.id);
-  const unsynced = useOutboxCounts(restaurantId);
-  const { openViewPopover } = useOrdersModuleContext();
-  const moreButtonRef = useRef<View>(null);
-
-  const handleMorePress = () => {
-    moreButtonRef.current?.measure((_x, _y, width, height, pageX, pageY) => {
-      openViewPopover({ x: pageX, y: pageY, width, height });
-    });
-  };
-
-  return (
-    <View style={tw`flex-row items-center gap-4 mr-2`}>
-      {unprintedTicketsCount > 0 && (
-        <ThemedView style={tw``}>
-          <IconButton
-            icon="printer"
-            onPress={() => router.push("/(order)/unprinted-tickets")}
-          />
-          <NotificationBadge value={unprintedTicketsCount} />
-        </ThemedView>
-      )}
-      {unsynced.total > 0 && (
-        <ThemedView style={tw``}>
-          <IconButton
-            icon={unsynced.failed > 0 ? "circle-alert" : "cloud-upload"}
-            onPress={() => router.push("/(order)/pending-changes")}
-          />
-          <NotificationBadge
-            value={unsynced.total}
-            style={unsynced.failed > 0 ? "bg-red-500" : ""}
-          />
-        </ThemedView>
-      )}
-      <CashRegistersButton />
-      {/* <View ref={moreButtonRef} collapsable={false}> */}
-      {/*   <IconButton icon="ellipsis-vertical" onPress={handleMorePress} /> */}
-      {/* </View> */}
-    </View>
-  );
+  return <CashRegistersButton />;
 }
 
 // Bottom tab bar sizing. The bar sets its own height (instead of the default

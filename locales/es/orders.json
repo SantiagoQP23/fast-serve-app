@@ -308,6 +308,14 @@
     "notPrinted": "Sin imprimir",
     "typeCancel": "CANCELAR"
   },
+  "pendingStatus": {
+    "unprinted_one": "{{count}} por imprimir",
+    "unprinted_other": "{{count}} por imprimir",
+    "unsynced_one": "{{count}} sin sincronizar",
+    "unsynced_other": "{{count}} sin sincronizar",
+    "failed_one": "{{count}} con error",
+    "failed_other": "{{count}} con error"
+  },
   "unprintedTickets": {
     "title": "Tickets por imprimir",
     "empty": "No hay tickets pendientes de imprimir",

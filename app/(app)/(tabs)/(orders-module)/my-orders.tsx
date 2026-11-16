@@ -53,6 +53,7 @@ import OrderDetailView from "@/presentation/orders/components/order-detail-view"
 import BillDetailView from "@/presentation/orders/components/bill-detail-view";
 import ClosePaidOrdersButton from "@/presentation/orders/components/close-paid-orders-button";
 import DraftOrderSection from "@/presentation/orders/components/draft-order-section";
+import PendingStatusRow from "@/presentation/orders/components/pending-status-row";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 
 const ORDERS_LIST_PANE_WIDTH = 440;
@@ -326,6 +327,7 @@ export default function MyOrdersScreen() {
           <MyOrdersHeaderRight />
         </ThemedView>
       </ThemedView>
+      <PendingStatusRow />
 
       {/* Tab content; drag left/right to switch Pedidos / Ventas */}
       <TabPager
