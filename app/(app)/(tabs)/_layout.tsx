@@ -34,6 +34,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { useUnprintedTickets } from "@/presentation/orders/hooks/useUnprintedTickets";
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 import { usePalette } from "@/presentation/theme/store/useThemeStore";
+import CashRegistersButton from "@/presentation/cash-sessions/components/cash-registers-button";
 
 // The draft order/sale shows as a section on Home (DraftOrderSection)
 export function MyOrdersHeaderRight() {
@@ -73,6 +74,7 @@ export function MyOrdersHeaderRight() {
           />
         </ThemedView>
       )}
+      <CashRegistersButton />
       {/* <View ref={moreButtonRef} collapsable={false}> */}
       {/*   <IconButton icon="ellipsis-vertical" onPress={handleMorePress} /> */}
       {/* </View> */}

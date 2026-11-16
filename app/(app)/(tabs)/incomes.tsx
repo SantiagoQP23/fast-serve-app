@@ -46,8 +46,6 @@ import WaiterSummaryCard from "@/presentation/reports/components/waiter-summary-
 import Label from "@/presentation/theme/components/label";
 import CustomDateRangeBottomSheet from "@/presentation/orders/components/custom-date-range-bottom-sheet";
 import type { AccountReportItem } from "@/core/transactions/dto/payment-method-report-response.dto";
-import CashRegistersSection from "@/presentation/cash-sessions/components/cash-registers-section";
-import { useCashRoles } from "@/presentation/cash-sessions/hooks/useCashSessions";
 
 const DATE_RANGE_STORAGE_KEY = "incomes_date_range";
 const FILTERS_STORAGE_KEY = "incomes_filters";
@@ -81,7 +79,6 @@ export default function IncomesScreen() {
   const { user } = useAuthStore();
   const { users } = useUsers();
   const isAdmin = isAdminLevelRole(user?.role?.name);
-  const { canRunRegisters } = useCashRoles();
   const availableWaiters = useMemo(() => {
     const filteredUsers = isAdmin
       ? users.filter((u) => u.isActive)
@@ -366,7 +363,6 @@ export default function IncomesScreen() {
             { startDate, endDate },
           ],
         }),
-        queryClient.invalidateQueries({ queryKey: ["cashRegisters"] }),
         queryClient.refetchQueries({
           queryKey: [
             "transactionPaymentMethodReport",
@@ -479,9 +475,6 @@ export default function IncomesScreen() {
           />
         }
       >
-        {/* Registers: open/close, withdrawals, closings history */}
-        {canRunRegisters && <CashRegistersSection />}
-
         {/* Amount Summary */}
         <AmountSummaryHeader
           totalAmount={dashboardStats?.totalAmount ?? 0}
