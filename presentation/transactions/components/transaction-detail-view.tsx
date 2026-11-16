@@ -41,7 +41,12 @@ import {
   type PaymentProof,
 } from "@/core/transactions/models/payment-proof.model";
 import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
-import { isCashWithdrawal } from "@/core/transactions/models/transaction.model";
+import {
+  isCashDeposit,
+  isCashWithdrawal,
+} from "@/core/transactions/models/transaction.model";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
+import { useCancelCashMovement } from "@/presentation/cash-sessions/hooks/useCashSessions";
 import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.model";
 import { usePaymentMethodsStore } from "@/presentation/restaurant/store/usePaymentMethodsStore";
 import * as ImagePicker from "expo-image-picker";
@@ -190,6 +195,39 @@ export default function TransactionDetailView({
     isWithdrawal &&
     isAdmin &&
     transaction?.status === TransactionStatus.PENDING_APPROVAL;
+  const isDeposit = isCashDeposit(transaction ?? undefined);
+
+  // Undo a deposit or withdrawal (plans/ingreso-efectivo-caja.md, 12): owner
+  // and admin always; whoever recorded it while its register is open, and a
+  // withdrawal only while it waits for approval. The server checks it too.
+  const cancelMovement = useCancelCashMovement();
+  const [confirmCancel, setConfirmCancel] = useState(false);
+  const isCancellableStatus =
+    transaction?.status === TransactionStatus.COMPLETED ||
+    transaction?.status === TransactionStatus.PENDING_APPROVAL;
+  const canCancelMovement =
+    (isWithdrawal || isDeposit) &&
+    isCancellableStatus &&
+    (isAdmin ||
+      (transaction?.createdBy?.id === user?.id &&
+        transaction?.cashSession?.status === "OPEN" &&
+        (isDeposit ||
+          transaction?.status === TransactionStatus.PENDING_APPROVAL)));
+
+  const handleCancelMovement = () => {
+    if (!transaction) return;
+    cancelMovement.mutate(transaction.id, {
+      onSuccess: () => {
+        setConfirmCancel(false);
+        toast.success(t("common:cashRegister.cancelMovement.done"));
+        refetch();
+      },
+      onError: (err) => {
+        setConfirmCancel(false);
+        toast.error(getErrorMessage(err));
+      },
+    });
+  };
 
   const canUploadProof =
     isTransfer &&
@@ -227,6 +265,7 @@ export default function TransactionDetailView({
   const canChangeAccount =
     canManage &&
     !isWithdrawal &&
+    !isDeposit &&
     transaction?.cashSession?.status !== "CLOSED" &&
     allowedAccounts.length > 0 &&
     !accountLockReason;
@@ -473,7 +512,8 @@ export default function TransactionDetailView({
     !!latestProof &&
     !selectedImage &&
     mainAction !== "upload";
-  const hasMoreActions = canRejectTransaction || canUploadAnother || !!bill;
+  const hasMoreActions =
+    canRejectTransaction || canUploadAnother || !!bill || canCancelMovement;
 
   const moreItems: ActionsBottomSheetItem[] = [
     ...(canRejectTransaction
@@ -502,6 +542,15 @@ export default function TransactionDetailView({
             icon: "receipt-text" as IconName,
             label: t("common:transactions.seeBill"),
             onPress: () => chooseMoreAction(openBill),
+          },
+        ]
+      : []),
+    ...(canCancelMovement
+      ? [
+          {
+            icon: "undo-2" as IconName,
+            label: t("common:cashRegister.cancelMovement.action"),
+            onPress: () => chooseMoreAction(() => setConfirmCancel(true)),
           },
         ]
       : []),
@@ -543,7 +592,9 @@ export default function TransactionDetailView({
           amount={
             isWithdrawal
               ? `−${formatCurrency(transaction.amount)}`
-              : formatCurrency(transaction.amount)
+              : isDeposit
+                ? `+${formatCurrency(transaction.amount)}`
+                : formatCurrency(transaction.amount)
           }
           title={transaction.name}
           subtitle={dayjs(transaction.createdAt).format(DATE_FORMAT)}
@@ -554,7 +605,9 @@ export default function TransactionDetailView({
             label: `${
               isWithdrawal
                 ? t("common:cashRegister.withdrawalLabel")
-                : transaction.paymentMethod.name
+                : isDeposit
+                  ? t("common:cashRegister.depositLabel")
+                  : transaction.paymentMethod.name
             }, ${statusText}`,
           }}
         >
@@ -1009,6 +1062,19 @@ export default function TransactionDetailView({
               })
             : ""
         }
+      />
+
+      <DialogModal
+        visible={confirmCancel}
+        title={t("common:cashRegister.cancelMovement.title")}
+        message={t("common:cashRegister.cancelMovement.message", {
+          amount: formatCurrency(transaction.amount),
+        })}
+        confirmLabel={t("common:cashRegister.cancelMovement.confirm")}
+        confirmVariant="destructive"
+        loading={cancelMovement.isPending}
+        onConfirm={handleCancelMovement}
+        onCancel={() => setConfirmCancel(false)}
       />
 
       <ThemedBottomSheetModal

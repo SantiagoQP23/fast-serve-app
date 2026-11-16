@@ -256,6 +256,7 @@
     "summary": {
       "opening": "Starting cash",
       "income": "Cash payments",
+      "added": "Added",
       "out": "Withdrawals",
       "pending": "Withdrawals to approve",
       "expected": "Expected cash",
@@ -285,7 +286,8 @@
       "closeWithoutCountMessage": "The register will close without recording the counted cash.",
       "done": "Register closed",
       "pendingWarning": "{{count}} withdrawal to approve: it already counts as cash that left.",
-      "pendingWarning_other": "{{count}} withdrawals to approve: they already count as cash that left."
+      "pendingWarning_other": "{{count}} withdrawals to approve: they already count as cash that left.",
+      "addedNote": "{{amount}} was added to this register."
     },
     "withdraw": {
       "action": "Withdraw cash",
@@ -308,6 +310,22 @@
       "approveMessage": "Confirm that {{amount}} left {{account}}: {{reason}}.",
       "approved": "Withdrawal approved"
     },
+    "deposit": {
+      "action": "Add cash",
+      "title": "Add cash",
+      "amount": "Amount",
+      "reason": "Reason",
+      "reasonPlaceholder": "Where is the cash coming from?",
+      "reasons": {
+        "change": "Change / small bills",
+        "owner": "From the owner",
+        "safe": "From the safe"
+      },
+      "submit": "Add {{amount}}",
+      "done": "Cash added",
+      "reasonRequired": "Type a reason",
+      "amountRequired": "Type an amount above 0"
+    },
     "pay": {
       "noneOpen": "No register is open: this payment won't be in any closing.",
       "openToCharge": "Open a register to charge cash",
@@ -315,12 +333,20 @@
       "onlyOpen": "Only open registers are shown."
     },
     "withdrawalLabel": "Cash withdrawal",
+    "depositLabel": "Cash added",
     "count": {
       "modeCount": "Count",
       "modeAmount": "Amount",
       "total": "Total",
       "openingTitle": "Opening count",
       "closingTitle": "Closing count"
+    },
+    "cancelMovement": {
+      "action": "Undo movement",
+      "title": "Undo movement",
+      "message": "{{amount}} will stop counting in this register.",
+      "confirm": "Undo",
+      "done": "Movement undone"
     }
   }
 }

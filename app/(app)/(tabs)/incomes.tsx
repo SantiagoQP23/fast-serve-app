@@ -304,7 +304,7 @@ export default function IncomesScreen() {
     startDate,
     endDate,
     ...filters,
-    excludeWithdrawals: true,
+    excludeCashMovements: true,
   });
 
   const openFilterBottomSheet = () => {
@@ -322,7 +322,7 @@ export default function IncomesScreen() {
           : {}),
         ...(filters.accountId ? { accountId: String(filters.accountId) } : {}),
         ...(filters.createdById ? { createdById: filters.createdById } : {}),
-        excludeWithdrawals: "true",
+        excludeCashMovements: "true",
       },
     });
   };

@@ -6,6 +6,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import Icon from "@/presentation/theme/components/icon";
 import {
   Transaction,
+  isCashDeposit,
   isCashWithdrawal,
 } from "@/core/transactions/models/transaction.model";
 import { formatCurrency, getRelativeTime } from "@/core/i18n/utils";
@@ -63,10 +64,12 @@ export default function TransactionCard({
 
   // Cash out of a register: shown with a minus, never as income.
   const isWithdrawal = isCashWithdrawal(transaction);
+  // Cash added to a register: a movement, not a sale.
+  const isDeposit = isCashDeposit(transaction);
 
   const amountLabelColor: LabelProps["color"] =
     transaction.status === TransactionStatus.COMPLETED
-      ? isWithdrawal
+      ? isWithdrawal || isDeposit
         ? "default"
         : "success"
       : transaction.status === TransactionStatus.PENDING_PROOF ||
@@ -88,7 +91,11 @@ export default function TransactionCard({
           : null;
 
   const methodAndAccount = [
-    isWithdrawal ? t("common:cashRegister.withdrawalLabel") : null,
+    isWithdrawal
+      ? t("common:cashRegister.withdrawalLabel")
+      : isDeposit
+        ? t("common:cashRegister.depositLabel")
+        : null,
     transaction.account?.name,
   ]
     .filter(Boolean)
@@ -126,9 +133,11 @@ export default function TransactionCard({
                   name={
                     isWithdrawal
                       ? "arrow-up-from-line"
-                      : transaction.paymentMethod
-                        ? getPaymentMethodIcon(transaction.paymentMethod.type)
-                        : "circle-dollar-sign"
+                      : isDeposit
+                        ? "arrow-down-to-line"
+                        : transaction.paymentMethod
+                          ? getPaymentMethodIcon(transaction.paymentMethod.type)
+                          : "circle-dollar-sign"
                   }
                   size={24}
                   color={tw.color("gray-600")}
@@ -158,7 +167,9 @@ export default function TransactionCard({
                 text={
                   isWithdrawal
                     ? `−${formatCurrency(transaction.amount)}`
-                    : formatCurrency(transaction.amount)
+                    : isDeposit
+                      ? `+${formatCurrency(transaction.amount)}`
+                      : formatCurrency(transaction.amount)
                 }
               />
             </ThemedView>

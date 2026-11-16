@@ -7,6 +7,8 @@ export enum TransactionType {
 export enum TransactionCategoryCode {
   SALES = "SALES",
   CASH_WITHDRAWAL = "CASH_WITHDRAWAL",
+  /** Cash added to an open register (plans/ingreso-efectivo-caja.md). */
+  CASH_DEPOSIT = "CASH_DEPOSIT",
 }
 
 export interface TransactionCategory {

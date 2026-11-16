@@ -20,9 +20,9 @@ import Button from "@/presentation/theme/components/button";
 import Icon from "@/presentation/theme/components/icon";
 import { GroupedList } from "@/presentation/theme/components/grouped-list";
 import TransactionCard from "@/presentation/transactions/components/transaction-card";
-import WithdrawCashSheet, {
-  WithdrawCashSheetRef,
-} from "@/presentation/cash-sessions/components/withdraw-cash-sheet";
+import CashMovementSheet, {
+  CashMovementSheetRef,
+} from "@/presentation/cash-sessions/components/cash-movement-sheet";
 import DifferenceLabel from "@/presentation/cash-sessions/components/difference-label";
 import CashBreakdownCard from "@/presentation/cash-sessions/components/cash-breakdown-card";
 import {
@@ -38,7 +38,7 @@ export default function CashSessionScreen() {
   const sessionId = Number(id);
   const { session, isLoading, error, refetch } = useCashSession(sessionId);
   const { userId, isManager } = useCashRoles();
-  const withdrawSheetRef = useRef<WithdrawCashSheetRef>(null);
+  const movementSheetRef = useRef<CashMovementSheetRef>(null);
   const [refreshing, setRefreshing] = useState(false);
 
   if (!session) {
@@ -124,6 +124,18 @@ export default function CashSessionScreen() {
                   }
                 />
               )}
+              {isOpen && (isManager || isOpener) && (
+                <Button
+                  label={t("common:cashRegister.deposit.action")}
+                  leftIcon="arrow-down-to-line"
+                  variant="surface"
+                  shape="rounded"
+                  size="small"
+                  onPress={() =>
+                    movementSheetRef.current?.present("in", session.account.id)
+                  }
+                />
+              )}
               {(isManager || isOpener) && (
                 <Button
                   label={t("common:cashRegister.withdraw.action")}
@@ -132,7 +144,7 @@ export default function CashSessionScreen() {
                   shape="rounded"
                   size="small"
                   onPress={() =>
-                    withdrawSheetRef.current?.present(session.account.id)
+                    movementSheetRef.current?.present("out", session.account.id)
                   }
                 />
               )}
@@ -150,6 +162,12 @@ export default function CashSessionScreen() {
             label={t("common:cashRegister.summary.income")}
             value={`+${formatCurrency(summary.cashIncome)}`}
           />
+          {(summary.inCount ?? 0) > 0 && (
+            <DetailCardRow
+              label={t("common:cashRegister.summary.added")}
+              value={`+${formatCurrency(summary.cashIn)}`}
+            />
+          )}
           <DetailCardRow
             label={t("common:cashRegister.summary.out")}
             value={`−${formatCurrency(summary.cashOut)}`}
@@ -251,7 +269,7 @@ export default function CashSessionScreen() {
         </ThemedView>
       </ScrollView>
 
-      <WithdrawCashSheet ref={withdrawSheetRef} />
+      <CashMovementSheet ref={movementSheetRef} />
     </ScreenLayout>
   );
 }

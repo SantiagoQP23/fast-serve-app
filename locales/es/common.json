@@ -256,6 +256,7 @@
     "summary": {
       "opening": "Efectivo inicial",
       "income": "Cobros en efectivo",
+      "added": "Agregado",
       "out": "Retiros",
       "pending": "Retiros por aprobar",
       "expected": "Efectivo esperado",
@@ -285,7 +286,8 @@
       "closeWithoutCountMessage": "La caja se cerrará sin registrar el efectivo contado.",
       "done": "Caja cerrada",
       "pendingWarning": "{{count}} retiro por aprobar: ya cuenta como efectivo que salió.",
-      "pendingWarning_other": "{{count}} retiros por aprobar: ya cuentan como efectivo que salió."
+      "pendingWarning_other": "{{count}} retiros por aprobar: ya cuentan como efectivo que salió.",
+      "addedNote": "Se agregaron {{amount}} a esta caja."
     },
     "withdraw": {
       "action": "Retirar efectivo",
@@ -308,6 +310,22 @@
       "approveMessage": "Confirma que se retiraron {{amount}} de {{account}}: {{reason}}.",
       "approved": "Retiro aprobado"
     },
+    "deposit": {
+      "action": "Agregar efectivo",
+      "title": "Agregar efectivo",
+      "amount": "Monto",
+      "reason": "Motivo",
+      "reasonPlaceholder": "¿De dónde viene el efectivo?",
+      "reasons": {
+        "change": "Cambio / sencillo",
+        "owner": "Del dueño",
+        "safe": "Desde caja fuerte"
+      },
+      "submit": "Agregar {{amount}}",
+      "done": "Efectivo agregado",
+      "reasonRequired": "Escribe el motivo",
+      "amountRequired": "Escribe un monto mayor que 0"
+    },
     "pay": {
       "noneOpen": "Ninguna caja abierta: este cobro no entra en ningún cierre.",
       "openToCharge": "Abrir una caja para cobrar en efectivo",
@@ -315,12 +333,20 @@
       "onlyOpen": "Solo se muestran las cajas abiertas."
     },
     "withdrawalLabel": "Retiro de efectivo",
+    "depositLabel": "Efectivo agregado",
     "count": {
       "modeCount": "Contar",
       "modeAmount": "Monto",
       "total": "Total",
       "openingTitle": "Conteo de apertura",
       "closingTitle": "Conteo de cierre"
+    },
+    "cancelMovement": {
+      "action": "Anular movimiento",
+      "title": "Anular movimiento",
+      "message": "{{amount}} dejará de contar en esta caja.",
+      "confirm": "Anular",
+      "done": "Movimiento anulado"
     }
   }
 }

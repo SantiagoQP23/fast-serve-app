@@ -150,6 +150,30 @@ export const useWithdrawCash = () => {
   });
 };
 
+export const useDepositCash = () => {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: CashSessionsService.deposit,
+    onSuccess: () => {
+      invalidateCash(client);
+      client.invalidateQueries({ queryKey: ["transactionsList"] });
+    },
+  });
+};
+
+/** Undo a register deposit or withdrawal. */
+export const useCancelCashMovement = () => {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: CashSessionsService.cancelMovement,
+    onSuccess: (_, id) => {
+      invalidateCash(client);
+      client.invalidateQueries({ queryKey: ["transaction", id] });
+      client.invalidateQueries({ queryKey: ["transactionsList"] });
+    },
+  });
+};
+
 /**
  * Keeps registers fresh on every device. Mount once (tabs layout): the
  * socket listener hook removes every handler of the event on unmount.

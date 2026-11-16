@@ -181,6 +181,14 @@ export default function CloseCashSessionScreen() {
                 </ThemedText>
               )}
 
+              {(session?.summary.inCount ?? 0) > 0 && (
+                <ThemedText type="body2" style={tw`text-gray-500`}>
+                  {t("common:cashRegister.close.addedNote", {
+                    amount: formatCurrency(session?.summary.cashIn ?? 0),
+                  })}
+                </ThemedText>
+              )}
+
               {pendingCount > 0 && (
                 <ThemedText type="body2" style={tw`text-gray-500`}>
                   {t("common:cashRegister.close.pendingWarning", {
