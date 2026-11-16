@@ -25,6 +25,7 @@ type TransactionsListParams = {
   paymentMethodId?: string;
   accountId?: string;
   createdById?: string;
+  excludeWithdrawals?: string;
 };
 
 const toNumber = (value?: string) => (value ? Number(value) : undefined);
@@ -56,6 +57,7 @@ export default function TransactionsListScreen() {
     accountId: toNumber(params.accountId),
     createdById: params.createdById || undefined,
     status: status ?? undefined,
+    excludeWithdrawals: params.excludeWithdrawals === "true" || undefined,
   });
 
   // Keep the last counts while a new status loads so the chips don't blink out
