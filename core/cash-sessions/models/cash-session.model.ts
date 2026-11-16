@@ -45,6 +45,9 @@ export interface CashSessionSummary {
   openingAmount: number;
   cashIncome: number;
   incomeCount: number;
+  /** Cash added to the drawer (plans/ingreso-efectivo-caja.md). */
+  cashIn: number;
+  inCount: number;
   cashOut: number;
   outCount: number;
   /** Withdrawals waiting for an owner/admin; already out of the drawer. */

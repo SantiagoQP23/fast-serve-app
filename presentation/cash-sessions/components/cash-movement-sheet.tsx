@@ -27,16 +27,23 @@ import Chip from "@/presentation/theme/components/chip";
 import {
   useCashRegisters,
   useCashRoles,
+  useDepositCash,
   useWithdrawCash,
 } from "../hooks/useCashSessions";
 
-export type WithdrawCashSheetRef = {
+/** "out": withdraw cash. "in": add cash to an open register. */
+export type CashMovementKind = "in" | "out";
+
+export type CashMovementSheetRef = {
   /** `accountId` preselects that register. */
-  present: (accountId?: number) => void;
+  present: (kind: CashMovementKind, accountId?: number) => void;
   dismiss: () => void;
 };
 
-const REASON_KEYS = ["safe", "bank", "owner"] as const;
+const REASON_KEYS: Record<CashMovementKind, readonly string[]> = {
+  out: ["safe", "bank", "owner"],
+  in: ["change", "owner", "safe"],
+};
 
 /**
  * Registers cash may leave, same rule as charging (plans/apertura-cierre-caja.md,
@@ -55,17 +62,42 @@ export const getWithdrawableRegisters = (
     : open;
 };
 
-/** Cash out of a register. A cashier's withdrawal waits for an owner/admin. */
-const WithdrawCashSheet = forwardRef<WithdrawCashSheetRef>((_, ref) => {
+/**
+ * Registers cash can be added to (plans/ingreso-efectivo-caja.md, 4–5): open
+ * ones only; a cashier only the ones they opened.
+ */
+export const getDepositableRegisters = (
+  registers: CashRegister[],
+  userId: string | undefined,
+  isCashier: boolean,
+) =>
+  registers.filter(
+    (r) => r.session && (!isCashier || r.session.openedBy?.id === userId),
+  );
+
+/**
+ * Cash out of or into a register. A cashier's withdrawal waits for an
+ * owner/admin; adding cash never does.
+ */
+const CashMovementSheet = forwardRef<CashMovementSheetRef>((_, ref) => {
   const { t } = useTranslation(["common", "errors"]);
   const sheetRef = useRef<BottomSheetMethods>(null);
   const { registers } = useCashRegisters();
   const { userId, isCashier, isManager } = useCashRoles();
   const withdraw = useWithdrawCash();
+  const deposit = useDepositCash();
+
+  const [kind, setKind] = useState<CashMovementKind>("out");
+  const isIn = kind === "in";
+  const mutation = isIn ? deposit : withdraw;
+  const copy = isIn ? "deposit" : "withdraw";
 
   const choices = useMemo(
-    () => getWithdrawableRegisters(registers, userId, isCashier),
-    [registers, userId, isCashier],
+    () =>
+      isIn
+        ? getDepositableRegisters(registers, userId, isCashier)
+        : getWithdrawableRegisters(registers, userId, isCashier),
+    [isIn, registers, userId, isCashier],
   );
 
   const [accountId, setAccountId] = useState<number | null>(null);
@@ -76,11 +108,16 @@ const WithdrawCashSheet = forwardRef<WithdrawCashSheetRef>((_, ref) => {
   );
 
   useImperativeHandle(ref, () => ({
-    present: (preselect) => {
+    present: (nextKind, preselect) => {
+      const nextChoices =
+        nextKind === "in"
+          ? getDepositableRegisters(registers, userId, isCashier)
+          : getWithdrawableRegisters(registers, userId, isCashier);
+      setKind(nextKind);
       setAccountId(
-        preselect && choices.some((c) => c.account.id === preselect)
+        preselect && nextChoices.some((c) => c.account.id === preselect)
           ? preselect
-          : (choices[0]?.account.id ?? null),
+          : (nextChoices[0]?.account.id ?? null),
       );
       setAmount("");
       setReason("");
@@ -95,26 +132,26 @@ const WithdrawCashSheet = forwardRef<WithdrawCashSheetRef>((_, ref) => {
   const handleSubmit = () => {
     const nextErrors = {
       amount:
-        value > 0
-          ? undefined
-          : t("common:cashRegister.withdraw.amountRequired"),
+        value > 0 ? undefined : t(`common:cashRegister.${copy}.amountRequired`),
       reason: reason.trim()
         ? undefined
-        : t("common:cashRegister.withdraw.reasonRequired"),
+        : t(`common:cashRegister.${copy}.reasonRequired`),
     };
     setErrors(nextErrors);
     if (nextErrors.amount || nextErrors.reason || !accountId) return;
 
-    withdraw.mutate(
+    mutation.mutate(
       { accountId, amount: value, reason: reason.trim() },
       {
         onSuccess: () => {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           toast.success(
             t(
-              isManager
-                ? "common:cashRegister.withdraw.done"
-                : "common:cashRegister.withdraw.requested",
+              isIn
+                ? "common:cashRegister.deposit.done"
+                : isManager
+                  ? "common:cashRegister.withdraw.done"
+                  : "common:cashRegister.withdraw.requested",
             ),
           );
           sheetRef.current?.dismiss();
@@ -129,9 +166,9 @@ const WithdrawCashSheet = forwardRef<WithdrawCashSheetRef>((_, ref) => {
       <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
         <ThemedView style={tw`gap-1`}>
           <ThemedText type="h3">
-            {t("common:cashRegister.withdraw.title")}
+            {t(`common:cashRegister.${copy}.title`)}
           </ThemedText>
-          {!isManager && (
+          {!isIn && !isManager && (
             <ThemedText type="body2" style={tw`text-gray-500`}>
               {t("common:cashRegister.withdraw.needsApproval")}
             </ThemedText>
@@ -155,7 +192,7 @@ const WithdrawCashSheet = forwardRef<WithdrawCashSheetRef>((_, ref) => {
         <TextInput
           bottomSheet
           variant="outlined"
-          label={t("common:cashRegister.withdraw.amount")}
+          label={t(`common:cashRegister.${copy}.amount`)}
           value={amount}
           onChangeText={(text) => {
             setAmount(text);
@@ -168,8 +205,8 @@ const WithdrawCashSheet = forwardRef<WithdrawCashSheetRef>((_, ref) => {
         />
 
         <ThemedView style={tw`flex-row flex-wrap gap-2`}>
-          {REASON_KEYS.map((key) => {
-            const label = t(`common:cashRegister.withdraw.reasons.${key}`);
+          {REASON_KEYS[kind].map((key) => {
+            const label = t(`common:cashRegister.${copy}.reasons.${key}`);
             return (
               <Chip
                 key={key}
@@ -189,8 +226,8 @@ const WithdrawCashSheet = forwardRef<WithdrawCashSheetRef>((_, ref) => {
         <TextInput
           bottomSheet
           variant="outlined"
-          label={t("common:cashRegister.withdraw.reason")}
-          placeholder={t("common:cashRegister.withdraw.reasonPlaceholder")}
+          label={t(`common:cashRegister.${copy}.reason`)}
+          placeholder={t(`common:cashRegister.${copy}.reasonPlaceholder`)}
           value={reason}
           onChangeText={(text) => {
             setReason(text);
@@ -203,21 +240,21 @@ const WithdrawCashSheet = forwardRef<WithdrawCashSheetRef>((_, ref) => {
         <Button
           label={
             value > 0
-              ? t("common:cashRegister.withdraw.submit", {
+              ? t(`common:cashRegister.${copy}.submit`, {
                   amount: formatCurrency(value),
                 })
-              : t("common:cashRegister.withdraw.action")
+              : t(`common:cashRegister.${copy}.action`)
           }
-          leftIcon="arrow-up-from-line"
+          leftIcon={isIn ? "arrow-down-to-line" : "arrow-up-from-line"}
           onPress={handleSubmit}
-          loading={withdraw.isPending}
-          disabled={!accountId || withdraw.isPending}
+          loading={mutation.isPending}
+          disabled={!accountId || mutation.isPending}
         />
       </BottomSheetView>
     </ThemedBottomSheetModal>
   );
 });
 
-WithdrawCashSheet.displayName = "WithdrawCashSheet";
+CashMovementSheet.displayName = "CashMovementSheet";
 
-export default WithdrawCashSheet;
+export default CashMovementSheet;

@@ -9,6 +9,6 @@ export interface FilterTransactionsDto {
   accountId?: number;
   createdById?: string;
   status?: TransactionStatus;
-  /** Leave register cash withdrawals out (the Incomes list). */
-  excludeWithdrawals?: boolean;
+  /** Leave register withdrawals and deposits out (the Incomes list). */
+  excludeCashMovements?: boolean;
 }

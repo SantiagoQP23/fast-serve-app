@@ -76,4 +76,25 @@ export class CashSessionsService {
     );
     return resp.data;
   }
+
+  /** Cash into an open register. Never needs approval. */
+  static async deposit(data: {
+    accountId: number;
+    amount: number;
+    reason: string;
+  }): Promise<Transaction> {
+    const resp = await restaurantApi.post<Transaction>(
+      "/transactions/deposits",
+      data,
+    );
+    return resp.data;
+  }
+
+  /** Undo a deposit or withdrawal. */
+  static async cancelMovement(id: number): Promise<Transaction> {
+    const resp = await restaurantApi.post<Transaction>(
+      `/transactions/${id}/cancel`,
+    );
+    return resp.data;
+  }
 }

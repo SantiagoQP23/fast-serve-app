@@ -56,3 +56,7 @@ export interface Transaction {
 
 export const isCashWithdrawal = (transaction?: Pick<Transaction, "category">) =>
   transaction?.category?.code === TransactionCategoryCode.CASH_WITHDRAWAL;
+
+/** Cash added to an open register: not a sale, never counted as income. */
+export const isCashDeposit = (transaction?: Pick<Transaction, "category">) =>
+  transaction?.category?.code === TransactionCategoryCode.CASH_DEPOSIT;

@@ -237,6 +237,9 @@
     "FINANCIAL_CASH_SESSION_NOT_OPEN": "La caja ya está cerrada",
     "FINANCIAL_CASH_SESSION_NOTE_REQUIRED": "Agrega una nota que explique la diferencia",
     "FINANCIAL_CASH_WITHDRAWAL_FORBIDDEN": "No tienes permiso para este retiro",
-    "FINANCIAL_TRANSACTION_CATEGORY_BUILT_IN": "Las categorías predeterminadas no se pueden modificar"
+    "FINANCIAL_TRANSACTION_CATEGORY_BUILT_IN": "Las categorías predeterminadas no se pueden modificar",
+    "FINANCIAL_CASH_DEPOSIT_FORBIDDEN": "No tienes permiso para agregar efectivo",
+    "FINANCIAL_CASH_MOVEMENT_CANNOT_CANCEL": "Este movimiento no se puede anular",
+    "FINANCIAL_TRANSACTION_FORBIDDEN": "Solo un administrador puede hacer esto"
   }
 }

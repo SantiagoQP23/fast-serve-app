@@ -237,6 +237,9 @@
     "FINANCIAL_CASH_SESSION_NOT_OPEN": "The register is already closed",
     "FINANCIAL_CASH_SESSION_NOTE_REQUIRED": "Add a note explaining the difference",
     "FINANCIAL_CASH_WITHDRAWAL_FORBIDDEN": "You don't have permission for this withdrawal",
-    "FINANCIAL_TRANSACTION_CATEGORY_BUILT_IN": "Built-in categories can't be changed"
+    "FINANCIAL_TRANSACTION_CATEGORY_BUILT_IN": "Built-in categories can't be changed",
+    "FINANCIAL_CASH_DEPOSIT_FORBIDDEN": "You don't have permission to add cash",
+    "FINANCIAL_CASH_MOVEMENT_CANNOT_CANCEL": "This movement can't be undone",
+    "FINANCIAL_TRANSACTION_FORBIDDEN": "Only an admin can do this"
   }
 }
