@@ -38,7 +38,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import dayjs from "dayjs";
 import BillCard from "@/presentation/orders/components/bill-card";
 import Fab from "@/presentation/theme/components/fab";
-import { useNewOrderStore } from "@/presentation/orders/store/newOrderStore";
+import {
+  selectDraftDetails,
+  useNewOrderStore,
+} from "@/presentation/orders/store/newOrderStore";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
@@ -47,6 +51,8 @@ import type { Bill } from "@/core/orders/models/bill.model";
 const STORAGE_KEY = "sales_selected_date";
 
 interface SalesContentProps {
+  /** Scrolls above the filters, e.g. the draft sale on Home. */
+  header?: React.ReactNode;
   /** Overrides navigating to the bill screen, e.g. to open a side pane. */
   onOpenBill?: (bill: Bill) => void;
   /** Bill currently shown in the side pane. */
@@ -54,10 +60,11 @@ interface SalesContentProps {
 }
 
 export default function SalesContent({
+  header,
   onOpenBill,
   activeBillId,
 }: SalesContentProps = {}) {
-  const { t } = useTranslation(["bills", "common", "errors"]);
+  const { t } = useTranslation(["bills", "common", "errors", "orders"]);
   const router = useRouter();
   const primaryColor = useThemeColor({}, "primary");
   const [refreshing, setRefreshing] = useState(false);
@@ -70,6 +77,9 @@ export default function SalesContent({
   const [fabExpanded, setFabExpanded] = useState(true);
   const lastScrollY = useRef(0);
   const openDraft = useNewOrderStore((state) => state.openDraft);
+  const resetDraft = useNewOrderStore((state) => state.reset);
+  const hasDraftSale = useNewOrderStore(selectDraftDetails("sale")).length > 0;
+  const [startNewDialogVisible, setStartNewDialogVisible] = useState(false);
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
   const { currentRestaurant, user } = useAuthStore();
 
@@ -221,10 +231,22 @@ export default function SalesContent({
     [],
   );
 
-  const onNewSale = () => {
+  const startSale = () => {
     setActiveOrder(null);
     openDraft("sale");
     router.push("/(new-order)/restaurant-menu");
+  };
+
+  // One sale draft at a time: a new sale replaces the one in progress
+  const onNewSale = () => {
+    if (hasDraftSale) setStartNewDialogVisible(true);
+    else startSale();
+  };
+
+  const handleStartNewSale = () => {
+    setStartNewDialogVisible(false);
+    resetDraft("sale");
+    startSale();
   };
 
   return (
@@ -235,45 +257,6 @@ export default function SalesContent({
       {/*     <ThemedText type="h2">{t("common:navigation.sales")}</ThemedText> */}
       {/*   </ThemedView> */}
       {/* </ThemedView> */}
-
-      {/* Date Picker + Filters */}
-      <ThemedView style={tw`flex-row items-center gap-2 px-4 mb-4 pt-4`}>
-        <ThemedView style={tw`flex-1`}>
-          <DatePicker
-            value={selectedDate}
-            onChange={handleDateChange}
-            showTodayButton={true}
-          />
-        </ThemedView>
-        <Pressable
-          onPress={handleOpenFilters}
-          accessibilityLabel={t("bills:filters.title")}
-          style={tw`p-3 rounded-2xl ${hasActiveFilters ? "bg-surface" : "bg-transparent"}`}
-        >
-          <Icon
-            name="funnel"
-            size={20}
-            color={hasActiveFilters ? tw.color("on-surface") : tw.color("gray-600")}
-          />
-        </Pressable>
-      </ThemedView>
-
-      {/* Payment status */}
-      <ThemedView style={tw`flex-row gap-2 px-4 mb-2`}>
-        {statusChips.map((chip) => (
-          <Chip
-            key={chip.value}
-            label={chip.label}
-            selected={filters.status === chip.value}
-            onPress={() => handleSelectStatus(chip.value)}
-            rightContent={
-              <ThemedText type="small" style={tw`text-gray-500`}>
-                {chip.count}
-              </ThemedText>
-            }
-          />
-        ))}
-      </ThemedView>
 
       {/* Bills list */}
       <ScrollView
@@ -291,6 +274,48 @@ export default function SalesContent({
           />
         }
       >
+        {header}
+        {/* Date Picker + Filters */}
+        <ThemedView style={tw`flex-row items-center gap-2 px-4 mb-4 pt-4`}>
+          <ThemedView style={tw`flex-1`}>
+            <DatePicker
+              value={selectedDate}
+              onChange={handleDateChange}
+              showTodayButton={true}
+            />
+          </ThemedView>
+          <Pressable
+            onPress={handleOpenFilters}
+            accessibilityLabel={t("bills:filters.title")}
+            style={tw`p-3 rounded-2xl ${hasActiveFilters ? "bg-surface" : "bg-transparent"}`}
+          >
+            <Icon
+              name="funnel"
+              size={20}
+              color={
+                hasActiveFilters ? tw.color("on-surface") : tw.color("gray-600")
+              }
+            />
+          </Pressable>
+        </ThemedView>
+
+        {/* Payment status */}
+        <ThemedView style={tw`flex-row gap-2 px-4 mb-2`}>
+          {statusChips.map((chip) => (
+            <Chip
+              key={chip.value}
+              label={chip.label}
+              selected={filters.status === chip.value}
+              onPress={() => handleSelectStatus(chip.value)}
+              rightContent={
+                <ThemedText type="small" style={tw`text-gray-500`}>
+                  {chip.count}
+                </ThemedText>
+              }
+            />
+          ))}
+        </ThemedView>
+
         {isLoading && !refreshing ? (
           <ThemedView style={tw`py-20 items-center`}>
             <ThemedText type="body2" style={tw`text-gray-400`}>
@@ -320,11 +345,7 @@ export default function SalesContent({
           </ThemedView>
         ) : (
           <ThemedView style={tw`py-20 items-center px-4`}>
-            <Icon
-              name="receipt-text"
-              size={64}
-              color={tw.color("gray-300")}
-            />
+            <Icon name="receipt-text" size={64} color={tw.color("gray-300")} />
             <ThemedText type="h4" style={tw`text-gray-500 mt-4 text-center`}>
               {t(`bills:list.${emptyKey}`)}
             </ThemedText>
@@ -342,6 +363,15 @@ export default function SalesContent({
         label={t("bills:list.newSale")}
         expanded={fabExpanded}
         onPress={onNewSale}
+      />
+      <DialogModal
+        visible={startNewDialogVisible}
+        title={t("orders:draft.existingSaleTitle")}
+        message={t("orders:draft.startNewMessage")}
+        confirmLabel={t("orders:draft.startNew")}
+        confirmVariant="destructive"
+        onConfirm={handleStartNewSale}
+        onCancel={() => setStartNewDialogVisible(false)}
       />
 
       {/* Filter Bottom Sheet */}

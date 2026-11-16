@@ -27,11 +27,6 @@ import { useOutboxCounts } from "@/presentation/offline/hooks/useOrderSyncState"
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import IconButton from "@/presentation/theme/components/icon-button";
 import tw from "@/presentation/theme/lib/tailwind";
-import {
-  type CartType,
-  selectDraftDetails,
-  useNewOrderStore,
-} from "@/presentation/orders/store/newOrderStore";
 import useOrdersModuleContext from "./(orders-module)/orders-module.context";
 import NotificationBadge from "@/presentation/theme/components/notification-badge";
 import { ROUTES } from "@/constants/routes";
@@ -40,12 +35,9 @@ import { useUnprintedTickets } from "@/presentation/orders/hooks/useUnprintedTic
 import { useResponsiveLayout } from "@/presentation/shared/hooks/useResponsiveLayout";
 import { usePalette } from "@/presentation/theme/store/useThemeStore";
 
-/** `cart`: which draft the cart icon shows (Pedidos: order, Ventas: sale). */
-export function MyOrdersHeaderRight({ cart = "order" }: { cart?: CartType }) {
+// The draft order/sale shows as a section on Home (DraftOrderSection)
+export function MyOrdersHeaderRight() {
   const router = useRouter();
-  const details = useNewOrderStore(selectDraftDetails(cart));
-  const openDraft = useNewOrderStore((state) => state.openDraft);
-  const haveAnOpenOrder = details.length > 0;
   const unprintedTicketsCount = useUnprintedTickets().length;
   const restaurantId = useAuthStore((state) => state.currentRestaurant?.id);
   const unsynced = useOutboxCounts(restaurantId);
@@ -79,18 +71,6 @@ export function MyOrdersHeaderRight({ cart = "order" }: { cart?: CartType }) {
             value={unsynced.total}
             style={unsynced.failed > 0 ? "bg-red-500" : ""}
           />
-        </ThemedView>
-      )}
-      {haveAnOpenOrder && (
-        <ThemedView style={tw``}>
-          <IconButton
-            icon="shopping-cart"
-            onPress={() => {
-              openDraft(cart);
-              router.push("/(new-order)/cart");
-            }}
-          />
-          <NotificationBadge value={details.length} />
         </ThemedView>
       )}
       {/* <View ref={moreButtonRef} collapsable={false}> */}

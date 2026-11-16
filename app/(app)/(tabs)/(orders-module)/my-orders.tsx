@@ -52,6 +52,8 @@ import { OrderPaneContext } from "@/presentation/orders/context/order-pane.conte
 import OrderDetailView from "@/presentation/orders/components/order-detail-view";
 import BillDetailView from "@/presentation/orders/components/bill-detail-view";
 import ClosePaidOrdersButton from "@/presentation/orders/components/close-paid-orders-button";
+import DraftOrderSection from "@/presentation/orders/components/draft-order-section";
+import DialogModal from "@/presentation/theme/components/dialog-modal";
 
 const ORDERS_LIST_PANE_WIDTH = 440;
 
@@ -107,7 +109,8 @@ export default function MyOrdersScreen() {
 
   const hasDraftOrder =
     useNewOrderStore(selectDraftDetails("order")).length > 0;
-  const openDraft = useNewOrderStore((state) => state.openDraft);
+  const resetDraft = useNewOrderStore((state) => state.reset);
+  const [startNewDialogVisible, setStartNewDialogVisible] = useState(false);
 
   const [fabExpanded, setFabExpanded] = useState(true);
   const lastScrollY = useRef(0);
@@ -153,10 +156,17 @@ export default function MyOrdersScreen() {
     bottomSheetModalRef.current?.present();
   }, []);
 
-  const handleResumeOrder = useCallback(() => {
-    openDraft("order");
-    router.push("/(new-order)/restaurant-menu");
-  }, [openDraft, router]);
+  // One order draft at a time: a new order replaces the one in progress
+  const handleNewOrderPress = () => {
+    if (hasDraftOrder) setStartNewDialogVisible(true);
+    else handlePresentModalPress();
+  };
+
+  const handleStartNewOrder = () => {
+    setStartNewDialogVisible(false);
+    resetDraft("order");
+    handlePresentModalPress();
+  };
 
   const handleSheetChanges = useCallback((index: number) => {
     console.log("handleSheetChanges", index);
@@ -257,6 +267,43 @@ export default function MyOrdersScreen() {
     setActiveView(viewOptions[(currentIndex + 1) % viewOptions.length].value);
   };
 
+  // Scrolls with each tab's content; only the Pedidos/Ventas bar stays put
+  const ordersHeader = (
+    <ThemedView style={tw`px-4`}>
+      <DraftOrderSection cart="order" />
+      <ThemedView style={tw` flex-row items-center justify-end gap-2 `}>
+        {activeView !== "tables" && (
+          <ButtonGroup
+            size="small"
+            iconOnly
+            options={scopeOptions}
+            selected={ordersScope}
+            onChange={setOrdersScope}
+          />
+        )}
+        <Button
+          variant="surface"
+          size="small"
+          label={currentView.label}
+          leftIcon={currentView.icon}
+          onPress={handleViewTogglePress}
+        />
+        {/* Customize view button hidden for now; the scope is switched */}
+        {/* with the button group above instead. */}
+        {/* <IconButton */}
+        {/*   icon="options-outline" */}
+        {/*   accessibilityLabel={t("orders:homeOptions.title")} */}
+        {/*   onPress={() => viewOptionsSheetRef.current?.present()} */}
+        {/* /> */}
+      </ThemedView>
+    </ThemedView>
+  );
+  const salesHeader = (
+    <ThemedView style={tw`px-4`}>
+      <DraftOrderSection cart="sale" />
+    </ThemedView>
+  );
+
   const listPane = (
     <ThemedView
       style={[
@@ -264,7 +311,7 @@ export default function MyOrdersScreen() {
         isExpanded ? { width: ORDERS_LIST_PANE_WIDTH } : tw`flex-1`,
       ]}
     >
-      {/* Fixed header with module toggle */}
+      {/* Fixed module toggle */}
       <ThemedView style={tw`px-4  `}>
         <ThemedView style={tw`flex-row items-center justify-between pt-8 mb-2`}>
           <ThemedView style={tw`flex-1 mr-3`}>
@@ -276,37 +323,8 @@ export default function MyOrdersScreen() {
               textType="h3"
             />
           </ThemedView>
-          <MyOrdersHeaderRight
-            cart={activeModule === "sales" ? "sale" : "order"}
-          />
+          <MyOrdersHeaderRight />
         </ThemedView>
-        {activeModule === "orders" && (
-          <ThemedView style={tw` flex-row items-center justify-end gap-2 `}>
-            {activeView !== "tables" && (
-              <ButtonGroup
-                size="small"
-                iconOnly
-                options={scopeOptions}
-                selected={ordersScope}
-                onChange={setOrdersScope}
-              />
-            )}
-            <Button
-              variant="surface"
-              size="small"
-              label={currentView.label}
-              leftIcon={currentView.icon}
-              onPress={handleViewTogglePress}
-            />
-            {/* Customize view button hidden for now; the scope is switched */}
-            {/* with the button group above instead. */}
-            {/* <IconButton */}
-            {/*   icon="options-outline" */}
-            {/*   accessibilityLabel={t("orders:homeOptions.title")} */}
-            {/*   onPress={() => viewOptionsSheetRef.current?.present()} */}
-            {/* /> */}
-          </ThemedView>
-        )}
       </ThemedView>
 
       {/* Tab content; drag left/right to switch Pedidos / Ventas */}
@@ -317,6 +335,7 @@ export default function MyOrdersScreen() {
         renderScene={(module) =>
           module === "sales" ? (
             <SalesContent
+              header={salesHeader}
               activeBillId={
                 isExpanded ? (selectedBillId ?? undefined) : undefined
               }
@@ -328,7 +347,7 @@ export default function MyOrdersScreen() {
             <ThemedView style={tw`flex-1`}>
               {activeView !== "tables" && (
                 <ScrollView
-                  contentContainerStyle={tw`grow pb-20 gap-4 pt-4`}
+                  contentContainerStyle={tw`grow pb-20 gap-4`}
                   showsVerticalScrollIndicator={false}
                   onScroll={handleScroll}
                   scrollEventThrottle={16}
@@ -341,6 +360,7 @@ export default function MyOrdersScreen() {
                     />
                   }
                 >
+                  {ordersHeader}
                   {isLoadingOrders ? (
                     <ThemedView style={tw`px-4 gap-3`}>
                       <OrderCardSkeleton />
@@ -386,6 +406,7 @@ export default function MyOrdersScreen() {
                 <TablesView
                   onTablePress={handleTablePress}
                   style={tw`flex-1`}
+                  header={ordersHeader}
                   footer={<ClosePaidOrdersButton />}
                 />
               )}
@@ -439,16 +460,19 @@ export default function MyOrdersScreen() {
             ]}
           />
           <Fab
-            icon={hasDraftOrder ? "shopping-cart" : "plus"}
-            label={
-              hasDraftOrder
-                ? t("orders:actions.resumeOrder")
-                : t("orders:actions.newOrder")
-            }
+            icon="plus"
+            label={t("orders:actions.newOrder")}
             expanded={fabExpanded}
-            onPress={
-              hasDraftOrder ? handleResumeOrder : handlePresentModalPress
-            }
+            onPress={handleNewOrderPress}
+          />
+          <DialogModal
+            visible={startNewDialogVisible}
+            title={t("orders:draft.existingOrderTitle")}
+            message={t("orders:draft.startNewMessage")}
+            confirmLabel={t("orders:draft.startNew")}
+            confirmVariant="destructive"
+            onConfirm={handleStartNewOrder}
+            onCancel={() => setStartNewDialogVisible(false)}
           />
         </>
       )}

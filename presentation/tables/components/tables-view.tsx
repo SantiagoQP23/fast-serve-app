@@ -29,6 +29,8 @@ import TablesGrid from "@/presentation/tables/components/tables-grid";
 interface TablesViewProps {
   onTablePress: (table: Table) => void;
   style?: ViewStyle;
+  /** Scrolls above the first table. */
+  header?: ReactElement;
   /** Rendered after the last table. */
   footer?: ReactElement;
 }
@@ -36,6 +38,7 @@ interface TablesViewProps {
 export default function TablesView({
   onTablePress,
   style,
+  header,
   footer,
 }: TablesViewProps) {
   const { t } = useTranslation(["tables", "errors"]);
@@ -126,37 +129,37 @@ export default function TablesView({
 
   if (!hasTables) {
     return (
-      <ThemedView
-        style={tw.style(
-          `flex-1 px-4 pt-8 items-center justify-center gap-4`,
-          style,
-        )}
-      >
-        <Icon name="layout-grid" size={64} color={tw.color("gray-400")} />
-        <ThemedView style={tw`gap-2 items-center`}>
-          <ThemedText type="h2">{t("tables:noTables.title")}</ThemedText>
-          <ThemedText type="body2" style={tw`text-center text-gray-500 px-8`}>
-            {t("tables:noTables.description")}
-          </ThemedText>
+      <ThemedView style={tw.style(`flex-1`, style)}>
+        {header}
+        <ThemedView
+          style={tw`flex-1 px-4 pt-8 items-center justify-center gap-4`}
+        >
+          <Icon name="layout-grid" size={64} color={tw.color("gray-400")} />
+          <ThemedView style={tw`gap-2 items-center`}>
+            <ThemedText type="h2">{t("tables:noTables.title")}</ThemedText>
+            <ThemedText type="body2" style={tw`text-center text-gray-500 px-8`}>
+              {t("tables:noTables.description")}
+            </ThemedText>
+          </ThemedView>
+          <Button
+            label={
+              tablesQuery.isError
+                ? t("tables:noTables.retry")
+                : isLoadingTables
+                  ? t("tables:noTables.loading")
+                  : t("tables:noTables.loadButton")
+            }
+            leftIcon="cloud-download"
+            onPress={handleLoadTables}
+            disabled={isLoadingTables}
+            loading={isLoadingTables}
+          />
+          {tablesQuery.isError && (
+            <ThemedText type="body2" style={tw`text-red-500 text-center px-8`}>
+              {t("tables:noTables.error")}
+            </ThemedText>
+          )}
         </ThemedView>
-        <Button
-          label={
-            tablesQuery.isError
-              ? t("tables:noTables.retry")
-              : isLoadingTables
-                ? t("tables:noTables.loading")
-                : t("tables:noTables.loadButton")
-          }
-          leftIcon="cloud-download"
-          onPress={handleLoadTables}
-          disabled={isLoadingTables}
-          loading={isLoadingTables}
-        />
-        {tablesQuery.isError && (
-          <ThemedText type="body2" style={tw`text-red-500 text-center px-8`}>
-            {t("tables:noTables.error")}
-          </ThemedText>
-        )}
       </ThemedView>
     );
   }
@@ -211,7 +214,14 @@ export default function TablesView({
         areaId={selectedAreaId}
         onTablePress={onTablePress}
         // Short grids push the footer down to the bottom, clear of the FAB
-        contentContainerStyle={tw.style(`pb-20 pt-4`, footer && `grow`)}
+        contentContainerStyle={tw.style(
+          `pb-20`,
+          !header && `pt-4`,
+          footer && `grow`,
+        )}
+        ListHeaderComponent={
+          header ? <ThemedView style={tw`pb-4`}>{header}</ThemedView> : null
+        }
         ListFooterComponent={footer}
         ListFooterComponentStyle={tw`mt-auto`}
         refreshControl={

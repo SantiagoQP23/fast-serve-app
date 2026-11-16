@@ -96,6 +96,30 @@
     "resumeOrder": "Continuar Pedido",
     "createOrder": "Crear Pedido"
   },
+  "draft": {
+    "options": "Opciones del carrito",
+    "convertToSale": "Convertir en venta",
+    "convertToOrder": "Convertir en pedido",
+    "clear": "Vaciar carrito",
+    "clearSaleMessage": "¿Vaciar el carrito? Se quitarán todos los productos de la venta.",
+    "existingOrderTitle": "Ya tienes un pedido en curso",
+    "existingSaleTitle": "Ya tienes una venta en curso",
+    "existingMessage_one": "Tiene {{count}} producto. Puedes combinarlo con estos productos o reemplazarlo.",
+    "existingMessage_other": "Tiene {{count}} productos. Puedes combinarlos con estos productos o reemplazarlos.",
+    "combine": "Combinar",
+    "replace": "Reemplazar",
+    "convert": "Convertir",
+    "saleDropsOrderData": "La venta no guarda mesa, notas ni hora de entrega.",
+    "continueOrder": "Continuar pedido",
+    "continueSale": "Continuar venta",
+    "addProducts": "Agregar productos",
+    "units_one": "{{count}} producto",
+    "units_other": "{{count}} productos",
+    "people_one": "{{count}} persona",
+    "people_other": "{{count}} personas",
+    "startNew": "Empezar de nuevo",
+    "startNewMessage": "Se quitarán los productos que ya agregaste."
+  },
   "form": {
     "people": "Personas",
     "addNote": "Agregar nota",
@@ -387,21 +411,6 @@
     "title": "¿Qué productos también cambian a {{type}}?",
     "subtitle": "Los productos marcados cambian de tipo junto con el pedido.",
     "all": "Todos ({{count}})"
-  },
-  "draft": {
-    "options": "Opciones del carrito",
-    "convertToSale": "Convertir en venta",
-    "convertToOrder": "Convertir en pedido",
-    "clear": "Vaciar carrito",
-    "clearSaleMessage": "¿Vaciar el carrito? Se quitarán todos los productos de la venta.",
-    "existingOrderTitle": "Ya tienes un pedido en curso",
-    "existingSaleTitle": "Ya tienes una venta en curso",
-    "existingMessage_one": "Tiene {{count}} producto. Puedes combinarlo con estos productos o reemplazarlo.",
-    "existingMessage_other": "Tiene {{count}} productos. Puedes combinarlos con estos productos o reemplazarlos.",
-    "combine": "Combinar",
-    "replace": "Reemplazar",
-    "convert": "Convertir",
-    "saleDropsOrderData": "La venta no guarda mesa, notas ni hora de entrega."
   },
   "closePaid": {
     "button_one": "Cerrar {{count}} pedido pagado",
