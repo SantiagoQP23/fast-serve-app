@@ -36,6 +36,12 @@ const buildEditPaymentMethodSchema = (t: (key: string) => string) =>
     type: z.nativeEnum(PaymentMethodCategory, {
       message: t("methods.validations.categoryRequired"),
     }),
+    commissionPercentage: z
+      .string()
+      .refine(
+        (v) => v === "" || (!Number.isNaN(Number(v)) && Number(v) >= 0),
+        t("methods.validations.commissionInvalid"),
+      ),
   });
 
 type PaymentMethodEditFormData = z.infer<
@@ -80,10 +86,12 @@ export default function PaymentMethodEditScreen() {
     defaultValues: {
       name: method?.name ?? "",
       type: method?.type ?? PaymentMethodCategory.CASH,
+      commissionPercentage: String(method?.commissionPercentage ?? 0),
     },
   });
 
   const typeValue = watch("type");
+  const isCardType = typeValue === PaymentMethodCategory.CARD;
 
   // Default the name to the selected category, as long as the user hasn't
   // typed a custom name of their own.
@@ -100,7 +108,14 @@ export default function PaymentMethodEditScreen() {
     if (!method) return;
     await updatePaymentMethod.mutateAsync({
       id: method.id,
-      data: { name: data.name.trim(), type: data.type },
+      data: {
+        name: data.name.trim(),
+        type: data.type,
+        commissionPercentage:
+          data.type === PaymentMethodCategory.CARD && data.commissionPercentage
+            ? Number(data.commissionPercentage)
+            : 0,
+      },
     });
     router.back();
   };
@@ -196,6 +211,25 @@ export default function PaymentMethodEditScreen() {
                 />
               )}
             />
+
+            {isCardType && (
+              <Controller
+                control={control}
+                name="commissionPercentage"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    label={t("methods.fields.commission")}
+                    icon="tag"
+                    placeholder={t("methods.placeholders.commission")}
+                    onBlur={onBlur}
+                    value={value}
+                    onChangeText={onChange}
+                    keyboardType="decimal-pad"
+                    error={errors.commissionPercentage?.message}
+                  />
+                )}
+              />
+            )}
           </ThemedView>
         </ScrollView>
       </ScreenLayout>
