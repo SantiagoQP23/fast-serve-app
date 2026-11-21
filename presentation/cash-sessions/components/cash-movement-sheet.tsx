@@ -16,7 +16,10 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { getErrorMessage } from "@/core/api/get-error-message";
 import { formatCurrency } from "@/core/i18n/utils";
 import { parseAmount } from "@/core/orders/utils/bill-payment.util";
-import { CashRegister } from "@/core/cash-sessions/models/cash-session.model";
+import {
+  CashRegister,
+  isRegisterHolder,
+} from "@/core/cash-sessions/models/cash-session.model";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -48,7 +51,7 @@ const REASON_KEYS: Record<CashMovementKind, readonly string[]> = {
 /**
  * Registers cash may leave, same rule as charging (plans/apertura-cierre-caja.md,
  * 13): any register while none is open; otherwise open ones, and a cashier
- * only the ones they opened.
+ * only the ones they run.
  */
 export const getWithdrawableRegisters = (
   registers: CashRegister[],
@@ -58,13 +61,13 @@ export const getWithdrawableRegisters = (
   const open = registers.filter((r) => r.session);
   if (open.length === 0) return registers;
   return isCashier
-    ? open.filter((r) => r.session?.openedBy?.id === userId)
+    ? open.filter((r) => r.session && isRegisterHolder(r.session, userId))
     : open;
 };
 
 /**
  * Registers cash can be added to (plans/ingreso-efectivo-caja.md, 4–5): open
- * ones only; a cashier only the ones they opened.
+ * ones only; a cashier only the ones they run.
  */
 export const getDepositableRegisters = (
   registers: CashRegister[],
@@ -72,7 +75,7 @@ export const getDepositableRegisters = (
   isCashier: boolean,
 ) =>
   registers.filter(
-    (r) => r.session && (!isCashier || r.session.openedBy?.id === userId),
+    (r) => r.session && (!isCashier || isRegisterHolder(r.session, userId)),
   );
 
 /**

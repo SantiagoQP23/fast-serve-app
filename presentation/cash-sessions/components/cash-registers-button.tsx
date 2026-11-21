@@ -10,7 +10,11 @@ import dayjs from "dayjs";
 
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatTime } from "@/core/i18n/utils";
-import { CashRegister } from "@/core/cash-sessions/models/cash-session.model";
+import {
+  CashRegister,
+  isRegisterHolder,
+  registerHolder,
+} from "@/core/cash-sessions/models/cash-session.model";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -28,7 +32,7 @@ export const registerOpenText = (
 ) => {
   const session = register.session;
   if (!session) return t("common:cashRegister.closed");
-  const name = session.openedBy?.person?.firstName ?? "—";
+  const name = registerHolder(session)?.person?.firstName ?? "—";
   return dayjs().diff(dayjs(session.openedAt), "hour") >= FORGOTTEN_HOURS
     ? t("common:cashRegister.openSinceYesterday", { name })
     : t("common:cashRegister.openSince", {
@@ -68,7 +72,7 @@ export default function CashRegistersButton() {
       });
       return;
     }
-    if (isManager || session.openedBy?.id === userId) {
+    if (isManager || isRegisterHolder(session, userId)) {
       goTo(`/cash-session/${session.id}`);
       return;
     }

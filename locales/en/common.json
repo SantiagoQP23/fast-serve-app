@@ -252,7 +252,7 @@
     "pickRegister": "Pick the register",
     "opened": "{{register}} open",
     "noRegisters": "No registers yet. Link a cash account to a cash payment method.",
-    "notYours": "Someone else opened this register",
+    "notYours": "Someone else holds this register",
     "summary": {
       "opening": "Starting cash",
       "income": "Cash payments",
@@ -270,6 +270,7 @@
       "adjusted": "Adjusted after closing",
       "note": "Note",
       "openedBy": "Opened by",
+      "responsible": "Held by",
       "closedBy": "Closed by",
       "movements": "Movements",
       "noMovements": "No movements in this register yet."
@@ -347,6 +348,24 @@
       "message": "{{amount}} will stop counting in this register.",
       "confirm": "Undo",
       "done": "Movement undone"
+    },
+    "reassign": {
+      "action": "Reassign",
+      "title": "Reassign register",
+      "hint": "{{name}} holds it now. Pick who takes it over; the register stays open.",
+      "noHolder": "Nobody in charge",
+      "nobody": "Nobody else can take this register.",
+      "countFirst": "Count before handing over",
+      "countFirstHint": "Records how much cash was handed over. The register stays open.",
+      "countHint": "Count the cash you hand to {{name}}.",
+      "noteHint": "Explain the difference to hand the register over.",
+      "pickSomeone": "Pick someone",
+      "continue": "Continue",
+      "submit": "Hand to {{name}}",
+      "done": "Register handed to {{name}}",
+      "history": "Handovers",
+      "count": "{{count}} handover",
+      "count_other": "{{count}} handovers"
     }
   }
 }

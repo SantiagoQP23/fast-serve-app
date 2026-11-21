@@ -7,6 +7,7 @@ import {
 import {
   CashCountLine,
   CashRegister,
+  isRegisterHolder,
 } from "@/core/cash-sessions/models/cash-session.model";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { Roles, isAdminLevelRole } from "@/core/auth/models/user.model";
@@ -47,7 +48,7 @@ export const useCashRegisters = (enabled = true) => {
  * Registers a payment of `paymentMethodId` may go into, following the rule
  * in plans/apertura-cierre-caja.md (7–9): with none of the method's
  * registers open, all of them; otherwise only open ones, and a cashier only
- * the ones they opened. `null` means the rule doesn't apply (not a cash
+ * the ones they run (opened, or were handed: plans/reasignar-caja.md). `null` means the rule doesn't apply (not a cash
  * method with registers).
  */
 export const getAllowedRegisters = (
@@ -64,7 +65,7 @@ export const getAllowedRegisters = (
   const open = linked.filter((r) => r.session);
   if (open.length === 0) return { linked, allowed: linked, anyOpen: false };
   const allowed = isCashier
-    ? open.filter((r) => r.session?.openedBy?.id === userId)
+    ? open.filter((r) => r.session && isRegisterHolder(r.session, userId))
     : open;
   return { linked, allowed, anyOpen: true };
 };
@@ -136,6 +137,40 @@ export const useCloseCashSession = () => {
       note?: string;
     }) => CashSessionsService.close(id, data),
     onSettled: () => invalidateCash(client),
+  });
+};
+
+export const useAssignableUsers = (sessionId: number) => {
+  const query = useQuery({
+    queryKey: ["cashSessionAssignable", sessionId],
+    queryFn: () => CashSessionsService.getAssignableUsers(sessionId),
+    enabled: !!sessionId,
+  });
+  return {
+    users: query.data ?? [],
+    isLoading: query.isLoading,
+    error: query.error,
+    refetch: query.refetch,
+  };
+};
+
+export const useReassignCashSession = () => {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      ...data
+    }: {
+      id: number;
+      toUserId: string;
+      countedAmount?: number;
+      countedBreakdown?: CashCountLine[];
+      note?: string;
+    }) => CashSessionsService.reassign(id, data),
+    onSettled: () => {
+      invalidateCash(client);
+      client.invalidateQueries({ queryKey: ["cashSessionAssignable"] });
+    },
   });
 };
 

@@ -5,9 +5,13 @@ import dayjs from "dayjs";
 import { ActionGrid } from "@intenli/ui";
 
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatCurrency, formatDateTime } from "@/core/i18n/utils";
+import { formatCurrency, formatDateTime, formatTime } from "@/core/i18n/utils";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
-import { CashSessionStatus } from "@/core/cash-sessions/models/cash-session.model";
+import {
+  CashSessionStatus,
+  isRegisterHolder,
+  registerHolder,
+} from "@/core/cash-sessions/models/cash-session.model";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -66,8 +70,12 @@ export default function CashSessionScreen() {
   }
 
   const isOpen = session.status === CashSessionStatus.OPEN;
-  const isOpener = session.openedBy?.id === userId;
-  const canClose = isOpen && (isManager || isOpener);
+  const isHolder = isRegisterHolder(session, userId);
+  const canClose = isOpen && (isManager || isHolder);
+  const holder = registerHolder(session);
+  const assignments = session.assignments ?? [];
+  const userName = (user: typeof holder | undefined) =>
+    getUserDisplayName(user ?? undefined, t("common:labels.deletedUser"));
   const { summary } = session;
   const expected = isOpen ? summary.expectedAmount : session.expectedAmount;
 
@@ -116,7 +124,7 @@ export default function CashSessionScreen() {
 
         {canClose && (
           <ActionGrid
-            columns={3}
+            columns={4}
             items={[
               {
                 icon: "lock",
@@ -136,6 +144,13 @@ export default function CashSessionScreen() {
                 variant: "outline",
                 onPress: () =>
                   movementSheetRef.current?.present("out", session.account.id),
+              },
+              {
+                icon: "user-round-pen",
+                label: t("common:cashRegister.reassign.action"),
+                variant: "outline",
+                onPress: () =>
+                  router.push(`/cash-session/${session.id}/reassign`),
               },
             ]}
           />
@@ -212,6 +227,16 @@ export default function CashSessionScreen() {
               t("common:labels.deletedUser"),
             )}
           />
+          {(isOpen || assignments.length > 0) && (
+            <DetailCardRow
+              label={t("common:cashRegister.summary.responsible")}
+              value={
+                holder
+                  ? userName(holder)
+                  : t("common:cashRegister.reassign.noHolder")
+              }
+            />
+          )}
           {!isOpen && (
             <DetailCardRow
               label={t("common:cashRegister.summary.closedBy")}
@@ -233,6 +258,44 @@ export default function CashSessionScreen() {
             </DetailCardRow>
           )}
         </DetailCard>
+
+        {/* Handovers (plans/reasignar-caja.md) */}
+        {assignments.length > 0 && (
+          <ThemedView style={tw`gap-3`}>
+            <ThemedText type="h4">
+              {t("common:cashRegister.reassign.history")}
+            </ThemedText>
+            <DetailCard style={tw`py-2`}>
+              {assignments.map((assignment) => (
+                <DetailCardRow
+                  key={assignment.id}
+                  label={`${formatTime(assignment.assignedAt)} · ${userName(
+                    assignment.fromUser,
+                  )} → ${userName(assignment.toUser)}`}
+                >
+                  {assignment.countedAmount != null ? (
+                    <DifferenceLabel difference={assignment.difference} />
+                  ) : (
+                    <ThemedText type="small" style={tw`text-gray-500`}>
+                      {t("common:cashRegister.summary.notCounted")}
+                    </ThemedText>
+                  )}
+                </DetailCardRow>
+              ))}
+            </DetailCard>
+            {assignments
+              .filter((a) => !!a.note)
+              .map((a) => (
+                <ThemedText
+                  key={`note-${a.id}`}
+                  type="small"
+                  style={tw`text-gray-500`}
+                >
+                  {`${formatTime(a.assignedAt)} · ${a.note}`}
+                </ThemedText>
+              ))}
+          </ThemedView>
+        )}
 
         {/* Movements */}
         <ThemedView style={tw`gap-3`}>

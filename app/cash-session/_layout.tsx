@@ -60,6 +60,21 @@ export default function CashSessionLayout() {
         }}
       />
       <Stack.Screen
+        name="[id]/reassign"
+        options={{
+          headerShown: true,
+          title: "",
+          headerShadowVisible: false,
+          headerLeft: () => (
+            <IconButton
+              icon="arrow-left"
+              onPress={() => router.back()}
+              style={{ marginRight: 10 }}
+            />
+          ),
+        }}
+      />
+      <Stack.Screen
         name="[id]/index"
         options={{
           headerShown: true,
