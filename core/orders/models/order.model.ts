@@ -5,6 +5,7 @@ import { OrderStatus } from "../enums/order-status.enum";
 import { OrderType } from "../enums/order-type.enum";
 import { OrderPaymentStatus } from "../enums/order-payment-status.enum";
 import { Bill } from "./bill.model";
+import { getBillCommittedAmount } from "../utils/bill-payment.util";
 import { Ticket } from "@/core/tickets/models/ticket.model";
 
 export interface Order {
@@ -33,18 +34,24 @@ export interface Order {
 export enum OrderDeleteBlockReason {
   DELIVERED = "DELIVERED",
   NOT_PENDING = "NOT_PENDING",
+  /** A bill has a payment or a transfer waiting for proof/approval. */
+  HAS_PAYMENTS = "HAS_PAYMENTS",
 }
 
 /**
- * Only a pending order with nothing handed out yet can be deleted; the
- * backend enforces the same rule. Returns why it can't, or null when it can.
+ * Only a pending order with nothing handed out yet and no payments on its
+ * bills can be deleted; its unpaid bills are deleted with it. The backend
+ * enforces the same rule. Returns why it can't, or null when it can.
  */
 export const getOrderDeleteBlockReason = (
   order: Order,
+  bills: Bill[] = order.bills ?? [],
 ): OrderDeleteBlockReason | null => {
   if ((order.details ?? []).some((detail) => detail.qtyDelivered > 0))
     return OrderDeleteBlockReason.DELIVERED;
   if (order.status !== OrderStatus.PENDING)
     return OrderDeleteBlockReason.NOT_PENDING;
+  if (bills.some((bill) => getBillCommittedAmount(bill) > 0))
+    return OrderDeleteBlockReason.HAS_PAYMENTS;
   return null;
 };

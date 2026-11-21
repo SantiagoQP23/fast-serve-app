@@ -156,6 +156,7 @@
     "ORDER_BILL_NOT_FOUND": "Bill not found",
     "ORDER_BILL_NOT_DIRECT": "Only direct sales can be edited",
     "ORDER_BILL_INACTIVE": "The bill is no longer active",
+    "ORDER_HAS_PAYMENTS": "Bill #{{billNum}} has payments. Remove the payments first.",
     "ORDER_BILL_ALREADY_PAID": "The sale is already paid",
     "ORDER_BILL_TRANSFER_PENDING": "A transfer is waiting for approval",
     "ORDER_BILL_INVALID_DETAILS": "The sale's products are not valid",

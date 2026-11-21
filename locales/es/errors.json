@@ -156,6 +156,7 @@
     "ORDER_BILL_NOT_FOUND": "No se encontró la cuenta",
     "ORDER_BILL_NOT_DIRECT": "Solo se pueden editar ventas directas",
     "ORDER_BILL_INACTIVE": "La cuenta ya no está activa",
+    "ORDER_HAS_PAYMENTS": "La cuenta #{{billNum}} tiene pagos. Elimina los pagos primero.",
     "ORDER_BILL_ALREADY_PAID": "La venta ya fue pagada",
     "ORDER_BILL_TRANSFER_PENDING": "Hay una transferencia pendiente de aprobación",
     "ORDER_BILL_INVALID_DETAILS": "Los productos de la venta no son válidos",

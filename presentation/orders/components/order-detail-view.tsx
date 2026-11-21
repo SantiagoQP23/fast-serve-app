@@ -333,7 +333,12 @@ export default function OrderDetailView({
   // Check if this is a closed order
   const isClosed = order.isClosed === true;
 
-  const deleteBlockReason = getOrderDeleteBlockReason(order);
+  // Bills from their own query: they carry the payments.
+  const deleteBlockReason = getOrderDeleteBlockReason(
+    order,
+    orderBills ?? order.bills ?? [],
+  );
+  const billsToDelete = (orderBills ?? order.bills ?? []).length;
 
   const canForceCloseOrder =
     isAdmin &&
@@ -843,7 +848,13 @@ export default function OrderDetailView({
       <DialogModal
         visible={deleteDialogVisible}
         title={t("orders:dialogs.removeTitle")}
-        message={t("orders:dialogs.removeMessage")}
+        message={
+          billsToDelete > 0
+            ? t("orders:dialogs.removeWithBillsMessage", {
+                count: billsToDelete,
+              })
+            : t("orders:dialogs.removeMessage")
+        }
         confirmLabel={t("orders:dialogs.deleteConfirm")}
         confirmVariant="destructive"
         onConfirm={onRemoveOrder}

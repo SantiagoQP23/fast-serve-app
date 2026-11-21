@@ -3,6 +3,7 @@ import { OrderSocketEvent } from "@/core/orders/enums/socket-events.enum";
 import { Order } from "@/core/orders/models/order.model";
 import { useWebsocketEventEmitter } from "@/presentation/shared/hooks/useWebsocketEventEmitter";
 import { Alert } from "react-native";
+import { queryClient } from "@/app/_layout";
 import { useOrdersStore } from "../store/useOrdersStore";
 import {
   AddOrderDetailToOrderDto,
@@ -61,6 +62,12 @@ const withOutbox = <TData, TVariables>(
     return emitter.mutate(data, options);
   },
 });
+
+/** Bills lists and an order's bills, after bills were deleted with an order. */
+export const invalidateBills = () => {
+  queryClient.invalidateQueries({ queryKey: ["bills"] });
+  queryClient.invalidateQueries({ queryKey: ["billsList"] });
+};
 
 export const useOrders = () => {
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
@@ -172,10 +179,13 @@ export const useOrders = () => {
     Order,
     string | DeleteOrderDto
   >(OrderSocketEvent.deleteOrder, {
-    onSuccess: (resp) => {},
+    // Its unpaid bills were deleted with it.
+    onSuccess: () => invalidateBills(),
     onError: (resp) => {
       // The code sheet shows these itself.
       if (isAuthorizationError(resp.code)) return;
+      // A payment arrived since the bills were loaded; show it.
+      if (resp.code === "ORDER_HAS_PAYMENTS") invalidateBills();
       Alert.alert("Error", resp.msg);
     },
   });
@@ -348,6 +358,7 @@ export const useOrderDeletedListener = () => {
     OrderSocketEvent.deleteOrder,
     ({ data }: SocketEvent<Order>) => {
       if (data) deleteOrder(data.id);
+      invalidateBills();
     },
   );
 };
