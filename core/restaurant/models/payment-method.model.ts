@@ -12,6 +12,8 @@ export interface PaymentMethod {
   id: number;
   name: string;
   commissionPercentage: number;
+  /** CARD only: add the commission to what the customer pays (off: the restaurant absorbs it). */
+  chargeCommissionToCustomer?: boolean;
   type: PaymentMethodCategory;
   allowedDestinationAccounts: Account[];
   defaultDestinationAccount?: Account;

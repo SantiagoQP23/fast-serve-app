@@ -17,6 +17,10 @@ import * as ImagePicker from "expo-image-picker";
 import { PaymentMethodCategory } from "@/core/restaurant/models/payment-method.model";
 import { PaymentProofStatus } from "@/core/transactions/models/payment-proof.model";
 import { getErrorMessage } from "@/core/api/get-error-message";
+import {
+  applyCommission,
+  customerCommissionPercentage,
+} from "@/core/orders/utils/bill-payment.util";
 
 export default function ProofUploadScreen() {
   const { t } = useTranslation(["common", "bills", "errors"]);
@@ -63,11 +67,18 @@ export default function ProofUploadScreen() {
   const transaction = activePendingTransaction;
   const isCard =
     transaction?.paymentMethod?.type === PaymentMethodCategory.CARD;
-  const commissionRate = transaction?.paymentMethod?.commissionPercentage
-    ? transaction.paymentMethod.commissionPercentage / 100
-    : 0;
+  // What goes on the card (plans/comision-tarjeta.md): the server's numbers,
+  // or the method's switch for a payment it hasn't returned yet.
+  const customerCommission =
+    transaction?.grossAmount != null
+      ? transaction.commissionChargedToCustomer
+        ? (transaction.commissionPercentage ?? 0)
+        : 0
+      : customerCommissionPercentage(transaction?.paymentMethod);
+  const commissionRate = customerCommission / 100;
   const totalWithCommission = transaction
-    ? transaction.amount * (1 + commissionRate)
+    ? (transaction.grossAmount ??
+      applyCommission(transaction.amount, customerCommission))
     : 0;
 
   const latestProof = proofs[0];
@@ -164,7 +175,7 @@ export default function ProofUploadScreen() {
             <ThemedText type="body2" style={tw`text-gray-500`}>
               {t("bills:details.totalAmount")}:{" "}
               {formatCurrency(transaction.amount)} +{" "}
-              {transaction.paymentMethod?.commissionPercentage}%{" "}
+              {customerCommission}%{" "}
               {t("bills:details.commission").toLowerCase()}
             </ThemedText>
           )}

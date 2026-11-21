@@ -29,6 +29,7 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import {
   applyCommission,
+  customerCommissionPercentage,
   getBillAmountDue,
   isSameAmount,
   parseAmount,
@@ -111,10 +112,9 @@ export default function AccountScreen() {
     amount > amountDue &&
     !isSameAmount(amount, amountDue);
 
-  const isCard = selectedPaymentMethod?.type === PaymentMethodCategory.CARD;
-  const commissionPercentage = isCard
-    ? (selectedPaymentMethod?.commissionPercentage ?? 0)
-    : 0;
+  const commissionPercentage = customerCommissionPercentage(
+    selectedPaymentMethod,
+  );
   // What the customer is charged; the commission isn't applied to the bill.
   const totalToPay = applyCommission(amount, commissionPercentage);
 

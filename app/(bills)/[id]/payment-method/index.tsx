@@ -33,6 +33,7 @@ import { usePaymentStore } from "@/presentation/payment/store/usePaymentStore";
 import { roundTo } from "@/core/common/utils/format.util";
 import {
   applyCommission,
+  customerCommissionPercentage,
   getBillAmountDue,
   getCashTenderSuggestions,
   isSameAmount,
@@ -138,9 +139,10 @@ export default function PaymentMethodScreen() {
   const cardBottomSheetRef = useRef<BottomSheetMethods>(null);
   const transferBottomSheetRef = useRef<BottomSheetMethods>(null);
 
+  const customerCommission = customerCommissionPercentage(selectedMethod);
   const totalWithCommission = applyCommission(
     payAmount || 0,
-    selectedMethod?.commissionPercentage ?? 0,
+    customerCommission,
   );
   const received = parseAmount(receivedAmount);
   const isReceivedEnough =
@@ -459,10 +461,10 @@ export default function PaymentMethodScreen() {
           </ThemedView>
 
           <ThemedView style={tw` rounded-md  gap-1 items-center mb-4`}>
-            {(selectedMethod?.commissionPercentage ?? 0) > 0 && (
+            {customerCommission > 0 && (
               <ThemedText type="body1">
                 {t("bills:details.plusCommission", {
-                  percentage: selectedMethod?.commissionPercentage,
+                  percentage: customerCommission,
                 })}
               </ThemedText>
             )}

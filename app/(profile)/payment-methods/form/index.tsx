@@ -27,6 +27,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
+import Switch from "@/presentation/theme/components/switch";
 import Card from "@/presentation/theme/components/card";
 import Select from "@/presentation/theme/components/select";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
@@ -58,6 +59,7 @@ const buildPaymentMethodSchema = (t: (key: string) => string) =>
         (v) => v === "" || (!Number.isNaN(Number(v)) && Number(v) >= 0),
         t("methods.validations.commissionInvalid"),
       ),
+    chargeCommissionToCustomer: z.boolean(),
     allowedDestinationAccountIds: z
       .array(z.string())
       .min(1, t("methods.validations.allowedAccountsRequired")),
@@ -133,6 +135,8 @@ export default function PaymentMethodFormScreen() {
       name: t(getPaymentMethodTranslationKey(initialType)),
       type: initialType,
       commissionPercentage: "0",
+      // New card methods: the restaurant absorbs it (plans/comision-tarjeta.md, 2).
+      chargeCommissionToCustomer: false,
       allowedDestinationAccountIds: [],
       defaultDestinationAccountId: "",
     },
@@ -200,6 +204,9 @@ export default function PaymentMethodFormScreen() {
         data.type === PaymentMethodCategory.CARD && data.commissionPercentage
           ? Number(data.commissionPercentage)
           : 0,
+      chargeCommissionToCustomer:
+        data.type === PaymentMethodCategory.CARD &&
+        data.chargeCommissionToCustomer,
       allowedDestinationAccountIds: data.allowedDestinationAccountIds.map(
         Number,
       ),
@@ -380,6 +387,28 @@ export default function PaymentMethodFormScreen() {
                           keyboardType="decimal-pad"
                           error={errors.commissionPercentage?.message}
                         />
+                      )}
+                    />
+                  )}
+                  {isCardType && (
+                    <Controller
+                      control={control}
+                      name="chargeCommissionToCustomer"
+                      render={({ field: { onChange, value } }) => (
+                        <ThemedView style={tw`gap-1`}>
+                          <Switch
+                            label={t("methods.fields.chargeCommissionToCustomer")}
+                            value={value}
+                            onValueChange={onChange}
+                          />
+                          <ThemedText type="caption" style={tw`text-gray-500`}>
+                            {t(
+                              value
+                                ? "methods.fields.chargeCommissionToCustomerOn"
+                                : "methods.fields.chargeCommissionToCustomerOff",
+                            )}
+                          </ThemedText>
+                        </ThemedView>
                       )}
                     />
                   )}

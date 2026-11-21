@@ -5,6 +5,10 @@ export interface PaymentMethodReportItem {
   totalIncome: number;
   totalExpense: number;
   net: number;
+  /** Charged on cards; missing on older backends. */
+  totalGross?: number;
+  /** Card commission kept by the processor (plans/comision-tarjeta.md). */
+  totalCommission?: number;
   transactionCount: number;
   percentageOfIncome: number;
   percentageOfExpense: number;
@@ -32,6 +36,8 @@ export interface PaymentMethodReportResponse {
     totalIncome: number;
     totalExpense: number;
     net: number;
+    totalGross?: number;
+    totalCommission?: number;
     totalTransactions: number;
   };
 }

@@ -1,5 +1,9 @@
 import { roundTo } from "@/core/common/utils/format.util";
 import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
+import {
+  PaymentMethod,
+  PaymentMethodCategory,
+} from "@/core/restaurant/models/payment-method.model";
 import { Bill } from "../models/bill.model";
 
 // Payments that already count against the bill: completed ones, plus transfers
@@ -28,6 +32,21 @@ export const getBillCommittedAmount = (bill: Bill): number =>
  */
 export const getBillAmountDue = (bill: Bill): number =>
   Math.max(0, roundTo(Number(bill.total) - getBillCommittedAmount(bill), 2));
+
+/**
+ * The commission added on top of what the customer pays: only for card
+ * methods with "Cobrar la comisión al cliente" on (plans/comision-tarjeta.md).
+ */
+export const customerCommissionPercentage = (
+  method?: Pick<
+    PaymentMethod,
+    "type" | "commissionPercentage" | "chargeCommissionToCustomer"
+  > | null,
+): number =>
+  method?.type === PaymentMethodCategory.CARD &&
+  method.chargeCommissionToCustomer
+    ? (method.commissionPercentage ?? 0)
+    : 0;
 
 /** What the customer pays when the method adds a commission (cards). */
 export const applyCommission = (
