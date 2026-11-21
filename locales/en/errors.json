@@ -228,7 +228,7 @@
     "ORDER_BILL_OVER_QUANTITY": "Not enough units of {{productName}} left to bill (left: {{available}})",
     "MENU_MODIFIER_GROUP_TOO_MANY_DEFAULTS": "There are more default options than the group lets you pick",
     "FINANCIAL_CASH_COUNT_MISMATCH": "The bills and coins counted don't add up to the total",
-    "FINANCIAL_CASH_REGISTER_NOT_ALLOWED": "This register is closed or you didn't open it",
+    "FINANCIAL_CASH_REGISTER_NOT_ALLOWED": "This register is closed or isn't yours",
     "FINANCIAL_CASH_SESSION_ALREADY_OPEN": "The register is already open",
     "FINANCIAL_CASH_SESSION_CLOSED": "This movement's register is already closed",
     "FINANCIAL_CASH_SESSION_COUNT_REQUIRED": "Type the counted cash",
@@ -240,6 +240,8 @@
     "FINANCIAL_TRANSACTION_CATEGORY_BUILT_IN": "Built-in categories can't be changed",
     "FINANCIAL_CASH_DEPOSIT_FORBIDDEN": "You don't have permission to add cash",
     "FINANCIAL_CASH_MOVEMENT_CANNOT_CANCEL": "This movement can't be undone",
-    "FINANCIAL_TRANSACTION_FORBIDDEN": "Only an admin can do this"
+    "FINANCIAL_TRANSACTION_FORBIDDEN": "Only an admin can do this",
+    "FINANCIAL_CASH_SESSION_CHANGED": "The register changed, try again",
+    "FINANCIAL_CASH_SESSION_INVALID_ASSIGNEE": "That person can't take the register"
   }
 }

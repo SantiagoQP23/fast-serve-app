@@ -81,7 +81,7 @@ export default function CashSessionsHistoryScreen() {
 
   const renderSession = (session: CashSession) => {
     const isOpen = session.status === CashSessionStatus.OPEN;
-    const who = [session.openedBy, session.closedBy]
+    const who = [session.openedBy, session.responsible, session.closedBy]
       .filter(Boolean)
       .map((u) => u?.person?.firstName)
       .filter((name, i, all) => name && all.indexOf(name) === i)
@@ -110,7 +110,13 @@ export default function CashSessionsHistoryScreen() {
         <ThemedText type="small" style={tw`text-gray-500`}>
           {`${formatTime(session.openedAt)}${
             session.closedAt ? ` – ${closedAtText(session)}` : ""
-          }${who ? ` · ${who}` : ""}`}
+          }${who ? ` · ${who}` : ""}${
+            session.assignmentCount
+              ? ` · ${t("common:cashRegister.reassign.count", {
+                  count: session.assignmentCount,
+                })}`
+              : ""
+          }`}
         </ThemedText>
         {!isOpen && (
           <ThemedText type="small" style={tw`text-gray-500`}>

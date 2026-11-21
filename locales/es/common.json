@@ -252,7 +252,7 @@
     "pickRegister": "Elige la caja",
     "opened": "{{register}} abierta",
     "noRegisters": "No hay cajas. Vincula una cuenta de efectivo a un método de pago en efectivo.",
-    "notYours": "Esta caja la abrió otra persona",
+    "notYours": "Esta caja está a cargo de otra persona",
     "summary": {
       "opening": "Efectivo inicial",
       "income": "Cobros en efectivo",
@@ -270,6 +270,7 @@
       "adjusted": "Ajustada después del cierre",
       "note": "Nota",
       "openedBy": "Abrió",
+      "responsible": "A cargo de",
       "closedBy": "Cerró",
       "movements": "Movimientos",
       "noMovements": "Aún no hay movimientos en esta caja."
@@ -347,6 +348,24 @@
       "message": "{{amount}} dejará de contar en esta caja.",
       "confirm": "Anular",
       "done": "Movimiento anulado"
+    },
+    "reassign": {
+      "action": "Reasignar",
+      "title": "Reasignar caja",
+      "hint": "Ahora está a cargo de {{name}}. Elige quién la recibe; la caja sigue abierta.",
+      "noHolder": "Sin responsable",
+      "nobody": "No hay otra persona que pueda recibir la caja.",
+      "countFirst": "Contar antes de entregar",
+      "countFirstHint": "Guarda cuánto efectivo se entregó. La caja no se cierra.",
+      "countHint": "Cuenta el efectivo que le entregas a {{name}}.",
+      "noteHint": "Explica la diferencia para entregar la caja.",
+      "pickSomeone": "Elige a alguien",
+      "continue": "Continuar",
+      "submit": "Entregar a {{name}}",
+      "done": "Caja entregada a {{name}}",
+      "history": "Entregas",
+      "count": "{{count}} entrega",
+      "count_other": "{{count}} entregas"
     }
   }
 }

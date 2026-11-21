@@ -23,6 +23,15 @@ export interface CashSession {
   status: CashSessionStatus;
   openedBy: User | null;
   openedAt: string;
+  /**
+   * Who runs the register now (plans/reasignar-caja.md). Starts as the
+   * opener; changes on a reassign. Null when that person was removed.
+   */
+  responsible?: User | null;
+  /** Since when `responsible` holds it. */
+  responsibleSince?: string | null;
+  /** Number of handovers (history list only). */
+  assignmentCount?: number;
   openingAmount: number;
   /** Bills and coins counted at opening; null when only the total was typed. */
   openingBreakdown: CashCountLine[] | null;
@@ -57,10 +66,53 @@ export interface CashSessionSummary {
   expectedAmount: number | null;
 }
 
+/** One handover of an open register (plans/reasignar-caja.md). */
+export interface CashSessionAssignment {
+  id: number;
+  fromUser: User | null;
+  toUser: User | null;
+  assignedBy: User | null;
+  assignedAt: string;
+  /** Null when handed over without counting. */
+  countedAmount: number | null;
+  countedBreakdown: CashCountLine[] | null;
+  expectedAmount: number | null;
+  difference: number | null;
+  note: string | null;
+}
+
+/** Someone who can take an open register over. */
+export interface AssignableUser {
+  id: string;
+  username: string;
+  person: { firstName: string; lastName: string } | null;
+  role: string;
+}
+
 export interface CashSessionDetail extends CashSession {
   summary: CashSessionSummary;
   transactions: Transaction[];
+  assignments?: CashSessionAssignment[];
 }
+
+/**
+ * Whether `userId` runs the register now. Mirrors the server: sessions from
+ * before reassigning existed have no `responsible`, so their opener runs them.
+ */
+export const isRegisterHolder = (
+  session: Pick<CashSession, "responsible" | "responsibleSince" | "openedBy">,
+  userId: string | undefined,
+) => {
+  if (!userId) return false;
+  if (session.responsible) return session.responsible.id === userId;
+  return !session.responsibleSince && session.openedBy?.id === userId;
+};
+
+/** Who runs the register now, for display. */
+export const registerHolder = (
+  session: Pick<CashSession, "responsible" | "responsibleSince" | "openedBy">,
+) =>
+  session.responsible ?? (session.responsibleSince ? null : session.openedBy);
 
 export interface CashRegister {
   account: Pick<Account, "id" | "name">;

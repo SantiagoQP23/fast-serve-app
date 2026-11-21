@@ -228,7 +228,7 @@
     "ORDER_BILL_OVER_QUANTITY": "No quedan suficientes unidades de {{productName}} por cobrar (quedan {{available}})",
     "MENU_MODIFIER_GROUP_TOO_MANY_DEFAULTS": "Hay más opciones predeterminadas de las que el grupo permite elegir",
     "FINANCIAL_CASH_COUNT_MISMATCH": "El conteo de billetes y monedas no coincide con el total",
-    "FINANCIAL_CASH_REGISTER_NOT_ALLOWED": "Esta caja está cerrada o no la abriste tú",
+    "FINANCIAL_CASH_REGISTER_NOT_ALLOWED": "Esta caja está cerrada o no está a tu cargo",
     "FINANCIAL_CASH_SESSION_ALREADY_OPEN": "La caja ya está abierta",
     "FINANCIAL_CASH_SESSION_CLOSED": "La caja de este movimiento ya se cerró",
     "FINANCIAL_CASH_SESSION_COUNT_REQUIRED": "Ingresa el efectivo contado",
@@ -240,6 +240,8 @@
     "FINANCIAL_TRANSACTION_CATEGORY_BUILT_IN": "Las categorías predeterminadas no se pueden modificar",
     "FINANCIAL_CASH_DEPOSIT_FORBIDDEN": "No tienes permiso para agregar efectivo",
     "FINANCIAL_CASH_MOVEMENT_CANNOT_CANCEL": "Este movimiento no se puede anular",
-    "FINANCIAL_TRANSACTION_FORBIDDEN": "Solo un administrador puede hacer esto"
+    "FINANCIAL_TRANSACTION_FORBIDDEN": "Solo un administrador puede hacer esto",
+    "FINANCIAL_CASH_SESSION_CHANGED": "La caja cambió, vuelve a intentarlo",
+    "FINANCIAL_CASH_SESSION_INVALID_ASSIGNEE": "Esa persona no puede recibir la caja"
   }
 }

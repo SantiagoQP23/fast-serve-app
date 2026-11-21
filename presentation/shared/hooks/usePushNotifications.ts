@@ -228,6 +228,7 @@ export const usePushNotifications = () => {
               setPendingPaymentId(String(notification.payload.paymentId));
               break;
             case PushNotificationType.CASH_SESSION_CLOSED:
+            case PushNotificationType.CASH_SESSION_REASSIGNED:
               setPendingCashSessionId(
                 String(notification.payload.cashSessionId),
               );
@@ -263,6 +264,7 @@ export const usePushNotifications = () => {
             setPendingPaymentId(String(notification.payload.paymentId));
             break;
           case PushNotificationType.CASH_SESSION_CLOSED:
+          case PushNotificationType.CASH_SESSION_REASSIGNED:
             setPendingCashSessionId(String(notification.payload.cashSessionId));
             break;
           case PushNotificationType.LOW_STOCK:

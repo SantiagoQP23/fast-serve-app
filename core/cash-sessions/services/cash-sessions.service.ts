@@ -1,6 +1,7 @@
 import { restaurantApi } from "@/core/api/restaurantApi";
 import { Transaction } from "@/core/transactions/models/transaction.model";
 import {
+  AssignableUser,
   CashCountLine,
   CashRegister,
   CashSession,
@@ -62,6 +63,31 @@ export class CashSessionsService {
     const resp = await restaurantApi.post<
       CashSession & { summary: CashSessionSummary }
     >(`/cash-sessions/${id}/close`, data);
+    return resp.data;
+  }
+
+  /** People who can take this open register over. */
+  static async getAssignableUsers(id: number): Promise<AssignableUser[]> {
+    const resp = await restaurantApi.get<AssignableUser[]>(
+      `/cash-sessions/${id}/assignable-users`,
+    );
+    return resp.data;
+  }
+
+  /** Hand an open register to someone else; the count is optional. */
+  static async reassign(
+    id: number,
+    data: {
+      toUserId: string;
+      countedAmount?: number;
+      countedBreakdown?: CashCountLine[];
+      note?: string;
+    },
+  ): Promise<CashSessionDetail> {
+    const resp = await restaurantApi.post<CashSessionDetail>(
+      `/cash-sessions/${id}/reassign`,
+      data,
+    );
     return resp.data;
   }
 
