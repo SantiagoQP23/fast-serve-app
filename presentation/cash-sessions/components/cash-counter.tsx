@@ -1,6 +1,3 @@
-import { useState } from "react";
-import { TextInput, type TextInputProps } from "react-native";
-
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
@@ -9,52 +6,16 @@ import {
   CashCountQuantities,
   formatDenomination,
   getCashCountSubtotal,
+  MAX_CASH_QUANTITY,
 } from "@/core/cash-sessions/utils/cash-count.util";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
+import Counter from "@/presentation/theme/components/counter";
 
 interface CashCounterProps {
   quantities: CashCountQuantities;
-  onChangeQuantity: (value: number, text: string) => void;
-  autoFocus?: boolean;
-}
-
-/** Quantity field with only a bottom line, thicker while focused. */
-function QuantityInput(props: TextInputProps) {
-  const [isFocused, setIsFocused] = useState(false);
-
-  return (
-    <TextInput
-      {...props}
-      onFocus={(e: any) => {
-        setIsFocused(true);
-        props.onFocus?.(e);
-      }}
-      onBlur={(e: any) => {
-        setIsFocused(false);
-        props.onBlur?.(e);
-      }}
-      placeholderTextColor={tw.color("on-surface-variant")}
-      cursorColor={tw.color("primary")}
-      selectionColor={tw.color("primary")}
-      style={[
-        tw`h-11 text-center text-on-surface`,
-        {
-          fontSize: 16,
-          fontFamily: typography.medium,
-          paddingVertical: 0,
-          includeFontPadding: false,
-          // Same outer height focused or not, so the row doesn't shift.
-          borderBottomWidth: isFocused ? 2 : 1,
-          paddingTop: isFocused ? 0 : 1,
-          borderBottomColor: tw.color(
-            isFocused ? "primary" : "on-surface-variant",
-          ),
-        },
-      ]}
-    />
-  );
+  onChangeQuantity: (value: number, quantity: number) => void;
 }
 
 /** Bold "Total" row of a count, docked in the screen's footer. */
@@ -74,53 +35,50 @@ export function CashCountTotal({ total }: { total: number }) {
 }
 
 /**
- * One row per bill or coin: value × quantity = subtotal. The total lives
- * outside, in `CashCountTotal`.
+ * One row per bill or coin: the value with its subtotal under it, and a
+ * Counter for how many. The total lives outside, in `CashCountTotal`.
  */
 export default function CashCounter({
   quantities,
   onChangeQuantity,
-  autoFocus,
 }: CashCounterProps) {
-  const rows = CASH_DENOMINATIONS.map((value, index) => {
-    const subtotal = getCashCountSubtotal(value, quantities[value]);
+  const rows = CASH_DENOMINATIONS.map((value) => {
+    const quantity = quantities[value] ?? 0;
+    const subtotal = getCashCountSubtotal(value, quantity);
+    const label = formatDenomination(value);
     return (
-      <ThemedView key={value} style={tw`flex-row items-center gap-3`}>
-        <ThemedText type="body1" style={tw`w-16`}>
-          {formatDenomination(value)}
-        </ThemedText>
-        <ThemedText type="body1" style={tw`text-gray-500`}>
-          ×
-        </ThemedText>
-        <ThemedView style={tw`w-20`}>
-          <QuantityInput
-            value={quantities[value] ?? ""}
-            onChangeText={(text) => onChangeQuantity(value, text)}
-            inputMode="numeric"
-            keyboardType="number-pad"
-            placeholder="0"
-            maxLength={5}
-            selectTextOnFocus
-            autoFocus={autoFocus && index === 0}
-            accessibilityLabel={formatDenomination(value)}
-          />
+      <ThemedView
+        key={value}
+        style={tw`flex-row items-center gap-3 py-2 border-b border-divider`}
+      >
+        <ThemedView style={tw`flex-1`}>
+          <ThemedText type="body1" style={{ fontFamily: typography.semibold }}>
+            {label}
+          </ThemedText>
+          <ThemedText
+            type="small"
+            numberOfLines={1}
+            style={tw.style(
+              "text-on-surface-variant",
+              subtotal === 0 && "text-gray-400",
+            )}
+          >
+            {formatCurrency(subtotal)}
+          </ThemedText>
         </ThemedView>
-        <ThemedText type="body1" style={tw`text-gray-500`}>
-          =
-        </ThemedText>
-        <ThemedText
-          type="body1"
-          numberOfLines={1}
-          style={tw.style(
-            "flex-1 text-right",
-            subtotal === 0 && "text-gray-400",
-          )}
-        >
-          {formatCurrency(subtotal)}
-        </ThemedText>
+        <Counter
+          value={quantity}
+          onChangeValue={(next) => onChangeQuantity(value, next)}
+          min={0}
+          max={MAX_CASH_QUANTITY}
+          size="small"
+          keyboardType="number-pad"
+          accessibilityLabel={label}
+          style={tw`w-44`}
+        />
       </ThemedView>
     );
   });
 
-  return <ThemedView style={tw`gap-2`}>{rows}</ThemedView>;
+  return <ThemedView>{rows}</ThemedView>;
 }

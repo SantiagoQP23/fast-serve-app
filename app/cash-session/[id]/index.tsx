@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RefreshControl, ScrollView } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import dayjs from "dayjs";
@@ -31,6 +31,11 @@ import CashMovementSheet, {
 import DifferenceLabel from "@/presentation/cash-sessions/components/difference-label";
 import CashBreakdownCard from "@/presentation/cash-sessions/components/cash-breakdown-card";
 import {
+  useCashCountDraftKey,
+  useHasCashCountDraft,
+} from "@/presentation/cash-sessions/hooks/useCashCountDraft";
+import { useCashCountDraftStore } from "@/presentation/cash-sessions/store/cashCountDraftStore";
+import {
   useCashRoles,
   useCashSession,
 } from "@/presentation/cash-sessions/hooks/useCashSessions";
@@ -45,6 +50,20 @@ export default function CashSessionScreen() {
   const { userId, isManager } = useCashRoles();
   const movementSheetRef = useRef<CashMovementSheetRef>(null);
   const [refreshing, setRefreshing] = useState(false);
+
+  // A count started on Close or Reassign (plans/conteo-caja-borrador.md).
+  const closeDraftKey = useCashCountDraftKey("close", sessionId);
+  const reassignDraftKey = useCashCountDraftKey("reassign", sessionId);
+  const hasCloseDraft = useHasCashCountDraft(closeDraftKey);
+  const hasReassignDraft = useHasCashCountDraft(reassignDraftKey);
+  const sessionEnded = !!session && session.status !== CashSessionStatus.OPEN;
+  useEffect(() => {
+    if (!sessionEnded) return;
+    const keys = [closeDraftKey, reassignDraftKey].filter(
+      (key): key is string => !!key,
+    );
+    useCashCountDraftStore.getState().discard(...keys);
+  }, [sessionEnded, closeDraftKey, reassignDraftKey]);
 
   if (!session) {
     return (
@@ -128,7 +147,9 @@ export default function CashSessionScreen() {
             items={[
               {
                 icon: "lock",
-                label: t("common:cashRegister.closeRegister"),
+                label: hasCloseDraft
+                  ? t("common:cashRegister.draft.continueClosing")
+                  : t("common:cashRegister.closeRegister"),
                 onPress: () => router.push(`/cash-session/${session.id}/close`),
               },
               {
@@ -147,7 +168,9 @@ export default function CashSessionScreen() {
               },
               {
                 icon: "user-round-pen",
-                label: t("common:cashRegister.reassign.action"),
+                label: hasReassignDraft
+                  ? t("common:cashRegister.draft.continueHandover")
+                  : t("common:cashRegister.reassign.action"),
                 variant: "outline",
                 onPress: () =>
                   router.push(`/cash-session/${session.id}/reassign`),

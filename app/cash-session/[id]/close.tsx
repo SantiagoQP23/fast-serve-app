@@ -8,7 +8,10 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { getErrorMessage } from "@/core/api/get-error-message";
 import { getApiError } from "@/core/api/api-response";
-import { CashCountLine } from "@/core/cash-sessions/models/cash-session.model";
+import {
+  CashCountLine,
+  CashSessionStatus,
+} from "@/core/cash-sessions/models/cash-session.model";
 import tw from "@/presentation/theme/lib/tailwind";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
@@ -23,7 +26,12 @@ import {
 import DifferenceLabel from "@/presentation/cash-sessions/components/difference-label";
 import CashCountField from "@/presentation/cash-sessions/components/cash-count-field";
 import CashCountFooter from "@/presentation/cash-sessions/components/cash-count-footer";
+import CashCountDraftBanner from "@/presentation/cash-sessions/components/cash-count-draft-banner";
 import { useCashCount } from "@/presentation/cash-sessions/hooks/useCashCount";
+import {
+  useCashCountDraft,
+  useCashCountDraftKey,
+} from "@/presentation/cash-sessions/hooks/useCashCountDraft";
 import {
   useCashRoles,
   useCashSession,
@@ -40,6 +48,8 @@ type Result = {
  * Closing a register (plans/apertura-cierre-caja.md, 17). The cashier types
  * the counted cash first and only then sees what was expected. When it
  * doesn't match, the count is locked and a note is needed to close.
+ * The count is kept as a draft on this phone until the register closes
+ * (plans/conteo-caja-borrador.md); a locked one reopens on the note.
  */
 export default function CloseCashSessionScreen() {
   const { t } = useTranslation(["common", "errors"]);
@@ -56,6 +66,33 @@ export default function CloseCashSessionScreen() {
   const [note, setNote] = useState("");
   const [result, setResult] = useState<Result | null>(null);
   const [confirmNoCount, setConfirmNoCount] = useState(false);
+
+  const draftKey = useCashCountDraftKey("close", sessionId);
+  const draft = useCashCountDraft({
+    key: draftKey,
+    draft:
+      step === "count" && count.touched
+        ? { count: count.snapshot, step, result: null, note: "" }
+        : step === "note"
+          ? { count: count.snapshot, step, result, note }
+          : null,
+    onRestore: (saved) => {
+      count.restore(saved.count);
+      if (saved.step === "note" && saved.result) {
+        setResult(saved.result);
+        setNote(saved.note);
+        setStep("note");
+      }
+    },
+  });
+
+  // Closed from another phone: the draft has nothing left to close.
+  const closedElsewhere =
+    !!session && session.status !== CashSessionStatus.OPEN && step !== "done";
+  const discardDraft = draft.discard;
+  useEffect(() => {
+    if (closedElsewhere) discardDraft();
+  }, [closedElsewhere, discardDraft]);
 
   const countedValue = count.value;
   const pendingCount = session?.summary.pendingCount ?? 0;
@@ -81,6 +118,7 @@ export default function CloseCashSessionScreen() {
   }, [navigation, canSkipCount, closeSession.isPending, t]);
 
   const finish = (closed: Result) => {
+    draft.discard();
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     toast.success(t("common:cashRegister.close.done"));
     setResult(closed);
@@ -157,6 +195,20 @@ export default function CloseCashSessionScreen() {
             {session?.account.name ?? ""}
           </ThemedText>
 
+          {draft.restored && step !== "done" && (
+            <CashCountDraftBanner
+              savedAt={draft.restored.savedAt}
+              onStartOver={
+                step === "count"
+                  ? () => {
+                      draft.discard();
+                      count.reset();
+                    }
+                  : undefined
+              }
+            />
+          )}
+
           {step === "count" && (
             <>
               <ThemedView style={tw`gap-1`}>
@@ -171,7 +223,7 @@ export default function CloseCashSessionScreen() {
               <CashCountField
                 count={count}
                 amountLabel={t("common:cashRegister.summary.counted")}
-                autoFocus
+                autoFocus={!draft.restored}
               />
 
               {liveExpected != null && (

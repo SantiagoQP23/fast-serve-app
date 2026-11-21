@@ -366,6 +366,14 @@
       "history": "Entregas",
       "count": "{{count}} entrega",
       "count_other": "{{count}} entregas"
+    },
+    "draft": {
+      "savedAt": "Conteo guardado a las {{time}}",
+      "startOver": "Empezar de nuevo",
+      "startOverTitle": "¿Empezar el conteo de nuevo?",
+      "startOverMessage": "Se borrará el conteo guardado.",
+      "continueClosing": "Seguir cerrando",
+      "continueHandover": "Seguir reasignando"
     }
   }
 }
