@@ -145,6 +145,8 @@
   "dialogs": {
     "removeTitle": "Delete Order",
     "removeMessage": "Are you sure you want to delete this order? This action cannot be undone.",
+    "removeWithBillsMessage_one": "The order and its bill will be deleted. This action cannot be undone.",
+    "removeWithBillsMessage_other": "The order and its {{count}} bills will be deleted. This action cannot be undone.",
     "resetCartTitle": "Clear Cart",
     "resetCartMessage": "Are you sure you want to clear the cart? All products and order details will be removed. This action cannot be undone.",
     "closeTitle": "Close Order",
@@ -249,7 +251,8 @@
       "PAID": "This item has already been paid for and cannot be replaced.",
       "DELIVERED": "This item has already been delivered and cannot be replaced.",
       "READY": "This item is already marked as ready and cannot be replaced.",
-      "NOT_PENDING": "Only pending items can be replaced."
+      "NOT_PENDING": "Only pending items can be replaced.",
+      "HAS_PAYMENTS": "This order has bills with payments. Remove the payments to delete it."
     },
     "blocked": {
       "title": "This item can't be replaced",

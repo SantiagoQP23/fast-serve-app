@@ -145,6 +145,8 @@
   "dialogs": {
     "removeTitle": "Eliminar pedido",
     "removeMessage": "¿Está seguro que desea eliminar este pedido? Esta acción no se puede deshacer.",
+    "removeWithBillsMessage_one": "Se eliminará el pedido y su cuenta. Esta acción no se puede deshacer.",
+    "removeWithBillsMessage_other": "Se eliminará el pedido y sus {{count}} cuentas. Esta acción no se puede deshacer.",
     "resetCartTitle": "Limpiar carrito",
     "resetCartMessage": "¿Está seguro que desea limpiar el carrito? Se eliminarán todos los productos y datos del pedido. Esta acción no se puede deshacer.",
     "closeTitle": "Cerrar pedido",
@@ -250,7 +252,8 @@
       "PAID": "Este producto ya ha sido pagado y no se puede reemplazar.",
       "DELIVERED": "Este producto ya ha sido entregado y no se puede reemplazar.",
       "READY": "Este producto ya está marcado como listo y no se puede reemplazar.",
-      "NOT_PENDING": "Solo los productos pendientes se pueden reemplazar."
+      "NOT_PENDING": "Solo los productos pendientes se pueden reemplazar.",
+      "HAS_PAYMENTS": "Este pedido tiene cuentas con pagos. Elimina los pagos para poder eliminarlo."
     },
     "blocked": {
       "title": "No se puede reemplazar este producto",

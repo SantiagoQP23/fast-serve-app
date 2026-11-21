@@ -19,6 +19,7 @@ import { applyTicketEvent } from "../apply-ticket-event";
 import { applyProductEvents } from "../apply-product-event";
 import { applyStockEvents } from "../apply-stock-event";
 import { applyTableAreaEvent } from "../apply-table-area-event";
+import { invalidateBills } from "@/presentation/orders/hooks/useOrders";
 import { applyRestaurantSyncEvent } from "@/presentation/onboarding/report-onboarding-step";
 
 function applyOrderEvent(event: SyncEventDto) {
@@ -52,6 +53,8 @@ function applyOrderEvent(event: SyncEventDto) {
       break;
     case SyncOperation.DELETED:
       ordersState.deleteOrder(event.resourceId);
+      // Its unpaid bills went with it.
+      invalidateBills();
       break;
   }
 }

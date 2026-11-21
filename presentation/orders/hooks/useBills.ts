@@ -161,6 +161,14 @@ export const useBills = () => {
     },
     // The paying screen reports the failure itself (a toast that keeps the
     // cashier on the screen to retry); a toast here would show it twice.
+    onError: (resp) => {
+      // The bill was deleted (on its own or with its order): refresh so the
+      // screen shows it's gone.
+      if (resp.code !== "ORDER_BILL_INACTIVE") return;
+      queryClient.invalidateQueries({ queryKey: ["bill"] });
+      queryClient.invalidateQueries({ queryKey: ["bills"] });
+      queryClient.invalidateQueries({ queryKey: ["billsList"] });
+    },
   });
 
   const billsByOrderQuery = (orderId: string) =>
