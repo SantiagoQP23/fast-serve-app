@@ -52,6 +52,11 @@ export interface VariantGroupRule {
   maxSelect: number | null;
   /** False: the group isn't offered on this variant. */
   isOffered: boolean;
+  /**
+   * The variant's own default options (plans/predeterminada-por-producto.md):
+   * null or absent follows the product's, [] means nothing picked.
+   */
+  defaultModifierIds?: string[] | null;
 }
 
 /** A group on a product. Null limits keep the group's own. */
@@ -63,6 +68,11 @@ export interface ProductModifierGroup {
   maxSelect: number | null;
   /** Variants with their own rule; absent from older servers. */
   variants?: VariantGroupRule[];
+  /**
+   * The product's own default options: null or absent follows the group's,
+   * [] means nothing picked.
+   */
+  defaultModifierIds?: string[] | null;
   group: ModifierGroup | null;
 }
 
@@ -89,6 +99,40 @@ export function getLinkLimits(
     max: firstSet(rule?.maxSelect, link.maxSelect, group.maxSelect),
     offered: rule?.isOffered ?? true,
   };
+}
+
+/**
+ * Default options of a linked group: the variant's own, else the product's,
+ * else the group's. The list falls back as a whole
+ * (plans/predeterminada-por-producto.md decision 2).
+ */
+export function getLinkDefaultIds(
+  link: Pick<ProductModifierGroup, "defaultModifierIds" | "variants">,
+  group: Pick<ModifierGroup, "modifiers">,
+  variantId?: VariantId,
+): string[] {
+  const rule =
+    variantId !== null && variantId !== undefined
+      ? link.variants?.find((entry) => entry.productOptionId === variantId)
+      : undefined;
+  return (
+    rule?.defaultModifierIds ??
+    link.defaultModifierIds ??
+    (group.modifiers ?? [])
+      .filter((option) => option.isDefault)
+      .map((option) => option.id)
+  );
+}
+
+/** Where a link's defaults come from, for the admin summaries. */
+export function hasOwnDefaults(link: {
+  defaultModifierIds?: string[] | null;
+  variants?: VariantGroupRule[];
+}): boolean {
+  return (
+    Array.isArray(link.defaultModifierIds) ||
+    (link.variants ?? []).some((rule) => Array.isArray(rule.defaultModifierIds))
+  );
 }
 
 export interface ProductComponent {
@@ -138,6 +182,8 @@ export interface ActiveGroup {
   max: number | null;
   /** Active options, in order. */
   options: ModifierOption[];
+  /** Ids of the options that come picked here, before stock and max. */
+  defaultIds: string[];
 }
 
 const byOrder = <T extends { order: number }>(a: T, b: T) => a.order - b.order;
@@ -162,6 +208,7 @@ export function getActiveGroups(
         min,
         max,
         offered,
+        defaultIds: getLinkDefaultIds(link, group, variantId),
         options: [...(group.modifiers ?? [])]
           .filter((option) => option.isActive)
           .sort(byOrder),
@@ -196,7 +243,55 @@ export function hasRequiredGroups(
 /** An option whose insumo can't cover one more unit. */
 export function isModifierOutOfStock(option: ModifierOption): boolean {
   if (!option.inventoryItem || !option.inventoryQuantity) return false;
-  return Number(option.inventoryItem.quantity) < Number(option.inventoryQuantity);
+  return (
+    Number(option.inventoryItem.quantity) < Number(option.inventoryQuantity)
+  );
+}
+
+/**
+ * The defaults a new line actually gets in this group, in option order:
+ * paused or (when the restaurant blocks it) sold-out ones are skipped, with
+ * no fallback to another level (decision 13), and the list is trimmed to the
+ * group's maximum.
+ */
+export function getAppliedDefaults(
+  group: ActiveGroup,
+  blocksWithoutStock: boolean,
+): string[] {
+  const wanted = new Set(group.defaultIds);
+  const defaults = group.options.filter(
+    (option) =>
+      wanted.has(option.id) &&
+      !(blocksWithoutStock && isModifierOutOfStock(option)),
+  );
+  const fitting = group.max === null ? defaults : defaults.slice(0, group.max);
+  return fitting.map((option) => option.id);
+}
+
+/**
+ * Groups whose picks are exactly the defaults the previous variant gave
+ * (the waiter didn't touch them). On a variant change those take the new
+ * variant's defaults instead (plans/predeterminada-por-producto.md
+ * decision 14).
+ */
+export function getUntouchedGroupIds(
+  product: Product | null | undefined,
+  selection: CustomizationSelection,
+  variantId: VariantId,
+  blocksWithoutStock: boolean,
+): Set<string> {
+  const untouched = new Set<string>();
+  for (const group of getActiveGroups(product, variantId)) {
+    const ids = new Set(group.options.map((option) => option.id));
+    const picked = selection.modifierIds.filter((id) => ids.has(id));
+    const defaults = getAppliedDefaults(group, blocksWithoutStock);
+    if (
+      picked.length === defaults.length &&
+      defaults.every((id) => picked.includes(id))
+    )
+      untouched.add(group.group.id);
+  }
+  return untouched;
 }
 
 /**
@@ -218,14 +313,7 @@ export function addMissingDefaults(
   for (const group of getActiveGroups(product, variantId)) {
     if (skipGroupIds?.has(group.group.id)) continue;
     if (group.options.some((option) => picked.has(option.id))) continue;
-    const defaults = group.options.filter(
-      (option) =>
-        option.isDefault &&
-        !(blocksWithoutStock && isModifierOutOfStock(option)),
-    );
-    const fitting =
-      group.max === null ? defaults : defaults.slice(0, group.max);
-    added.push(...fitting.map((option) => option.id));
+    added.push(...getAppliedDefaults(group, blocksWithoutStock));
   }
   return added.length
     ? { ...selection, modifierIds: [...selection.modifierIds, ...added] }
@@ -398,7 +486,9 @@ export function buildModifierRows(
 const round2 = (value: number) => Math.round(value * 100) / 100;
 
 /** Sum of the rows' price changes. */
-export function getModifiersTotal(rows: OrderDetailModifier[] | undefined): number {
+export function getModifiersTotal(
+  rows: OrderDetailModifier[] | undefined,
+): number {
   return round2(
     (rows ?? []).reduce((sum, row) => sum + Number(row.priceDelta ?? 0), 0),
   );
@@ -425,8 +515,11 @@ export function getSelectionProblem(
 ): SelectionProblem | null {
   const picked = new Set(selection.modifierIds);
   for (const group of getActiveGroups(product, variantId)) {
-    const count = group.options.filter((option) => picked.has(option.id)).length;
-    if (count < group.min) return { groupName: group.group.name, min: group.min };
+    const count = group.options.filter((option) =>
+      picked.has(option.id),
+    ).length;
+    if (count < group.min)
+      return { groupName: group.group.name, min: group.min };
   }
   return null;
 }
@@ -446,7 +539,9 @@ export function selectionFromRows(
 }
 
 /** Comparable form (order-independent), like the backend's customizationKey. */
-export function customizationKey(rows: OrderDetailModifier[] | undefined): string {
+export function customizationKey(
+  rows: OrderDetailModifier[] | undefined,
+): string {
   return (rows ?? [])
     .map((row) => `${row.kind}:${row.groupName ?? ""}:${row.name}`)
     .sort()
@@ -492,7 +587,11 @@ export interface LineCustomizationPayload {
 export const rowsFromPayload = (
   payload: LineCustomizationPayload | undefined,
 ): OrderDetailModifier[] | undefined =>
-  payload?.snapshot.map((row, index) => ({ ...row, quantity: 1, order: index }));
+  payload?.snapshot.map((row, index) => ({
+    ...row,
+    quantity: 1,
+    order: index,
+  }));
 
 /** Payload the server expects on a line, with the offline copy. */
 export function toCustomizationPayload(
@@ -523,4 +622,8 @@ export const lineCustomization = (line: {
   modifiers?: OrderDetailModifier[];
   customPrice?: boolean;
 }): LineCustomizationPayload | undefined =>
-  toCustomizationPayload(line.customization, line.modifiers, !!line.customPrice);
+  toCustomizationPayload(
+    line.customization,
+    line.modifiers,
+    !!line.customPrice,
+  );

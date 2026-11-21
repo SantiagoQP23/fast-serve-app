@@ -418,8 +418,8 @@
       "removed": "Se quitó {{name}}",
       "unlink": "Quitar {{name}}",
       "unlinkTitle": "¿Quitar el grupo?",
-      "unlinkMessage_one": "{{names}} tiene límites propios para este grupo. Se perderán al quitarlo.",
-      "unlinkMessage_other": "{{names}} tienen límites propios para este grupo. Se perderán al quitarlo.",
+      "unlinkMessage_one": "{{names}} tiene reglas propias para este grupo. Se perderán al quitarlo.",
+      "unlinkMessage_other": "{{names}} tienen reglas propias para este grupo. Se perderán al quitarlo.",
       "linkShort": "Vincular",
       "updated": "Productos actualizados",
       "unlinkConfirm": "Quitar"
@@ -471,7 +471,7 @@
     "alwaysIncluded": "Siempre incluido",
     "groupsEmpty": "Agrega grupos como Sabor o Extras para que el mesero elija al tomar el pedido.",
     "limits": {
-      "title": "Límites en este producto",
+      "title": "Reglas en este producto",
       "own": "Usar límites propios",
       "ownTag": "Límites propios",
       "exactly_one": "elige {{count}}",
@@ -490,8 +490,17 @@
       "notOffered": "No se ofrece",
       "offered": "Ofrecer en esta variante",
       "variesByVariant": "Varía por variante",
-      "variantTitle": "Límites en {{name}}",
-      "upToHint": "Hasta {{count}}"
+      "variantTitle": "Reglas en {{name}}",
+      "upToHint": "Hasta {{count}}",
+      "ownRulesTag": "Reglas propias"
+    },
+    "defaults": {
+      "title": "Viene seleccionada",
+      "hint": "Lo que aparece ya elegido al agregar el producto. El mesero puede cambiarlo.",
+      "sameAsGroup": "Igual que el grupo ({{names}})",
+      "sameAsProduct": "Igual que el producto ({{names}})",
+      "nothing": "Nada seleccionado",
+      "comes": "Viene: {{names}}"
     }
   }
 }

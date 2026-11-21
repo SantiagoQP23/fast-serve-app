@@ -145,6 +145,7 @@ export default function ModifierGroupDetailScreen() {
       !!link &&
       (link.minSelect !== null ||
         link.maxSelect !== null ||
+        Array.isArray(link.defaultModifierIds) ||
         hasVariantRules(link))
     );
   };
@@ -407,7 +408,7 @@ export default function ModifierGroupDetailScreen() {
               linkedProducts.map((product, index) => {
                 const details = [
                   product.category?.name,
-                  hasOwnRules(product) && t("customization.limits.ownTag"),
+                  hasOwnRules(product) && t("customization.limits.ownRulesTag"),
                   !product.isActive && t("modifierGroups.inactive"),
                 ]
                   .filter(Boolean)

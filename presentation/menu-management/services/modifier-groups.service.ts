@@ -1,6 +1,9 @@
 import { restaurantApi } from "@/core/api/restaurantApi";
 import type { Product } from "@/core/menu/models/product.model";
-import type { ModifierGroup } from "@/core/menu/models/customization.model";
+import type {
+  ModifierGroup,
+  VariantGroupRule,
+} from "@/core/menu/models/customization.model";
 
 export interface SaveModifierInput {
   /** Existing option; left out for a new one. */
@@ -43,6 +46,9 @@ export interface SaveProductCustomizationInput {
     groupId: string;
     minSelect?: number | null;
     maxSelect?: number | null;
+    variants?: VariantGroupRule[];
+    /** Null follows the group; [] means nothing picked. */
+    defaultModifierIds?: string[] | null;
   }[];
 }
 

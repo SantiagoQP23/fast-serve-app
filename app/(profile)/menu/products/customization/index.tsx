@@ -32,6 +32,7 @@ import ProductComponentSheet, {
   type ProductComponentSheetRef,
 } from "@/presentation/menu-management/components/product-component-sheet";
 import GroupLimitsSheet, {
+  describeDefaults,
   describeLimits,
   type GroupLimitsSheetRef,
 } from "@/presentation/menu-management/components/group-limits-sheet";
@@ -56,20 +57,47 @@ interface GroupLinkDraft {
   minSelect: number | null;
   maxSelect: number | null;
   variants: VariantGroupRule[];
+  /** Own defaults (plans/predeterminada-por-producto.md); null: the group's. */
+  defaultModifierIds: string[] | null;
 }
+
+/**
+ * Own defaults without options deleted since, so the server (which checks
+ * they belong to the group) takes them back.
+ */
+const existingDefaults = (
+  ids: string[] | null | undefined,
+  optionIds: Set<string>,
+): string[] | null =>
+  Array.isArray(ids) ? ids.filter((id) => optionIds.has(id)) : null;
 
 /** The product's saved links, in the order the order screen shows them. */
 const linksFromProduct = (product?: Product): GroupLinkDraft[] =>
   [...(product?.modifierGroups ?? [])]
     .sort((a, b) => a.order - b.order)
-    .map((link) => ({
-      groupId: link.groupId,
-      minSelect: link.minSelect,
-      maxSelect: link.maxSelect,
-      variants: [...(link.variants ?? [])].sort(
-        (a, b) => a.productOptionId - b.productOptionId,
-      ),
-    }));
+    .map((link) => {
+      const optionIds = new Set(
+        (link.group?.modifiers ?? []).map((option) => option.id),
+      );
+      return {
+        groupId: link.groupId,
+        minSelect: link.minSelect,
+        maxSelect: link.maxSelect,
+        defaultModifierIds: existingDefaults(
+          link.defaultModifierIds,
+          optionIds,
+        ),
+        variants: [...(link.variants ?? [])]
+          .map((rule) => ({
+            ...rule,
+            defaultModifierIds: existingDefaults(
+              rule.defaultModifierIds,
+              optionIds,
+            ),
+          }))
+          .sort((a, b) => a.productOptionId - b.productOptionId),
+      };
+    });
 
 /** Compares drafts by content; component keys are only for React. */
 const snapshot = (
@@ -192,10 +220,18 @@ function GroupRow({
   const min = link.minSelect ?? group?.minSelect ?? 0;
   const max = link.maxSelect ?? group?.maxSelect ?? null;
   const hasOwnLimits = link.minSelect !== null || link.maxSelect !== null;
+  // What comes picked, when this product (not the group) decides it.
+  const comes =
+    group && Array.isArray(link.defaultModifierIds)
+      ? t("customization.defaults.comes", {
+          names: describeDefaults(t, group, link.defaultModifierIds),
+        })
+      : null;
   const details = group
     ? [
         describeLimits(t, min, max),
         hasOwnLimits && t("customization.limits.ownTag"),
+        comes,
         hasVariantRules(link) && t("customization.limits.variesByVariant"),
         !group.isActive && t("modifierGroups.inactive"),
         group.modifiers.map((option) => option.name).join(", "),
@@ -462,6 +498,7 @@ export default function ProductCustomizationScreen() {
                 minSelect: null,
                 maxSelect: null,
                 variants: [],
+                defaultModifierIds: null,
               },
             ],
       );
@@ -741,6 +778,7 @@ export default function ProductCustomizationScreen() {
                 minSelect: null,
                 maxSelect: null,
                 variants: [],
+                defaultModifierIds: null,
               },
             ])
           }

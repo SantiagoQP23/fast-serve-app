@@ -418,8 +418,8 @@
       "removed": "Removed {{name}}",
       "unlink": "Remove {{name}}",
       "unlinkTitle": "Remove the group?",
-      "unlinkMessage_one": "{{names}} has its own limits for this group. They'll be lost when it's removed.",
-      "unlinkMessage_other": "{{names}} have their own limits for this group. They'll be lost when it's removed.",
+      "unlinkMessage_one": "{{names}} has its own rules for this group. They'll be lost when it's removed.",
+      "unlinkMessage_other": "{{names}} have their own rules for this group. They'll be lost when it's removed.",
       "linkShort": "Link",
       "updated": "Products updated",
       "unlinkConfirm": "Remove"
@@ -471,7 +471,7 @@
     "alwaysIncluded": "Always included",
     "groupsEmpty": "Add groups like Flavor or Extras so the waiter can choose when taking the order.",
     "limits": {
-      "title": "Limits on this product",
+      "title": "Rules on this product",
       "own": "Use own limits",
       "ownTag": "Own limits",
       "exactly_one": "pick {{count}}",
@@ -490,8 +490,17 @@
       "notOffered": "Not offered",
       "offered": "Offer on this variant",
       "variesByVariant": "Varies by variant",
-      "variantTitle": "Limits on {{name}}",
-      "upToHint": "Up to {{count}}"
+      "variantTitle": "Rules on {{name}}",
+      "upToHint": "Up to {{count}}",
+      "ownRulesTag": "Own rules"
+    },
+    "defaults": {
+      "title": "Comes selected",
+      "hint": "What is already picked when the product is added. The waiter can change it.",
+      "sameAsGroup": "Same as the group ({{names}})",
+      "sameAsProduct": "Same as the product ({{names}})",
+      "nothing": "Nothing selected",
+      "comes": "Comes with: {{names}}"
     }
   }
 }

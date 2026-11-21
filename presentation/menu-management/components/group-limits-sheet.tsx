@@ -1,6 +1,7 @@
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { Pressable } from "react-native";
 import {
+  BottomSheetScrollView,
   BottomSheetView,
   type BottomSheetMethods,
 } from "@expo/ui/community/bottom-sheet";
@@ -13,11 +14,14 @@ import TextInput from "@/presentation/theme/components/text-input";
 import Button from "@/presentation/theme/components/button";
 import ButtonGroup from "@/presentation/theme/components/button-group";
 import Switch from "@/presentation/theme/components/switch";
+import RadioButton from "@/presentation/theme/components/radio-button";
+import Checkbox from "@/presentation/theme/components/checkbox";
 import { parseAmount } from "@/presentation/menu-management/components/modifier-option-sheet";
 import Icon from "@/presentation/theme/components/icon";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { typography } from "@/constants/theme";
 import {
+  getLinkDefaultIds,
   getLinkLimits,
   type ModifierGroup,
   type VariantGroupRule,
@@ -29,6 +33,11 @@ export interface GroupLimits {
   maxSelect: number | null;
   /** Variants with their own rule (plans/limites-por-variante.md). */
   variants: VariantGroupRule[];
+  /**
+   * The product's own default options (plans/predeterminada-por-producto.md):
+   * null follows the group's, [] means nothing picked.
+   */
+  defaultModifierIds: string[] | null;
 }
 
 /** An active variant of the product, as the sheet lists it. */
@@ -50,7 +59,47 @@ type Limits = { minSelect: number | null; maxSelect: number | null };
 
 /** A rule that changes nothing isn't kept. */
 const isNoOp = (rule: VariantGroupRule) =>
-  rule.minSelect === null && rule.maxSelect === null && rule.isOffered;
+  rule.minSelect === null &&
+  rule.maxSelect === null &&
+  rule.isOffered &&
+  (rule.defaultModifierIds ?? null) === null;
+
+/** Active options of the group, in order. */
+const activeOptions = (group: ModifierGroup) =>
+  [...(group.modifiers ?? [])]
+    .filter((option) => option.isActive)
+    .sort((a, b) => a.order - b.order);
+
+/**
+ * Own defaults kept to the options that still exist, in option order, and
+ * no more than the maximum (decision 9: the first ones stay).
+ */
+export function fitDefaults(
+  group: ModifierGroup,
+  ids: string[] | null,
+  max: number | null,
+): string[] | null {
+  if (ids === null) return null;
+  const wanted = new Set(ids);
+  const kept = [...(group.modifiers ?? [])]
+    .sort((a, b) => a.order - b.order)
+    .filter((option) => wanted.has(option.id))
+    .map((option) => option.id);
+  return max === null ? kept : kept.slice(0, max);
+}
+
+/** Names of the default options, or "Nada seleccionado". */
+export function describeDefaults(
+  t: (key: string, options?: Record<string, unknown>) => string,
+  group: ModifierGroup,
+  ids: string[],
+): string {
+  const wanted = new Set(ids);
+  const names = activeOptions(group)
+    .filter((option) => wanted.has(option.id))
+    .map((option) => option.name);
+  return names.length ? names.join(", ") : t("customization.defaults.nothing");
+}
 
 /** Short rule for a min/max pair: "Elige 1 · Obligatorio", "Varios · 2–3". */
 export function describeLimits(
@@ -120,6 +169,9 @@ const GroupLimitsSheet = forwardRef<
     maxSelect: null,
   });
   const [rules, setRules] = useState<VariantGroupRule[]>([]);
+  const [productDefaults, setProductDefaults] = useState<string[] | null>(null);
+  // The defaults being edited: null follows the level above.
+  const [defaults, setDefaults] = useState<string[] | null>(null);
   // Null: the product's rule; otherwise the variant being edited.
   const [editing, setEditing] = useState<SheetVariant | null>(null);
 
@@ -149,9 +201,11 @@ const GroupLimitsSheet = forwardRef<
     nextGroup: ModifierGroup,
     limits: Limits,
     variant: SheetVariant | null,
-    rule?: VariantGroupRule,
+    rule: VariantGroupRule | undefined,
+    ownDefaults: string[] | null,
   ) => {
     const base = baseFor(nextGroup, limits, variant);
+    setDefaults(ownDefaults);
     const ownMin = variant ? (rule?.minSelect ?? null) : limits.minSelect;
     const ownMax = variant ? (rule?.maxSelect ?? null) : limits.maxSelect;
     const min = ownMin ?? base.min;
@@ -176,8 +230,15 @@ const GroupLimitsSheet = forwardRef<
       setVariants(nextVariants);
       setProductLimits(product);
       setRules(limits.variants);
+      setProductDefaults(limits.defaultModifierIds);
       setEditing(null);
-      loadControls(nextGroup, product, null);
+      loadControls(
+        nextGroup,
+        product,
+        null,
+        undefined,
+        limits.defaultModifierIds,
+      );
       sheetRef.current?.present();
     },
     dismiss: () => sheetRef.current?.dismiss(),
@@ -189,7 +250,8 @@ const GroupLimitsSheet = forwardRef<
 
   /** The controls as limits, or what's wrong with them. */
   const parseControls = ():
-    { limits: Limits; error: null } | { limits: null; error: string } => {
+    | { limits: Limits; error: null }
+    | { limits: null; error: string } => {
     if (!own)
       return { limits: { minSelect: null, maxSelect: null }, error: null };
     const min = single ? 1 : Math.round(parseAmount(minSelect));
@@ -227,6 +289,30 @@ const GroupLimitsSheet = forwardRef<
 
   const parsed = parseControls();
 
+  // The maximum this view ends up with, to fit the defaults to it.
+  const viewMax = own && parsed.limits ? parsed.limits.maxSelect : base.max;
+  const options = activeOptions(group);
+  const shownDefaults = fitDefaults(group, defaults, viewMax);
+  /** What the level above pre-picks: the group's, or the product's. */
+  const inheritedDefaults = getLinkDefaultIds(
+    { defaultModifierIds: editing ? productDefaults : null, variants: [] },
+    group,
+  );
+
+  const toggleDefault = (optionId: string) => {
+    const current = shownDefaults ?? [];
+    if (viewMax === 1) {
+      setDefaults([optionId]);
+      return;
+    }
+    if (current.includes(optionId)) {
+      setDefaults(current.filter((id) => id !== optionId));
+      return;
+    }
+    if (viewMax !== null && current.length >= viewMax) return;
+    setDefaults([...current, optionId]);
+  };
+
   /** The controls as limits, or null after showing what's wrong. */
   const readControls = (): Limits | null => {
     if (parsed.error) setShowError(true);
@@ -240,14 +326,22 @@ const GroupLimitsSheet = forwardRef<
     const limits = readControls();
     if (!limits) return;
     setProductLimits(limits);
+    setProductDefaults(shownDefaults);
     setEditing(variant);
-    loadControls(group, limits, variant, ruleFor(variant.id));
+    const rule = ruleFor(variant.id);
+    loadControls(
+      group,
+      limits,
+      variant,
+      rule,
+      rule?.defaultModifierIds ?? null,
+    );
   };
 
   /** Back to the product's rule; a variant's edits keep only through Done. */
   const closeVariant = () => {
     setEditing(null);
-    loadControls(group, productLimits, null);
+    loadControls(group, productLimits, null, undefined, productDefaults);
   };
 
   const handleDone = () => {
@@ -260,6 +354,7 @@ const GroupLimitsSheet = forwardRef<
         productOptionId: editing.id,
         ...limits,
         isOffered: offered,
+        defaultModifierIds: offered ? shownDefaults : null,
       };
       setRules((current) => [
         ...current.filter((entry) => entry.productOptionId !== editing.id),
@@ -270,7 +365,11 @@ const GroupLimitsSheet = forwardRef<
     }
     const limits = readControls();
     if (!limits) return;
-    onSubmit(group.id, { ...limits, variants: rules });
+    onSubmit(group.id, {
+      ...limits,
+      variants: rules,
+      defaultModifierIds: shownDefaults,
+    });
     sheetRef.current?.dismiss();
   };
 
@@ -284,7 +383,15 @@ const GroupLimitsSheet = forwardRef<
       variant.id,
     );
     const text = describeLimits(t, min, max);
-    return rule ? text : `${text} · ${t("customization.limits.sameAsProduct")}`;
+    const own = rule?.defaultModifierIds;
+    const withDefaults = Array.isArray(own)
+      ? `${text} · ${t("customization.defaults.comes", {
+          names: describeDefaults(t, group, own),
+        })}`
+      : text;
+    return rule
+      ? withDefaults
+      : `${text} · ${t("customization.limits.sameAsProduct")}`;
   };
 
   const visible = !editing || offered;
@@ -464,6 +571,60 @@ const GroupLimitsSheet = forwardRef<
             )
           )}
         </ThemedView>
+
+        {visible && options.length > 0 && (
+          <ThemedView style={tw`gap-1 bg-transparent`}>
+            <ThemedText style={{ fontFamily: typography.bold }}>
+              {t("customization.defaults.title")}
+            </ThemedText>
+            <ThemedText type="small" style={tw`text-gray-500`}>
+              {t("customization.defaults.hint")}
+            </ThemedText>
+            <ThemedView style={tw`max-h-[40vh] bg-transparent`}>
+              <BottomSheetScrollView showsVerticalScrollIndicator={false}>
+                <RadioButton
+                  selected={shownDefaults === null}
+                  onPress={() => setDefaults(null)}
+                  label={t(
+                    editing
+                      ? "customization.defaults.sameAsProduct"
+                      : "customization.defaults.sameAsGroup",
+                    { names: describeDefaults(t, group, inheritedDefaults) },
+                  )}
+                />
+                <RadioButton
+                  selected={
+                    shownDefaults !== null && shownDefaults.length === 0
+                  }
+                  onPress={() => setDefaults([])}
+                  label={t("customization.defaults.nothing")}
+                />
+                {options.map((option) =>
+                  viewMax === 1 ? (
+                    <RadioButton
+                      key={option.id}
+                      selected={!!shownDefaults?.includes(option.id)}
+                      onPress={() => toggleDefault(option.id)}
+                      label={option.name}
+                    />
+                  ) : (
+                    <Checkbox
+                      key={option.id}
+                      value={!!shownDefaults?.includes(option.id)}
+                      onValueChange={() => toggleDefault(option.id)}
+                      label={option.name}
+                      disabled={
+                        !shownDefaults?.includes(option.id) &&
+                        viewMax !== null &&
+                        (shownDefaults?.length ?? 0) >= viewMax
+                      }
+                    />
+                  ),
+                )}
+              </BottomSheetScrollView>
+            </ThemedView>
+          </ThemedView>
+        )}
 
         {!editing && variants.length > 1 && (
           <ThemedView style={tw`gap-1 bg-transparent`}>

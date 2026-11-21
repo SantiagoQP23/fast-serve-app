@@ -57,6 +57,7 @@ import {
   addMissingDefaults,
   getDefaultSelection,
   getActiveGroups,
+  getUntouchedGroupIds,
   getProductComponents,
   getSelectionProblem,
   selectionFromRows,
@@ -440,13 +441,36 @@ export default function ProductScreen() {
     setSelectedOption(option);
     setPrice(String(option.price));
     setPriceTyped(false);
+    // Groups the waiter left on the previous variant's defaults take the
+    // new variant's defaults (plans/predeterminada-por-producto.md).
+    const untouched = getUntouchedGroupIds(
+      activeProduct,
+      selection,
+      selectedOption?.id,
+      blocksWithoutStock,
+    );
+    const untouchedIds = new Set(
+      getActiveGroups(activeProduct)
+        .filter((group) => untouched.has(group.group.id))
+        .flatMap((group) => group.options.map((o) => o.id)),
+    );
     // Picks carry over as far as the new variant's rules allow.
-    const fitted = fitSelectionToVariant(activeProduct, selection, option.id);
-    // Groups the previous variant didn't offer start with their defaults.
+    const fitted = fitSelectionToVariant(
+      activeProduct,
+      {
+        ...selection,
+        modifierIds: selection.modifierIds.filter(
+          (id) => !untouchedIds.has(id),
+        ),
+      },
+      option.id,
+    );
+    // Groups the previous variant didn't offer, or left untouched, start
+    // with their defaults.
     const seen = new Set(
-      getActiveGroups(activeProduct, selectedOption?.id).map(
-        (group) => group.group.id,
-      ),
+      getActiveGroups(activeProduct, selectedOption?.id)
+        .map((group) => group.group.id)
+        .filter((id) => !untouched.has(id)),
     );
     setSelection(
       addMissingDefaults(
