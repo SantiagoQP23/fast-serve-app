@@ -30,6 +30,21 @@ export default function CashSessionLayout() {
         }}
       />
       <Stack.Screen
+        name="registers"
+        options={{
+          headerShown: true,
+          title: "",
+          headerShadowVisible: false,
+          headerLeft: () => (
+            <IconButton
+              icon="arrow-left"
+              onPress={() => router.back()}
+              style={{ marginRight: 10 }}
+            />
+          ),
+        }}
+      />
+      <Stack.Screen
         name="open"
         options={{
           headerShown: true,

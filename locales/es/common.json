@@ -273,7 +273,16 @@
       "responsible": "A cargo de",
       "closedBy": "Cerró",
       "movements": "Movimientos",
-      "noMovements": "Aún no hay movimientos en esta caja."
+      "noMovements": "Aún no hay movimientos en esta caja.",
+      "inRegister": "Efectivo en caja",
+      "showAmount": "Mostrar monto",
+      "hideAmount": "Ocultar monto",
+      "movementTabs": {
+        "all": "Todos",
+        "sales": "Cobros",
+        "deposits": "Agregados",
+        "withdrawals": "Retiros"
+      }
     },
     "close": {
       "countTitle": "Cuenta el efectivo",

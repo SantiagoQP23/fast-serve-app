@@ -273,7 +273,16 @@
       "responsible": "Held by",
       "closedBy": "Closed by",
       "movements": "Movements",
-      "noMovements": "No movements in this register yet."
+      "noMovements": "No movements in this register yet.",
+      "inRegister": "Cash in register",
+      "showAmount": "Show amount",
+      "hideAmount": "Hide amount",
+      "movementTabs": {
+        "all": "All",
+        "sales": "Payments",
+        "deposits": "Added",
+        "withdrawals": "Withdrawals"
+      }
     },
     "close": {
       "countTitle": "Count the cash",
