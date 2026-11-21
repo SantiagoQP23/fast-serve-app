@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { RefreshControl, ScrollView } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import type { BottomSheetMethods } from "@expo/ui/community/bottom-sheet";
 import dayjs from "dayjs";
 import { ActionGrid } from "@intenli/ui";
 
@@ -31,6 +32,8 @@ import Icon from "@/presentation/theme/components/icon";
 import IconButton from "@/presentation/theme/components/icon-button";
 import { GroupedList } from "@/presentation/theme/components/grouped-list";
 import TabBar, { type TabItem } from "@/presentation/theme/components/tab-bar";
+import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
+import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
 import TabPager from "@/presentation/theme/components/tab-pager";
 import TransactionCard from "@/presentation/transactions/components/transaction-card";
 import CashMovementSheet, {
@@ -67,11 +70,13 @@ const movementMatchesTab = (transaction: Transaction, tab: MovementTab) => {
 export default function CashSessionScreen() {
   const { t } = useTranslation(["common"]);
   const router = useRouter();
+  const navigation = useNavigation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const sessionId = Number(id);
   const { session, isLoading, error, refetch } = useCashSession(sessionId);
   const { userId, isManager } = useCashRoles();
   const movementSheetRef = useRef<CashMovementSheetRef>(null);
+  const moreSheetRef = useRef<BottomSheetMethods>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [movementTab, setMovementTab] = useState<MovementTab>("all");
   // Hidden until asked for, like the other money totals (incomes, history)
@@ -106,6 +111,25 @@ export default function CashSessionScreen() {
     );
     useCashCountDraftStore.getState().discard(...keys);
   }, [sessionEnded, closeDraftKey, reassignDraftKey]);
+
+  // Handing the register over lives behind the header's ⋯, off the grid
+  const canReassign =
+    !!session &&
+    session.status === CashSessionStatus.OPEN &&
+    (isManager || isRegisterHolder(session, userId));
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: canReassign
+        ? () => (
+            <IconButton
+              icon="ellipsis-vertical"
+              accessibilityLabel={t("common:actions.more")}
+              onPress={() => moreSheetRef.current?.present()}
+            />
+          )
+        : undefined,
+    });
+  }, [navigation, canReassign, t]);
 
   if (!session) {
     return (
@@ -195,7 +219,7 @@ export default function CashSessionScreen() {
         }
       >
         <ThemedView
-          style={tw`gap-4 pb-3`}
+          style={tw`gap-8 pb-3`}
           onLayout={(e) => {
             headerHeightRef.current = e.nativeEvent.layout.height;
           }}
@@ -252,7 +276,8 @@ export default function CashSessionScreen() {
 
           {canClose && (
             <ActionGrid
-              columns={4}
+              columns={3}
+              style={tw`my-2`}
               items={[
                 {
                   icon: "lock",
@@ -278,15 +303,6 @@ export default function CashSessionScreen() {
                       "out",
                       session.account.id,
                     ),
-                },
-                {
-                  icon: "user-round-pen",
-                  label: hasReassignDraft
-                    ? t("common:cashRegister.draft.continueHandover")
-                    : t("common:cashRegister.reassign.action"),
-                  variant: "outline",
-                  onPress: () =>
-                    router.push(`/cash-session/${session.id}/reassign`),
                 },
               ]}
             />
@@ -495,6 +511,23 @@ export default function CashSessionScreen() {
       </ScrollView>
 
       <CashMovementSheet ref={movementSheetRef} />
+
+      <ThemedBottomSheetModal ref={moreSheetRef} enablePanDownToClose>
+        <ActionsBottomSheet
+          items={[
+            {
+              icon: "user-round-pen",
+              label: hasReassignDraft
+                ? t("common:cashRegister.draft.continueHandover")
+                : t("common:cashRegister.reassign.action"),
+              onPress: () => {
+                moreSheetRef.current?.dismiss();
+                router.push(`/cash-session/${session.id}/reassign`);
+              },
+            },
+          ]}
+        />
+      </ThemedBottomSheetModal>
     </ScreenLayout>
   );
 }

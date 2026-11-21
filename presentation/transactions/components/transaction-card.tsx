@@ -19,7 +19,7 @@ import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
 import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import { TransactionStatus } from "@/core/transactions/models/transaction-status.enum";
-import Label, { LabelProps } from "@/presentation/theme/components/label";
+import { typography } from "@/constants/theme";
 import { getPaymentMethodIcon } from "@/presentation/orders/components/payment-method-card";
 
 interface TransactionCardProps extends PressableProps {
@@ -67,19 +67,8 @@ export default function TransactionCard({
   // Cash added to a register: a movement, not a sale.
   const isDeposit = isCashDeposit(transaction);
 
-  const amountLabelColor: LabelProps["color"] =
-    transaction.status === TransactionStatus.COMPLETED
-      ? isWithdrawal || isDeposit
-        ? "default"
-        : "success"
-      : transaction.status === TransactionStatus.PENDING_PROOF ||
-          transaction.status === TransactionStatus.PENDING_APPROVAL
-        ? "warning"
-        : transaction.status === TransactionStatus.REJECTED
-          ? "error"
-          : "default";
-
-  // The amount pill's color isn't enough on its own: say it in words too.
+  // The status reads in words under the name; the amount only tells money
+  // out (plain text) from money in (on a secondary wash).
   const statusText =
     transaction.status === TransactionStatus.PENDING_PROOF ||
     transaction.status === TransactionStatus.PENDING_APPROVAL
@@ -162,16 +151,26 @@ export default function TransactionCard({
                   </ThemedText>
                 </ThemedView>
               </ThemedView>
-              <Label
-                color={amountLabelColor}
-                text={
-                  isWithdrawal
+              <ThemedView
+                style={tw.style(
+                  "px-3 py-1 rounded-3xl",
+                  !isWithdrawal && "bg-secondary",
+                )}
+              >
+                <ThemedText
+                  type="body2"
+                  style={[
+                    !isWithdrawal && tw`text-on-secondary`,
+                    { fontFamily: typography.bold },
+                  ]}
+                >
+                  {isWithdrawal
                     ? `−${formatCurrency(transaction.amount)}`
                     : isDeposit
                       ? `+${formatCurrency(transaction.amount)}`
-                      : formatCurrency(transaction.amount)
-                }
-              />
+                      : formatCurrency(transaction.amount)}
+                </ThemedText>
+              </ThemedView>
             </ThemedView>
           </ThemedView>
         </Pressable>
