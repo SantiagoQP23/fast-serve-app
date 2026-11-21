@@ -10,6 +10,7 @@ interface CashCountFieldProps {
   count: CashCountState;
   /** Label of the single total field. */
   amountLabel: string;
+  /** Focus the total field in Amount mode (Count mode never auto-focuses). */
   autoFocus?: boolean;
 }
 
@@ -36,7 +37,6 @@ export default function CashCountField({
         <CashCounter
           quantities={count.quantities}
           onChangeQuantity={count.setQuantity}
-          autoFocus={autoFocus}
         />
       ) : (
         <TextInput

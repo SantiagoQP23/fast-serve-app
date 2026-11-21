@@ -366,6 +366,14 @@
       "history": "Handovers",
       "count": "{{count}} handover",
       "count_other": "{{count}} handovers"
+    },
+    "draft": {
+      "savedAt": "Count saved at {{time}}",
+      "startOver": "Start over",
+      "startOverTitle": "Start the count over?",
+      "startOverMessage": "The saved count will be cleared.",
+      "continueClosing": "Continue closing",
+      "continueHandover": "Continue reassigning"
     }
   }
 }

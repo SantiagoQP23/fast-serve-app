@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { toast } from "sonner-native";
@@ -16,7 +16,17 @@ import Button from "@/presentation/theme/components/button";
 import Chip from "@/presentation/theme/components/chip";
 import CashCountField from "@/presentation/cash-sessions/components/cash-count-field";
 import CashCountFooter from "@/presentation/cash-sessions/components/cash-count-footer";
+import CashCountDraftBanner from "@/presentation/cash-sessions/components/cash-count-draft-banner";
 import { useCashCount } from "@/presentation/cash-sessions/hooks/useCashCount";
+import {
+  useCashCountDraft,
+  useCashCountDraftKey,
+} from "@/presentation/cash-sessions/hooks/useCashCountDraft";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import {
+  cashCountDraftKey,
+  useCashCountDraftStore,
+} from "@/presentation/cash-sessions/store/cashCountDraftStore";
 import {
   useCashRegisters,
   useOpenCashSession,
@@ -28,7 +38,9 @@ const amountText = (value: number | null | undefined) =>
 /**
  * Opening a register: which one and the starting cash, prefilled from the
  * last count. `accountIds` (comma separated) limits the closed registers to
- * pick from; a single id skips the picker.
+ * pick from; a single id skips the picker. A count typed by hand is kept as
+ * a draft on this phone until the register opens; it wins over the prefill
+ * (plans/conteo-caja-borrador.md).
  */
 export default function OpenCashSessionScreen() {
   const { t } = useTranslation(["common", "errors"]);
@@ -57,6 +69,27 @@ export default function OpenCashSessionScreen() {
   // Preselect the first register once the list arrives.
   if (!register && choices[0]) pick(choices[0]);
 
+  const draftKey = useCashCountDraftKey("open", register?.account.id);
+  const draft = useCashCountDraft({
+    key: draftKey,
+    draft: count.touched
+      ? { count: count.snapshot, step: "count", result: null, note: "" }
+      : null,
+    onRestore: (saved) => count.restore(saved.count),
+  });
+
+  // Registers opened meanwhile (here or on another phone) need no draft.
+  const { user, currentRestaurant } = useAuthStore();
+  useEffect(() => {
+    if (!user?.id || !currentRestaurant?.id) return;
+    const keys = registers
+      .filter((r) => r.session)
+      .map((r) =>
+        cashCountDraftKey(currentRestaurant.id, user.id, "open", r.account.id),
+      );
+    if (keys.length) useCashCountDraftStore.getState().discard(...keys);
+  }, [registers, user?.id, currentRestaurant?.id]);
+
   const value = count.value;
   const last = register?.lastCountedAmount ?? null;
   const delta = last != null && !count.isEmpty ? value - last : 0;
@@ -71,6 +104,7 @@ export default function OpenCashSessionScreen() {
       },
       {
         onSuccess: () => {
+          draft.discard();
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           toast.success(
             t("common:cashRegister.opened", {
@@ -106,6 +140,16 @@ export default function OpenCashSessionScreen() {
               {t("common:cashRegister.openRegister")}
             </ThemedText>
           </ThemedView>
+
+          {register && draft.restored && (
+            <CashCountDraftBanner
+              savedAt={draft.restored.savedAt}
+              onStartOver={() => {
+                draft.discard();
+                pick(register);
+              }}
+            />
+          )}
 
           {!register && (
             <ThemedText type="body2" style={tw`text-gray-500`}>

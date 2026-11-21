@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { toast } from "sonner-native";
@@ -11,6 +11,7 @@ import { getApiError } from "@/core/api/api-response";
 import { getUserDisplayName } from "@/core/auth/utils/get-user-display-name";
 import {
   AssignableUser,
+  CashSessionStatus,
   registerHolder,
 } from "@/core/cash-sessions/models/cash-session.model";
 import tw from "@/presentation/theme/lib/tailwind";
@@ -28,7 +29,12 @@ import {
 import DifferenceLabel from "@/presentation/cash-sessions/components/difference-label";
 import CashCountField from "@/presentation/cash-sessions/components/cash-count-field";
 import CashCountFooter from "@/presentation/cash-sessions/components/cash-count-footer";
+import CashCountDraftBanner from "@/presentation/cash-sessions/components/cash-count-draft-banner";
 import { useCashCount } from "@/presentation/cash-sessions/hooks/useCashCount";
+import {
+  useCashCountDraft,
+  useCashCountDraftKey,
+} from "@/presentation/cash-sessions/hooks/useCashCountDraft";
 import {
   useAssignableUsers,
   useCashRoles,
@@ -49,7 +55,8 @@ type CountResult = {
 /**
  * Hand an open register to someone else without closing it
  * (plans/reasignar-caja.md). Pick the person; optionally count first, blind
- * like at close. A count that doesn't match needs a note.
+ * like at close. A count that doesn't match needs a note. A started count
+ * is kept as a draft on this phone (plans/conteo-caja-borrador.md).
  */
 export default function ReassignCashSessionScreen() {
   const { t } = useTranslation(["common", "errors", "auth"]);
@@ -68,6 +75,44 @@ export default function ReassignCashSessionScreen() {
   const [note, setNote] = useState("");
   const [result, setResult] = useState<CountResult | null>(null);
 
+  const draftKey = useCashCountDraftKey("reassign", sessionId);
+  const draft = useCashCountDraft({
+    key: draftKey,
+    draft:
+      step === "count" && count.touched
+        ? {
+            count: count.snapshot,
+            step,
+            result: null,
+            note: "",
+            extra: { toUserId },
+          }
+        : step === "note"
+          ? { count: count.snapshot, step, result, note, extra: { toUserId } }
+          : null,
+    onRestore: (saved) => {
+      const savedUserId = saved.extra?.toUserId;
+      if (typeof savedUserId !== "string") return;
+      setToUserId(savedUserId);
+      setWithCount(true);
+      count.restore(saved.count);
+      if (saved.step === "note" && saved.result) {
+        setResult(saved.result as CountResult);
+        setNote(saved.note);
+        setStep("note");
+      } else {
+        setStep("count");
+      }
+    },
+  });
+
+  // Closed or handed over from another phone: nothing left to resume.
+  const notOpen = !!session && session.status !== CashSessionStatus.OPEN;
+  const discardDraft = draft.discard;
+  useEffect(() => {
+    if (notOpen) discardDraft();
+  }, [notOpen, discardDraft]);
+
   const target = users.find((u) => u.id === toUserId);
   const targetName = target ? nameOf(target) : "";
   const holder = session ? registerHolder(session) : null;
@@ -84,6 +129,7 @@ export default function ReassignCashSessionScreen() {
       { id: sessionId, toUserId, ...data },
       {
         onSuccess: () => {
+          draft.discard();
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           toast.success(
             t("common:cashRegister.reassign.done", { name: targetName }),
@@ -130,6 +176,20 @@ export default function ReassignCashSessionScreen() {
           <ThemedText type="body2" style={tw`text-gray-500`}>
             {session?.account.name ?? ""}
           </ThemedText>
+
+          {draft.restored && step !== "pick" && (
+            <CashCountDraftBanner
+              savedAt={draft.restored.savedAt}
+              onStartOver={
+                step === "count"
+                  ? () => {
+                      draft.discard();
+                      count.reset();
+                    }
+                  : undefined
+              }
+            />
+          )}
 
           {step === "pick" && (
             <>
@@ -198,7 +258,7 @@ export default function ReassignCashSessionScreen() {
               <CashCountField
                 count={count}
                 amountLabel={t("common:cashRegister.summary.counted")}
-                autoFocus
+                autoFocus={!draft.restored}
               />
               {liveExpected != null && (
                 <ThemedText type="body2" style={tw`text-gray-500`}>
