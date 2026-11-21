@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RefreshControl, ScrollView } from "react-native";
-import { useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import { toast } from "sonner-native";
 import dayjs from "dayjs";
 
@@ -46,14 +46,29 @@ const registerOpenText = (
 /**
  * "Cajas", reached from Home's "Caja" pill (owner, admin, cashier): each
  * register with its state (tap to open it on its own screen or see its
- * summary, where cash is withdrawn) and a pill to the closings history.
+ * summary, where cash is withdrawn); the header's top right opens the
+ * closings history.
  */
 export default function CashRegistersScreen() {
   const { t } = useTranslation(["common"]);
   const router = useRouter();
+  const navigation = useNavigation();
   const { canRunRegisters, userId, isManager } = useCashRoles();
   const { registers, isLoading, refetch } = useCashRegisters(canRunRegisters);
   const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Button
+          label={t("common:cashRegister.historyAction")}
+          variant="text"
+          size="small"
+          onPress={() => router.push("/cash-session")}
+        />
+      ),
+    });
+  }, [navigation, router, t]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -86,18 +101,7 @@ export default function CashRegistersScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <DetailHeader title={t("common:cashRegister.title")}>
-          <ThemedView style={tw`flex-row flex-wrap gap-3`}>
-            <Button
-              label={t("common:cashRegister.historyAction")}
-              leftIcon="history"
-              variant="surface"
-              shape="rounded"
-              size="small"
-              onPress={() => router.push("/cash-session")}
-            />
-          </ThemedView>
-        </DetailHeader>
+        <DetailHeader title={t("common:cashRegister.title")} />
 
         {registers.length === 0 ? (
           <ThemedView style={tw`items-center py-12 gap-3`}>
