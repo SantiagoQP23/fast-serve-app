@@ -84,6 +84,7 @@ export default {
       "expo-web-browser",
       "expo-image",
       "expo-sharing",
+      "./plugins/with-optional-hardware-features",
     ],
     experiments: {
       typedRoutes: true,
