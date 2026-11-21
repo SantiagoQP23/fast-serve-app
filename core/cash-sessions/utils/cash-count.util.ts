@@ -10,20 +10,23 @@ export const CASH_DENOMINATIONS = [
 export const formatDenomination = (value: number) =>
   formatCurrency(value).replace(/\.00$/, "");
 
-/** Quantity typed per denomination, keyed by its value. */
-export type CashCountQuantities = Record<number, string>;
+/** How many of each bill or coin, keyed by its value. */
+export type CashCountQuantities = Record<number, number>;
 
-const toQuantity = (text: string | undefined) => {
-  const n = parseInt(text ?? "", 10);
-  return Number.isFinite(n) && n > 0 ? n : 0;
-};
+/** Most of one bill or coin a count takes (5 digits). */
+export const MAX_CASH_QUANTITY = 99999;
+
+const toQuantity = (n: number | undefined) =>
+  typeof n === "number" && Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
 
 /** In cents, so $0.50 × 3 is exactly $1.50. */
 const lineCents = (value: number, quantity: number) =>
   Math.round(value * 100) * quantity;
 
-export const getCashCountSubtotal = (value: number, text: string | undefined) =>
-  lineCents(value, toQuantity(text)) / 100;
+export const getCashCountSubtotal = (
+  value: number,
+  quantity: number | undefined,
+) => lineCents(value, toQuantity(quantity)) / 100;
 
 export const getCashCountTotal = (quantities: CashCountQuantities) =>
   CASH_DENOMINATIONS.reduce(
@@ -43,6 +46,4 @@ export const toCashCountLines = (
 export const fromCashCountLines = (
   lines: CashCountLine[] | null | undefined,
 ): CashCountQuantities =>
-  Object.fromEntries(
-    (lines ?? []).map((line) => [line.value, String(line.quantity)]),
-  );
+  Object.fromEntries((lines ?? []).map((line) => [line.value, line.quantity]));
