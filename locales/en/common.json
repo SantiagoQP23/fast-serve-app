@@ -273,6 +273,8 @@
       "responsible": "Held by",
       "closedBy": "Closed by",
       "movements": "Movements",
+      "totalsTitle": "Summary",
+      "detailsTitle": "Details",
       "noMovements": "No movements in this register yet.",
       "inRegister": "Cash in register",
       "showAmount": "Show amount",

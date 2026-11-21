@@ -273,6 +273,8 @@
       "responsible": "A cargo de",
       "closedBy": "Cerró",
       "movements": "Movimientos",
+      "totalsTitle": "Resumen",
+      "detailsTitle": "Detalles",
       "noMovements": "Aún no hay movimientos en esta caja.",
       "inRegister": "Efectivo en caja",
       "showAmount": "Mostrar monto",

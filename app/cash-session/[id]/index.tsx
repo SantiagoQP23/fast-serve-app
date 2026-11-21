@@ -22,8 +22,8 @@ import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import {
-  DetailCard,
   DetailCardRow,
+  DetailSectionTitle,
 } from "@/presentation/theme/components/detail-card";
 import Label from "@/presentation/theme/components/label";
 import Button from "@/presentation/theme/components/button";
@@ -293,57 +293,62 @@ export default function CashSessionScreen() {
           )}
 
           {/* Totals */}
-          <DetailCard style={tw`py-2`}>
-            <DetailCardRow
-              label={t("common:cashRegister.summary.opening")}
-              value={formatCurrency(summary.openingAmount)}
+          <ThemedView style={tw`gap-3`}>
+            <DetailSectionTitle
+              title={t("common:cashRegister.summary.totalsTitle")}
             />
-            <DetailCardRow
-              label={t("common:cashRegister.summary.income")}
-              value={`+${formatCurrency(summary.cashIncome)}`}
-            />
-            {(summary.inCount ?? 0) > 0 && (
+            <ThemedView>
               <DetailCardRow
-                label={t("common:cashRegister.summary.added")}
-                value={`+${formatCurrency(summary.cashIn)}`}
+                label={t("common:cashRegister.summary.opening")}
+                value={formatCurrency(summary.openingAmount)}
               />
-            )}
-            <DetailCardRow
-              label={t("common:cashRegister.summary.out")}
-              value={`−${formatCurrency(summary.cashOut)}`}
-            />
-            {summary.pendingCount > 0 && (
               <DetailCardRow
-                label={t("common:cashRegister.summary.pending")}
-                value={`−${formatCurrency(summary.pendingOut)}`}
+                label={t("common:cashRegister.summary.income")}
+                value={`+${formatCurrency(summary.cashIncome)}`}
               />
-            )}
-            <DetailCardRow
-              label={t("common:cashRegister.summary.expected")}
-              value={
-                expected != null
-                  ? maskAmount(formatCurrency(expected))
-                  : t("common:cashRegister.summary.expectedHidden")
-              }
-            />
-            {!isOpen && (
-              <>
+              {(summary.inCount ?? 0) > 0 && (
                 <DetailCardRow
-                  label={t("common:cashRegister.summary.counted")}
-                  value={
-                    session.countedAmount != null
-                      ? maskAmount(formatCurrency(session.countedAmount))
-                      : t("common:cashRegister.summary.notCounted")
-                  }
+                  label={t("common:cashRegister.summary.added")}
+                  value={`+${formatCurrency(summary.cashIn)}`}
                 />
+              )}
+              <DetailCardRow
+                label={t("common:cashRegister.summary.out")}
+                value={`−${formatCurrency(summary.cashOut)}`}
+              />
+              {summary.pendingCount > 0 && (
                 <DetailCardRow
-                  label={t("common:cashRegister.summary.difference")}
-                >
-                  <DifferenceLabel difference={session.difference} />
-                </DetailCardRow>
-              </>
-            )}
-          </DetailCard>
+                  label={t("common:cashRegister.summary.pending")}
+                  value={`−${formatCurrency(summary.pendingOut)}`}
+                />
+              )}
+              <DetailCardRow
+                label={t("common:cashRegister.summary.expected")}
+                value={
+                  expected != null
+                    ? maskAmount(formatCurrency(expected))
+                    : t("common:cashRegister.summary.expectedHidden")
+                }
+              />
+              {!isOpen && (
+                <>
+                  <DetailCardRow
+                    label={t("common:cashRegister.summary.counted")}
+                    value={
+                      session.countedAmount != null
+                        ? maskAmount(formatCurrency(session.countedAmount))
+                        : t("common:cashRegister.summary.notCounted")
+                    }
+                  />
+                  <DetailCardRow
+                    label={t("common:cashRegister.summary.difference")}
+                  >
+                    <DifferenceLabel difference={session.difference} />
+                  </DetailCardRow>
+                </>
+              )}
+            </ThemedView>
+          </ThemedView>
 
           <CashBreakdownCard
             title={t("common:cashRegister.count.openingTitle")}
@@ -355,53 +360,60 @@ export default function CashSessionScreen() {
           />
 
           {/* Who and notes */}
-          <DetailCard style={tw`py-2`}>
-            <DetailCardRow
-              label={t("common:cashRegister.summary.openedBy")}
-              value={getUserDisplayName(
-                session.openedBy ?? undefined,
-                t("common:labels.deletedUser"),
-              )}
+          <ThemedView style={tw`gap-3`}>
+            <DetailSectionTitle
+              title={t("common:cashRegister.summary.detailsTitle")}
             />
-            {(isOpen || assignments.length > 0) && (
+            <ThemedView>
               <DetailCardRow
-                label={t("common:cashRegister.summary.responsible")}
-                value={
-                  holder
-                    ? userName(holder)
-                    : t("common:cashRegister.reassign.noHolder")
-                }
-              />
-            )}
-            {!isOpen && (
-              <DetailCardRow
-                label={t("common:cashRegister.summary.closedBy")}
+                label={t("common:cashRegister.summary.openedBy")}
                 value={getUserDisplayName(
-                  session.closedBy ?? undefined,
+                  session.openedBy ?? undefined,
                   t("common:labels.deletedUser"),
                 )}
               />
-            )}
-            {!!session.note && (
-              <DetailCardRow
-                label={t("common:cashRegister.summary.note")}
-                value={session.note}
-              />
-            )}
-            {session.adjustedAfterClose && (
-              <DetailCardRow label={t("common:cashRegister.summary.adjusted")}>
-                <Icon name="info" size={18} color={tw.color("gray-500")} />
-              </DetailCardRow>
-            )}
-          </DetailCard>
+              {(isOpen || assignments.length > 0) && (
+                <DetailCardRow
+                  label={t("common:cashRegister.summary.responsible")}
+                  value={
+                    holder
+                      ? userName(holder)
+                      : t("common:cashRegister.reassign.noHolder")
+                  }
+                />
+              )}
+              {!isOpen && (
+                <DetailCardRow
+                  label={t("common:cashRegister.summary.closedBy")}
+                  value={getUserDisplayName(
+                    session.closedBy ?? undefined,
+                    t("common:labels.deletedUser"),
+                  )}
+                />
+              )}
+              {!!session.note && (
+                <DetailCardRow
+                  label={t("common:cashRegister.summary.note")}
+                  value={session.note}
+                />
+              )}
+              {session.adjustedAfterClose && (
+                <DetailCardRow
+                  label={t("common:cashRegister.summary.adjusted")}
+                >
+                  <Icon name="info" size={18} color={tw.color("gray-500")} />
+                </DetailCardRow>
+              )}
+            </ThemedView>
+          </ThemedView>
 
           {/* Handovers (plans/reasignar-caja.md) */}
           {assignments.length > 0 && (
             <ThemedView style={tw`gap-3`}>
-              <ThemedText type="h4">
-                {t("common:cashRegister.reassign.history")}
-              </ThemedText>
-              <DetailCard style={tw`py-2`}>
+              <DetailSectionTitle
+                title={t("common:cashRegister.reassign.history")}
+              />
+              <ThemedView>
                 {assignments.map((assignment) => (
                   <DetailCardRow
                     key={assignment.id}
@@ -418,7 +430,7 @@ export default function CashSessionScreen() {
                     )}
                   </DetailCardRow>
                 ))}
-              </DetailCard>
+              </ThemedView>
               {assignments
                 .filter((a) => !!a.note)
                 .map((a) => (
@@ -433,9 +445,9 @@ export default function CashSessionScreen() {
             </ThemedView>
           )}
 
-          <ThemedText type="h4">
-            {t("common:cashRegister.summary.movements")}
-          </ThemedText>
+          <DetailSectionTitle
+            title={t("common:cashRegister.summary.movements")}
+          />
         </ThemedView>
 
         <ThemedView style={tw`bg-background`}>

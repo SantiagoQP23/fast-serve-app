@@ -2,10 +2,10 @@ import { formatCurrency } from "@/core/i18n/utils";
 import { CashCountLine } from "@/core/cash-sessions/models/cash-session.model";
 import { formatDenomination } from "@/core/cash-sessions/utils/cash-count.util";
 import tw from "@/presentation/theme/lib/tailwind";
+import { ThemedView } from "@/presentation/theme/components/themed-view";
 import {
-  DetailCard,
   DetailCardRow,
-  DetailCardTitle,
+  DetailSectionTitle,
 } from "@/presentation/theme/components/detail-card";
 
 interface CashBreakdownCardProps {
@@ -13,7 +13,10 @@ interface CashBreakdownCardProps {
   lines: CashCountLine[] | null;
 }
 
-/** The bills and coins of one count; nothing when only a total was typed. */
+/**
+ * The bills and coins of one count as plain rows under a title; nothing when
+ * only a total was typed.
+ */
 export default function CashBreakdownCard({
   title,
   lines,
@@ -21,17 +24,19 @@ export default function CashBreakdownCard({
   if (!lines?.length) return null;
 
   return (
-    <DetailCard style={tw`py-2`}>
-      <DetailCardTitle title={title} />
-      {[...lines]
-        .sort((a, b) => b.value - a.value)
-        .map((line) => (
-          <DetailCardRow
-            key={line.value}
-            label={`${formatDenomination(line.value)} × ${line.quantity}`}
-            value={formatCurrency(line.value * line.quantity)}
-          />
-        ))}
-    </DetailCard>
+    <ThemedView style={tw`gap-3`}>
+      <DetailSectionTitle title={title} />
+      <ThemedView>
+        {[...lines]
+          .sort((a, b) => b.value - a.value)
+          .map((line) => (
+            <DetailCardRow
+              key={line.value}
+              label={`${formatDenomination(line.value)} × ${line.quantity}`}
+              value={formatCurrency(line.value * line.quantity)}
+            />
+          ))}
+      </ThemedView>
+    </ThemedView>
   );
 }
