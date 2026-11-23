@@ -6,6 +6,8 @@ export interface CreateInventoryItemDto {
   quantity?: number;
   minimumQuantity?: number;
   isActive?: boolean;
+  /** Not counted or spent; only listed in recipes. Insumos only. */
+  isUnlimited?: boolean;
   categoryId?: string | null;
   /** Product options consuming this item, linked in the same request. */
   recipeLines?: { productOptionId: number; quantity: number }[];

@@ -74,6 +74,8 @@ export default function MenuInventoryCountItemsScreen() {
     return items.filter(
       (item) =>
         item.isActive &&
+        // Unlimited insumos are never counted
+        !item.isUnlimited &&
         (!!term ||
           !categoryId ||
           (categoryId === MENU_PRODUCTS

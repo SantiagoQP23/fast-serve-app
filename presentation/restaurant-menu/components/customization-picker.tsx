@@ -3,9 +3,9 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import {
   getActiveGroups,
-  getProductComponents,
+  getRemovableIngredients,
   isModifierOutOfStock,
-  toggleComponent,
+  toggleIngredient,
   toggleModifier,
   type ActiveGroup,
   type CustomizationSelection,
@@ -25,7 +25,9 @@ export const signedCurrency = (value: number) =>
 
 function Header({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <ThemedView style={tw`flex-row items-baseline gap-2 flex-wrap bg-transparent`}>
+    <ThemedView
+      style={tw`flex-row items-baseline gap-2 flex-wrap bg-transparent`}
+    >
       <ThemedText
         accessibilityRole="header"
         style={{ fontFamily: typography.bold }}
@@ -105,7 +107,8 @@ function ModifierOptionRow({
 }
 
 /**
- * The product's "Incluye" items (tap to take one off) and its groups of
+ * The variant's removable recipe ingredients (tap to take one off,
+ * plans/unificar-receta-incluidos.md) and the product's groups of
  * options (radio for "elige 1", checkboxes otherwise). Used by the product
  * sheet and the edit-line screen.
  */
@@ -128,7 +131,7 @@ export default function CustomizationPicker({
 }) {
   const { t } = useTranslation("menu");
   const groups = getActiveGroups(product, variantId);
-  const components = getProductComponents(product);
+  const ingredients = getRemovableIngredients(product, variantId);
 
   const groupSubtitle = (group: ActiveGroup) => {
     if (group.min > 0)
@@ -145,35 +148,32 @@ export default function CustomizationPicker({
 
   return (
     <>
-      {components.length > 0 && (
+      {ingredients.length > 0 && (
         <ThemedView style={tw`gap-3 bg-transparent`}>
           <Header
             title={t("menu:customization.includes")}
-            subtitle={
-              components.some((component) => component.removable)
-                ? t("menu:customization.tapToRemove")
-                : undefined
-            }
+            subtitle={t("menu:customization.tapToRemove")}
           />
           <ThemedView style={tw`flex-row flex-wrap gap-2 bg-transparent`}>
-            {components.map((component) => {
-              const removed = selection.removedComponentIds.includes(
-                component.id,
-              );
-              const delta = Number(component.removalPriceDelta);
+            {ingredients.map((ingredient) => {
+              const removed = (
+                selection.removedInventoryItemIds ?? []
+              ).includes(ingredient.inventoryItemId);
+              const delta = ingredient.removalPriceDelta;
               const label = removed
-                ? `${t("menu:customization.without")} ${component.name}${
+                ? `${t("menu:customization.without")} ${ingredient.name}${
                     delta ? ` (${signedCurrency(delta)})` : ""
                   }`
-                : component.name;
+                : ingredient.name;
               return (
                 <Chip
-                  key={component.id}
+                  key={ingredient.inventoryItemId}
                   label={label}
                   selected={!removed}
-                  disabled={!component.removable}
                   onPress={() =>
-                    onChange((current) => toggleComponent(current, component.id))
+                    onChange((current) =>
+                      toggleIngredient(current, ingredient.inventoryItemId),
+                    )
                   }
                 />
               );

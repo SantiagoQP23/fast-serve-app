@@ -21,6 +21,7 @@ export default function InventoryStockSummary({
   const { t } = useTranslation("inventory");
 
   const noMinimumCount = counts.noMinimum ?? 0;
+  const unlimitedCount = counts.unlimited ?? 0;
   const filters: {
     key: InventoryItemStockStatusFilter;
     count: number;
@@ -54,6 +55,17 @@ export default function InventoryStockSummary({
             key: InventoryItemStockStatusFilter.NO_MINIMUM,
             count: noMinimumCount,
             label: t("status.noMinimum"),
+            color: "default" as const,
+          },
+        ]
+      : []),
+    ...(unlimitedCount > 0 ||
+    selectedStatus === InventoryItemStockStatusFilter.UNLIMITED
+      ? [
+          {
+            key: InventoryItemStockStatusFilter.UNLIMITED,
+            count: unlimitedCount,
+            label: t("unlimited.filter"),
             color: "default" as const,
           },
         ]

@@ -29,19 +29,11 @@ export interface SaveModifierGroupInput {
   productIds?: string[];
 }
 
-export interface SaveProductComponentInput {
-  id?: string;
-  name: string;
-  removable: boolean;
-  /** Zero or negative. */
-  removalPriceDelta: number;
-  inventoryItemId?: string | null;
-  inventoryQuantity?: number | null;
-}
-
-/** The product's whole "Personalización"; anything left out is removed. */
+/**
+ * The product's option groups; anything left out is unlinked. What the dish
+ * includes is edited in its recipe (plans/unificar-receta-incluidos.md).
+ */
 export interface SaveProductCustomizationInput {
-  components: SaveProductComponentInput[];
   groups: {
     groupId: string;
     minSelect?: number | null;

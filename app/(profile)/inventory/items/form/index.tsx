@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
@@ -20,6 +20,7 @@ import TextInput from "@/presentation/theme/components/text-input";
 import Select from "@/presentation/theme/components/select";
 import InfoTooltip from "@/presentation/theme/components/info-tooltip";
 import ActionsBottomSheet from "@/presentation/theme/components/actions-bottom-sheet";
+import Switch from "@/presentation/theme/components/switch";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
@@ -34,6 +35,7 @@ const buildItemSchema = (t: (key: string) => string) =>
     quantity: z.string().optional(),
     minimumQuantity: z.string().optional(),
     isActive: z.boolean(),
+    isUnlimited: z.boolean(),
     categoryId: z.string().optional(),
   });
 
@@ -47,6 +49,8 @@ export default function MenuInventoryItemFormScreen() {
     unit?: string;
     minimumQuantity?: string;
     isActive?: string;
+    isUnlimited?: string;
+    isProductStock?: string;
     categoryId?: string;
   }>();
 
@@ -74,9 +78,17 @@ export default function MenuInventoryItemFormScreen() {
       quantity: "",
       minimumQuantity: params.minimumQuantity || "",
       isActive: params.isActive !== "false",
+      isUnlimited: params.isUnlimited === "true",
       categoryId: params.categoryId || "",
     },
   });
+
+  // An unlimited insumo is never counted. Turning "Ilimitado" off on a saved
+  // one asks for its stock once (plans/unificar-receta-incluidos.md).
+  const isUnlimited = useWatch({ control, name: "isUnlimited" });
+  const wasUnlimited = isEditing && params.isUnlimited === "true";
+  const startsCounting = wasUnlimited && !isUnlimited;
+  const asksForStock = !isUnlimited && (!isEditing || startsCounting);
 
   const unitOptions = Object.values(InventoryUnit).map((unit) => ({
     label: t(`units.${unit}`),
@@ -92,10 +104,12 @@ export default function MenuInventoryItemFormScreen() {
     const payload = {
       name: data.name.trim(),
       unit: data.unit,
-      minimumQuantity: data.minimumQuantity
-        ? Number(data.minimumQuantity)
-        : undefined,
+      minimumQuantity:
+        data.minimumQuantity && !data.isUnlimited
+          ? Number(data.minimumQuantity)
+          : undefined,
       isActive: data.isActive,
+      isUnlimited: data.isUnlimited,
       categoryId: data.categoryId ? data.categoryId : null,
     };
 
@@ -103,14 +117,25 @@ export default function MenuInventoryItemFormScreen() {
       if (isEditing) {
         // No quantity here: stock only changes through Restock/Decrease or
         // a count, so saving can't revert sales made while this was open.
-        await updateItem.mutateAsync({ ...payload, id: params.itemId! });
+        // Except once: an unlimited item that starts being counted.
+        await updateItem.mutateAsync({
+          ...payload,
+          id: params.itemId!,
+          ...(wasUnlimited &&
+            !data.isUnlimited && {
+              quantity: data.quantity ? Number(data.quantity) : 0,
+            }),
+        });
         router.back();
         return;
       }
 
       const created = await createItem.mutateAsync({
         ...payload,
-        quantity: data.quantity ? Number(data.quantity) : undefined,
+        quantity:
+          data.quantity && !data.isUnlimited
+            ? Number(data.quantity)
+            : undefined,
       });
       setCreatedItem({
         id: created.id,
@@ -159,7 +184,11 @@ export default function MenuInventoryItemFormScreen() {
                 accessibilityLabel={t("common:actions.goBack")}
                 style={({ pressed }) => tw.style(pressed && "opacity-70")}
               >
-                <Icon name="arrow-left" color={tw.color("on-surface")} size={24} />
+                <Icon
+                  name="arrow-left"
+                  color={tw.color("on-surface")}
+                  size={24}
+                />
               </Pressable>
               <ThemedView style={tw`flex-1`}>
                 <ThemedText
@@ -249,49 +278,77 @@ export default function MenuInventoryItemFormScreen() {
               </Pressable>
             </ThemedView>
 
-            <ThemedView style={tw`flex-row gap-3`}>
-              {/* Starting stock is set once, on create. After that it only
-                  changes through Restock/Decrease or a count. */}
-              {!isEditing && (
+            {params.isProductStock !== "true" && (
+              <ThemedView style={tw`gap-1`}>
+                <Controller
+                  control={control}
+                  name="isUnlimited"
+                  render={({ field: { value, onChange } }) => (
+                    <Switch
+                      label={t("unlimited.label")}
+                      value={value}
+                      onValueChange={onChange}
+                    />
+                  )}
+                />
+                <ThemedText type="small" style={tw`text-gray-500`}>
+                  {startsCounting
+                    ? t("unlimited.currentStockHint")
+                    : t("unlimited.hint")}
+                </ThemedText>
+              </ThemedView>
+            )}
+
+            {!isUnlimited && (
+              <ThemedView style={tw`flex-row gap-3`}>
+                {/* Starting stock is set once, on create (or when an unlimited
+                  item starts being counted). After that it only changes
+                  through Restock/Decrease or a count. */}
+                {asksForStock && (
+                  <ThemedView style={tw`flex-1`}>
+                    <Controller
+                      control={control}
+                      name="quantity"
+                      render={({ field: { onChange, onBlur, value } }) => (
+                        <TextInput
+                          label={
+                            startsCounting
+                              ? t("unlimited.currentStock")
+                              : t("wholeProduct.fields.currentQuantity")
+                          }
+                          placeholder={t("placeholders.quantity")}
+                          onBlur={onBlur}
+                          value={value}
+                          onChangeText={onChange}
+                          keyboardType="decimal-pad"
+                        />
+                      )}
+                    />
+                  </ThemedView>
+                )}
                 <ThemedView style={tw`flex-1`}>
                   <Controller
                     control={control}
-                    name="quantity"
+                    name="minimumQuantity"
                     render={({ field: { onChange, onBlur, value } }) => (
                       <TextInput
-                        label={t("wholeProduct.fields.currentQuantity")}
-                        placeholder={t("placeholders.quantity")}
+                        label={t("fields.minimumQuantity")}
+                        placeholder={t("placeholders.minimumQuantity")}
                         onBlur={onBlur}
                         value={value}
                         onChangeText={onChange}
                         keyboardType="decimal-pad"
+                        trailingIcon={
+                          <InfoTooltip
+                            text={t("wholeProduct.fields.minimumQuantityInfo")}
+                          />
+                        }
                       />
                     )}
                   />
                 </ThemedView>
-              )}
-              <ThemedView style={tw`flex-1`}>
-                <Controller
-                  control={control}
-                  name="minimumQuantity"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      label={t("fields.minimumQuantity")}
-                      placeholder={t("placeholders.minimumQuantity")}
-                      onBlur={onBlur}
-                      value={value}
-                      onChangeText={onChange}
-                      keyboardType="decimal-pad"
-                      trailingIcon={
-                        <InfoTooltip
-                          text={t("wholeProduct.fields.minimumQuantityInfo")}
-                        />
-                      }
-                    />
-                  )}
-                />
               </ThemedView>
-            </ThemedView>
+            )}
           </ThemedView>
         </ScrollView>
       </ScreenLayout>

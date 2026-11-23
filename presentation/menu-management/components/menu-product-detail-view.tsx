@@ -38,6 +38,7 @@ import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-b
 import { formatCurrency } from "@/core/i18n/utils";
 import type { ProductOption } from "@/core/menu/models/product-optionl.model";
 import ProductCustomizationSection from "@/presentation/menu-management/components/product-customization-section";
+import ProductRecipeRow from "@/presentation/menu-management/components/product-recipe-row";
 import { VariantRow } from "@/presentation/menu-management/components/product-variant-list";
 import EditVariantSheet, {
   type EditVariantSheetRef,
@@ -699,6 +700,10 @@ export default function MenuProductDetailView({
             <VariantStockCards section={stock} showMovements={false} />
           )}
           {variants}
+          {/* Every variant's recipe on one screen */}
+          <ThemedView style={tw`mt-4`}>
+            <ProductRecipeRow product={product} />
+          </ThemedView>
           <ProductCustomizationSection
             product={product}
             canManage={canManage}

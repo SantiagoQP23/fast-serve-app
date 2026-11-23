@@ -9,7 +9,7 @@ import { formatCurrency } from "@/core/i18n/utils";
 import type { Product } from "@/core/menu/models/product.model";
 import {
   getActiveGroups,
-  getProductComponents,
+  getRemovableIngredients,
   hasVariantRules,
 } from "@/core/menu/models/customization.model";
 import {
@@ -18,9 +18,10 @@ import {
 } from "@/presentation/theme/components/detail-card";
 
 /**
- * "Personalización" of a product in menu management: what it includes (and
- * whether the waiter can take it off) and the groups of options it offers.
- * Editing happens on its own screen.
+ * "Personalización" of a product in menu management: the recipe
+ * ingredients the waiter can take off (edited on the recipe screen,
+ * plans/unificar-receta-incluidos.md) and the groups of options it offers.
+ * Groups are edited on their own screen.
  */
 export default function ProductCustomizationSection({
   product,
@@ -30,7 +31,14 @@ export default function ProductCustomizationSection({
   canManage: boolean;
 }) {
   const { t } = useTranslation("menuManagement");
-  const components = getProductComponents(product);
+  // Removable ingredients of any variant, once each.
+  const components = [
+    ...new Map(
+      (product.options ?? [])
+        .flatMap((option) => getRemovableIngredients(product, option.id))
+        .map((ingredient) => [ingredient.inventoryItemId, ingredient]),
+    ).values(),
+  ];
   const links = [...(product.modifierGroups ?? [])]
     .filter((link) => link.group)
     .sort((a, b) => a.order - b.order);
@@ -87,19 +95,20 @@ export default function ProductCustomizationSection({
                   type="body2"
                   style={{ fontFamily: typography.semibold }}
                 >
-                  {t("customization.includes")}
+                  {t("customization.canRemove")}
                 </ThemedText>
                 <ThemedText type="body2" style={tw`text-gray-600`}>
                   {components
                     .map((component) =>
-                      component.removable
-                        ? Number(component.removalPriceDelta)
-                          ? `${component.name} (${t("customization.removableFor", {
+                      component.removalPriceDelta
+                        ? `${component.name} (${t(
+                            "customization.removableFor",
+                            {
                               amount: formatCurrency(
-                                Math.abs(Number(component.removalPriceDelta)),
+                                Math.abs(component.removalPriceDelta),
                               ),
-                            })})`
-                          : `${component.name} (${t("customization.removable")})`
+                            },
+                          )})`
                         : component.name,
                     )
                     .join(", ")}

@@ -282,10 +282,12 @@ const DuplicateVariantSheet = forwardRef<
                     t("inventory:detail.unknownProduct")}
                 </ThemedText>
                 <ThemedText type="body2" style={tw`text-gray-500`}>
-                  {t("inventory:quantityWithUnit", {
-                    quantity: line.quantity,
-                    unit: unit(line.quantity, line.inventoryItem?.unit),
-                  })}
+                  {line.quantity === null
+                    ? t("inventory:unlimited.label")
+                    : t("inventory:quantityWithUnit", {
+                        quantity: line.quantity,
+                        unit: unit(line.quantity, line.inventoryItem?.unit),
+                      })}
                 </ThemedText>
               </ThemedView>
             ))}

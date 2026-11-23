@@ -73,10 +73,13 @@ export default function LinkedProductsList({
                     {label || t("detail.unknownProduct")}
                   </ThemedText>
                   <ThemedText type="small" style={tw`text-gray-500`}>
-                    {t("quantityWithUnit", {
-                      quantity: line.quantity,
-                      unit: t(`units.${unit}`, { count: line.quantity }),
-                    })}
+                    {/* No amount: an unlimited insumo just listed */}
+                    {line.quantity === null
+                      ? t("unlimited.label")
+                      : t("quantityWithUnit", {
+                          quantity: line.quantity,
+                          unit: t(`units.${unit}`, { count: line.quantity }),
+                        })}
                   </ThemedText>
                   <Icon
                     name="chevron-right"

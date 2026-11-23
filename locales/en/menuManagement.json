@@ -501,6 +501,7 @@
       "sameAsProduct": "Same as the product ({{names}})",
       "nothing": "Nothing selected",
       "comes": "Comes with: {{names}}"
-    }
+    },
+    "canRemove": "Can be removed"
   }
 }
