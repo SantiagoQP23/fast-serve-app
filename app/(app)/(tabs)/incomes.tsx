@@ -42,6 +42,7 @@ import {
   getDateRangeFor,
 } from "@/core/orders/enums/date-range-filter.enum";
 import AmountSummaryHeader from "@/presentation/reports/components/amount-summary-header";
+import CardCommissionSummary from "@/presentation/reports/components/card-commission-summary";
 import WaiterSummaryCard from "@/presentation/reports/components/waiter-summary-card";
 import Label from "@/presentation/theme/components/label";
 import CustomDateRangeBottomSheet from "@/presentation/orders/components/custom-date-range-bottom-sheet";
@@ -482,6 +483,12 @@ export default function IncomesScreen() {
           totalAmount={dashboardStats?.totalAmount ?? 0}
           totalIncome={dashboardStats?.totalIncome ?? 0}
         />
+
+        {(paymentMethodReport?.summary.totalCommission ?? 0) > 0 && (
+          <CardCommissionSummary
+            totalCommission={paymentMethodReport!.summary.totalCommission!}
+          />
+        )}
 
         {/* Accounts Summary: every account, even with no income yet */}
         {accountsSummary.length > 0 && (

@@ -9,15 +9,7 @@ import {
 import { TransactionStatus } from "./transaction-status.enum";
 import { PaymentProof } from "./payment-proof.model";
 
-export type TransactionMetadata =
-  | CardMetadata
-  | TransferMetadata
-  | CashMetadata;
-
-export interface CardMetadata {
-  type: "CARD";
-  totalWithCommission: number;
-}
+export type TransactionMetadata = TransferMetadata | CashMetadata;
 
 export interface TransferMetadata {
   type: "TRANSFER";
@@ -34,7 +26,18 @@ export interface CashMetadata {
 export interface Transaction {
   id: number;
   num: number;
+  /** Applied to the bill. */
   amount: number;
+  // Card commission, computed by the server (plans/comision-tarjeta.md).
+  // Non-card: gross = net = amount, commission 0. Optional for old caches.
+  commissionPercentage?: number;
+  commissionChargedToCustomer?: boolean;
+  /** What was charged on the card. */
+  grossAmount?: number;
+  /** What the card processor keeps. */
+  commissionAmount?: number;
+  /** What reaches the account. */
+  netAmount?: number;
   description: string;
   name: string;
   paymentMethod: PaymentMethod;

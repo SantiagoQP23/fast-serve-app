@@ -1,4 +1,8 @@
 {
+  "cardCommission": {
+    "title": "Card commissions",
+    "copy": "Copy commission total"
+  },
   "titles": {
     "dailyReport": "Daily Report",
     "paymentMethodReport": "Payment Method Report",

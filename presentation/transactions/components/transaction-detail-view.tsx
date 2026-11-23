@@ -697,11 +697,23 @@ export default function TransactionDetailView({
               value={metadata.senderName}
             />
           )}
-          {metadata?.type === "CARD" && (
-            <DetailCardRow
-              label={t("common:transactions.totalWithCommission")}
-              value={formatCurrency(metadata.totalWithCommission)}
-            />
+          {(transaction.commissionAmount ?? 0) > 0 && (
+            <>
+              <DetailCardRow
+                label={t("common:transactions.chargedOnCard")}
+                value={formatCurrency(transaction.grossAmount ?? 0)}
+              />
+              <DetailCardRow
+                label={t("common:transactions.cardCommission", {
+                  percentage: transaction.commissionPercentage,
+                })}
+                value={`- ${formatCurrency(transaction.commissionAmount ?? 0)}`}
+              />
+              <DetailCardRow
+                label={t("common:transactions.netIncome")}
+                value={formatCurrency(transaction.netAmount ?? 0)}
+              />
+            </>
           )}
           {metadata?.type === "CASH" && metadata.cashReceived != null && (
             <DetailCardRow

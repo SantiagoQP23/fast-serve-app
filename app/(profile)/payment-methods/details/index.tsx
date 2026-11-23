@@ -258,6 +258,18 @@ export default function PaymentMethodDetailsScreen() {
             label={t("methods.fields.commission")}
             value={`${method.commissionPercentage}%`}
           />
+          {method.type === PaymentMethodCategory.CARD && (
+            <ThemedView style={tw`border-t border-divider`}>
+              <DetailCardRow
+                label={t("methods.fields.chargeCommissionToCustomer")}
+                value={t(
+                  method.chargeCommissionToCustomer
+                    ? "common:actions.yes"
+                    : "common:actions.no",
+                )}
+              />
+            </ThemedView>
+          )}
         </DetailCard>
 
         {/* Accounts */}

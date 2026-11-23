@@ -20,6 +20,7 @@ import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Button from "@/presentation/theme/components/button";
 import TextInput from "@/presentation/theme/components/text-input";
+import Switch from "@/presentation/theme/components/switch";
 import Select from "@/presentation/theme/components/select";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
@@ -42,6 +43,7 @@ const buildEditPaymentMethodSchema = (t: (key: string) => string) =>
         (v) => v === "" || (!Number.isNaN(Number(v)) && Number(v) >= 0),
         t("methods.validations.commissionInvalid"),
       ),
+    chargeCommissionToCustomer: z.boolean(),
   });
 
 type PaymentMethodEditFormData = z.infer<
@@ -87,6 +89,7 @@ export default function PaymentMethodEditScreen() {
       name: method?.name ?? "",
       type: method?.type ?? PaymentMethodCategory.CASH,
       commissionPercentage: String(method?.commissionPercentage ?? 0),
+      chargeCommissionToCustomer: !!method?.chargeCommissionToCustomer,
     },
   });
 
@@ -115,6 +118,9 @@ export default function PaymentMethodEditScreen() {
           data.type === PaymentMethodCategory.CARD && data.commissionPercentage
             ? Number(data.commissionPercentage)
             : 0,
+        chargeCommissionToCustomer:
+          data.type === PaymentMethodCategory.CARD &&
+          data.chargeCommissionToCustomer,
       },
     });
     router.back();
@@ -227,6 +233,28 @@ export default function PaymentMethodEditScreen() {
                     keyboardType="decimal-pad"
                     error={errors.commissionPercentage?.message}
                   />
+                )}
+              />
+            )}
+            {isCardType && (
+              <Controller
+                control={control}
+                name="chargeCommissionToCustomer"
+                render={({ field: { onChange, value } }) => (
+                  <ThemedView style={tw`gap-1`}>
+                    <Switch
+                      label={t("methods.fields.chargeCommissionToCustomer")}
+                      value={value}
+                      onValueChange={onChange}
+                    />
+                    <ThemedText type="caption" style={tw`text-gray-500`}>
+                      {t(
+                        value
+                          ? "methods.fields.chargeCommissionToCustomerOn"
+                          : "methods.fields.chargeCommissionToCustomerOff",
+                      )}
+                    </ThemedText>
+                  </ThemedView>
                 )}
               />
             )}

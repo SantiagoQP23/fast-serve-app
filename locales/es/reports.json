@@ -1,4 +1,8 @@
 {
+  "cardCommission": {
+    "title": "Comisiones de tarjeta",
+    "copy": "Copiar total de comisiones"
+  },
   "titles": {
     "dailyReport": "Reporte Diario",
     "paymentMethodReport": "Reporte de Método de Pago",
