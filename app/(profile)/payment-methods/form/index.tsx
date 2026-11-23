@@ -395,20 +395,11 @@ export default function PaymentMethodFormScreen() {
                       control={control}
                       name="chargeCommissionToCustomer"
                       render={({ field: { onChange, value } }) => (
-                        <ThemedView style={tw`gap-1`}>
-                          <Switch
-                            label={t("methods.fields.chargeCommissionToCustomer")}
-                            value={value}
-                            onValueChange={onChange}
-                          />
-                          <ThemedText type="caption" style={tw`text-gray-500`}>
-                            {t(
-                              value
-                                ? "methods.fields.chargeCommissionToCustomerOn"
-                                : "methods.fields.chargeCommissionToCustomerOff",
-                            )}
-                          </ThemedText>
-                        </ThemedView>
+                        <Switch
+                          label={t("methods.fields.chargeCommissionToCustomer")}
+                          value={value}
+                          onValueChange={onChange}
+                        />
                       )}
                     />
                   )}
