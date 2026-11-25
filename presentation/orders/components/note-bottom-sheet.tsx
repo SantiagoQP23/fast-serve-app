@@ -10,16 +10,18 @@ import Button from "@/presentation/theme/components/button";
 import tw from "@/presentation/theme/lib/tailwind";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
+import { ThemedText } from "@/presentation/theme/components/themed-text";
 
 interface NoteBottomSheetProps {
   initialValue: string;
   onSave: (note: string) => void;
+  title?: string;
   placeholder?: string;
   error?: string;
 }
 
 function NoteBottomSheet(
-  { initialValue, onSave, placeholder, error }: NoteBottomSheetProps,
+  { initialValue, onSave, title, placeholder, error }: NoteBottomSheetProps,
   ref: React.ForwardedRef<BottomSheetMethods>,
 ) {
   const { t } = useTranslation(["common", "orders"]);
@@ -52,6 +54,8 @@ function NoteBottomSheet(
       onChange={handleSheetChange}
     >
       <BottomSheetView style={tw`px-4 pb-6 pt-2 gap-4`}>
+        <ThemedText type="h3">{title ?? t("common:labels.notes")}</ThemedText>
+
         <TextInput
           ref={inputRef}
           numberOfLines={4}
@@ -68,7 +72,6 @@ function NoteBottomSheet(
           {draft.trim() !== "" && (
             <Button
               label={t("common:actions.clear")}
-              leftIcon="x"
               variant="text"
               onPress={() => {
                 setDraft("");
@@ -79,10 +82,10 @@ function NoteBottomSheet(
             />
           )}
           <Button
-            leftIcon="check"
+            label={t("common:actions.done")}
             onPress={() => onSave(draft)}
-            variant="outline"
-            accessibilityLabel={t("common:actions.save")}
+            variant="primary"
+            size="small"
           />
         </ThemedView>
       </BottomSheetView>
