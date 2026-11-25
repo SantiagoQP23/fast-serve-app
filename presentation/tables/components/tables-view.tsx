@@ -1,4 +1,4 @@
-import { RefreshControl } from "react-native";
+import { RefreshControl, View } from "react-native";
 
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
@@ -31,7 +31,9 @@ interface TablesViewProps {
   style?: ViewStyle;
   /** Scrolls above the first table. */
   header?: ReactElement;
-  /** Rendered after the last table. */
+  /** Rendered right after the last table, above the footer. */
+  afterTables?: ReactElement;
+  /** Rendered at the bottom, pushed down on short grids. */
   footer?: ReactElement;
 }
 
@@ -39,6 +41,7 @@ export default function TablesView({
   onTablePress,
   style,
   header,
+  afterTables,
   footer,
 }: TablesViewProps) {
   const { t } = useTranslation(["tables", "errors"]);
@@ -114,6 +117,7 @@ export default function TablesView({
   }, [queryClient, currentRestaurant?.id]);
 
   const hasTables = tables.length > 0;
+  const hasFooter = !!(afterTables || footer);
 
   // Zonas: la zona elegida se recuerda en el teléfono y el grid muestra solo esa.
   const areas = useTablesStore((state) => state.areas);
@@ -217,13 +221,20 @@ export default function TablesView({
         contentContainerStyle={tw.style(
           `pb-20`,
           !header && `pt-4`,
-          footer && `grow`,
+          hasFooter && `grow`,
         )}
         ListHeaderComponent={
           header ? <ThemedView style={tw`pb-4`}>{header}</ThemedView> : null
         }
-        ListFooterComponent={footer}
-        ListFooterComponentStyle={tw`mt-auto`}
+        ListFooterComponent={
+          hasFooter ? (
+            <>
+              {afterTables}
+              <View style={tw`mt-auto`}>{footer}</View>
+            </>
+          ) : null
+        }
+        ListFooterComponentStyle={tw`grow`}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

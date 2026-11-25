@@ -28,7 +28,6 @@ import OrderCardSkeleton from "@/presentation/home/components/order-card-skeleto
 import TablesView from "@/presentation/tables/components/tables-view";
 import TableActionsBottomSheet from "@/presentation/tables/components/table-actions-bottom-sheet";
 import { Table } from "@/core/tables/models/table.model";
-import { OrderType } from "@/core/orders/enums/order-type.enum";
 import { Order } from "@/core/orders/models/order.model";
 import { MyOrdersHeaderRight } from "../_layout";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
@@ -52,6 +51,7 @@ import { OrderPaneContext } from "@/presentation/orders/context/order-pane.conte
 import OrderDetailView from "@/presentation/orders/components/order-detail-view";
 import BillDetailView from "@/presentation/orders/components/bill-detail-view";
 import ClosePaidOrdersButton from "@/presentation/orders/components/close-paid-orders-button";
+import TakeAwayOrdersSection from "@/presentation/orders/components/take-away-orders-section";
 import DraftOrderSection from "@/presentation/orders/components/draft-order-section";
 import PendingStatusRow from "@/presentation/orders/components/pending-status-row";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
@@ -80,13 +80,9 @@ export default function MyOrdersScreen() {
   const [activeModule, setActiveModule] = useState<"orders" | "sales">(
     params.module === "sales" ? "sales" : "orders",
   );
-  const [activeView, setActiveView] = useState<
-    "tables" | "take-away" | "list" | "cards"
-  >("tables");
-  const takeAwayOrders = orders.filter(
-    (order) => order.type === OrderType.TAKE_AWAY,
+  const [activeView, setActiveView] = useState<"tables" | "list" | "cards">(
+    "tables",
   );
-  const listOrders = activeView === "take-away" ? takeAwayOrders : orders;
   const [selectedView, setSelectedView] = useState<
     "pending-products" | "order-lists"
   >("pending-products");
@@ -230,11 +226,6 @@ export default function MyOrdersScreen() {
       icon: "layout-grid" as const,
     },
     {
-      label: t("orders:details.takeAway"),
-      value: "take-away" as const,
-      icon: "handbag" as const,
-    },
-    {
       label: t("orders:homeViews.list"),
       value: "list" as const,
       icon: "list" as const,
@@ -369,7 +360,7 @@ export default function MyOrdersScreen() {
                       <OrderCardSkeleton />
                       <OrderCardSkeleton />
                     </ThemedView>
-                  ) : listOrders.length === 0 ? (
+                  ) : orders.length === 0 ? (
                     <ThemedView
                       style={tw` items-center justify-center flex-1 gap-4 mt-20`}
                     >
@@ -389,7 +380,7 @@ export default function MyOrdersScreen() {
                     <ThemedView style={tw`gap-6`}>
                       <OrderListByStatus
                         key={activeView}
-                        orders={listOrders}
+                        orders={orders}
                         showProducts
                         variant={activeView === "cards" ? "grid" : "list"}
                       />
@@ -409,6 +400,7 @@ export default function MyOrdersScreen() {
                   onTablePress={handleTablePress}
                   style={tw`flex-1`}
                   header={ordersHeader}
+                  afterTables={<TakeAwayOrdersSection />}
                   footer={<ClosePaidOrdersButton />}
                 />
               )}
