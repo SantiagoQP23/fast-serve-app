@@ -19,6 +19,8 @@ export interface InventoryStockSummaryCounts {
   optimal: number;
   /** In stock with no minimum set — outside the three health buckets. */
   noMinimum?: number;
+  /** Not counted at all; missing on older servers. */
+  unlimited?: number;
 }
 
 export class InventoryService {

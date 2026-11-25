@@ -6,7 +6,7 @@ import {
 } from "@/core/inventory/models/inventory-item.model";
 import { InventoryService } from "../services/inventory.service";
 import { inventoryItemsQueryKey } from "./useInventoryItems";
-import type { InventoryItemStockStatusFilter } from "../interfaces/dto/find-all-inventory-items.dto";
+import { InventoryItemStockStatusFilter } from "../interfaces/dto/find-all-inventory-items.dto";
 
 const PAGE_SIZE = 20;
 
@@ -65,7 +65,9 @@ export const useInventoryItemsBrowser = (
       InventoryService.getAll({
         categoryId: categoryId ?? undefined,
         uncategorized: uncategorized ?? undefined,
-        status: status ?? undefined,
+        ...(status === InventoryItemStockStatusFilter.UNLIMITED
+          ? { unlimited: true }
+          : { status: status ?? undefined }),
         search: search || undefined,
         // Insumos only; variant stock lives on the variant screen.
         kind: InventoryItemKind.INGREDIENT,

@@ -223,8 +223,7 @@ export function useMenuCart() {
     if (!option) return false;
 
     // The groups' default options come picked, priced like any pick.
-    const customizable =
-      hasCustomization(product) || !!product.components?.length;
+    const customizable = hasCustomization(product);
     const selection = getDefaultSelection(
       product,
       option.id,
@@ -252,9 +251,12 @@ export function useMenuCart() {
    * and edit-order lines. Sale lines aren't edited from the menu.
    */
   const editableLines = (productId: string): NewOrderDetail[] =>
-    (mode === "edit" ? editNewItems : mode === "cart" ? cartDetails : []).filter(
-      (detail) => detail.product.id === productId,
-    );
+    (mode === "edit"
+      ? editNewItems
+      : mode === "cart"
+        ? cartDetails
+        : []
+    ).filter((detail) => detail.product.id === productId);
 
   return {
     mode,

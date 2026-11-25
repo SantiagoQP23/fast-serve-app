@@ -14,7 +14,6 @@ import { ThemedView } from "@/presentation/theme/components/themed-view";
 import tw from "@/presentation/theme/lib/tailwind";
 import { typography } from "@/constants/theme";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
 import {
@@ -26,11 +25,7 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import BottomSheetPicker, {
   type BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
-import { parseAmount } from "@/presentation/menu-management/components/modifier-option-sheet";
-import ProductComponentSheet, {
-  type ProductComponentDraft,
-  type ProductComponentSheetRef,
-} from "@/presentation/menu-management/components/product-component-sheet";
+import ProductRecipeRow from "@/presentation/menu-management/components/product-recipe-row";
 import GroupLimitsSheet, {
   describeDefaults,
   describeLimits,
@@ -38,10 +33,8 @@ import GroupLimitsSheet, {
 } from "@/presentation/menu-management/components/group-limits-sheet";
 import { useModifierGroups } from "@/presentation/menu-management/hooks/useModifierGroups";
 import { useGroupLinkHandoff } from "@/presentation/menu-management/store/useGroupLinkHandoff";
-import { useInventoryItems } from "@/presentation/inventory/hooks/useInventoryItems";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import {
-  getProductComponents,
   hasVariantRules,
   type ModifierGroup,
   type VariantGroupRule,
@@ -50,7 +43,6 @@ import {
   getProductActiveOptions,
   type Product,
 } from "@/core/menu/models/product.model";
-import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
 
 interface GroupLinkDraft {
   groupId: string;
@@ -99,15 +91,8 @@ const linksFromProduct = (product?: Product): GroupLinkDraft[] =>
       };
     });
 
-/** Compares drafts by content; component keys are only for React. */
-const snapshot = (
-  components: ProductComponentDraft[],
-  links: GroupLinkDraft[],
-) =>
-  JSON.stringify({
-    components: components.map(({ key, ...component }) => component),
-    links,
-  });
+/** Compares drafts by content. */
+const snapshot = (links: GroupLinkDraft[]) => JSON.stringify({ links });
 
 /** Spreads a long-press drag and screen-reader move actions over a row. */
 function useRowMove(
@@ -131,63 +116,6 @@ function useRowMove(
     onAccessibilityAction: (event: { nativeEvent: { actionName: string } }) =>
       onMove(event.nativeEvent.actionName === "moveUp" ? -1 : 1),
   };
-}
-
-/** One included item, tapped to edit and long-pressed to move. */
-function ComponentRow({
-  component,
-  item,
-  isFirst,
-  isLast,
-  onPress,
-  onMove,
-}: {
-  component: ProductComponentDraft;
-  item?: InventoryItem;
-  isFirst: boolean;
-  isLast: boolean;
-  onPress: () => void;
-  onMove: (delta: number) => void;
-}) {
-  const { t } = useTranslation("menuManagement");
-  const moveProps = useRowMove(isFirst, isLast, onMove);
-  const discount = parseAmount(component.discount);
-
-  const details = [
-    component.removable
-      ? t("customization.fields.removable")
-      : t("customization.alwaysIncluded"),
-    component.removable && discount > 0 && `−${formatCurrency(discount)}`,
-    item && `${item.name} · ${component.inventoryQuantity} ${item.unit}`,
-  ]
-    .filter(Boolean)
-    .join(" · ");
-
-  return (
-    <Pressable
-      onPress={onPress}
-      {...moveProps}
-      accessibilityRole="button"
-      accessibilityLabel={`${component.name}, ${details}`}
-      style={({ pressed }) =>
-        tw.style(
-          "flex-row items-center gap-3 py-3 min-h-16",
-          !isLast && "border-b border-divider",
-          pressed && "opacity-70",
-        )
-      }
-    >
-      <ThemedView style={tw`flex-1 gap-0.5 bg-transparent`}>
-        <ThemedText style={{ fontFamily: typography.medium }} numberOfLines={2}>
-          {component.name}
-        </ThemedText>
-        <ThemedText type="small" style={tw`text-gray-500`} numberOfLines={2}>
-          {details}
-        </ThemedText>
-      </ThemedView>
-      <Icon name="grip-vertical" size={20} color={tw.color("gray-400")} />
-    </Pressable>
-  );
 }
 
 /** One linked group: tapped to edit the group, long-pressed to move. */
@@ -335,9 +263,10 @@ function SectionAddButton({
 }
 
 /**
- * A product's "Personalización": the items it includes (which the waiter
- * may take off, maybe for less) and the shared groups of options it offers,
- * in the order the order screen shows them.
+ * A product's "Personalización": the shared groups of options it offers, in
+ * the order the order screen shows them, and a way into its recipe, where
+ * what the customer can take off now lives
+ * (plans/unificar-receta-incluidos.md).
  */
 export default function ProductCustomizationScreen() {
   const { t } = useTranslation(["menuManagement", "common"]);
@@ -346,28 +275,10 @@ export default function ProductCustomizationScreen() {
     state.products.find((item) => item.id === productId),
   );
   const { groups, saveProductCustomization } = useModifierGroups();
-  const { items } = useInventoryItems();
 
-  const [components, setComponents] = useState<ProductComponentDraft[]>(() =>
-    getProductComponents(product).map((component) => ({
-      key: component.id,
-      id: component.id,
-      name: component.name,
-      removable: component.removable,
-      discount: Number(component.removalPriceDelta)
-        ? String(Math.abs(Number(component.removalPriceDelta)))
-        : "",
-      inventoryItemId: component.inventoryItemId,
-      inventoryQuantity:
-        component.inventoryQuantity !== null
-          ? String(component.inventoryQuantity)
-          : "",
-    })),
-  );
   const [links, setLinks] = useState<GroupLinkDraft[]>(() =>
     linksFromProduct(product),
   );
-  const componentSheetRef = useRef<ProductComponentSheetRef>(null);
   const groupPickerRef = useRef<BottomSheetPickerRef>(null);
   const limitsSheetRef = useRef<GroupLimitsSheetRef>(null);
   // The limits sheet lists these for per-variant rules.
@@ -415,7 +326,7 @@ export default function ProductCustomizationScreen() {
   // Every edit saves on its own, one save at a time; edits made while one
   // is on its way go out right after it. A draft that failed to save waits
   // for the next edit instead of retrying in a loop.
-  const draft = snapshot(components, links);
+  const draft = snapshot(links);
   const [savedDraft, setSavedDraft] = useState(draft);
   const [failedDraft, setFailedDraft] = useState<string | null>(null);
   const savingRef = useRef(false);
@@ -428,59 +339,19 @@ export default function ProductCustomizationScreen() {
     savingRef.current = true;
     saveCustomization({
       productId,
-      input: {
-        components: components.map((entry) => ({
-          ...(entry.id && { id: entry.id }),
-          name: entry.name,
-          removable: entry.removable,
-          removalPriceDelta:
-            entry.removable && entry.discount !== ""
-              ? -Math.abs(parseAmount(entry.discount))
-              : 0,
-          inventoryItemId: entry.inventoryItemId,
-          inventoryQuantity: entry.inventoryItemId
-            ? parseAmount(entry.inventoryQuantity)
-            : null,
-        })),
-        groups: links,
-      },
+      input: { groups: links },
     })
-      .then((saved) => {
-        // New items come back with ids, in the order they were sent; the
-        // next save must update them instead of adding them again.
-        const savedComponents = getProductComponents(saved);
-        const newIds = new Map(
-          components.flatMap((entry, index) =>
-            !entry.id && savedComponents[index]
-              ? [[entry.key, savedComponents[index].id] as const]
-              : [],
-          ),
-        );
-        const withIds = (list: ProductComponentDraft[]) =>
-          list.map((entry) =>
-            newIds.has(entry.key)
-              ? { ...entry, id: newIds.get(entry.key) }
-              : entry,
-          );
-        if (newIds.size > 0) setComponents(withIds);
+      .then(() => {
         savingRef.current = false;
         setInitialLinks(links);
-        setSavedDraft(snapshot(withIds(components), links));
+        setSavedDraft(snapshot(links));
       })
       .catch(() => {
         // The mutation already shows the error.
         savingRef.current = false;
         setFailedDraft(draft);
       });
-  }, [
-    draft,
-    savedDraft,
-    failedDraft,
-    productId,
-    components,
-    links,
-    saveCustomization,
-  ]);
+  }, [draft, savedDraft, failedDraft, productId, links, saveCustomization]);
 
   // A group created from the picker's "Nuevo grupo" comes back linked.
   const takeCreatedGroup = useGroupLinkHandoff((state) => state.take);
@@ -508,10 +379,6 @@ export default function ProductCustomizationScreen() {
   const groupById = useMemo(
     () => new Map(groups.map((group) => [group.id, group])),
     [groups],
-  );
-  const itemById = useMemo(
-    () => new Map(items.map((item) => [item.id, item])),
-    [items],
   );
   const linkedGroupName = (groupId: string) =>
     product?.modifierGroups?.find((link) => link.groupId === groupId)?.group
@@ -552,15 +419,6 @@ export default function ProductCustomizationScreen() {
       },
     });
   };
-
-  const handleComponentSubmit = (component: ProductComponentDraft) =>
-    setComponents((current) =>
-      current.some((entry) => entry.key === component.key)
-        ? current.map((entry) =>
-            entry.key === component.key ? component : entry,
-          )
-        : [...current, component],
-    );
 
   if (!product) {
     return (
@@ -603,57 +461,10 @@ export default function ProductCustomizationScreen() {
             subtitle={product.name}
           />
 
-          {/* Included items */}
+          {/* What it includes is its recipe now. */}
           <ThemedView style={tw`gap-3 mt-4`}>
-            <DetailSectionTitle
-              title={t("customization.includes")}
-              action={
-                components.length > 0 && (
-                  <SectionAddButton
-                    label={t("customization.addItem")}
-                    onPress={() => componentSheetRef.current?.present()}
-                  />
-                )
-              }
-            />
-            <DetailCard style={tw`py-2`}>
-              {components.length === 0 ? (
-                <SectionEmpty
-                  message={t("customization.includesHint")}
-                  label={t("customization.addItem")}
-                  onPress={() => componentSheetRef.current?.present()}
-                />
-              ) : (
-                <NestedReorderableList
-                  data={components}
-                  keyExtractor={(component) => component.key}
-                  scrollEnabled={false}
-                  onReorder={({ from, to }) =>
-                    setComponents((current) => reorderItems(current, from, to))
-                  }
-                  renderItem={({ item: component, index }) => (
-                    <ComponentRow
-                      component={component}
-                      item={
-                        component.inventoryItemId
-                          ? itemById.get(component.inventoryItemId)
-                          : undefined
-                      }
-                      isFirst={index === 0}
-                      isLast={index === components.length - 1}
-                      onPress={() =>
-                        componentSheetRef.current?.present(component)
-                      }
-                      onMove={(delta) =>
-                        setComponents((current) =>
-                          moveWithin(current, index, delta),
-                        )
-                      }
-                    />
-                  )}
-                />
-              )}
-            </DetailCard>
+            <DetailSectionTitle title={t("customization.includes")} />
+            <ProductRecipeRow product={product} />
           </ThemedView>
 
           {/* Linked groups */}
@@ -725,20 +536,6 @@ export default function ProductCustomizationScreen() {
             </DetailCard>
           </ThemedView>
         </ScrollViewContainer>
-
-        <ProductComponentSheet
-          ref={componentSheetRef}
-          items={items}
-          onSubmit={handleComponentSubmit}
-          onRemove={(component) =>
-            removeWithUndo(
-              components,
-              setComponents,
-              components.findIndex((entry) => entry.key === component.key),
-              component.name,
-            )
-          }
-        />
 
         <GroupLimitsSheet
           ref={limitsSheetRef}

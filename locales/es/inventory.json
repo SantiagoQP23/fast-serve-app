@@ -71,7 +71,8 @@
       "critical": "Nada en estado crítico.",
       "low": "Nada con stock bajo.",
       "optimal": "Ningún insumo está en su nivel óptimo.",
-      "noMinimum": "Todos los insumos tienen un stock mínimo."
+      "noMinimum": "Todos los insumos tienen un stock mínimo.",
+      "unlimited": "Ningún insumo es ilimitado."
     }
   },
   "status": {
@@ -79,7 +80,8 @@
     "low": "Bajo",
     "optimal": "Óptimo",
     "noMinimum": "Sin mínimo",
-    "inactive": "Inactivo"
+    "inactive": "Inactivo",
+    "unlimited": "Ilimitado"
   },
   "createSuccess": "Insumo creado exitosamente",
   "createError": "No se pudo crear el insumo",
@@ -334,6 +336,7 @@
     "emptyCart": "Agrega artículos para registrar la compra",
     "quantityReceived": "Cantidad comprada",
     "stockChange": "Stock: {{before}} → {{after}} {{unit}}",
+    "unlimitedNoStock": "Es ilimitado: la compra no cambia su stock.",
     "registeredBy": "Registrada por {{name}}",
     "editHint": "Toca un artículo para editar la cantidad o deslízalo para quitarlo. El stock se ajusta automáticamente.",
     "removeItemTitle": "Quitar artículo",
@@ -558,5 +561,64 @@
       }
     },
     "menuProducts": "Productos del menú"
+  },
+  "productRecipe": {
+    "title": "Receta",
+    "allVariants": "Todas",
+    "enoughFor": "Alcanza para: {{list}}",
+    "empty": "Aún no hay ingredientes",
+    "emptyDescription": "Agrega los insumos de este producto. Marca los que el cliente puede pedir que le quiten.",
+    "addIngredient": "Agregar ingrediente",
+    "editIngredient": "Editar ingrediente",
+    "removeIngredient": "Quitar de la receta",
+    "removed": "{{name}} quitado de la receta",
+    "removable": "Se puede quitar",
+    "removableHint": "Aparece al pedir: \"Sin {{name}}\".",
+    "removableAdminOnly": "Solo el propietario o un administrador cambia lo que se puede quitar.",
+    "out": "Agotado",
+    "low": "Bajo",
+    "noAmount": "Sin cantidad",
+    "noAmountShort": "sin cantidad",
+    "notUsed": "No la usa",
+    "unlimitedQuantityHint": "Es ilimitado: la cantidad es opcional y no se descuenta.",
+    "sameForAll": "Igual en todas",
+    "newItem": "Nuevo insumo",
+    "createItem": "Crear insumo",
+    "moveUp": "Subir",
+    "moveDown": "Bajar",
+    "saved": "Receta guardada",
+    "saveError": "No se pudo guardar la receta",
+    "discardTitle": "¿Salir sin guardar?",
+    "discardMessage": "Los cambios de la receta se perderán.",
+    "discard": "Salir",
+    "rowEmpty": "Sin ingredientes",
+    "rowSummary_one": "{{count}} ingrediente",
+    "rowSummary_other": "{{count}} ingredientes",
+    "rowSummaryRemovable_one": "{{count}} ingrediente, {{removable}} se puede quitar",
+    "rowSummaryRemovable_other": "{{count}} ingredientes, {{removable}} se pueden quitar",
+    "fields": {
+      "item": "Insumo",
+      "pickItem": "Elige un insumo",
+      "itemName": "Nombre",
+      "unit": "Unidad",
+      "quantity": "Cantidad por unidad vendida ({{unit}})",
+      "quantityPerVariant": "Cantidad por variante ({{unit}})",
+      "removable": "Se puede quitar",
+      "discount": "Descuento al quitar (opcional)"
+    },
+    "errors": {
+      "item": "Elige un insumo",
+      "itemName": "Escribe el nombre del insumo",
+      "noVariant": "Elige al menos una variante",
+      "quantity": "Escribe una cantidad mayor que 0",
+      "discount": "Escribe un descuento válido"
+    }
+  },
+  "unlimited": {
+    "label": "Ilimitado",
+    "hint": "No se cuenta ni se descuenta. Solo aparece en las recetas.",
+    "filter": "Ilimitados",
+    "currentStock": "Cantidad actual",
+    "currentStockHint": "Desde ahora se cuenta y se descuenta con cada venta."
   }
 }

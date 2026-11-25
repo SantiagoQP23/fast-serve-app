@@ -71,7 +71,8 @@
       "critical": "Nothing critical.",
       "low": "Nothing low on stock.",
       "optimal": "No supplies at their optimal level.",
-      "noMinimum": "Every supply has a minimum stock set."
+      "noMinimum": "Every supply has a minimum stock set.",
+      "unlimited": "No unlimited supplies."
     }
   },
   "status": {
@@ -79,7 +80,8 @@
     "low": "Low",
     "optimal": "Optimal",
     "noMinimum": "No minimum",
-    "inactive": "Inactive"
+    "inactive": "Inactive",
+    "unlimited": "Unlimited"
   },
   "createSuccess": "Supply created successfully",
   "createError": "Could not create the supply",
@@ -334,6 +336,7 @@
     "emptyCart": "Add items to register the purchase",
     "quantityReceived": "Purchased quantity",
     "stockChange": "Stock: {{before}} → {{after}} {{unit}}",
+    "unlimitedNoStock": "Unlimited: this purchase does not change its stock.",
     "registeredBy": "Registered by {{name}}",
     "editHint": "Tap an item to edit its quantity or swipe it to remove it. Stock is adjusted automatically.",
     "removeItemTitle": "Remove item",
@@ -558,5 +561,64 @@
       }
     },
     "menuProducts": "Menu products"
+  },
+  "productRecipe": {
+    "title": "Recipe",
+    "allVariants": "All",
+    "enoughFor": "Enough for: {{list}}",
+    "empty": "No ingredients yet",
+    "emptyDescription": "Add this product's supplies. Mark the ones the customer can ask to leave out.",
+    "addIngredient": "Add ingredient",
+    "editIngredient": "Edit ingredient",
+    "removeIngredient": "Remove from recipe",
+    "removed": "{{name}} removed from the recipe",
+    "removable": "Can be removed",
+    "removableHint": "Shown when ordering: \"No {{name}}\".",
+    "removableAdminOnly": "Only the owner or an admin changes what can be removed.",
+    "out": "Out",
+    "low": "Low",
+    "noAmount": "No amount",
+    "noAmountShort": "no amount",
+    "notUsed": "Not used",
+    "unlimitedQuantityHint": "It's unlimited: the amount is optional and never deducted.",
+    "sameForAll": "Same for all",
+    "newItem": "New supply",
+    "createItem": "Create supply",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "saved": "Recipe saved",
+    "saveError": "Couldn't save the recipe",
+    "discardTitle": "Leave without saving?",
+    "discardMessage": "Your recipe changes will be lost.",
+    "discard": "Leave",
+    "rowEmpty": "No ingredients",
+    "rowSummary_one": "{{count}} ingredient",
+    "rowSummary_other": "{{count}} ingredients",
+    "rowSummaryRemovable_one": "{{count}} ingredient, {{removable}} can be removed",
+    "rowSummaryRemovable_other": "{{count}} ingredients, {{removable}} can be removed",
+    "fields": {
+      "item": "Supply",
+      "pickItem": "Pick a supply",
+      "itemName": "Name",
+      "unit": "Unit",
+      "quantity": "Amount per unit sold ({{unit}})",
+      "quantityPerVariant": "Amount per variant ({{unit}})",
+      "removable": "Can be removed",
+      "discount": "Discount when removed (optional)"
+    },
+    "errors": {
+      "item": "Pick a supply",
+      "itemName": "Write the supply's name",
+      "noVariant": "Pick at least one variant",
+      "quantity": "Write an amount greater than 0",
+      "discount": "Write a valid discount"
+    }
+  },
+  "unlimited": {
+    "label": "Unlimited",
+    "hint": "Not counted or deducted. Only listed in recipes.",
+    "filter": "Unlimited",
+    "currentStock": "Current stock",
+    "currentStockHint": "From now on it's counted and deducted with every sale."
   }
 }

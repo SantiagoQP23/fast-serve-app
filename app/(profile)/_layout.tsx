@@ -218,7 +218,7 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
-          name="menu/products/option-recipe/index"
+          name="menu/products/recipe/index"
           options={{
             headerShown: false,
           }}

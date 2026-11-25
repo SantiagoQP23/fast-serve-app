@@ -120,6 +120,9 @@ export default function InventoryItemDetailView({
         minimumQuantity:
           item.minimumQuantity != null ? String(item.minimumQuantity) : "",
         isActive: String(item.isActive),
+        isUnlimited: String(!!item.isUnlimited),
+        // A product's own stock can't be unlimited
+        isProductStock: String(isProductStockItem(item)),
         categoryId: item.category?.id ?? "",
       },
     });
@@ -218,23 +221,28 @@ export default function InventoryItemDetailView({
               }
               icon="package"
             >
-              {/* Stock movements are open to every role */}
+              {/* Stock movements are open to every role; an unlimited insumo
+                  has no stock to move */}
               <ThemedView style={tw`flex-row flex-wrap gap-3`}>
-                <Button
-                  label={t("restock")}
-                  leftIcon="plus"
-                  shape="rounded"
-                  size="small"
-                  onPress={() => setAdjustMode("restock")}
-                />
-                <Button
-                  label={t("decrease")}
-                  leftIcon="minus"
-                  variant="surface"
-                  shape="rounded"
-                  size="small"
-                  onPress={() => setAdjustMode("decrease")}
-                />
+                {!item.isUnlimited && (
+                  <Button
+                    label={t("restock")}
+                    leftIcon="plus"
+                    shape="rounded"
+                    size="small"
+                    onPress={() => setAdjustMode("restock")}
+                  />
+                )}
+                {!item.isUnlimited && (
+                  <Button
+                    label={t("decrease")}
+                    leftIcon="minus"
+                    variant="surface"
+                    shape="rounded"
+                    size="small"
+                    onPress={() => setAdjustMode("decrease")}
+                  />
+                )}
                 {canManage && (
                   <Button
                     leftIcon="ellipsis"

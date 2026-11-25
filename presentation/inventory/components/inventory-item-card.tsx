@@ -70,6 +70,12 @@ export const INVENTORY_STATUS_STYLES: Record<
     badgeBg: "bg-gray-100",
     badgeText: "text-gray-600",
   },
+  unlimited: {
+    icon: "infinity",
+    color: "gray-400",
+    badgeBg: "bg-gray-100",
+    badgeText: "text-gray-600",
+  },
 };
 
 // Like the menu's variant stock: only what needs attention gets a color.
@@ -80,6 +86,7 @@ const QUANTITY_LABEL_COLOR: Record<InventoryStockStatus, LabelProps["color"]> =
     optimal: "default",
     noMinimum: "default",
     inactive: "default",
+    unlimited: "default",
   };
 
 // Stock is stored with 3 decimals; trims float noise like 1.4999999.
@@ -155,8 +162,12 @@ export default function InventoryItemCard({
                 : ""}
             </ThemedText>
             <Label
-              text={withUnit(item.quantity)}
-              leftIcon="package"
+              text={
+                status === "unlimited"
+                  ? t("unlimited.label")
+                  : withUnit(item.quantity)
+              }
+              leftIcon={status === "unlimited" ? "infinity" : "package"}
               color={QUANTITY_LABEL_COLOR[status]}
               size="small"
             />

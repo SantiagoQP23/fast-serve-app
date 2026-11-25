@@ -28,6 +28,11 @@ export interface InventoryItem {
   kind?: InventoryItemKind;
   minimumQuantity?: number | null;
   isActive: boolean;
+  /**
+   * Not counted or spent: only listed in recipes (salt, oil, house sauce).
+   * Missing on older servers: counted.
+   */
+  isUnlimited?: boolean;
   category?: InventoryItemCategory | null;
   restaurant?: { id: string; name: string };
   productOptionsCount?: number;
@@ -39,7 +44,17 @@ export interface InventoryItem {
 }
 
 export type InventoryStockStatus =
-  "critical" | "low" | "optimal" | "noMinimum" | "inactive";
+  | "critical"
+  | "low"
+  | "optimal"
+  | "noMinimum"
+  | "unlimited"
+  | "inactive";
+
+/** True for insumos that are never counted (plans/unificar-receta-incluidos.md). */
+export const isUnlimitedItem = (
+  item: Pick<InventoryItem, "isUnlimited"> | null | undefined,
+): boolean => !!item?.isUnlimited;
 
 const hasMinimum = (item: InventoryItem) =>
   item.minimumQuantity != null && item.minimumQuantity > 0;
@@ -58,6 +73,7 @@ export function getInventoryStockStatus(
   item: InventoryItem,
 ): InventoryStockStatus {
   if (!item.isActive) return "inactive";
+  if (item.isUnlimited) return "unlimited";
   if (item.quantity <= 0) return "critical";
   if (!hasMinimum(item)) return "noMinimum";
 
@@ -84,6 +100,7 @@ export function getInventoryStockRatio(item: InventoryItem): number {
 export function isInventoryItemBelowMinimum(item: InventoryItem): boolean {
   return (
     item.isActive &&
+    !item.isUnlimited &&
     hasMinimum(item) &&
     item.quantity < (item.minimumQuantity as number)
   );
@@ -106,7 +123,12 @@ export function getSuggestedPurchaseQuantity(item: InventoryItem): number {
  * suggest how much to buy, so it lists these apart, asking for a minimum.
  */
 export function isInventoryItemOutWithoutMinimum(item: InventoryItem): boolean {
-  return item.isActive && item.quantity <= 0 && !hasMinimum(item);
+  return (
+    item.isActive &&
+    !item.isUnlimited &&
+    item.quantity <= 0 &&
+    !hasMinimum(item)
+  );
 }
 
 /** Whether the item is a menu variant's own stock rather than an insumo. */

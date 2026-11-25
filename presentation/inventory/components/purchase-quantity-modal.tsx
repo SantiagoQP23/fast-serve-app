@@ -105,11 +105,14 @@ function PurchaseQuantityForm({
           unit={unitFor(quantity)}
         />
         <ThemedText type="body2" style={tw`text-gray-500 text-center`}>
-          {t("purchases.stockChange", {
-            before: Number(baseStock.toFixed(3)),
-            after: newStock,
-            unit: unitFor(newStock),
-          })}
+          {/* Buying an unlimited insumo records the cost only */}
+          {item.isUnlimited
+            ? t("purchases.unlimitedNoStock")
+            : t("purchases.stockChange", {
+                before: Number(baseStock.toFixed(3)),
+                after: newStock,
+                unit: unitFor(newStock),
+              })}
         </ThemedText>
       </View>
 

@@ -27,6 +27,7 @@ const QUANTITY_TEXT_COLOR: Record<InventoryStockStatus, string> = {
   optimal: "text-emerald-600",
   noMinimum: "text-on-surface-variant",
   inactive: "text-gray-500",
+  unlimited: "text-on-surface-variant",
 };
 
 /** Inventory item card for the items grid: name and stock quantity. */
@@ -40,10 +41,13 @@ export default function InventoryItemTile({
 }: InventoryItemTileProps) {
   const { t } = useTranslation("inventory");
   const status = getInventoryStockStatus(item);
-  const quantityText = t("quantityWithUnit", {
-    quantity: item.quantity,
-    unit: t(`units.${item.unit}`, { count: item.quantity }),
-  });
+  const quantityText =
+    status === "unlimited"
+      ? t("unlimited.label")
+      : t("quantityWithUnit", {
+          quantity: item.quantity,
+          unit: t(`units.${item.unit}`, { count: item.quantity }),
+        });
   const highlighted = selectionMode ? selected : active;
 
   return (

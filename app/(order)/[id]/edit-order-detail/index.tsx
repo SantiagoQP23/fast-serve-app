@@ -65,7 +65,7 @@ import {
   addMissingDefaults,
   customizationKey,
   getActiveGroups,
-  getProductComponents,
+  hasCustomization,
   getSelectionProblem,
   selectionFromRows,
   toCustomizationPayload,
@@ -181,8 +181,7 @@ export default function EditOrderDetailScreen() {
     orderDetail.status === OrderDetailStatus.PENDING &&
     (orderDetail.qtyDelivered ?? 0) === 0 &&
     (orderDetail.qtyPaid ?? 0) === 0 &&
-    (getActiveGroups(product).length > 0 ||
-      getProductComponents(product).length > 0);
+    hasCustomization(product);
   // The selected variant's own rules apply (plans/limites-por-variante.md).
   const variantId = selectedOption?.id;
   const modifierRows = canCustomize
@@ -538,7 +537,6 @@ export default function EditOrderDetailScreen() {
             ) : (
               <ModifierLines modifiers={orderDetail.modifiers} />
             )}
-
           </ScrollView>
 
           <ThemedView style={tw`px-4 pt-2 pb-4 gap-3`}>

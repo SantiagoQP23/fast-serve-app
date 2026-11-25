@@ -234,11 +234,14 @@ export default function MenuInventoryPurchaseItemsScreen() {
                       {item.name}
                     </ThemedText>
                     <ThemedText type="small" style={tw`text-gray-500`}>
-                      {t("currentStock")}:{" "}
-                      {t("quantityWithUnit", {
-                        quantity: item.quantity,
-                        unit: t(`units.${item.unit}`, { count: item.quantity }),
-                      })}
+                      {item.isUnlimited
+                        ? t("unlimited.label")
+                        : `${t("currentStock")}: ${t("quantityWithUnit", {
+                            quantity: item.quantity,
+                            unit: t(`units.${item.unit}`, {
+                              count: item.quantity,
+                            }),
+                          })}`}
                     </ThemedText>
                   </ThemedView>
                   {quantity ? (

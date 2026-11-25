@@ -38,6 +38,7 @@ const STATUS_BY_FILTER: Record<
   [InventoryItemStockStatusFilter.LOW]: "low",
   [InventoryItemStockStatusFilter.OPTIMAL]: "optimal",
   [InventoryItemStockStatusFilter.NO_MINIMUM]: "noMinimum",
+  [InventoryItemStockStatusFilter.UNLIMITED]: "unlimited",
 };
 
 const ITEM_SEARCH_OPTIONS: IFuseOptions<InventoryItem> = {
@@ -91,7 +92,13 @@ export default function InventoryItemsContent() {
 
   // Counted over the searched items so each chip matches what it shows.
   const statusCounts = useMemo(() => {
-    const counts = { critical: 0, low: 0, optimal: 0, noMinimum: 0 };
+    const counts = {
+      critical: 0,
+      low: 0,
+      optimal: 0,
+      noMinimum: 0,
+      unlimited: 0,
+    };
     for (const item of searchedItems) {
       const status = getInventoryStockStatus(item);
       if (status !== "inactive") counts[status] += 1;

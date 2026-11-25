@@ -1,4 +1,5 @@
 import {
+  getCountedLines,
   getOwnStockLine,
   type ProductOptionInventoryItem,
 } from "@/core/inventory/models/inventory-recipe.model";
@@ -24,14 +25,16 @@ export interface ProductOption {
 export function getProductOptionAvailableQuantity(
   option: ProductOption,
 ): number | null {
-  if (!option.inventoryItems || option.inventoryItems.length === 0) {
+  // Unlimited insumos never run out (plans/unificar-receta-incluidos.md).
+  const lines = getCountedLines(option.inventoryItems);
+  if (lines.length === 0) {
     return null;
   }
 
   return Math.min(
-    ...option.inventoryItems.map((line) =>
-      line.inventoryItem && line.quantity > 0
-        ? Math.floor(line.inventoryItem.quantity / line.quantity)
+    ...lines.map((line) =>
+      line.inventoryItem
+        ? Math.floor(line.inventoryItem.quantity / Number(line.quantity))
         : 0,
     ),
   );
@@ -52,10 +55,12 @@ export function getProductOptionStockLevel(
   if (available === null) return null;
   if (available <= 0) return "out";
 
-  const isLow = (option.inventoryItems ?? []).some(({ inventoryItem }) =>
-    inventoryItem?.minimumQuantity != null && inventoryItem.minimumQuantity > 0
-      ? inventoryItem.quantity <= inventoryItem.minimumQuantity
-      : false,
+  const isLow = getCountedLines(option.inventoryItems).some(
+    ({ inventoryItem }) =>
+      inventoryItem?.minimumQuantity != null &&
+      inventoryItem.minimumQuantity > 0
+        ? inventoryItem.quantity <= inventoryItem.minimumQuantity
+        : false,
   );
 
   return isLow ? "low" : "ok";
@@ -82,11 +87,10 @@ export function getLimitingRecipeLine(
 ): ProductOptionInventoryItem | null {
   let limiting: ProductOptionInventoryItem | null = null;
   let fewest = Infinity;
-  for (const line of option.inventoryItems ?? []) {
-    const covers =
-      line.inventoryItem && line.quantity > 0
-        ? Math.floor(line.inventoryItem.quantity / line.quantity)
-        : 0;
+  for (const line of getCountedLines(option.inventoryItems)) {
+    const covers = line.inventoryItem
+      ? Math.floor(line.inventoryItem.quantity / Number(line.quantity))
+      : 0;
     if (covers < fewest) {
       fewest = covers;
       limiting = line;

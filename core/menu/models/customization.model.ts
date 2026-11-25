@@ -1,9 +1,11 @@
 import type { Product } from "./product.model";
+import { sortRecipeLines } from "@/core/inventory/models/inventory-recipe.model";
 
 /**
  * Product customization (plans/personalizacion-productos.md): shared groups
- * of options ("Sabor", "Extras de mariscos") and the items a product
- * includes ("Arroz", "Patacones"). The price math mirrors the backend's
+ * of options ("Sabor", "Extras de mariscos") and the recipe ingredients the
+ * customer can ask to leave out ("Sin cebolla",
+ * plans/unificar-receta-incluidos.md). The price math mirrors the backend's
  * CustomizationService so the total the waiter sees is the one saved.
  */
 
@@ -135,6 +137,11 @@ export function hasOwnDefaults(link: {
   );
 }
 
+/**
+ * What old servers called a product's included item. Servers after
+ * plans/unificar-receta-incluidos.md still send them, built from the
+ * recipes, for older builds; this app reads the recipe instead.
+ */
 export interface ProductComponent {
   id: string;
   name: string;
@@ -160,19 +167,31 @@ export interface OrderDetailModifier {
   order?: number;
   groupId?: string | null;
   modifierId?: string | null;
+  /** Old included items (before they moved into the recipe). */
   componentId?: string | null;
+  /** REMOVED rows: the recipe insumo taken off. */
+  inventoryItemId?: string | null;
 }
 
 /** What the waiter picked; sent to the server as `customization`. */
 export interface CustomizationSelection {
   modifierIds: string[];
-  removedComponentIds: string[];
+  /** Recipe insumos the customer asked to leave out. */
+  removedInventoryItemIds: string[];
 }
 
 export const EMPTY_SELECTION: CustomizationSelection = {
   modifierIds: [],
-  removedComponentIds: [],
+  removedInventoryItemIds: [],
 };
+
+/** A recipe ingredient the customer can ask to leave out. */
+export interface RemovableIngredient {
+  inventoryItemId: string;
+  name: string;
+  /** Zero or negative: what removing it takes off the price. */
+  removalPriceDelta: number;
+}
 
 /** A product's group as the order screen shows it. */
 export interface ActiveGroup {
@@ -218,17 +237,43 @@ export function getActiveGroups(
     .map(({ offered: _offered, ...group }) => group);
 }
 
-export function getProductComponents(
+const variantOf = (
   product: Product | null | undefined,
-): ProductComponent[] {
-  return [...(product?.components ?? [])].sort(byOrder);
+  variantId: VariantId,
+) =>
+  variantId !== null && variantId !== undefined
+    ? product?.options?.find((option) => option.id === variantId)
+    : (product?.options?.find((option) => option.isDefault) ??
+      product?.options?.[0]);
+
+/**
+ * The variant's removable recipe ingredients, in recipe order: the chips of
+ * the product sheet. Without a variant, the product's default one.
+ */
+export function getRemovableIngredients(
+  product: Product | null | undefined,
+  variantId?: VariantId,
+): RemovableIngredient[] {
+  const variant = variantOf(product, variantId);
+  return sortRecipeLines(variant?.inventoryItems)
+    .filter((line) => line.removable && line.inventoryItem)
+    .map((line) => ({
+      inventoryItemId: line.inventoryItem?.id ?? line.inventoryItemId,
+      name: line.inventoryItem?.name ?? "",
+      removalPriceDelta: Number(line.removalPriceDelta ?? 0),
+    }));
 }
+
+/** True when some variant has an ingredient the customer can remove. */
+const hasRemovableIngredients = (product: Product | null | undefined) =>
+  (product?.options ?? []).some((option) =>
+    (option.inventoryItems ?? []).some((line) => line.removable),
+  );
 
 /** True when the product has anything the waiter can pick or remove. */
 export function hasCustomization(product: Product | null | undefined): boolean {
   return (
-    getActiveGroups(product).length > 0 ||
-    getProductComponents(product).some((component) => component.removable)
+    getActiveGroups(product).length > 0 || hasRemovableIngredients(product)
   );
 }
 
@@ -362,16 +407,16 @@ export function toggleModifier(
   return { ...selection, modifierIds: [...selection.modifierIds, optionId] };
 }
 
-export function toggleComponent(
+export function toggleIngredient(
   selection: CustomizationSelection,
-  componentId: string,
+  inventoryItemId: string,
 ): CustomizationSelection {
-  const removed = selection.removedComponentIds.includes(componentId);
+  const removed = selection.removedInventoryItemIds.includes(inventoryItemId);
   return {
     ...selection,
-    removedComponentIds: removed
-      ? selection.removedComponentIds.filter((id) => id !== componentId)
-      : [...selection.removedComponentIds, componentId],
+    removedInventoryItemIds: removed
+      ? selection.removedInventoryItemIds.filter((id) => id !== inventoryItemId)
+      : [...selection.removedInventoryItemIds, inventoryItemId],
   };
 }
 
@@ -386,15 +431,15 @@ export function cleanSelection(
       group.options.map((o) => o.id),
     ),
   );
-  const componentIds = new Set(
-    getProductComponents(product)
-      .filter((component) => component.removable)
-      .map((component) => component.id),
+  const removable = new Set(
+    getRemovableIngredients(product, variantId).map(
+      (ingredient) => ingredient.inventoryItemId,
+    ),
   );
   return {
     modifierIds: selection.modifierIds.filter((id) => optionIds.has(id)),
-    removedComponentIds: selection.removedComponentIds.filter((id) =>
-      componentIds.has(id),
+    removedInventoryItemIds: (selection.removedInventoryItemIds ?? []).filter(
+      (id) => removable.has(id),
     ),
   };
 }
@@ -426,7 +471,23 @@ export function fitSelectionToVariant(
   const dropped = selection.modifierIds
     .filter((id) => !keep.has(id) && names.has(id))
     .map((id) => names.get(id) as string);
+  // Removals the new variant can't make (no such ingredient, or not
+  // removable there) are dropped too.
+  const ingredientNames = new Map(
+    (product?.options ?? []).flatMap((option) =>
+      (option.inventoryItems ?? []).map((line) => [
+        line.inventoryItem?.id ?? line.inventoryItemId,
+        line.inventoryItem?.name ?? "",
+      ]),
+    ),
+  );
   const cleaned = cleanSelection(product, selection, variantId);
+  dropped.push(
+    ...(selection.removedInventoryItemIds ?? [])
+      .filter((id) => !cleaned.removedInventoryItemIds.includes(id))
+      .map((id) => ingredientNames.get(id) ?? "")
+      .filter(Boolean),
+  );
   return {
     selection: {
       ...cleaned,
@@ -450,7 +511,7 @@ export function buildModifierRows(
   variantId?: VariantId,
 ): OrderDetailModifier[] {
   const picked = new Set(selection.modifierIds);
-  const removed = new Set(selection.removedComponentIds);
+  const removed = new Set(selection.removedInventoryItemIds ?? []);
   const rows: OrderDetailModifier[] = [];
   for (const group of getActiveGroups(product, variantId)) {
     for (const option of group.options) {
@@ -467,17 +528,18 @@ export function buildModifierRows(
       });
     }
   }
-  for (const component of getProductComponents(product)) {
-    if (!removed.has(component.id) || !component.removable) continue;
+  for (const ingredient of getRemovableIngredients(product, variantId)) {
+    if (!removed.has(ingredient.inventoryItemId)) continue;
     rows.push({
       kind: "REMOVED",
       groupName: null,
-      name: component.name,
+      name: ingredient.name.slice(0, 60),
       quantity: 1,
-      priceDelta: Number(component.removalPriceDelta),
+      priceDelta: ingredient.removalPriceDelta,
       groupId: null,
       modifierId: null,
-      componentId: component.id,
+      componentId: null,
+      inventoryItemId: ingredient.inventoryItemId,
     });
   }
   return rows.map((row, index) => ({ ...row, order: index }));
@@ -532,9 +594,11 @@ export function selectionFromRows(
     modifierIds: (rows ?? [])
       .filter((row) => row.kind !== "REMOVED" && row.modifierId)
       .map((row) => row.modifierId as string),
-    removedComponentIds: (rows ?? [])
-      .filter((row) => row.kind === "REMOVED" && row.componentId)
-      .map((row) => row.componentId as string),
+    // Lines saved before the merge only have componentId: not editable
+    // back, they keep their frozen copy.
+    removedInventoryItemIds: (rows ?? [])
+      .filter((row) => row.kind === "REMOVED" && row.inventoryItemId)
+      .map((row) => row.inventoryItemId as string),
   };
 }
 
@@ -578,7 +642,7 @@ export function formatModifierLines(
 /** `customization` as the server takes it on a line. */
 export interface LineCustomizationPayload {
   modifierIds: string[];
-  removedComponentIds: string[];
+  removedInventoryItemIds: string[];
   customPrice?: boolean;
   snapshot: OrderDetailModifier[];
 }
@@ -602,7 +666,7 @@ export function toCustomizationPayload(
   if (!selection) return undefined;
   return {
     modifierIds: selection.modifierIds,
-    removedComponentIds: selection.removedComponentIds,
+    removedInventoryItemIds: selection.removedInventoryItemIds ?? [],
     ...(customPrice && { customPrice: true }),
     snapshot: (rows ?? []).map((row) => ({
       kind: row.kind,
@@ -612,6 +676,7 @@ export function toCustomizationPayload(
       groupId: row.groupId ?? null,
       modifierId: row.modifierId ?? null,
       componentId: row.componentId ?? null,
+      inventoryItemId: row.inventoryItemId ?? null,
     })),
   };
 }

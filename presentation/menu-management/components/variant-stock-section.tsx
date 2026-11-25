@@ -53,6 +53,7 @@ import {
   type VariantStockMode,
 } from "@/core/menu/models/product-optionl.model";
 import type { Product } from "@/core/menu/models/product.model";
+import { openProductRecipe } from "@/presentation/menu-management/components/product-recipe-row";
 
 /** Another variant that uses the same item, as "Producto · Variante". */
 interface RelatedVariant {
@@ -167,16 +168,11 @@ export function useVariantStockSection(
   const recipeLines = mode === "recipe" ? (option?.inventoryItems ?? []) : [];
   const title = product && option ? variantName(product, option) : "";
 
+  // One recipe screen for every variant, opened on this one
+  // (plans/unificar-receta-incluidos.md).
   const openRecipeEditor = () => {
     if (!product || !option) return;
-    router.push({
-      pathname: "/(profile)/menu/products/option-recipe",
-      params: {
-        productOptionId: String(option.id),
-        productOptionName: option.name,
-        productName: product.name,
-      },
-    });
+    openProductRecipe(product.id, option.id);
   };
 
   const handleChooseMode = async (
@@ -657,10 +653,10 @@ function RecipeLine({ line }: { line: ProductOptionInventoryItem }) {
   const stockItem = line.inventoryItem;
   const unit = (count: number) =>
     stockItem ? t(`units.${stockItem.unit}`, { count }) : "";
-  const covers =
-    stockItem && line.quantity > 0
-      ? Math.floor(stockItem.quantity / line.quantity)
-      : 0;
+  // Unlimited insumos and lines without an amount never run short
+  const quantity = line.quantity ?? 0;
+  const isCounted = !!stockItem && !stockItem.isUnlimited && quantity > 0;
+  const covers = isCounted ? Math.floor(stockItem.quantity / quantity) : 0;
   const isLow =
     !!stockItem?.minimumQuantity &&
     stockItem.minimumQuantity > 0 &&
@@ -676,12 +672,14 @@ function RecipeLine({ line }: { line: ProductOptionInventoryItem }) {
         {stockItem?.name ?? t("detail.unknownProduct")}
       </ThemedText>
       <ThemedText type="body2" style={{ fontFamily: typography.semibold }}>
-        {t("quantityWithUnit", {
-          quantity: line.quantity,
-          unit: unit(line.quantity),
-        })}
+        {line.quantity === null
+          ? t("unlimited.label")
+          : t("quantityWithUnit", {
+              quantity: line.quantity,
+              unit: unit(line.quantity),
+            })}
       </ThemedText>
-      {covers <= 0 ? (
+      {!isCounted ? null : covers <= 0 ? (
         <Label text={t("variant.missing")} color="error" size="small" />
       ) : isLow ? (
         <Label text={t("status.low")} color="warning" size="small" />

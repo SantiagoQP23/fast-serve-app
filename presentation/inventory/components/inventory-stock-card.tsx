@@ -26,6 +26,7 @@ export const STATUS_LABEL_COLOR: Record<
   optimal: "success",
   noMinimum: "default",
   inactive: "default",
+  unlimited: "default",
 };
 
 /** The stock figure, then the minimum and when it last changed. */
@@ -45,6 +46,19 @@ export function InventoryStockCard({
   // An inactive item still has stock worth reading, so show its level
   const stockStatus = getInventoryStockStatus({ ...item, isActive: true });
   const statusLabel = t(`status.${stockStatus}`);
+
+  if (item.isUnlimited)
+    return (
+      <ThemedView style={tw`gap-3 mt-4`}>
+        <DetailSectionTitle title={t("detail.currentStock")} />
+        <DetailCard style={tw`py-4 gap-1`}>
+          <ThemedText type="h3">{t("unlimited.label")}</ThemedText>
+          <ThemedText type="small" style={tw`text-gray-500`}>
+            {t("unlimited.hint")}
+          </ThemedText>
+        </DetailCard>
+      </ThemedView>
+    );
 
   return (
     <ThemedView style={tw`gap-3 mt-4`}>

@@ -57,8 +57,8 @@ import {
   addMissingDefaults,
   getDefaultSelection,
   getActiveGroups,
+  hasCustomization,
   getUntouchedGroupIds,
-  getProductComponents,
   getSelectionProblem,
   selectionFromRows,
   toCustomizationPayload,
@@ -317,11 +317,9 @@ export default function ProductScreen() {
   const atStockLimit =
     blocksWithoutStock && !!selectedStock && counter >= selectedStock.remaining;
 
-  const groups = getActiveGroups(activeProduct);
-  const components = getProductComponents(activeProduct);
-  // Products with groups or included items always send their selection, so
-  // the server prices it and spends the right insumos.
-  const isCustomizable = groups.length > 0 || components.length > 0;
+  // Products with groups or removable ingredients always send their
+  // selection, so the server prices it and spends the right insumos.
+  const isCustomizable = hasCustomization(activeProduct);
   // The selected variant's own rules apply (plans/limites-por-variante.md).
   const variantId = selectedOption?.id;
   const modifierRows = isCustomizable
