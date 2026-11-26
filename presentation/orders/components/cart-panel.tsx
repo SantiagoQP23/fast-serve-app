@@ -37,7 +37,7 @@ import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-b
 import SubscriptionPaywallBottomSheet from "@/presentation/subscriptions/components/subscription-paywall-bottom-sheet";
 import CartInformation from "@/presentation/orders/components/cart-information";
 import CartNote from "@/presentation/orders/components/cart-note";
-import SectionTitle from "@/presentation/theme/components/section-title";
+import CartSectionTitle from "@/presentation/orders/components/cart-section-title";
 import Separator from "@/presentation/theme/components/separator";
 
 type CartRow =
@@ -364,9 +364,11 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
     ...(isOrderCart
       ? [{ kind: "note" } as const, { kind: "productsHeader" } as const]
       : []),
-    ...details.map(
-      (detail, index): CartRow => ({ kind: "item", detail, key: `${index}` }),
-    ),
+    ...details.map((detail, index): CartRow => ({
+      kind: "item",
+      detail,
+      key: `${index}`,
+    })),
   ];
 
   const productsFooter = !embedded ? (
@@ -418,7 +420,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
             if (row.kind === "productsHeader") {
               return (
                 <ThemedView style={tw`pb-2`}>
-                  <SectionTitle
+                  <CartSectionTitle
                     title={t("menu:cart.sections.products")}
                     count={details.length}
                   />
@@ -443,7 +445,7 @@ export default function CartPanel({ embedded = false }: CartPanelProps) {
               <ThemedView style={tw`gap-4 pt-2`}>
                 {productsFooter}
                 <ThemedView style={tw`gap-3 pt-8`}>
-                  <SectionTitle title={t("menu:cart.sections.place")} />
+                  <CartSectionTitle title={t("menu:cart.sections.place")} />
                   <CartInformation />
                 </ThemedView>
               </ThemedView>

@@ -9,7 +9,7 @@ import tw from "@/presentation/theme/lib/tailwind";
 import { ThemedText } from "@/presentation/theme/components/themed-text";
 import { ThemedView } from "@/presentation/theme/components/themed-view";
 import Icon from "@/presentation/theme/components/icon";
-import SectionTitle from "@/presentation/theme/components/section-title";
+import CartSectionTitle from "@/presentation/orders/components/cart-section-title";
 import { useRestaurantSettings } from "@/presentation/restaurant/hooks/useRestaurantSettings";
 
 interface DeliveryTimeOptionsProps {
@@ -82,7 +82,7 @@ export default function DeliveryTimeOptions({
 
   return (
     <ThemedView style={tw`gap-3`}>
-      <SectionTitle title={t("orders:form.deliveryTime")} />
+      <CartSectionTitle title={t("orders:form.deliveryTime")} />
       <ThemedView style={tw`border border-gray-200 rounded-2xl`}>
         <Pressable
           onPress={() => setExpanded((open) => !open)}
