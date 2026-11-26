@@ -890,7 +890,7 @@ export default function MenuOverviewContent() {
         />
 
         {products.length > 0 && (
-          <ThemedView style={tw`flex-row items-center gap-2 bg-transparent`}>
+          <ThemedView style={tw`flex-row items-center gap-4 bg-transparent`}>
             <ThemedView style={tw`flex-1 bg-transparent`}>
               <TextInput
                 value={search}
@@ -899,6 +899,7 @@ export default function MenuOverviewContent() {
                 onFocus={() => setIsSearchFocused(true)}
                 onBlur={() => setIsSearchFocused(false)}
                 icon="search"
+                containerStyle={tw`rounded-full`}
                 returnKeyType="search"
                 autoCorrect={false}
                 trailingIcon={
@@ -915,7 +916,7 @@ export default function MenuOverviewContent() {
             {/* The wash says a filter is on; the results line names it */}
             <IconButton
               icon="list-filter"
-              variant={stockFilter ? "secondary" : "surface"}
+              variant={stockFilter ? "secondary" : "text"}
               size={20}
               accessibilityLabel={t("overview.filter.open")}
               onPress={() => filterSheetRef.current?.present()}
