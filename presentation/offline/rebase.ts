@@ -141,9 +141,15 @@ export const fromServerOrder = (order: Order): Order => {
     outbox.dropBase(order.id);
     return order;
   }
+  // An older copy (a cached screen query, a late event) must not replace a
+  // newer base.
+  const base = outbox.bases[order.id];
+  if (base && updatedAtMs(order) < updatedAtMs(base)) return rebaseOrder(base);
   outbox.setBase(order);
   return rebaseOrder(order);
 };
+
+const updatedAtMs = (order: Order) => new Date(order.updatedAt).getTime() || 0;
 
 /**
  * Before the first queued action on an order: remember the server's
