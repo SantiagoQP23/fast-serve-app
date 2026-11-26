@@ -32,8 +32,8 @@ import { RESTAURANT_SETTINGS_QUERY_KEY } from "@/presentation/restaurant/hooks/u
 import {
   dropOrphanLocalOrders,
   keepLocalPendingOrders,
-  shouldSkipOrderSyncEvent,
 } from "@/presentation/offline/pending-orders";
+import { fromServerOrder } from "@/presentation/offline/rebase";
 import { applyTicketEvent } from "../apply-ticket-event";
 import { applyStockEvents } from "../apply-stock-event";
 import { applyProductEvents } from "../apply-product-event";
@@ -66,9 +66,7 @@ function applySnapshot(
   useOrdersStore.getState().setOrders(keepLocalPendingOrders(orders));
   useTablesStore.getState().setTables(tables, restaurantId);
   if (snapshot.tableAreas) {
-    useTablesStore
-      .getState()
-      .setAreas(snapshot.tableAreas as TableArea[]);
+    useTablesStore.getState().setAreas(snapshot.tableAreas as TableArea[]);
   }
   useMenuStore
     .getState()
@@ -182,11 +180,13 @@ function applyEvent(event: SyncEventDto) {
 }
 
 function applyOrderEvent(event: SyncEventDto) {
-  const order = event.data as Order;
+  // With actions of this phone still queued for the order, they're
+  // replayed on top of the server's version.
+  const order =
+    event.operation === SyncOperation.DELETED || !event.data
+      ? (event.data as Order)
+      : fromServerOrder(event.data as Order);
   const ordersState = useOrdersStore.getState();
-
-  // Offline changes to this order are still queued; keep the local copy.
-  if (shouldSkipOrderSyncEvent(event.resourceId)) return;
 
   switch (event.operation) {
     case SyncOperation.CREATED:

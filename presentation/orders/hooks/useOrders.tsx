@@ -29,6 +29,9 @@ import {
   isQueueableOrderUpdate,
   useOrderOutbox,
 } from "@/presentation/offline/hooks/useOrderOutbox";
+import { waitForOutboxDrain } from "@/presentation/offline/store/useOutboxStore";
+import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
+import i18n from "@/core/i18n/i18n.config";
 
 type Emitter<TData, TVariables> = ReturnType<
   typeof useWebsocketEventEmitter<TData, TVariables>
@@ -38,30 +41,44 @@ type EmitterOptions<TData, TVariables> = Parameters<
 >[1];
 
 /**
- * Sends the action as before when online; without a connection (or while
- * earlier offline actions still wait) it goes to the outbox instead, which
- * updates the order on the phone right away and sends it later. Actions that
- * can be queued are never blocked by being offline, so isOnline is true.
+ * Order actions are optimistic: they go to the outbox, which shows the
+ * change right away, prints the comanda and sends it in the background
+ * (online or not). Only a rejection from the server shows an error.
+ *
+ * Calls the outbox can't take (an authorization code, closing the order...)
+ * still go straight to the server with a loader, after whatever is queued
+ * has been sent, so they never overtake it.
  */
 const withOutbox = <TData, TVariables>(
   emitter: Emitter<TData, TVariables>,
-  shouldQueue: () => boolean,
   queue: (data: TVariables, options: QueueOptions<TData>) => unknown,
   canQueue: (data: TVariables) => boolean = () => true,
 ) => ({
   ...emitter,
   isOnline: true,
-  mutate: (
+  mutate: async (
     data: TVariables,
     options?: EmitterOptions<TData, TVariables> & { print?: boolean },
   ) => {
-    if (canQueue(data) && shouldQueue()) {
+    if (canQueue(data)) {
       void queue(data, options ?? {});
-      return Promise.resolve();
+      return;
+    }
+    const restaurantId = useAuthStore.getState().currentRestaurant?.id;
+    if (!(await waitForOutboxDrain(restaurantId))) {
+      options?.onError?.({
+        ok: false,
+        msg: i18n.t("orders:offline.waitForQueue"),
+      });
+      return;
     }
     return emitter.mutate(data, options);
   },
 });
+
+/** An authorization code is checked by the server, so it can't wait in the queue. */
+const withoutCode = (data: unknown) =>
+  !(data as { authorizationCode?: string })?.authorizationCode;
 
 /** Bills lists and an order's bills, after bills were deleted with an order. */
 export const invalidateBills = () => {
@@ -269,42 +286,32 @@ export const useOrders = () => {
   });
 
   return {
-    createOrder: withOutbox(
-      createOrderEmitter,
-      outbox.shouldQueue,
-      outbox.createOrder,
-    ),
+    createOrder: withOutbox(createOrderEmitter, outbox.createOrder),
     updateOrderDetail: withOutbox(
       updateOrderDetailEmitter,
-      outbox.shouldQueue,
       outbox.updateOrderDetail,
+      withoutCode,
     ),
     addOrderDetailToOrder: withOutbox(
       useOrderDetailToOrderEmitter,
-      outbox.shouldQueue,
       outbox.addOrderDetail,
     ),
-    addOrderDetails: withOutbox(
-      addOrderDetailsEmitter,
-      outbox.shouldQueue,
-      outbox.addOrderDetails,
-    ),
+    addOrderDetails: withOutbox(addOrderDetailsEmitter, outbox.addOrderDetails),
     // Closing, paying or reassigning an order still needs the server.
     updateOrder: withOutbox(
       updateOrderEmitter,
-      outbox.shouldQueue,
       outbox.updateOrder,
-      isQueueableOrderUpdate,
+      (dto) => isQueueableOrderUpdate(dto) && withoutCode(dto),
     ),
     updateOrderDetails: withOutbox(
       updateOrderDetailsEmitter,
-      outbox.shouldQueue,
       outbox.updateOrderDetails,
+      withoutCode,
     ),
     removeOrderDetail: withOutbox(
       removeOrderDetailEmitter,
-      outbox.shouldQueue,
       outbox.removeOrderDetail,
+      withoutCode,
     ),
     replaceOrderDetail: replaceOrderDetailEmitter,
     deleteOrder: deleteOrderEmitter,

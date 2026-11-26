@@ -24,10 +24,11 @@ import {
   useOutboxStore,
 } from "@/presentation/offline/store/useOutboxStore";
 import { isCreateOrderOperation } from "@/presentation/offline/hooks/useOutboxRunner";
+import { refreshOrderView } from "@/presentation/offline/rebase";
 
 /**
- * "Cambios sin sincronizar": the actions taken offline that haven't reached
- * the server. A rejected one can be retried or discarded; discarding brings
+ * "Cambios sin sincronizar": the order actions that haven't reached the
+ * server yet. A rejected one can be retried or discarded; discarding brings
  * the order back to what the server has.
  */
 export default function PendingChangesScreen() {
@@ -43,6 +44,7 @@ export default function PendingChangesScreen() {
 
   const retry = (op: OutboxOperation) => {
     useOutboxStore.getState().setStatus(op.id, "pending");
+    refreshOrderView(op.orderId);
   };
 
   const discard = (op: OutboxOperation) => {
@@ -57,10 +59,11 @@ export default function PendingChangesScreen() {
       if (orders.activeOrder?.id === op.orderId) orders.setActiveOrder(null);
     } else {
       outbox.remove(op.id);
+      // Back to the server's version, with the other queued actions on top.
+      refreshOrderView(op.orderId);
     }
 
-    // The local copy still shows the discarded change; a full sync replaces
-    // it with the server's (orders with other queued actions are kept).
+    // And catch up with anything else that changed meanwhile.
     if (restaurantId) {
       useSyncStore.getState().setRestaurantId(restaurantId);
       void queryClient.refetchQueries({
@@ -85,11 +88,7 @@ export default function PendingChangesScreen() {
       >
         {operations.length === 0 && (
           <ThemedView style={tw`items-center py-12`}>
-            <Icon
-              name="cloud-check"
-              size={48}
-              color={tw.color("gray-400")}
-            />
+            <Icon name="cloud-check" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={tw`text-gray-500 mt-4 text-center`}>
               {t("orders:offline.empty")}
             </ThemedText>

@@ -14,7 +14,7 @@ import { Table } from "@/core/tables/models/table.model";
 import { Category } from "@/core/menu/models/category.model";
 import { Section } from "@/core/menu/models/section.model";
 import { advanceSyncCursor } from "../sync-cursor";
-import { shouldSkipOrderSyncEvent } from "@/presentation/offline/pending-orders";
+import { fromServerOrder } from "@/presentation/offline/rebase";
 import { applyTicketEvent } from "../apply-ticket-event";
 import { applyProductEvents } from "../apply-product-event";
 import { applyStockEvents } from "../apply-stock-event";
@@ -23,11 +23,13 @@ import { invalidateBills } from "@/presentation/orders/hooks/useOrders";
 import { applyRestaurantSyncEvent } from "@/presentation/onboarding/report-onboarding-step";
 
 function applyOrderEvent(event: SyncEventDto) {
-  const order = event.data as Order;
+  // With actions of this phone still queued for the order, they're
+  // replayed on top of the server's version.
+  const order =
+    event.operation === SyncOperation.DELETED || !event.data
+      ? (event.data as Order)
+      : fromServerOrder(event.data as Order);
   const ordersState = useOrdersStore.getState();
-
-  // Offline changes to this order are still queued; keep the local copy.
-  if (shouldSkipOrderSyncEvent(event.resourceId)) return;
 
   switch (event.operation) {
     case SyncOperation.CREATED:

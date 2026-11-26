@@ -30,10 +30,7 @@ import { rowsFromPayload } from "@/core/menu/models/customization.model";
 export const isOrderNumberPending = (order: Pick<Order, "num">) => !order.num;
 
 /** "Pedido N° 12", or "Pedido (sin número)" while the order isn't synced. */
-export const orderNumberText = (
-  order: Pick<Order, "num">,
-  t: TFunction,
-) =>
+export const orderNumberText = (order: Pick<Order, "num">, t: TFunction) =>
   isOrderNumberPending(order)
     ? t("orders:details.orderNumberPending")
     : t("orders:details.orderNumber", { num: order.num });
@@ -138,8 +135,14 @@ export const buildLocalOrder = (input: {
   );
 };
 
-export const addLocalDetails = (order: Order, details: OrderDetail[]) =>
-  withDetails(order, [...order.details, ...details]);
+/** Adds lines, skipping any the order already has (same id). */
+export const addLocalDetails = (order: Order, details: OrderDetail[]) => {
+  const existing = new Set(order.details.map((detail) => detail.id));
+  const added = details.filter((detail) => !existing.has(detail.id));
+  return added.length
+    ? withDetails(order, [...order.details, ...added])
+    : order;
+};
 
 export const applyLocalDetailUpdate = (
   order: Order,

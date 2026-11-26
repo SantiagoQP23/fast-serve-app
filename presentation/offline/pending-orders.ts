@@ -1,36 +1,36 @@
 import { Order } from "@/core/orders/models/order.model";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
-import {
-  orderHasPendingOperations,
-  useOutboxStore,
-} from "./store/useOutboxStore";
+import { OrderSocketEvent } from "@/core/orders/enums/socket-events.enum";
+import { useOutboxStore } from "./store/useOutboxStore";
+import { fromServerOrder } from "./rebase";
 
 /**
- * Orders with actions still in the outbox keep their local copy: the server's
- * version doesn't have those actions yet (or the order itself, if it was
- * created offline). The ack of the last queued action brings the server's
- * version back.
+ * The open orders from a snapshot, with this phone's queued actions on top
+ * of each. Orders the server doesn't have yet (created on this phone, still
+ * queued) are kept as they are.
  */
 export const keepLocalPendingOrders = (serverOrders: Order[]): Order[] => {
-  const pendingIds = new Set(
-    useOutboxStore.getState().operations.map((op) => op.orderId),
-  );
-  if (pendingIds.size === 0) return serverOrders;
+  const { operations } = useOutboxStore.getState();
+  if (operations.length === 0) return serverOrders;
 
+  const serverIds = new Set(serverOrders.map((order) => order.id));
+  const notOnServer = new Set(
+    operations
+      .filter(
+        (op) =>
+          !serverIds.has(op.orderId) &&
+          // Created here and not sent yet; an order the server closed has
+          // nothing left to show once its actions were rejected.
+          (op.event === OrderSocketEvent.createOrder || op.status !== "failed"),
+      )
+      .map((op) => op.orderId),
+  );
   const local = useOrdersStore
     .getState()
-    .orders.filter((order) => pendingIds.has(order.id));
-  const localIds = new Set(local.map((order) => order.id));
+    .orders.filter((order) => notOnServer.has(order.id));
 
-  return [
-    ...serverOrders.filter((order) => !localIds.has(order.id)),
-    ...local,
-  ];
+  return [...serverOrders.map(fromServerOrder), ...local];
 };
-
-/** A sync event for this order would undo changes that are still queued. */
-export const shouldSkipOrderSyncEvent = (orderId: string) =>
-  orderHasPendingOperations(orderId);
 
 /**
  * Orders being created offline right now, by operationId (the cart's

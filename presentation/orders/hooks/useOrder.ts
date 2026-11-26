@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { OrdersService } from "@/core/orders/services/orders.service";
 import { useOrdersStore } from "../store/useOrdersStore";
 import { useEffect } from "react";
+import { fromServerOrder } from "@/presentation/offline/rebase";
 
 export const useOrder = (orderId: string | null) => {
   const setActiveOrder = useOrdersStore((state) => state.setActiveOrder);
@@ -19,14 +20,16 @@ export const useOrder = (orderId: string | null) => {
     staleTime: 0, // Always consider data stale to ensure fresh data on refetch
   });
 
-  // Sync the fetched order with the active order in the store
+  // Sync the fetched order with the active order in the store, with this
+  // phone's queued actions on top (the fetch may not have them yet).
   useEffect(() => {
     if (orderQuery.data) {
-      setActiveOrder(orderQuery.data);
-      if (orderQuery.data.isClosed) {
-        deleteOrder(orderQuery.data.id);
+      const order = fromServerOrder(orderQuery.data);
+      setActiveOrder(order);
+      if (order.isClosed) {
+        deleteOrder(order.id);
       } else {
-        updateOrder(orderQuery.data);
+        updateOrder(order);
       }
     }
   }, [orderQuery.data, setActiveOrder]);
