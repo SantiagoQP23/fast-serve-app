@@ -1,11 +1,4 @@
-import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   BackHandler,
   type NativeScrollEvent,
@@ -34,7 +27,6 @@ import Label from "@/presentation/theme/components/label";
 import DetailHeader from "@/presentation/theme/components/detail-header";
 import TabPager from "@/presentation/theme/components/tab-pager";
 import ActionsBottomSheet, {
-  type ActionsBottomSheetItem,
   type ActionsBottomSheetSection,
 } from "@/presentation/theme/components/actions-bottom-sheet";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
@@ -122,7 +114,6 @@ export default function MenuOverviewContent() {
 
   const sectionSheetRef = useRef<BottomSheetMethods>(null);
   const categorySheetRef = useRef<BottomSheetMethods>(null);
-  const structureSheetRef = useRef<BottomSheetMethods>(null);
   const filterSheetRef = useRef<BottomSheetMethods>(null);
   const productActionsSheetRef = useRef<BottomSheetMethods>(null);
   const [actionsProduct, setActionsProduct] = useState<Product | null>(null);
@@ -366,31 +357,6 @@ export default function MenuOverviewContent() {
     });
   };
 
-  const structureActions: ActionsBottomSheetItem[] = [
-    {
-      icon: "plus",
-      label: t("sections.newSection"),
-      onPress: () => {
-        structureSheetRef.current?.dismiss();
-        handleAddSection();
-      },
-    },
-    ...(currentSection
-      ? [
-          {
-            icon: "plus" as const,
-            label: t("overview.newCategoryIn", {
-              section: currentSection.name,
-            }),
-            onPress: () => {
-              structureSheetRef.current?.dismiss();
-              handleAddCategory();
-            },
-          },
-        ]
-      : []),
-  ];
-
   const openProductActions = (product: Product) => {
     setActionsProduct(product);
     productActionsSheetRef.current?.present();
@@ -498,9 +464,9 @@ export default function MenuOverviewContent() {
     menuQuery.isSuccess ||
     (!!currentRestaurant?.id && menuRestaurantId === currentRestaurant.id);
 
-  const backRow = (right?: ReactNode) => (
+  const backRow = () => (
     <ThemedView style={tw`px-4 pt-8 bg-transparent`}>
-      <InventoryScreenHeader right={right} />
+      <InventoryScreenHeader />
     </ThemedView>
   );
 
@@ -533,12 +499,6 @@ export default function MenuOverviewContent() {
           setSelectedCategoryId(created[0].id);
         }}
       />
-      <ThemedBottomSheetModal ref={structureSheetRef} enablePanDownToClose>
-        <ActionsBottomSheet
-          title={t("overview.title")}
-          items={structureActions}
-        />
-      </ThemedBottomSheetModal>
     </>
   );
 
@@ -918,17 +878,7 @@ export default function MenuOverviewContent() {
 
   const menu = (
     <ThemedView style={tw`flex-1 bg-transparent`}>
-      {backRow(
-        canManage && (
-          <IconButton
-            icon="ellipsis-vertical"
-            variant="surface"
-            size={24}
-            accessibilityLabel={t("common:actions.more")}
-            onPress={() => structureSheetRef.current?.present()}
-          />
-        ),
-      )}
+      {backRow()}
       <ThemedView style={tw`flex-1 px-4 pt-6 gap-4 bg-transparent`}>
         <DetailHeader
           title={t("overview.title")}
@@ -1018,6 +968,37 @@ export default function MenuOverviewContent() {
                       style={({ pressed }) => tw.style(pressed && "opacity-70")}
                     >
                       <Icon name="pencil" size={16} />
+                    </Pressable>
+                  )
+                }
+                trailing={
+                  canManage && (
+                    <Pressable
+                      onPress={handleAddSection}
+                      hitSlop={8}
+                      accessibilityRole="button"
+                      style={({ pressed }) =>
+                        tw.style(
+                          "flex-row items-center py-2 px-1 gap-1",
+                          pressed && "opacity-70",
+                        )
+                      }
+                    >
+                      <Icon
+                        name="plus"
+                        size={18}
+                        color={tw.color("gray-500")}
+                      />
+                      <ThemedText
+                        type="h4"
+                        numberOfLines={1}
+                        style={[
+                          tw`text-gray-500`,
+                          { fontFamily: typography.medium },
+                        ]}
+                      >
+                        {t("sections.newSection")}
+                      </ThemedText>
                     </Pressable>
                   )
                 }

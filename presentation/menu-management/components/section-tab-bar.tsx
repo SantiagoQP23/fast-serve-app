@@ -24,6 +24,8 @@ interface SectionTabBarProps {
   onChange: (value: string) => void;
   /** Shown after the active tab's name, e.g. its edit button. */
   activeTrailing?: ReactNode;
+  /** Shown after the last tab, e.g. a button to add one. */
+  trailing?: ReactNode;
 }
 
 /**
@@ -36,6 +38,7 @@ export default function SectionTabBar({
   activeTab,
   onChange,
   activeTrailing,
+  trailing,
 }: SectionTabBarProps) {
   const scrollRef = useRef<ScrollView>(null);
   const tabLayouts = useRef(new Map<string, { x: number; width: number }>());
@@ -117,6 +120,7 @@ export default function SectionTabBar({
           </Pressable>
         );
       })}
+      {trailing}
       <Animated.View
         pointerEvents="none"
         style={[

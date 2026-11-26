@@ -57,7 +57,6 @@
       "viewProduct": "View product"
     },
     "editSection": "Edit “{{name}}”",
-    "newCategoryIn": "New category in “{{section}}”",
     "sectionInactive": "Inactive · hidden when taking orders",
     "emptySection": "This section has no categories yet"
   },
