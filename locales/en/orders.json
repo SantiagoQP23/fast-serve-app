@@ -381,7 +381,7 @@
   },
   "offline": {
     "title": "Unsynced changes",
-    "description": "These changes were made offline and will be sent automatically when the connection is back.",
+    "description": "These changes haven't reached the server yet. They're sent automatically as soon as there's a connection.",
     "empty": "All changes are synced",
     "notSynced": "Not synced",
     "syncFailed": "Sync failed",
@@ -409,7 +409,10 @@
       "updateItems_other": "Change {{count}} items",
       "removeItem": "Remove {{product}}",
       "updateOrder": "Change order details"
-    }
+    },
+    "rejectedToast": "Couldn't save: {{summary}} ({{order}})",
+    "view": "View",
+    "waitForQueue": "Other changes are still being sent. Try again in a few seconds."
   },
   "addAgain": {
     "reasons": {

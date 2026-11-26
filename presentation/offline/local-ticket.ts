@@ -31,7 +31,9 @@ const buildItem = (
     ? detail.tags.map((tag) => tag.name).join(", ")
     : null,
   description: detail.description || null,
-  modifiersSnapshot: detail.modifiers?.length ? sortedRows(detail.modifiers) : null,
+  modifiersSnapshot: detail.modifiers?.length
+    ? sortedRows(detail.modifiers)
+    : null,
   price: Number(detail.price),
   productionAreaId: detail.product?.productionArea?.id || null,
   productionAreaName: detail.product?.productionArea?.name || null,

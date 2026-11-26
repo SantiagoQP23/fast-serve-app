@@ -382,7 +382,7 @@
   },
   "offline": {
     "title": "Cambios sin sincronizar",
-    "description": "Estos cambios se hicieron sin conexión y se enviarán solos cuando vuelva la conexión.",
+    "description": "Estos cambios todavía no llegan al servidor. Se envían solos en cuanto haya conexión.",
     "empty": "Todos los cambios están sincronizados",
     "notSynced": "Sin sincronizar",
     "syncFailed": "Error al sincronizar",
@@ -410,7 +410,10 @@
       "updateItems_other": "Modificar {{count}} productos",
       "removeItem": "Eliminar {{product}}",
       "updateOrder": "Modificar datos del pedido"
-    }
+    },
+    "rejectedToast": "No se pudo guardar: {{summary}} ({{order}})",
+    "view": "Ver",
+    "waitForQueue": "Todavía se están enviando otros cambios. Inténtalo de nuevo en unos segundos."
   },
   "addAgain": {
     "reasons": {

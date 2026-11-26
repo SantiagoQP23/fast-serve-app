@@ -1,5 +1,4 @@
-import { useCallback, useContext } from "react";
-import { rowsFromPayload } from "@/core/menu/models/customization.model";
+import { useContext } from "react";
 import { SocketContext } from "@/presentation/shared/context/SocketContext";
 import { SocketResponseData } from "@/core/common/dto/socket.dto";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
@@ -8,37 +7,29 @@ import { Order } from "@/core/orders/models/order.model";
 import { OrderDetail } from "@/core/orders/models/order-detail.model";
 import { OrderSocketEvent } from "@/core/orders/enums/socket-events.enum";
 import { Ticket } from "@/core/tickets/models/ticket.model";
-import {
-  CreateOrderDetailDto,
-  CreateOrderDto,
-} from "@/core/orders/dto/create-order.dto";
+import { CreateOrderDto } from "@/core/orders/dto/create-order.dto";
 import {
   AddOrderDetailToOrderDto,
   AddOrderDetailsDto,
   DeleteOrderDetailDto,
-  OrderDetailBatchItemDto,
   UpdateOrderDetailDto,
   UpdateOrderDetailsDto,
   UpdateOrderDto,
   UpdateOrderResp,
 } from "@/core/orders/dto/update-order.dto";
 import { useAuthStore } from "@/presentation/auth/store/useAuthStore";
-import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { useTablesStore } from "@/presentation/tables/hooks/useTablesStore";
 import { useOrdersStore } from "@/presentation/orders/store/useOrdersStore";
 import { usePrintComanda } from "@/presentation/orders/hooks/usePrintComanda";
-import {
-  OutboxEvent,
-  hasPendingOperations,
-  useOutboxStore,
-} from "../store/useOutboxStore";
+import { OutboxEvent, useOutboxStore } from "../store/useOutboxStore";
+import { buildQueuedDetail, rememberBase } from "../rebase";
+import { printComandaIfServerIsSlow } from "../slow-comanda";
 import { finishCreatingOrder, startCreatingOrder } from "../pending-orders";
 import {
   addLocalDetails,
   applyLocalDetailRemoval,
   applyLocalDetailUpdate,
   applyLocalOrderUpdate,
-  buildLocalDetail,
   buildLocalOrder,
   isOrderNumberPending,
 } from "../local-order";
@@ -69,11 +60,6 @@ const QUEUEABLE_ORDER_FIELDS = new Set([
 export const isQueueableOrderUpdate = (dto: UpdateOrderDto) =>
   Object.keys(dto).every((key) => QUEUEABLE_ORDER_FIELDS.has(key));
 
-/**
- * Order actions taken without a connection (or while earlier ones still wait
- * to be sent): applied to the local order right away, comanda printed from
- * the phone, and queued in the outbox so useOutboxRunner sends them in order.
- */
 /** Actions that can take stock, and so accept `queuedOffline`. */
 const STOCK_CHECKED_EVENTS: OutboxEvent[] = [
   OrderSocketEvent.createOrder,
@@ -83,18 +69,18 @@ const STOCK_CHECKED_EVENTS: OutboxEvent[] = [
   OrderSocketEvent.updateOrderDetails,
 ];
 
+/**
+ * Order actions are optimistic, online and offline: applied to the local
+ * order right away, the comanda printed from the phone, and queued in the
+ * outbox so useOutboxRunner sends them in order in the background. Only a
+ * rejection from the server shows an error (and takes the change back).
+ */
 export const useOrderOutbox = () => {
   const { socket } = useContext(SocketContext);
   const { t } = useTranslation(["orders"]);
   const { printComanda } = usePrintComanda();
 
   const restaurantId = useAuthStore((state) => state.currentRestaurant?.id);
-
-  /** Queue instead of sending when offline, or to keep the order of actions. */
-  const shouldQueue = useCallback(
-    () => !socket?.connected || hasPendingOperations(restaurantId),
-    [socket, restaurantId],
-  );
 
   const orderLabel = (order: Order) => {
     const place = order.table
@@ -121,17 +107,24 @@ export const useOrderOutbox = () => {
   };
 
   /**
-   * Prints a comanda built on the phone. Only when offline: with a
-   * connection the runner prints the server's ticket after sending.
-   * Returns `ticketPrinted` for the payload, or undefined when nothing was
-   * printed here.
+   * The comanda of an action. Offline, the one built on the phone prints
+   * right away and the result goes in the payload as `ticketPrinted`.
+   * Online, the server's prints when it answers (so the kitchen never gets
+   * a comanda the server rejected), and the phone's only if the answer
+   * takes too long. Returns `ticketPrinted`, or undefined when the answer
+   * should print it.
    */
-  const printLocally = async (
+  const printComandaFor = async (
+    operationId: string,
     order: Order,
     ticket: Ticket | null,
   ): Promise<boolean | undefined> => {
-    if (!ticket || socket?.connected) return undefined;
-    return printComanda(order, ticket, { markPrinted: false });
+    if (!ticket) return undefined;
+    if (!socket?.connected) {
+      return printComanda(order, ticket, { markPrinted: false });
+    }
+    printComandaIfServerIsSlow(operationId, order, ticket, printComanda);
+    return undefined;
   };
 
   const enqueue = (input: {
@@ -164,32 +157,7 @@ export const useOrderOutbox = () => {
     });
   };
 
-  const buildDetail = (
-    item: CreateOrderDetailDto | OrderDetailBatchItemDto,
-    id: string,
-  ): OrderDetail | null => {
-    const product = useMenuStore
-      .getState()
-      .products.find((p) => p.id === item.productId);
-    if (!product) return null;
-
-    return buildLocalDetail(
-      {
-        id,
-        product,
-        productOption: product.options?.find(
-          (option) => option.id === item.productOptionId,
-        ),
-        quantity: item.quantity,
-        price: item.price,
-        description: item.description,
-        tagIds: "tagIds" in item ? item.tagIds : undefined,
-        typeOrderDetail: item.typeOrderDetail,
-        modifiers: rowsFromPayload(item.customization),
-      },
-      useAuthStore.getState().user,
-    );
-  };
+  const buildDetail = buildQueuedDetail;
 
   const productNotAvailable = (onError?: QueueOptions<unknown>["onError"]) =>
     onError?.({ ok: false, msg: t("orders:offline.productNotAvailable") });
@@ -255,8 +223,10 @@ export const useOrderOutbox = () => {
 
     saveOrder(order);
 
+    // Online it waits for the server's answer, so it carries the order's
+    // number; offline it prints without one.
     const ticketPrinted = options.print
-      ? await printLocally(order, buildLocalNewTicket(order))
+      ? await printComandaFor(operationId, order, buildLocalNewTicket(order))
       : undefined;
 
     enqueue({
@@ -286,6 +256,7 @@ export const useOrderOutbox = () => {
   ) => {
     const order = findOrder(dto.orderId);
     if (!order) return;
+    rememberBase(order);
 
     const operationId = generateIdempotencyKey();
     const detailIds = dto.newDetails.map(() => generateIdempotencyKey());
@@ -300,7 +271,8 @@ export const useOrderOutbox = () => {
     const updated = addLocalDetails(order, details as OrderDetail[]);
     saveOrder(updated);
 
-    const ticketPrinted = await printLocally(
+    const ticketPrinted = await printComandaFor(
+      operationId,
       updated,
       buildLocalAddTicket(updated, details as OrderDetail[]),
     );
@@ -333,6 +305,7 @@ export const useOrderOutbox = () => {
   ) => {
     const order = findOrder(dto.orderId);
     if (!order) return;
+    rememberBase(order);
 
     const operationId = generateIdempotencyKey();
     const detailId = generateIdempotencyKey();
@@ -346,7 +319,8 @@ export const useOrderOutbox = () => {
     saveOrder(updated);
     useOrdersStore.getState().setActiveOrder(updated);
 
-    const ticketPrinted = await printLocally(
+    const ticketPrinted = await printComandaFor(
+      operationId,
       updated,
       buildLocalAddTicket(updated, [detail]),
     );
@@ -375,6 +349,7 @@ export const useOrderOutbox = () => {
     const order = findOrder(dto.orderId);
     const before = order?.details.find((detail) => detail.id === dto.id);
     if (!order || !before) return;
+    rememberBase(order);
 
     const operationId = generateIdempotencyKey();
     const updated = applyLocalDetailUpdate(order, dto);
@@ -382,7 +357,8 @@ export const useOrderOutbox = () => {
     saveOrder(updated);
     useOrdersStore.getState().setActiveOrder(updated);
 
-    const ticketPrinted = await printLocally(
+    const ticketPrinted = await printComandaFor(
+      operationId,
       updated,
       buildLocalUpdateTicket(updated, before, after),
     );
@@ -411,6 +387,7 @@ export const useOrderOutbox = () => {
   ) => {
     const order = findOrder(dto.orderId);
     if (!order) return;
+    rememberBase(order);
 
     const operationId = generateIdempotencyKey();
     const updated = dto.details.reduce(
@@ -440,12 +417,14 @@ export const useOrderOutbox = () => {
     const order = findOrder(dto.orderId);
     const detail = order?.details.find((d) => d.id === dto.detailId);
     if (!order || !detail) return;
+    rememberBase(order);
 
     const operationId = generateIdempotencyKey();
     const updated = applyLocalDetailRemoval(order, dto.detailId);
     saveOrder(updated);
 
-    const ticketPrinted = await printLocally(
+    const ticketPrinted = await printComandaFor(
+      operationId,
       updated,
       buildLocalCancelTicket(updated, detail),
     );
@@ -474,6 +453,7 @@ export const useOrderOutbox = () => {
   ) => {
     const order = findOrder(dto.id);
     if (!order) return;
+    rememberBase(order);
 
     const operationId = generateIdempotencyKey();
     const updated = applyLocalOrderUpdate(
@@ -497,7 +477,6 @@ export const useOrderOutbox = () => {
   };
 
   return {
-    shouldQueue,
     createOrder,
     addOrderDetails,
     addOrderDetail,

@@ -4,7 +4,6 @@ import { isAdminLevelRole } from "@/core/auth/models/user.model";
 import { useRestaurantSettings } from "@/presentation/restaurant/hooks/useRestaurantSettings";
 import { DEFAULT_REQUIRE_CODE_TO_REMOVE_ITEMS } from "@/core/restaurant/models/restaurant-settings.model";
 import { useTranslation } from "@/core/i18n/hooks/useTranslation";
-import { hasPendingOperations } from "@/presentation/offline/store/useOutboxStore";
 import { useContext } from "react";
 import { SocketContext } from "@/presentation/shared/context/SocketContext";
 import {
@@ -25,7 +24,6 @@ export type AuthorizedAction = (code?: string) => Promise<AuthorizationResult>;
 export const useRemovalAuthorization = () => {
   const { t } = useTranslation(["orders", "errors"]);
   const user = useAuthStore((state) => state.user);
-  const restaurantId = useAuthStore((state) => state.currentRestaurant?.id);
   const { settings } = useRestaurantSettings();
   const { socket } = useContext(SocketContext);
   const openSheet = useAuthorizationCodeStore((state) => state.open);
@@ -38,13 +36,15 @@ export const useRemovalAuthorization = () => {
 
   /**
    * Runs `run` right away when no code is needed. Otherwise asks for the
-   * code first (online only: the server checks it). If the server asks for
+   * code first (online only: the server checks it; the action waits for
+   * the queue to empty first). If the server asks for
    * a code the phone didn't know about (settings not loaded yet), the sheet
    * opens then.
    */
   const authorize = async (summary: string, run: AuthorizedAction) => {
     if (needsCode) {
-      if (!socket?.connected || hasPendingOperations(restaurantId)) {
+      // The code goes with the action, after anything still queued is sent.
+      if (!socket?.connected) {
         Alert.alert(
           t("orders:authorization.needsConnectionTitle"),
           t("orders:authorization.needsConnection"),
