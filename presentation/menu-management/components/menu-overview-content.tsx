@@ -32,9 +32,9 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import Button from "@/presentation/theme/components/button";
 import Label from "@/presentation/theme/components/label";
 import DetailHeader from "@/presentation/theme/components/detail-header";
-import TabBar from "@/presentation/theme/components/tab-bar";
 import TabPager from "@/presentation/theme/components/tab-pager";
 import ActionsBottomSheet, {
+  type ActionsBottomSheetItem,
   type ActionsBottomSheetSection,
 } from "@/presentation/theme/components/actions-bottom-sheet";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
@@ -64,6 +64,7 @@ import { getOwnStockLine } from "@/core/inventory/models/inventory-recipe.model"
 import type { InventoryItem } from "@/core/inventory/models/inventory-item.model";
 import MenuProductCard from "@/presentation/menu-management/components/menu-product-card";
 import MenuProductDetailView from "@/presentation/menu-management/components/menu-product-detail-view";
+import SectionTabBar from "@/presentation/menu-management/components/section-tab-bar";
 import MenuNamesSheet from "@/presentation/menu-management/components/menu-names-sheet";
 import { useMenuStore } from "@/presentation/restaurant-menu/store/useMenuStore";
 import { openProductForm } from "@/presentation/menu-management/utils/open-product-form";
@@ -365,50 +366,26 @@ export default function MenuOverviewContent() {
     });
   };
 
-  const structureActions: ActionsBottomSheetSection[] = [
+  const structureActions: ActionsBottomSheetItem[] = [
     {
-      title: t("sections.title"),
-      items: [
-        {
-          icon: "plus",
-          label: t("sections.newSection"),
-          onPress: () => {
-            structureSheetRef.current?.dismiss();
-            handleAddSection();
-          },
-        },
-        ...(currentSection
-          ? [
-              {
-                icon: "pencil" as const,
-                label: t("overview.editSection", {
-                  name: currentSection.name,
-                }),
-                onPress: () => {
-                  structureSheetRef.current?.dismiss();
-                  editSection(currentSection);
-                },
-              },
-            ]
-          : []),
-      ],
+      icon: "plus",
+      label: t("sections.newSection"),
+      onPress: () => {
+        structureSheetRef.current?.dismiss();
+        handleAddSection();
+      },
     },
     ...(currentSection
       ? [
           {
-            title: t("categories.title"),
-            items: [
-              {
-                icon: "plus" as const,
-                label: t("overview.newCategoryIn", {
-                  section: currentSection.name,
-                }),
-                onPress: () => {
-                  structureSheetRef.current?.dismiss();
-                  handleAddCategory();
-                },
-              },
-            ],
+            icon: "plus" as const,
+            label: t("overview.newCategoryIn", {
+              section: currentSection.name,
+            }),
+            onPress: () => {
+              structureSheetRef.current?.dismiss();
+              handleAddCategory();
+            },
           },
         ]
       : []),
@@ -559,7 +536,7 @@ export default function MenuOverviewContent() {
       <ThemedBottomSheetModal ref={structureSheetRef} enablePanDownToClose>
         <ActionsBottomSheet
           title={t("overview.title")}
-          sections={structureActions}
+          items={structureActions}
         />
       </ThemedBottomSheetModal>
     </>
@@ -989,7 +966,7 @@ export default function MenuOverviewContent() {
             <IconButton
               icon="list-filter"
               variant={stockFilter ? "secondary" : "surface"}
-              size={24}
+              size={20}
               accessibilityLabel={t("overview.filter.open")}
               onPress={() => filterSheetRef.current?.present()}
             />
@@ -1024,12 +1001,26 @@ export default function MenuOverviewContent() {
         ) : sortedSections.length > 0 ? (
           <>
             <ThemedView style={tw`gap-2 bg-transparent`}>
-              <TabBar
-                scrollable
-                textType="h4"
+              <SectionTabBar
                 tabs={sectionTabs}
                 activeTab={sectionId}
                 onChange={onChangeSection}
+                activeTrailing={
+                  canManage &&
+                  currentSection && (
+                    <Pressable
+                      onPress={() => editSection(currentSection)}
+                      hitSlop={12}
+                      accessibilityRole="button"
+                      accessibilityLabel={t("overview.editSection", {
+                        name: currentSection.name,
+                      })}
+                      style={({ pressed }) => tw.style(pressed && "opacity-70")}
+                    >
+                      <Icon name="pencil" size={16} />
+                    </Pressable>
+                  )
+                }
               />
               {currentSection && !currentSection.isActive && (
                 // What being inactive means here, and the way back
