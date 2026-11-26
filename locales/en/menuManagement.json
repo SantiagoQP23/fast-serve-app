@@ -11,8 +11,7 @@
       "error": "Failed to load menu. Please try again."
     },
     "pane": {
-      "emptyTitle": "Select a product",
-      "emptyDescription": "Tap a product to see its variants, inventory and settings here."
+      "emptyTitle": "Select a product"
     },
     "empty": {
       "title": "Your menu is empty",
@@ -40,7 +39,6 @@
     "longPressToEdit": "Long press to edit",
     "longPressForActions": "Long press to restock, edit or deactivate",
     "search": {
-      "close": "Close search",
       "clear": "Clear search"
     },
     "filter": {
@@ -50,11 +48,18 @@
       "empty": {
         "out": "Nothing sold out. Everything that tracks stock can be sold.",
         "low": "Nothing low on stock."
-      }
+      },
+      "title": "Filter by stock",
+      "open": "Filter by stock",
+      "all": "All"
     },
     "actions": {
       "viewProduct": "View product"
-    }
+    },
+    "editSection": "Edit “{{name}}”",
+    "newCategoryIn": "New category in “{{section}}”",
+    "sectionInactive": "Inactive · hidden when taking orders",
+    "emptySection": "This section has no categories yet"
   },
   "sections": {
     "title": "Sections",

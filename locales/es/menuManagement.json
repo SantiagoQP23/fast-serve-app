@@ -11,8 +11,7 @@
       "error": "No se pudo cargar el menú. Inténtalo de nuevo."
     },
     "pane": {
-      "emptyTitle": "Selecciona un producto",
-      "emptyDescription": "Toca un producto para ver sus variantes, inventario y ajustes aquí."
+      "emptyTitle": "Selecciona un producto"
     },
     "empty": {
       "title": "Tu menú está vacío",
@@ -40,7 +39,6 @@
     "longPressToEdit": "Mantén presionado para editar",
     "longPressForActions": "Mantén presionado para reabastecer, editar o desactivar",
     "search": {
-      "close": "Cerrar búsqueda",
       "clear": "Limpiar búsqueda"
     },
     "filter": {
@@ -50,11 +48,18 @@
       "empty": {
         "out": "Nada agotado. Todo lo que controla stock se puede vender.",
         "low": "Nada con stock bajo."
-      }
+      },
+      "title": "Filtrar por stock",
+      "open": "Filtrar por stock",
+      "all": "Todos"
     },
     "actions": {
       "viewProduct": "Ver producto"
-    }
+    },
+    "editSection": "Editar «{{name}}»",
+    "newCategoryIn": "Nueva categoría en «{{section}}»",
+    "sectionInactive": "Inactiva · no aparece al tomar pedidos",
+    "emptySection": "Esta sección aún no tiene categorías"
   },
   "sections": {
     "title": "Secciones",

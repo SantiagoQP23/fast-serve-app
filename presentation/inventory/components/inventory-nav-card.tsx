@@ -22,7 +22,7 @@ export default function InventoryNavCard({
 }: InventoryNavCardProps) {
   return (
     <Card
-      variant="outline"
+      variant="default"
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={subtitle ? `${title}, ${subtitle}` : title}
@@ -39,11 +39,7 @@ export default function InventoryNavCard({
           {title}
         </ThemedText>
         {subtitle && (
-          <ThemedText
-            type="body2"
-            style={tw`text-gray-500`}
-            numberOfLines={1}
-          >
+          <ThemedText type="body2" style={tw`text-gray-500`} numberOfLines={1}>
             {subtitle}
           </ThemedText>
         )}
