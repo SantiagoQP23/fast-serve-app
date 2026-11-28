@@ -114,6 +114,7 @@ export default function ModifierGroupsScreen() {
           <TextInput
             placeholder={t("modifierGroups.searchPlaceholder")}
             icon="search"
+            containerStyle={tw`rounded-full`}
             value={search}
             onChangeText={setSearch}
             returnKeyType="search"

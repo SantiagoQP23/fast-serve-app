@@ -96,6 +96,7 @@ export default function MenuTagsScreen() {
           <TextInput
             placeholder={t("tags.searchPlaceholder")}
             icon="search"
+            containerStyle={tw`rounded-full`}
             value={search}
             onChangeText={setSearch}
             returnKeyType="search"

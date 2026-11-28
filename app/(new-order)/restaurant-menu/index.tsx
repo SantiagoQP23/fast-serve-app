@@ -478,6 +478,7 @@ export default function RestaurantMenuScreen() {
         onBlur={() => setIsSearchFocused(false)}
         placeholder={t("menu:searchPlaceholder")}
         icon="search"
+        containerStyle={tw`rounded-full`}
         returnKeyType="search"
         autoCorrect={false}
         trailingIcon={

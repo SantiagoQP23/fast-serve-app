@@ -190,6 +190,7 @@ export default function InventoryItemsContent() {
           <TextInput
             placeholder={t("searchPlaceholder")}
             icon="search"
+            containerStyle={tw`rounded-full`}
             value={search}
             onChangeText={setSearch}
             returnKeyType="search"

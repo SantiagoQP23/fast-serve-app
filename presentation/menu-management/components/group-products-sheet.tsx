@@ -106,6 +106,7 @@ const GroupProductsSheet = forwardRef<
         <TextInput
           bottomSheet
           icon="search"
+          containerStyle={tw`rounded-full`}
           placeholder={t("modifierGroups.products.search")}
           value={search}
           onChangeText={setSearch}

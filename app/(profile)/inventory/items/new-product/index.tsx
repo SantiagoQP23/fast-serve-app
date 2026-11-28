@@ -135,6 +135,7 @@ export default function NewInventoryItemSelectProductScreen() {
         <TextInput
           placeholder={t("linkedItem.searchProductsPlaceholder")}
           icon="search"
+          containerStyle={tw`rounded-full`}
           value={search}
           onChangeText={setSearch}
           returnKeyType="search"

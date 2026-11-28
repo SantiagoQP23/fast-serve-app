@@ -145,6 +145,7 @@ export default function MenuInventoryPurchaseItemsScreen() {
         <TextInput
           placeholder={t("searchPlaceholder")}
           icon="search"
+          containerStyle={tw`rounded-full`}
           value={search}
           onChangeText={setSearch}
           returnKeyType="search"

@@ -132,6 +132,7 @@ export default function ProductionAreaAddProductsScreen() {
           <TextInput
             placeholder={t("products.searchPlaceholder")}
             icon="search"
+            containerStyle={tw`rounded-full`}
             value={search}
             onChangeText={setSearch}
             returnKeyType="search"

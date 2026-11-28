@@ -78,7 +78,7 @@ export default function MenuProductsScreen() {
               </Pressable>
             ) : null
           }
-          containerStyle={tw`mb-4`}
+          containerStyle={tw`mb-4 rounded-full`}
         />
       )}
 

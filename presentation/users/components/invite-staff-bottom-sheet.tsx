@@ -78,6 +78,7 @@ const InviteStaffBottomSheet = ({
       <TextInput
         bottomSheet
         icon="search"
+        containerStyle={tw`rounded-full`}
         placeholder={t("staff.invite.searchPlaceholder")}
         value={search}
         onChangeText={handleChangeSearch}
