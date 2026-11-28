@@ -37,7 +37,7 @@ const EditNoteBottomSheet = ({ order, onClose }: EditNoteBottomSheetProps) => {
 
   return (
     <BottomSheetView
-      style={tw`p-4 bg-background `}
+      style={tw`p-4 bg-surface-container-lowest`}
     >
       <ThemedView style={tw`w-full gap-2`}>
         <ThemedText type="h3" style={tw``}>

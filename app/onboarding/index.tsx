@@ -189,7 +189,7 @@ export default function OnboardingScreen() {
                   accessibilityState={{ selected }}
                   style={tw.style(
                     `flex-row gap-3 p-4 rounded-md border border-primary`,
-                    selected && `bg-secondary`,
+                    selected ? `bg-secondary` : `bg-surface-container-lowest`,
                   )}
                 >
                   <ThemedView

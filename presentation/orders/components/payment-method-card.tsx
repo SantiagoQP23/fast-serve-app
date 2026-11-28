@@ -66,7 +66,7 @@ export default function PaymentMethodCard({
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
-        tw`py-4 px-10 rounded-2xl items-center border border-gray-200`,
+        tw`py-4 px-10 rounded-2xl items-center border border-gray-200 bg-surface-container-lowest`,
         pressed && tw`opacity-80`,
         active && tw`border-primary bg-gray-100`,
       ]}

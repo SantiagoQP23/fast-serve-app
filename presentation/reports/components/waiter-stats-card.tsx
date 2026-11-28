@@ -30,7 +30,7 @@ export default function WaiterStatsCard({ waiterStats }: WaiterStatsCardProps) {
 
   return (
     <ThemedView
-      style={tw`rounded-2xl border border-gray-200 shadow-sm overflow-hidden`}
+      style={tw`rounded-2xl border border-gray-200 shadow-sm overflow-hidden bg-surface-container-lowest`}
     >
       <Pressable onPress={toggleExpand}>
         <ThemedView style={tw`p-4 bg-surface-bright`}>
