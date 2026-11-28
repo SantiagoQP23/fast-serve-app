@@ -204,7 +204,6 @@ export default function VariantDetailView({
               <Label text={t("status.inactive")} size="small" />
             )
           }
-          icon="hamburger"
         >
           {(canAdjust || canSetUp || hasOptions) && (
             <ThemedView style={tw`flex-row flex-wrap gap-3`}>

@@ -25,7 +25,6 @@ import IconButton from "@/presentation/theme/components/icon-button";
 import BottomSheetPicker, {
   type BottomSheetPickerRef,
 } from "@/presentation/theme/components/bottom-sheet-picker";
-import ProductRecipeRow from "@/presentation/menu-management/components/product-recipe-row";
 import GroupLimitsSheet, {
   describeDefaults,
   describeLimits,
@@ -460,12 +459,6 @@ export default function ProductCustomizationScreen() {
             title={t("customization.title")}
             subtitle={product.name}
           />
-
-          {/* What it includes is its recipe now. */}
-          <ThemedView style={tw`gap-3 mt-4`}>
-            <DetailSectionTitle title={t("customization.includes")} />
-            <ProductRecipeRow product={product} />
-          </ThemedView>
 
           {/* Linked groups */}
           <ThemedView style={tw`gap-3 mt-4`}>

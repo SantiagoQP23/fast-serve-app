@@ -36,7 +36,10 @@ import {
 } from "@/presentation/theme/components/detail-card";
 import { ThemedBottomSheetModal } from "@/presentation/theme/components/themed-bottom-sheet-modal";
 import { formatCurrency } from "@/core/i18n/utils";
-import type { ProductOption } from "@/core/menu/models/product-optionl.model";
+import {
+  getVariantStockMode,
+  type ProductOption,
+} from "@/core/menu/models/product-optionl.model";
 import ProductCustomizationSection from "@/presentation/menu-management/components/product-customization-section";
 import ProductRecipeRow from "@/presentation/menu-management/components/product-recipe-row";
 import { VariantRow } from "@/presentation/menu-management/components/product-variant-list";
@@ -117,6 +120,9 @@ export default function MenuProductDetailView({
   // instead of a list of one.
   const activeOptions = product?.options.filter((o) => o.isActive) ?? [];
   const singleOption = activeOptions.length === 1 ? activeOptions[0] : null;
+  const usesRecipe = (product?.options ?? []).some(
+    (option) => getVariantStockMode(option) === "recipe",
+  );
   const [stock, stockSheets] = useVariantStockSection(
     singleOption ? product : undefined,
     singleOption ?? undefined,
@@ -419,7 +425,6 @@ export default function MenuProductDetailView({
       title={product.name}
       subtitle={singleOption ? formatCurrency(singleOption.price) : undefined}
       status={status}
-      icon="hamburger"
     >
       {hasPills && (
         <ThemedView style={tw`flex-row flex-wrap gap-3`}>
@@ -700,10 +705,12 @@ export default function MenuProductDetailView({
             <VariantStockCards section={stock} showMovements={false} />
           )}
           {variants}
-          {/* Every variant's recipe on one screen */}
-          <ThemedView style={tw`mt-4`}>
-            <ProductRecipeRow product={product} />
-          </ThemedView>
+          {/* Every variant's recipe on one screen, once one uses it */}
+          {usesRecipe && (
+            <ThemedView style={tw`mt-4`}>
+              <ProductRecipeRow product={product} />
+            </ThemedView>
+          )}
           <ProductCustomizationSection
             product={product}
             canManage={canManage}

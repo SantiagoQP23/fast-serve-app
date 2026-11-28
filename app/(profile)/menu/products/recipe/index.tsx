@@ -11,7 +11,6 @@ import { useTranslation } from "@/core/i18n/hooks/useTranslation";
 import { formatCurrency } from "@/core/i18n/utils";
 import { ScreenLayout } from "@/presentation/theme/layout/screen-layout";
 import Button from "@/presentation/theme/components/button";
-import Chip from "@/presentation/theme/components/chip";
 import Label from "@/presentation/theme/components/label";
 import DialogModal from "@/presentation/theme/components/dialog-modal";
 import DetailHeader from "@/presentation/theme/components/detail-header";
@@ -50,8 +49,8 @@ function IngredientRow({
 }: {
   line: RecipeIngredientDraft;
   /**
-   * "150 g", "Chico 150 g · Grande 200 g"; empty for an unlimited insumo
-   * without amounts; null while an amount is missing.
+   * "150 g" for the card's variant; empty for an unlimited insumo without
+   * an amount; null while the amount is missing.
    */
   amounts: string | null;
   isLast: boolean;
@@ -135,10 +134,7 @@ function IngredientRow({
  */
 export default function ProductRecipeScreen() {
   const { t } = useTranslation(["inventory", "common"]);
-  const params = useLocalSearchParams<{
-    productId: string;
-    variantId?: string;
-  }>();
+  const params = useLocalSearchParams<{ productId: string }>();
   const productId = params.productId;
   const { user } = useAuthStore();
   const canEdit = canManageInventory(user?.role?.name);
@@ -154,9 +150,6 @@ export default function ProductRecipeScreen() {
   const { sync, setLines, addPending, applyPendingOrder, markSaved, reset } =
     useRecipeDraftStore.getState();
 
-  const [selectedVariant, setSelectedVariant] = useState<number | null>(
-    params.variantId ? Number(params.variantId) : null,
-  );
   const [leaving, setLeaving] = useState(false);
   const sheetRef = useRef<RecipeIngredientSheetRef>(null);
 
@@ -187,7 +180,8 @@ export default function ProductRecipeScreen() {
     }, [addPending, applyPendingOrder]),
   );
 
-  // Inactive variants keep their recipe but aren't shown as chips.
+  // Inactive variants keep their recipe but only get a card while they use
+  // something.
   const variants = useMemo(
     () =>
       (recipe?.variants ?? []).filter(
@@ -197,44 +191,24 @@ export default function ProductRecipeScreen() {
       ),
     [recipe, draft],
   );
-  const shownVariants = selectedVariant
-    ? variants.filter((variant) => variant.id === selectedVariant)
-    : variants;
-  const visibleLines = selectedVariant
-    ? draft.filter((line) => line.quantities[selectedVariant] !== undefined)
-    : draft;
+  const multiVariant = variants.length > 1;
+  const linesOf = (variantId: number) =>
+    draft.filter((line) => line.quantities[variantId] !== undefined);
 
-  const amountOf = (line: RecipeIngredientDraft, raw: string | undefined) => {
-    if (raw === undefined) return "—";
-    if (raw === "") return t("productRecipe.noAmountShort");
+  /** The line's amount for one variant (see IngredientRow's `amounts`). */
+  const amountFor = (line: RecipeIngredientDraft, variantId: number) => {
+    const raw = line.quantities[variantId]?.trim() ?? "";
+    // An unlimited insumo with no amount: its Label says enough.
+    if (raw === "") return line.inventoryItem.isUnlimited ? "" : null;
     const amount = parseAmount(raw);
     return `${amount} ${t(`units.${line.inventoryItem.unit}`, { count: amount })}`;
   };
-  /** Every shown variant's amount, named when they differ. */
-  const amountsOf = (line: RecipeIngredientDraft) => {
-    const raws = shownVariants.map((variant) => line.quantities[variant.id]);
-    if (
-      !line.inventoryItem.isUnlimited &&
-      raws.some((raw) => raw !== undefined && raw.trim() === "")
-    )
-      return null;
-    // An unlimited insumo with no amount anywhere: its Label says enough.
-    if (raws.every((raw) => raw === undefined || raw === "")) return "";
-    if (raws.length === 1) return amountOf(line, raws[0]);
-    if (raws.every((raw) => raw === raws[0]) && raws[0] !== undefined)
-      return t("productRecipe.sameAll", { amount: amountOf(line, raws[0]) });
-    return shownVariants
-      .map((variant, i) => `${variant.name} ${amountOf(line, raws[i])}`)
-      .join(" · ");
-  };
 
-  const available = (product?.options ?? [])
-    .filter((option) => shownVariants.some((v) => v.id === option.id))
-    .map((option) => ({
-      name: option.name,
-      count: getProductOptionAvailableQuantity(option),
-    }))
-    .filter((entry) => entry.count !== null);
+  /** How many servings the stock covers; null when it isn't counted. */
+  const availableFor = (variantId: number) => {
+    const option = product?.options?.find((item) => item.id === variantId);
+    return option ? getProductOptionAvailableQuantity(option) : null;
+  };
 
   const openPicker = () =>
     router.push({
@@ -345,7 +319,6 @@ export default function ProductRecipeScreen() {
         <DetailHeader
           title={productName}
           subtitle={subtitle}
-          icon="chef-hat"
         >
           {canEdit && draft.length > 0 && (
             <ThemedView style={tw`flex-row flex-wrap gap-3`}>
@@ -371,40 +344,19 @@ export default function ProductRecipeScreen() {
           )}
         </DetailHeader>
 
-        {variants.length > 1 && draft.length > 0 && (
-          <ThemedView style={tw`flex-row flex-wrap gap-2`}>
-            <Chip
-              label={t("productRecipe.allVariants")}
-              selected={selectedVariant === null}
-              onPress={() => setSelectedVariant(null)}
-            />
-            {variants.map((variant) => (
-              <Chip
-                key={variant.id}
-                label={variant.name}
-                selected={selectedVariant === variant.id}
-                onPress={() => setSelectedVariant(variant.id)}
-              />
-            ))}
-          </ThemedView>
-        )}
-
-        {available.length > 0 && (
-          <ThemedText
-            type="small"
-            style={[tw`text-gray-500`, { fontFamily: typography.medium }]}
-          >
-            {t("productRecipe.enoughFor", {
-              list: available
-                .map((entry) =>
-                  available.length > 1
-                    ? `${entry.name} ${entry.count}`
-                    : String(entry.count),
-                )
-                .join(" · "),
-            })}
-          </ThemedText>
-        )}
+        {!multiVariant &&
+          variants[0] &&
+          draft.length > 0 &&
+          availableFor(variants[0].id) !== null && (
+            <ThemedText
+              type="small"
+              style={[tw`text-gray-500`, { fontFamily: typography.medium }]}
+            >
+              {t("productRecipe.enoughFor", {
+                list: String(availableFor(variants[0].id)),
+              })}
+            </ThemedText>
+          )}
 
         {recipeQuery.isLoading && (
           <ThemedText type="body1" style={tw`text-gray-500 text-center py-8`}>
@@ -426,13 +378,13 @@ export default function ProductRecipeScreen() {
           </ThemedView>
         )}
 
-        {recipe && visibleLines.length === 0 && (
+        {recipe && draft.length === 0 && (
           <ThemedView style={tw`items-center py-10 gap-4`}>
             <Icon name="chef-hat" size={48} color={tw.color("gray-400")} />
             <ThemedText type="body1" style={{ fontFamily: typography.bold }}>
               {t("productRecipe.empty")}
             </ThemedText>
-            {canEdit && draft.length === 0 && (
+            {canEdit && (
               <Button
                 label={t("productRecipe.addItems")}
                 leftIcon="plus"
@@ -442,23 +394,60 @@ export default function ProductRecipeScreen() {
           </ThemedView>
         )}
 
-        {visibleLines.length > 0 && (
-          <ThemedView style={tw`gap-2 bg-transparent`}>
-            <DetailSectionTitle title={t("productRecipe.sectionTitle")} />
-            <DetailCard style={tw`py-1`}>
-              {visibleLines.map((line, index) => (
-                <IngredientRow
-                  key={line.inventoryItemId}
-                  line={line}
-                  amounts={amountsOf(line)}
-                  isLast={index === visibleLines.length - 1}
-                  canEdit={canEdit}
-                  onPress={() => sheetRef.current?.present([line])}
+        {/* One card per variant: each lists only what it uses. */}
+        {draft.length > 0 &&
+          (multiVariant ? variants : variants.slice(0, 1)).map((variant) => {
+            const variantLines = multiVariant
+              ? linesOf(variant.id)
+              : draft;
+            const count = availableFor(variant.id);
+            return (
+              <ThemedView key={variant.id} style={tw`gap-2 bg-transparent`}>
+                <DetailSectionTitle
+                  title={
+                    multiVariant
+                      ? variant.name
+                      : t("productRecipe.sectionTitle")
+                  }
+                  action={
+                    multiVariant ? (
+                      !variant.isActive ? (
+                        <Label text={t("status.inactive")} size="small" />
+                      ) : count !== null ? (
+                        <ThemedText
+                          type="small"
+                          style={[
+                            tw`text-gray-500`,
+                            { fontFamily: typography.medium },
+                          ]}
+                        >
+                          {t("productRecipe.enoughFor", { list: count })}
+                        </ThemedText>
+                      ) : undefined
+                    ) : undefined
+                  }
                 />
-              ))}
-            </DetailCard>
-          </ThemedView>
-        )}
+                <DetailCard style={tw`py-1`}>
+                  {variantLines.length === 0 ? (
+                    <ThemedText type="small" style={tw`text-gray-500 py-3`}>
+                      {t("productRecipe.rowEmpty")}
+                    </ThemedText>
+                  ) : (
+                    variantLines.map((line, index) => (
+                      <IngredientRow
+                        key={line.inventoryItemId}
+                        line={line}
+                        amounts={amountFor(line, variant.id)}
+                        isLast={index === variantLines.length - 1}
+                        canEdit={canEdit}
+                        onPress={() => sheetRef.current?.present([line])}
+                      />
+                    ))
+                  )}
+                </DetailCard>
+              </ThemedView>
+            );
+          })}
       </ScrollView>
 
       {canEdit && dirty && (
