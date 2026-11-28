@@ -620,6 +620,29 @@
       "noVariant": "Pick at least one variant",
       "quantity": "Write an amount greater than 0",
       "discount": "Write a valid discount"
+    },
+    "copy": {
+      "button": "Copy from another product",
+      "title": "Copy recipe from…",
+      "allCategories": "All",
+      "none": "No other product has a recipe yet.",
+      "sheetTitle": "Copy recipe from {{name}}",
+      "sheetHint": "It's copied as a draft: check the amounts and save.",
+      "paused": "Paused",
+      "amountsFrom": "Copy the amounts from",
+      "variantsTitle": "Amounts for each variant",
+      "replace": "Replace the recipe",
+      "add": "Add to the recipe",
+      "replaceHint": "The current recipe is replaced by the copy.",
+      "addHint": "Only what's missing is added; what's already there stays.",
+      "alreadyThere_one": "{{count}} is already in the recipe and stays as it is.",
+      "alreadyThere_other": "{{count}} are already in the recipe and stay as they are.",
+      "removalsAdminOnly": "Only the owner or an admin can mark ingredients as \"Can be removed\"; they're copied without it.",
+      "submit_one": "Copy {{count}} ingredient",
+      "submit_other": "Copy {{count}} ingredients",
+      "nothing": "Nothing to copy",
+      "done_one": "{{count}} ingredient copied from {{name}}. Review and save.",
+      "done_other": "{{count}} ingredients copied from {{name}}. Review and save."
     }
   },
   "unlimited": {

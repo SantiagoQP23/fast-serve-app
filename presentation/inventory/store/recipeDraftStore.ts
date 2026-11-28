@@ -43,6 +43,72 @@ export const needsAmount = (line: RecipeIngredientDraft) =>
   !line.inventoryItem.isUnlimited &&
   Object.values(line.quantities).some((raw) => raw.trim() === "");
 
+/** Replace the draft with the copy, or only add what it doesn't have. */
+export type RecipeCopyMode = "replace" | "add";
+
+/** A recipe copied from another product, waiting for the recipe screen. */
+export interface PendingRecipeCopy {
+  sourceName: string;
+  lines: RecipeIngredientDraft[];
+  /** Ingredients actually added or replaced. */
+  count: number;
+}
+
+/**
+ * Builds the draft after copying `source` (plans/copiar-receta.md): only the
+ * picked insumos, with each variant of this product taking the amounts of the
+ * source variant matched to it (`variantMap`, null: copy nothing to it).
+ * "add" never touches what the recipe already has. Without `canSetRemovals`
+ * nothing new becomes removable and existing lines keep their setting, since
+ * the server only lets owners and admins change it.
+ */
+export function copyRecipeLines({
+  source,
+  itemIds,
+  variantMap,
+  mode,
+  canSetRemovals,
+  current,
+}: {
+  source: ProductRecipe;
+  itemIds: Set<string>;
+  variantMap: Record<number, number | null>;
+  mode: RecipeCopyMode;
+  canSetRemovals: boolean;
+  current: RecipeIngredientDraft[];
+}): { lines: RecipeIngredientDraft[]; count: number } {
+  const currentById = new Map(
+    current.map((line) => [line.inventoryItemId, line]),
+  );
+  const copied: RecipeIngredientDraft[] = [];
+  for (const sourceLine of fromRecipe(source)) {
+    if (!itemIds.has(sourceLine.inventoryItemId)) continue;
+    const existing = currentById.get(sourceLine.inventoryItemId);
+    if (mode === "add" && existing) continue;
+    const quantities: Record<number, string> = {};
+    for (const [targetId, sourceId] of Object.entries(variantMap)) {
+      if (sourceId === null) continue;
+      const raw = sourceLine.quantities[sourceId];
+      if (raw !== undefined) quantities[Number(targetId)] = raw;
+    }
+    if (!Object.keys(quantities).length) continue;
+    copied.push({
+      ...sourceLine,
+      removable: canSetRemovals
+        ? sourceLine.removable
+        : (existing?.removable ?? false),
+      discount: canSetRemovals
+        ? sourceLine.discount
+        : (existing?.discount ?? ""),
+      quantities,
+    });
+  }
+  return {
+    lines: mode === "replace" ? copied : [...current, ...copied],
+    count: copied.length,
+  };
+}
+
 /**
  * The recipe being edited for one product. Shared by the recipe screen and
  * its insumo picker; not persisted, so leaving the recipe drops it.
@@ -62,6 +128,8 @@ interface RecipeDraftState {
   pendingItems: InventoryItem[];
   /** New order from the reorder screen, applied the same way. */
   pendingOrder: string[] | null;
+  /** A copy from another product, applied the same way. */
+  pendingCopy: PendingRecipeCopy | null;
   /**
    * Fills the draft on first load, and on a reload with nothing unsaved;
    * otherwise only refreshes what the server has.
@@ -80,6 +148,9 @@ interface RecipeDraftState {
   queueOrder: (ids: string[]) => void;
   /** Applies the queued order, if any. */
   applyPendingOrder: () => void;
+  queueCopy: (copy: PendingRecipeCopy) => void;
+  /** Applies the queued copy, if any, and returns it (for the toast). */
+  applyPendingCopy: () => PendingRecipeCopy | null;
   markSaved: (recipe: ProductRecipe) => void;
   reset: () => void;
 }
@@ -91,6 +162,7 @@ const initialState = {
   variantIds: [],
   pendingItems: [],
   pendingOrder: null,
+  pendingCopy: null,
 };
 
 export const useRecipeDraftStore = create<RecipeDraftState>()((set, get) => ({
@@ -111,6 +183,7 @@ export const useRecipeDraftStore = create<RecipeDraftState>()((set, get) => ({
           variantIds,
           pendingItems: [],
           pendingOrder: null,
+          pendingCopy: null,
         };
       if (
         snapshot(state.lines) === state.saved &&
@@ -162,6 +235,15 @@ export const useRecipeDraftStore = create<RecipeDraftState>()((set, get) => ({
           (position.get(b.inventoryItemId) ?? pendingOrder.length),
       ),
     });
+  },
+
+  queueCopy: (copy) => set({ pendingCopy: copy }),
+
+  applyPendingCopy: () => {
+    const { pendingCopy } = get();
+    if (!pendingCopy) return null;
+    set({ lines: pendingCopy.lines, pendingCopy: null });
+    return pendingCopy;
   },
 
   markSaved: (recipe) => {

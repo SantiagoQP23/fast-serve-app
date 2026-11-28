@@ -620,6 +620,29 @@
       "noVariant": "Elige al menos una variante",
       "quantity": "Escribe una cantidad mayor que 0",
       "discount": "Escribe un descuento válido"
+    },
+    "copy": {
+      "button": "Copiar de otro producto",
+      "title": "Copiar receta de…",
+      "allCategories": "Todas",
+      "none": "Ningún otro producto tiene receta todavía.",
+      "sheetTitle": "Copiar receta de {{name}}",
+      "sheetHint": "Se copia como borrador: revisa las cantidades y guarda.",
+      "paused": "Pausado",
+      "amountsFrom": "Copiar las cantidades de",
+      "variantsTitle": "Cantidades para cada variante",
+      "replace": "Reemplazar la receta",
+      "add": "Agregar a la receta",
+      "replaceHint": "La receta actual se cambia por la copia.",
+      "addHint": "Se agrega lo que falta; lo que ya está no cambia.",
+      "alreadyThere_one": "{{count}} ya está en la receta y no cambia.",
+      "alreadyThere_other": "{{count}} ya están en la receta y no cambian.",
+      "removalsAdminOnly": "Solo el propietario o un administrador puede marcar ingredientes como \"Se puede quitar\"; se copian sin esa opción.",
+      "submit_one": "Copiar {{count}} ingrediente",
+      "submit_other": "Copiar {{count}} ingredientes",
+      "nothing": "Nada que copiar",
+      "done_one": "{{count}} ingrediente copiado de {{name}}. Revisa y guarda.",
+      "done_other": "{{count}} ingredientes copiados de {{name}}. Revisa y guarda."
     }
   },
   "unlimited": {
