@@ -147,8 +147,15 @@ export default function ProductRecipeScreen() {
   const storeProductId = useRecipeDraftStore((state) => state.productId);
   const lines = useRecipeDraftStore((state) => state.lines);
   const saved = useRecipeDraftStore((state) => state.saved);
-  const { sync, setLines, addPending, applyPendingOrder, markSaved, reset } =
-    useRecipeDraftStore.getState();
+  const {
+    sync,
+    setLines,
+    addPending,
+    applyPendingOrder,
+    applyPendingCopy,
+    markSaved,
+    reset,
+  } = useRecipeDraftStore.getState();
 
   const [leaving, setLeaving] = useState(false);
   const sheetRef = useRef<RecipeIngredientSheetRef>(null);
@@ -173,11 +180,20 @@ export default function ProductRecipeScreen() {
   useFocusEffect(
     useCallback(() => {
       applyPendingOrder();
+      // Back from "Copiar de otro producto": the copy is a draft to review.
+      const copied = applyPendingCopy();
+      if (copied)
+        toast.success(
+          t("productRecipe.copy.done", {
+            count: copied.count,
+            name: copied.sourceName,
+          }),
+        );
       const added = addPending();
       if (!added.length) return;
       const timer = setTimeout(() => sheetRef.current?.present(added), 350);
       return () => clearTimeout(timer);
-    }, [addPending, applyPendingOrder]),
+    }, [addPending, applyPendingOrder, applyPendingCopy, t]),
   );
 
   // Inactive variants keep their recipe but only get a card while they use
@@ -213,6 +229,12 @@ export default function ProductRecipeScreen() {
   const openPicker = () =>
     router.push({
       pathname: "/(profile)/menu/products/recipe/items",
+      params: { productId },
+    });
+
+  const openCopy = () =>
+    router.push({
+      pathname: "/(profile)/menu/products/recipe/copy",
       params: { productId },
     });
 
@@ -329,6 +351,14 @@ export default function ProductRecipeScreen() {
                 size="small"
                 onPress={openPicker}
               />
+              <Button
+                label={t("productRecipe.copy.button")}
+                leftIcon="copy"
+                variant="surface"
+                shape="rounded"
+                size="small"
+                onPress={openCopy}
+              />
               {/* Orders the saved recipe, so it needs two saved lines */}
               {(recipe?.lines.length ?? 0) > 1 && (
                 <Button
@@ -385,11 +415,19 @@ export default function ProductRecipeScreen() {
               {t("productRecipe.empty")}
             </ThemedText>
             {canEdit && (
-              <Button
-                label={t("productRecipe.addItems")}
-                leftIcon="plus"
-                onPress={openPicker}
-              />
+              <ThemedView style={tw`gap-2 bg-transparent`}>
+                <Button
+                  label={t("productRecipe.addItems")}
+                  leftIcon="plus"
+                  onPress={openPicker}
+                />
+                <Button
+                  label={t("productRecipe.copy.button")}
+                  leftIcon="copy"
+                  variant="surface"
+                  onPress={openCopy}
+                />
+              </ThemedView>
             )}
           </ThemedView>
         )}

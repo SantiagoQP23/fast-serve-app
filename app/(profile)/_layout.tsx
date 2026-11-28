@@ -230,6 +230,13 @@ export default function OrdersLayout() {
         />
 
         <Stack.Screen
+          name="menu/products/recipe/copy/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+
+        <Stack.Screen
           name="menu/products/recipe/reorder/index"
           options={{
             headerShown: false,
