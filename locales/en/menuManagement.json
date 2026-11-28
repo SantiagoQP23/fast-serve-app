@@ -334,6 +334,7 @@
     }
   },
   "modifierGroups": {
+    "shownAs": "When ordering: {{name}}",
     "title": "Option groups",
     "newGroup": "New group",
     "searchPlaceholder": "Search group or option...",
@@ -368,6 +369,9 @@
     "fields": {
       "name": "Name",
       "namePlaceholder": "E.g. Flavor, Seafood extras",
+      "displayName": "Name when ordering (optional)",
+      "displayNamePlaceholder": "E.g. Flavor",
+      "displayNameHelp": "What the waiter sees when adding the product and what prints on the kitchen ticket. Empty uses the name.",
       "howMany": "How many can be picked?",
       "required": "Required",
       "min": "Minimum",

@@ -19,6 +19,8 @@ export interface SaveModifierInput {
 /** The whole group; options left out of `modifiers` are deleted. */
 export interface SaveModifierGroupInput {
   name: string;
+  /** Shown when ordering; empty uses the name. */
+  displayName?: string;
   description?: string;
   minSelect: number;
   /** Null: no limit. */

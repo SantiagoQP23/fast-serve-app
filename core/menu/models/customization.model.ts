@@ -33,7 +33,13 @@ export interface ModifierOption {
 
 export interface ModifierGroup {
   id: string;
+  /** Internal name, shown in Gestionar ("Sabores de jugos"). */
   name: string;
+  /**
+   * Shown when ordering and on comandas ("Sabor"). Empty or absent (older
+   * servers, cached menus): the name. Read it through `groupLabel`.
+   */
+  displayName?: string;
   description: string;
   minSelect: number;
   /** Null: no limit. */
@@ -43,6 +49,14 @@ export interface ModifierGroup {
   /** Admin list only: products that use the group. */
   productIds?: string[];
 }
+
+/**
+ * The group's name as waiters, comandas and receipts see it: its display
+ * name, or its name when that's empty (plans/nombre-visible-grupos.md).
+ */
+export const groupLabel = (
+  group: Pick<ModifierGroup, "name" | "displayName">,
+): string => group.displayName?.trim() || group.name;
 
 /**
  * A variant's own rule for a group on its product
@@ -518,7 +532,7 @@ export function buildModifierRows(
       if (!picked.has(option.id)) continue;
       rows.push({
         kind: group.max === 1 ? "CHOICE" : "EXTRA",
-        groupName: group.group.name,
+        groupName: groupLabel(group.group),
         name: option.name,
         quantity: 1,
         priceDelta: Number(option.priceDelta),
@@ -581,7 +595,7 @@ export function getSelectionProblem(
       picked.has(option.id),
     ).length;
     if (count < group.min)
-      return { groupName: group.group.name, min: group.min };
+      return { groupName: groupLabel(group.group), min: group.min };
   }
   return null;
 }

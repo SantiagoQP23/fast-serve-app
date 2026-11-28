@@ -22,7 +22,7 @@ import type { ModifierGroup } from "@/core/menu/models/customization.model";
 import { describeLimits } from "@/presentation/menu-management/components/group-limits-sheet";
 
 const GROUP_SEARCH_OPTIONS: IFuseOptions<ModifierGroup> = {
-  keys: ["name", "modifiers.name"],
+  keys: ["name", "displayName", "modifiers.name"],
 };
 
 /**
@@ -182,6 +182,13 @@ export default function ModifierGroupsScreen() {
               />
               <ThemedView style={tw`flex-1 gap-1`}>
                 <ThemedText type="h4">{group.name}</ThemedText>
+                {!!group.displayName?.trim() && (
+                  <ThemedText type="small" style={tw`text-gray-500`}>
+                    {t("modifierGroups.shownAs", {
+                      name: group.displayName.trim(),
+                    })}
+                  </ThemedText>
+                )}
                 {group.modifiers.length > 0 && (
                   <ThemedText
                     type="body2"
