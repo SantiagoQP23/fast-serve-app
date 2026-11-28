@@ -327,7 +327,7 @@ export default function PaymentMethodScreen() {
         enablePanDownToClose
         onDismiss={handleSheetDismissed}
       >
-        <BottomSheetView style={tw`p-6 gap-4 bg-background`}>
+        <BottomSheetView style={tw`p-6 gap-4 bg-surface-container-lowest`}>
           <ThemedView style={tw`gap-1`}>
             <ThemedText type="h3">{selectedMethod?.name}</ThemedText>
             <ThemedText type="body1" style={tw`text-gray-500`}>
@@ -452,7 +452,7 @@ export default function PaymentMethodScreen() {
         enablePanDownToClose
         onDismiss={handleSheetDismissed}
       >
-        <BottomSheetView style={tw`p-6 gap-4 bg-background`}>
+        <BottomSheetView style={tw`p-6 gap-4 bg-surface-container-lowest`}>
           <ThemedView style={tw`gap-1 items-center`}>
             <ThemedText type="h3">{selectedMethod?.name}</ThemedText>
             <ThemedText type="body2" style={tw`text-gray-500`}>
@@ -490,7 +490,7 @@ export default function PaymentMethodScreen() {
         enablePanDownToClose
         onDismiss={handleSheetDismissed}
       >
-        <BottomSheetView style={tw`p-4 gap-4 mb-8 bg-background`}>
+        <BottomSheetView style={tw`p-4 gap-4 mb-8 bg-surface-container-lowest`}>
           <ThemedView style={tw`gap-1`}>
             <ThemedText type="h3">
               {t("bills:details.receivedAmount")}

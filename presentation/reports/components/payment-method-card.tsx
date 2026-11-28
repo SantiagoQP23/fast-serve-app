@@ -20,7 +20,7 @@ export default function PaymentMethodCard({ paymentMethodStats }: PaymentMethodC
   const methodName = translatePaymentMethod(paymentMethodStats.paymentMethod);
 
   return (
-    <ThemedView style={tw`rounded-2xl border border-gray-200 shadow-sm overflow-hidden`}>
+    <ThemedView style={tw`rounded-2xl border border-gray-200 shadow-sm overflow-hidden bg-surface-container-lowest`}>
       <ThemedView style={tw`p-4 bg-surface-bright`}>
         {/* Header with icon and name */}
         <ThemedView style={tw`flex-row items-center mb-3 bg-transparent`}>
