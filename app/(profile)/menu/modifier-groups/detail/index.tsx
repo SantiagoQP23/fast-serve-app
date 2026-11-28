@@ -61,6 +61,7 @@ const optionDetails = (t: (key: string) => string, option: ModifierOption) => {
 /** What saving the group as it is takes; changes go on top. */
 const inputFromGroup = (group: ModifierGroup): SaveModifierGroupInput => ({
   name: group.name,
+  displayName: group.displayName,
   minSelect: group.minSelect,
   maxSelect: group.maxSelect,
   isActive: group.isActive,
@@ -278,7 +279,13 @@ export default function ModifierGroupDetailScreen() {
       >
         <DetailHeader
           title={group.name}
-          subtitle={describeRule(t, group.minSelect, group.maxSelect)}
+          subtitle={[
+            group.displayName?.trim() &&
+              t("modifierGroups.shownAs", { name: group.displayName.trim() }),
+            describeRule(t, group.minSelect, group.maxSelect),
+          ]
+            .filter(Boolean)
+            .join(" · ")}
           status={
             !group.isActive && <Label text={t("modifierGroups.inactive")} />
           }

@@ -37,6 +37,8 @@ import type { InventoryItem } from "@/core/inventory/models/inventory-item.model
 
 interface FormState {
   name: string;
+  /** Shown when ordering; empty uses the name. */
+  displayName: string;
   single: boolean;
   required: boolean;
   /** Required and several: one exact amount instead of a min–max range. */
@@ -48,6 +50,7 @@ interface FormState {
 
 const EMPTY_FORM: FormState = {
   name: "",
+  displayName: "",
   single: true,
   required: false,
   exact: false,
@@ -58,6 +61,7 @@ const EMPTY_FORM: FormState = {
 
 const formFromGroup = (group: ModifierGroup): FormState => ({
   name: group.name,
+  displayName: group.displayName ?? "",
   single: group.maxSelect === 1,
   required: group.minSelect > 0,
   exact:
@@ -187,6 +191,7 @@ export default function ModifierGroupFormScreen() {
     : undefined;
 
   const [name, setName] = useState(EMPTY_FORM.name);
+  const [displayName, setDisplayName] = useState(EMPTY_FORM.displayName);
   const [single, setSingle] = useState(EMPTY_FORM.single);
   const [required, setRequired] = useState(EMPTY_FORM.required);
   const [exact, setExact] = useState(EMPTY_FORM.exact);
@@ -207,6 +212,7 @@ export default function ModifierGroupFormScreen() {
   if (group && initial === null) {
     const form = formFromGroup(group);
     setName(form.name);
+    setDisplayName(form.displayName);
     setSingle(form.single);
     setRequired(form.required);
     setExact(form.exact);
@@ -220,6 +226,7 @@ export default function ModifierGroupFormScreen() {
     initial !== null &&
     snapshot({
       name,
+      displayName,
       single,
       required,
       exact,
@@ -344,6 +351,7 @@ export default function ModifierGroupFormScreen() {
         id: group?.id,
         input: {
           name: name.trim(),
+          displayName: displayName.trim(),
           minSelect: required ? minValue : 0,
           maxSelect: maxValue,
           // Activating and deactivating live on the group's detail screen.
@@ -431,6 +439,22 @@ export default function ModifierGroupFormScreen() {
             maxLength={60}
             editable={canManage}
           />
+
+          <ThemedView style={tw`gap-1`}>
+            <TextInput
+              label={t("modifierGroups.fields.displayName")}
+              placeholder={
+                name.trim() || t("modifierGroups.fields.displayNamePlaceholder")
+              }
+              value={displayName}
+              onChangeText={setDisplayName}
+              maxLength={60}
+              editable={canManage}
+            />
+            <ThemedText type="small" style={tw`text-gray-500`}>
+              {t("modifierGroups.fields.displayNameHelp")}
+            </ThemedText>
+          </ThemedView>
 
           <ThemedView style={tw`gap-3`}>
             <ThemedText style={{ fontFamily: typography.bold }}>

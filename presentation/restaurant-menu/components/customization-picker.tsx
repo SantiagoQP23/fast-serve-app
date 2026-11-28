@@ -4,6 +4,7 @@ import { formatCurrency } from "@/core/i18n/utils";
 import {
   getActiveGroups,
   getRemovableIngredients,
+  groupLabel,
   isModifierOutOfStock,
   toggleIngredient,
   toggleModifier,
@@ -190,7 +191,10 @@ export default function CustomizationPicker({
         const groupFull = group.max !== null && pickedInGroup >= group.max;
         return (
           <ThemedView key={group.linkId} style={tw`gap-1 bg-transparent`}>
-            <Header title={group.group.name} subtitle={groupSubtitle(group)} />
+            <Header
+              title={groupLabel(group.group)}
+              subtitle={groupSubtitle(group)}
+            />
             <ThemedView
               accessibilityRole={single ? "radiogroup" : undefined}
               style={tw`bg-transparent`}

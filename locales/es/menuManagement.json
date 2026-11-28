@@ -334,6 +334,7 @@
     }
   },
   "modifierGroups": {
+    "shownAs": "En el pedido: {{name}}",
     "title": "Grupos de opciones",
     "newGroup": "Nuevo grupo",
     "searchPlaceholder": "Buscar grupo u opción...",
@@ -368,6 +369,9 @@
     "fields": {
       "name": "Nombre",
       "namePlaceholder": "Ej. Sabor, Extras de mariscos",
+      "displayName": "Nombre en el pedido (opcional)",
+      "displayNamePlaceholder": "Ej. Sabor",
+      "displayNameHelp": "Lo que ve el mesero al agregar el producto y lo que sale en la comanda. Si lo dejas vacío, se usa el nombre.",
       "howMany": "¿Cuántas puede elegir?",
       "required": "Obligatorio",
       "min": "Mínimo",
